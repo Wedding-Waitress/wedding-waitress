@@ -1,7 +1,5 @@
 import React from 'react';
 import { LoaderCircle } from 'lucide-react';
-import '@fontsource/manrope/latin-400.css';
-import '@fontsource/manrope/latin-500.css';
 import { Card, CardDescription, CardTitle } from '@/components/ui/card';
 import { cn } from '@/lib/utils';
 import managementStyles from './PhotoVideoGallery/photoVideoSharingManagement.module.css';
@@ -56,7 +54,7 @@ const CoreDashboardLoadingScreen: React.FC<{ contained: boolean }> = ({ containe
   <div
     className={cn(
       'flex w-full items-center justify-center overflow-x-hidden px-4',
-      contained ? 'fixed inset-0 z-[100] min-h-[100dvh]' : 'min-h-[100dvh]',
+      contained ? 'relative min-h-[60vh]' : 'min-h-[100dvh]',
       styles.coreSurface,
     )}
     role="status"
@@ -119,7 +117,7 @@ const NeutralDashboardLoadingScreen: React.FC<{ contained: boolean }> = ({ conta
 
   return (
     <div
-      className="flex min-h-screen w-full items-center justify-center bg-gradient-subtle px-4"
+      className="ww-application-background flex min-h-screen w-full items-center justify-center px-4"
       role="status"
       aria-live="polite"
       data-dashboard-loading-screen
@@ -153,7 +151,7 @@ export const DashboardLoadingScreen: React.FC<DashboardLoadingScreenProps> = ({
     <div
       className={cn(
         'flex w-full items-center justify-center overflow-x-hidden px-4',
-        contained ? 'fixed inset-0 z-40 min-h-[100dvh]' : 'min-h-[100dvh]',
+        contained ? 'relative min-h-[60vh]' : 'min-h-[100dvh]',
         managementStyles.photoVideoSharingSurface,
         managementStyles.manropeTypography,
       )}
@@ -181,7 +179,7 @@ export const DashboardLoadingScreen: React.FC<DashboardLoadingScreenProps> = ({
         <CardTitle
           className={cn('text-lg font-medium text-white', managementStyles.loadingGlassTitle)}
         >
-          Loading Dashboard
+          {contained ? 'Loading Page...' : 'Loading Dashboard'}
         </CardTitle>
         <CardDescription className="mt-1 text-sm">
           Please wait while we set up your workspace

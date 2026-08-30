@@ -9,14 +9,17 @@ import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { useToast } from '@/hooks/use-toast';
 import type { ReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
+import { ApprovalStatusPanel } from './ApprovalStatusPanel';
+import styles from './ReceptionFloorPlanTheme.module.css';
 
 interface Props {
   plan: ReceptionFloorPlan;
   onGenerate: () => Promise<string | null>;
   onRevoke: () => Promise<void>;
+  onApprovalChange: (mutator: (p: ReceptionFloorPlan) => ReceptionFloorPlan) => void;
 }
 
-export const ShareLinkPanel = ({ plan, onGenerate, onRevoke }: Props) => {
+export const ShareLinkPanel = ({ plan, onGenerate, onRevoke, onApprovalChange }: Props) => {
   const { toast } = useToast();
   const [busy, setBusy] = useState(false);
   const [copied, setCopied] = useState(false);
@@ -54,7 +57,7 @@ export const ShareLinkPanel = ({ plan, onGenerate, onRevoke }: Props) => {
   };
 
   return (
-    <div className="rounded-lg border border-border bg-muted/20 p-3 max-lg:p-4 space-y-3">
+    <div data-reception-panel="true" className="flex h-full min-w-0 flex-col gap-3 rounded-lg border border-border bg-muted/20 p-3 max-lg:p-4">
       <div className="flex items-center justify-between gap-2 max-lg:flex-col max-lg:items-stretch">
         <div className="flex items-center gap-2">
           <Share2 className="w-4 h-4 text-primary" />
@@ -63,6 +66,8 @@ export const ShareLinkPanel = ({ plan, onGenerate, onRevoke }: Props) => {
         <div className="flex items-center gap-3 max-lg:justify-between">
           <Label className="text-xs">Enable read-only link</Label>
           <Switch
+            className={styles.shareToggle}
+            data-reception-share-toggle="true"
             checked={plan.share_enabled && !!plan.share_token}
             onCheckedChange={toggle}
             disabled={busy}
@@ -71,15 +76,16 @@ export const ShareLinkPanel = ({ plan, onGenerate, onRevoke }: Props) => {
       </div>
 
       {plan.share_enabled && plan.share_token ? (
-        <div className="space-y-2">
-          <div className="flex items-center gap-2 max-lg:flex-col max-lg:items-stretch">
+        <div className="min-w-0 space-y-2">
+          <div className={styles.shareLinkControls}>
             <input
               readOnly
               value={url}
+              title={url}
               onFocus={(e) => e.currentTarget.select()}
-              className="flex-1 rounded-md border border-border bg-background px-3 py-2 text-sm font-mono truncate"
+              className={`${styles.shareUrlField} rounded-md border border-border bg-background px-3 py-2 text-sm font-mono`}
             />
-            <div className="flex items-center gap-2 max-lg:w-full">
+            <div className={styles.shareLinkButtons}>
               <Button
                 type="button"
                 variant="outline"
@@ -114,6 +120,8 @@ export const ShareLinkPanel = ({ plan, onGenerate, onRevoke }: Props) => {
           revoke it at any time.
         </p>
       )}
+
+      <ApprovalStatusPanel plan={plan} onChange={onApprovalChange} />
     </div>
   );
 };

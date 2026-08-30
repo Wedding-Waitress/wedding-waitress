@@ -1,0 +1,61 @@
+import { readFileSync } from 'node:fs';
+import { describe, expect, it } from 'vitest';
+
+const publicCss = readFileSync('src/styles/PublicSite.css', 'utf8');
+const header = readFileSync('src/components/Layout/Header.tsx', 'utf8');
+const landing = readFileSync('src/pages/Landing.tsx', 'utf8');
+const productLayout = readFileSync('src/components/Layout/ProductPageLayout.tsx', 'utf8');
+const currencySelector = readFileSync('src/components/ui/CurrencySelector.tsx', 'utf8');
+
+describe('public Wedding Waitress brand colour system', () => {
+  it('uses the exact dominant colour sampled from the approved logo as one token', () => {
+    expect(publicCss.match(/--ww-dark-brown:/g)).toHaveLength(1);
+    expect(publicCss).toContain('--ww-dark-brown: #412419;');
+  });
+
+  it('keeps dark surfaces legible while applying dark brown to light headings', () => {
+    expect(publicCss).toMatch(/\.ww-public h1,[\s\S]*color: var\(--ww-dark-brown\)/);
+    expect(publicCss).toMatch(/\.ww-public \.ww-section-espresso :where\(h1, h2, h3\),[\s\S]*color: #fff/);
+    expect(publicCss).toContain('.ww-section-espresso .ww-eyebrow');
+    expect(publicCss).toContain('color: var(--ww-champagne);');
+  });
+
+  it('implements four desktop mega-menu columns and responsive mobile categories', () => {
+    expect(publicCss).toContain('grid-template-columns: repeat(4, minmax(0, 1fr));');
+    expect(publicCss).toContain('.ww-mobile-product-grid');
+    expect(header).toContain('className="ww-products-menu-grid"');
+    expect(header).toContain('className="ww-products-menu-heading"');
+    expect(header).toContain('Explore all products →');
+  });
+
+  it('shares selected and focus treatments across currency and language menus', () => {
+    expect(header).toContain('className="ww-selector-item cursor-pointer rounded-xl"');
+    expect(header).toContain("dir={lang.code === 'ar' ? 'rtl' : 'ltr'}");
+    expect(currencySelector).toContain('data-selected={active}');
+    expect(currencySelector).toContain('ww-selector-trigger');
+  });
+
+  it('enlarges the home product medallions without changing the product data', () => {
+    expect(publicCss).toContain('.ww-product-icon-grid .ww-icon-orb { width: 6.25rem; height: 6.25rem; }');
+    expect(publicCss).toContain('.ww-product-icon-grid .ww-icon-orb svg { width: 2.625rem; height: 2.625rem; }');
+    expect(landing).toContain('ww-product-icon-grid');
+    expect(landing).toContain('md:grid-cols-4 lg:grid-cols-5');
+  });
+
+  it('shares the approved embossed button surface with public icon medallions', () => {
+    expect(publicCss).toContain('--ww-embossed-surface:');
+    expect(publicCss).toMatch(/\.ww-button-primary,[\s\S]*background: var\(--ww-embossed-surface\) !important;/);
+    expect(publicCss).toMatch(/\.ww-icon-orb \{[\s\S]*background: var\(--ww-embossed-surface\);[\s\S]*aspect-ratio: 1;/);
+    expect(publicCss).toContain('.ww-public .group:is(a, button):hover .ww-icon-orb');
+    expect(publicCss).toContain('.ww-public .group:is(a, button):active .ww-icon-orb');
+    expect(landing).not.toContain('group-hover:-translate-y-1');
+  });
+
+  it('uses two-pixel surface-aware image borders without padded frames', () => {
+    expect(publicCss).toContain('border: 2px solid var(--ww-dark-brown);');
+    expect(publicCss).toMatch(/\.ww-image-frame \{[^}]*padding: 0;/);
+    expect(publicCss).toContain('.ww-section-espresso .ww-image-frame');
+    expect(publicCss).toContain('border-color: var(--ww-champagne);');
+    expect(productLayout).toContain('className="ww-media-card"');
+  });
+});

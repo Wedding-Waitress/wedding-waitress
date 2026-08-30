@@ -62,7 +62,7 @@ export const BulkTableAssignmentModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="ww-guest-list-typography max-w-2xl">
         <DialogHeader>
           <DialogTitle>Assign {selectedGuests.length} Guests to Table</DialogTitle>
         </DialogHeader>

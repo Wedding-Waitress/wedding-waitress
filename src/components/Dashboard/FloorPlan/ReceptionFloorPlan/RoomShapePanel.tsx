@@ -109,20 +109,20 @@ export const RoomShapePanel = ({ plan, onChange }: Props) => {
   };
 
   return (
-    <div className="rounded-lg border border-border bg-muted/20 p-3 max-lg:p-4 space-y-3">
+    <div data-reception-panel="true" className="flex h-full min-w-0 flex-col gap-3 rounded-lg border border-border bg-muted/20 p-3 max-lg:p-4">
       <div className="flex items-center gap-2">
         <Shapes className="w-4 h-4 text-primary" />
         <h3 className="text-sm font-semibold text-foreground">Room shape</h3>
       </div>
 
-      <div className="flex flex-wrap gap-2 max-lg:grid max-lg:grid-cols-2">
+      <div className="grid grid-cols-2 gap-2">
         {ROOM_SHAPE_OPTIONS.map((opt) => (
           <Button
             key={opt.value}
             type="button"
             variant={current === opt.value ? 'default' : 'outline'}
             size="sm"
-            className={`lv-premium-shade h-9 max-lg:h-11 max-lg:text-base ${
+            className={`lv-premium-shade min-h-9 whitespace-normal max-lg:min-h-11 max-lg:text-base ${
               current === opt.value ? 'bg-[#967A59] hover:bg-[#7a6347] text-white' : ''
             }`}
             onClick={() => apply(opt.value)}
@@ -218,7 +218,7 @@ export const RoomShapePanel = ({ plan, onChange }: Props) => {
         </div>
       )}
 
-      <p className="text-xs text-muted-foreground">
+      <p className="mt-auto text-xs text-muted-foreground">
         Non-rectangular rooms clip the grid, background, and PDF export to your room outline.
         Tables and fixtures can still be placed anywhere on the canvas.
       </p>

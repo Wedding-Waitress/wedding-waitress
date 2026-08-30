@@ -20,6 +20,18 @@ export function getPublicBaseUrl(): string {
 }
 
 /**
+ * Gets the public origin for a share link created by the currently running app.
+ * Share links must stay on the origin serving the current application because
+ * that build can point at a different Supabase project from another deployed
+ * environment. The configured origin is only a non-browser fallback.
+ */
+export function getEnvironmentAwareShareBaseUrl(): string {
+  const runtimeOrigin = typeof window !== 'undefined' ? window.location.origin : '';
+
+  return runtimeOrigin || import.meta.env.VITE_PUBLIC_BASE_URL?.trim() || '';
+}
+
+/**
  * Builds a guest lookup URL for the given event slug
  */
 export function buildGuestLookupUrl(eventSlug: string): string {
@@ -39,7 +51,7 @@ export function buildKioskUrl(eventSlug: string): string {
  * Builds a DJ questionnaire public view URL for the given share token
  */
 export function buildDJQuestionnaireUrl(shareToken: string, eventSlug?: string): string {
-  const baseUrl = getPublicBaseUrl();
+  const baseUrl = getEnvironmentAwareShareBaseUrl();
   if (eventSlug) {
     return `${baseUrl}/dj-mc/${encodeURIComponent(eventSlug)}/${encodeURIComponent(shareToken)}`;
   }
@@ -50,7 +62,7 @@ export function buildDJQuestionnaireUrl(shareToken: string, eventSlug?: string):
  * Builds a running sheet public view URL for the given share token
  */
 export function buildRunningSheetUrl(shareToken: string, eventSlug?: string): string {
-  const baseUrl = getPublicBaseUrl();
+  const baseUrl = getEnvironmentAwareShareBaseUrl();
   if (eventSlug) {
     return `${baseUrl}/shared-running-sheet/${encodeURIComponent(eventSlug)}/${encodeURIComponent(shareToken)}`;
   }

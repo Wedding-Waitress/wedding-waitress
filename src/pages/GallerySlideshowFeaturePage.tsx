@@ -1,8 +1,7 @@
 // Feature workspace: Live Slideshow
 import React, { useEffect, useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { usePhotoVideoFeatureWorkspace } from '@/hooks/usePhotoVideoFeatureWorkspace';
+import { usePhotoVideoFeatureWorkspace, type PhotoVideoWorkspaceSelection } from '@/hooks/usePhotoVideoFeatureWorkspace';
 import { useToast } from '@/hooks/use-toast';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { FeatureWorkspaceLayout } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceLayout';
@@ -12,27 +11,15 @@ import { GallerySlideshowSettingsCard } from '@/components/Dashboard/PhotoVideoG
 import { GallerySlideshowPreviewCard } from '@/components/Dashboard/PhotoVideoGallery/GallerySlideshowPreviewCard';
 import { slideshowSettingsFromRow, type SlideshowSettings } from '@/lib/slideshowSettings';
 import { Button } from '@/components/ui/enhanced-button';
-import { LoaderCircle, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 
-export const GallerySlideshowFeaturePage: React.FC = () => {
+export const GallerySlideshowFeaturePage: React.FC<PhotoVideoWorkspaceSelection> = (selection) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [authChecked, setAuthChecked] = useState(false);
-  const { selectedEventId, selectedEvent, selectionStatus, meta, items, loading, error, setSlideshowEnabled, updateSlideshowSettings } = usePhotoVideoFeatureWorkspace();
+  const { selectedEventId, selectedEvent, selectionStatus, meta, items, loading, error, setSlideshowEnabled, updateSlideshowSettings } = usePhotoVideoFeatureWorkspace(selection);
   const [saving, setSaving] = useState(false);
   const [draft, setDraft] = useState<SlideshowSettings | null>(null);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) navigate('/');
-      else setAuthChecked(true);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (!session) navigate('/');
-    });
-    return () => subscription.unsubscribe();
-  }, [navigate]);
 
   // Seed the editable draft once the gallery meta arrives (per selected event).
   useEffect(() => {
@@ -53,14 +40,6 @@ export const GallerySlideshowFeaturePage: React.FC = () => {
       setSaving(false);
     }
   };
-
-  if (!authChecked) {
-    return (
-      <div className={`min-h-screen flex items-center justify-center ${managementStyles.photoVideoSharingSurface}`}>
-        <LoaderCircle size={24} strokeWidth={1.8} className={`animate-spin text-white ${managementStyles.loadingGlassSpinner}`} />
-      </div>
-    );
-  }
 
   return (
     <>

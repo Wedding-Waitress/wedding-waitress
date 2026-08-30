@@ -4,6 +4,7 @@ import { beforeAll, describe, expect, it, vi } from 'vitest';
 import { PlaceCardPhotoVideoQrPanel } from './PlaceCardPhotoVideoQrPanel';
 import { PlaceCardPreview } from './PlaceCardPreview';
 import type { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
+import { MemoryRouter } from 'react-router-dom';
 
 beforeAll(() => {
   class ResizeObserverMock {
@@ -32,7 +33,7 @@ const qr = {
 describe('Name Place Cards Photo & Video Sharing QR', () => {
   it('shows the authoritative sharing identity and removes the QR without changing the token', () => {
     const save = vi.fn().mockResolvedValue(true);
-    render(<PlaceCardPhotoVideoQrPanel eventName="Jason & Linda's Wedding" qr={qr} loading={false} error={null} settings={settings} onSettingsChange={save} />);
+    render(<MemoryRouter><PlaceCardPhotoVideoQrPanel eventName="Jason & Linda's Wedding" qr={qr} loading={false} error={null} settings={settings} onSettingsChange={save} /></MemoryRouter>);
 
     expect((screen.getByDisplayValue(qr.url) as HTMLInputElement).readOnly).toBe(true);
     expect(screen.getByText("Jason & Linda's Wedding")).toBeInTheDocument();

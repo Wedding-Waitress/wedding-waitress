@@ -34,15 +34,7 @@ export const PlanExpiredModal: React.FC<PlanExpiredModalProps> = ({
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const { error } = await supabase
-        .from('user_subscriptions')
-        .update({
-          expires_at: new Date(Date.now() + 7 * 24 * 60 * 60 * 1000).toISOString(),
-          trial_extended: true,
-          status: 'active',
-          is_read_only: false,
-        } as any)
-        .eq('user_id', user.id);
+      const { error } = await supabase.rpc('extend_starter_trial_once');
 
       if (error) throw error;
 

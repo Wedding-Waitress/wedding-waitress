@@ -20,6 +20,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { Button } from '@/components/ui/button';
 import { RunningSheetItem } from '@/types/runningSheet';
+import styles from './RunningSheetTheme.module.css';
 import {
   AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent,
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
@@ -130,7 +131,7 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
     onUpdate(item.id, { responsible: e.target.value });
   }, [item.id, onUpdate]);
 
-  const headerClasses = isHeader ? 'font-bold text-destructive' : '';
+  const headerClasses = isHeader ? 'text-destructive' : '';
   const boldClass = item.is_bold ? 'font-bold' : '';
   const italicClass = item.is_italic ? 'italic' : '';
   const underlineClass = item.is_underline ? 'underline' : '';
@@ -140,13 +141,13 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
     <div
       ref={setNodeRef}
       style={style}
-      className="flex items-start gap-2 px-2 py-1.5 group hover:bg-[#EDE5DB] rounded transition-colors"
+      className={`flex items-start gap-2 px-2 py-1.5 group rounded transition-colors ${styles.scheduleRow}`}
     >
       {/* Drag handle */}
       <button
         {...attributes}
         {...listeners}
-        className="w-6 shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground mt-2"
+        className={`w-6 shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground mt-2 ${styles.dragHandle}`}
         tabIndex={-1}
         title="Drag to reorder row"
         aria-label="Drag to reorder row"
@@ -156,41 +157,44 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
 
 
       {/* TIME */}
+      <span className={`${styles.mobileFieldLabel} ${styles.timeLabel}`}>Time</span>
       <textarea
         ref={timeRef}
         value={item.time_text}
         onChange={handleTimeChange}
         placeholder="Time"
-        className={`w-[15%] shrink-0 min-w-0 text-sm bg-background border border-input rounded-md px-3 py-1.5 resize-none overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${headerClasses} ${formattingClasses}`}
+        className={`w-[15%] shrink-0 min-w-0 bg-background border border-input rounded-md px-3 py-1.5 resize-none overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${styles.bodyText} ${styles.timeField} ${headerClasses} ${formattingClasses}`}
         rows={1}
         disabled={disabled}
       />
 
       {/* EVENT */}
+      <span className={`${styles.mobileFieldLabel} ${styles.eventLabel}`}>Event</span>
       <textarea
         ref={eventRef}
         value={eventText}
         onChange={handleEventChange}
         placeholder="Event"
-        className={`flex-1 min-w-0 text-sm bg-background border border-input rounded-md px-3 py-1.5 resize-none overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${headerClasses} ${formattingClasses}`}
+        className={`flex-1 min-w-0 bg-background border border-input rounded-md px-3 py-1.5 resize-none overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${styles.bodyText} ${styles.eventField} ${headerClasses} ${formattingClasses}`}
         rows={1}
         disabled={disabled}
       />
 
       {/* WHO */}
+      <span className={`${styles.mobileFieldLabel} ${styles.whoLabel}`}>Who</span>
       <textarea
         ref={whoRef}
         value={item.responsible || ''}
         onChange={handleWhoChange}
         placeholder="Who"
-        className={`basis-1/5 min-w-0 text-sm bg-background border border-input rounded-md px-3 py-1.5 resize-none overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${headerClasses} ${formattingClasses}`}
+        className={`basis-1/5 min-w-0 bg-background border border-input rounded-md px-3 py-1.5 resize-none overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${styles.bodyText} ${styles.whoField} ${headerClasses} ${formattingClasses}`}
         rows={1}
         disabled={disabled}
       />
 
       {/* Row actions - 3-dot menu */}
       {!disabled && (
-        <div className="shrink-0 mt-1">
+        <div className={`shrink-0 mt-1 ${styles.rowActions}`}>
           <DropdownMenu>
             <TooltipProvider>
               <Tooltip>
@@ -201,10 +205,10 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
                     </Button>
                   </DropdownMenuTrigger>
                 </TooltipTrigger>
-                <TooltipContent>Row actions</TooltipContent>
+                <TooltipContent className="ww-running-sheet-tooltip">Row actions</TooltipContent>
               </Tooltip>
             </TooltipProvider>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align="end" className="w-56 ww-running-sheet-menu">
               {/* Undo */}
               <DropdownMenuItem onClick={() => onUndo?.()} disabled={!canUndo}>
                 <Undo2 size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
@@ -227,13 +231,13 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
                     <ListPlus size={18} strokeWidth={1.8} className="mr-2 text-primary" aria-hidden="true" />
                     Insert from Questionnaire
                   </DropdownMenuSubTrigger>
-                  <DropdownMenuSubContent>
+                  <DropdownMenuSubContent className="ww-running-sheet-menu">
                     <DropdownMenuSub>
                       <DropdownMenuSubTrigger>
                         <HeartHandshake size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                         Ceremony
                       </DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent>
+                      <DropdownMenuSubContent className="ww-running-sheet-menu">
                         <DropdownMenuItem onClick={() => onInsertFromDJMC(item.id, 'ceremony', true)}>
                           <Music2 size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                           Names &amp; Songs
@@ -249,7 +253,7 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
                         <UsersRound size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                         Bridal Party Introductions
                       </DropdownMenuSubTrigger>
-                      <DropdownMenuSubContent>
+                      <DropdownMenuSubContent className="ww-running-sheet-menu">
                         <DropdownMenuItem onClick={() => onInsertFromDJMC(item.id, 'introductions', true)}>
                           <Music2 size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                           Names &amp; Songs
@@ -317,7 +321,7 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
       )}
 
       <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className={styles.dialogSurface}>
           <AlertDialogHeader>
             <AlertDialogTitle>Clear Text?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -326,13 +330,13 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => onClearText?.(item.id)}>Clear Text</AlertDialogAction>
+            <AlertDialogAction className={styles.destructiveAction} onClick={() => onClearText?.(item.id)}>Clear Text</AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className={styles.dialogSurface}>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Row?</AlertDialogTitle>
             <AlertDialogDescription>

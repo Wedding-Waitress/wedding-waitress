@@ -58,7 +58,7 @@ export const ResetLayoutDialog = ({
 
   return (
     <Dialog open={open} onOpenChange={handleClose}>
-      <DialogContent className="max-w-md max-lg:px-3">
+      <DialogContent className="reception-portal-surface max-w-md max-lg:px-3">
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2 text-center max-lg:justify-center">
             <AlertTriangle className="w-5 h-5 text-amber-600" />

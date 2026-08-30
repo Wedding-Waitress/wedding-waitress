@@ -147,7 +147,12 @@ describe('Seating Chart Signs route runtime', () => {
         <Routes>
           <Route
             path="/dashboard"
-            element={<SignagePage selectedEventId="event-1" onEventSelect={vi.fn()} />}
+            element={<SignagePage
+              selectedEventId="event-1"
+              onEventSelect={vi.fn()}
+              events={[{ id: 'event-1', name: 'Test Wedding', slug: 'test-wedding' } as any]}
+              eventsLoading={false}
+            />}
           />
         </Routes>
       </MemoryRouter>
@@ -155,6 +160,7 @@ describe('Seating Chart Signs route runtime', () => {
     const { rerender } = render(route);
 
     expect(screen.getByRole('heading', { name: 'Wedding Waitress Signs Studio' })).toBeInTheDocument();
+    expect(screen.getAllByRole('heading', { name: 'Print & Export Studio' })).toHaveLength(1);
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
 
     testState.galleryLoading = false;

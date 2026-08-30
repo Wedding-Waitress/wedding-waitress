@@ -84,7 +84,7 @@ export const BackgroundCalibrationOverlay = ({
 
   return (
     <div className="fixed inset-0 z-50 bg-black/60 flex items-center justify-center p-4 max-lg:p-2">
-      <div className="bg-card rounded-xl shadow-xl border border-border max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
+      <div className="reception-portal-surface bg-card rounded-xl shadow-xl border border-border max-w-3xl w-full max-h-[90vh] overflow-hidden flex flex-col">
         <div className="flex items-center justify-between gap-2 px-4 py-3 border-b border-border max-lg:px-3">
           <h3 className="text-base font-semibold text-foreground flex items-center gap-2">
             <Ruler className="w-4 h-4 text-primary" /> Calibrate venue background

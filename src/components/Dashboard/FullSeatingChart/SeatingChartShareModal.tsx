@@ -15,6 +15,7 @@ import { SeatingChartShareToken } from '@/hooks/useSeatingChartShare';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { buildSeatingChartUrl } from '@/lib/urlUtils';
+import styles from './FullSeatingChartPage.module.css';
 
 interface SeatingChartShareModalProps {
   open: boolean;
@@ -58,9 +59,9 @@ export function SeatingChartShareModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className={`${styles.shareDialog} max-w-lg`}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className={`${styles.sectionHeading} flex items-center gap-2`}>
             <Users className="h-5 w-5 text-primary" />
             Share Full Seating Chart
           </DialogTitle>
@@ -98,15 +99,15 @@ export function SeatingChartShareModal({
 
           <TabsContent value="manage" className="mt-4">
             {shareTokens.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">No share links created yet</div>
+              <div data-full-seating-body className="text-center py-8 text-muted-foreground">No share links created yet</div>
             ) : (
               <div className="space-y-3 max-h-64 overflow-y-auto">
                 {shareTokens.map((token) => (
                   <div key={token.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm truncate">{token.recipient_name || 'Unnamed'}</div>
-                      <div className="flex items-center gap-2 text-xs text-muted-foreground">
-                        <span className="px-1.5 py-0.5 rounded bg-blue-100 text-blue-700">View Only</span>
+                      <div data-full-seating-body className="font-medium text-sm truncate">{token.recipient_name || 'Unnamed'}</div>
+                      <div data-full-seating-body className="flex items-center gap-2 text-xs text-muted-foreground">
+                        <span className={`${styles.compactStatus} px-1.5 py-0.5 rounded bg-blue-100 text-blue-700`}>View Only</span>
                         {token.last_accessed_at && (
                           <span>Last used: {format(new Date(token.last_accessed_at), 'MMM d, yyyy')}</span>
                         )}

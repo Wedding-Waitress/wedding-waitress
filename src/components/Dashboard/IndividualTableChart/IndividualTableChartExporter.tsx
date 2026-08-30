@@ -22,6 +22,7 @@ import { Guest } from '@/hooks/useGuests';
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { IndividualChartSettings } from './IndividualTableSeatingChartPage';
 import { generateIndividualTableChartPDF, generateIndividualTableChartImage } from '@/lib/individualTableChartEngine';
+import styles from './IndividualTableChartPage.module.css';
 
 interface IndividualTableChartExporterProps {
   settings: IndividualChartSettings;
@@ -92,9 +93,9 @@ export const IndividualTableChartExporter: React.FC<IndividualTableChartExporter
 
   return (
     <Dialog open onOpenChange={onClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className={`${styles.featureDialogTypography} sm:max-w-md`}>
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2">
+          <DialogTitle className={`${styles.sectionHeading} flex items-center gap-2`}>
             <FileDown className="w-5 h-5" />
             Export Individual Table Chart
           </DialogTitle>
@@ -107,10 +108,10 @@ export const IndividualTableChartExporter: React.FC<IndividualTableChartExporter
               <div className="space-y-2">
                 <Label>Export Format</Label>
                 <Select value={exportFormat} onValueChange={(value: 'pdf' | 'png' | 'jpg') => setExportFormat(value)}>
-                  <SelectTrigger>
+                  <SelectTrigger className={styles.interactiveText}>
                     <SelectValue />
                   </SelectTrigger>
-                  <SelectContent>
+                  <SelectContent className={styles.portalTypography}>
                     <SelectItem value="pdf">
                       <div className="flex items-center gap-2">
                         <FileText className="w-4 h-4" />

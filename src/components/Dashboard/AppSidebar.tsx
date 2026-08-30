@@ -1,25 +1,10 @@
 import React from 'react';
 import { 
   Home, 
-  Calendar, 
-  Users, 
-  QrCode, 
-  CreditCard,
-  Monitor,
-  LayoutGrid,
-  FileText,
   LogOut,
   Shield,
-  ClipboardList,
-  Music,
-  Mail,
   UserCircle,
   ChevronUp,
-  Camera,
-  Table,
-  Table2,
-  Signpost,
-  UtensilsCrossed,
   PanelLeftClose,
   PanelLeftOpen
 } from 'lucide-react';
@@ -52,31 +37,20 @@ import {
 import logoImage from '@/assets/wedding-waitress-full-logo.png';
 import styles from './AppSidebar.module.css';
 import { ProfileAvatar } from '@/components/Account/ProfileAvatar';
+import { productNavigationItems } from '@/config/productNavigation';
+import { loadAccountRoute, loadAdminRoute } from '@/lib/authenticatedRoutePreload';
 
 interface AppSidebarProps {
   activeTab: string;
   onTabChange: (tabId: string) => void;
+  onTabIntent?: (tabId: string) => void;
   onSignOut: () => void;
 }
 
   // Filter menu items based on feature flags
   const allMenuItems = [
-    { id: "dashboard", label: "Dashboard", icon: Home },
-    { id: "my-events", label: "My Events", icon: Calendar },
-    { id: "table-list", label: "Tables", icon: Table },
-    { id: "guest-list", label: "Guest List", icon: Users },
-    { id: "qr-code", label: "QR Code Seating Chart", icon: QrCode },
-    { id: "signage", label: "Seating Chart Signs", icon: Signpost },
-    { id: "invitations", label: "Invitations & Cards", icon: Mail },
-    { id: "place-cards", label: "Name Place Cards", icon: CreditCard },
-    { id: "individual-table-chart", label: "Individual Table Charts", icon: Table2 },
-    { id: "floor-plan", label: "Floor Plan", icon: LayoutGrid },
-    { id: "dietary-chart", label: "Dietary Requirements", icon: UtensilsCrossed },
-    { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
-    { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
-    { id: "dj-mc-questionnaire", label: "DJ & MC Questionnaire", icon: Music },
-    { id: "running-sheet", label: "Run Sheet", icon: ClipboardList },
-    { id: "photo-video-gallery", label: "Photo & Video Sharing", icon: Camera },
+    { id: "dashboard", label: "Event Budget Planner", icon: Home },
+    ...productNavigationItems.map(({ sidebarId, sidebarLabel, icon }) => ({ id: sidebarId, label: sidebarLabel, icon })),
   ];
   
   const menuItems = allMenuItems;
@@ -84,6 +58,7 @@ interface AppSidebarProps {
 export const AppSidebar: React.FC<AppSidebarProps> = ({
   activeTab,
   onTabChange,
+  onTabIntent,
   onSignOut
 }) => {
   const { open, isMobile, setOpenMobile, toggleSidebar } = useSidebar();
@@ -151,7 +126,11 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 <SidebarMenuItem key={item.id}>
                   <SidebarMenuButton
                     onClick={() => handleItemClick(item.id)}
+                    onPointerEnter={() => onTabIntent?.(item.id)}
+                    onPointerDown={() => onTabIntent?.(item.id)}
+                    onFocus={() => onTabIntent?.(item.id)}
                     isActive={isActive}
+                    aria-current={isActive ? 'page' : undefined}
                     tooltip={item.label}
                     className={`${styles.navButton} ${isGreenItem ? styles.specialNav : ''} flex items-center gap-2 ${isMobile ? 'py-4' : 'py-3'}`}
                   >
@@ -244,6 +223,9 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
               >
                 <DropdownMenuItem
                   onClick={() => navigate('/account/account-info')}
+                  onPointerEnter={() => void loadAccountRoute()}
+                  onPointerDown={() => void loadAccountRoute()}
+                  onFocus={() => void loadAccountRoute()}
                   className={`${styles.accountMenuItem} cursor-pointer py-2.5 px-3 rounded-lg`}
                 >
                   <UserCircle className="mr-2 h-4 w-4" />
@@ -254,6 +236,9 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     <DropdownMenuSeparator className={`${styles.accountMenuSeparator} my-1`} />
                     <DropdownMenuItem
                       onClick={() => setOtpOpen(true)}
+                      onPointerEnter={() => void loadAdminRoute()}
+                      onPointerDown={() => void loadAdminRoute()}
+                      onFocus={() => void loadAdminRoute()}
                       className={`${styles.accountMenuItem} cursor-pointer py-2.5 px-3 rounded-lg`}
                     >
                       <Shield className="mr-2 h-4 w-4" style={{ color: '#967A59' }} />

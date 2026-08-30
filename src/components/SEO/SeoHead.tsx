@@ -62,7 +62,7 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
       <title>{title}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={canonicalUrl} />
-      {shouldNoIndex && <meta name="robots" content="noindex,nofollow" />}
+      <meta name="robots" content={shouldNoIndex ? 'noindex,nofollow' : 'index,follow'} />
 
       {/* Open Graph */}
       <meta property="og:title" content={title} />
@@ -71,6 +71,7 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:image" content={imageUrl} />
       <meta property="og:site_name" content="Wedding Waitress" />
+      <meta property="og:locale" content="en_AU" />
 
       {/* Twitter */}
       <meta name="twitter:card" content="summary_large_image" />

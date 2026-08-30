@@ -1,14 +1,9 @@
 // Guest-side upload hook — register → tus resumable upload → finalize
 import { useCallback, useState } from 'react';
 import * as tus from 'tus-js-client';
-import { supabase } from '@/integrations/supabase/client';
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL, supabase } from '@/integrations/supabase/client';
 import { ValidationResult, MediaLimits } from '@/lib/mediaValidation';
 import { normaliseGalleryAlbum, type ManageableGalleryAlbum } from '@/lib/galleryAlbumOptions';
-
-const SUPABASE_URL =
-  (import.meta as any).env?.VITE_SUPABASE_URL ?? 'https://xytxkidpourwdbzzwcdp.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY =
-  (import.meta as any).env?.VITE_SUPABASE_PUBLISHABLE_KEY ?? '';
 
 export interface UploadProgress {
   fileName: string;

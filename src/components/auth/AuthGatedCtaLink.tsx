@@ -6,7 +6,7 @@
 import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { SignUpModal } from './SignUpModal';
+import { SignUpModal, type SignUpPlanContext } from './SignUpModal';
 
 interface AuthGatedCtaLinkProps {
   to: string;
@@ -25,6 +25,8 @@ interface AuthGatedCtaLinkProps {
    * "Start Planning Free" / "Start Planning Your Event".
    */
   alwaysSignUp?: boolean;
+  /** Optional pricing intent retained through the shared free-account modal. */
+  signUpPlan?: SignUpPlanContext;
 }
 
 /**
@@ -42,6 +44,7 @@ export const AuthGatedCtaLink: React.FC<AuthGatedCtaLinkProps> = ({
   onClick,
   asChild = false,
   alwaysSignUp = false,
+  signUpPlan,
 }) => {
   const navigate = useNavigate();
   const [, setIsAuthed] = useState<boolean>(false);
@@ -85,7 +88,7 @@ export const AuthGatedCtaLink: React.FC<AuthGatedCtaLinkProps> = ({
   );
 
   const hiddenTrigger = (
-    <SignUpModal>
+    <SignUpModal selectedPlan={signUpPlan} redirectTo={to}>
       <button
         ref={hiddenTriggerRef}
         type="button"

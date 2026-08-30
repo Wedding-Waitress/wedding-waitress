@@ -86,14 +86,14 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
       <CardHeader>
         <div className="flex items-center gap-2">
           <Settings2 className="w-[22px] h-[22px] text-[#472c1d]" strokeWidth={1.8} aria-hidden="true" />
-          <CardTitle className="text-xl font-bold text-[#472c1d]">Chart Settings</CardTitle>
+          <CardTitle className={`${styles.majorHeading} text-xl font-bold text-[#472c1d]`}>Chart Settings</CardTitle>
         </div>
         <div className="mt-2">
-          <h3 className="text-xl font-bold text-[#472c1d] flex items-center gap-2">
+          <h3 className={`${styles.sectionHeading} text-xl font-bold text-[#472c1d] flex items-center gap-2`}>
             <UtensilsCrossed className="w-[22px] h-[22px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
             Custom Dietary Requirements
           </h3>
-          <CardDescription className="mt-1">Customise how your dietary requirements chart is displayed and exported</CardDescription>
+          <CardDescription className={`${styles.interfaceDescription} mt-1`}>Customise how your dietary requirements chart is displayed and exported</CardDescription>
         </div>
       </CardHeader>
       <CardContent className="space-y-6 pt-2">
@@ -101,7 +101,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <ArrowUpDown className="w-[18px] h-[18px] text-[#472c1d]" strokeWidth={1.8} aria-hidden="true" />
-            <span className={`${styles.sectionLabel} rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold`}>Sort Order</span>
+            <span className={`${styles.sectionLabel} ${styles.interfaceLabel} rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold`}>Sort Order</span>
           </div>
           <div>
             <Label htmlFor="sort-by" className="text-xs text-[#472c1d] inline-flex items-center gap-1.5">
@@ -130,7 +130,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <Eye className="w-[18px] h-[18px] text-[#472c1d]" strokeWidth={1.8} aria-hidden="true" />
-            <span className={`${styles.sectionLabel} rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold`}>Display Options</span>
+            <span className={`${styles.sectionLabel} ${styles.sectionHeading} rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold`}>Display Options</span>
           </div>
           <div className={`${styles.displayRow} flex items-center gap-1`}>
             <Label htmlFor="show-guest-names" className="flex flex-1 items-center gap-[7px]"><UserRound className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />Show Guest Names</Label>
@@ -165,7 +165,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Type className="w-[18px] h-[18px] text-[#472c1d]" strokeWidth={1.8} aria-hidden="true" />
-            <span className={`${styles.sectionLabel} rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold`}>Typography</span>
+            <span className={`${styles.sectionLabel} ${styles.sectionHeading} rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold`}>Typography</span>
           </div>
           <div className="space-y-2">
             <Label className="text-xs text-muted-foreground flex items-center gap-[7px]">

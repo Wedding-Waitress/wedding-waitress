@@ -14,7 +14,7 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { registerCache } from '@/lib/cacheRegistry';
+import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
 
 export interface QRCodeSettings {
   id?: string;
@@ -90,6 +90,7 @@ export const DEFAULT_QR_SETTINGS: Partial<QRCodeSettings> = {
 // Module-level cache for instant loading on tab switches
 const qrSettingsCache = new Map<string, QRCodeSettings>();
 registerCache(() => { qrSettingsCache.clear(); });
+registerEventCache((eventId) => { qrSettingsCache.delete(eventId); });
 
 export const useQRCodeSettings = (eventId: string | null) => {
   const cached = eventId ? qrSettingsCache.get(eventId) : undefined;

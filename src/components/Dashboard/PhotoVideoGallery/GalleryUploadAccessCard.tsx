@@ -102,7 +102,7 @@ export const GalleryUploadAccessCard: React.FC<{
               <Download className="h-4 w-4 mr-1" /> Download QR code
             </Button>
           </div>
-          <p className={cn('text-xs text-muted-foreground', isGlass && '!text-[#e8ddd2]')}>
+          <p className={cn('text-xs text-muted-foreground', isGlass && managementStyles.gallerySecondaryText)}>
             This link does not expire. Switch <strong>Accepting Guest Uploads</strong> off to stop new uploads.
           </p>
         </div>

@@ -71,11 +71,13 @@ interface InvitationCardCustomizerProps {
   storageBucket?: string;
   galleryButtonLabel?: string;
   appearance?: 'default' | 'signage-premium';
+  signageTypography?: boolean;
   GalleryModalComponent?: React.ComponentType<{
     open: boolean;
     onOpenChange: (open: boolean) => void;
     onSelectImage: (imageUrl: string) => void;
   }>;
+  portalScopeClassName?: string;
 }
 
 const formatOrdinalDate = (dateStr: string): string => {
@@ -220,7 +222,9 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
   storageBucket,
   galleryButtonLabel = 'Template Library',
   appearance = 'default',
+  signageTypography = false,
   GalleryModalComponent,
+  portalScopeClassName,
 }) => {
   const activePresetZones = presetZones || PRESET_ZONES;
   const activePresetYPositions = presetYPositions || PRESET_Y_POSITIONS;
@@ -230,7 +234,9 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
   const [localNotes, setLocalNotes] = useState('');
   const { toast } = useToast();
   const signagePremium = appearance === 'signage-premium';
-  const portalClassName = signagePremium ? 'ww-signage-premium-portal' : undefined;
+  const portalClassName = signagePremium
+    ? `ww-signage-premium-portal ww-invitations-premium-portal${signageTypography ? ' ww-signage-typography-portal' : ''}${portalScopeClassName ? ` ${portalScopeClassName}` : ''}`
+    : undefined;
 
   const currentSettings: InvitationCardSettings = settings || {
     event_id: '',
@@ -330,7 +336,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
 
   return (
     <>
-      <Card className={`border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-12 bg-white${signagePremium ? ' ww-signage-premium-designer' : ''}`}>
+      <Card className={`border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-12 bg-white${signagePremium ? ' ww-signage-premium-designer ww-invitations-designer' : ''}${signageTypography ? ' ww-signage-typography-designer' : ''}`}>
         <CardHeader>
           <CardTitle className="flex items-center gap-2 py-[10px] text-2xl font-bold text-foreground">
             <Palette className="h-[22px] w-[22px] text-foreground shrink-0" strokeWidth={1.8} aria-hidden="true" />
@@ -514,8 +520,8 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                 </div>
 
                 {textZones.length === 0 && (
-                  <div className="text-center py-8 text-muted-foreground/80 border-2 border-dashed rounded-lg px-4">
-                    <Layers className="h-8 w-8 mx-auto mb-2 opacity-50" />
+                  <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg px-4">
+                    <Layers className="h-8 w-8 mx-auto mb-2" />
                     <p className="text-sm font-medium">No text zones added yet</p>
                     <p className="text-xs mt-1">Start by adding a preset or custom text zone to build your invitation.</p>
                   </div>
@@ -528,7 +534,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                       toast({ title: "Text Zones Reset", description: "All text zones have been removed" });
                     }}
                     variant="outline"
-                    className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
+                    className="ww-signage-reset-action w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
                     <RotateCcw className="h-4 w-4 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
                     Reset to Default
@@ -541,7 +547,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
             <TabsContent value="background" className="space-y-4">
               <div className="space-y-4">
                 <div>
-                  <Label className="flex items-center gap-2 mb-3">
+                  <Label className="ww-invitations-section-heading flex items-center gap-2 mb-3">
                     <ImagePlus className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />
                     Background Image
                   </Label>
@@ -596,7 +602,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         <button
                           type="button"
                           onClick={() => window.open('https://www.canva.com/', '_blank')}
-                          className="flex-1 max-sm:basis-[calc(50%-0.25rem)] max-sm:flex-none max-sm:min-w-0 h-9 rounded-full flex items-center justify-center gap-2 text-white text-sm font-medium cursor-pointer border-0 hover:opacity-90 transition-opacity"
+                          className="flex-1 max-sm:basis-[calc(50%-0.25rem)] max-sm:flex-none max-sm:min-w-0 h-9 rounded-full flex items-center justify-center gap-2 text-white text-sm font-medium cursor-pointer border-0 hover:brightness-105 transition-[filter]"
                           style={{ backgroundColor: '#7C3AED' }}
                           aria-label="Design with Canva"
                         >
@@ -671,7 +677,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                       toast({ title: "Background Reset", description: "Background settings reset to defaults" });
                     }}
                     variant="outline"
-                    className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
+                    className="ww-signage-reset-action w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
                     <RotateCcw className="h-4 w-4 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
                     Reset to Default
@@ -749,7 +755,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                       toast({ title: "QR Code Reset", description: "QR code removed from invitation" });
                     }}
                     variant="outline"
-                    className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
+                    className="ww-signage-reset-action w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
                     <RotateCcw className="h-4 w-4 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
                     Reset to Default
@@ -762,7 +768,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
             <TabsContent value="messages" className="space-y-4">
               <div className="space-y-4">
                 <div className="p-4 border-2 border-accent-foreground rounded-xl space-y-3">
-                  <Label className="flex items-center gap-2">
+                  <Label className="ww-invitations-section-heading flex items-center gap-2">
                     <MessageSquareText className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />
                     Notes / Caption
                   </Label>
@@ -784,7 +790,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                       toast({ title: "Messages Reset", description: "Notes and captions have been cleared" });
                     }}
                     variant="outline"
-                    className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
+                    className="ww-signage-reset-action w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
                     <RotateCcw className="h-4 w-4 mr-1.5" strokeWidth={1.8} aria-hidden="true" />
                     Reset to Default

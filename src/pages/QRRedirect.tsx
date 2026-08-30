@@ -1,6 +1,6 @@
 import { useEffect, useState } from 'react';
 import { useParams } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
+import { SUPABASE_URL } from '@/integrations/supabase/client';
 
 export const QRRedirect = () => {
   const { code } = useParams<{ code: string }>();
@@ -13,8 +13,7 @@ export const QRRedirect = () => {
     }
 
     // Navigate directly to the edge function — the browser follows the 302 natively
-    const projectId = import.meta.env.VITE_SUPABASE_PROJECT_ID || 'xytxkidpourwdbzzwcdp';
-    window.location.href = `https://${projectId}.supabase.co/functions/v1/qr-redirect?code=${encodeURIComponent(code)}`;
+    window.location.href = `${SUPABASE_URL}/functions/v1/qr-redirect?code=${encodeURIComponent(code)}`;
   }, [code]);
 
   if (error) {

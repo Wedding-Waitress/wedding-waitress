@@ -28,7 +28,7 @@ export default {
         xs: "375px",
       },
       fontFamily: {
-        'inter': ['Inter', 'system-ui', 'sans-serif'],
+        'inter': ['Manrope', 'ui-sans-serif', 'system-ui', 'sans-serif'],
       },
       colors: {
         border: "hsl(var(--border))",

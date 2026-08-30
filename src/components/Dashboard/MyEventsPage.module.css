@@ -1,31 +1,37 @@
 .mainSurface {
+  --my-events-workspace: #f2e9dc;
+  --my-events-panel: #fbf8f2;
+  --my-events-card: #f5ebdd;
+  --my-events-card-deep: #ede0d0;
+  --my-events-text: #2b1711;
+  --my-events-text-soft: #684b40;
+  --my-events-gold: #a18764;
+  --my-events-gold-strong: #806344;
+  --my-events-border: #cdb99e;
+  --my-events-focus: #755332;
   min-height: calc(100dvh - 4rem);
-  background-color: #70452f;
-  background-image: url("../../assets/dashboard-mocha-liquid-glass.png");
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: cover;
+  background-color: var(--my-events-workspace) !important;
+  background-image: none !important;
 }
 
 .page {
-  color: #f3e7d8;
+  color: var(--my-events-text);
+  font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
 }
 
 :global(#root) .mainSurface .page .countdownPanel,
 :global(#root) .mainSurface .page :global(.ww-events-table-panel) {
-  color: #f3e7d8 !important;
-  border: 1px solid rgba(201, 151, 93, 0.4) !important;
-  background: rgba(33, 19, 15, 0.62) !important;
+  color: var(--my-events-text) !important;
+  border: 1px solid var(--my-events-border) !important;
+  background: var(--my-events-panel) !important;
   box-shadow:
-    inset 0 1px 0 rgba(255, 239, 218, 0.21),
-    0 18px 42px rgba(3, 1, 1, 0.42) !important;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+    inset 0 1px 0 rgba(255, 255, 255, 0.74),
+    0 10px 25px rgba(79, 48, 30, 0.1) !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-table-panel):global(.text-center),
 :global(#root) .mainSurface .page :global(.ww-events-table-panel):global(.text-center) * {
-  color: #f3e7d8 !important;
+  color: var(--my-events-text) !important;
 }
 
 .countdownPanel {
@@ -98,40 +104,57 @@
   width: 100%;
   max-width: 5rem;
   aspect-ratio: 1;
-  background: linear-gradient(180deg, rgba(80, 45, 32, 0.68), rgba(24, 13, 10, 0.78)) !important;
+  border: 1px solid rgba(161, 135, 100, 0.48);
+  background: linear-gradient(145deg, var(--my-events-panel), var(--my-events-card)) !important;
   box-shadow:
-    inset 0 1px 0 rgba(255, 239, 218, 0.14),
-    0 10px 24px rgba(3, 1, 1, 0.3) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.8),
+    0 8px 18px rgba(79, 48, 30, 0.12) !important;
 }
 
 .countdownRing circle:first-child {
-  stroke: rgba(232, 206, 170, 0.22) !important;
+  stroke: #d9cbbc !important;
 }
 
 .countdownRing circle:last-child {
-  stroke: #d9b77f !important;
+  stroke: var(--my-events-gold-strong) !important;
 }
 
 :global(#root) .mainSurface .page .countdownNumber {
-  color: #ffffff !important;
+  color: var(--my-events-text) !important;
+}
+
+:global(#root) .mainSurface .page .countdownMessage {
+  font-size: 24px !important;
+  font-weight: 600 !important;
+}
+
+:global(#root) .mainSurface .page .countdownMessage * {
+  font-size: inherit !important;
+  font-weight: inherit !important;
+}
+
+:global(#root) .mainSurface .page .countdownLabel {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 18px !important;
 }
 
 :global(#root) .mainSurface .page .countdownLabel,
 :global(#root) .mainSurface .page .countdownMessage,
 :global(#root) .mainSurface .page .countdownMessage *,
 :global(#root) .mainSurface .page .countdownTimer [class*="text-muted-foreground"] {
-  color: #f3e7d8 !important;
+  color: var(--my-events-text) !important;
 }
 
 .countdownMessage svg {
-  color: #d9b77f;
+  color: var(--my-events-gold-strong);
 }
 
 :global(#root) .mainSurface .page .eventTitle,
 :global(#root) .mainSurface .page :global(.ww-events-title) {
-  color: #ffffff !important;
+  color: var(--my-events-text) !important;
   font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif !important;
-  font-size: 1.25rem !important;
+  font-size: 24px !important;
   font-weight: 600 !important;
   line-height: 1.25 !important;
   letter-spacing: -0.012em !important;
@@ -140,133 +163,201 @@
 .detailCard {
   width: 100%;
   min-width: 0;
-  border: 1px solid rgba(201, 151, 93, 0.4) !important;
-  background: linear-gradient(180deg, rgba(74, 41, 30, 0.72), rgba(25, 14, 11, 0.76)) !important;
+  border: 1px solid rgba(161, 135, 100, 0.42) !important;
+  background: var(--my-events-card) !important;
   box-shadow:
-    inset 0 1px 0 rgba(255, 239, 218, 0.14),
-    0 12px 26px rgba(3, 1, 1, 0.28) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+    inset 0 1px 0 rgba(255, 255, 255, 0.76),
+    0 7px 18px rgba(79, 48, 30, 0.09) !important;
 }
 
 :global(#root) .mainSurface .page .detailHeading {
-  color: #ffffff !important;
+  color: var(--my-events-text) !important;
   font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif !important;
-  font-size: 18px !important;
-  font-weight: 600 !important;
+  font-size: 20px !important;
+  font-weight: 500 !important;
   line-height: 1.25 !important;
   letter-spacing: -0.012em !important;
 }
 
 .detailHeading svg,
 .detailText svg {
-  color: #d9b77f !important;
+  color: var(--my-events-gold-strong) !important;
   opacity: 1 !important;
 }
 
 :global(#root) .mainSurface .page .detailText,
 :global(#root) .mainSurface .page .detailText p {
-  color: #f3e7d8 !important;
+  color: var(--my-events-text-soft) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+  overflow-wrap: anywhere;
 }
 
 :global(#root) .mainSurface .page .detailText p > span {
-  color: #ffffff !important;
+  color: var(--my-events-text) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 18px !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-event-usage-pill) {
-  color: #f3e7d8 !important;
-  border: 1px solid rgba(201, 151, 93, 0.4) !important;
-  background: rgba(33, 19, 15, 0.7) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.14), 0 8px 20px rgba(3, 1, 1, 0.22);
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+  color: var(--my-events-text) !important;
+  border: 1px solid var(--my-events-border) !important;
+  background: var(--my-events-card) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.76), 0 5px 14px rgba(79, 48, 30, 0.09);
 }
 
 .page :global(.ww-event-usage-pill) svg {
-  color: #d9b77f;
+  color: var(--my-events-gold-strong);
+}
+
+:global(#root) .mainSurface .page :global(.ww-event-usage-pill),
+:global(#root) .mainSurface .page :global(.ww-event-usage-pill) span,
+:global(#root) .mainSurface .page :global(.ww-events-table-header) :global(.badge) {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 18px !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-supporting),
+:global(#root) .mainSurface .page :global(.ww-events-empty),
+.supportingText {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-badge) {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 18px !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-label) {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 18px !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-button) {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  line-height: 18px !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-table-header) {
-  color: #f3e7d8;
-  border-bottom: 1px solid rgba(201, 151, 93, 0.4) !important;
-  background: rgba(28, 14, 10, 0.72) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.1);
+  color: var(--my-events-text);
+  border-bottom: 1px solid var(--my-events-border) !important;
+  background: var(--my-events-panel) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.74);
 }
 
 .page :global(.ww-events-title) svg {
-  color: #d9b77f;
+  color: var(--my-events-gold-strong);
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-table-header) [class*="text-muted-foreground"] {
-  color: #f3e7d8 !important;
+  color: var(--my-events-text-soft) !important;
   opacity: 1 !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-table-header) [class*="border-primary"] {
-  border-color: rgba(201, 151, 93, 0.4) !important;
+  border-color: var(--my-events-border) !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-table-header) [class*="bg-white"] {
-  color: #f3e7d8 !important;
-  border-color: rgba(201, 151, 93, 0.4) !important;
-  background: rgba(46, 25, 18, 0.72) !important;
+  color: var(--my-events-text) !important;
+  border-color: var(--my-events-border) !important;
+  background: #f8f0e5 !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-table-header) button,
 :global(#root) .mainSurface .page :global(.ww-events-mobile-card) button,
 :global(#root) .mainSurface .page :global(.ww-events-row) button {
-  border: 1px solid rgba(216, 173, 121, 0.55) !important;
+  border: 0 !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-table-header) button:hover:not(:disabled),
 :global(#root) .mainSurface .page :global(.ww-events-mobile-card) button:hover:not(:disabled),
 :global(#root) .mainSurface .page :global(.ww-events-row) button:hover:not(:disabled) {
-  border-color: rgba(239, 197, 143, 0.85) !important;
+  filter: brightness(0.96);
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-table-header) button:focus-visible,
 :global(#root) .mainSurface .page :global(.ww-events-mobile-card) button:focus-visible,
 :global(#root) .mainSurface .page :global(.ww-events-row) button:focus-visible {
-  outline: none !important;
-  box-shadow: 0 0 0 2px rgba(201, 151, 93, 0.28) !important;
+  outline: 2px solid var(--my-events-focus) !important;
+  outline-offset: 2px;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-table-header) button[class*="bg-green-500"],
+:global(#root) .mainSurface .page :global(.ww-events-mobile-card) button[class*="bg-green-500"] {
+  color: #ffffff !important;
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32), 0 7px 16px rgba(22, 163, 74, 0.25) !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-mobile-card) button[class*="bg-red-500"] {
+  color: #ffffff !important;
+  background: linear-gradient(180deg, #f87171 0%, #ef4444 58%, #dc2626 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32), 0 7px 16px rgba(220, 38, 38, 0.24) !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-table-header) button[class*="bg-green-500"] svg,
+:global(#root) .mainSurface .page :global(.ww-events-mobile-card) button[class*="bg-green-500"] svg,
+:global(#root) .mainSurface .page :global(.ww-events-mobile-card) button[class*="bg-red-500"] svg {
+  color: #ffffff !important;
+  opacity: 1 !important;
 }
 
 .page :global(.ww-events-table-panel) > div:last-of-type,
 .page :global(.ww-events-table-panel) table {
-  background: rgba(24, 13, 10, 0.58);
+  background: var(--my-events-panel);
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-table-panel) thead tr {
-  border-color: rgba(201, 151, 93, 0.34) !important;
-  background: rgba(78, 43, 28, 0.88) !important;
+  border-color: var(--my-events-border) !important;
+  background: #eadbc8 !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-table-panel) thead th {
-  color: #fff8ed !important;
+  color: var(--my-events-text) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 18px !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-row) {
-  color: #f3e7d8 !important;
-  border-color: rgba(201, 151, 93, 0.24) !important;
-  background: rgba(37, 20, 15, 0.68) !important;
+  color: var(--my-events-text) !important;
+  border-color: rgba(161, 135, 100, 0.3) !important;
+  background: rgba(251, 248, 242, 0.78) !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-row):nth-child(even) {
+  background: rgba(245, 235, 221, 0.76) !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-row):hover {
-  background: rgba(75, 41, 29, 0.78) !important;
+  background: #eadbc8 !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-row)[class*="bg-primary/5"] {
   border-left-color: #22c55e !important;
-  background: rgba(34, 197, 94, 0.09) !important;
+  background: #eef8ef !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-row)[class*="bg-green-500/10"] {
-  background: rgba(34, 197, 94, 0.12) !important;
+  background: #e9f6eb !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-row) [class*="text-muted-foreground"],
 :global(#root) .mainSurface .page :global(.ww-events-row) td {
-  color: #f3e7d8 !important;
+  color: var(--my-events-text) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+  overflow-wrap: anywhere;
   opacity: 1 !important;
 }
 
@@ -275,26 +366,127 @@
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-footer) {
-  border-color: rgba(201, 151, 93, 0.24) !important;
-  background: rgba(76, 43, 29, 0.9) !important;
+  border-color: var(--my-events-border) !important;
+  background: var(--my-events-card-deep) !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-mobile-card) {
-  color: #f3e7d8;
-  border: 1px solid rgba(201, 151, 93, 0.4) !important;
-  background: rgba(37, 20, 15, 0.72) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12), 0 10px 24px rgba(3, 1, 1, 0.22);
+  color: var(--my-events-text);
+  border: 1px solid var(--my-events-border) !important;
+  background: var(--my-events-card) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.76), 0 6px 16px rgba(79, 48, 30, 0.09);
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-mobile-card)[class*="border-green-500"] {
   border-color: #22c55e !important;
-  background: rgba(34, 197, 94, 0.1) !important;
+  background: #eef8ef !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-mobile-card) h4,
 :global(#root) .mainSurface .page :global(.ww-events-mobile-card) [class*="text-muted-foreground"] {
-  color: #f3e7d8 !important;
+  color: var(--my-events-text) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
   opacity: 1 !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-mobile-card) {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+  overflow-wrap: anywhere;
+}
+
+.dialogRoot,
+.dialogRoot p,
+.dialogRoot input,
+.dialogRoot textarea,
+.dialogRoot [role="combobox"] {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+.dialogRoot:not([class*="bg-transparent"]) {
+  color: #2b1711 !important;
+  border: 1px solid #cdb99e !important;
+  background: #fbf8f2 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.74), 0 18px 44px rgba(43, 23, 17, 0.2) !important;
+}
+
+.dialogRoot:not([class*="bg-transparent"]) p,
+.dialogRoot:not([class*="bg-transparent"]) [class*="text-muted-foreground"] {
+  color: #684b40 !important;
+  opacity: 1 !important;
+}
+
+.dialogRoot:not([class*="bg-transparent"]) [class*="text-foreground"] {
+  color: #2b1711 !important;
+}
+
+.dialogRoot:not([class*="bg-transparent"]) input {
+  color: #2b1711 !important;
+  border: 1px solid #cdb99e !important;
+  background: #f8f0e5 !important;
+}
+
+.dialogRoot:not([class*="bg-transparent"]) input:focus-visible,
+.dialogRoot:not([class*="bg-transparent"]) button:focus-visible {
+  outline: 2px solid #755332 !important;
+  outline-offset: 2px;
+  box-shadow: none !important;
+}
+
+.dialogRoot:not([class*="bg-transparent"]) button[class*="bg-destructive"] {
+  color: #ffffff !important;
+  border: 0 !important;
+  background: linear-gradient(180deg, #f87171 0%, #ef4444 58%, #dc2626 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.32), 0 7px 16px rgba(220, 38, 38, 0.24) !important;
+}
+
+.dialogRoot:not([class*="bg-transparent"]) button[class*="border-card-border"] {
+  color: #806344 !important;
+  border: 1px solid #806344 !important;
+  background: #f5ebdd !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.72), 0 3px 8px rgba(79, 48, 30, 0.08) !important;
+}
+
+.dialogRoot:not([class*="bg-transparent"]) > button:last-child {
+  color: #2b1711 !important;
+  border: 1px solid #cdb99e !important;
+  border-radius: 9999px !important;
+  background: #f5ebdd !important;
+  opacity: 1 !important;
+}
+
+.dialogTitle {
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+.dialogRoot .dialogLabel,
+.dialogRoot .dialogBadge {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 18px !important;
+}
+
+.dialogButton {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  line-height: 18px !important;
+}
+
+.dialogWrap {
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+
+.toast {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
 }
 
 @media (min-width: 640px) {
@@ -307,14 +499,6 @@
     max-width: 6rem;
   }
 
-  :global(#root) .mainSurface .page .eventTitle,
-  :global(#root) .mainSurface .page :global(.ww-events-title) {
-    font-size: 1.5rem !important;
-  }
-
-  :global(#root) .mainSurface .page .detailHeading {
-    font-size: 17px !important;
-  }
 }
 
 @media (min-width: 768px) {
@@ -357,5 +541,14 @@
 
   .page :global(.ww-events-table-panel) {
     overflow: hidden;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page * {
+    scroll-behavior: auto !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
   }
 }

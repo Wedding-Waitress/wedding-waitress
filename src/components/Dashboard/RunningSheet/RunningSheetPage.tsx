@@ -9,7 +9,7 @@
  *
  * Last locked: 2026-04-02
  */
-import React, { useState, useCallback } from 'react';
+import React, { lazy, Suspense, useState, useCallback } from 'react';
 import {
   ClipboardList,
   LoaderCircle,
@@ -23,20 +23,21 @@ import {
   MapPin,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
-import { exportRunningSheetPDF, exportRunningSheetSectionPDF } from '@/lib/runningSheetPdfExporter';
 import { Button } from '@/components/ui/button';
 import { Card, CardContent } from '@/components/ui/card';
 import { StandardEventSelector } from '../StandardEventSelector';
 import { RunningSheetSection } from './RunningSheetSection';
-import { RunningSheetShareModal } from './RunningSheetShareModal';
 import { useRunningSheet } from '@/hooks/useRunningSheet';
-import { useEvents } from '@/hooks/useEvents';
+import type { Event } from '@/hooks/useEvents';
 import { useDJMCQuestionnaire } from '@/hooks/useDJMCQuestionnaire';
 import { formatDJMCInsert } from '@/lib/djMCInsertFormatter';
+import styles from './RunningSheetTheme.module.css';
+const RunningSheetShareModal = lazy(() => import('./RunningSheetShareModal').then(module => ({ default: module.RunningSheetShareModal })));
 
 interface RunningSheetPageProps {
   selectedEventId: string | null;
   onEventSelect: (eventId: string) => void;
+  events: Event[];
 }
 
 // Format date as "Saturday, 5th December 2026"
@@ -63,8 +64,7 @@ const formatTimeDisplay = (time: string | null | undefined): string => {
   return `${displayHour}:${minutes} ${ampm}`;
 };
 
-export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningSheetPageProps) {
-  const { events } = useEvents();
+export function RunningSheetPage({ selectedEventId, onEventSelect, events }: RunningSheetPageProps) {
   const { toast } = useToast();
   const [showShareModal, setShowShareModal] = useState(false);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
@@ -125,6 +125,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
     if (!sheet || !selectedEvent) return;
     setDownloadingPDF(true);
     try {
+      const { exportRunningSheetPDF } = await import('@/lib/runningSheetPdfExporter');
       await exportRunningSheetPDF(sheet.items, selectedEvent, sectionLabel, sectionNotes);
       toast({ title: 'PDF Downloaded', description: 'Your Run Sheet has been downloaded.' });
     } catch (error) {
@@ -138,6 +139,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
   const handleDownloadSectionPDF = async () => {
     if (!selectedEvent || !sheet) return;
     try {
+      const { exportRunningSheetSectionPDF } = await import('@/lib/runningSheetPdfExporter');
       await exportRunningSheetSectionPDF(sheet.items, selectedEvent, sectionLabel, sectionNotes);
       toast({ title: 'Section PDF Downloaded', description: `"${sectionLabel}" has been downloaded.` });
     } catch (error) {
@@ -147,22 +149,22 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
   };
 
   return (
-    <div className="space-y-6">
+    <div className={`space-y-6 ${styles.page}`} data-running-sheet-page>
       {/* Header */}
-      <div className="flex items-center justify-between">
+      <div className={`flex items-center justify-between ${styles.pageHeader}`}>
         <div className="flex items-center gap-2">
-          <div className="p-2 bg-primary/10 rounded-lg">
+          <div className={`p-2 rounded-lg ${styles.headingIcon}`}>
             <ClipboardList size={25} strokeWidth={1.8} className="text-primary" aria-hidden="true" />
           </div>
           <div>
             <h1 className="text-2xl font-bold">Run Sheet</h1>
-            <p className="text-sm text-muted-foreground">
+            <p className={`text-muted-foreground ${styles.supportingText}`}>
               Organise the perfect schedule for your wedding or event
             </p>
           </div>
         </div>
         {saving && (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground">
+          <div className={`flex items-center gap-2 text-muted-foreground ${styles.supportingText}`}>
             <LoaderCircle size={16} strokeWidth={1.8} className="animate-spin" aria-hidden="true" />
             Saving...
           </div>
@@ -170,29 +172,29 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
       </div>
 
       {/* Event Selector */}
-      <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+      <Card className={`${styles.glassCard} ${styles.topCard}`}>
         <CardContent className="py-4">
           <div className="flex items-center justify-between gap-4 flex-wrap max-sm:flex-col max-sm:items-stretch">
             <div className="flex-shrink-0 max-sm:w-full flex items-center gap-2">
               <CalendarDays size={17} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
-              <StandardEventSelector events={events} selectedEventId={selectedEventId} onEventSelect={onEventSelect} />
+              <StandardEventSelector events={events} selectedEventId={selectedEventId} onEventSelect={onEventSelect} menuClassName="ww-running-sheet-menu" />
             </div>
 
             {selectedEventId && sheet && (
-              <div className="border border-primary rounded-xl p-3 flex flex-col gap-3 max-sm:w-full">
+              <div className={`border border-primary rounded-xl p-3 flex flex-col gap-3 max-sm:w-full ${styles.exportPanel}`}>
                 <div className="text-sm">
-                  <span className="font-medium inline-flex items-center gap-1.5 align-middle">
+                  <span className={`inline-flex items-center gap-1.5 align-middle ${styles.controlLabel}`}>
                     <Printer size={16} strokeWidth={1.8} aria-hidden="true" />
                     Export Controls
                   </span>
-                  <span className="text-muted-foreground ml-2">Download your run sheet and share it with your DJ-MC or any of your vendors.</span>
+                  <span className={`text-muted-foreground ml-2 ${styles.supportingText}`}>Download your run sheet and share it with your DJ-MC or any of your vendors.</span>
                 </div>
                 <div className="flex items-center gap-3 flex-wrap max-sm:flex-col max-sm:items-stretch">
                   <button
                     onClick={() => setShowShareModal(true)}
                     disabled={downloadingPDF}
                     aria-label="Share run sheet"
-                    className="inline-flex items-center justify-center gap-1.5 h-7 max-sm:h-11 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 max-sm:w-full max-sm:text-sm"
+                    className={`inline-flex items-center justify-center gap-1.5 h-7 max-sm:h-11 px-2.5 rounded-full transition-all disabled:opacity-50 max-sm:w-full ${styles.greenAction}`}
                   >
                     <Share2 size={16} strokeWidth={1.8} aria-hidden="true" />
                     Share
@@ -201,7 +203,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
                     onClick={handleDownloadEntirePDF}
                     disabled={downloadingPDF}
                     aria-label="Download run sheet PDF"
-                    className="inline-flex items-center justify-center gap-1.5 h-7 max-sm:h-11 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 max-sm:w-full max-sm:text-sm"
+                    className={`inline-flex items-center justify-center gap-1.5 h-7 max-sm:h-11 px-2.5 rounded-full transition-all disabled:opacity-50 max-sm:w-full ${styles.greenAction}`}
                   >
                     {downloadingPDF
                       ? <LoaderCircle size={16} strokeWidth={1.8} className="animate-spin" aria-hidden="true" />
@@ -218,24 +220,24 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
 
       {/* Content */}
       {!selectedEventId ? (
-        <Card>
+        <Card className={styles.glassCard}>
           <CardContent className="py-12 text-center text-muted-foreground">
             <ClipboardList className="h-12 w-12 mx-auto mb-4 opacity-50" />
-            <p>Select an event to start planning your run sheet</p>
+            <p className={styles.supportingText}>Select an event to start planning your run sheet</p>
           </CardContent>
         </Card>
       ) : loading ? (
-        <Card>
+        <Card className={styles.glassCard}>
           <CardContent className="py-12 text-center">
             <LoaderCircle size={32} strokeWidth={1.8} className="mx-auto animate-spin text-primary" aria-hidden="true" />
-            <p className="mt-4 text-muted-foreground">Loading run sheet...</p>
+            <p className={`mt-4 text-muted-foreground ${styles.supportingText}`}>Loading run sheet...</p>
           </CardContent>
         </Card>
       ) : sheet ? (
         <div className="space-y-4">
           {/* Event header */}
           {selectedEvent && (
-            <div className="text-center py-4 border-b border-border space-y-3">
+            <div className={`text-center py-4 px-4 space-y-3 ${styles.eventBanner}`}>
               <h2 className="text-xl font-semibold text-primary">{selectedEvent.name}</h2>
               <div className={`flex justify-center gap-8 flex-wrap ${
                 selectedEvent.ceremony_enabled && selectedEvent.reception_enabled !== false ? '' : 'max-w-md mx-auto'
@@ -244,16 +246,16 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
                   <div className="text-left min-w-[280px]">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <HeartHandshake size={16} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
-                      <span className="font-semibold text-primary">Ceremony:</span>
+                      <span className={`font-semibold text-primary ${styles.eventDetailLabel}`}>Ceremony:</span>
                       <CalendarDays size={15} strokeWidth={1.8} className="text-muted-foreground shrink-0" aria-hidden="true" />
-                      <span className="text-muted-foreground">{formatFullDate(selectedEvent.ceremony_date)}</span>
+                      <span className={`text-muted-foreground ${styles.eventDetailText}`}>{formatFullDate(selectedEvent.ceremony_date)}</span>
                     </div>
-                    <div className="text-sm text-muted-foreground mt-1 flex items-center gap-1.5">
+                    <div className={`text-muted-foreground mt-1 flex items-center gap-1.5 ${styles.eventDetailText}`}>
                       <Clock3 size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                       <span>Start: {formatTimeDisplay(selectedEvent.ceremony_start_time)} — Finish: {formatTimeDisplay(selectedEvent.ceremony_finish_time)}</span>
                     </div>
                     {selectedEvent.ceremony_venue && (
-                      <div className="text-sm text-muted-foreground flex items-center gap-1.5">
+                      <div className={`text-muted-foreground flex items-center gap-1.5 ${styles.eventDetailText}`}>
                         <MapPin size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                         <span>{selectedEvent.ceremony_venue}</span>
                       </div>
@@ -264,16 +266,16 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
                   <div className="text-left min-w-[280px]">
                     <div className="flex items-center gap-1.5 flex-wrap">
                       <PartyPopper size={16} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
-                      <span className="font-semibold text-primary">Reception:</span>
+                      <span className={`font-semibold text-primary ${styles.eventDetailLabel}`}>Reception:</span>
                       <CalendarDays size={15} strokeWidth={1.8} className="text-muted-foreground shrink-0" aria-hidden="true" />
-                      <span className="text-muted-foreground">{formatFullDate(selectedEvent.date)}</span>
+                      <span className={`text-muted-foreground ${styles.eventDetailText}`}>{formatFullDate(selectedEvent.date)}</span>
                     </div>
-                    <div className="text-sm text-muted-foreground mt-1 flex items-center gap-1.5">
+                    <div className={`text-muted-foreground mt-1 flex items-center gap-1.5 ${styles.eventDetailText}`}>
                       <Clock3 size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                       <span>Start: {formatTimeDisplay(selectedEvent.start_time)} — Finish: {formatTimeDisplay(selectedEvent.finish_time)}</span>
                     </div>
                     {selectedEvent.venue && (
-                      <div className="text-sm text-muted-foreground flex items-center gap-1.5">
+                      <div className={`text-muted-foreground flex items-center gap-1.5 ${styles.eventDetailText}`}>
                         <MapPin size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                         <span>{selectedEvent.venue}</span>
                       </div>
@@ -306,7 +308,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
       ) : null}
 
       {/* Share Modal */}
-      <RunningSheetShareModal
+      {showShareModal && <Suspense fallback={null}><RunningSheetShareModal
         open={showShareModal}
         onOpenChange={setShowShareModal}
         shareTokens={shareTokens}
@@ -314,7 +316,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect }: RunningShee
         onDeleteToken={deleteShareToken}
         onTokensUpdated={refreshShareTokens}
         eventSlug={selectedEvent?.slug ?? undefined}
-      />
+      /></Suspense>}
     </div>
   );
 }

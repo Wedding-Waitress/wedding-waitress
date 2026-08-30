@@ -1,6 +1,6 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
-import { registerCache } from '@/lib/cacheRegistry';
+import { getCacheGeneration, registerCache } from '@/lib/cacheRegistry';
 
 export interface UserProfile {
   id: string;
@@ -20,12 +20,13 @@ export interface UserProfile {
 
 // Module-level cache for instant loading
 let profileCache: UserProfile | null = null;
+let profileRequest: Promise<UserProfile> | null = null;
 const profileSubscribers = new Set<(profile: UserProfile | null) => void>();
 const broadcastProfile = (profile: UserProfile | null) => {
   profileCache = profile;
   profileSubscribers.forEach((subscriber) => subscriber(profile));
 };
-registerCache(() => { broadcastProfile(null); });
+registerCache(() => { profileRequest = null; broadcastProfile(null); });
 
 const withSignedProfileImage = async (profile: Omit<UserProfile, 'profile_image_url'>): Promise<UserProfile> => {
   const normalized = {
@@ -42,6 +43,23 @@ const withSignedProfileImage = async (profile: Omit<UserProfile, 'profile_image_
   return { ...normalized, profile_image_url: error ? null : data.signedUrl };
 };
 
+const requestProfile = () => {
+  if (profileRequest) return profileRequest;
+  const generation = getCacheGeneration();
+  profileRequest = (async () => {
+    const { data: { user }, error: authError } = await supabase.auth.getUser();
+    if (authError || !user) throw new Error('User not authenticated');
+    const { data: profileData, error: profileError } = await supabase
+      .from('profiles').select('*').eq('id', user.id).single();
+    if (profileError) throw profileError;
+    const hydrated = await withSignedProfileImage(profileData as Omit<UserProfile, 'profile_image_url'>);
+    if (generation !== getCacheGeneration()) throw new Error('Profile request superseded by an account change.');
+    broadcastProfile(hydrated);
+    return hydrated;
+  })().finally(() => { profileRequest = null; });
+  return profileRequest;
+};
+
 export const useProfile = () => {
   const [profile, setProfile] = useState<UserProfile | null>(profileCache);
   const [loading, setLoading] = useState(!profileCache);
@@ -54,30 +72,12 @@ export const useProfile = () => {
 
   useEffect(() => {
     const fetchProfile = async () => {
-      if (!profileCache) setLoading(true);
+      if (profileCache) { setLoading(false); return; }
+      setLoading(true);
       try {
-        const { data: { user }, error: authError } = await supabase.auth.getUser();
-        
-        if (authError || !user) {
-          setError('User not authenticated');
-          return;
-        }
-
-        const { data: profileData, error: profileError } = await supabase
-          .from('profiles')
-          .select('*')
-          .eq('id', user.id)
-          .single();
-
-        if (profileError) {
-          setError(profileError.message);
-          return;
-        }
-
-        const hydrated = await withSignedProfileImage(profileData as Omit<UserProfile, 'profile_image_url'>);
-        broadcastProfile(hydrated);
+        await requestProfile();
       } catch (err) {
-        setError('Failed to fetch profile');
+        setError(err instanceof Error ? err.message : 'Failed to fetch profile');
       } finally {
         setLoading(false);
       }

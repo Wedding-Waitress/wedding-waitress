@@ -164,7 +164,7 @@ export const ContactForm = () => {
         <Button
           type="submit"
           disabled={submitting}
-          className="w-full rounded-xl bg-primary text-white hover:bg-primary/90 py-3"
+          className="ww-button-espresso w-full rounded-xl py-3"
         >
           {submitting ? (
             <>

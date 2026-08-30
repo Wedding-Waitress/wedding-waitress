@@ -4,6 +4,7 @@ import { Badge } from '@/components/ui/badge';
 import { Users, MapPin, Utensils } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { normalizeRsvp } from '@/lib/rsvp';
+import { getHeadParticipantName, parseHeadSeatingOrder, type HeadSeatEntry, type TablePurpose } from '@/lib/headTable';
 
 interface TableGuest {
   id: string;
@@ -21,6 +22,10 @@ interface TableData {
   limit_seats: number;
   notes: string | null;
   guests: TableGuest[];
+  table_purpose: TablePurpose;
+  head_seating_order: HeadSeatEntry[];
+  participant1_name: string | null;
+  participant2_name: string | null;
 }
 
 interface TableVisualizationProps {
@@ -41,12 +46,13 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
     const fetchTableData = async () => {
       try {
         // Use public RPC function to fetch table data (bypasses RLS)
-        const { data, error } = await supabase.rpc('get_public_table_data', {
-          p_table_id: tableId,
-          p_event_id: eventId
-        });
+        const [{ data, error }, { data: semanticData, error: semanticError }] = await Promise.all([
+          supabase.rpc('get_public_table_data', { p_table_id: tableId, p_event_id: eventId }),
+          (supabase.rpc as any)('get_public_table_semantics', { p_table_id: tableId, p_event_id: eventId }),
+        ]);
 
         if (error) throw error;
+        if (semanticError) throw semanticError;
 
         if (!data || data.length === 0) {
           setTableData(null);
@@ -55,12 +61,17 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
 
         // Transform RPC response into TableData format
         const firstRow = data[0];
+        const semantics = (semanticData ?? {}) as Record<string, unknown>;
         const tableInfo: TableData = {
           id: firstRow.table_id,
           table_no: firstRow.table_no,
           name: firstRow.table_name,
           limit_seats: firstRow.limit_seats,
           notes: firstRow.table_notes,
+          table_purpose: semantics.table_purpose === 'head' ? 'head' : 'standard',
+          head_seating_order: parseHeadSeatingOrder(semantics.head_seating_order),
+          participant1_name: typeof semantics.participant1_name === 'string' ? semantics.participant1_name : null,
+          participant2_name: typeof semantics.participant2_name === 'string' ? semantics.participant2_name : null,
           guests: data
             .filter((row: any) => row.guest_id) // Only include rows with guest data
             .map((row: any) => ({
@@ -121,6 +132,11 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
 
   const seats = arrangeSeats(tableData.guests, tableData.limit_seats);
   const radius = 80; // Base radius for the table
+  const guestById = new Map(tableData.guests.map((guest) => [guest.id, guest]));
+  const headOccupants = tableData.head_seating_order.map((entry) => entry.kind === 'participant'
+    ? getHeadParticipantName(entry, tableData.participant1_name, tableData.participant2_name)
+    : `${guestById.get(entry.guest_id)?.first_name ?? 'Guest'} ${guestById.get(entry.guest_id)?.last_name ?? ''}`.trim());
+  const headOccupantOffset = Math.floor((tableData.limit_seats - headOccupants.length) / 2);
   
   return (
     <Card className="w-full card-elevated">
@@ -135,8 +151,20 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
       </CardHeader>
       
       <CardContent className="p-6">
-        {/* Round Table Visualization */}
-        <div className="relative mx-auto w-[180px] h-[180px] md:w-[280px] md:h-[280px] mt-4">
+        {tableData.table_purpose === 'head' ? (
+          <div data-head-table-order="left-to-right-as-viewed-by-guests" className="mx-auto mt-4 w-full max-w-3xl overflow-x-auto pb-2">
+            <p className="mb-3 text-center text-xs text-muted-foreground">Left to right, as viewed by the guests.</p>
+            <div className="grid min-w-[560px] items-end gap-2" style={{ gridTemplateColumns: `repeat(${Math.max(1, tableData.limit_seats)}, minmax(0, 1fr))` }}>
+              {Array.from({ length: tableData.limit_seats }, (_, index) => (
+                <div key={index} className="text-center">
+                  <div data-live-body className="mb-2 min-h-9 break-words text-xs font-semibold">{headOccupants[index - headOccupantOffset] ?? ''}</div>
+                  <div className={`mx-auto flex h-10 w-10 items-center justify-center rounded-full border-2 text-xs ${headOccupants[index - headOccupantOffset] ? 'border-green-500 bg-green-500/10 text-green-700' : 'border-[#C4A882] bg-[#C4A882]/10 text-[#967A59]'}`}>{index + 1}</div>
+                </div>
+              ))}
+            </div>
+            <div data-live-section-heading className="mt-2 flex h-24 min-w-[560px] items-center justify-center rounded-xl border-2 border-primary/30 bg-gradient-card text-xl font-bold text-primary">{tableData.name}</div>
+          </div>
+        ) : <div className="relative mx-auto w-[180px] h-[180px] md:w-[280px] md:h-[280px] mt-4">
           {/* Table Surface */}
           <div 
             className="absolute inset-0 bg-gradient-card border-2 border-primary/30 rounded-full flex items-center justify-center"
@@ -146,15 +174,15 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
           >
             <div className="text-center px-2">
               {/* Line 1: "Table" - permanent label */}
-              <div className="text-base md:text-xl font-bold text-primary">
+              <div data-live-section-heading className="text-base md:text-xl font-bold text-primary">
                 Table
               </div>
               {/* Line 2: Table number or name */}
-              <div className="text-base md:text-xl font-bold text-primary leading-tight">
+              <div data-live-section-heading className="text-base md:text-xl font-bold text-primary leading-tight">
                 {tableData.name || tableData.table_no}
               </div>
               {/* Line 3: Seated count in brackets */}
-              <div className="text-xs md:text-sm font-normal text-muted-foreground mt-1">
+              <div data-live-body className="text-xs md:text-sm font-normal text-muted-foreground mt-1">
                 ({tableData.guests.length} of {tableData.limit_seats} seated)
               </div>
             </div>
@@ -200,7 +228,7 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
               </div>
             );
           })}
-        </div>
+        </div>}
 
         {/* Guest List */}
         <div className="mt-6 space-y-2">
@@ -218,11 +246,11 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
                       normalizeRsvp(guest.rsvp) === 'Not Attending' ? 'bg-red-500' : 'bg-warning'
                     }`} />
                     <div>
-                      <div className="text-sm font-medium">
+                      <div data-live-body className="text-sm font-medium">
                         {guest.first_name} {guest.last_name}
                       </div>
                       {guest.dietary && guest.dietary !== 'NA' && (
-                        <div className="flex items-center gap-1 text-xs text-muted-foreground">
+                        <div data-live-body className="flex items-center gap-1 text-xs text-muted-foreground">
                           <Utensils className="w-3 h-3" />
                           <span>{guest.dietary}</span>
                         </div>

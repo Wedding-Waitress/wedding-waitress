@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { useCurrencyContext } from "@/contexts/CurrencyContext";
 import { ADDITIONAL_EVENT } from "@/lib/planRegistry";
 import { CURRENCIES, formatPrice } from "@/lib/currencyPricing";
+import styles from './MyEventsPage.module.css';
 
 interface Props {
   isOpen: boolean;
@@ -52,6 +53,7 @@ export const AdditionalEventModal: React.FC<Props> = ({
         title: "Could not start checkout",
         description: e instanceof Error ? e.message : "Please try again.",
         variant: "destructive",
+        className: styles.toast,
       });
       setBusy(false);
     }
@@ -59,15 +61,15 @@ export const AdditionalEventModal: React.FC<Props> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={(o) => !o && onClose()}>
-      <DialogContent className="max-w-md p-0 overflow-hidden border-0 bg-transparent shadow-none">
+      <DialogContent className={`max-w-md p-0 overflow-hidden border-0 bg-transparent shadow-none ${styles.dialogRoot}`}>
         <div
-          className="rounded-2xl border border-[#E8E1D6] shadow-[0_24px_60px_-20px_rgba(150,122,89,0.35)]"
+          className={`rounded-2xl border border-[#E8E1D6] shadow-[0_24px_60px_-20px_rgba(150,122,89,0.35)] ${styles.dialogWrap}`}
           style={{ background: "linear-gradient(180deg, #FBF7F1 0%, #F4ECE0 100%)" }}
         >
           <div className="flex items-center justify-between px-6 pt-6">
             <div className="flex items-center gap-2 text-[#967A59]">
               <Calendar className="w-5 h-5" />
-              <span className="text-xs font-semibold tracking-wide uppercase">Plan capacity</span>
+              <span className={`text-xs font-semibold tracking-wide uppercase ${styles.dialogBadge}`}>Plan capacity</span>
             </div>
             <button
               onClick={onClose}
@@ -79,7 +81,7 @@ export const AdditionalEventModal: React.FC<Props> = ({
           </div>
 
           <div className="px-6 pt-3 pb-6">
-            <h2 className="text-[22px] font-semibold text-[#1D1D1F] tracking-tight">
+            <h2 className={`text-[22px] font-semibold text-[#1D1D1F] tracking-tight ${styles.dialogTitle}`}>
               You've reached your event limit
             </h2>
             <p className="mt-1.5 text-sm text-[#6E6E73] leading-relaxed">
@@ -90,7 +92,7 @@ export const AdditionalEventModal: React.FC<Props> = ({
 
             <div className="mt-5 rounded-xl bg-white/70 border border-[#E8E1D6] px-4 py-3.5 flex items-center justify-between">
               <div>
-                <p className="text-[13px] font-medium text-[#1D1D1F]">Additional Event</p>
+                <p className={`text-[13px] font-medium text-[#1D1D1F] ${styles.dialogLabel}`}>Additional Event</p>
                 <p className="text-[11.5px] text-[#6E6E73]">One-time, applied to your account</p>
               </div>
               <div className="text-right">
@@ -102,7 +104,7 @@ export const AdditionalEventModal: React.FC<Props> = ({
             <Button
               onClick={handleAdd}
               disabled={busy}
-              className="lv-premium-shade w-full mt-5 h-11 rounded-xl bg-[#967A59] hover:bg-[#856B4D] text-white font-medium gap-2"
+              className={`lv-premium-shade w-full mt-5 h-11 rounded-xl bg-[#967A59] hover:bg-[#856B4D] text-white font-medium gap-2 ${styles.dialogButton}`}
             >
               <Plus className="w-4 h-4" />
               {busy ? "Opening checkout…" : `Add 1 event for ${priceLabel}`}

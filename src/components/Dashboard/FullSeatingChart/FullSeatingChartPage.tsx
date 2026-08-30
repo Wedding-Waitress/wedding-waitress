@@ -40,7 +40,7 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Badge } from '@/components/ui/badge';
 import { ClipboardList, UsersRound, CalendarDays, Printer, FileDown, Files, LoaderCircle, TriangleAlert, LayoutTemplate } from 'lucide-react';
-import { useEvents } from '@/hooks/useEvents';
+import type { Event } from '@/hooks/useEvents';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useFullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
 import { useTables } from '@/hooks/useTables';
@@ -49,23 +49,25 @@ import { useToast } from '@/hooks/use-toast';
 import { FullSeatingChartPreview } from './FullSeatingChartPreview';
 import { FullSeatingChartCustomizer } from './FullSeatingChartCustomizer';
 
-import { exportFullSeatingChartToPdf } from '@/lib/fullSeatingChartPdfExporter';
 import { getFullSeatingChartGuestsPerPage } from '@/lib/fullSeatingChartLayout';
 import styles from './FullSeatingChartPage.module.css';
 
 interface FullSeatingChartPageProps {
   selectedEventId: string | null;
   onEventSelect: (eventId: string) => void;
+  events: Event[];
+  eventsLoading: boolean;
 }
 
 export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
   selectedEventId,
-  onEventSelect
+  onEventSelect,
+  events,
+  eventsLoading,
 }) => {
   const [isExporting, setIsExporting] = useState(false);
   const [exportTarget, setExportTarget] = useState<'single' | 'all' | null>(null);
   
-  const { events, loading: eventsLoading } = useEvents();
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { settings, loading: settingsLoading, updateSettings } = useFullSeatingChartSettings(selectedEventId);
   const { tables } = useTables(selectedEventId);
@@ -126,6 +128,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
       const endIdx = Math.min(startIdx + guestsPerPage, sortedGuests.length);
       const currentPageGuests = sortedGuests.slice(startIdx, endIdx);
 
+      const { exportFullSeatingChartToPdf } = await import('@/lib/fullSeatingChartPdfExporter');
       await exportFullSeatingChartToPdf(selectedEvent, currentPageGuests, settings, 1, 1, tableNameMap, tableIdNameMap);
 
       toast({
@@ -156,6 +159,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         description: 'Creating your full seating chart...',
       });
 
+      const { exportFullSeatingChartToPdf } = await import('@/lib/fullSeatingChartPdfExporter');
       await exportFullSeatingChartToPdf(selectedEvent, sortedGuests, settings, undefined, undefined, tableNameMap, tableIdNameMap);
 
       toast({
@@ -242,8 +246,8 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
               <div className="flex items-start gap-2">
                 <ClipboardList className="w-[25px] h-[25px] mt-0.5 text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 <div className="min-w-0">
-                  <CardTitle className="text-left text-2xl font-bold text-[#472c1d]">Full Seating Chart</CardTitle>
-                  <CardDescription className="text-left">
+                  <CardTitle className={`${styles.pageHeading} text-left text-2xl font-bold text-[#472c1d]`}>Full Seating Chart</CardTitle>
+                  <CardDescription className={`${styles.pageDescription} text-left`}>
                     Complete guest list with check-off boxes
                   </CardDescription>
                 </div>
@@ -251,7 +255,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
 
               <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-wrap">
                 <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-                <label className="text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]">
+                <label className={`${styles.interfaceLabel} text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]`}>
                   <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                   Choose Event:
                 </label>
@@ -283,7 +287,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
                   className={`${styles.statsPill} w-fit max-w-full h-10 px-3 py-2 bg-white border border-[#472c1d] text-[#472c1d] rounded-md whitespace-normal`}
                 >
                     <UsersRound className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
-                    <span className="ml-1.5">
+                    <span className={`${styles.compactStatus} ml-1.5`}>
                     {guestsLoading ? "Loading..." : `${guests.length} guests`}
                     </span>
                 </Badge>
@@ -295,11 +299,11 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
             {isDataReady && hasGuests && (
                 <div className={`${styles.exportPanel} bg-white border border-[#472c1d] rounded-xl p-3 sm:p-4 flex flex-col justify-between gap-3 min-w-0`}>
                   <div className="text-sm space-y-1">
-                    <span className="font-bold text-sm inline-flex items-center gap-1.5">
+                    <span className={`${styles.sectionHeading} font-bold text-sm inline-flex items-center gap-1.5`}>
                       <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                       Export Controls
                     </span>
-                    <p className="text-muted-foreground">
+                    <p className={`${styles.interfaceDescription} text-muted-foreground`}>
                       Download the full seating chart and share it with your vendors.
                     </p>
                   </div>
@@ -377,7 +381,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
           <Card className={`${styles.emptyPanel} ww-box print:hidden`}>
             <CardContent className="p-8 text-center">
               <UsersRound className="w-16 h-16 mx-auto text-muted-foreground mb-4" strokeWidth={1.8} aria-hidden="true" />
-              <CardTitle className="mb-2">No Guests Found</CardTitle>
+              <CardTitle className={`${styles.sectionHeading} mb-2`}>No Guests Found</CardTitle>
               <CardDescription>
                 Add some guests to generate your seating chart.
               </CardDescription>
@@ -387,7 +391,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
           <Card className={`${styles.emptyPanel} ww-box print:hidden`}>
             <CardContent className="p-8 text-center">
               <LayoutTemplate className="w-16 h-16 mx-auto text-muted-foreground mb-4" strokeWidth={1.8} aria-hidden="true" />
-              <CardTitle className="mb-2">Loading Event Data</CardTitle>
+              <CardTitle className={`${styles.sectionHeading} mb-2`}>Loading Event Data</CardTitle>
               <CardDescription>
                 Please wait while we load your guest information.
               </CardDescription>
@@ -398,7 +402,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         <Card className={`${styles.emptyPanel} ww-box print:hidden`}>
           <CardContent className="p-8 text-center">
             <ClipboardList className="w-16 h-16 mx-auto text-muted-foreground mb-4" strokeWidth={1.8} aria-hidden="true" />
-            <CardTitle className="mb-2">Select an Event</CardTitle>
+            <CardTitle className={`${styles.sectionHeading} mb-2`}>Select an Event</CardTitle>
             <CardDescription>
               Choose an event from the dropdown above to generate your full seating chart
             </CardDescription>

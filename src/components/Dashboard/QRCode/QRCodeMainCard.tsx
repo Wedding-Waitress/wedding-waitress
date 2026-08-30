@@ -27,7 +27,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
 import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, FileDown, Palette, ChevronDown, FileText, Code, Image as ImageIcon, ExternalLink, Link, Eye, EyeOff, Upload, Mail, Edit, Trash2, Loader2, Video, Square, Circle, Diamond, Plus, Minus, MapPin, UtensilsCrossed, CheckCircle2 } from 'lucide-react';
-import { useEvents } from '@/hooks/useEvents';
+import type { Event } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { useLiveViewVisibility } from '@/hooks/useLiveViewVisibility';
 import { useLiveViewModuleSettings } from '@/hooks/useLiveViewModuleSettings';
@@ -38,10 +38,10 @@ import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
 import type { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 import { DEFAULT_QR_SETTINGS } from '@/hooks/useQRCodeSettings';
-import jsPDF from 'jspdf';
 import styles from './QRCodeSeatingChart.module.css';
 interface QRCodeMainCardProps {
   eventId: string;
+  event: Event;
 }
 
 interface QRColorsSettings {
@@ -83,19 +83,17 @@ const defaultLogo: QRLogoSettings = {
 };
 
 export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
-  eventId
+  eventId,
+  event,
 }) => {
-  const {
-    events
-  } = useEvents();
   const {
     toast
   } = useToast();
   const { settings: visibilitySettings, updateVisibility } = useLiveViewVisibility(eventId);
   const { settings: moduleSettings, updateModuleConfig } = useLiveViewModuleSettings(eventId);
   const { uploadVideo, deleteVideo, uploadProgress, isUploading, isProcessing } = useWelcomeVideoUpload(eventId);
-  const selectedEvent = events.find(event => event.id === eventId);
-  const currentEvent = events.find(event => event.id === eventId);
+  const selectedEvent = event;
+  const currentEvent = event;
   const { settings: songRequestSettings, updateSettings: updateSongRequestSettings } = useGuestSongRequestSettings(eventId);
   const { dynamicUrl } = useEventDynamicQR(eventId);
   const eventUrl = dynamicUrl || (selectedEvent?.slug ? buildGuestLookupUrl(selectedEvent.slug) : '');
@@ -372,6 +370,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
     if (!qrDataUrl) return;
     try {
       const { savePdfAsync, PDF_DEFAULT_OPTIONS } = await import('@/lib/pdfExportUtils');
+      const { default: jsPDF } = await import('jspdf');
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', ...PDF_DEFAULT_OPTIONS });
       await new Promise<void>((resolve, reject) => {
         const img = new Image();

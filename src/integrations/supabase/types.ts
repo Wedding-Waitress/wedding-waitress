@@ -882,6 +882,121 @@ export type Database = {
           },
         ]
       }
+      event_budget_expenses: {
+        Row: {
+          actual_cost: number | null
+          address: string | null
+          amount_paid: number
+          balance_due_date: string | null
+          category: string
+          contact_person: string | null
+          created_at: string
+          custom_category: string | null
+          display_order: number
+          email: string | null
+          estimated_cost: number | null
+          event_id: string
+          expense_name: string | null
+          id: string
+          notes: string | null
+          payment_date: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+          vendor_name: string | null
+        }
+        Insert: {
+          actual_cost?: number | null
+          address?: string | null
+          amount_paid?: number
+          balance_due_date?: string | null
+          category: string
+          contact_person?: string | null
+          created_at?: string
+          custom_category?: string | null
+          display_order?: number
+          email?: string | null
+          estimated_cost?: number | null
+          event_id: string
+          expense_name?: string | null
+          id?: string
+          notes?: string | null
+          payment_date?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+          vendor_name?: string | null
+        }
+        Update: {
+          actual_cost?: number | null
+          address?: string | null
+          amount_paid?: number
+          balance_due_date?: string | null
+          category?: string
+          contact_person?: string | null
+          created_at?: string
+          custom_category?: string | null
+          display_order?: number
+          email?: string | null
+          estimated_cost?: number | null
+          event_id?: string
+          expense_name?: string | null
+          id?: string
+          notes?: string | null
+          payment_date?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+          vendor_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_budget_expenses_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_budget_settings: {
+        Row: {
+          anticipated_budget: number
+          created_at: string
+          currency: string
+          event_id: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          anticipated_budget?: number
+          created_at?: string
+          currency?: string
+          event_id: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          anticipated_budget?: number
+          created_at?: string
+          currency?: string
+          event_id?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_budget_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
       event_collaborators: {
         Row: {
           created_at: string | null
@@ -4254,7 +4369,9 @@ export type Database = {
           name: string
           notes: string | null
           table_no: number | null
+          table_purpose: string
           table_type: string | null
+          head_seating_order: Json
           updated_at: string
           user_id: string
         }
@@ -4266,7 +4383,9 @@ export type Database = {
           name: string
           notes?: string | null
           table_no?: number | null
+          table_purpose?: string
           table_type?: string | null
+          head_seating_order?: Json
           updated_at?: string
           user_id: string
         }
@@ -4278,7 +4397,9 @@ export type Database = {
           name?: string
           notes?: string | null
           table_no?: number | null
+          table_purpose?: string
           table_type?: string | null
+          head_seating_order?: Json
           updated_at?: string
           user_id?: string
         }
@@ -4361,6 +4482,7 @@ export type Database = {
           created_at: string
           expires_at: string
           grace_period_ends_at: string | null
+          download_only_ends_at: string | null
           id: string
           is_read_only: boolean
           plan_id: string
@@ -4374,6 +4496,7 @@ export type Database = {
           created_at?: string
           expires_at: string
           grace_period_ends_at?: string | null
+          download_only_ends_at?: string | null
           id?: string
           is_read_only?: boolean
           plan_id: string
@@ -4387,6 +4510,7 @@ export type Database = {
           created_at?: string
           expires_at?: string
           grace_period_ends_at?: string | null
+          download_only_ends_at?: string | null
           id?: string
           is_read_only?: boolean
           plan_id?: string
@@ -5293,6 +5417,16 @@ export type Database = {
           plan_name: string
           status: string
           team_members: number
+        }[]
+      }
+      extend_starter_trial_once: { Args: never; Returns: string }
+      refresh_my_subscription_lifecycle: {
+        Args: never
+        Returns: {
+          download_only_ends_at: string
+          expires_at: string
+          is_read_only: boolean
+          status: string
         }[]
       }
       has_role: {

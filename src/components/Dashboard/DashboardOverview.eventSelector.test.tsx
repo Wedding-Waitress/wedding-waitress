@@ -11,10 +11,8 @@ describe('DashboardOverview event selector alignment', () => {
   it('keeps the icon and value in one overflow-safe row without changing trigger height', () => {
     render(
       <DashboardOverview
-        selectedEventId={null}
-        onEventSelect={vi.fn()}
+        onNavigateToTab={vi.fn()}
         events={[{ id: 'event-1', name: 'A very long selected wedding event name' }]}
-        guests={[]}
       />,
     );
 
@@ -33,10 +31,8 @@ describe('DashboardOverview event selector alignment', () => {
 
     render(
       <DashboardOverview
-        selectedEventId="event-1"
-        onEventSelect={vi.fn()}
+        onNavigateToTab={vi.fn()}
         events={[{ id: 'event-1', name: eventName }]}
-        guests={[]}
       />,
     );
 
@@ -44,7 +40,7 @@ describe('DashboardOverview event selector alignment', () => {
     const valueRow = screen.getByTestId('dashboard-event-value');
 
     expect(trigger).toHaveAccessibleName('Choose Event');
-    expect(valueRow.textContent).toBe('');
+    expect(valueRow.textContent).toBe('Select an event');
     expect(trigger).not.toHaveTextContent(eventName);
   });
 });

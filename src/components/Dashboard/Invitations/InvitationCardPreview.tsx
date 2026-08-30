@@ -357,7 +357,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
 
         {/* Zoom controls on right side, vertically centered */}
         <div
-          className="flex flex-col items-center gap-1.5 rounded-lg border border-border/60 bg-card/70 px-1.5 py-3 shadow-sm self-center opacity-90"
+          className="ww-signage-preview-zoom-controls flex flex-col items-center gap-1.5 rounded-lg border border-border/60 bg-card/70 px-1.5 py-3 shadow-sm self-center opacity-90"
           onClick={(e) => e.stopPropagation()}
         >
           <span className="text-[10px] font-medium uppercase tracking-wide text-muted-foreground/80">

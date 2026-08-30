@@ -22,6 +22,7 @@ import {
   DialogHeader,
   DialogTitle,
 } from '@/components/ui/dialog';
+import theme from './DJMCQuestionnaireTheme.module.css';
 
 interface DJMCMusicUrlFieldProps {
   value: string | null;
@@ -77,11 +78,13 @@ export function DJMCMusicUrlField({
       try {
         await navigator.clipboard.writeText(value);
         toast({
+          className: 'ww-djmc-toast',
           title: "Link Copied",
           description: "Music link copied to clipboard",
         });
       } catch (err) {
         toast({
+          className: 'ww-djmc-toast',
           title: "Copy Failed",
           description: "Failed to copy link to clipboard",
           variant: "destructive",
@@ -132,7 +135,7 @@ export function DJMCMusicUrlField({
         <button
           type="button"
           onClick={() => window.open(value, '_blank', 'noopener,noreferrer')}
-          className="inline-flex items-center gap-2 text-sm text-primary hover:underline cursor-pointer bg-transparent border-none"
+          className={`${theme.buttonText} inline-flex items-center gap-2 text-primary hover:underline cursor-pointer bg-transparent border-none`}
         >
           {renderPlatformIcon()}
           {getPlatformLabel()}
@@ -248,7 +251,7 @@ export function DJMCMusicUrlField({
       </div>
 
       <Dialog open={showPreview} onOpenChange={setShowPreview}>
-        <DialogContent className="max-w-2xl">
+        <DialogContent className={`${theme.dialogSurface} max-w-2xl`}>
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               {renderPlatformIcon()}

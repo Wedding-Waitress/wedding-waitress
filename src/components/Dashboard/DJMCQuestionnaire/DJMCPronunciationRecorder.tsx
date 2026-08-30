@@ -58,6 +58,7 @@ export function DJMCPronunciationRecorder({
     } catch (error) {
       console.error('Error starting recording:', error);
       toast({
+        className: 'ww-djmc-toast',
         title: 'Error',
         description: 'Could not access microphone. Please check permissions.',
         variant: 'destructive',
@@ -94,12 +95,14 @@ export function DJMCPronunciationRecorder({
       onChange(publicUrl);
 
       toast({
+        className: 'ww-djmc-toast',
         title: 'Recording Saved',
         description: 'Pronunciation has been recorded',
       });
     } catch (error) {
       console.error('Error uploading audio:', error);
       toast({
+        className: 'ww-djmc-toast',
         title: 'Error',
         description: 'Failed to save recording',
         variant: 'destructive',

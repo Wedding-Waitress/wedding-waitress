@@ -1,13 +1,9 @@
 .fullPageSurface {
   min-height: 100dvh;
-  background-color: #70452f;
-  background-image:
-    radial-gradient(circle at 76% 7%, rgba(235, 180, 119, 0.16), transparent 34%),
-    linear-gradient(135deg, rgba(20, 10, 7, 0.24), transparent 46%),
-    url("../../../assets/dashboard-mocha-liquid-glass.png");
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: cover;
+}
+
+.signageWorkspaceSurface {
+  background: #f2e9dc !important;
 }
 
 .page {
@@ -22,6 +18,118 @@
   color: #f3e7d8;
   background: transparent;
   isolation: isolate;
+}
+
+/* Seating Chart Signs interface typography. The preview stage is deliberately
+   excluded so sign artwork and print/export geometry remain unchanged. */
+:global(#root) .page .pageHeader h1 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 24px !important;
+  font-weight: 600 !important;
+}
+
+:global(#root) .page .pageHeader p,
+:global(#root) .page .mainStudio :is(p, li):not(:global(.ww-signage-guidelines-title)),
+:global(#root) .page .infoStrip p,
+.interfaceState p,
+.interfaceState > span,
+.supportingText {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+:global(#root) .page .mainStudio label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+:global(#root) .page .mainStudio [role="combobox"],
+:global(#root) .page .designerShell :global(.ww-signage-typography-designer) [role="combobox"] {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+:global(#root) .page .printStudio > div:first-child > h3,
+:global(#root) .page .designerShell :global(.ww-signage-typography-designer) > div:first-child [class*="text-2xl"] {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 24px !important;
+  font-weight: 600 !important;
+}
+
+:global(#root) .page .guidelinesPanel :global(.ww-signage-guidelines-title),
+:global(#root) .page .exportPanel > div:first-child > span:first-child,
+.interfaceState :is(h3, [class*="text-xl"]) {
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+:global(#root) .page .exportPanel > div:first-child > span:last-child {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+.printSizeTitle {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+:global(#root) .page .mainStudio :is(button, [role="tab"]),
+:global(#root) .page .designerShell :global(.ww-signage-typography-designer) :is(button, [role="tab"]) {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+:global(#root) .page .designerShell :global(.ww-signage-typography-designer) :is(p, input, textarea),
+:global(#root) .page .designerShell :global(.ww-signage-typography-designer) :is(span, div)[class*="text-xs"]:not([class*="rounded-full"]),
+:global(#root) .page .designerShell :global(.ww-signage-typography-designer) :is(span, div)[class*="text-sm"]:not([class*="rounded-full"]) {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+:global(#root) .page .designerShell :global(.ww-signage-typography-designer) label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+:global(#root) .page .designerShell :global(.ww-signage-typography-designer) :is(h3, h4),
+:global(#root) .page .designerShell :global(.ww-signage-typography-designer) :global(.ww-invitations-section-heading) {
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+.compactIndicator,
+:global(#root) .page .designerShell :global(.ww-signage-typography-designer) span[class*="rounded-full"],
+:global(#root) .page .designerShell :global(.ww-signage-typography-designer) span[class*="text-[10px]"],
+.previewStage [class*="self-center"] > span {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+:global(.ww-signage-typography-portal),
+:global(.ww-signage-typography-portal) :is(p, input),
+:global(.ww-signage-typography-portal) :is([role="option"], [cmdk-item]) {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+:global(.ww-signage-typography-portal) label,
+:global(.ww-signage-typography-portal) [cmdk-group-heading] {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+:global(.ww-signage-typography-portal) button {
+  font-size: 13px !important;
+  font-weight: 500 !important;
 }
 
 .mainStudio,
@@ -655,7 +763,7 @@
   .designerShell :global(.ww-signage-premium-designer) [role="tab"] {
     min-height: 3.25rem;
     padding-inline: 0.18rem !important;
-    font-size: 0.62rem !important;
+    font-size: 13px !important;
   }
 }
 
@@ -670,4 +778,559 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+/* Approved light champagne organiser skin. This block is intentionally limited
+   to the Signs Studio interface; the preview document and export renderer are
+   not descendants of any broad control selector below. */
+@scope (.signageLightSurface) {
+:scope {
+  --ww-signage-champagne-border: #cdb99e;
+  --ww-signage-champagne-border-soft: #ddcdb8;
+  --ww-signage-champagne-icon: #a18764;
+  color: #2b1711;
+  background: #f2e9dc;
+}
+
+.mainStudio,
+.infoStrip {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fbf8f2 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    0 14px 32px rgba(87, 58, 39, 0.12) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.interfaceState {
+  color: #2b1711 !important;
+  border: 1px solid #cdb99e !important;
+  background: #fbf8f2 !important;
+  box-shadow: inset 0 1px 0 #ffffff, 0 14px 32px rgba(87, 58, 39, 0.12) !important;
+}
+
+.interfaceState :is(h3, p, span) {
+  color: #684b40 !important;
+}
+
+.interfaceState svg {
+  color: #a18764 !important;
+  stroke: currentColor !important;
+}
+
+:global(#root) .mainStudio :is(h1, h2, h3, h4, label, strong),
+:global(#root) .designerShell :global(.ww-signage-premium-designer) :is(h1, h2, h3, h4, label, strong),
+.mainStudio [class*="text-foreground"],
+.designerShell [class*="text-foreground"],
+.infoStrip [class*="text-foreground"] {
+  color: #2b1711 !important;
+}
+
+:global(#root) .mainStudio :is(p, li, span):not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]),
+:global(#root) .designerShell :global(.ww-signage-premium-designer) :is(p, span):not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]),
+:global(#root) .infoStrip p,
+.mainStudio [class*="text-muted-foreground"],
+.designerShell [class*="text-muted-foreground"] {
+  color: #684b40 !important;
+  opacity: 1 !important;
+}
+
+.mainStudio svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-white"]),
+:global(#root) .designerShell :global(.ww-signage-premium-designer) svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-white"]) {
+  color: #a18764 !important;
+  stroke: currentColor !important;
+}
+
+.divider {
+  background: linear-gradient(90deg, transparent, #cdb99e 12%, #cdb99e 88%, transparent);
+  box-shadow: 0 1px 0 rgba(255, 255, 255, 0.72);
+}
+
+.printSizeCard {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #f5ebdd !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    0 6px 14px rgba(87, 58, 39, 0.1) !important;
+}
+
+.printSizeCard:not(.printSizeActive):hover {
+  border-color: #a18764 !important;
+  background: #ede0d0 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.96),
+    0 10px 20px rgba(87, 58, 39, 0.14) !important;
+}
+
+.printSizeCard:not(.printSizeActive) span {
+  color: #684b40 !important;
+}
+
+.printSizeCard:not(.printSizeActive) .printSizeTitle {
+  color: #2b1711 !important;
+}
+
+.printSizeActive {
+  color: #ffffff !important;
+  border-color: #16a34a !important;
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    0 9px 20px rgba(22, 101, 52, 0.24) !important;
+}
+
+:global(#root) .mainStudio .printSizeActive :is(span, svg),
+:global(#root) .mainStudio .printSizeActive [class*="text-green"] {
+  color: #ffffff !important;
+  stroke: currentColor !important;
+}
+
+.printSizeActive [class*="bg-green"] {
+  color: #ffffff !important;
+  border-color: rgba(255, 255, 255, 0.62) !important;
+  background: rgba(21, 128, 61, 0.38) !important;
+}
+
+.selectTrigger,
+.mainStudio input:not([type="color"]),
+.mainStudio textarea,
+.mainStudio button[role="combobox"] {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: linear-gradient(180deg, #fffdf9 0%, #f3e8da 100%) !important;
+  box-shadow:
+    inset 0 1px 2px rgba(104, 75, 64, 0.1),
+    0 2px 5px rgba(87, 58, 39, 0.08) !important;
+}
+
+:global(#root) .selectTrigger,
+:global(#root) .selectTrigger span,
+:global(#root) .mainStudio input:not([type="color"]),
+:global(#root) .mainStudio textarea,
+:global(#root) .mainStudio button[role="combobox"] {
+  color: #2b1711 !important;
+  -webkit-text-fill-color: #2b1711;
+}
+
+.exportPanel {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #f5ebdd !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.92),
+    0 7px 16px rgba(87, 58, 39, 0.1);
+}
+
+.exportButton,
+.exportButton:not(:disabled):hover {
+  color: #ffffff !important;
+  border-color: #16a34a !important;
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    0 8px 18px rgba(22, 101, 52, 0.24) !important;
+}
+
+.exportButton svg {
+  color: #ffffff !important;
+}
+
+.infoStrip {
+  background: #f5ebdd !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fbf8f2 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.94),
+    0 16px 34px rgba(87, 58, 39, 0.13) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.designerShell :global(.ww-signage-premium-designer) > div:first-child {
+  border-bottom-color: #cdb99e;
+  background: #f5ebdd;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="tablist"] {
+  display: grid !important;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  height: auto !important;
+  gap: 0.35rem !important;
+  padding: 0.25rem !important;
+  border-color: #cdb99e !important;
+  border-radius: 999px !important;
+  background: #ede0d0 !important;
+  box-shadow:
+    inset 0 1px 2px rgba(104, 75, 64, 0.1),
+    inset 0 1px 0 rgba(255, 255, 255, 0.85) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="tab"] {
+  min-width: 0;
+  min-height: 0 !important;
+  height: auto !important;
+  flex-direction: row !important;
+  gap: 0.375rem !important;
+  padding: 0.375rem 1rem !important;
+  border: 0 !important;
+  border-radius: 999px !important;
+  color: #684b40 !important;
+  background: #f5ebdd !important;
+  box-shadow: none !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  line-height: 1.25rem !important;
+  white-space: nowrap !important;
+  transition:
+    color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 180ms cubic-bezier(0.4, 0, 0.2, 1);
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="tab"] svg {
+  width: 17px !important;
+  height: 17px !important;
+  color: #a18764 !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="tab"]:hover {
+  color: #2b1711 !important;
+  background: #fbf8f2 !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="tab"][data-state="active"] {
+  color: #ffffff !important;
+  border-color: #16a34a !important;
+  background: linear-gradient(180deg, #15803d 0%, #166534 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.34),
+    0 7px 16px rgba(22, 101, 52, 0.22) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="tab"][data-state="active"] svg {
+  color: #ffffff !important;
+}
+
+@media (max-width: 480px) {
+  .designerShell :global(.ww-signage-premium-designer) [role="tablist"] {
+    gap: 0.125rem !important;
+    padding: 0.2rem !important;
+  }
+
+  .designerShell :global(.ww-signage-premium-designer) [role="tab"] {
+    min-height: 2.75rem !important;
+    flex-direction: row !important;
+    gap: 0.2rem !important;
+    padding: 0.45rem 0.15rem !important;
+    font-size: clamp(10px, 3vw, 13px) !important;
+    line-height: 1 !important;
+    white-space: nowrap !important;
+  }
+
+  .designerShell :global(.ww-signage-premium-designer) [role="tab"] svg {
+    width: 14px !important;
+    height: 14px !important;
+  }
+}
+
+.designerShell :global(.ww-signage-premium-designer) input:not([type="color"]),
+.designerShell :global(.ww-signage-premium-designer) textarea,
+.designerShell :global(.ww-signage-premium-designer) button[role="combobox"] {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: linear-gradient(180deg, #fffdf9 0%, #f3e8da 100%) !important;
+  box-shadow:
+    inset 0 1px 2px rgba(104, 75, 64, 0.1),
+    0 2px 5px rgba(87, 58, 39, 0.08) !important;
+}
+
+:global(#root) .designerShell :global(.ww-signage-premium-designer) input:not([type="color"]),
+:global(#root) .designerShell :global(.ww-signage-premium-designer) textarea,
+:global(#root) .designerShell :global(.ww-signage-premium-designer) button[role="combobox"],
+:global(#root) .designerShell :global(.ww-signage-premium-designer) button[role="combobox"] span {
+  color: #2b1711 !important;
+  -webkit-text-fill-color: #2b1711;
+}
+
+.designerShell :global(.ww-signage-premium-designer) input::placeholder,
+.designerShell :global(.ww-signage-premium-designer) textarea::placeholder {
+  color: #8a7065 !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [class*="bg-muted"],
+.designerShell :global(.ww-signage-premium-designer) [class*="border-accent"],
+.designerShell :global(.ww-signage-premium-designer) [class*="border-dashed"] {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #f5ebdd !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86), 0 5px 12px rgba(87, 58, 39, 0.08);
+}
+
+.designerShell :global(.ww-signage-premium-designer) [class*="border-t"] {
+  border-color: #cdb99e !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) :global(.ww-signage-preset-zones) > span {
+  color: #684b40 !important;
+  border-color: #cdb99e !important;
+  background: #ede0d0;
+}
+
+.designerShell :global(.ww-signage-premium-designer) :global(.ww-signage-preset-zones) button,
+.designerShell :global(.ww-signage-premium-designer) button:not([role="tab"]):not([role="switch"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not(:global(.ww-signage-reset-action)):not([style]) {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: linear-gradient(180deg, #fffdf9 0%, #ede0d0 100%) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.96),
+    0 5px 12px rgba(87, 58, 39, 0.11) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) :global(.ww-signage-add-custom-zone) {
+  color: #ffffff !important;
+  border-color: #16a34a !important;
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34), 0 8px 18px rgba(22, 101, 52, 0.22) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) :global(.ww-signage-reset-action) {
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  background: linear-gradient(180deg, #f87171 0%, #ef4444 58%, #dc2626 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 7px 16px rgba(127, 29, 29, 0.22) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) button[class*="bg-green"] {
+  color: #ffffff !important;
+  border-color: #16a34a !important;
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34), 0 7px 16px rgba(22, 101, 52, 0.22) !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [class*="text-green"] {
+  color: #15803d !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [class*="text-red"],
+.designerShell :global(.ww-signage-premium-designer) [class*="text-destructive"] {
+  color: #b91c1c !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="switch"][data-state="checked"] {
+  border-color: #16a34a !important;
+  background: #22c55e !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="switch"][data-state="unchecked"] {
+  border-color: #cdb99e !important;
+  background: #cbb9a3 !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="radio"] {
+  border-color: #a18764 !important;
+  background: #fffdf9 !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="radio"][data-state="checked"] {
+  color: #16a34a !important;
+  border-color: #16a34a !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="slider"] > span:first-child {
+  background: #ddcdb8 !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="slider"] span[role="slider"] {
+  border-color: #806344 !important;
+  background: #fffdf9 !important;
+  box-shadow: 0 0 0 3px rgba(128, 99, 68, 0.14);
+}
+
+.designerShell :global(.ww-signage-premium-designer) :global(.ww-signage-qr-preview) {
+  border-color: #cdb99e !important;
+  background: #ede0d0 !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) :global(.ww-signage-qr-preview) img {
+  border-color: #cdb99e;
+  background: #ffffff;
+  box-shadow: 0 7px 16px rgba(87, 58, 39, 0.14);
+}
+
+.designerShell :global(.ww-signage-premium-designer) ::-webkit-scrollbar-track {
+  background: #ede0d0;
+}
+
+.designerShell :global(.ww-signage-premium-designer) ::-webkit-scrollbar-thumb {
+  border-color: #ede0d0;
+  background: #a18764;
+}
+
+.previewStage {
+  border: 0;
+  outline: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+.previewStage :global(.ww-signage-preview-zoom-controls) {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fbf8f2 !important;
+  box-shadow: 0 6px 16px rgba(87, 58, 39, 0.14) !important;
+}
+
+.previewStage :global(.ww-signage-preview-zoom-controls) :is(span, button, svg) {
+  color: #684b40 !important;
+  stroke: currentColor !important;
+}
+
+.previewStage :global(.ww-signage-preview-zoom-controls) [role="slider"] > span:first-child {
+  background: #ddcdb8 !important;
+}
+
+.previewStage :global(.ww-signage-preview-zoom-controls) span[role="slider"] {
+  border-color: #806344 !important;
+  background: #fffdf9 !important;
+}
+
+.mainStudio button:focus-visible,
+.mainStudio input:focus-visible,
+.mainStudio textarea:focus-visible,
+.designerShell :global(.ww-signage-premium-designer) button:focus-visible,
+.designerShell :global(.ww-signage-premium-designer) input:focus-visible,
+.designerShell :global(.ww-signage-premium-designer) textarea:focus-visible,
+.designerShell :global(.ww-signage-premium-designer) [role="button"]:focus-visible {
+  box-shadow: 0 0 0 2px #fbf8f2, 0 0 0 4px #755332 !important;
+}
+}
+
+/* Root-cause correction for the approved light skin: selectors containing
+   #root cannot match from inside an @scope whose root is the Signs page.
+   Keep these high-specificity declarations outside that boundary and anchor
+   them to signageLightSurface so the legacy espresso rules cannot win. */
+:global(#root) .signageLightSurface .mainStudio :is(h1, h2, h3, h4, label, strong),
+:global(#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) :is(h1, h2, h3, h4, label, strong),
+:global(#root) .signageLightSurface .mainStudio [class*="text-foreground"],
+:global(#root) .signageLightSurface .designerShell [class*="text-foreground"],
+:global(#root) .signageLightSurface .infoStrip [class*="text-foreground"] {
+  color: #2b1711 !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .signageLightSurface .mainStudio :is(p, li, span):not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-white"]),
+:global(#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) :is(p, span):not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-white"]),
+:global(#root) .signageLightSurface .infoStrip p,
+:global(#root) .signageLightSurface .mainStudio [class*="text-muted-foreground"],
+:global(#root) .signageLightSurface .designerShell [class*="text-muted-foreground"] {
+  color: #684b40 !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .signageLightSurface .mainStudio svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-white"]),
+:global(#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-white"]) {
+  color: #a18764 !important;
+  stroke: currentColor !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .signageLightSurface .mainStudio .printSizeCard:not(.printSizeActive),
+:global(#root) .signageLightSurface .mainStudio .printSizeCard:not(.printSizeActive) :is(span, svg) {
+  color: #684b40 !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .signageLightSurface .mainStudio .printSizeCard:not(.printSizeActive) .printSizeTitle {
+  color: #2b1711 !important;
+}
+
+:global(#root) .signageLightSurface .mainStudio .printSizeActive,
+:global(#root) .signageLightSurface .mainStudio .printSizeActive :is(span, svg),
+:global(#root) .signageLightSurface .mainStudio .printSizeActive [class*="text-green"] {
+  color: #ffffff !important;
+  stroke: currentColor !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .signageLightSurface .selectTrigger,
+:global(#root) .signageLightSurface .selectTrigger span,
+:global(#root) .signageLightSurface .mainStudio input:not([type="color"]),
+:global(#root) .signageLightSurface .mainStudio textarea,
+:global(#root) .signageLightSurface .mainStudio button[role="combobox"],
+:global(#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) input:not([type="color"]),
+:global(#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) textarea,
+:global(#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) button[role="combobox"],
+:global(#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) button[role="combobox"] span {
+  color: #2b1711 !important;
+  -webkit-text-fill-color: #2b1711;
+  opacity: 1 !important;
+}
+
+:global(#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) [role="tab"][data-state="active"],
+:global(#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) [role="tab"][data-state="active"] :is(span, svg),
+:global(#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) :is(button[class*="bg-green"], button[class*="bg-red"], button[class*="bg-destructive"], button[class*="text-white"]),
+:global(#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) :is(button[class*="bg-green"], button[class*="bg-red"], button[class*="bg-destructive"], button[class*="text-white"]) :is(span, svg),
+:global(#root) .signageLightSurface .designerShell :global(.ww-signage-add-custom-zone),
+:global(#root) .signageLightSurface .designerShell :global(.ww-signage-add-custom-zone) :is(span, svg),
+:global(#root) .signageLightSurface .designerShell :global(.ww-signage-reset-action),
+:global(#root) .signageLightSurface .designerShell :global(.ww-signage-reset-action) :is(span, svg),
+:global(#root) .signageLightSurface .designerShell :global(.ww-zone-delete-btn),
+:global(#root) .signageLightSurface .designerShell :global(.ww-zone-delete-btn) :is(span, svg) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff;
+  stroke: currentColor !important;
+  opacity: 1 !important;
+}
+
+:global(.ww-signage-studio-portal) {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fbf8f2 !important;
+  box-shadow: inset 0 1px 0 #ffffff, 0 16px 36px rgba(87, 58, 39, 0.22) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:global(.ww-signage-studio-portal) [cmdk-root],
+:global(.ww-signage-studio-portal) [cmdk-list],
+:global(.ww-signage-studio-portal) [cmdk-group],
+:global(.ww-signage-studio-portal) [cmdk-input-wrapper] {
+  color: #2b1711 !important;
+  background: transparent !important;
+}
+
+:global(.ww-signage-studio-portal) input {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fffdf9 !important;
+}
+
+:global(.ww-signage-studio-portal) input::placeholder,
+:global(.ww-signage-studio-portal) p,
+:global(.ww-signage-studio-portal) [cmdk-group-heading] {
+  color: #684b40 !important;
+}
+
+:global(.ww-signage-studio-portal) [role="option"],
+:global(.ww-signage-studio-portal) [cmdk-item] {
+  color: #2b1711 !important;
+}
+
+:global(.ww-signage-studio-portal) [role="option"]:focus,
+:global(.ww-signage-studio-portal) [role="option"][data-highlighted],
+:global(.ww-signage-studio-portal) [cmdk-item][data-selected="true"] {
+  color: #2b1711 !important;
+  background: #ede0d0 !important;
+}
+
+:global(.ww-signage-studio-portal) svg {
+  color: #a18764 !important;
+  stroke: currentColor !important;
 }

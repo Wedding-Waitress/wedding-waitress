@@ -15,6 +15,9 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('@/hooks/useEvents', () => ({ useEvents: mocks.events }));
 vi.mock('@/hooks/useSelectedEvent', () => ({ useSelectedEvent: mocks.selectedEvent }));
+vi.mock('@/hooks/usePhotoVideoFeatureWorkspace', () => ({
+  usePhotoVideoFeatureWorkspace: () => ({ ...mocks.gallery(), ...mocks.selectedEvent(), selectionStatus: 'selected' }),
+}));
 vi.mock('@/hooks/useEventMediaGallery', () => ({
   useEventMediaGallery: mocks.gallery,
   GALLERY_ALBUMS: ['Ceremony', 'Reception', 'Dance Floor', 'Speeches', 'Bridal Party', 'Other'],
@@ -121,6 +124,8 @@ describe('Digital Photo Booth premium appearance', () => {
     expect(captures).toHaveClass(managementStyles.galleryPanel);
     expect(screen.getByPlaceholderText(/Search uploader/)).toHaveClass(managementStyles.galleryControl);
     expect(screen.getByRole('button', { name: /Download all Photo Booth/ })).toHaveClass(managementStyles.galleryControl);
+    expect(document.querySelector(`.${managementStyles.mediaLoadingSurface}`)).toBeInTheDocument();
+    expect(document.querySelector(`.${managementStyles.mediaLoadingSpinner}`)).toBeInTheDocument();
     expect(screen.getByText('Nader').closest(`.${managementStyles.galleryMediaFooter}`)).toBeInTheDocument();
   });
 

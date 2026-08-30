@@ -8,13 +8,15 @@ interface StandardEventSelectorProps {
   selectedEventId: string | null;
   onEventSelect: (eventId: string) => void;
   loading?: boolean;
+  menuClassName?: string;
 }
 
 export const StandardEventSelector: React.FC<StandardEventSelectorProps> = ({
   events,
   selectedEventId,
   onEventSelect,
-  loading = false
+  loading = false,
+  menuClassName,
 }) => {
   return (
     <div className="flex items-center space-x-4">
@@ -31,7 +33,7 @@ export const StandardEventSelector: React.FC<StandardEventSelectorProps> = ({
         <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary">
           <SelectValue placeholder="Choose Event" />
         </SelectTrigger>
-        <SelectContent className="bg-popover border-border z-50">
+        <SelectContent className={`bg-popover border-border z-50 ${menuClassName || ''}`}>
           {events.length > 0 ? (
             events.map((event) => (
               <SelectItem key={event.id} value={event.id}>

@@ -59,6 +59,7 @@ import {
 import { DJMCSection, DJMCItem } from '@/types/djMCQuestionnaire';
 import { DJMCSectionRow } from './DJMCSectionRow';
 import { Badge } from '@/components/ui/badge';
+import theme from './DJMCQuestionnaireTheme.module.css';
 
 const MUSIC_SECTION_TYPES = ['ceremony', 'cocktail', 'introductions', 'main_event', 'dinner', 'dance', 'traditional', 'do_not_play'];
 
@@ -221,10 +222,10 @@ export function DJMCQuestionnaireSection({
 
   return (
     <>
-      <Card className="border-border shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] max-lg:overflow-hidden">
+      <Card className={`${theme.sectionCard} max-lg:overflow-hidden`} data-section-type={section.section_type}>
         <Collapsible open={!section.is_collapsed} onOpenChange={(open) => onUpdateSection({ is_collapsed: !open })}>
           <CardHeader className="py-3 px-4">
-            <div className="flex items-center justify-between">
+            <div className="flex items-center justify-between max-sm:flex-col max-sm:items-stretch max-sm:gap-3">
               <div className="flex items-center gap-2 flex-1">
                 <CollapsibleTrigger asChild>
                   <Button
@@ -249,13 +250,13 @@ export function DJMCQuestionnaireSection({
                     onChange={(e) => setLocalLabel(e.target.value)}
                     onBlur={handleLabelBlur}
                     onKeyDown={handleLabelKeyDown}
-                    className="h-8 text-lg font-bold flex-1"
+                    className={`h-8 flex-1 ${theme.sectionHeading}`}
                   />
                 ) : (
                   <div className="flex items-center gap-3 max-lg:flex-wrap">
                     <h3
                       onClick={handleLabelClick}
-                      className="text-lg font-bold text-primary cursor-text hover:bg-muted/50 px-2 py-1 rounded transition-colors inline-flex items-center gap-2"
+                      className={`text-primary cursor-text hover:bg-muted/50 px-2 py-1 rounded transition-colors inline-flex items-center gap-2 ${theme.sectionHeading}`}
                     >
                       {SectionIcon && (
                         <SectionIcon size={19} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
@@ -292,7 +293,7 @@ export function DJMCQuestionnaireSection({
                 )}
               </div>
 
-              <div className="flex items-center gap-2">
+              <div className="flex items-center gap-2 max-sm:justify-end">
                 <Button
                   variant="ghost"
                   size="icon"
@@ -310,7 +311,7 @@ export function DJMCQuestionnaireSection({
                       <EllipsisVertical size={16} strokeWidth={1.8} />
                     </Button>
                   </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="ww-djmc-portal">
                     <DropdownMenuItem onClick={onDuplicateSection}>
                       <Copy size={18} strokeWidth={1.8} className="mr-2" />
                       Duplicate Section
@@ -349,8 +350,8 @@ export function DJMCQuestionnaireSection({
             {/* Notes field */}
             {showNotes && (
               <div className="mt-3">
-                <div className="border-2 border-primary rounded-md bg-background px-3 py-2">
-                  <div className="text-sm font-medium text-primary mb-1 flex items-center gap-2">
+                <div className={`${theme.notesPanel} rounded-md px-3 py-2`}>
+                  <div className={`${theme.fieldLabel} text-primary mb-1 flex items-center gap-2`}>
                     <NotebookPen size={17} strokeWidth={1.8} aria-hidden="true" />
                     Notes for DJ-MC
                   </div>
@@ -358,7 +359,7 @@ export function DJMCQuestionnaireSection({
                     value={section.notes || ''}
                     onChange={(e) => onUpdateSection({ notes: e.target.value || null })}
                     placeholder="e.g., special instructions, timing, etc."
-                    className="text-sm resize-y border-0 p-0 focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px]"
+                    className={`${theme.bodyText} resize-y border-0 p-0 focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px]`}
                     rows={2}
                     disabled={disabled}
                   />
@@ -370,16 +371,16 @@ export function DJMCQuestionnaireSection({
         <CollapsibleContent>
           <CardContent className="pt-0 px-2 pb-3 max-sm:px-3 max-sm:pb-4">
             <div className="max-lg:overflow-x-auto max-lg:-mx-2 max-lg:px-2 max-sm:-mx-3 max-sm:px-3 max-sm:[-webkit-overflow-scrolling:touch]">
-              <div className="max-lg:min-w-[1180px]">
+              <div className={`${theme.mobileRows} max-lg:min-w-[1180px]`}>
             {/* Subtitle for sections that have one (e.g., Do Not Play List) */}
             {section.section_subtitle && (
-              <p className="text-sm text-muted-foreground mb-3 italic px-2">
+              <p className={`${theme.bodyText} text-muted-foreground mb-3 italic px-2`}>
                 {section.section_subtitle}
               </p>
             )}
             
             {/* Column headers - 3 equal columns */}
-            <div className="flex items-center gap-2 px-1 py-2 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wide">
+            <div className={`${theme.columnHeader} flex items-center gap-2 px-1 py-2 text-xs font-medium uppercase tracking-wide`}>
               <div className="w-6 shrink-0" /> {/* Drag handle space */}
               
               {/* Special header for do_not_play - two columns */}
@@ -525,7 +526,7 @@ export function DJMCQuestionnaireSection({
               <Button
                 variant="ghost"
                 size="sm"
-                className="w-full mt-2 text-muted-foreground hover:text-primary"
+                className={`${theme.primaryAction} w-full mt-2`}
                 onClick={onAddItem}
                 disabled={disabled}
               >
@@ -541,7 +542,7 @@ export function DJMCQuestionnaireSection({
 
       {/* Reset confirmation dialog */}
       <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className={theme.dialogSurface}>
           <AlertDialogHeader>
             <AlertDialogTitle>Reset Section to Default?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -566,7 +567,7 @@ export function DJMCQuestionnaireSection({
 
       {/* Delete confirmation dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className={theme.dialogSurface}>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Section?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -590,7 +591,7 @@ export function DJMCQuestionnaireSection({
 
       {/* Clear Section confirmation dialog */}
       <AlertDialog open={showClearSectionDialog} onOpenChange={setShowClearSectionDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className={theme.dialogSurface}>
           <AlertDialogHeader>
             <AlertDialogTitle>Clear Section?</AlertDialogTitle>
             <AlertDialogDescription>

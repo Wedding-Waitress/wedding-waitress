@@ -1,7 +1,7 @@
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { useEvents } from '@/hooks/useEvents';
+import type { Event } from '@/hooks/useEvents';
 import { useSignageSettings, DEFAULT_PORTRAIT_QR, DEFAULT_LANDSCAPE_QR } from '@/hooks/useSignageSettings';
 import {
   InvitationCardCustomizer,
@@ -10,13 +10,11 @@ import {
 import { InvitationCardPreview } from '../Invitations/InvitationCardPreview';
 import { SignageGalleryModal } from './SignageGalleryModal';
 import { checkPrintFit, useOptimizedPreview } from '@/lib/imagePipeline';
-import { exportSignagePDF } from '@/lib/signagePdfExporter';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
 import { Loader2, LoaderCircle, FileText, CalendarDays, Printer, LayoutTemplate, BadgeCheck, CircleCheck, Star, Download, Contact, PanelsTopLeft, Mail } from 'lucide-react';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { generateInvitationQR } from '@/lib/invitationQR';
-import { exportInvitationPDF, exportInvitationPNG } from '@/lib/invitationExporter';
 import { toast } from '@/hooks/use-toast';
 import type { TextZone, QrConfig } from '@/hooks/useInvitationCardSettings';
 import styles from './SignagePage.module.css';
@@ -24,6 +22,8 @@ import styles from './SignagePage.module.css';
 interface SignagePageProps {
   selectedEventId: string | null;
   onEventSelect: (eventId: string) => void;
+  events: Event[];
+  eventsLoading: boolean;
 }
 
 // Signage preset zones (sibling to Invitations PRESET_ZONES, curated for QR signage).
@@ -92,8 +92,7 @@ const PRINT_DIMENSIONS: Record<string, { widthMm: number; heightMm: number }> = 
 const MIN_QR_SIZE_PERCENT_PORTRAIT = 17;
 const MIN_QR_SIZE_PERCENT_LANDSCAPE = 12;
 
-export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEventSelect }) => {
-  const { events, loading: eventsLoading } = useEvents();
+export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEventSelect, events, eventsLoading }) => {
   const {
     settings,
     asInvitationSettings,
@@ -368,6 +367,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
       const sizeLabel = PRINT_SIZES.find(p => p.id === printSize)?.label || 'Print';
       const fileName = `WW-Sign-${selectedEvent.name}-${sizeLabel}-Portrait.pdf`;
+      const { exportSignagePDF } = await import('@/lib/signagePdfExporter');
       await exportSignagePDF({
         backgroundUrl: exportBgUrl,
         backgroundColor: settings.background_color,
@@ -443,29 +443,33 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
   if (eventsLoading) {
     return (
-      <div className="flex items-center justify-center h-64">
-        <Loader2 className="h-8 w-8 animate-spin text-primary" />
-        <span className="ml-2 text-muted-foreground">Loading events...</span>
+      <div className={`${styles.page} ${styles.signageLightSurface}`}>
+        <div className={`${styles.interfaceState} flex items-center justify-center h-64`}>
+          <Loader2 className="h-8 w-8 animate-spin text-primary" />
+          <span className="ml-2 text-muted-foreground">Loading events...</span>
+        </div>
       </div>
     );
   }
 
   if (!events.length) {
     return (
-      <Card className="ww-box">
-        <CardContent className="flex items-center justify-center h-64">
-          <div className="text-center">
-            <Printer className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
-            <h3 className="text-lg font-medium text-muted-foreground">No Events Found</h3>
-            <p className="text-sm text-muted-foreground">Create an event first to design your QR seating sign.</p>
-          </div>
-        </CardContent>
-      </Card>
+      <div className={`${styles.page} ${styles.signageLightSurface}`}>
+        <Card className={`${styles.interfaceState} ww-box`}>
+          <CardContent className="flex items-center justify-center h-64">
+            <div className="text-center">
+              <Printer className="h-12 w-12 text-muted-foreground mx-auto mb-4" />
+              <h3 className="text-lg font-medium text-muted-foreground">No Events Found</h3>
+              <p className="text-sm text-muted-foreground">Create an event first to design your QR seating sign.</p>
+            </div>
+          </CardContent>
+        </Card>
+      </div>
     );
   }
 
   return (
-    <div className={`${styles.page} space-y-6`}>
+    <div className={`${styles.page} ${styles.signageLightSurface} space-y-6`}>
       {/* Combined Header Box — mirrors Invitations exactly */}
       <Card className={`${styles.mainStudio} ww-signage-brown border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}>
         <CardContent className="space-y-4 pt-6">
@@ -490,7 +494,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                     <SelectValue placeholder="Choose Event" />
                   </div>
                 </SelectTrigger>
-                <SelectContent className="ww-signage-premium-portal bg-popover border-border z-50">
+                <SelectContent className="ww-signage-premium-portal ww-signage-studio-portal bg-popover border-border z-50">
                   {events.map(event => (
                     <SelectItem key={event.id} value={event.id}>
                       <div className="flex items-center space-x-2">
@@ -558,12 +562,12 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                           <div className="flex items-center justify-between gap-2 flex-wrap">
                             <div className="flex items-center gap-1.5">
                               <Icon strokeWidth={1.8} className={`h-[17px] w-[17px] transition-all duration-200 ease-out ${active ? 'text-green-600' : 'text-primary/70'}`} />
-                              <span className={`text-sm font-semibold transition-all duration-200 ease-out ${active ? 'text-green-700' : 'text-foreground'}`}>
+                              <span className={`${styles.printSizeTitle} text-sm font-semibold transition-all duration-200 ease-out ${active ? 'text-green-700' : 'text-foreground'}`}>
                                 {size.label}
                               </span>
                             </div>
                             {size.recommended && (
-                              <span className={`mt-0.5 rounded-full uppercase text-[10px] font-semibold tracking-wider px-2 py-0.5 border whitespace-nowrap transition-all duration-200 ease-out ${
+                              <span className={`${styles.compactIndicator} mt-0.5 rounded-full uppercase text-[10px] font-semibold tracking-wider px-2 py-0.5 border whitespace-nowrap transition-all duration-200 ease-out ${
                                 active
                                   ? 'bg-green-100 border-green-300 text-green-700'
                                   : 'bg-[hsl(var(--primary)/0.14)] text-primary border-primary/25'
@@ -573,10 +577,10 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                               </span>
                             )}
                           </div>
-                          <span className={`text-[11px] transition-all duration-200 ease-out ${active ? 'text-green-600/80' : 'text-muted-foreground/80'}`}>{size.dims}</span>
-                          <span className={`text-[11px] leading-snug transition-all duration-200 ease-out ${active ? 'text-green-700/80' : 'text-foreground/70'}`}>{size.best}</span>
+                          <span className={`${styles.supportingText} text-[11px] transition-all duration-200 ease-out ${active ? 'text-green-600/80' : 'text-muted-foreground/80'}`}>{size.dims}</span>
+                          <span className={`${styles.supportingText} text-[11px] leading-snug transition-all duration-200 ease-out ${active ? 'text-green-700/80' : 'text-foreground/70'}`}>{size.best}</span>
                           {active && (
-                            <span className="inline-flex items-center gap-1.5 text-[10px] font-medium text-green-700 mt-2">
+                            <span className={`${styles.compactIndicator} inline-flex items-center gap-1.5 text-[10px] font-medium text-green-700 mt-2`}>
                               <CircleCheck className="h-[15px] w-[15px]" strokeWidth={1.8} aria-hidden="true" />
                               Selected for export
                             </span>
@@ -600,7 +604,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                         <SelectValue placeholder="Choose Event" />
                       </div>
                     </SelectTrigger>
-                    <SelectContent className="ww-signage-premium-portal bg-popover border-border z-50">
+                    <SelectContent className="ww-signage-premium-portal ww-signage-studio-portal bg-popover border-border z-50">
                       {events.map(event => (
                         <SelectItem key={event.id} value={event.id}>
                           <div className="flex items-center space-x-2">
@@ -690,11 +694,13 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
               storageBucket="invitations"
               galleryButtonLabel="Template Library"
               appearance="signage-premium"
+              signageTypography
+              portalScopeClassName="ww-signage-studio-portal"
               GalleryModalComponent={SignageGalleryAdapter}
             />
           </div>
           {/* Preview area: extra padding for landscape breathing room */}
-          <div className={`${styles.previewStage} 2xl:col-span-3 2xl:h-full 2xl:flex 2xl:flex-col w-full max-w-full mx-auto pb-6 max-sm:pb-2 max-sm:px-0 max-sm:overflow-x-auto max-sm:overflow-y-hidden md:max-lg:overflow-hidden md:max-lg:flex md:max-lg:justify-center ${
+          <div className={`${styles.previewStage} 2xl:col-span-3 2xl:h-full 2xl:flex 2xl:flex-col w-full max-w-full mx-auto max-sm:px-0 max-sm:overflow-x-auto max-sm:overflow-y-hidden md:max-lg:overflow-hidden md:max-lg:flex md:max-lg:justify-center ${
             orientation === 'landscape' ? 'px-4 2xl:px-8' : ''
           }`}>
             <div className="max-sm:w-max md:max-lg:w-[210mm] 2xl:h-full 2xl:flex 2xl:flex-col">

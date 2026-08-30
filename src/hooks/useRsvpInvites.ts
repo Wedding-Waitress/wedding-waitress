@@ -1,5 +1,5 @@
 import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { SUPABASE_URL, supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
 interface SendResult {
@@ -22,7 +22,7 @@ export const useRsvpInvites = () => {
       }
 
       const response = await fetch(
-        `https://xytxkidpourwdbzzwcdp.supabase.co/functions/v1/send-rsvp-email`,
+        `${SUPABASE_URL}/functions/v1/send-rsvp-email`,
         {
           method: 'POST',
           headers: {
@@ -65,7 +65,7 @@ export const useRsvpInvites = () => {
       }
 
       const response = await fetch(
-        `https://xytxkidpourwdbzzwcdp.supabase.co/functions/v1/send-rsvp-sms`,
+        `${SUPABASE_URL}/functions/v1/send-rsvp-sms`,
         {
           method: 'POST',
           headers: {

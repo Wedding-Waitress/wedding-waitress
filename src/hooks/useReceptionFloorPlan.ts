@@ -1,7 +1,12 @@
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
-import type { FixtureType } from '@/components/Dashboard/FloorPlan/ReceptionFloorPlan/fixtures';
+import {
+  FIXTURE_BY_TYPE,
+  type FixtureType,
+} from '@/components/Dashboard/FloorPlan/ReceptionFloorPlan/fixtures';
+import type { ReceptionTableType } from '@/hooks/useReceptionTables';
+import type { HeadSeatEntry, TablePurpose } from '@/lib/headTable';
 import { pdfFirstPageToPng } from '@/lib/pdfFirstPageToPng';
 
 export interface TablePosition {
@@ -12,6 +17,17 @@ export interface TablePosition {
   locked: boolean;
   /** Optional short note attached to this placed table (e.g. "Elderly guests"). */
   note?: string;
+  /** Authoritative-table snapshot used by token-gated read-only rendering. */
+  table_name?: string | null;
+  table_no?: number | null;
+  table_type?: ReceptionTableType;
+  capacity?: number;
+  occupied_count?: number;
+  occupied_seat_numbers?: number[];
+  table_purpose?: TablePurpose;
+  head_seating_order?: HeadSeatEntry[];
+  width_m?: number;
+  height_m?: number;
 }
 
 
@@ -25,6 +41,14 @@ export interface Fixture {
   rotation: number;
   locked: boolean;
   label?: string;
+  /** Stable link to the authoritative Bridal Table record, when applicable. */
+  linked_table_id?: string;
+  linked_table_name?: string | null;
+  linked_table_no?: number | null;
+  linked_table_type?: ReceptionTableType;
+  linked_table_capacity?: number;
+  linked_table_occupied_count?: number;
+  linked_table_occupied_seat_numbers?: number[];
 }
 
 type Row = Database['public']['Tables']['reception_floor_plans']['Row'];
@@ -130,6 +154,32 @@ const BUCKET = 'reception-floor-plan-backgrounds';
 const ACCEPTED = ['image/png', 'image/jpeg', 'application/pdf'];
 const MAX_BYTES = 25 * 1024 * 1024; // 25MB
 
+const initialReceptionFixtures = (roomWidth: number, roomLength: number): Fixture[] => {
+  const create = (
+    type: FixtureType,
+    x: number,
+    y: number,
+  ): Fixture => {
+    const spec = FIXTURE_BY_TYPE[type];
+    return {
+      id: crypto.randomUUID(),
+      type,
+      x,
+      y,
+      width_m: spec.width_m,
+      height_m: spec.height_m,
+      rotation: 0,
+      locked: false,
+    };
+  };
+
+  return [
+    create('dance_floor', roomWidth / 2, roomLength / 2),
+    create('stage', roomWidth / 2, Math.max(2.5, FIXTURE_BY_TYPE.stage.height_m / 2 + 0.5)),
+    create('cake_table', Math.max(1, roomWidth * 0.15), Math.max(1, roomLength * 0.25)),
+  ];
+};
+
 export const useReceptionFloorPlan = (eventId: string | null) => {
   const [plan, setPlan] = useState<ReceptionFloorPlan | null>(null);
   const [loading, setLoading] = useState(false);
@@ -167,9 +217,15 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
       if (data) {
         setPlan(fromRow(data as Row));
       } else {
+        const roomWidth = 15;
+        const roomLength = 20;
         const { data: created, error: insErr } = await supabase
           .from('reception_floor_plans')
-          .insert({ event_id: eventId, user_id: user.id })
+          .insert({
+            event_id: eventId,
+            user_id: user.id,
+            fixtures: initialReceptionFixtures(roomWidth, roomLength) as unknown as Database['public']['Tables']['reception_floor_plans']['Insert']['fixtures'],
+          })
           .select('*')
           .single();
         if (!insErr && created) setPlan(fromRow(created as Row));

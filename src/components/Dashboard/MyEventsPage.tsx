@@ -16,11 +16,12 @@
  */
 
 import React, { useState, useEffect, useMemo } from 'react';
-import '@fontsource/manrope/latin-600.css';
 import { Card } from "@/components/ui/card";
 import { EventsTable } from './EventsTable';
 import { EventUsagePill } from './EventUsagePill';
-import { useEvents, Event } from '@/hooks/useEvents';
+import { Event } from '@/hooks/useEvents';
+import type { EventLimitsState } from '@/hooks/useEventLimits';
+import { useEventLimits } from '@/hooks/useEventLimits';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { SeoHead } from '@/components/SEO/SeoHead';
@@ -29,20 +30,30 @@ import styles from './MyEventsPage.module.css';
 import { MyEventsHeroLayout } from './MyEventsHeroLayout';
 
 const LABEL_ICON_CLS = "w-4 h-4 shrink-0 opacity-70";
-export const MyEventsPage: React.FC = () => {
-  const {
-    events,
-    loading,
-    activeEventId,
-    setActiveEventId,
-    createEvent,
-    updateEvent,
-    deleteEvent
-  } = useEvents();
+interface MyEventsPageProps {
+  events: Event[];
+  loading: boolean;
+  activeEventId: string | null;
+  setActiveEventId: (eventId: string | null) => Promise<void> | void;
+  createEvent: (eventData: any) => Promise<any>;
+  updateEvent: (id: string, eventData: any) => Promise<void>;
+  deleteEvent: (id: string) => Promise<unknown>;
+}
+
+export const MyEventsPage: React.FC<MyEventsPageProps> = ({
+  events,
+  loading,
+  activeEventId,
+  setActiveEventId,
+  createEvent,
+  updateEvent,
+  deleteEvent,
+}) => {
   const {
     profile,
     updateDisplayCountdownEvent
   } = useProfile();
+  const eventLimits: EventLimitsState = useEventLimits(events.length);
 
   // A) Page state & data - simplified to use activeEventId as single source of truth
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);
@@ -174,13 +185,16 @@ export const MyEventsPage: React.FC = () => {
 
   // Initialize selectedEvent based on activeEventId
   useEffect(() => {
-    if (!events.length) return;
+    if (!events.length) {
+      setSelectedEvent(null);
+      return;
+    }
 
     // If activeEventId exists and is valid, use it
     if (activeEventId && eventMap[activeEventId]) {
       setSelectedEvent(eventMap[activeEventId]);
-    } else if (!activeEventId) {
-      // Set to first event if no active event
+    } else {
+      // Recover a missing or deleted countdown selection with the first remaining event.
       const firstEventId = events[0]?.id;
       if (firstEventId) {
         setSelectedEvent(eventMap[firstEventId]);
@@ -360,7 +374,7 @@ export const MyEventsPage: React.FC = () => {
               <CountdownCircle value="--" label="Hours" type="hours" />
               <CountdownCircle value="--" label="Seconds" type="seconds" />
             </div>
-            <p className="text-sm text-muted-foreground">
+            <p className={`text-sm text-muted-foreground ${styles.supportingText}`}>
               {events.length === 0 ? "Create an event to start your countdown" : <button className="underline hover:text-primary transition-colors" onClick={() => {
             const firstEventId = events[0]?.id;
             if (firstEventId) {
@@ -472,7 +486,7 @@ export const MyEventsPage: React.FC = () => {
 
       {/* Events Table with controlled radios */}
         <div className="flex justify-end px-1 mb-2">
-          <EventUsagePill />
+          <EventUsagePill eventLimits={eventLimits} />
         </div>
         <div className="overflow-x-auto">
           <EventsTable 
@@ -485,6 +499,7 @@ export const MyEventsPage: React.FC = () => {
             deleteEvent={deleteEvent} 
             onEventSelect={handleCountdownEventSelect}
             selectedEvent={selectedEvent}
+            eventLimits={eventLimits}
           />
         </div>
     </div>;

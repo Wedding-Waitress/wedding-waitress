@@ -26,6 +26,7 @@ import { Button } from "@/components/ui/enhanced-button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle, Trash2, X } from "lucide-react";
+import styles from './MyEventsPage.module.css';
 
 interface DeleteConfirmationModalProps {
   isOpen: boolean;
@@ -46,23 +47,24 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
   const isConfirmValid = confirmText === 'DELETE';
 
   const handleConfirm = () => {
-    if (isConfirmValid) {
+    if (isConfirmValid && !isLoading) {
       onConfirm();
     }
   };
 
   const handleClose = () => {
+    if (isLoading) return;
     setConfirmText('');
     onClose();
   };
 
   return (
-    <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+    <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
+      <DialogContent className={`sm:max-w-md ${styles.dialogRoot} ${styles.dialogWrap}`}>
         <DialogHeader>
           <div className="flex items-center space-x-2">
             <AlertTriangle size={18} strokeWidth={1.8} className="text-destructive shrink-0" aria-hidden="true" />
-            <DialogTitle>You are deleting this event</DialogTitle>
+            <DialogTitle className={styles.dialogTitle}>You are deleting this event</DialogTitle>
           </div>
           <DialogDescription className="pt-2">
             Event: <span className="font-medium text-foreground">"{eventName}"</span>
@@ -76,7 +78,7 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
         </DialogHeader>
         
         <div className="space-y-2">
-          <Label htmlFor="confirm-delete">Confirmation</Label>
+          <Label htmlFor="confirm-delete" className={styles.dialogLabel}>Confirmation</Label>
           <Input
             id="confirm-delete"
             value={confirmText}
@@ -87,7 +89,7 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
         </div>
 
         <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-          <Button variant="outline" onClick={handleClose} disabled={isLoading} className="inline-flex items-center gap-1.5">
+          <Button variant="outline" onClick={handleClose} disabled={isLoading} className={`inline-flex items-center gap-1.5 ${styles.dialogButton}`}>
             <X size={18} strokeWidth={1.8} aria-hidden="true" />
             Cancel
           </Button>
@@ -95,7 +97,7 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
             variant="destructive"
             onClick={handleConfirm}
             disabled={!isConfirmValid || isLoading}
-            className="inline-flex items-center gap-1.5"
+            className={`inline-flex items-center gap-1.5 ${styles.dialogButton}`}
           >
             <Trash2 size={18} strokeWidth={1.8} aria-hidden="true" />
             {isLoading ? 'Deleting...' : 'Delete Event'}

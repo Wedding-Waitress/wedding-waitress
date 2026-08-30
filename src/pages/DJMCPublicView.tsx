@@ -14,6 +14,7 @@ import { DEFAULT_SECTION_TEMPLATES } from '@/lib/djMCQuestionnaireTemplates';
 import { exportEntireQuestionnairePDF, exportSectionPDF } from '@/lib/djMCQuestionnairePdfExporter';
 import { DJMCQuestionnaireSection } from '@/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnaireSection';
 import { decodeShareToken, sameShareToken } from '@/lib/shareTokens';
+import theme from '@/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnaireTheme.module.css';
 
 interface PublicQuestionnaireData {
   questionnaire_id: string;
@@ -75,7 +76,13 @@ export function DJMCPublicView() {
 
   const fetchData = useCallback(async () => {
     if (!token) {
-      setError('Invalid share link');
+      setError('This share link is missing its secure token.');
+      setData(null);
+      setLoading(false);
+      return;
+    }
+    if (!/^[A-Za-z0-9_-]{43}$/.test(token)) {
+      setError('This share link is malformed.');
       setData(null);
       setLoading(false);
       return;
@@ -93,14 +100,14 @@ export function DJMCPublicView() {
 
       if (fetchError) {
         console.error('Error fetching questionnaire:', fetchError);
-        setError('This link is invalid or has expired');
+        setError('This link is invalid, expired, or revoked.');
         setData(null);
         setLoading(false);
         return;
       }
 
       if (!result || result.length === 0) {
-        setError('This link is invalid or has expired');
+        setError('This link is invalid, expired, or revoked.');
         setData(null);
         setLoading(false);
         return;
@@ -163,10 +170,15 @@ export function DJMCPublicView() {
         fetchData();
       })
       .on('postgres_changes', {
-        event: 'UPDATE',
+        event: '*',
         schema: 'public',
         table: 'dj_mc_share_tokens',
       }, (payload) => {
+        if (payload.eventType === 'DELETE' && sameShareToken((payload.old as any)?.token, token)) {
+          setData(null);
+          setError('This link has been revoked.');
+          return;
+        }
         const updatedToken = payload.new as any;
         if (updatedToken && data) {
           if (sameShareToken(updatedToken.token, token) && updatedToken.permission !== data.permission) {
@@ -203,7 +215,7 @@ export function DJMCPublicView() {
     saveTimeoutRef.current[key] = setTimeout(async () => {
       try {
         lastSaveRef.current = Date.now();
-        await supabase.rpc('update_dj_mc_section_by_token', {
+        const { error: saveError } = await supabase.rpc('update_dj_mc_section_by_token', {
           share_token: token,
           p_section_id: sectionId,
           new_section_label: updates.section_label ?? null,
@@ -211,11 +223,13 @@ export function DJMCPublicView() {
           new_is_collapsed: updates.is_collapsed ?? null,
           clear_notes: updates.notes === null && 'notes' in updates,
         });
+        if (saveError) throw saveError;
       } catch (err) {
         console.error('Error updating section:', err);
+        fetchData();
       }
     }, 300);
-  }, [token, canEdit]);
+  }, [token, canEdit, fetchData]);
 
   const handleUpdateItem = useCallback((itemId: string, updates: Partial<DJMCItem>) => {
     if (!token || !canEdit) return;
@@ -240,7 +254,7 @@ export function DJMCPublicView() {
     saveTimeoutRef.current[key] = setTimeout(async () => {
       try {
         lastSaveRef.current = Date.now();
-        await supabase.rpc('update_dj_mc_item_by_token', {
+        const { error: saveError } = await supabase.rpc('update_dj_mc_item_by_token', {
           share_token: token,
           item_id: itemId,
           new_value_text: updates.value_text ?? null,
@@ -250,11 +264,13 @@ export function DJMCPublicView() {
           new_duration: updates.duration ?? null,
           new_pronunciation_audio_url: updates.pronunciation_audio_url ?? null,
         });
+        if (saveError) throw saveError;
       } catch (err) {
         console.error('Error updating item:', err);
+        fetchData();
       }
     }, 300);
-  }, [token, canEdit]);
+  }, [token, canEdit, fetchData]);
 
   const handleAddItem = useCallback(async (sectionId: string) => {
     if (!token || !canEdit || !data) return;
@@ -263,13 +279,14 @@ export function DJMCPublicView() {
     const orderIndex = section ? section.items.length : 0;
 
     try {
-      const { data: result } = await supabase.rpc('add_dj_mc_item_by_token', {
+      const { data: result, error: addError } = await supabase.rpc('add_dj_mc_item_by_token', {
         share_token: token,
         p_section_id: sectionId,
         p_row_label: 'New Item',
         at_order_index: orderIndex,
       });
 
+      if (addError) throw addError;
       if (result) {
         const newItem = result as unknown as DJMCItem;
         setData(prev => {
@@ -303,10 +320,11 @@ export function DJMCPublicView() {
     });
 
     try {
-      await supabase.rpc('delete_dj_mc_item_by_token', {
+      const { error: deleteError } = await supabase.rpc('delete_dj_mc_item_by_token', {
         share_token: token,
         item_id: itemId,
       });
+      if (deleteError) throw deleteError;
     } catch (err) {
       console.error('Error deleting item:', err);
       fetchData(); // revert on failure
@@ -317,11 +335,12 @@ export function DJMCPublicView() {
     if (!token || !canEdit) return;
 
     try {
-      const { data: result } = await supabase.rpc('duplicate_dj_mc_item_by_token', {
+      const { data: result, error: duplicateError } = await supabase.rpc('duplicate_dj_mc_item_by_token', {
         share_token: token,
         item_id: item.id,
       });
 
+      if (duplicateError) throw duplicateError;
       if (result) {
         const newItem = result as unknown as DJMCItem;
         setData(prev => {
@@ -363,15 +382,17 @@ export function DJMCPublicView() {
     });
 
     try {
-      await supabase.rpc('reorder_dj_mc_items_by_token', {
+      const { error: reorderError } = await supabase.rpc('reorder_dj_mc_items_by_token', {
         share_token: token,
         p_section_id: sectionId,
         item_ids: items.map(i => i.id),
       });
+      if (reorderError) throw reorderError;
     } catch (err) {
       console.error('Error reordering items:', err);
+      fetchData();
     }
-  }, [token, canEdit]);
+  }, [token, canEdit, fetchData]);
 
   const handleResetToDefault = useCallback(async (sectionId: string) => {
     if (!token || !canEdit || !data) return;
@@ -384,12 +405,13 @@ export function DJMCPublicView() {
 
     try {
       const defaultItems = template.items.map(item => ({ row_label: item.row_label }));
-      await supabase.rpc('reset_dj_mc_section_by_token', {
+      const { error: resetError } = await supabase.rpc('reset_dj_mc_section_by_token', {
         share_token: token,
         p_section_id: sectionId,
         p_default_label: template.section_label,
         p_default_items: defaultItems as any,
       });
+      if (resetError) throw resetError;
       fetchData();
     } catch (err) {
       console.error('Error resetting section:', err);
@@ -400,11 +422,12 @@ export function DJMCPublicView() {
     if (!token || !canEdit) return;
 
     try {
-      const { data: result } = await supabase.rpc('duplicate_dj_mc_section_by_token', {
+      const { data: result, error: duplicateError } = await supabase.rpc('duplicate_dj_mc_section_by_token', {
         share_token: token,
         p_section_id: sectionId,
       });
 
+      if (duplicateError) throw duplicateError;
       if (result) {
         fetchData(); // Full refetch to get correct ordering
       }
@@ -426,10 +449,11 @@ export function DJMCPublicView() {
     });
 
     try {
-      await supabase.rpc('delete_dj_mc_section_by_token', {
+      const { error: deleteError } = await supabase.rpc('delete_dj_mc_section_by_token', {
         share_token: token,
         p_section_id: sectionId,
       });
+      if (deleteError) throw deleteError;
     } catch (err) {
       console.error('Error deleting section:', err);
       fetchData();
@@ -487,10 +511,10 @@ export function DJMCPublicView() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
+      <div className={`${theme.publicPage} ww-application-background flex items-center justify-center`}>
         <div className="text-center">
           <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
-          <p className="text-muted-foreground">Loading questionnaire...</p>
+          <p className={`text-muted-foreground ${theme.bodyText}`}>Loading questionnaire...</p>
         </div>
       </div>
     );
@@ -498,13 +522,13 @@ export function DJMCPublicView() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
+      <div className={`${theme.publicPage} ww-application-background flex items-center justify-center p-4`}>
+        <Card className={`${theme.statusCard} max-w-md w-full`}>
           <CardContent className="pt-6 text-center">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
-            <h2 className="text-xl font-semibold mb-2">Link Unavailable</h2>
-            <p className="text-muted-foreground mb-6">{error}</p>
-            <p className="text-sm text-muted-foreground">
+            <h2 className={`${theme.modalHeading} mb-2`}>Link Unavailable</h2>
+            <p className={`text-muted-foreground mb-6 ${theme.bodyText}`}>{error}</p>
+            <p className={`text-muted-foreground ${theme.bodyText}`}>
               If you believe this is an error, please contact the person who shared this link with you.
             </p>
           </CardContent>
@@ -516,22 +540,22 @@ export function DJMCPublicView() {
   if (!data) return null;
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`${theme.publicPage} ww-application-background`}>
       {/* Header */}
-      <header className="bg-card border-b border-border sticky top-0 z-10 print:static">
+      <header className={`${theme.publicHeader} sticky top-0 z-10 print:static`}>
         <div className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex flex-col items-start gap-3 sm:flex-row sm:items-center sm:justify-between">
             <div className="flex items-center gap-3">
               <div className="p-2 bg-primary/10 rounded-lg">
                 <Music className="h-6 w-6 text-primary" />
               </div>
               <div>
-                <p className="text-sm text-muted-foreground">You have been invited to {canEdit ? 'edit' : 'view and download'} the DJ & MC questionnaire of</p>
+                <p className={`text-muted-foreground ${theme.supportingText}`}>You have been invited to {canEdit ? 'edit' : 'view and download'} the DJ & MC questionnaire of</p>
                 <h1 className="text-xl font-bold">{data.event_name}</h1>
               </div>
             </div>
             
-            <div className="flex items-center gap-2 print:hidden">
+            <div className="flex w-full flex-wrap items-center gap-2 print:hidden sm:w-auto sm:justify-end">
               <span className={`inline-flex items-center px-4 py-2 text-sm font-medium rounded-full border-2 bg-transparent ${
                 canEdit
                   ? 'border-green-500 text-green-600'
@@ -542,7 +566,7 @@ export function DJMCPublicView() {
               <button
                 onClick={handleDownloadPDF}
                 disabled={downloadingPDF}
-                className="inline-flex items-center px-4 py-2 text-sm font-medium rounded-full border-2 border-green-500 text-green-600 bg-transparent hover:bg-green-50 transition-colors disabled:opacity-50"
+                className={`${theme.primaryAction} inline-flex items-center px-4 py-2 text-sm font-medium rounded-full transition-colors disabled:opacity-50`}
               >
                 {downloadingPDF ? (
                   <Loader2 className="h-4 w-4 mr-2 animate-spin" />
@@ -558,7 +582,7 @@ export function DJMCPublicView() {
 
       {/* Ceremony + Reception Event Details Banner */}
       <div className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] pt-6">
-        <div className="text-center py-4 border-b border-border space-y-3">
+        <div className={`${theme.eventBanner} text-center py-4 space-y-3`}>
           <h2 className="text-xl font-semibold text-primary">{data.event_name}</h2>
           
           <div className="flex justify-center gap-8 flex-wrap">
@@ -566,16 +590,16 @@ export function DJMCPublicView() {
             {data.ceremony_date && (
               <div className="text-left min-w-[280px]">
                 <div>
-                  <span className="font-semibold text-primary">Ceremony:</span>
-                  <span className="ml-2 text-muted-foreground">
+                  <span className={`font-semibold text-primary ${theme.eventDetailLabel}`}>Ceremony:</span>
+                  <span className={`ml-2 text-muted-foreground ${theme.eventDetailText}`}>
                     {formatFullDate(data.ceremony_date)}
                   </span>
                 </div>
-                <div className="text-sm text-muted-foreground mt-1">
+                <div className={`text-muted-foreground mt-1 ${theme.eventDetailText}`}>
                   Start: {formatTimeDisplay(data.ceremony_start_time)} — Finish: {formatTimeDisplay(data.ceremony_finish_time)}
                 </div>
                 {data.ceremony_venue && (
-                  <div className="text-sm text-muted-foreground">
+                  <div className={`text-muted-foreground ${theme.eventDetailText}`}>
                     {data.ceremony_venue}
                   </div>
                 )}
@@ -586,16 +610,16 @@ export function DJMCPublicView() {
             {data.event_date && (
               <div className="text-left min-w-[280px]">
                 <div>
-                  <span className="font-semibold text-primary">Reception:</span>
-                  <span className="ml-2 text-muted-foreground">
+                  <span className={`font-semibold text-primary ${theme.eventDetailLabel}`}>Reception:</span>
+                  <span className={`ml-2 text-muted-foreground ${theme.eventDetailText}`}>
                     {formatFullDate(data.event_date)}
                   </span>
                 </div>
-                <div className="text-sm text-muted-foreground mt-1">
+                <div className={`text-muted-foreground mt-1 ${theme.eventDetailText}`}>
                   Start: {formatTimeDisplay(data.start_time)} — Finish: {formatTimeDisplay(data.finish_time)}
                 </div>
                 {data.event_venue && (
-                  <div className="text-sm text-muted-foreground">
+                  <div className={`text-muted-foreground ${theme.eventDetailText}`}>
                     {data.event_venue}
                   </div>
                 )}
@@ -627,10 +651,10 @@ export function DJMCPublicView() {
           ))}
           
           {data.sections.length === 0 && (
-            <Card>
+            <Card className={theme.statusCard}>
               <CardContent className="py-12 text-center text-muted-foreground">
                 <Music className="h-12 w-12 mx-auto mb-4 opacity-50" />
-                <p>No sections have been added to this questionnaire yet.</p>
+                <p className={theme.bodyText}>No sections have been added to this questionnaire yet.</p>
               </CardContent>
             </Card>
           )}
@@ -638,7 +662,7 @@ export function DJMCPublicView() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border mt-12 print:border-0">
+      <footer className={`${theme.publicFooter} border-t mt-12 print:border-0`}>
         <div className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-6 text-center">
           <a href="https://www.weddingwaitress.com.au" target="_blank" rel="noopener noreferrer" className="inline-block mb-2">
             <img 
@@ -647,7 +671,7 @@ export function DJMCPublicView() {
               className="h-10 mx-auto"
             />
           </a>
-          <a href="https://www.weddingwaitress.com.au" target="_blank" rel="noopener noreferrer" className="block text-xs text-muted-foreground hover:text-foreground transition-colors">
+          <a href="https://www.weddingwaitress.com.au" target="_blank" rel="noopener noreferrer" className={`block text-muted-foreground hover:text-foreground transition-colors ${theme.bodyText}`}>
             Powered by Wedding Waitress
           </a>
         </div>

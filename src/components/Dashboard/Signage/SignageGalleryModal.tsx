@@ -139,7 +139,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
               <DialogTitle className="flex items-center gap-2 text-left">
               <ImageIcon className="h-5 w-5 text-primary" />
                 Seating Chart Signs Template Library
-                <span className="text-primary font-medium">{images.length} Total Designs</span>
+                <span className={`${styles.compactIndicator} text-primary font-medium`}>{images.length} Total Designs</span>
               </DialogTitle>
               <DialogDescription className="mt-1 text-left">
                 Choose a Wedding Waitress seating chart sign template for your design.
@@ -254,7 +254,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                           />
                         </div>
                         <div className="border-t border-border bg-white px-2 py-1.5">
-                          <p className="truncate text-xs font-semibold text-foreground" title={image.name}>{image.name}</p>
+                          <p className={`${styles.templateName} truncate text-xs font-semibold text-foreground`} title={image.name}>{image.name}</p>
                         </div>
                         <div className="grid grid-cols-2 gap-1.5 border-t border-border bg-white p-1.5">
                           <button
@@ -330,7 +330,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                                             className={`w-full flex items-center justify-between gap-2 px-2 py-1.5 text-sm rounded-md text-left hover:bg-muted disabled:opacity-60 disabled:cursor-not-allowed ${isCurrent ? 'bg-muted/60' : ''}`}
                                           >
                                             <span className="truncate">{name}</span>
-                                            <span className="text-xs text-muted-foreground">{count}{isCurrent ? ' ✓' : ''}</span>
+                                            <span className={`${styles.compactIndicator} text-xs text-muted-foreground`}>{count}{isCurrent ? ' ✓' : ''}</span>
                                           </button>
                                         );
                                       })}

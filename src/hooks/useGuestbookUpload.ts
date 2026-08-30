@@ -1,12 +1,7 @@
 // Guest-side guestbook upload hook — register → tus resumable upload → finalize
 import { useCallback, useState } from 'react';
 import * as tus from 'tus-js-client';
-import { supabase } from '@/integrations/supabase/client';
-
-const SUPABASE_URL =
-  (import.meta as any).env?.VITE_SUPABASE_URL ?? 'https://xytxkidpourwdbzzwcdp.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY =
-  (import.meta as any).env?.VITE_SUPABASE_PUBLISHABLE_KEY ?? '';
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL, supabase } from '@/integrations/supabase/client';
 
 export interface GuestbookUploadOptions {
   token: string;

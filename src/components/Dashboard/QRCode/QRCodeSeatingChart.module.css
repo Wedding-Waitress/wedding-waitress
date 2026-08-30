@@ -1,14 +1,83 @@
 .mainSurface {
   min-height: calc(100dvh - 4rem);
-  background-color: #70452f;
-  background-image: url("../../../assets/dashboard-mocha-liquid-glass.png");
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: cover;
 }
 
 .page {
   color: #f3e7d8;
+}
+
+/* QR Code Seating Chart interface typography only. The QR preview frame and
+   generation/export implementation are intentionally outside these rules. */
+:global(#root) .page .eventPanel > div:first-child [class*="text-2xl"],
+:global(#root) .page .generatorPanel > div:first-child [class*="text-2xl"],
+:global(#root) .page .configPanel > div:first-child [class*="text-2xl"] {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 24px !important;
+  font-weight: 600 !important;
+}
+
+:global(#root) .page .designerHeading h3,
+:global(#root) .page .configPanel :is(h3, h4, h5),
+:global(#root) .page :global(.ww-box) [class*="text-xl"] {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+:global(#root) .page :is(label, strong),
+:global(#root) .page .designerPanel [data-radix-collection-item] span[class*="font-medium"],
+:global(#root) .page .configPanel :is(span, p)[class*="font-semibold"] {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+:global(#root) .page :is(p, input, textarea),
+:global(#root) .page :is(input, textarea)::placeholder,
+:global(#root) .page button[role="combobox"],
+.eventDetailsText,
+.statusDetail,
+.connectionBar > span {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+:global(#root) .page button:not([role="switch"]),
+:global(#root) .page [role="button"]:not([role="switch"]) {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+:global(#root) .page button[role="combobox"] {
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+.statusLabel,
+.compactStatus,
+:global(#root) .page .configPanel :is(span, p)[class*="text-green"],
+:global(#root) .page .configPanel :is(span, p)[class*="text-red"] {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+:global(.ww-qr-select-menu) [role="option"] {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+:global(.ww-qr-color-popover) p,
+:global(.ww-qr-color-popover) [class*="text-xs"] {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+:global(.ww-qr-color-popover) button {
+  font-size: 13px !important;
+  font-weight: 500 !important;
 }
 
 .eventPanel,
@@ -329,4 +398,249 @@
   .configPanel > :last-child > :global(.grid) > div {
     overflow: hidden;
   }
+}
+
+/* Approved light champagne theme. These overrides are presentation-only: the
+   QR canvas, generated data URL and export controls retain their existing
+   implementation and intrinsic output. */
+.mainSurface {
+  --qr-workspace: #f2e9dc;
+  --qr-panel: #fbf8f2;
+  --qr-card: #f5ebdd;
+  --qr-card-deep: #ede0d0;
+  --qr-text: #2b1711;
+  --qr-text-soft: #684b40;
+  --qr-gold: #a18764;
+  --qr-gold-strong: #806344;
+  --qr-border: #cdb99e;
+  --qr-focus: #755332;
+  background-color: var(--qr-workspace) !important;
+  background-image: none !important;
+}
+
+.page {
+  color: var(--qr-text);
+}
+
+.eventPanel,
+.generatorPanel,
+.configPanel {
+  color: var(--qr-text) !important;
+  border-color: var(--qr-border) !important;
+  background: var(--qr-panel) !important;
+  box-shadow: 0 12px 28px rgba(74, 48, 35, 0.1) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:global(#root) .page h1,
+:global(#root) .page h2,
+:global(#root) .page h3,
+:global(#root) .page h4,
+:global(#root) .page h5,
+:global(#root) .page label,
+:global(#root) .page [class*="text-foreground"] {
+  color: var(--qr-text) !important;
+}
+
+:global(#root) .page p,
+:global(#root) .page [class*="text-muted-foreground"] {
+  color: var(--qr-text-soft) !important;
+}
+
+.page svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-white"]),
+.eventPanel svg:not([class*="text-green"]),
+.configPanel svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-amber"]):not([class*="text-white"]) {
+  color: var(--qr-gold-strong) !important;
+}
+
+.selectTrigger,
+.page input:not([type="color"]),
+.page textarea,
+.page button[role="combobox"] {
+  color: var(--qr-text) !important;
+  border-color: var(--qr-border) !important;
+  background: #fffdf9 !important;
+  box-shadow: inset 0 1px 2px rgba(74, 48, 35, 0.06) !important;
+}
+
+.page input::placeholder,
+.page textarea::placeholder {
+  color: #8a7167 !important;
+}
+
+.selectTrigger:hover,
+.page input:not([type="color"]):hover,
+.page textarea:hover,
+.page button[role="combobox"]:hover {
+  border-color: var(--qr-gold-strong) !important;
+}
+
+.selectTrigger:focus-visible,
+.page input:focus-visible,
+.page textarea:focus-visible,
+.page button:focus-visible,
+.page [role="button"]:focus-visible {
+  box-shadow: 0 0 0 2px #fffdf9, 0 0 0 4px var(--qr-focus) !important;
+}
+
+.eventPanel [class*="text-\[\#967A59\]"] {
+  color: var(--qr-gold-strong) !important;
+}
+
+.eventPanel [class*="bg-green-50"],
+.page [class*="bg-green-50"] {
+  color: #166534 !important;
+  border-color: #86d49e !important;
+  background: #e8f7ec !important;
+  box-shadow: none !important;
+}
+
+.eventPanel [class*="bg-green-50"] span,
+.eventPanel [class*="bg-green-50"] strong,
+.page [class*="bg-green-50"] p,
+.page [class*="bg-green-50"] span {
+  color: #166534 !important;
+}
+
+.eventPanel [class*="bg-green-100"] {
+  color: #166534 !important;
+  background: #d7f2df !important;
+}
+
+.qrFrame {
+  border-color: var(--qr-border) !important;
+  background: var(--qr-card) !important;
+  box-shadow: inset 0 1px 0 #ffffff, 0 10px 24px rgba(74, 48, 35, 0.1) !important;
+}
+
+.designerPanel,
+.actionsPanel {
+  color: var(--qr-text);
+  border-color: var(--qr-border) !important;
+  background: var(--qr-card) !important;
+  box-shadow: inset 0 1px 0 #ffffff, 0 10px 24px rgba(74, 48, 35, 0.1) !important;
+}
+
+.designerHeading {
+  border-bottom-color: var(--qr-border);
+  background: var(--qr-card-deep) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.8);
+}
+
+.designerHeading h3 {
+  color: var(--qr-text) !important;
+}
+
+.designerPanel [data-radix-collection-item],
+.designerPanel [data-state][class*="border-primary"] {
+  color: var(--qr-text) !important;
+  border-color: var(--qr-border) !important;
+  background: #fffdf9 !important;
+}
+
+.designerPanel [data-radix-collection-item]:hover,
+.designerPanel [data-state][class*="border-primary"]:hover {
+  background: #f8efe3 !important;
+}
+
+.designerPanel button[class*="border-2"] {
+  border-color: var(--qr-border) !important;
+  background-color: #fffdf9;
+}
+
+.designerPanel button[class*="border-primary"] {
+  border-color: var(--qr-gold-strong) !important;
+  box-shadow: 0 0 0 1px rgba(128, 99, 68, 0.2);
+}
+
+.configPanel > :last-child > :global(.grid) > div {
+  color: var(--qr-text);
+  border-color: var(--qr-border) !important;
+  background: var(--qr-card) !important;
+  box-shadow: inset 0 1px 0 #ffffff, 0 8px 20px rgba(74, 48, 35, 0.08) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.configPanel > :last-child > :global(.grid) > div:hover {
+  border-color: var(--qr-gold-strong) !important;
+}
+
+.page [class*="bg-background"],
+.page [class*="bg-muted"],
+.page [class*="F5F0EB"] {
+  color: var(--qr-text) !important;
+  border-color: var(--qr-border) !important;
+  background: #fffdf9 !important;
+  box-shadow: none;
+}
+
+.page [class*="border-dashed"] {
+  border-color: var(--qr-gold) !important;
+  background: #fffaf3 !important;
+}
+
+.page [class*="border-dashed"]:hover {
+  border-color: var(--qr-gold-strong) !important;
+  background: #f8efe3 !important;
+}
+
+.page [class*="bg-amber-50"] {
+  color: #854d0e !important;
+  border-color: #e8c879 !important;
+  background: #fff7dd !important;
+}
+
+.page [class*="bg-amber-50"] p,
+.page [class*="bg-amber-50"] span {
+  color: #854d0e !important;
+}
+
+.page button[class*="bg-background"],
+.page button[class*="bg-secondary"],
+.page :global(.lv-premium-shade):not(.designerHeading),
+.actionsPanel button:not([class*="bg-green"]):not([class*="bg-destructive"]):not([class*="bg-red"]) {
+  color: var(--qr-text) !important;
+  border-color: var(--qr-border) !important;
+  background: linear-gradient(180deg, #fffdf9 0%, #f3e6d6 100%) !important;
+  box-shadow: 0 6px 14px rgba(74, 48, 35, 0.1) !important;
+}
+
+.page :global(.lv-premium-shade):not(.designerHeading) svg {
+  color: var(--qr-gold-strong) !important;
+}
+
+.page [role="switch"][data-state="unchecked"] {
+  border-color: var(--qr-border) !important;
+  background: #c8b7a3 !important;
+}
+
+:global(.ww-qr-select-menu),
+:global(.ww-qr-color-popover) {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fffdf9 !important;
+  box-shadow: 0 18px 38px rgba(74, 48, 35, 0.18) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:global(.ww-qr-select-menu) [role="option"] {
+  color: #2b1711 !important;
+}
+
+:global(.ww-qr-select-menu) [role="option"]:focus,
+:global(.ww-qr-select-menu) [role="option"][data-highlighted] {
+  color: #2b1711 !important;
+  background: #ede0d0 !important;
+}
+
+:global(.ww-qr-select-menu) svg,
+:global(.ww-qr-color-popover) svg {
+  color: #806344 !important;
+}
+
+:global(.ww-qr-color-popover) p {
+  color: #684b40 !important;
 }

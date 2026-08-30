@@ -13,7 +13,7 @@ import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Json } from '@/integrations/supabase/types';
-import { registerCache } from '@/lib/cacheRegistry';
+import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
 
 export interface SeatAssignment {
   side: 'left' | 'right';
@@ -101,6 +101,7 @@ const defaultFloorPlan: Omit<CeremonyFloorPlan, 'id' | 'event_id' | 'user_id' | 
 // Module-level cache for instant loading on tab switches
 const floorPlanCache = new Map<string, CeremonyFloorPlan>();
 registerCache(() => { floorPlanCache.clear(); });
+registerEventCache((eventId) => { floorPlanCache.delete(eventId); });
 
 export const useCeremonyFloorPlan = (eventId: string | null) => {
   const cached = eventId ? floorPlanCache.get(eventId) : undefined;

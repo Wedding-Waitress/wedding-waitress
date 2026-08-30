@@ -1,0 +1,37 @@
+.page h1 {
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  overflow-wrap: anywhere;
+}
+
+.page :is(h2, h3) {
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+.page :is(p, [data-kiosk-body]),
+.page input,
+.page input::placeholder {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+.page :is(label, strong, [data-kiosk-label]) {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 18px !important;
+}
+
+.page button {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  line-height: 18px !important;
+}
+
+/* RSVP badges are compact status indicators and retain their existing type. */
+.page [data-kiosk-status] {
+  font-size: inherit;
+  font-weight: inherit;
+  line-height: inherit;
+}

@@ -24,6 +24,35 @@ describe('dashboard sidebar navigation control', () => {
     document.cookie = 'sidebar:state=true; path=/';
   });
 
+  it.each([1280, 768, 390])('uses the table-first workflow order at %ipx', async (width) => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
+
+    render(
+      <SidebarProvider>
+        <SidebarTrigger aria-label="Open menu" />
+        <AppSidebar activeTab="dashboard" onTabChange={vi.fn()} onSignOut={vi.fn()} />
+      </SidebarProvider>,
+    );
+
+    if (width <= 768) {
+      fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
+      await screen.findByRole('button', { name: 'Collapse Menu' });
+    }
+
+    const navigationNames = screen.getAllByRole('button').map((button) => button.textContent?.replace(/\s+/g, ' ').trim());
+    const workflowNames = navigationNames.filter((name) =>
+      name && ['Event Budget Planner', 'My Events', 'Tables', 'Guest List', 'QR Code Seating Chart']
+        .some((label) => name.startsWith(label)),
+    );
+    expect(workflowNames.slice(0, 5)).toEqual([
+      'Event Budget Planner',
+      'My EventsStart Here1',
+      'TablesCreate2',
+      'Guest ListAdd3',
+      'QR Code Seating Chart',
+    ]);
+  });
+
   it('keeps only account and logout actions in the non-admin profile menu', async () => {
     render(
       <SidebarProvider>

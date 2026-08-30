@@ -1,15 +1,68 @@
 .mainSurface {
   min-height: 100dvh;
-  background-color: #70452f !important;
-  background-image: url("../assets/dashboard-mocha-liquid-glass.png") !important;
-  background-position: center center !important;
-  background-repeat: no-repeat !important;
-  background-size: cover !important;
+  background-color: var(--ww-application-background-color) !important;
+  background-image: var(--ww-application-background-image) !important;
 }
 
 .page,
 .statePage {
   color: #f3e7d8;
+}
+
+/* Typography is scoped to the QR Code Seating Chart public Guest Live View. */
+.page h1,
+.statePage h1 {
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  overflow-wrap: anywhere;
+}
+
+.page :is(h2, h3, h4),
+.statePage :is(h2, h3, h4),
+.page .sectionHeading,
+.statePage .sectionHeading,
+:global(.ww-public-live-dialog) .sectionHeading,
+.sectionHeading {
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+.page :is(p, [data-live-body]),
+.statePage :is(p, [data-live-body]),
+.page :is(input, textarea, button[role="combobox"]),
+.page :is(input, textarea)::placeholder {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+.page :is(label, strong, [data-live-label]),
+.statePage :is(label, strong, [data-live-label]) {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 18px !important;
+}
+
+.page :is(span, div)[class*="font-semibold"]:not(h1):not(h2):not(h3):not(h4),
+.page :is(span, div)[class*="font-bold"]:not(h1):not(h2):not(h3):not(h4),
+.statePage :is(span, div)[class*="font-semibold"]:not(h1):not(h2):not(h3):not(h4) {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.page [data-live-section-heading] {
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+.page button,
+.statePage button,
+.tableBackButton,
+.moduleTray button,
+.moduleTray button span {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  line-height: 18px !important;
 }
 
 .fallbackHero {
@@ -296,6 +349,33 @@
   -webkit-backdrop-filter: blur(20px);
 }
 
+:global(.ww-public-live-dialog) :is(h1, h2, h3, h4) {
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+:global(.ww-public-live-dialog) :is(p, li, [data-live-body]),
+:global(.ww-public-live-dialog) :is(input, textarea, button[role="combobox"]),
+:global(.ww-public-live-dialog) :is(input, textarea)::placeholder,
+:global(.ww-public-live-menu) [role="option"] {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+:global(.ww-public-live-dialog) :is(label, strong, [data-live-label]) {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 18px !important;
+}
+
+:global(.ww-public-live-dialog) button:not([aria-label]),
+:global(.ww-public-live-dialog) [role="button"]:not([aria-label]) {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+  line-height: 18px !important;
+}
+
 :global(.ww-public-live-dialog) h2,
 :global(.ww-public-live-dialog) h3,
 :global(.ww-public-live-dialog) h4,
@@ -416,4 +496,268 @@
   .searchCard button {
     transition: none !important;
   }
+}
+
+/* Approved light champagne theme for the public Guest Live View. The uploaded
+   hero image remains an image element above these surfaces and is deliberately
+   not restyled or repositioned here. */
+.mainSurface {
+  --live-workspace: #f2e9dc;
+  --live-panel: #fbf8f2;
+  --live-card: #f5ebdd;
+  --live-card-deep: #ede0d0;
+  --live-text: #2b1711;
+  --live-text-soft: #684b40;
+  --live-gold: #a18764;
+  --live-gold-strong: #806344;
+  --live-border: #cdb99e;
+  --live-focus: #755332;
+  background-color: var(--live-workspace) !important;
+  background-image: none !important;
+}
+
+.page,
+.statePage {
+  color: var(--live-text);
+}
+
+.eventDetails {
+  color: var(--live-text);
+  border-bottom-color: var(--live-border);
+  background: var(--live-panel);
+  box-shadow: 0 8px 20px rgba(74, 48, 35, 0.08);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:global(#root) .page .eventDetails [class*="text-foreground"],
+:global(#root) .page .eventDetails span,
+:global(#root) .page .eventDetails p {
+  color: var(--live-text) !important;
+}
+
+.eventDetails svg {
+  color: var(--live-gold-strong) !important;
+}
+
+.moduleTray {
+  border-color: var(--live-border);
+  background: var(--live-panel);
+  box-shadow: 0 10px 24px rgba(74, 48, 35, 0.1);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.moduleTray button {
+  color: var(--live-text) !important;
+  border-color: var(--live-border) !important;
+  background: var(--live-card) !important;
+  box-shadow: inset 0 1px 0 #ffffff, 0 6px 14px rgba(74, 48, 35, 0.08) !important;
+}
+
+.moduleTray button svg {
+  color: var(--live-gold-strong) !important;
+}
+
+.moduleTray button:hover:not(:disabled) {
+  color: var(--live-text) !important;
+  border-color: var(--live-gold-strong) !important;
+  background: #f8efe3 !important;
+}
+
+.moduleTray button:active:not(:disabled) {
+  background: var(--live-card-deep) !important;
+  box-shadow: inset 0 2px 4px rgba(74, 48, 35, 0.12) !important;
+}
+
+.moduleTray button:focus-visible,
+.page input:focus-visible,
+.page textarea:focus-visible,
+.page button:focus-visible,
+.page [role="button"]:focus-visible,
+.tableBackButton:focus-visible {
+  box-shadow: 0 0 0 2px #fffdf9, 0 0 0 4px var(--live-focus) !important;
+}
+
+.moduleTray button[data-state="active"] {
+  color: #ffffff !important;
+  border-color: #16a34a !important;
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%) !important;
+  box-shadow: 0 8px 18px rgba(22, 163, 74, 0.22) !important;
+}
+
+.moduleTray button[data-state="active"] svg {
+  color: #ffffff !important;
+}
+
+.searchCard,
+.stateCard,
+.page :global(.ww-box) {
+  color: var(--live-text) !important;
+  border-color: var(--live-border) !important;
+  background: var(--live-panel) !important;
+  box-shadow: 0 12px 28px rgba(74, 48, 35, 0.1) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:global(#root) .page h2,
+:global(#root) .page h3,
+:global(#root) .page h4,
+:global(#root) .page h5,
+:global(#root) .page label,
+:global(#root) .page [class*="text-foreground"],
+:global(#root) .page [class*="text-\[\#1D1D1F\]"] {
+  color: var(--live-text) !important;
+}
+
+:global(#root) .page p,
+:global(#root) .page [class*="text-muted-foreground"] {
+  color: var(--live-text-soft) !important;
+}
+
+.page svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-warning"]):not([class*="text-white"]) {
+  color: var(--live-gold-strong) !important;
+}
+
+.page [class*="bg-background-subtle"],
+.page [class*="bg-gradient-card"],
+.page [class*="bg-accent"] {
+  color: var(--live-text) !important;
+  border-color: var(--live-border) !important;
+  background: var(--live-card) !important;
+  box-shadow: none;
+}
+
+.page input,
+.page textarea,
+.page button[role="combobox"] {
+  color: var(--live-text) !important;
+  border-color: var(--live-border) !important;
+  background: #fffdf9 !important;
+  box-shadow: inset 0 1px 2px rgba(74, 48, 35, 0.06) !important;
+}
+
+.page input::placeholder,
+.page textarea::placeholder {
+  color: #8a7167 !important;
+}
+
+.searchCard button:not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not([class*="bg-success"]) {
+  color: var(--live-text) !important;
+  border-color: var(--live-border) !important;
+  background: linear-gradient(180deg, #fffdf9 0%, #f3e6d6 100%) !important;
+  box-shadow: 0 6px 14px rgba(74, 48, 35, 0.1) !important;
+}
+
+.tableBackButton {
+  color: var(--live-text) !important;
+  border-color: var(--live-border) !important;
+  background: linear-gradient(180deg, #fffdf9 0%, #f3e6d6 100%) !important;
+  box-shadow: 0 7px 16px rgba(74, 48, 35, 0.1) !important;
+}
+
+.tableBackButton:hover:not(:disabled) {
+  color: var(--live-text) !important;
+  border-color: var(--live-gold-strong) !important;
+  background: #f8efe3 !important;
+}
+
+.tableBackButton:active:not(:disabled) {
+  background: var(--live-card-deep) !important;
+  box-shadow: inset 0 2px 4px rgba(74, 48, 35, 0.12) !important;
+}
+
+.page :global(.card-elevated) [class*="border-border"],
+.page :global(.card-elevated) [class*="border-t"] {
+  border-color: var(--live-border) !important;
+}
+
+.stateCard h3 {
+  color: var(--live-text) !important;
+}
+
+.stateCard p {
+  color: var(--live-text-soft) !important;
+}
+
+:global(.ww-public-live-dialog) {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fbf8f2 !important;
+  box-shadow: 0 24px 60px rgba(74, 48, 35, 0.24) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:global(.ww-public-live-dialog) h2,
+:global(.ww-public-live-dialog) h3,
+:global(.ww-public-live-dialog) h4,
+:global(.ww-public-live-dialog) label,
+:global(.ww-public-live-dialog) [class*="text-foreground"] {
+  color: #2b1711 !important;
+}
+
+:global(.ww-public-live-dialog) p,
+:global(.ww-public-live-dialog) [class*="text-muted-foreground"] {
+  color: #684b40 !important;
+}
+
+:global(.ww-public-live-dialog) svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-white"]) {
+  color: #806344 !important;
+}
+
+:global(.ww-public-live-dialog) :not(button) > svg[class*="text-white"] {
+  color: #806344 !important;
+}
+
+:global(.ww-public-live-dialog) input,
+:global(.ww-public-live-dialog) textarea,
+:global(.ww-public-live-dialog) button[role="combobox"],
+:global(.ww-public-live-dialog) [class*="bg-background"] {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fffdf9 !important;
+}
+
+:global(.ww-public-live-dialog) input::placeholder,
+:global(.ww-public-live-dialog) textarea::placeholder {
+  color: #8a7167 !important;
+}
+
+:global(.ww-public-live-dialog) button[aria-label="Close"],
+:global(.ww-public-live-dialog) > button:last-child {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fffdf9 !important;
+}
+
+:global(.ww-public-live-dialog) button:focus-visible,
+:global(.ww-public-live-dialog) input:focus-visible,
+:global(.ww-public-live-dialog) textarea:focus-visible,
+:global(.ww-public-live-dialog) [role="button"]:focus-visible {
+  box-shadow: 0 0 0 2px #fffdf9, 0 0 0 4px #755332 !important;
+}
+
+:global(.ww-public-live-menu) {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fffdf9 !important;
+  box-shadow: 0 18px 38px rgba(74, 48, 35, 0.18) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:global(.ww-public-live-menu) [role="option"] {
+  color: #2b1711 !important;
+}
+
+:global(.ww-public-live-menu) [role="option"]:focus,
+:global(.ww-public-live-menu) [role="option"][data-highlighted] {
+  color: #2b1711 !important;
+  background: #ede0d0 !important;
+}
+
+:global(.ww-public-live-menu) svg {
+  color: #806344 !important;
 }

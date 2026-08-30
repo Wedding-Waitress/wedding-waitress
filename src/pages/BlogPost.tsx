@@ -6,12 +6,14 @@
 import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Header } from '@/components/Layout/Header';
+import { PublicFooter } from '@/components/Layout/PublicFooter';
 import { CookieBanner } from '@/components/ui/CookieBanner';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { SignUpModal } from '@/components/auth/SignUpModal';
 import { useBlogPosts, useBlogPostBySlug } from '@/content/blogPosts';
 import NotFound from '@/pages/NotFound';
 import type { ReactNode } from 'react';
+import '@/styles/PublicSite.css';
 
 // Parses [anchor](url) tokens in paragraph text and renders them as links.
 // Internal paths (starting with "/") use React Router <Link> + scroll-to-top.
@@ -22,7 +24,7 @@ const renderParagraphWithLinks = (text: string): ReactNode => {
   let lastIndex = 0;
   let match: RegExpExecArray | null;
   let key = 0;
-  const linkClass = 'text-[#967A59] underline underline-offset-2 hover:text-[#7a6347]';
+  const linkClass = 'ww-public-link underline underline-offset-2';
   while ((match = regex.exec(text)) !== null) {
     if (match.index > lastIndex) nodes.push(text.slice(lastIndex, match.index));
     const [, label, href] = match;
@@ -88,7 +90,7 @@ export const BlogPost = () => {
   const related = allPosts.filter((p) => p.slug !== post.slug).slice(0, 2);
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#faf8f5]">
+    <div className="ww-public min-h-screen flex flex-col bg-[#faf8f5]">
       <SeoHead
         title={post.metaTitle}
         description={post.metaDescription}
@@ -99,13 +101,13 @@ export const BlogPost = () => {
       <main className="flex-1">
         <article className="w-full max-w-3xl mx-auto px-6 pt-16 md:pt-24 pb-16">
           <nav className="text-sm text-[#6E6E73] mb-6" aria-label="Breadcrumb">
-            <Link to="/" className="hover:text-[#967A59]">{t('blog.breadcrumbHome')}</Link>
+            <Link to="/" className="ww-public-link">{t('blog.breadcrumbHome')}</Link>
             <span className="mx-2">/</span>
-            <Link to="/blog" className="hover:text-[#967A59]">{t('blog.backToBlog')}</Link>
+            <Link to="/blog" className="ww-public-link">{t('blog.backToBlog')}</Link>
           </nav>
 
-          <div className="text-xs uppercase tracking-wider text-[#967A59] font-semibold mb-3">
-            {post.readingTime}
+          <div className="ww-public-link text-xs uppercase tracking-wider font-semibold mb-3">
+            {post.date} · {post.readingTime}
           </div>
           <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#1D1D1F] leading-tight">
             {post.title}
@@ -128,7 +130,7 @@ export const BlogPost = () => {
           </div>
 
           {/* Internal links */}
-          <aside className="mt-12 bg-white rounded-2xl border border-[#eee5d8] p-6 md:p-8">
+          <aside className="ww-brand-border mt-12 bg-white rounded-2xl border p-6 md:p-8">
             <h2 className="text-xl font-bold text-[#1D1D1F] mb-4">{t('blog.relatedTools')}</h2>
             <ul className="space-y-2">
               {post.internalLinks.map((link) => (
@@ -136,7 +138,7 @@ export const BlogPost = () => {
                   <Link
                     to={link.href}
                     onClick={() => window.scrollTo(0, 0)}
-                    className="text-[#967A59] font-semibold hover:underline"
+                    className="ww-public-link font-semibold hover:underline"
                   >
                     {link.label} →
                   </Link>
@@ -146,7 +148,7 @@ export const BlogPost = () => {
           </aside>
 
           {/* CTA */}
-          <div className="mt-12 text-center bg-[#967A59] rounded-2xl p-8 md:p-10">
+          <div className="ww-public-dashboard-background ww-dark-surface mt-12 text-center rounded-2xl p-8 md:p-10">
             <h2 className="text-2xl md:text-3xl font-bold text-white mb-3">
               {t('blog.ctaTitle')}
             </h2>
@@ -177,11 +179,11 @@ export const BlogPost = () => {
                     key={p.slug}
                     to={`/blog/${p.slug}`}
                     onClick={() => window.scrollTo(0, 0)}
-                    className="block bg-[#faf8f5] rounded-2xl p-6 border border-[#eee5d8] hover:border-[#967A59] hover:shadow-md transition-all"
+                    className="ww-brand-border block bg-[#faf8f5] rounded-2xl p-6 border hover:shadow-md transition-all"
                   >
                     <h3 className="text-lg font-bold text-[#1D1D1F] mb-2">{p.title}</h3>
                     <p className="text-sm text-[#6E6E73] leading-relaxed">{p.excerpt}</p>
-                    <span className="mt-3 inline-block text-sm font-semibold text-[#967A59]">
+                    <span className="ww-public-link mt-3 inline-block text-sm font-semibold">
                       {t('blog.readMoreShort')}
                     </span>
                   </Link>
@@ -192,11 +194,7 @@ export const BlogPost = () => {
         )}
       </main>
 
-      <footer className="bg-[#1D1D1F] text-white">
-        <div className="max-w-6xl mx-auto px-6 py-10 text-center text-sm text-white/60">
-          {t('blog.copyright', { year: new Date().getFullYear() })}
-        </div>
-      </footer>
+      <PublicFooter />
       <CookieBanner />
     </div>
   );

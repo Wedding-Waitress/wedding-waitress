@@ -21,7 +21,7 @@ vi.mock('@/hooks/useProfile', () => ({
 }));
 
 vi.mock('@/hooks/useAccountBilling', () => ({
-  useAccountBilling: () => ({ refetch: mocks.refetch }),
+  refreshAccountBilling: mocks.refetch,
 }));
 
 vi.mock('@/hooks/use-toast', () => ({ useToast: () => ({ toast: mocks.toast }) }));
@@ -39,8 +39,7 @@ vi.mock('@/components/Account/PlanBillingSection', () => ({ PlanBillingSection: 
 
 const renderAccount = (initialEntry: string) => {
   const router = createMemoryRouter([
-    { path: '/account', element: <Account /> },
-    { path: '/account/:section', element: <Account /> },
+    { path: '/account/:section?', element: <Account /> },
     { path: '/dashboard', element: <div>Dashboard restored</div> },
     { path: '/', element: <div>Signed out</div> },
   ], { initialEntries: [initialEntry] });
@@ -58,6 +57,7 @@ describe('Account Centre routing', () => {
     expect(router.state.location.pathname).toBe('/account/account-info');
     expect(screen.queryByText('My Events')).not.toBeInTheDocument();
     expect(screen.queryByText('Tables')).not.toBeInTheDocument();
+    expect(mocks.refetch).not.toHaveBeenCalled();
   });
 
   it('shows only the routed section and restores it on a direct load', async () => {
@@ -123,6 +123,17 @@ describe('Account Centre routing', () => {
 
     fireEvent.click(screen.getByRole('link', { name: 'Back to Wedding Waitress' }));
     expect(await screen.findByText('Dashboard restored')).toBeInTheDocument();
+  });
+
+  it('keeps the Account Centre shell mounted while section content changes', async () => {
+    renderAccount('/account/account-info');
+    await screen.findByText('Account Info content');
+    const shell = document.querySelector('[data-account-shell]');
+
+    fireEvent.click(screen.getByRole('link', { name: 'Plan & Billing' }));
+    expect(screen.getByRole('link', { name: 'Plan & Billing' })).toHaveAttribute('aria-current', 'page');
+    expect(await screen.findByText('Billing Details content')).toBeInTheDocument();
+    expect(document.querySelector('[data-account-shell]')).toBe(shell);
   });
 
   it('keeps log out separate and signs out before leaving', async () => {

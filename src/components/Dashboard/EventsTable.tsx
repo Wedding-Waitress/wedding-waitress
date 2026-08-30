@@ -15,7 +15,7 @@
  * Last locked: 2025-11-12
  */
 
-import React, { useState } from 'react';
+import React, { lazy, Suspense, useRef, useState } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Badge } from "@/components/ui/badge";
@@ -28,15 +28,16 @@ import {
   TooltipProvider,
   TooltipTrigger,
 } from "@/components/ui/tooltip";
-import { DeleteConfirmationModal } from './DeleteConfirmationModal';
-import { EventEditModal } from './EventEditModal';
-import { EventCreateModal } from './EventCreateModal';
 import { format } from 'date-fns';
 import { formatDisplayTime } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
-import { useEventLimits } from '@/hooks/useEventLimits';
-import { AdditionalEventModal } from './AdditionalEventModal';
+import type { EventLimitsState } from '@/hooks/useEventLimits';
+
+const DeleteConfirmationModal = lazy(() => import('./DeleteConfirmationModal').then(m => ({ default: m.DeleteConfirmationModal })));
+const EventEditModal = lazy(() => import('./EventEditModal').then(m => ({ default: m.EventEditModal })));
+const EventCreateModal = lazy(() => import('./EventCreateModal').then(m => ({ default: m.EventCreateModal })));
+const AdditionalEventModal = lazy(() => import('./AdditionalEventModal').then(m => ({ default: m.AdditionalEventModal })));
 
 // Define Event type locally
 interface Event {
@@ -123,11 +124,12 @@ interface EventsTableProps {
   setActiveEventId: (id: string | null) => Promise<void> | void;
   createEvent: (eventData: Partial<Omit<Event, 'id' | 'user_id' | 'created_at' | 'guests_count'>>) => Promise<any>;
   updateEvent: (id: string, eventData: Partial<Omit<Event, 'id' | 'user_id' | 'created_at' | 'guests_count'>>) => Promise<void>;
-  deleteEvent: (id: string) => Promise<void>;
+  deleteEvent: (id: string) => Promise<unknown>;
   onEventSelect?: (eventId: string) => void;
   onEventEdit?: (eventId: string) => void;
   onEventDelete?: (eventId: string) => void;
   selectedEvent?: Event | null;
+  eventLimits: EventLimitsState;
 }
 export const EventsTable: React.FC<EventsTableProps> = ({
   events,
@@ -140,7 +142,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   onEventSelect,
   onEventEdit,
   onEventDelete,
-  selectedEvent: selectedEventProp
+  selectedEvent: selectedEventProp,
+  eventLimits,
 }) => {
   const navigate = useNavigate();
   const isMobile = useIsMobile();
@@ -161,7 +164,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   });
   const [createModal, setCreateModal] = useState(false);
   const [addEventModal, setAddEventModal] = useState(false);
-  const eventLimits = useEventLimits();
+  const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
+  const deleteInFlightRef = useRef(false);
   const handleCreateClick = () => {
     if (!eventLimits.loading && eventLimits.atCap) setAddEventModal(true);
     else setCreateModal(true);
@@ -198,17 +202,19 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     });
   };
   const handleDeleteConfirm = async () => {
-    if (deleteModal.event) {
-      try {
-        await deleteEvent(deleteModal.event.id);
-        setDeleteModal({
-          isOpen: false,
-          event: null
-        });
-        onEventDelete?.(deleteModal.event.id);
-      } catch (error) {
-        console.error('Failed to delete event:', error);
-      }
+    if (!deleteModal.event || deleteInFlightRef.current) return;
+    const eventId = deleteModal.event.id;
+    deleteInFlightRef.current = true;
+    setDeletingEventId(eventId);
+    try {
+      await deleteEvent(eventId);
+      setDeleteModal({ isOpen: false, event: null });
+      onEventDelete?.(eventId);
+    } catch (error) {
+      console.error('Delete Event request failed', { eventId });
+    } finally {
+      deleteInFlightRef.current = false;
+      setDeletingEventId(null);
     }
   };
   const handleCreateEvent = async (eventData: any) => {
@@ -243,18 +249,18 @@ export const EventsTable: React.FC<EventsTableProps> = ({
             </h3>
 
             <div className="flex min-w-0 flex-1 items-center gap-1.5 max-lg:basis-full max-lg:justify-center max-sm:items-start max-sm:text-left">
-              <span className="shrink-0 bg-green-500 text-white text-xs sm:text-sm font-medium px-2 py-0.5 rounded">Start here</span>
-              <p className="min-w-0 text-xs sm:text-sm text-muted-foreground/80 2xl:whitespace-nowrap">
+              <span className="ww-events-badge shrink-0 bg-green-500 text-white text-xs sm:text-sm font-medium px-2 py-0.5 rounded">Start here</span>
+              <p className="ww-events-supporting min-w-0 text-xs sm:text-sm text-muted-foreground/80 2xl:whitespace-nowrap">
                 by creating &amp; managing your events, then create the number of tables you want in the next "Tables" page.
               </p>
             </div>
 
             <div className="ml-auto flex shrink-0 items-center gap-2 max-lg:ml-0 max-lg:basis-full max-lg:flex-wrap max-lg:justify-center">
-              <Badge variant="outline" className="bg-white border-primary text-primary rounded-full text-sm">
+              <Badge variant="outline" className="ww-events-badge bg-white border-primary text-primary rounded-full text-sm">
                 <CalendarCheck2 size={16} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
                 {events.length} Event{events.length !== 1 ? 's' : ''} Created
               </Badge>
-              <Button variant="default" size="sm" className="lv-premium-shade rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white touch-target sm:max-lg:w-48 max-lg:h-9 max-lg:justify-center" onClick={handleCreateClick}>
+              <Button variant="default" size="sm" className="ww-events-button lv-premium-shade rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white touch-target sm:max-lg:w-48 max-lg:h-9 max-lg:justify-center" onClick={handleCreateClick}>
                 <Plus size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                 {isMobile ? "Create" : "Create Event"}
               </Button>
@@ -292,7 +298,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         />
                         <div className="flex items-center gap-2 flex-wrap min-w-0 flex-1">
                           <h4 className="text-base font-semibold text-foreground break-words w-full">{event.name}</h4>
-                          {atCapacity && <Badge variant="success" className="text-xs">Full</Badge>}
+                          {atCapacity && <Badge variant="success" className="ww-events-badge text-xs">Full</Badge>}
                         </div>
                       </div>
                       {event.event_id && (
@@ -307,17 +313,17 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         <p className="mt-1 text-sm text-muted-foreground">{event.guests_count}/{event.guest_limit} guests</p>
 
                         <div className="flex justify-between items-center mt-0.5 text-sm gap-2">
-                          <span><span className="text-muted-foreground">Start Time:</span> <span className="font-medium">{formatDisplayTime(event.start_time) || 'Not set'}</span></span>
-                          <span><span className="text-muted-foreground">Finish Time:</span> <span className="font-medium">{formatDisplayTime(event.finish_time) || 'Not set'}</span></span>
+                          <span><span className="ww-events-label text-muted-foreground">Start Time:</span> <span>{formatDisplayTime(event.start_time) || 'Not set'}</span></span>
+                          <span><span className="ww-events-label text-muted-foreground">Finish Time:</span> <span>{formatDisplayTime(event.finish_time) || 'Not set'}</span></span>
                         </div>
 
                         <p className="mt-1 text-sm">
-                          <span className="text-muted-foreground">RSVP:</span>{' '}
-                          <span className="font-medium">{event.rsvp_deadline ? formatEventDate(event.rsvp_deadline.split('T')[0]) : 'Not set'}</span>
+                          <span className="ww-events-label text-muted-foreground">RSVP:</span>{' '}
+                          <span>{event.rsvp_deadline ? formatEventDate(event.rsvp_deadline.split('T')[0]) : 'Not set'}</span>
                         </p>
 
                         <p className="mt-0.5 text-xs text-muted-foreground">
-                          Created: {formatLocalDate(event.created_date_local, event.created_at, event.event_timezone)}
+                          <span className="ww-events-label">Created:</span>{' '}{formatLocalDate(event.created_date_local, event.created_at, event.event_timezone)}
                         </p>
                       </div>
 
@@ -326,7 +332,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         <Button 
                           size="sm" 
                           onClick={(e) => { e.stopPropagation(); handleEdit(event); }} 
-                          className="lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white h-9 px-4 flex items-center gap-2"
+                          className="ww-events-button lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white h-9 px-4 flex items-center gap-2"
                         >
                           <Pencil size={17} strokeWidth={1.8} className="text-white shrink-0" aria-hidden="true" />
                           <span>Edit Event</span>
@@ -334,7 +340,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         <Button 
                           size="sm" 
                           onClick={(e) => { e.stopPropagation(); handleDeleteClick(event); }} 
-                          className="lv-premium-shade rounded-full bg-red-500 hover:bg-red-600 text-white h-9 px-4 flex items-center gap-2"
+                          className="ww-events-button lv-premium-shade rounded-full bg-red-500 hover:bg-red-600 text-white h-9 px-4 flex items-center gap-2"
                         >
                           <Trash2 size={17} strokeWidth={1.8} className="text-white shrink-0" aria-hidden="true" />
                           <span>Cancel</span>
@@ -347,7 +353,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
             </RadioGroup>
             
             {events.length === 0 && (
-              <div className="text-center py-8 text-muted-foreground">
+              <div className="ww-events-empty text-center py-8 text-muted-foreground">
                 No events yet. Create your first event!
               </div>
             )}
@@ -402,7 +408,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       <TableCell className="font-medium w-32">
                         <div className="flex items-center">
                           {event.name}
-                          {atCapacity && <Badge variant="success" className="ml-2 text-xs">
+                          {atCapacity && <Badge variant="success" className="ww-events-badge ml-2 text-xs">
                               Full
                             </Badge>}
                         </div>
@@ -464,7 +470,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                                   <Pencil size={17} strokeWidth={1.8} className="text-white" aria-hidden="true" />
                                 </Button>
                               </TooltipTrigger>
-                              <TooltipContent>
+                              <TooltipContent className="text-[13px] font-normal leading-[18px]">
                                 <p>Edit event</p>
                               </TooltipContent>
                             </Tooltip>
@@ -482,7 +488,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                                 </Button>
 
                               </TooltipTrigger>
-                              <TooltipContent>
+                              <TooltipContent className="text-[13px] font-normal leading-[18px]">
                                 <p>Delete event</p>
                               </TooltipContent>
                             </Tooltip>
@@ -504,29 +510,28 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         )}
       </Card>
 
-      <EventEditModal
-        isOpen={editModal.isOpen}
-        onClose={() => setEditModal({ isOpen: false, event: null })}
-        event={editModal.event}
-        onSave={handleSaveEdit}
-      />
-
-      <EventCreateModal
-        isOpen={createModal}
-        onClose={() => setCreateModal(false)}
-        onCreate={handleCreateEvent}
-      />
-
-      <DeleteConfirmationModal isOpen={deleteModal.isOpen} onClose={() => setDeleteModal({
-      isOpen: false,
-      event: null
-    })} onConfirm={handleDeleteConfirm} eventName={deleteModal.event?.name || ''} />
-
-      <AdditionalEventModal
-        isOpen={addEventModal}
-        onClose={() => setAddEventModal(false)}
-        includedEvents={eventLimits.includedEvents}
-        currentEvents={eventLimits.currentEvents}
-      />
+      <Suspense fallback={null}>
+        {editModal.isOpen && <EventEditModal
+          isOpen
+          onClose={() => setEditModal({ isOpen: false, event: null })}
+          event={editModal.event}
+          onSave={handleSaveEdit}
+        />}
+        {createModal && <EventCreateModal
+          isOpen
+          onClose={() => setCreateModal(false)}
+          onCreate={handleCreateEvent}
+        />}
+        {deleteModal.isOpen && <DeleteConfirmationModal isOpen onClose={() => setDeleteModal({
+          isOpen: false,
+          event: null
+        })} onConfirm={handleDeleteConfirm} eventName={deleteModal.event?.name || ''} isLoading={deletingEventId === deleteModal.event?.id} />}
+        {addEventModal && <AdditionalEventModal
+          isOpen
+          onClose={() => setAddEventModal(false)}
+          includedEvents={eventLimits.includedEvents}
+          currentEvents={eventLimits.currentEvents}
+        />}
+      </Suspense>
     </>;
 };

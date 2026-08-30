@@ -1,57 +1,173 @@
 .mainSurface {
   min-height: calc(100dvh - 4rem);
-  background-color: #70452f;
-  background-image: url("../assets/dashboard-mocha-liquid-glass.png");
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: cover;
+  --tables-workspace: #f2e9dc;
+  --tables-panel: #fbf8f2;
+  --tables-card: #f5ebdd;
+  --tables-card-deep: #ede0d0;
+  --tables-text: #2b1711;
+  --tables-text-soft: #684b40;
+  --tables-gold: #a18764;
+  --tables-gold-strong: #806344;
+  --tables-border: #cdb99e;
+  --tables-focus: #755332;
+  color: var(--tables-text);
+  background-color: var(--tables-workspace) !important;
+  background-image: none !important;
 }
 
-.page {
-  color: #f3e7d8;
+/* Tables typography contract. All selectors are limited to the Tables page or
+   feature-owned portal markers so shared seating and printable views are inert. */
+.page,
+:global(.ww-tables-dialog),
+:global(.ww-tables-menu),
+:global(.ww-tables-popover),
+:global(.ww-tables-toast) {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
 }
+
+.stats :global(.ww-stats-overview) h2,
+:global(#root) .mainSurface .page .sectionHeading,
+:global(#root) .mainSurface .page .tablesHeading {
+  font-size: 24px !important;
+  font-weight: 600 !important;
+}
+
+:global(#root) .mainSurface .page :is(h3, h4),
+:global(#root) .mainSurface .page :global(.ww-table-name),
+:global(.ww-tables-dialog) :is(h1, h2, h3, h4),
+:global(.ww-tables-popover) :is(h1, h2, h3, h4) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  white-space: normal;
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+:global(#root) .mainSurface .page :is([class~="text-xs"], [class~="text-sm"], [class~="text-base"], [class~="text-lg"], [class*="text-[1"]),
+:global(.ww-tables-dialog) :is([class~="text-xs"], [class~="text-sm"], [class~="text-base"], [class~="text-lg"], [class*="text-[1"]),
+:global(.ww-tables-menu) :is([class~="text-xs"], [class~="text-sm"], [class~="text-base"], [class~="text-lg"], [class*="text-[1"]),
+:global(.ww-tables-popover) :is([class~="text-xs"], [class~="text-sm"], [class~="text-base"], [class~="text-lg"], [class*="text-[1"]),
+:global(.ww-tables-toast) :is([class~="text-xs"], [class~="text-sm"], [class~="text-base"], [class~="text-lg"], [class*="text-[1"]) {
+  font-size: 13px !important;
+}
+
+:global(#root) .mainSurface .page :is(p, li, td, input, textarea, select, option),
+:global(#root) .mainSurface .page :is(input, textarea)::placeholder,
+:global(#root) .mainSurface .page .setupCopy,
+:global(#root) .mainSurface .page :global(.ww-table-guest-chip),
+:global(#root) .mainSurface .page :global(.ww-table-guest-chip) span,
+:global(.ww-tables-dialog) :is(p, li, td, input, textarea, select, option),
+:global(.ww-tables-dialog) :is(input, textarea)::placeholder,
+:global(.ww-tables-menu) :is([role="option"], [role="menuitem"], input),
+:global(.ww-tables-popover) :is(p, li, div),
+:global(.ww-tables-toast) :is([data-title], [data-description]) {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+:global(.ww-tables-toast) > div > * {
+  font-size: 13px !important;
+  line-height: 18px !important;
+}
+
+:global(.ww-tables-toast) > div > :first-child {
+  font-weight: 600 !important;
+}
+
+:global(.ww-tables-toast) > div > :not(:first-child) {
+  font-weight: 400 !important;
+}
+
+:global(#root) .mainSurface .page :is(label, th),
+:global(#root) .mainSurface .page .setupCopy strong,
+:global(#root) .mainSurface .page .setupCopy li[class*="text-red"],
+:global(.ww-tables-dialog) :is(label, th),
+:global(.ww-tables-toast) [data-title] {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 18px !important;
+}
+
+:global(#root) .mainSurface .page :is(button, [role="button"]),
+:global(.ww-tables-dialog) :is(button, [role="button"]),
+:global(.ww-tables-menu) :is(button, [role="option"], [role="menuitem"]) {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-table-guest-chip),
+:global(#root) .mainSurface .page :global(.ww-table-guest-chip) span {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+:global(#root) .mainSurface .stats :global(.ww-stat-label) {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+:global(#root) .mainSurface .stats :global(.ww-stat-value) {
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-table-card) :is([class*="rounded-full"][class*="font-bold"], [class*="rounded-full"][class*="font-semibold"]),
+:global(#root) .mainSurface .page :global(.ww-table-name) > span,
+:global(#root) .mainSurface .page :global(.ww-table-card) > * [class*="text-xs"][class*="font-bold"] {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-table-card) [class*="font-bold"]:not(:global(.ww-table-name)) {
+  font-weight: 600 !important;
+}
+
+.page { color: var(--tables-text); }
 
 :global(#root) .mainSurface .stats :global(.ww-stats-bar),
 :global(#root) .mainSurface .page .setupPanel,
 :global(#root) .mainSurface .page .tablesPanel,
 :global(#root) .mainSurface .page .unavailablePanel {
-  color: #f3e7d8 !important;
-  border: 1px solid rgba(201, 151, 93, 0.4) !important;
-  background: rgba(33, 19, 15, 0.64) !important;
-  box-shadow:
-    inset 0 1px 0 rgba(255, 239, 218, 0.2),
-    0 18px 42px rgba(3, 1, 1, 0.38) !important;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+  color: var(--tables-text) !important;
+  border: 1px solid var(--tables-border) !important;
+  background: var(--tables-panel) !important;
+  box-shadow: inset 0 1px 0 #fff, 0 12px 28px rgba(76, 48, 31, 0.12) !important;
 }
+
+.stats :global(.ww-stats-overview) h2 { color: var(--tables-text) !important; }
+.stats :global(.ww-stats-overview) p { color: var(--tables-text-soft) !important; opacity: 1 !important; }
 
 .stats :global(.ww-stat-icon),
 .setupIcon,
 .tablesHeading svg {
-  color: #d9b77f !important;
+  color: var(--tables-gold-strong) !important;
   stroke: currentColor !important;
 }
 
 :global(#root) .mainSurface .stats :global(.ww-stat-icon) svg {
-  color: #d9b77f !important;
+  color: var(--tables-gold-strong) !important;
   stroke: currentColor !important;
 }
 
 :global(#root) .mainSurface .stats :global(.ww-stat-label) {
-  color: #f3e7d8 !important;
+  color: var(--tables-text-soft) !important;
 }
 
 :global(#root) .mainSurface .stats :global(.ww-stat-value) {
-  color: #ffffff !important;
+  color: var(--tables-text) !important;
 }
 
 .stats :global(.ww-stats-divider) {
-  background: rgba(201, 151, 93, 0.28) !important;
+  background: var(--tables-border) !important;
 }
 
 :global(#root) .mainSurface .page .sectionHeading,
 :global(#root) .mainSurface .page .tablesHeading {
-  color: #ffffff !important;
+  color: var(--tables-text) !important;
   font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif !important;
   font-size: 1.5rem !important;
   font-weight: 600 !important;
@@ -63,12 +179,12 @@
 :global(#root) .mainSurface .page .setupCopy li:not([class*="text-red"]),
 :global(#root) .mainSurface .page .setupPanel label,
 :global(#root) .mainSurface .page .unavailablePanel [class*="text-muted-foreground"] {
-  color: #f3e7d8 !important;
+  color: var(--tables-text-soft) !important;
   opacity: 1 !important;
 }
 
 :global(#root) .mainSurface .page .setupCopy strong {
-  color: #ffffff !important;
+  color: var(--tables-text) !important;
 }
 
 :global(#root) .mainSurface .page .setupCopy li[class*="text-red"] {
@@ -85,50 +201,59 @@
 :global(#root) .mainSurface .page .eventField:focus,
 :global(#root) .mainSurface .page .eventField:focus-visible,
 :global(#root) .mainSurface .page .eventField[data-state="open"] {
-  color: #ffffff !important;
-  border: 1px solid rgba(201, 151, 93, 0.4) !important;
-  background: linear-gradient(180deg, rgba(255, 239, 218, 0.06), rgba(17, 9, 7, 0.74)) !important;
+  color: var(--tables-text) !important;
+  border: 1px solid var(--tables-border) !important;
+  background: var(--tables-card) !important;
   outline: none !important;
   box-shadow:
-    inset 0 1px 0 rgba(255, 244, 229, 0.12),
-    0 0 0 1px rgba(201, 151, 93, 0.12) !important;
+    inset 0 1px 0 #fff,
+    0 0 0 2px rgba(117, 83, 50, 0.12) !important;
+}
+
+:global(#root) .mainSurface .page .eventField:focus-visible,
+:global(#root) .mainSurface .page .eventField[data-state="open"] {
+  border-color: var(--tables-focus) !important;
+  box-shadow: 0 0 0 3px rgba(117, 83, 50, 0.2) !important;
 }
 
 .eventField svg,
 .eventField [class*="text-[#967A59]"] {
-  color: #d9b77f !important;
+  color: var(--tables-gold-strong) !important;
 }
 
 .eventField > span {
-  color: #ffffff !important;
+  color: var(--tables-text) !important;
 }
 
 .eventMenu {
-  color: #f3e7d8 !important;
-  border: 1px solid rgba(201, 151, 93, 0.4) !important;
-  background: linear-gradient(180deg, rgba(72, 39, 28, 0.98), rgba(25, 13, 10, 0.99)) !important;
+  --tables-panel: #fbf8f2;
+  --tables-card-deep: #ede0d0;
+  --tables-text: #2b1711;
+  --tables-gold-strong: #806344;
+  --tables-border: #cdb99e;
+  color: var(--tables-text) !important;
+  border: 1px solid var(--tables-border) !important;
+  background: var(--tables-panel) !important;
   background-clip: padding-box !important;
   outline: none !important;
   box-shadow:
-    inset 0 1px 0 rgba(255, 239, 218, 0.14),
-    0 16px 34px rgba(3, 1, 1, 0.38) !important;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+    inset 0 1px 0 #fff,
+    0 16px 34px rgba(76, 48, 31, 0.18) !important;
 }
 
 .eventMenu [role="option"] {
-  color: #f3e7d8 !important;
+  color: var(--tables-text) !important;
   outline: none !important;
 }
 
 .eventMenu [role="option"]:focus,
 .eventMenu [role="option"][data-highlighted] {
-  color: #ffffff !important;
-  background: rgba(139, 77, 40, 0.62) !important;
+  color: var(--tables-text) !important;
+  background: var(--tables-card-deep) !important;
 }
 
 .eventMenu svg {
-  color: #d9b77f !important;
+  color: var(--tables-gold-strong) !important;
 }
 
 .tablesHeading {
@@ -151,11 +276,11 @@
 
 :global(#root) .mainSurface .page .emptyStateMessage {
   margin: 0;
-  color: #ffffff !important;
+  color: var(--tables-text) !important;
   font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif !important;
-  font-size: 1.25rem !important;
-  font-weight: 600 !important;
-  line-height: 1.35 !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
   letter-spacing: -0.01em;
 }
 
@@ -165,9 +290,8 @@
   color: #ffffff !important;
   border: 1px solid #22c55e !important;
   background: linear-gradient(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%) !important;
-  font-size: 1rem !important;
-  font-weight: 600 !important;
-  line-height: 1.25 !important;
+  font-size: 13px !important;
+  font-weight: 500 !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.28),
     0 8px 18px rgba(22, 163, 74, 0.28) !important;
@@ -201,40 +325,38 @@
 }
 
 :global(#root) .mainSurface .page .tablesPanel :global(.ww-table-card) {
-  color: #f3e7d8 !important;
-  border: 1px solid rgba(201, 151, 93, 0.4) !important;
-  background: linear-gradient(180deg, rgba(67, 36, 27, 0.78), rgba(24, 13, 10, 0.82)) !important;
+  color: var(--tables-text) !important;
+  border: 1px solid var(--tables-border) !important;
+  background: var(--tables-card) !important;
   box-shadow:
-    inset 0 1px 0 rgba(255, 239, 218, 0.14),
-    0 12px 28px rgba(3, 1, 1, 0.28) !important;
-  backdrop-filter: blur(12px);
-  -webkit-backdrop-filter: blur(12px);
+    inset 0 1px 0 #fff,
+    0 8px 20px rgba(76, 48, 31, 0.12) !important;
 }
 
 :global(#root) .mainSurface .page .tablesPanel :global(.ww-table-card):hover {
-  border-color: rgba(223, 181, 129, 0.62) !important;
-  background: linear-gradient(180deg, rgba(78, 43, 31, 0.82), rgba(29, 15, 11, 0.86)) !important;
+  border-color: var(--tables-gold-strong) !important;
+  background: var(--tables-card-deep) !important;
   transform: translateY(-1px);
 }
 
 :global(#root) .mainSurface .page .tablesPanel :global(.ww-table-card)[class*="bg-blue"] {
   border-color: #3b82f6 !important;
-  background: rgba(30, 64, 175, 0.24) !important;
-  box-shadow: 0 0 0 2px rgba(59, 130, 246, 0.28), 0 14px 30px rgba(3, 1, 1, 0.32) !important;
+  background: #e8f1ff !important;
+  box-shadow: 0 0 0 3px rgba(37, 99, 235, 0.3), 0 12px 24px rgba(76, 48, 31, 0.14) !important;
 }
 
 :global(#root) .mainSurface .page .tablesPanel :global(.ww-table-name),
 :global(#root) .mainSurface .page .tablesPanel :global(.ww-table-card) [class*="text-foreground"] {
-  color: #ffffff !important;
+  color: var(--tables-text) !important;
 }
 
 :global(#root) .mainSurface .page .tablesPanel :global(.ww-table-card) [class*="text-muted-foreground"] {
-  color: #f3e7d8 !important;
+  color: var(--tables-text-soft) !important;
   opacity: 1 !important;
 }
 
 .tablesPanel :global(.ww-table-card) svg:not([class*="text-white"]):not([class*="text-red"]):not([class*="text-green"]) {
-  color: #d9b77f !important;
+  color: var(--tables-gold-strong) !important;
   stroke: currentColor !important;
 }
 
@@ -247,32 +369,34 @@
 }
 
 :global(#root) .mainSurface .page .tablesPanel :global(.ww-table-card) [class*="bg-secondary"]:not(:global(.ww-table-guest-chip)) {
-  background: rgba(232, 221, 210, 0.16) !important;
+  background: var(--tables-card-deep) !important;
 }
 
 :global(#root) .mainSurface .page .tablesPanel :global(.ww-table-guest-chip) {
-  color: #f3e7d8 !important;
-  border: 1px solid rgba(201, 151, 93, 0.28) !important;
-  background: rgba(20, 10, 8, 0.7) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.07);
+  color: var(--tables-text) !important;
+  border: 1px solid var(--tables-border) !important;
+  background: var(--tables-panel) !important;
+  box-shadow: inset 0 1px 0 #fff;
 }
 
 :global(#root) .mainSurface .page .tablesPanel :global(.ww-table-guest-chip):hover,
 :global(#root) .mainSurface .page .tablesPanel :global(.ww-table-guest-chip):focus-visible {
-  color: #ffffff !important;
-  border-color: rgba(223, 181, 129, 0.58) !important;
-  background: rgba(91, 49, 34, 0.78) !important;
+  color: var(--tables-text) !important;
+  border-color: var(--tables-focus) !important;
+  background: var(--tables-card-deep) !important;
   outline: none !important;
 }
 
 :global(#root) .mainSurface .page .tablesPanel button[class*="bg-green"] {
   color: #ffffff !important;
-  border: 1px solid #22c55e !important;
+  border: 0 !important;
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%) !important;
 }
 
 :global(#root) .mainSurface .page .setupPanel button[class*="bg-green"] {
   color: #ffffff !important;
-  border: 1px solid #22c55e !important;
+  border: 0 !important;
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%) !important;
 }
 
 :global(#root) .mainSurface .page .setupPanel button[class*="bg-green"] svg {
@@ -282,7 +406,69 @@
 
 :global(#root) .mainSurface .page .tablesPanel button[class*="bg-red"] {
   color: #ffffff !important;
-  border: 1px solid #ef4444 !important;
+  border: 0 !important;
+  background: linear-gradient(180deg, #f87171 0%, #ef4444 58%, #dc2626 100%) !important;
+}
+
+:global(.ww-tables-dialog),
+:global(.ww-tables-menu),
+:global(.ww-tables-popover),
+:global(.ww-tables-toast) {
+  color: #2b1711 !important;
+  border: 1px solid #cdb99e !important;
+  background: #fbf8f2 !important;
+  box-shadow: inset 0 1px 0 #fff, 0 18px 42px rgba(76, 48, 31, 0.2) !important;
+}
+
+:global(.ww-tables-dialog) :is(h1, h2, h3, h4),
+:global(.ww-tables-popover) :is(h1, h2, h3, h4) { color: #2b1711 !important; }
+:global(.ww-tables-dialog) [class*="text-muted-foreground"],
+:global(.ww-tables-popover) [class*="text-muted-foreground"] { color: #684b40 !important; opacity: 1 !important; }
+:global(.ww-tables-dialog) input,
+:global(.ww-tables-dialog) textarea,
+:global(.ww-tables-dialog) [role="combobox"] {
+  color: #2b1711 !important;
+  border: 1px solid #cdb99e !important;
+  background: #f5ebdd !important;
+}
+:global(.ww-tables-dialog) input::placeholder { color: #684b40 !important; opacity: 1 !important; }
+:global(.ww-tables-dialog) :is(input, textarea, [role="combobox"]):focus-visible {
+  border-color: #755332 !important;
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(117, 83, 50, 0.2) !important;
+}
+:global(.ww-tables-dialog) button[class*="bg-destructive"] {
+  color: #fff !important;
+  border: 0 !important;
+  background: linear-gradient(180deg, #f87171 0%, #ef4444 58%, #dc2626 100%) !important;
+}
+:global(.ww-tables-dialog) button[class*="bg-destructive"] svg { color: #fff !important; }
+:global(.ww-tables-dialog) button[data-radix-collection-item]:not([class*="bg-destructive"]),
+:global(.ww-tables-dialog) button[class*="border-input"] {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #f5ebdd !important;
+}
+:global(.ww-tables-menu) [role="option"] { color: #2b1711 !important; }
+:global(.ww-tables-menu) [role="option"][data-highlighted] { background: #ede0d0 !important; }
+:global(.ww-tables-popover) svg { color: #806344 !important; }
+:global(.ww-tables-toast.destructive) {
+  color: #7f1d1d !important;
+  border-color: #dc2626 !important;
+  background: #fff0ef !important;
+}
+:global(.ww-tables-toast.destructive) svg { color: #dc2626 !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .page *,
+  :global(.ww-tables-dialog) *,
+  :global(.ww-tables-menu) *,
+  :global(.ww-tables-popover) * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
 }
 
 @media (max-width: 767px) {

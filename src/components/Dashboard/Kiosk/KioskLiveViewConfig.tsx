@@ -167,17 +167,17 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
   return (
     <Card id="guest-live-view-configuration" className={`${styles.primaryPanel} border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] w-full scroll-mt-24`}>
       <CardHeader className="pb-3">
-        <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
+        <CardTitle className={`${styles.configurationHeading} flex items-center gap-2 text-2xl font-bold text-foreground`}>
           <Settings2 className="w-[22px] h-[22px] text-foreground shrink-0" strokeWidth={1.8} aria-hidden="true" />
           Guest Live View Configuration
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
-        <p className="text-sm text-muted-foreground">
+        <p className={`${styles.configurationDescription} text-sm text-muted-foreground`}>
           Configure which modules your guests can access on the kiosk live view.
         </p>
 
-        <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3 items-stretch auto-rows-fr">
+        <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-3 items-stretch auto-rows-fr">
           {(() => {
             const renderTile = (tile: ModuleTile) => {
               const enabled = !!(visibility as any)?.[tile.visKey];
@@ -357,7 +357,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                 </p>
 
                 <div className="flex items-center justify-between pt-2">
-                  <span className="text-sm inline-flex items-center gap-[7px]">
+                  <span className={`${styles.emphasizedInstruction} text-sm inline-flex items-center gap-[7px]`}>
                     <ClipboardCheck className="h-4 w-4 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
                     Show RSVP Status
                   </span>
@@ -378,7 +378,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                 </div>
 
                 <div className="flex items-center justify-between">
-                  <span className="text-sm inline-flex items-center gap-[7px]">
+                  <span className={`${styles.emphasizedInstruction} text-sm inline-flex items-center gap-[7px]`}>
                     <UtensilsCrossed className="h-4 w-4 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
                     Show Dietary Requirements
                   </span>

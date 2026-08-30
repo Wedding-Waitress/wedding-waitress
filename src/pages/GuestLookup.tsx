@@ -665,7 +665,7 @@ export const GuestLookup: React.FC = () => {
 
   if (loading) {
     return (
-      <div className={`${styles.mainSurface} ${styles.statePage} min-h-screen bg-gradient-subtle flex items-center justify-center p-4`}>
+      <div className={`${styles.mainSurface} ${styles.statePage} ww-application-background min-h-screen flex items-center justify-center p-4`}>
         <Card className={`${styles.stateCard} ww-box w-full max-w-md`}>
           <CardContent className="p-8 text-center">
             <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
@@ -678,11 +678,11 @@ export const GuestLookup: React.FC = () => {
 
   if (!event) {
     return (
-      <div className={`${styles.mainSurface} ${styles.statePage} min-h-screen bg-gradient-subtle flex items-center justify-center p-4`}>
+      <div className={`${styles.mainSurface} ${styles.statePage} ww-application-background min-h-screen flex items-center justify-center p-4`}>
         <Card className={`${styles.stateCard} ww-box w-full max-w-md`}>
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-16 h-16 mx-auto text-destructive mb-4" />
-            <CardTitle className="mb-2">Event Not Found</CardTitle>
+            <CardTitle className={`${styles.sectionHeading} mb-2`}>Event Not Found</CardTitle>
             <CardDescription>
               The requested event could not be found. Please check the QR code or contact the event organiser.
             </CardDescription>
@@ -695,7 +695,7 @@ export const GuestLookup: React.FC = () => {
   const heroImageUrl = moduleSettings?.hero_image_config?.file_url;
 
   return (
-    <div className={`${styles.mainSurface} ${styles.page} min-h-screen bg-gradient-subtle font-inter`}>
+    <div className={`${styles.mainSurface} ${styles.page} ww-application-background min-h-screen font-inter`}>
       {/* Hero Section */}
       <div className="relative">
         {heroImageUrl ? (
@@ -737,7 +737,7 @@ export const GuestLookup: React.FC = () => {
       {/* Event Date, Venue & Countdown - between hero and buttons */}
       <div className={`${styles.eventDetails} w-full py-4 px-4`}>
         <div className="max-w-4xl mx-auto text-center space-y-2">
-          <div className="flex items-center justify-center text-foreground text-sm md:text-base font-medium">
+          <div data-live-body className="flex items-center justify-center text-foreground text-sm md:text-base font-medium">
             <Calendar className="w-4 h-4 mr-2 text-primary" />
             <span>{(() => {
               const d = new Date(event.date);
@@ -762,7 +762,7 @@ export const GuestLookup: React.FC = () => {
             return (
               <>
                 {hasCeremony && (
-                  <div className="flex items-start justify-center text-foreground text-sm md:text-base">
+                  <div data-live-body className="flex items-start justify-center text-foreground text-sm md:text-base">
                     <MapPin className="w-4 h-4 mr-2 mt-0.5 text-primary shrink-0" />
                     <span>
                       <span className="font-semibold">Ceremony:</span>{' '}
@@ -774,7 +774,7 @@ export const GuestLookup: React.FC = () => {
                   </div>
                 )}
                 {event.venue && (
-                  <div className="flex items-start justify-center text-foreground text-sm md:text-base">
+                  <div data-live-body className="flex items-start justify-center text-foreground text-sm md:text-base">
                     <MapPin className="w-4 h-4 mr-2 mt-0.5 text-primary shrink-0" />
                     <span>
                       {hasCeremony && <span className="font-semibold">Reception: </span>}
@@ -898,7 +898,7 @@ export const GuestLookup: React.FC = () => {
 
             <div className="pt-3">
             <TabsContent value="search" className="mt-0">
-              <p className="text-center text-base md:text-lg font-semibold text-foreground mb-3">Update & Confirm Your Details</p>
+              <p className={`${styles.sectionHeading} text-center text-base md:text-lg font-semibold text-foreground mb-3`}>Update & Confirm Your Details</p>
               <Card className={`${styles.searchCard} ww-box card-elevated`}>
                 <CardContent className={`${styles.searchCardContent} pt-3`}>
                   <div className={styles.searchArea}>
@@ -938,7 +938,7 @@ export const GuestLookup: React.FC = () => {
                       <div ref={searchResultsRef}>
                         {filteredGuests.length > 0 && (
                           <div className="text-center mb-5 animate-fade-in">
-                            <div className="text-lg md:text-xl font-semibold text-primary">
+                            <div data-live-section-heading className="text-lg md:text-xl font-semibold text-primary">
                               Welcome, {filteredGuests[0].first_name} 👋
                             </div>
                           </div>
@@ -1042,7 +1042,7 @@ export const GuestLookup: React.FC = () => {
                       <Card className="ww-box card-elevated border-2 border-warning/30">
                         <CardContent className="p-8 text-center">
                           <MapPin className="w-16 h-16 mx-auto text-warning mb-4" />
-                          <CardTitle className="mb-2 text-lg">No Table Assigned Yet</CardTitle>
+                          <CardTitle className={`${styles.sectionHeading} mb-2 text-lg`}>No Table Assigned Yet</CardTitle>
                           <CardDescription className="text-base">
                             You haven't been assigned to a table yet. Please check back later or contact the event organiser.
                           </CardDescription>
@@ -1056,7 +1056,7 @@ export const GuestLookup: React.FC = () => {
                   <Card className="ww-box card-elevated">
                     <CardContent className="p-8 text-center">
                       <Eye className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                      <CardTitle className="mb-2">Table View</CardTitle>
+                      <CardTitle className={`${styles.sectionHeading} mb-2`}>Table View</CardTitle>
                      <CardDescription className="text-base">
                         Search for your name first to see what table you are sitting on and who you are sitting with.
                       </CardDescription>
@@ -1074,7 +1074,7 @@ export const GuestLookup: React.FC = () => {
                   <Card className="ww-box card-elevated">
                     <CardContent className="p-8 text-center">
                       <AlertCircle className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
-                      <CardTitle className="mb-2">Guest Not Found</CardTitle>
+                      <CardTitle className={`${styles.sectionHeading} mb-2`}>Guest Not Found</CardTitle>
                       <CardDescription>
                         No guest found matching your search. Please verify your name or contact the event organiser.
                       </CardDescription>
