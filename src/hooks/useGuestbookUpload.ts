@@ -13,13 +13,18 @@ export interface GuestbookUploadOptions {
   filename: string;
 }
 
+export interface GuestbookUploadResult {
+  itemId: string;
+  deleteToken: string;
+}
+
 export function useGuestbookUpload() {
   const [progress, setProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /** Returns the created media item id on success, or null on failure. */
-  const upload = useCallback(async (blob: Blob, opts: GuestbookUploadOptions): Promise<string | null> => {
+  /** Returns the item id and its one-submission deletion secret, or null on failure. */
+  const upload = useCallback(async (blob: Blob, opts: GuestbookUploadOptions): Promise<GuestbookUploadResult | null> => {
     setUploading(true);
     setError(null);
     setProgress(0);
@@ -81,7 +86,7 @@ export function useGuestbookUpload() {
       }
       setUploading(false);
       setProgress(100);
-      return item_id;
+      return { itemId: item_id, deleteToken: upload_token };
     } catch (e: any) {
       setError(e?.message || 'Upload failed');
       setUploading(false);

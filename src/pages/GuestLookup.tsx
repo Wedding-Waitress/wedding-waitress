@@ -39,6 +39,7 @@ import { GuestUpdateModal } from '@/components/GuestLookup/GuestUpdateModal';
 import { ReadOnlyCeremonyFloorPlan } from '@/components/GuestView/ReadOnlyCeremonyFloorPlan';
 import { PublicAddGuestModal } from '@/components/GuestLookup/PublicAddGuestModal';
 import styles from './GuestLookup.module.css';
+import { resolveWelcomeVideoUrl } from '@/lib/liveViewMediaConfig';
 
 interface Guest {
   id: string;
@@ -693,6 +694,7 @@ export const GuestLookup: React.FC = () => {
   }
 
   const heroImageUrl = moduleSettings?.hero_image_config?.file_url;
+  const welcomeVideoUrl = resolveWelcomeVideoUrl(moduleSettings?.welcome_video_config);
 
   return (
     <div className={`${styles.mainSurface} ${styles.page} ww-application-background min-h-screen font-inter`}>
@@ -1058,7 +1060,7 @@ export const GuestLookup: React.FC = () => {
                       <Eye className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                       <CardTitle className={`${styles.sectionHeading} mb-2`}>Table View</CardTitle>
                      <CardDescription className="text-base">
-                        Search for your name first to see what table you are sitting on and who you are sitting with.
+                        Search for your name first to see which table you are seated at and who you are sitting with.
                       </CardDescription>
                       <button
                         onClick={returnToSearch}
@@ -1207,10 +1209,10 @@ export const GuestLookup: React.FC = () => {
             </DialogTitle>
           </DialogHeader>
           <div className="mt-4">
-            {moduleSettings?.welcome_video_config?.video_url ? (
+            {welcomeVideoUrl ? (
               <div className="aspect-video w-full rounded-lg overflow-hidden bg-black">
                 <iframe
-                  src={moduleSettings.welcome_video_config.video_url}
+                  src={welcomeVideoUrl}
                   className="w-full h-full"
                   title="Welcome Video"
                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"

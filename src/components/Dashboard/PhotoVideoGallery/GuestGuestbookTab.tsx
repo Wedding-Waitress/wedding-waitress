@@ -156,11 +156,14 @@ export const GuestGuestbookTab: React.FC<Props> = ({
   // Per-section save state
   const [savingText, setSavingText] = useState(false);
   const [savedTextId, setSavedTextId] = useState<string | null>(null);
+  const [savedTextDeleteToken, setSavedTextDeleteToken] = useState<string | null>(null);
   const [savedTextValue, setSavedTextValue] = useState('');
 
   const [savingKind, setSavingKind] = useState<'audio' | 'video' | null>(null);
   const [savedAudioId, setSavedAudioId] = useState<string | null>(null);
   const [savedVideoId, setSavedVideoId] = useState<string | null>(null);
+  const [savedAudioDeleteToken, setSavedAudioDeleteToken] = useState<string | null>(null);
+  const [savedVideoDeleteToken, setSavedVideoDeleteToken] = useState<string | null>(null);
   const [removingKind, setRemovingKind] = useState<'text' | 'audio' | 'video' | null>(null);
 
   const audio = useRecorder('audio', setFormError);
@@ -210,8 +213,10 @@ export const GuestGuestbookTab: React.FC<Props> = ({
     setSavingText(true);
     try {
       if (savedTextId) {
+        if (!savedTextDeleteToken) throw new Error('This message can no longer be edited from this session.');
         const { error: err } = await (supabase as any).rpc('update_event_guestbook_text', {
-          _token: token, _id: savedTextId, _uploader_name: name.trim(), _message: value,
+          _token: token, _id: savedTextId, _delete_token: savedTextDeleteToken,
+          _uploader_name: name.trim(), _message: value,
         });
         if (err) throw err;
       } else {
@@ -219,7 +224,9 @@ export const GuestGuestbookTab: React.FC<Props> = ({
           _token: token, _uploader_name: name.trim(), _message: value,
         });
         if (err) throw err;
-        setSavedTextId(typeof data === 'string' ? data : (data?.id ?? null));
+        const row = Array.isArray(data) ? data[0] : data;
+        setSavedTextId(row?.id ?? null);
+        setSavedTextDeleteToken(row?.delete_token ?? null);
       }
       setSavedTextValue(value);
       setDone(thanks);
@@ -233,13 +240,15 @@ export const GuestGuestbookTab: React.FC<Props> = ({
   const removeText = async () => {
     setFormError(null);
     if (!savedTextId) { setMessage(''); return; }
+    if (!savedTextDeleteToken) { setFormError('This message can no longer be removed from this session.'); return; }
     setRemovingKind('text');
     try {
       const { error: err } = await (supabase as any).rpc('delete_event_guestbook_text', {
-        _token: token, _id: savedTextId,
+        _token: token, _id: savedTextId, _delete_token: savedTextDeleteToken,
       });
       if (err) throw err;
       setSavedTextId(null);
+      setSavedTextDeleteToken(null);
       setSavedTextValue('');
       setMessage('');
       setDone(null);
@@ -259,30 +268,47 @@ export const GuestGuestbookTab: React.FC<Props> = ({
     if (!requireName()) return;
     setSavingKind(kind);
     const mime = normalizeMime(rec.mime || rec.blob.type || (kind === 'audio' ? 'audio/webm' : 'video/webm'));
-    const itemId = await upload(rec.blob, {
+    const uploadResult = await upload(rec.blob, {
       token, kind, mime,
       durationSec: Math.min(MAX_SECONDS, Math.max(1, rec.seconds || 1)),
       uploaderName: name.trim(), message: '',
       filename: `guestbook-${kind}-${Date.now()}.${extFor(mime)}`,
     });
     setSavingKind(null);
-    if (!itemId) {
+    if (!uploadResult) {
       setFormError(`Could not save your ${kind} message. Your recording is still here — please try again.`);
       return;
     }
-    if (kind === 'audio') setSavedAudioId(itemId); else setSavedVideoId(itemId);
+    if (kind === 'audio') {
+      setSavedAudioId(uploadResult.itemId);
+      setSavedAudioDeleteToken(uploadResult.deleteToken);
+    } else {
+      setSavedVideoId(uploadResult.itemId);
+      setSavedVideoDeleteToken(uploadResult.deleteToken);
+    }
     setDone(thanks);
   };
 
   const deleteSavedRecording = async (kind: 'audio' | 'video'): Promise<boolean> => {
     const id = kind === 'audio' ? savedAudioId : savedVideoId;
+    const deleteToken = kind === 'audio' ? savedAudioDeleteToken : savedVideoDeleteToken;
     if (!id) return true;
+    if (!deleteToken) {
+      setFormError(`This ${kind} message can no longer be removed from this session.`);
+      return false;
+    }
     try {
-      const { error: err } = await (supabase as any).rpc('delete_event_guestbook_media', {
-        _token: token, _item_id: id,
+      const { error: err } = await supabase.functions.invoke('delete-guestbook-submission', {
+        body: { galleryToken: token, itemId: id, deleteToken },
       });
       if (err) throw err;
-      if (kind === 'audio') setSavedAudioId(null); else setSavedVideoId(null);
+      if (kind === 'audio') {
+        setSavedAudioId(null);
+        setSavedAudioDeleteToken(null);
+      } else {
+        setSavedVideoId(null);
+        setSavedVideoDeleteToken(null);
+      }
       return true;
     } catch (e: any) {
       setFormError(e?.message || `Could not remove your ${kind} message. Please try again.`);

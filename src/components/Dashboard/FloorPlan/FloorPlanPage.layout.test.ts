@@ -96,13 +96,16 @@ describe('Ceremony Floor Plan page composition', () => {
   it('places Reception reset and export controls in the shared header without duplicating their handlers', () => {
     const shell = fs.readFileSync(path.resolve(process.cwd(), 'src/components/Dashboard/FloorPlan/FloorPlanPage.tsx'), 'utf8');
     const reception = fs.readFileSync(path.resolve(process.cwd(), 'src/components/Dashboard/FloorPlan/ReceptionFloorPlan/ReceptionFloorPlanPage.tsx'), 'utf8');
+    const canvas = fs.readFileSync(path.resolve(process.cwd(), 'src/components/Dashboard/FloorPlan/ReceptionFloorPlan/ReceptionFloorPlanCanvas.tsx'), 'utf8');
 
     expect(shell.match(/data-reception-header-controls=/g)).toHaveLength(1);
     expect(shell.indexOf('Choose Event:')).toBeLessThan(shell.indexOf('Floor Plan Type:'));
-    expect(reception.match(/Reset layout/g)).toHaveLength(1);
+    expect(reception.match(/Reset layout/g)).toBeNull();
+    expect(canvas.match(/Reset layout/g)).toHaveLength(1);
+    expect(canvas).toContain('onClick={onResetRequest}');
     expect(reception.match(/Export Controls/g)).toHaveLength(1);
     expect(reception).toContain("exporting ? 'Exporting...' : 'Download PDF'");
-    expect(reception).toContain("onClick={() => setResetOpen(true)}");
+    expect(reception).toContain('onResetRequest={() => setResetOpen(true)}');
     expect(reception).toContain("onClick={() => handleExport('a4')}");
     expect(reception).toContain('createPortal(headerControls, headerControlsContainer)');
     expect(reception).not.toContain("'Export PDF'");

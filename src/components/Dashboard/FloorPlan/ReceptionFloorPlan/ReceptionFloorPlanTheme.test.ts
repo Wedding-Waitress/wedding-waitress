@@ -78,7 +78,9 @@ describe('Reception Floor Plan glossy theme scope', () => {
   it('moves the existing Reception controls into the shared header without exposing autosave status', () => {
     expect(shell).toContain('data-reception-header-controls="true"');
     expect(page).toContain('createPortal(headerControls, headerControlsContainer)');
-    expect(page.match(/Reset layout/g)).toHaveLength(1);
+    expect(page.match(/Reset layout/g)).toBeNull();
+    expect(canvas.match(/Reset layout/g)).toHaveLength(1);
+    expect(canvas).toContain('onClick={onResetRequest}');
     expect(page.match(/Export Controls/g)).toHaveLength(1);
     expect(page).toContain("exporting ? 'Exporting...' : 'Download PDF'");
     expect(page).not.toContain("Saved{' '}");
@@ -87,7 +89,7 @@ describe('Reception Floor Plan glossy theme scope', () => {
     expect(page).toContain('headerStyles.exportButton');
     expect(shell).toContain('xl:grid-cols-[minmax(0,1.45fr)_minmax(260px,0.72fr)_auto_auto]');
     expect(shell).toContain('xl:contents');
-    expect(page).toContain('variant="destructive"');
+    expect(canvas).toContain('variant="destructive"');
     expect(theme).toContain('border: 1px solid rgba(248, 113, 113, 0.62) !important');
   });
 

@@ -33,6 +33,8 @@ import theme from './DJMCQuestionnaireTheme.module.css';
 
 interface DJMCSectionRowProps {
   item: DJMCItem;
+  eventId: string;
+  shareToken?: string;
   sectionType: SectionType;
   onUpdate: (updates: Partial<DJMCItem>) => void;
   onDelete: () => void;
@@ -43,6 +45,8 @@ interface DJMCSectionRowProps {
 
 export function DJMCSectionRow({
   item,
+  eventId,
+  shareToken,
   sectionType,
   onUpdate,
   onDelete,
@@ -454,8 +458,13 @@ export function DJMCSectionRow({
           </div>
           <div className="w-10 shrink-0 flex justify-center">
             <DJMCPronunciationRecorder
-              audioUrl={item.pronunciation_audio_url}
-              onChange={(url) => onUpdate({ pronunciation_audio_url: url })}
+              audioPath={item.pronunciation_audio_path || null}
+              legacyAudioUrl={item.pronunciation_audio_url}
+              eventId={eventId}
+              itemId={item.id}
+              shareToken={shareToken}
+              onChange={(path) => onUpdate({ pronunciation_audio_path: path, pronunciation_audio_url: null })}
+              disabled={disabled}
             />
           </div>
         </div>
@@ -552,8 +561,13 @@ export function DJMCSectionRow({
         {showPronunciation && (
           <div className="w-10 shrink-0 flex justify-center">
             <DJMCPronunciationRecorder
-              audioUrl={item.pronunciation_audio_url}
-              onChange={(url) => onUpdate({ pronunciation_audio_url: url })}
+              audioPath={item.pronunciation_audio_path || null}
+              legacyAudioUrl={item.pronunciation_audio_url}
+              eventId={eventId}
+              itemId={item.id}
+              shareToken={shareToken}
+              onChange={(path) => onUpdate({ pronunciation_audio_path: path, pronunciation_audio_url: null })}
+              disabled={disabled}
             />
           </div>
         )}
@@ -624,8 +638,13 @@ export function DJMCSectionRow({
         </div>
         <div className="w-10 shrink-0 flex justify-center">
             <DJMCPronunciationRecorder
-              audioUrl={item.pronunciation_audio_url}
-              onChange={(url) => onUpdate({ pronunciation_audio_url: url })}
+              audioPath={item.pronunciation_audio_path || null}
+              legacyAudioUrl={item.pronunciation_audio_url}
+              eventId={eventId}
+              itemId={item.id}
+              shareToken={shareToken}
+              onChange={(path) => onUpdate({ pronunciation_audio_path: path, pronunciation_audio_url: null })}
+              disabled={disabled}
             />
           </div>
         </div>
@@ -672,8 +691,13 @@ export function DJMCSectionRow({
       {sectionType === 'speeches' && (
         <div className="w-10 shrink-0 flex justify-center">
           <DJMCPronunciationRecorder
-            audioUrl={item.pronunciation_audio_url}
-            onChange={(url) => onUpdate({ pronunciation_audio_url: url })}
+            audioPath={item.pronunciation_audio_path || null}
+            legacyAudioUrl={item.pronunciation_audio_url}
+            eventId={eventId}
+            itemId={item.id}
+            shareToken={shareToken}
+            onChange={(path) => onUpdate({ pronunciation_audio_path: path, pronunciation_audio_url: null })}
+            disabled={disabled}
           />
         </div>
       )}

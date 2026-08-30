@@ -26,6 +26,7 @@ const GuestPhotoBooth = lazy(() => import("./pages/GuestPhotoBooth"));
 const Dashboard = lazy(() => loadDashboardRoute().then(m => ({ default: m.Dashboard })));
 const Account = lazy(() => loadAccountRoute().then(m => ({ default: m.Account })));
 const AccountRecovery = lazy(() => import("./pages/AccountRecovery"));
+const AcceptTeamInvitation = lazy(() => import("./pages/AcceptTeamInvitation").then(m => ({ default: m.AcceptTeamInvitation })));
 const Admin = lazy(() => loadAdminRoute().then(m => ({ default: m.Admin })));
 const GuestLookup = lazy(() => import("./pages/GuestLookup").then(m => ({ default: m.GuestLookup })));
 const KioskView = lazy(() => import("./pages/KioskView").then(m => ({ default: m.KioskView })));
@@ -83,6 +84,7 @@ import {
 } from "@/components/Dashboard/DashboardLoadingScreen";
 import { AuthenticatedSessionProvider } from '@/contexts/AuthenticatedSessionContext';
 import { AuthenticatedRouteGate } from '@/components/auth/AuthenticatedRouteGate';
+import { getAnalyticsPagePath } from '@/lib/analyticsPath';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -148,7 +150,7 @@ const RouteTracker = () => {
     const w = window as Window & { gtag?: (...args: unknown[]) => void };
     if (typeof w.gtag === 'function') {
       w.gtag('event', 'page_view', {
-        page_path: location.pathname + location.search,
+        page_path: getAnalyticsPagePath(location.pathname, location.search),
         page_title: document.title,
       });
     }
@@ -185,6 +187,7 @@ const App = () => (
           <Route element={<AuthenticatedRouteScope />}>
             <Route path="/dashboard/*" element={<Dashboard />} />
             <Route path="/account/:section?" element={<Account />} />
+            <Route path="/accept-team-invitation" element={<AcceptTeamInvitation />} />
             <Route path="/admin/:section?" element={<Admin />} />
             <Route path="/dashboard/photo-video-gallery/audio-guestbook" element={<Navigate to="/dashboard/photo-video-gallery/digital-guestbook" replace />} />
             <Route path="/dashboard/photo-video-gallery/upload-photos-videos" element={<Navigate to="/dashboard/photo-video-gallery/photo-video-sharing" replace />} />

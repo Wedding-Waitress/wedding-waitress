@@ -1,7 +1,6 @@
 import { useEffect, useState, useCallback } from "react";
 import { supabase } from "@/integrations/supabase/client";
-import { useUserPlan } from "./useUserPlan";
-import { getPlanByName } from "@/lib/planRegistry";
+import { TEAM_ACCESS_ENABLED } from "@/lib/teamAccessAvailability";
 
 export interface AccountSeatsState {
   loading: boolean;
@@ -16,26 +15,29 @@ export interface AccountSeatsState {
  * Always counts at least 1 (the master themselves).
  */
 export const useAccountSeats = (): AccountSeatsState => {
-  const { plan, loading: planLoading } = useUserPlan();
   const [used, setUsed] = useState(1);
+  const [maximum, setMaximum] = useState(3);
   const [loading, setLoading] = useState(true);
 
   const fetchSeats = useCallback(async () => {
+    if (!TEAM_ACCESS_ENABLED) { setUsed(1); setMaximum(3); setLoading(false); return; }
     const { data: { user } } = await supabase.auth.getUser();
     if (!user) { setUsed(1); setLoading(false); return; }
-    const { count } = await supabase
-      .from("account_members" as any)
-      .select("id", { count: "exact", head: true })
-      .eq("account_owner_id", user.id);
-    setUsed(Math.max(1, count ?? 1));
+    const { data, error } = await supabase.functions.invoke('manage-account-members', { body: { action: 'list' } });
+    if (!error && data?.seats) {
+      setUsed(Math.max(1, Number(data.seats.used) || 1));
+      setMaximum(Math.max(1, Number(data.seats.maximum) || 3));
+    } else {
+      setUsed(1);
+      setMaximum(3);
+    }
     setLoading(false);
   }, []);
 
   useEffect(() => { fetchSeats(); }, [fetchSeats]);
 
-  const registry = getPlanByName(plan?.plan_name);
-  const maxSeats = registry?.limits.maxUsers ?? 3;
+  const maxSeats = maximum;
   const remainingSeats = Math.max(0, maxSeats - used);
 
-  return { loading: planLoading || loading, usedSeats: used, maxSeats, remainingSeats, refresh: fetchSeats };
+  return { loading, usedSeats: used, maxSeats, remainingSeats, refresh: fetchSeats };
 };

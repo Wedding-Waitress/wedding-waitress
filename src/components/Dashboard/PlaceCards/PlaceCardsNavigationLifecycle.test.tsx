@@ -3,14 +3,19 @@ import { render, screen } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const pendingSettingsRequest = new Promise(() => undefined);
+let settingsRequest: Promise<unknown> = pendingSettingsRequest;
 
 vi.mock('@/integrations/supabase/client', () => {
   const query = {
     select: vi.fn(() => query),
     eq: vi.fn(() => query),
-    maybeSingle: vi.fn(() => pendingSettingsRequest),
+    maybeSingle: vi.fn(() => settingsRequest),
   };
-  return { supabase: { from: vi.fn(() => query) } };
+  return {
+    SUPABASE_URL: 'https://test.supabase.co',
+    SUPABASE_PUBLISHABLE_KEY: 'test-publishable-key',
+    supabase: { from: vi.fn(() => query) },
+  };
 });
 
 vi.mock('@/hooks/useRealtimeGuests', () => ({
@@ -38,7 +43,24 @@ import { PlaceCardsPage } from './PlaceCardsPage';
 describe('Name Place Cards dashboard navigation lifecycle', () => {
   beforeEach(() => {
     vi.clearAllMocks();
+    settingsRequest = pendingSettingsRequest;
     sessionStorage.setItem('ww:place_cards_selected_table', 'table-1');
+  });
+
+  it('uses safe defaults when an event has no saved place-card settings', async () => {
+    settingsRequest = Promise.resolve({ data: null, error: null });
+
+    render(
+      <PlaceCardsPage
+        selectedEventId="event-1"
+        onEventSelect={vi.fn()}
+        events={[{ id: 'event-1', name: 'First Visit Wedding' } as any]}
+        eventsLoading={false}
+      />,
+    );
+
+    expect(await screen.findByText('Place card preview')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Table Name Place Cards' })).toBeInTheDocument();
   });
 
   it.each([1440, 1024, 390])(

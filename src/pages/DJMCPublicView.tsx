@@ -636,6 +636,8 @@ export function DJMCPublicView() {
             <DJMCQuestionnaireSection
               key={section.id}
               section={section}
+              eventId={data.event_id}
+              shareToken={token || undefined}
               onUpdateSection={(updates) => handleUpdateSection(section.id, updates)}
               onUpdateItem={(itemId, updates) => handleUpdateItem(itemId, updates)}
               onAddItem={() => handleAddItem(section.id)}

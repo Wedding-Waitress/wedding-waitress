@@ -519,6 +519,8 @@ export const Dashboard = () => {
           <DashboardOverview
             events={events}
             eventsLoading={eventsLoading || !eventsLoaded}
+            selectedEventId={selectedEventId}
+            onEventSelect={setSelectedEventId}
             onNavigateToTab={(tabId, eventId) => {
               if (eventId) setSelectedEventId(eventId);
               handleTabChange(tabId);
@@ -628,11 +630,11 @@ export const Dashboard = () => {
                         <ul className="list-disc pl-5 space-y-1 max-lg:pl-4">
                           <li className="text-red-600 font-bold"><span className="inline-flex items-center gap-1.5"><CircleAlert size={17} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Important – Please Read:</span></li>
                           <li>Design your perfect seating arrangements by adding the number of tables you want to host your guests.</li>
-                          <li>We suggest firstly adding a <strong>"Bridal Table"</strong> then the <strong>"1 Groom's Family"</strong> table, then the <strong>"2 Bride's Family"</strong> table.</li>
-                          <li>Then add sequential numbering tables like <strong>"1, 2, 3, 4, 5 & etc"</strong></li>
+                          <li>We suggest starting with a <strong>"Head Table"</strong>, then adding tables for immediate family and your remaining guests.</li>
+                          <li>Use sequential table numbers such as <strong>"1, 2, 3, 4, 5"</strong>.</li>
                           <li>Alternatively, have some fun by creating table names like <strong>"Paris, New York, Rome, or Cairo"</strong>.</li>
-                          <li>Once you have set up all the table with names or numbers then move onto the next page &gt; <strong>"Guest List"</strong>, to add your guest names & details.</li>
-                          <li>Remember, you can always come back here, drag / drop & re-allocate that aunty who still doesn't talk to the other aunts or Uncles ha ha – Have Fun!</li>
+                          <li>Once you have set up all your tables, move to the next page &gt; <strong>"Guest List"</strong> to add guest names and details.</li>
+                          <li>You can return here at any time to drag, drop and reallocate guests between tables.</li>
                         </ul>
                       </div>
                     </div>

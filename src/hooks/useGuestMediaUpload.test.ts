@@ -8,6 +8,8 @@ const { rpc, getSession } = vi.hoisted(() => ({
 }));
 
 vi.mock('@/integrations/supabase/client', () => ({
+  SUPABASE_URL: 'https://test.supabase.co',
+  SUPABASE_PUBLISHABLE_KEY: 'test-publishable-key',
   supabase: {
     rpc,
     auth: { getSession },

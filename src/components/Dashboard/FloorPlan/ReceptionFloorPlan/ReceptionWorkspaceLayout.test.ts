@@ -76,7 +76,7 @@ describe('Reception lower workspace layout', () => {
     expect(theme).toMatch(/\.shareUrlField[\s\S]*?text-overflow: ellipsis/);
   });
 
-  it('uses the 14-colour catalogue, including Wishing Well, as full-card colour with white content', () => {
+  it('keeps the legacy catalogue while showing 13 non-table fixtures, including Wishing Well, as full-card colour with white content', () => {
     expect(FIXTURE_CATALOG).toHaveLength(14);
     expect(new Set(FIXTURE_CATALOG.map((fixture) => fixture.color)).size).toBe(14);
     expect(FIXTURE_CATALOG).toContainEqual(expect.objectContaining({
@@ -93,7 +93,6 @@ describe('Reception lower workspace layout', () => {
     expect(theme).toContain('.fixturePaletteCard:active');
     expect(FIXTURE_PALETTE_CATALOG.map((fixture) => fixture.label)).toEqual([
       'Bar',
-      'Bridal Table',
       'Cake Table',
       'Column',
       'Dance Floor',

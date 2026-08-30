@@ -183,7 +183,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
                     <Printer size={16} strokeWidth={1.8} aria-hidden="true" />
                     Export Controls
                   </span>
-                  <span className={`text-muted-foreground ml-2 ${theme.supportingText}`}>Download your run sheet and share it with your DJ & MC or any of your vendors.</span>
+                  <span className={`text-muted-foreground ml-2 ${theme.supportingText}`}>Download your questionnaire and share it with your DJ & MC or any of your vendors.</span>
                 </div>
                 <div className="flex items-center gap-3 flex-wrap max-lg:gap-2 max-sm:flex-col max-sm:items-stretch">
                   <button
@@ -295,6 +295,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
             <DJMCQuestionnaireSection
               key={section.id}
               section={section}
+              eventId={questionnaire.event_id}
               onUpdateSection={(updates) => updateSection(section.id, updates)}
               onUpdateItem={(itemId, updates) => updateItem(itemId, updates)}
               onAddItem={() => addItem(section.id)}

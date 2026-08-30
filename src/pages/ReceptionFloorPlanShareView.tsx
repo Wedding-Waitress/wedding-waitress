@@ -52,19 +52,23 @@ export const ReceptionFloorPlanShareView = () => {
 
   if (loading) {
     return (
-      <div className={`${styles.page} flex min-h-screen items-center justify-center text-sm`}>
-        <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Loading shared floor plan…
+      <div className={`${styles.page} ww-application-background flex min-h-screen items-center justify-center p-6 text-sm`}>
+        <div className={`${styles.stateCard} flex items-center`} role="status" aria-live="polite">
+          <Loader2 className="w-4 h-4 mr-2 animate-spin" /> Loading shared floor plan…
+        </div>
       </div>
     );
   }
 
   if (error || !data) {
     return (
-      <div className={`${styles.page} flex min-h-screen flex-col items-center justify-center p-6 text-center`}>
-        <h1 className={`${styles.heading} text-xl font-semibold`}>Floor plan unavailable</h1>
-        <p className={`${styles.muted} mt-2 max-w-md text-sm`}>
-          {error ?? 'This share link is invalid or has been revoked.'}
-        </p>
+      <div className={`${styles.page} ww-application-background flex min-h-screen items-center justify-center p-6 text-center`}>
+        <div className={styles.stateCard}>
+          <h1 className={`${styles.heading} text-xl font-semibold`}>Floor plan unavailable</h1>
+          <p className={`${styles.muted} mt-2 max-w-md text-sm`}>
+            {error ?? 'This share link is invalid or has been revoked.'}
+          </p>
+        </div>
       </div>
     );
   }
@@ -82,7 +86,7 @@ export const ReceptionFloorPlanShareView = () => {
   const vendorNotes = (plan.vendor_notes ?? '').trim();
 
   return (
-    <div className={styles.page}>
+    <div className={`${styles.page} ww-application-background`}>
       <header className={styles.header}>
         <div className={`${styles.headerInner} max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-3 flex-wrap`}>
           <div className="flex items-center gap-3 min-w-0">
@@ -161,7 +165,7 @@ export const ReceptionFloorPlanShareView = () => {
             )}
           </div>
         )}
-        <p className={`${styles.muted} mt-6 text-center text-xs`}>
+        <p className={`${styles.pageFooter} mt-6 text-center text-xs`}>
           Shared read-only view · Wedding Waitress
         </p>
       </main>

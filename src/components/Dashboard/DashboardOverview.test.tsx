@@ -38,6 +38,19 @@ const chooseEvent = async (name: string) => {
   fireEvent.click(await screen.findByRole('option', { name }));
 };
 
+const ControlledOverview = ({
+  sourceEvents = events,
+  onNavigateToTab = vi.fn(),
+  initialEventId = null,
+}: {
+  sourceEvents?: React.ComponentProps<typeof DashboardOverview>['events'];
+  onNavigateToTab?: React.ComponentProps<typeof DashboardOverview>['onNavigateToTab'];
+  initialEventId?: string | null;
+}) => {
+  const [selectedEventId, setSelectedEventId] = React.useState<string | null>(initialEventId);
+  return <DashboardOverview events={sourceEvents} selectedEventId={selectedEventId} onEventSelect={setSelectedEventId} onNavigateToTab={onNavigateToTab} />;
+};
+
 describe('DashboardOverview', () => {
   beforeEach(() => {
     mocks.useDashboardOverview.mockReset();
@@ -45,7 +58,7 @@ describe('DashboardOverview', () => {
   });
 
   it('uses the Event Budget Planner page name and descriptive subtitle', () => {
-    render(<DashboardOverview events={events} onNavigateToTab={vi.fn()} />);
+    render(<ControlledOverview />);
 
     expect(screen.getByRole('heading', { level: 1, name: 'Event Budget Planner' })).toBeInTheDocument();
     expect(screen.getByText('View your event at a glance and plan, track and manage your event budget.')).toBeInTheDocument();
@@ -53,7 +66,7 @@ describe('DashboardOverview', () => {
 
   it('shows a create-event empty state when the user has no events', () => {
     const onNavigate = vi.fn();
-    render(<DashboardOverview events={[]} onNavigateToTab={onNavigate} />);
+    render(<ControlledOverview sourceEvents={[]} onNavigateToTab={onNavigate} />);
 
     expect(screen.getByRole('heading', { name: 'Create your first event' })).toBeInTheDocument();
     expect(screen.getByRole('combobox', { name: 'Choose Event' })).toBeDisabled();
@@ -62,7 +75,7 @@ describe('DashboardOverview', () => {
   });
 
   it('does not show zero statistics before an event is selected', () => {
-    render(<DashboardOverview events={events} onNavigateToTab={vi.fn()} />);
+    render(<ControlledOverview />);
 
     expect(screen.getByRole('heading', { name: 'Choose an event to begin' })).toBeInTheDocument();
     expect(screen.getByText('Select an event above to see its latest guest, seating and dietary progress, plus QR code readiness.')).toBeInTheDocument();
@@ -70,9 +83,9 @@ describe('DashboardOverview', () => {
     expect(mocks.useDashboardOverview).toHaveBeenLastCalledWith(null);
   });
 
-  it('switches isolated Dashboard data and only shares the event when a destination is opened', async () => {
+  it('switches the shared selected event before a destination is opened', async () => {
     const onNavigate = vi.fn();
-    render(<DashboardOverview events={events} onNavigateToTab={onNavigate} />);
+    render(<ControlledOverview onNavigateToTab={onNavigate} />);
 
     await chooseEvent('Alice & Sam');
     await waitFor(() => expect(mocks.useDashboardOverview).toHaveBeenLastCalledWith('event-a'));
@@ -88,8 +101,7 @@ describe('DashboardOverview', () => {
   });
 
   it('renders accurate summaries, a reassuring attention state, progress and mobile reading order', async () => {
-    render(<DashboardOverview events={events} onNavigateToTab={vi.fn()} />);
-    await chooseEvent('Alice & Sam');
+    render(<ControlledOverview initialEventId="event-a" />);
 
     await screen.findByRole('heading', { name: 'Guest List' });
 
@@ -108,8 +120,7 @@ describe('DashboardOverview', () => {
 
   it('gives all six cards a working bottom destination for the Dashboard-selected event', async () => {
     const onNavigate = vi.fn();
-    render(<DashboardOverview events={events} onNavigateToTab={onNavigate} />);
-    await chooseEvent('Alice & Sam');
+    render(<ControlledOverview onNavigateToTab={onNavigate} initialEventId="event-a" />);
     await screen.findByRole('heading', { name: 'Event Overview' });
 
     const destinations: Array<[string, string, string]> = [
@@ -139,8 +150,7 @@ describe('DashboardOverview', () => {
       error: null,
     });
     const onNavigate = vi.fn();
-    render(<DashboardOverview events={[{ id: 'event-c', name: 'New Wedding' }]} onNavigateToTab={onNavigate} />);
-    await chooseEvent('New Wedding');
+    render(<ControlledOverview sourceEvents={[{ id: 'event-c', name: 'New Wedding' }]} onNavigateToTab={onNavigate} initialEventId="event-c" />);
 
     await screen.findByRole('heading', { name: 'Event Overview' });
 

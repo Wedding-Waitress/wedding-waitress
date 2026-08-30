@@ -27,6 +27,7 @@ import { Label } from "@/components/ui/label";
 import { useToast } from '@/hooks/use-toast';
 import styles from './PlaceCardsPage.module.css';
 import { usePlaceCardPhotoVideoQr } from '@/hooks/usePlaceCardPhotoVideoQr';
+import { tableDisplayName } from '@/lib/tableDisplayName';
 interface PlaceCardsPageProps {
   selectedEventId: string | null;
   onEventSelect: (eventId: string) => void;
@@ -296,7 +297,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                 <p className={`${styles.summaryText} font-medium text-green-600 flex items-start gap-2`}>
                   <BadgeCheck size={18} strokeWidth={1.8} className="shrink-0 mt-0.5" aria-hidden="true" />
                   <span>
-                    {selectedTable ? `${selectedTable.name || `Table ${selectedTable.table_no}`} - ` : ''}
+                    {selectedTable ? `${tableDisplayName(selectedTable)} — ` : ''}
                     {assignedGuests.length} assigned guests - {assignedGuests.length} place cards ready for export. {totalPages} A4 page{totalPages !== 1 ? 's' : ''} (6 cards per page). Standard 105mm × 99mm foldable place cards.
                   </span>
                 </p>
@@ -390,9 +391,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     </SelectTrigger>
                     <SelectContent className="ww-placecards-portal z-50">
                       {[...tables].sort((a, b) => (a.table_no || 0) - (b.table_no || 0)).map((table) => {
-                        const displayName = table.table_no && table.name === String(table.table_no)
-                          ? `Table ${table.table_no}`
-                          : table.name || `Table ${table.table_no}`;
+                        const displayName = tableDisplayName(table);
                         
                         return (
                           <SelectItem key={table.id} value={table.id}>

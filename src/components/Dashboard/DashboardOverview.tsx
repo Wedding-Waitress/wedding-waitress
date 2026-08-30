@@ -14,6 +14,8 @@ type DashboardEvent = Pick<Event, 'id' | 'name'> & Partial<Pick<Event,
 
 interface DashboardOverviewProps {
   onNavigateToTab: (tabId: string, eventId?: string) => void;
+  selectedEventId: string | null;
+  onEventSelect: (eventId: string) => void;
   events: DashboardEvent[];
   eventsLoading?: boolean;
 }
@@ -58,18 +60,15 @@ const DashboardAction: React.FC<{ children: React.ReactNode; onClick: () => void
   </button>
 );
 
-export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigateToTab, events, eventsLoading = false }) => {
-  const [dashboardEventId, setDashboardEventId] = React.useState('');
-  const selectedEvent = events.find((event) => event.id === dashboardEventId) ?? null;
+export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
+  onNavigateToTab,
+  selectedEventId,
+  onEventSelect,
+  events,
+  eventsLoading = false,
+}) => {
+  const selectedEvent = events.find((event) => event.id === selectedEventId) ?? null;
   const { data, loading, secondaryLoading, error } = useDashboardOverview(selectedEvent?.id ?? null);
-
-  React.useEffect(() => {
-    if (dashboardEventId && !events.some((event) => event.id === dashboardEventId)) setDashboardEventId('');
-  }, [dashboardEventId, events]);
-
-  const handleDashboardEventSelect = (eventId: string) => {
-    setDashboardEventId(eventId);
-  };
   const openPage = (tabId: string) => onNavigateToTab(tabId, selectedEvent?.id);
 
   const attentionItems = React.useMemo<AttentionItem[]>(() => {
@@ -121,7 +120,7 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({ onNavigate
         <label id="dashboard-event-selector-label" className={styles.eventLabel}>
           <CalendarDays size={18} strokeWidth={1.8} aria-hidden="true" /><span>Choose Event<span aria-hidden>:</span></span>
         </label>
-        <Select value={dashboardEventId} onValueChange={handleDashboardEventSelect} disabled={eventsLoading || events.length === 0}>
+        <Select value={selectedEventId ?? ''} onValueChange={onEventSelect} disabled={eventsLoading || events.length === 0}>
           <SelectTrigger aria-labelledby="dashboard-event-selector-label" className={`h-11 text-sm font-medium ${styles.eventField}`}>
             <span className="!flex flex-1 min-w-0 items-center gap-2 overflow-hidden text-left [&>span]:truncate" data-testid="dashboard-event-value">
               <CalendarDays size={17} strokeWidth={1.8} className={`shrink-0 ${styles.eventFieldIcon}`} aria-hidden="true" />

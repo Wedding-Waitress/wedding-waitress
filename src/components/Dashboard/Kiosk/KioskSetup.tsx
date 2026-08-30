@@ -313,7 +313,7 @@ export const KioskSetup: React.FC<KioskSetupProps> = ({
                   <div>
                     <p className="text-sm font-medium text-foreground mb-1">Pro Tips:</p>
                     <ul className="text-sm text-foreground/80 space-y-1">
-                      <li>• The kiosk automatically clears searches after 30 seconds of inactivity</li>
+                      <li>• Search results stay visible until they are cleared or a new search is entered</li>
                       <li>• Use landscape orientation for tablets for the best experience</li>
                       <li>• Ensure the device has a stable internet connection</li>
                       <li>• Consider adding a sign explaining how to use the kiosk</li>

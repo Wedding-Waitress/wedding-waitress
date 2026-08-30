@@ -30,6 +30,7 @@ export interface DJMCItem {
   song_title_artist: string | null;
   music_url: string | null;
   pronunciation_audio_url: string | null;
+  pronunciation_audio_path?: string | null;
   duration: string | null;
   order_index: number;
   is_default: boolean;

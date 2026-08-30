@@ -3,7 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 import type { ReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
-import { FIXTURE_CATALOG } from './fixtures';
+import { FIXTURE_CATALOG, FIXTURE_PALETTE_CATALOG } from './fixtures';
 import { ReceptionFloorPlanCanvas } from './ReceptionFloorPlanCanvas';
 
 class TestDataTransfer {
@@ -60,7 +60,7 @@ describe('Reception fixture palette and scaled-room interactions', () => {
     });
   });
 
-  it('drags all 14 fixture types through the scaled A4 layer and preserves their type and colour', async () => {
+  it('drags every available fixture through the scaled A4 layer and preserves its type and colour', async () => {
     let latestPlan = makePlan();
     const Harness = () => {
       const [plan, setPlan] = useState(latestPlan);
@@ -101,7 +101,7 @@ describe('Reception fixture palette and scaled-room interactions', () => {
       return room;
     };
 
-    for (const [index, spec] of FIXTURE_CATALOG.entries()) {
+    for (const [index, spec] of FIXTURE_PALETTE_CATALOG.entries()) {
       const transfer = new TestDataTransfer();
       fireEvent.dragStart(
         screen.getByRole('button', { name: `Add or drag ${spec.label} onto the reception floor plan` }),
@@ -120,7 +120,7 @@ describe('Reception fixture palette and scaled-room interactions', () => {
     }
 
     expect(latestPlan.fixtures.map((fixture) => fixture.type)).toEqual(
-      FIXTURE_CATALOG.map((fixture) => fixture.type),
+      FIXTURE_PALETTE_CATALOG.map((fixture) => fixture.type),
     );
     expect(latestPlan.fixtures.every((fixture) => fixture.x === 7.5 && fixture.y === 10)).toBe(true);
     const room = prepareRoom();
@@ -130,7 +130,7 @@ describe('Reception fixture palette and scaled-room interactions', () => {
     expect(room).toHaveAttribute('data-presentation-height-m', '15');
     expect(room.style.width).toBe('1000px');
     expect(room.style.height).toBe('750px');
-    for (const spec of FIXTURE_CATALOG) {
+    for (const spec of FIXTURE_PALETTE_CATALOG) {
       const card = screen.getByRole('button', {
         name: `Add or drag ${spec.label} onto the reception floor plan`,
       });
@@ -138,30 +138,65 @@ describe('Reception fixture palette and scaled-room interactions', () => {
     }
 
     const placedWindow = container.querySelector<HTMLElement>('[data-reception-placed-fixture="window"] > div')!;
-    expect(container.querySelectorAll('[data-reception-upright-label="fixture"]')).toHaveLength(14);
+    expect(container.querySelectorAll('[data-reception-upright-label="fixture"]')).toHaveLength(FIXTURE_PALETTE_CATALOG.length);
     fireEvent.pointerDown(placedWindow, { pointerId: 1, clientX: 351, clientY: 388.5 });
     fireEvent.pointerMove(placedWindow, { pointerId: 1, clientX: 476, clientY: 451 });
     fireEvent.pointerUp(placedWindow, { pointerId: 1 });
-    await waitFor(() => expect(latestPlan.fixtures.at(-1)).toEqual(expect.objectContaining({
+    await waitFor(() => expect(latestPlan.fixtures.find((fixture) => fixture.type === 'window')).toEqual(expect.objectContaining({
       x: 5,
       y: 15,
     })));
     fireEvent.click(await screen.findByTitle('Rotate 15°'));
-    await waitFor(() => expect(latestPlan.fixtures.at(-1)?.rotation).toBe(15));
+    await waitFor(() => expect(latestPlan.fixtures.find((fixture) => fixture.type === 'window')?.rotation).toBe(15));
     fireEvent.click(screen.getByTitle('Lock'));
-    await waitFor(() => expect(latestPlan.fixtures.at(-1)?.locked).toBe(true));
+    await waitFor(() => expect(latestPlan.fixtures.find((fixture) => fixture.type === 'window')?.locked).toBe(true));
     fireEvent.click(screen.getByTitle('Remove'));
-    await waitFor(() => expect(latestPlan.fixtures).toHaveLength(13));
+    await waitFor(() => expect(latestPlan.fixtures).toHaveLength(FIXTURE_PALETTE_CATALOG.length - 1));
 
     fireEvent.click(screen.getByRole('button', {
       name: 'Add or drag Window onto the reception floor plan',
     }));
-    await waitFor(() => expect(latestPlan.fixtures).toHaveLength(14));
+    await waitFor(() => expect(latestPlan.fixtures).toHaveLength(FIXTURE_PALETTE_CATALOG.length));
     expect(latestPlan.fixtures.at(-1)).toEqual(expect.objectContaining({
       type: 'window',
       x: 7.5,
       y: 10,
     }));
+  });
+
+  it('retains rendering support for persisted legacy Bridal Table fixtures without offering a duplicate palette action', () => {
+    const plan = makePlan();
+    plan.fixtures = [{
+      id: 'legacy-bridal-table',
+      type: 'bridal_table',
+      label: 'Bridal Table',
+      x: 7.5,
+      y: 10,
+      width_m: 4,
+      height_m: 1,
+      rotation: 0,
+      locked: false,
+    }];
+
+    const { container } = render(
+      <ReceptionFloorPlanCanvas
+        plan={plan}
+        tables={[]}
+        event={{ name: 'Jason & Linda' }}
+        attendingCount={28}
+        generatedAt={new Date('2026-08-20T00:00:00Z')}
+        a4Ref={createRef<HTMLDivElement>()}
+        backgroundUrl={null}
+        onChange={vi.fn()}
+      />,
+    );
+
+    expect(FIXTURE_CATALOG.some((fixture) => fixture.type === 'bridal_table')).toBe(true);
+    expect(FIXTURE_PALETTE_CATALOG.some((fixture) => fixture.type === 'bridal_table')).toBe(false);
+    expect(container.querySelector('[data-reception-placed-fixture="bridal_table"]')).not.toBeNull();
+    expect(screen.queryByRole('button', {
+      name: 'Add or drag Bridal Table onto the reception floor plan',
+    })).not.toBeInTheDocument();
   });
 
   it('reorients an uploaded venue background with the room without mutating its saved geometry', () => {

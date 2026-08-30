@@ -49,7 +49,8 @@ export type Database = {
           id: string
           role: string
           status: string
-          token: string
+          token: string | null
+          token_hash: string | null
         }
         Insert: {
           accepted_user_id?: string | null
@@ -60,7 +61,8 @@ export type Database = {
           id?: string
           role?: string
           status?: string
-          token?: string
+          token?: string | null
+          token_hash?: string | null
         }
         Update: {
           accepted_user_id?: string | null
@@ -71,7 +73,8 @@ export type Database = {
           id?: string
           role?: string
           status?: string
-          token?: string
+          token?: string | null
+          token_hash?: string | null
         }
         Relationships: []
       }
@@ -152,6 +155,7 @@ export type Database = {
           created_at: string
           id: string
           invited_at: string
+          member_email: string | null
           member_user_id: string
           role: string
         }
@@ -162,6 +166,7 @@ export type Database = {
           created_at?: string
           id?: string
           invited_at?: string
+          member_email?: string | null
           member_user_id: string
           role?: string
         }
@@ -172,6 +177,7 @@ export type Database = {
           created_at?: string
           id?: string
           invited_at?: string
+          member_email?: string | null
           member_user_id?: string
           role?: string
         }
@@ -672,6 +678,7 @@ export type Database = {
           music_url: string | null
           order_index: number
           pronunciation_audio_url: string | null
+          pronunciation_audio_path: string | null
           row_label: string
           section_id: string
           song_title_artist: string | null
@@ -690,6 +697,7 @@ export type Database = {
           music_url?: string | null
           order_index?: number
           pronunciation_audio_url?: string | null
+          pronunciation_audio_path?: string | null
           row_label: string
           section_id: string
           song_title_artist?: string | null
@@ -708,6 +716,7 @@ export type Database = {
           music_url?: string | null
           order_index?: number
           pronunciation_audio_url?: string | null
+          pronunciation_audio_path?: string | null
           row_label?: string
           section_id?: string
           song_title_artist?: string | null

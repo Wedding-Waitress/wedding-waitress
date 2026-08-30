@@ -36,6 +36,7 @@ import { useEventDynamicQR } from '@/hooks/useEventDynamicQR';
 import { supabase } from '@/integrations/supabase/client';
 import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
+import { resolveWelcomeVideoUrl } from '@/lib/liveViewMediaConfig';
 import type { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 import { DEFAULT_QR_SETTINGS } from '@/hooks/useQRCodeSettings';
 import styles from './QRCodeSeatingChart.module.css';
@@ -91,6 +92,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   } = useToast();
   const { settings: visibilitySettings, updateVisibility } = useLiveViewVisibility(eventId);
   const { settings: moduleSettings, updateModuleConfig } = useLiveViewModuleSettings(eventId);
+  const welcomeVideoUrl = resolveWelcomeVideoUrl(moduleSettings?.welcome_video_config);
   const { uploadVideo, deleteVideo, uploadProgress, isUploading, isProcessing } = useWelcomeVideoUpload(eventId);
   const selectedEvent = event;
   const currentEvent = event;
@@ -1028,11 +1030,11 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             </p>
                           </div>
                           
-                          {moduleSettings?.welcome_video_config?.video_url ? (
+                          {welcomeVideoUrl ? (
                             <div className="space-y-3">
                               <div className="relative rounded-lg overflow-hidden bg-black">
                                 <iframe
-                                  src={moduleSettings.welcome_video_config.video_url}
+                                  src={welcomeVideoUrl}
                                   className="w-full aspect-video"
                                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                   allowFullScreen

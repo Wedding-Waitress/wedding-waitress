@@ -14,20 +14,41 @@ vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'owner-uuid' } } }) },
     from: vi.fn((table: string) => {
+      if (table === 'account_members') {
+        const membershipQuery: Record<string, ReturnType<typeof vi.fn>> = {};
+        membershipQuery.select = vi.fn(() => membershipQuery);
+        membershipQuery.eq = vi.fn(() => membershipQuery);
+        membershipQuery.is = vi.fn(() => membershipQuery);
+        membershipQuery.order = vi.fn(() => membershipQuery);
+        membershipQuery.limit = vi.fn(() => membershipQuery);
+        membershipQuery.maybeSingle = vi.fn(async () => ({ data: null, error: null }));
+        return membershipQuery;
+      }
       if (table === 'events') {
         return {
           select: vi.fn(() => ({
             eq: vi.fn(async () => {
               const index = Math.min(mocks.eventCountRequests, mocks.eventCounts.length - 1);
               mocks.eventCountRequests += 1;
-              return { count: mocks.eventCounts[index] };
+              return {
+                data: Array.from({ length: mocks.eventCounts[index] }, (_, i) => ({ id: `event-${i}` })),
+                count: mocks.eventCounts[index],
+                error: null,
+              };
             }),
+          })),
+        };
+      }
+      if (table === 'guests') {
+        return {
+          select: vi.fn(() => ({
+            in: vi.fn(async () => ({ count: 78, error: null })),
           })),
         };
       }
       const purchaseQuery: Record<string, ReturnType<typeof vi.fn>> = {};
       purchaseQuery.select = vi.fn(() => purchaseQuery);
-      purchaseQuery.eq = vi.fn((column: string) => column === 'status' ? Promise.resolve({ count: 0 }) : purchaseQuery);
+      purchaseQuery.eq = vi.fn((column: string) => column === 'status' ? Promise.resolve({ count: 0, error: null }) : purchaseQuery);
       return purchaseQuery;
     }),
   },

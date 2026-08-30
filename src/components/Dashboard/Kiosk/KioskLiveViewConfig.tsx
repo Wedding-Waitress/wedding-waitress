@@ -29,6 +29,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useLiveViewVisibility } from '@/hooks/useLiveViewVisibility';
 import { useLiveViewModuleSettings } from '@/hooks/useLiveViewModuleSettings';
+import { resolveWelcomeVideoUrl, withWelcomeVideoUrl } from '@/lib/liveViewMediaConfig';
 import styles from './KioskSetup.module.css';
 
 interface KioskLiveViewConfigProps {
@@ -72,13 +73,19 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
       const { error: upErr } = await supabase.storage.from(bucket).upload(filePath, file);
       if (upErr) throw upErr;
       const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(filePath);
-      await updateModuleConfig(configKey as any, {
+      const persistedConfig = {
         ...(configKey === 'reception_floor_plan_config' ? { source: 'upload' } : {}),
         file_url: publicUrl,
         file_name: file.name,
         file_type: file.type,
         uploaded_at: new Date().toISOString(),
-      });
+      };
+      await updateModuleConfig(
+        configKey as any,
+        configKey === 'welcome_video_config'
+          ? withWelcomeVideoUrl(persistedConfig, publicUrl)
+          : persistedConfig,
+      );
       toast({ title: 'Uploaded successfully' });
     } catch (e: any) {
       toast({ title: 'Upload failed', description: e.message, variant: 'destructive' });
@@ -87,7 +94,10 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
 
   const handleRemove = async (configKey: string, bucket: StorageBucket) => {
     try {
-      const url = (modules as any)?.[configKey]?.file_url;
+      const config = (modules as any)?.[configKey];
+      const url = configKey === 'welcome_video_config'
+        ? resolveWelcomeVideoUrl(config)
+        : config?.file_url;
       if (url) {
         const path = url.split(`/${bucket}/`)[1];
         if (path) await supabase.storage.from(bucket).remove([path]);
@@ -182,6 +192,9 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
             const renderTile = (tile: ModuleTile) => {
               const enabled = !!(visibility as any)?.[tile.visKey];
               const conf = (modules as any)?.[tile.configKey];
+              const mediaUrl = tile.configKey === 'welcome_video_config'
+                ? resolveWelcomeVideoUrl(conf)
+                : conf?.file_url;
               return (
                 <div
                   key={tile.visKey as string}
@@ -224,7 +237,7 @@ export const KioskLiveViewConfig: React.FC<KioskLiveViewConfigProps> = ({ eventI
                         </AccordionTrigger>
                         <AccordionContent>
                           <div className="space-y-3 pt-2">
-                            {conf?.file_url ? (
+                            {mediaUrl ? (
                               <div className={`${styles.innerSurface} flex items-center gap-2 p-3 bg-background rounded-md border border-[#856A4C]/45 shadow-[inset_0_1px_2px_rgba(0,0,0,0.04)] max-lg:flex-wrap`}>
                                 <div className="flex-1 min-w-0 max-lg:basis-full">
                                   <p className="text-xs font-medium truncate">{conf.file_name}</p>

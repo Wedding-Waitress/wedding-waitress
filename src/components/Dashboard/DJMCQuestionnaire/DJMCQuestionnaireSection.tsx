@@ -59,6 +59,8 @@ import {
 import { DJMCSection, DJMCItem } from '@/types/djMCQuestionnaire';
 import { DJMCSectionRow } from './DJMCSectionRow';
 import { Badge } from '@/components/ui/badge';
+import { useToast } from '@/hooks/use-toast';
+import { deleteDJMCPronunciation } from '@/lib/djmcPronunciationStorage';
 import theme from './DJMCQuestionnaireTheme.module.css';
 
 const MUSIC_SECTION_TYPES = ['ceremony', 'cocktail', 'introductions', 'main_event', 'dinner', 'dance', 'traditional', 'do_not_play'];
@@ -77,6 +79,8 @@ const SECTION_ICONS: Record<string, LucideIcon> = {
 
 interface DJMCQuestionnaireSectionProps {
   section: DJMCSection;
+  eventId: string;
+  shareToken?: string;
   onUpdateSection: (updates: Partial<DJMCSection>) => void;
   onUpdateItem: (itemId: string, updates: Partial<DJMCItem>) => void;
   onAddItem: () => void;
@@ -92,6 +96,8 @@ interface DJMCQuestionnaireSectionProps {
 
 export function DJMCQuestionnaireSection({
   section,
+  eventId,
+  shareToken,
   onUpdateSection,
   onUpdateItem,
   onAddItem,
@@ -111,6 +117,56 @@ export function DJMCQuestionnaireSection({
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [showClearSectionDialog, setShowClearSectionDialog] = useState(false);
   const labelInputRef = useRef<HTMLInputElement>(null);
+  const { toast } = useToast();
+
+  const removeItemRecording = useCallback(async (item: DJMCItem) => {
+    const storedReference = item.pronunciation_audio_path || item.pronunciation_audio_url;
+    if (!storedReference) return;
+    await deleteDJMCPronunciation(storedReference, {
+      eventId,
+      itemId: item.id,
+      shareToken,
+    });
+  }, [eventId, shareToken]);
+
+  const reportRecordingCleanupFailure = useCallback((error: unknown) => {
+    console.error('Could not remove DJ/MC pronunciation recording:', error);
+    toast({
+      className: 'ww-djmc-toast',
+      title: 'Recording cleanup failed',
+      description: 'Nothing was deleted. Please try again.',
+      variant: 'destructive',
+    });
+  }, [toast]);
+
+  const clearItem = useCallback(async (item: DJMCItem) => {
+    try {
+      await removeItemRecording(item);
+      onUpdateItem(item.id, {
+        value_text: null,
+        song_title_artist: null,
+        music_url: null,
+        duration: null,
+        pronunciation_audio_url: null,
+        pronunciation_audio_path: null,
+      });
+    } catch (error) {
+      reportRecordingCleanupFailure(error);
+    }
+  }, [onUpdateItem, removeItemRecording, reportRecordingCleanupFailure]);
+
+  const deleteItem = useCallback(async (item: DJMCItem) => {
+    try {
+      await removeItemRecording(item);
+      onDeleteItem(item.id);
+    } catch (error) {
+      reportRecordingCleanupFailure(error);
+    }
+  }, [onDeleteItem, removeItemRecording, reportRecordingCleanupFailure]);
+
+  const removeSectionRecordings = useCallback(async () => {
+    for (const item of section.items) await removeItemRecording(item);
+  }, [removeItemRecording, section.items]);
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -511,11 +567,13 @@ export function DJMCQuestionnaireSection({
                     <DJMCSectionRow
                       key={item.id}
                       item={item}
+                      eventId={eventId}
+                      shareToken={shareToken}
                       sectionType={section.section_type}
                       onUpdate={(updates) => onUpdateItem(item.id, updates)}
-                      onDelete={() => onDeleteItem(item.id)}
+                      onDelete={() => { void deleteItem(item); }}
                       onDuplicate={() => onDuplicateItem(item)}
-                      onClearText={() => onUpdateItem(item.id, { value_text: null, song_title_artist: null, music_url: null, duration: null, pronunciation_audio_url: null })}
+                      onClearText={() => { void clearItem(item); }}
                       disabled={disabled}
                     />
                   ))}
@@ -553,9 +611,14 @@ export function DJMCQuestionnaireSection({
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => {
-                onResetToDefault();
-                setShowResetDialog(false);
+              onClick={async () => {
+                try {
+                  await removeSectionRecordings();
+                  onResetToDefault();
+                  setShowResetDialog(false);
+                } catch (error) {
+                  reportRecordingCleanupFailure(error);
+                }
               }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
@@ -577,9 +640,14 @@ export function DJMCQuestionnaireSection({
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => {
-                onDeleteSection();
-                setShowDeleteDialog(false);
+              onClick={async () => {
+                try {
+                  await removeSectionRecordings();
+                  onDeleteSection();
+                  setShowDeleteDialog(false);
+                } catch (error) {
+                  reportRecordingCleanupFailure(error);
+                }
               }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >
@@ -601,11 +669,16 @@ export function DJMCQuestionnaireSection({
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction
-              onClick={() => {
-                section.items.forEach(item => {
-                  onUpdateItem(item.id, { value_text: null, song_title_artist: null, music_url: null, duration: null, pronunciation_audio_url: null });
-                });
-                setShowClearSectionDialog(false);
+              onClick={async () => {
+                try {
+                  await removeSectionRecordings();
+                  section.items.forEach(item => {
+                    onUpdateItem(item.id, { value_text: null, song_title_artist: null, music_url: null, duration: null, pronunciation_audio_url: null, pronunciation_audio_path: null });
+                  });
+                  setShowClearSectionDialog(false);
+                } catch (error) {
+                  reportRecordingCleanupFailure(error);
+                }
               }}
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
             >

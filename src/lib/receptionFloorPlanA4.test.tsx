@@ -170,7 +170,8 @@ describe('Reception Floor Plan authoritative A4 architecture', () => {
     expect(canvas).not.toMatch(/data-reception-room-canvas[\s\S]{0,600}rotate\((?:90|-90)deg\)/);
     expect(canvas).toContain('calculateReceptionCanvasMetrics');
     expect(canvas).toContain('clientPointToReceptionRoom');
-    expect(canvas.match(/data-reception-screen-only="true"/g)).toHaveLength(3);
+    expect(canvas.match(/data-reception-screen-only="true"/g)).toHaveLength(5);
+    expect(canvas).toContain('data-reception-fixture-resize-handle={handle}');
     expect(exporter).toContain(".querySelectorAll<HTMLElement>('[data-reception-screen-only=\"true\"]')");
   });
 });
