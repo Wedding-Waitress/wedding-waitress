@@ -7,6 +7,7 @@ import { SignInModal } from './SignInModal';
 
 const mocks = vi.hoisted(() => ({
   signInWithOtp: vi.fn(),
+  signInWithPassword: vi.fn(),
   verifyOtp: vi.fn(),
   upsert: vi.fn(),
 }));
@@ -15,6 +16,7 @@ vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     auth: {
       signInWithOtp: mocks.signInWithOtp,
+      signInWithPassword: mocks.signInWithPassword,
       verifyOtp: mocks.verifyOtp,
     },
     from: vi.fn(() => ({ upsert: mocks.upsert })),
@@ -26,12 +28,16 @@ const renderInRouter = (node: React.ReactNode) => render(<MemoryRouter>{node}</M
 describe('shared public authentication modals', () => {
   beforeEach(() => {
     mocks.signInWithOtp.mockReset().mockResolvedValue({ error: null });
+    mocks.signInWithPassword.mockReset().mockResolvedValue({ data: { user: { id: 'qa-user' } }, error: null });
     mocks.verifyOtp.mockReset().mockResolvedValue({ data: { user: null }, error: null });
     mocks.upsert.mockReset().mockResolvedValue({ error: null });
     sessionStorage.clear();
   });
 
-  afterEach(() => cleanup());
+  afterEach(() => {
+    cleanup();
+    vi.unstubAllEnvs();
+  });
 
   it('shows the approved sign-up hierarchy, required fields and legal links', async () => {
     renderInRouter(<SignUpModal><button type="button">Open sign up</button></SignUpModal>);
@@ -101,6 +107,24 @@ describe('shared public authentication modals', () => {
     expect(screen.getAllByLabelText(/Verification code digit/)).toHaveLength(6);
     expect(screen.getByLabelText('Verification code digit 1')).toHaveAttribute('autocomplete', 'one-time-code');
     expect(screen.getByRole('button', { name: 'Correct email' })).toBeInTheDocument();
+  });
+
+  it('enables email and password sign-in only for a QA-flagged build', async () => {
+    vi.stubEnv('VITE_QA_PASSWORD_LOGIN', 'true');
+    const onOpenChange = vi.fn();
+    renderInRouter(<SignInModal open onOpenChange={onOpenChange} onBackToSignUp={vi.fn()} />);
+
+    expect(await screen.findByText('Use the temporary QA credentials to continue.')).toBeInTheDocument();
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'qa@example.com' } });
+    fireEvent.change(screen.getByLabelText('Password'), { target: { value: 'temporary-password' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Sign In with Temporary Password' }));
+
+    await waitFor(() => expect(mocks.signInWithPassword).toHaveBeenCalledWith({
+      email: 'qa@example.com',
+      password: 'temporary-password',
+    }));
+    expect(mocks.signInWithOtp).not.toHaveBeenCalled();
+    expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
   it('keeps the shared close control keyboard accessible and supports Escape', async () => {

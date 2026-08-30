@@ -10,7 +10,7 @@ import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { LoaderCircle, CircleUserRound, Mail, Send } from 'lucide-react';
+import { LoaderCircle, CircleUserRound, KeyRound, Mail, Send } from 'lucide-react';
 import { secureEmailSchema } from '@/lib/security/validation';
 import { logSecurityEvent, loginRateLimiter } from '@/lib/security/monitoring';
 import { sanitize } from '@/lib/security/inputSanitizer';
@@ -33,6 +33,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
   const [step, setStep] = useState<'form' | 'verify'>('form');
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
   const [resendTimer, setResendTimer] = useState(0);
@@ -41,6 +42,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
   const navigate = useNavigate();
   const emailRef = useRef<HTMLInputElement>(null);
   const idPrefix = useId();
+  const qaPasswordLoginEnabled = import.meta.env.VITE_QA_PASSWORD_LOGIN === 'true';
   // State updates are asynchronous, so `loading` can still be false if Radix
   // emits onOpenChange(false) during the same click that starts the OTP request.
   // This synchronous ref closes that race without preventing normal dismissal.
@@ -69,7 +71,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     }
   }, [open, step]);
 
-  const mapSupabaseError = (error: any) => {
+  const mapSupabaseError = (error: { message?: string } | null, passwordLogin = false) => {
     if (!error?.message) return 'An unexpected error occurred';
     
     switch (error.message) {
@@ -77,7 +79,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
         return 'This email address is restricted in Supabase settings. Please check your Authentication settings.';
       case 'Invalid login credentials':
       case 'invalid_credentials':
-        return 'Invalid verification code';
+        return passwordLogin ? 'Invalid email or password' : 'Invalid verification code';
       case 'Token has expired or is invalid':
       case 'otp_expired':
         return 'This code has expired. Please tap "Resend code" to get a new one.';
@@ -121,6 +123,23 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     setLoading(true);
     
     try {
+      if (qaPasswordLoginEnabled) {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: sanitizedEmail,
+          password,
+        });
+
+        if (error) {
+          setError(mapSupabaseError(error, true));
+          logSecurityEvent.authFailure(error.message || 'Password login failed', sanitizedEmail);
+        } else if (data.user) {
+          onOpenChange(false);
+          toast({ title: 'Signed in ✔' });
+          navigate(getSafeAuthenticatedReturnTo(redirectTo));
+        }
+        return;
+      }
+
       const { error } = await supabase.auth.signInWithOtp({
         email: sanitizedEmail
       });
@@ -259,6 +278,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     if (!newOpen) {
       setStep('form');
       setEmail('');
+      setPassword('');
       setVerificationCode(['', '', '', '', '', '']);
       setError('');
       setResendTimer(0);
@@ -294,17 +314,31 @@ export const SignInModal: React.FC<SignInModalProps> = ({
           <AuthModalHeader
             icon={CircleUserRound}
             title="Welcome back"
-            description="Continue planning your wedding in one connected place."
+            description={qaPasswordLoginEnabled
+              ? 'Use the temporary QA credentials to continue.'
+              : 'Continue planning your wedding in one connected place.'}
           />
             <form onSubmit={handleEmailSubmit} className={styles.body} noValidate>
-              <div className={styles.fieldGroup}>
-                <Label htmlFor={`${idPrefix}-email`} className={styles.label}><Mail aria-hidden />Email</Label>
-                <Input ref={emailRef} id={`${idPrefix}-email`} type="email" value={email} onChange={(event) => setEmail(event.target.value)} className={styles.input} autoComplete="email" required aria-invalid={Boolean(error)} disabled={loading} />
+              <div className={styles.fieldStack}>
+                <div className={styles.fieldGroup}>
+                  <Label htmlFor={`${idPrefix}-email`} className={styles.label}><Mail aria-hidden />Email</Label>
+                  <Input ref={emailRef} id={`${idPrefix}-email`} type="email" value={email} onChange={(event) => setEmail(event.target.value)} className={styles.input} autoComplete="email" required aria-invalid={Boolean(error)} disabled={loading} />
+                </div>
+                {qaPasswordLoginEnabled && (
+                  <div className={styles.fieldGroup}>
+                    <Label htmlFor={`${idPrefix}-password`} className={styles.label}><KeyRound aria-hidden />Password</Label>
+                    <Input id={`${idPrefix}-password`} type="password" value={password} onChange={(event) => setPassword(event.target.value)} className={styles.input} autoComplete="current-password" required aria-invalid={Boolean(error)} disabled={loading} />
+                  </div>
+                )}
               </div>
               <AuthError message={cooldownTimer > 0 ? `Please wait ${cooldownTimer} seconds before trying again.` : error} />
-              <button type="submit" className={styles.primaryButton} disabled={loading || !email || cooldownTimer > 0} aria-live="polite">
-                {loading ? <LoaderCircle size={18} className="animate-spin" aria-hidden /> : <Send size={18} aria-hidden />}
-                {loading ? 'Emailing your code…' : cooldownTimer > 0 ? `Wait ${cooldownTimer}s` : 'Email Me a Sign-In Code'}
+              <button type="submit" className={styles.primaryButton} disabled={loading || !email || (qaPasswordLoginEnabled && !password) || cooldownTimer > 0} aria-live="polite">
+                {loading ? <LoaderCircle size={18} className="animate-spin" aria-hidden /> : qaPasswordLoginEnabled ? <KeyRound size={18} aria-hidden /> : <Send size={18} aria-hidden />}
+                {loading
+                  ? qaPasswordLoginEnabled ? 'Signing in…' : 'Emailing your code…'
+                  : cooldownTimer > 0
+                    ? `Wait ${cooldownTimer}s`
+                    : qaPasswordLoginEnabled ? 'Sign In with Temporary Password' : 'Email Me a Sign-In Code'}
               </button>
               <AuthLegal onNavigate={navigateFromModal} />
               <p className={styles.switchLine}>New to Wedding Waitress?{' '}<button type="button" onClick={onBackToSignUp} className={styles.linkButton}>Create a free account</button></p>
