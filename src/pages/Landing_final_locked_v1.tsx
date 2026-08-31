@@ -495,7 +495,7 @@ export const Landing = () => {
               </div>
               <p className="text-sm text-gray-400 mb-6">{t('pricing.vendorPro.guests')}</p>
               <ul className="space-y-2 mb-8">
-                {[t('pricing.features.unlimitedEvents'), t('pricing.features.unlimitedGuests'), t('pricing.features.fullPlatform'), t('pricing.features.forVenues'), t('pricing.features.weddingPlanners'), t('pricing.features.djMcPros')].map((f) => (
+                {[t('pricing.features.vendorActiveEvents'), t('pricing.features.unlimitedGuests'), t('pricing.features.fullPlatform'), t('pricing.features.forVenues'), t('pricing.features.weddingPlanners'), t('pricing.features.djMcPros')].map((f) => (
                   <li key={f} className="flex items-start gap-2 text-xs text-gray-300">
                     <Check className="w-4 h-4 text-[#C4A882] mt-0.5 shrink-0" />
                     {f}

@@ -20,7 +20,7 @@ export const EventUsagePill: React.FC<{ eventLimits: EventLimitsState }> = ({ ev
     >
       <span className="inline-flex items-center gap-1.5 font-medium">
         {nearLimit ? <AlertTriangle size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" /> : <CalendarRange size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />}
-        {currentEvents} of {totalAllowed} events used
+        {currentEvents} of {totalAllowed} {totalAllowed === 1 ? 'event' : 'events'} used
       </span>
       {additionalPurchased > 0 && (
         <span className="text-xs text-muted-foreground sm:before:content-['·'] sm:before:mr-3">

@@ -171,7 +171,7 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
             <p className="text-sm text-gray-400 mb-6">{t('pricing.vendorPro.guests')}</p>
             {publicPage && <p className="text-xs text-[#C4A882] -mt-4 mb-5">A$299/month + GST in Australia · approval required</p>}
             <ul className="space-y-2 mb-8">
-              {(publicPage ? ['For venues and event professionals', 'For wedding planners', 'For DJs and MCs', 'Complete platform access'] : [t('pricing.features.unlimitedEvents'), t('pricing.features.unlimitedGuests'), t('pricing.features.fullPlatform'), t('pricing.features.forVenues'), t('pricing.features.weddingPlanners'), t('pricing.features.djMcPros')]).map((f) => (
+              {(publicPage ? ['100 active events', 'For venues and event professionals', 'For wedding planners', 'For DJs and MCs', 'Complete platform access'] : [t('pricing.features.vendorActiveEvents'), t('pricing.features.unlimitedGuests'), t('pricing.features.fullPlatform'), t('pricing.features.forVenues'), t('pricing.features.weddingPlanners'), t('pricing.features.djMcPros')]).map((f) => (
                 <li key={f} className="flex items-start gap-2 text-xs text-gray-300">
                   <CircleCheck size={16} strokeWidth={1.8} aria-hidden="true" className="text-[#C4A882] mt-0.5 shrink-0" />
                   {f}

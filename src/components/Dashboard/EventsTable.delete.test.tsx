@@ -6,7 +6,7 @@ import { EventsTable } from './EventsTable';
 
 vi.mock('@/hooks/use-mobile', () => ({ useIsMobile: () => false }));
 vi.mock('@/hooks/useEventLimits', () => ({
-  useEventLimits: () => ({ loading: false, atCap: false, includedEvents: 3, currentEvents: 2 }),
+  useEventLimits: () => ({ loading: false, atCap: false, includedEvents: 1, currentEvents: 0 }),
 }));
 vi.mock('./EventEditModal', () => ({ EventEditModal: () => null }));
 vi.mock('./EventCreateModal', () => ({ EventCreateModal: () => null }));
@@ -58,11 +58,14 @@ function Harness({ mutation }: { mutation: (id: string) => Promise<unknown> }) {
       eventLimits={{
         loading: false,
         atCap: false,
-        includedEvents: 3,
+        planKey: 'free',
+        includedEvents: 1,
         additionalPurchased: 0,
-        totalAllowed: 3,
+        totalAllowed: 1,
         currentEvents: events.length,
-        remaining: 3 - events.length,
+        remaining: Math.max(0, 1 - events.length),
+        canPurchaseAdditionalEvents: false,
+        canCreate: true,
         eventsError: null,
         additionalEventsError: null,
         guestsError: null,

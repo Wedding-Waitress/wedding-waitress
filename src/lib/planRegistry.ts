@@ -46,7 +46,7 @@ export const PLAN_REGISTRY: Record<PlanKey, PlanRegistryEntry> = {
     product_id: "prod_UOQhHcOhFdrhOs",
     plan_db_id: "78cdab0d-d81d-4757-b7cc-f210b8b30f47",
     mode: "payment",
-    limits: { guests: 100, includedEvents: 3, additionalEventPrice: 99, maxUsers: 3 },
+    limits: { guests: 100, includedEvents: 1, additionalEventPrice: 99, maxUsers: 3 },
     prices: {
       AUD: { price: 99,    originalPrice: 199,    price_id: "price_1T0vD35GzTmqOxGK3k6EQZee" },
       USD: { price: 74.99, originalPrice: 149.99, price_id: "price_1TMhcx5GzTmqOxGKxMjCfQkz" },
@@ -60,7 +60,7 @@ export const PLAN_REGISTRY: Record<PlanKey, PlanRegistryEntry> = {
     product_id: "prod_UOQhTWnFzXV1FK",
     plan_db_id: "1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8",
     mode: "payment",
-    limits: { guests: 200, includedEvents: 3, additionalEventPrice: 99, maxUsers: 3 },
+    limits: { guests: 200, includedEvents: 1, additionalEventPrice: 99, maxUsers: 3 },
     prices: {
       AUD: { price: 149,    originalPrice: 299,    price_id: "price_1T0vDN5GzTmqOxGKf3kyvjxs" },
       USD: { price: 104.99, originalPrice: 209.99, price_id: "price_1TMhhr5GzTmqOxGKolZGjdWK" },
@@ -74,7 +74,7 @@ export const PLAN_REGISTRY: Record<PlanKey, PlanRegistryEntry> = {
     product_id: "prod_UOQhLIYTxQAd7U",
     plan_db_id: "cd10f207-2109-4546-a635-0baa68ba8213",
     mode: "payment",
-    limits: { guests: null, includedEvents: 3, additionalEventPrice: 99, maxUsers: 3 },
+    limits: { guests: null, includedEvents: 1, additionalEventPrice: 99, maxUsers: 3 },
     prices: {
       AUD: { price: 249,    originalPrice: 499,    price_id: "price_1T0vDj5GzTmqOxGKxVXhCfub" },
       USD: { price: 174.99, originalPrice: 349.99, price_id: "price_1TMhnV5GzTmqOxGKsEJGLnZs" },
@@ -90,7 +90,7 @@ export const PLAN_REGISTRY: Record<PlanKey, PlanRegistryEntry> = {
     plan_db_id: "632b476a-39da-4f6f-8457-9ba104d571da",
     mode: "subscription",
     recurring: "month",
-    limits: { guests: null, includedEvents: 100, additionalEventPrice: 99, maxUsers: 10 },
+    limits: { guests: null, includedEvents: 100, additionalEventPrice: 0, maxUsers: 10 },
     prices: {
       AUD: { price: 299,    price_id: "price_1TUoUX5GzTmqOxGK4eswrMPQ" },
       USD: { price: 209.99, price_id: "price_1TUoV75GzTmqOxGKLz0sDReg" },

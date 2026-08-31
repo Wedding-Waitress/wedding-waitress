@@ -33,6 +33,7 @@ import { formatDisplayTime } from '@/lib/utils';
 import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { EventLimitsState } from '@/hooks/useEventLimits';
+import { useToast } from '@/hooks/use-toast';
 
 const DeleteConfirmationModal = lazy(() => import('./DeleteConfirmationModal').then(m => ({ default: m.DeleteConfirmationModal })));
 const EventEditModal = lazy(() => import('./EventEditModal').then(m => ({ default: m.EventEditModal })));
@@ -146,6 +147,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   eventLimits,
 }) => {
   const navigate = useNavigate();
+  const { toast } = useToast();
   const isMobile = useIsMobile();
   const [expandedEventId, setExpandedEventId] = useState<string | null>(null);
   const [editModal, setEditModal] = useState<{
@@ -167,8 +169,24 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
   const deleteInFlightRef = useRef(false);
   const handleCreateClick = () => {
-    if (!eventLimits.loading && eventLimits.atCap) setAddEventModal(true);
-    else setCreateModal(true);
+    if (eventLimits.loading) return;
+    if (!eventLimits.atCap) {
+      setCreateModal(true);
+      return;
+    }
+    if (eventLimits.canPurchaseAdditionalEvents && eventLimits.canCreate) {
+      setAddEventModal(true);
+      return;
+    }
+    toast({
+      title: eventLimits.canCreate ? 'Event limit reached' : 'Event creation unavailable',
+      description: eventLimits.planKey === 'vendor_pro'
+        ? 'Vendor Pro supports up to 100 active events. Delete or wait for an event to expire before creating another.'
+        : eventLimits.canCreate
+          ? 'Your free account includes 1 active event. Delete or wait for it to expire before creating another.'
+          : 'Your plan is not active for event creation. Please review your subscription.',
+      variant: 'destructive',
+    });
   };
   const handleEventSelect = (eventId: string) => {
     // Immediate UI update (no await)
@@ -526,7 +544,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
           isOpen: false,
           event: null
         })} onConfirm={handleDeleteConfirm} eventName={deleteModal.event?.name || ''} isLoading={deletingEventId === deleteModal.event?.id} />}
-        {addEventModal && <AdditionalEventModal
+        {addEventModal && eventLimits.canPurchaseAdditionalEvents && <AdditionalEventModal
           isOpen
           onClose={() => setAddEventModal(false)}
           includedEvents={eventLimits.includedEvents}

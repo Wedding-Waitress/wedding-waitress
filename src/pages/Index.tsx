@@ -444,7 +444,7 @@ export default function Index() {
                 <ul className="space-y-3">
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 mr-2 flex-shrink-0" style={{ color: PRIMARY_COLOR }} />
-                    <span>Unlimited events</span>
+                    <span>100 active events</span>
                   </li>
                   <li className="flex items-start">
                     <CheckCircle className="w-5 h-5 mr-2 flex-shrink-0" style={{ color: PRIMARY_COLOR }} />

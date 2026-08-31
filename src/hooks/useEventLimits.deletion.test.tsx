@@ -1,55 +1,38 @@
 import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
-const mocks = vi.hoisted(() => ({
-  eventCounts: [3, 2] as number[],
-  eventCountRequests: 0,
-}));
+const mocks = vi.hoisted(() => ({ requests: 0 }));
 
-vi.mock('@/hooks/useUserPlan', () => ({
-  useUserPlan: () => ({ plan: { plan_name: 'Free' }, loading: false }),
-}));
+vi.mock('@/lib/eventAllowance', async (importOriginal) => {
+  const actual = await importOriginal<typeof import('@/lib/eventAllowance')>();
+  return {
+    ...actual,
+    getEventAllowanceSnapshot: vi.fn(async () => {
+      const active = mocks.requests++ === 0 ? 1 : 0;
+      return {
+        planKey: 'free', includedEvents: 1, paidAdditionalEvents: 0,
+        totalAllowed: 1, activeEvents: active, remaining: 1 - active,
+        atCap: active === 1, canPurchaseAdditionalEvents: false, canCreate: true,
+      };
+    }),
+  };
+});
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
-    auth: { getUser: vi.fn().mockResolvedValue({ data: { user: { id: 'owner-uuid' } } }) },
+    auth: { getUser: vi.fn(async () => ({ data: { user: { id: 'owner-uuid' } } })) },
     from: vi.fn((table: string) => {
       if (table === 'account_members') {
-        const membershipQuery: Record<string, ReturnType<typeof vi.fn>> = {};
-        membershipQuery.select = vi.fn(() => membershipQuery);
-        membershipQuery.eq = vi.fn(() => membershipQuery);
-        membershipQuery.is = vi.fn(() => membershipQuery);
-        membershipQuery.order = vi.fn(() => membershipQuery);
-        membershipQuery.limit = vi.fn(() => membershipQuery);
-        membershipQuery.maybeSingle = vi.fn(async () => ({ data: null, error: null }));
-        return membershipQuery;
+        const query: any = {};
+        query.select = vi.fn(() => query);
+        query.eq = vi.fn(() => query);
+        query.is = vi.fn(() => query);
+        query.order = vi.fn(() => query);
+        query.limit = vi.fn(() => query);
+        query.maybeSingle = vi.fn(async () => ({ data: null, error: null }));
+        return query;
       }
-      if (table === 'events') {
-        return {
-          select: vi.fn(() => ({
-            eq: vi.fn(async () => {
-              const index = Math.min(mocks.eventCountRequests, mocks.eventCounts.length - 1);
-              mocks.eventCountRequests += 1;
-              return {
-                data: Array.from({ length: mocks.eventCounts[index] }, (_, i) => ({ id: `event-${i}` })),
-                count: mocks.eventCounts[index],
-                error: null,
-              };
-            }),
-          })),
-        };
-      }
-      if (table === 'guests') {
-        return {
-          select: vi.fn(() => ({
-            in: vi.fn(async () => ({ count: 78, error: null })),
-          })),
-        };
-      }
-      const purchaseQuery: Record<string, ReturnType<typeof vi.fn>> = {};
-      purchaseQuery.select = vi.fn(() => purchaseQuery);
-      purchaseQuery.eq = vi.fn((column: string) => column === 'status' ? Promise.resolve({ count: 0, error: null }) : purchaseQuery);
-      return purchaseQuery;
+      return { select: vi.fn(() => ({ eq: vi.fn(async () => ({ data: [], error: null })) })) };
     }),
   },
 }));
@@ -57,24 +40,17 @@ vi.mock('@/integrations/supabase/client', () => ({
 import { EVENT_DELETED_EVENT } from '@/lib/eventDeletion';
 import { useEventLimits } from './useEventLimits';
 
-describe('event usage invalidation after deletion', () => {
-  beforeEach(() => {
-    mocks.eventCountRequests = 0;
-    mocks.eventCounts = [3, 2];
-  });
+describe('event allowance invalidation after deletion', () => {
+  beforeEach(() => { mocks.requests = 0; });
 
-  it('updates 3 of 3 to 2 of 3 and revalidates the database count', async () => {
+  it('refreshes 1 of 1 to 0 of 1 after a confirmed deletion', async () => {
     const { result } = renderHook(() => useEventLimits());
-    await waitFor(() => expect(result.current.currentEvents).toBe(3));
+    await waitFor(() => expect(result.current.currentEvents).toBe(1));
 
-    act(() => {
-      window.dispatchEvent(new CustomEvent(EVENT_DELETED_EVENT, {
-        detail: { eventId: 'event-uuid', ownerId: 'owner-uuid' },
-      }));
-    });
+    act(() => window.dispatchEvent(new CustomEvent(EVENT_DELETED_EVENT)));
 
-    expect(result.current.currentEvents).toBe(2);
-    await waitFor(() => expect(mocks.eventCountRequests).toBe(2));
-    expect(result.current.totalAllowed).toBe(3);
+    await waitFor(() => expect(result.current.currentEvents).toBe(0));
+    expect(result.current.totalAllowed).toBe(1);
+    expect(result.current.atCap).toBe(false);
   });
 });

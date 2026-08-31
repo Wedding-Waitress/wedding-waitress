@@ -18,6 +18,13 @@ import {
   getEventDeletionMessage,
   notifyEventDeleted,
 } from '@/lib/eventDeletion';
+import {
+  EventAllowanceError,
+  getDatabaseEventCreationError,
+  getEventAllowanceSnapshot,
+  getEventCreationBlockMessage,
+  notifyEventAllowanceChanged,
+} from '@/lib/eventAllowance';
 
 export interface Event {
   id: string;
@@ -189,6 +196,17 @@ export const useEvents = () => {
         return null as any;
       }
 
+      // Recheck immediately before insertion. This is intentionally in the
+      // mutation path as well as the My Events UI so stale screens cannot open
+      // another event. The database trigger remains authoritative under races.
+      const allowance = await getEventAllowanceSnapshot();
+      if (!allowance.canCreate || allowance.atCap) {
+        throw new EventAllowanceError(
+          allowance.canCreate ? 'limit-reached' : 'plan-inactive',
+          getEventCreationBlockMessage(allowance),
+        );
+      }
+
       // Get browser timezone and calculate local dates
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
       const today = new Date();
@@ -272,6 +290,7 @@ export const useEvents = () => {
       }
       
       await fetchEvents();
+      notifyEventAllowanceChanged();
       toast({
         title: "Success",
         description: "Event created successfully",
@@ -280,12 +299,15 @@ export const useEvents = () => {
       return data;
     } catch (error) {
       console.error('Error creating event:', error);
+      const allowanceError = error instanceof EventAllowanceError
+        ? error
+        : getDatabaseEventCreationError(error);
       toast({
-        title: "Error",
-        description: "Failed to create event",
+        title: allowanceError ? 'Event not created' : 'Error',
+        description: allowanceError?.message ?? 'Failed to create event',
         variant: "destructive",
       });
-      throw error;
+      throw allowanceError ?? error;
     }
   };
 

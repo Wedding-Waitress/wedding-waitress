@@ -4737,6 +4737,20 @@ export type Database = {
         Args: { _event_id: string; _user_id: string }
         Returns: boolean
       }
+      get_my_event_allowance: {
+        Args: never
+        Returns: {
+          active_events: number
+          at_cap: boolean
+          can_create: boolean
+          can_purchase_additional_events: boolean
+          included_events: number
+          paid_additional_events: number
+          plan_key: string
+          remaining: number
+          total_allowed: number
+        }[]
+      }
       add_dj_mc_item_by_token: {
         Args: {
           at_order_index?: number

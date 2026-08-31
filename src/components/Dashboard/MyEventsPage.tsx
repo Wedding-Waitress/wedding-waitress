@@ -53,7 +53,7 @@ export const MyEventsPage: React.FC<MyEventsPageProps> = ({
     profile,
     updateDisplayCountdownEvent
   } = useProfile();
-  const eventLimits: EventLimitsState = useEventLimits(events.length);
+  const eventLimits: EventLimitsState = useEventLimits();
 
   // A) Page state & data - simplified to use activeEventId as single source of truth
   const [selectedEvent, setSelectedEvent] = useState<Event | null>(null);

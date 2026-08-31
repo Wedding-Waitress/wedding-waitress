@@ -281,7 +281,7 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
                             {p.limits.guests == null
                               ? 'Unlimited guests'
                               : `Up to ${p.limits.guests} guests`}{' '}
-                            · {p.limits.includedEvents} events included · {p.limits.maxUsers} users
+                            · {p.limits.includedEvents} {p.limits.includedEvents === 1 ? 'event' : 'events'} included · {p.limits.maxUsers} users
                           </p>
                         </div>
                         <div className="text-right">
