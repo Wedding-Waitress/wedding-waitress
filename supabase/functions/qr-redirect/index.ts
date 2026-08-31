@@ -96,14 +96,10 @@ h1{color:#967A59;font-size:1.5rem}p{color:#666;line-height:1.6}</style></head>
       );
     }
 
-    // Keep staging scans inside the QA preview even when the optional base URL
-    // secret has not been configured. Production retains its canonical origin.
+    // Production is the canonical fallback when the optional base URL secret
+    // has not been configured.
     const configuredBaseUrl = Deno.env.get("PUBLIC_BASE_URL")?.replace(/\/$/, "");
-    const publicBaseUrl = configuredBaseUrl || (
-      supabaseUrl.includes("ufmpxsgncmvgrvvlqtuj")
-        ? "https://browserqa-aug30--weddingwaitress.netlify.app"
-        : "https://weddingwaitress.com.au"
-    );
+    const publicBaseUrl = configuredBaseUrl || "https://weddingwaitress.com.au";
 
     let redirectPath: string;
     if (destination_type === "kiosk") {

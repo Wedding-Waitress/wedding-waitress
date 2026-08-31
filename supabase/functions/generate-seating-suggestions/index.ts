@@ -136,8 +136,7 @@ serve(async (req) => {
 
     // Call Lovable AI
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
-    const isStaging = supabaseUrl.includes('ufmpxsgncmvgrvvlqtuj');
-    if (isStaging || !lovableApiKey) {
+    if (!lovableApiKey) {
       const remaining = new Map(tables.map((table) => [
         table.id,
         Math.max(0, Number(table.limit_seats || 0) - guests.filter((guest) => guest.table_id === table.id).length),

@@ -1,6 +1,6 @@
-# QA branch safety rail: this working tree is linked only to Wedding Waitress
-# Staging. Production deployment must use the production branch/configuration.
-project_id = "ufmpxsgncmvgrvvlqtuj"
+# Wedding Waitress production project. The deleted staging project is no longer
+# referenced by local Supabase configuration.
+project_id = "xytxkidpourwdbzzwcdp"
 
 [functions.send-auth-email]
 verify_jwt = false

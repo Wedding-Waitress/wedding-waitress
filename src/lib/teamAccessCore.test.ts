@@ -19,7 +19,7 @@ describe('manage-account-members validation', () => {
   it('does not permit insecure redirect origins or raw backend errors', () => {
     expect(safeRedirectOrigin(undefined)).toBeNull();
     expect(safeRedirectOrigin('http://unsafe.example')).toBeNull();
-    expect(safeRedirectOrigin('https://browserqa-aug30--weddingwaitress.netlify.app/path')).toBe('https://browserqa-aug30--weddingwaitress.netlify.app');
+    expect(safeRedirectOrigin('https://weddingwaitress.com.au/path')).toBe('https://weddingwaitress.com.au');
     expect(publicErrorMessage('database connection details')).toBe('The team access request could not be completed');
     expect(publicErrorMessage('error: All account seats are currently occupied or reserved')).toContain('account seats');
   });
