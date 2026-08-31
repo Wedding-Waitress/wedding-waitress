@@ -46,7 +46,7 @@ export const template = {
   to: 'support@weddingwaitress.com.au',
   displayName: 'Admin: new payment',
   previewData: {
-    name: 'Jane Smith', email: 'jane@example.com', amount: '149', plan: 'Premium',
+    name: 'Jane Smith', email: 'jane@example.com', amount: '200', plan: 'Premium',
     date: new Date().toISOString(),
   },
 } satisfies TemplateEntry

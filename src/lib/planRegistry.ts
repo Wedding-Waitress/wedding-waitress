@@ -11,6 +11,7 @@
  * Update prices/limits HERE — every consumer reflects automatically.
  */
 import type { CurrencyCode } from "./currencyPricing";
+import { PLAN_PRICING, VENDOR_PRICING } from "./currencyPricing";
 
 export type PlanKey = "essential" | "premium" | "unlimited" | "vendor_pro";
 
@@ -38,6 +39,13 @@ export interface PlanRegistryEntry {
   prices: Record<CurrencyCode, PlanCurrencyPrice>;
 }
 
+const couplePrices = (key: "essential" | "premium" | "unlimited"): Record<CurrencyCode, PlanCurrencyPrice> => ({
+  AUD: PLAN_PRICING.AUD[key],
+  USD: PLAN_PRICING.USD[key],
+  GBP: PLAN_PRICING.GBP[key],
+  EUR: PLAN_PRICING.EUR[key],
+});
+
 // ── Wedding Plans ───────────────────────────────────────────────
 export const PLAN_REGISTRY: Record<PlanKey, PlanRegistryEntry> = {
   essential: {
@@ -47,12 +55,7 @@ export const PLAN_REGISTRY: Record<PlanKey, PlanRegistryEntry> = {
     plan_db_id: "78cdab0d-d81d-4757-b7cc-f210b8b30f47",
     mode: "payment",
     limits: { guests: 100, includedEvents: 1, additionalEventPrice: 99, maxUsers: 3 },
-    prices: {
-      AUD: { price: 99,    originalPrice: 199,    price_id: "price_1T0vD35GzTmqOxGK3k6EQZee" },
-      USD: { price: 74.99, originalPrice: 149.99, price_id: "price_1TMhcx5GzTmqOxGKxMjCfQkz" },
-      GBP: { price: 64.99, originalPrice: 129.99, price_id: "price_1TMheB5GzTmqOxGK2RUVqDvC" },
-      EUR: { price: 69.99, originalPrice: 139.99, price_id: "price_1TMher5GzTmqOxGKTI0fTE07" },
-    },
+    prices: couplePrices("essential"),
   },
   premium: {
     key: "premium",
@@ -61,12 +64,7 @@ export const PLAN_REGISTRY: Record<PlanKey, PlanRegistryEntry> = {
     plan_db_id: "1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8",
     mode: "payment",
     limits: { guests: 200, includedEvents: 1, additionalEventPrice: 99, maxUsers: 3 },
-    prices: {
-      AUD: { price: 149,    originalPrice: 299,    price_id: "price_1T0vDN5GzTmqOxGKf3kyvjxs" },
-      USD: { price: 104.99, originalPrice: 209.99, price_id: "price_1TMhhr5GzTmqOxGKolZGjdWK" },
-      GBP: { price: 89.99,  originalPrice: 179.99, price_id: "price_1TMhlz5GzTmqOxGK1t1zUOCw" },
-      EUR: { price: 99.99,  originalPrice: 199.99, price_id: "price_1TMhmL5GzTmqOxGKAW9J3JMC" },
-    },
+    prices: couplePrices("premium"),
   },
   unlimited: {
     key: "unlimited",
@@ -75,28 +73,18 @@ export const PLAN_REGISTRY: Record<PlanKey, PlanRegistryEntry> = {
     plan_db_id: "cd10f207-2109-4546-a635-0baa68ba8213",
     mode: "payment",
     limits: { guests: null, includedEvents: 1, additionalEventPrice: 99, maxUsers: 3 },
-    prices: {
-      AUD: { price: 249,    originalPrice: 499,    price_id: "price_1T0vDj5GzTmqOxGKxVXhCfub" },
-      USD: { price: 174.99, originalPrice: 349.99, price_id: "price_1TMhnV5GzTmqOxGKsEJGLnZs" },
-      GBP: { price: 149.99, originalPrice: 299.99, price_id: "price_1TMho75GzTmqOxGKtbNat2qU" },
-      EUR: { price: 169.99, originalPrice: 339.99, price_id: "price_1TMhoO5GzTmqOxGKVxyufvNR" },
-    },
+    prices: couplePrices("unlimited"),
   },
   vendor_pro: {
     key: "vendor_pro",
     name: "Vendor Pro",
-    // Updated 2026-05-08: A$299/mo, 100 events included, 10 users.
+    // A$300/month, 100 events included, 10 users.
     product_id: "prod_UTm2XBA5rX9dGN",
     plan_db_id: "632b476a-39da-4f6f-8457-9ba104d571da",
     mode: "subscription",
     recurring: "month",
     limits: { guests: null, includedEvents: 100, additionalEventPrice: 0, maxUsers: 10 },
-    prices: {
-      AUD: { price: 299,    price_id: "price_1TUoUX5GzTmqOxGK4eswrMPQ" },
-      USD: { price: 209.99, price_id: "price_1TUoV75GzTmqOxGKLz0sDReg" },
-      GBP: { price: 179.99, price_id: "price_1TUoY15GzTmqOxGK7AUbx77Q" },
-      EUR: { price: 199.99, price_id: "price_1TUoYZ5GzTmqOxGKt03J6gOj" },
-    },
+    prices: VENDOR_PRICING,
   },
 };
 

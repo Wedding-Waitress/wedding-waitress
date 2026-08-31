@@ -27,6 +27,8 @@ import {
 } from '@/lib/planRegistry';
 import { formatPrice } from '@/lib/currencyPricing';
 import { RsvpOverageModal } from '@/components/Dashboard/RsvpOverageModal';
+import { PACKAGE_CHECKOUT_AVAILABLE, PACKAGE_CHECKOUT_NOTICE } from '@/lib/packagePricing';
+import { toast } from 'sonner';
 
 interface Props {
   open: boolean;
@@ -112,6 +114,10 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
     : 0;
 
   const handleSelect = (targetKey: PlanKey) => {
+    if (!PACKAGE_CHECKOUT_AVAILABLE) {
+      toast.info(PACKAGE_CHECKOUT_NOTICE);
+      return;
+    }
     const isOneTimeUpgrade =
       currentKey &&
       currentRegistry?.mode === 'payment' &&
@@ -319,10 +325,12 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
 
                       <Button
                         onClick={() => handleSelect(p.key)}
+                        disabled={!PACKAGE_CHECKOUT_AVAILABLE}
+                        title={!PACKAGE_CHECKOUT_AVAILABLE ? PACKAGE_CHECKOUT_NOTICE : undefined}
                         size="sm"
                         className="lv-premium-shade w-full mt-4 bg-gradient-to-r from-[#B8946A] via-[#967A59] to-[#7d6649] hover:from-[#A88560] hover:via-[#7d6649] hover:to-[#6a5640] text-white rounded-full"
                       >
-                        Continue to checkout
+                        {PACKAGE_CHECKOUT_AVAILABLE ? 'Continue to checkout' : 'Checkout coming soon'}
                         <ArrowRight className="ml-1.5 h-4 w-4" />
                       </Button>
                     </div>

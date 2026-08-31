@@ -3,6 +3,7 @@
  * Keeps the left-side checkout summary in sync with the Stripe line item.
  */
 import { PLAN_PRICES, VENDOR_PRO } from "@/lib/stripePrices";
+import { PACKAGE_PRICES_AUD } from "@/lib/packagePricing";
 
 export type PlanKey = "essential" | "premium" | "unlimited" | "vendor_pro";
 
@@ -22,8 +23,7 @@ export const PLAN_DETAILS: Record<PlanKey, PlanDetail> = {
   essential: {
     key: "essential",
     name: PLAN_PRICES.essential.name,
-    price_aud: PLAN_PRICES.essential.price_aud,
-    original_price_aud: PLAN_PRICES.essential.original_price_aud,
+    price_aud: PACKAGE_PRICES_AUD.essential,
     price_id: PLAN_PRICES.essential.price_id,
     mode: "payment",
     description: "Up to 100 guests · 1 event included · 3 account users",
@@ -38,8 +38,7 @@ export const PLAN_DETAILS: Record<PlanKey, PlanDetail> = {
   premium: {
     key: "premium",
     name: PLAN_PRICES.premium.name,
-    price_aud: PLAN_PRICES.premium.price_aud,
-    original_price_aud: PLAN_PRICES.premium.original_price_aud,
+    price_aud: PACKAGE_PRICES_AUD.premium,
     price_id: PLAN_PRICES.premium.price_id,
     mode: "payment",
     description: "Up to 200 guests · 1 event included · 3 account users",
@@ -54,8 +53,7 @@ export const PLAN_DETAILS: Record<PlanKey, PlanDetail> = {
   unlimited: {
     key: "unlimited",
     name: PLAN_PRICES.unlimited.name,
-    price_aud: PLAN_PRICES.unlimited.price_aud,
-    original_price_aud: PLAN_PRICES.unlimited.original_price_aud,
+    price_aud: PACKAGE_PRICES_AUD.unlimited,
     price_id: PLAN_PRICES.unlimited.price_id,
     mode: "payment",
     description: "Unlimited guests · 1 event included · 3 account users",
@@ -69,7 +67,7 @@ export const PLAN_DETAILS: Record<PlanKey, PlanDetail> = {
   vendor_pro: {
     key: "vendor_pro",
     name: VENDOR_PRO.name,
-    price_aud: VENDOR_PRO.price_aud,
+    price_aud: PACKAGE_PRICES_AUD.vendor_pro,
     price_id: VENDOR_PRO.price_id,
     mode: "subscription",
     recurring: "month",

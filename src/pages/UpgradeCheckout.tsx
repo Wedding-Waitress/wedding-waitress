@@ -10,6 +10,7 @@ import { SeoHead } from '@/components/SEO/SeoHead';
 import { PLAN_DETAILS, type PlanKey } from '@/lib/upgradePlans';
 import { usePaymentProcessing } from '@/contexts/PaymentProcessingContext';
 import { formatLivePrice, isCurrencyCode } from '@/lib/liveCurrencyPricing';
+import { gstInclusiveAud, PACKAGE_CHECKOUT_AVAILABLE, PACKAGE_CHECKOUT_NOTICE } from '@/lib/packagePricing';
 
 let stripePromise: Promise<Stripe | null> | null = null;
 const getStripe = (publishableKey: string) => {
@@ -42,6 +43,7 @@ export const UpgradeCheckout: React.FC = () => {
   // focus then the window navigates. Listening for visibility/blur lets
   // us catch the redirect even if the iframe pointerdown was missed.
   useEffect(() => {
+    if (!PACKAGE_CHECKOUT_AVAILABLE) return;
     const onVisibility = () => {
       if (document.visibilityState === 'hidden') startProcessing();
     };
@@ -57,6 +59,10 @@ export const UpgradeCheckout: React.FC = () => {
   useEffect(() => {
     if (!plan) {
       setError('Unknown plan');
+      return;
+    }
+    if (!PACKAGE_CHECKOUT_AVAILABLE) {
+      setError(PACKAGE_CHECKOUT_NOTICE);
       return;
     }
     let cancelled = false;
@@ -155,11 +161,15 @@ export const UpgradeCheckout: React.FC = () => {
               ))}
             </ul>
             <div className="border-t border-border pt-4 flex items-center justify-between">
-              <span className="text-sm text-gray-600">Total due today</span>
+              <span className="text-sm text-gray-600">Advertised price (ex GST)</span>
               <span className="text-lg font-bold text-gray-900">
                 {checkoutQuote ? formatLivePrice(checkoutQuote.currency as import('@/lib/currencyPricing').CurrencyCode, checkoutQuote.amount / 100) : `A$${isDiffUpgrade ? diffAmount : plan.price_aud}`}
                 {plan.recurring ? `/${plan.recurring}` : ''}
               </span>
+            </div>
+            <div className="mt-2 flex items-center justify-between text-sm text-gray-600">
+              <span>Australian total including GST</span>
+              <strong>A${gstInclusiveAud(isDiffUpgrade ? diffAmount : plan.price_aud)}{plan.recurring ? `/${plan.recurring}` : ''}</strong>
             </div>
             {isDiffUpgrade && (
               <p className="text-xs text-muted-foreground mt-2">
@@ -167,7 +177,7 @@ export const UpgradeCheckout: React.FC = () => {
                 and {plan.name} (A${plan.price_aud}).
               </p>
             )}
-            <p className="mt-4 text-xs leading-5 text-gray-500">Prices exclude applicable taxes. GST, VAT or other taxes are calculated at checkout based on your location.</p>
+            <p className="mt-4 text-xs leading-5 text-gray-500">Advertised prices exclude GST. Australian GST is added once at checkout where applicable.</p>
           </div>
 
           {/* RIGHT: Embedded Stripe Checkout */}
@@ -184,7 +194,7 @@ export const UpgradeCheckout: React.FC = () => {
             }}
           >
             {error && (
-              <div className="p-6 text-center text-sm text-red-600">
+              <div className="p-8 text-center text-sm font-medium text-[#70452f]">
                 {error}
               </div>
             )}

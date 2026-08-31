@@ -23,12 +23,12 @@ describe('public product catalogue', () => {
 
   it('uses the approved Australian public pricing and Ultimate capacity', () => {
     expect(PUBLIC_COUPLE_PLAN_DETAILS).toEqual({
-      essential: { name: 'Essential', guests: 100, priceAud: 99 },
-      premium: { name: 'Premium', guests: 200, priceAud: 149 },
-      unlimited: { name: 'Ultimate', guests: 500, priceAud: 249 },
+      essential: { name: 'Essential', guests: 100, priceAud: 150 },
+      premium: { name: 'Premium', guests: 200, priceAud: 200 },
+      unlimited: { name: 'Ultimate', guests: 500, priceAud: 300 },
     });
-    expect(PLAN_PRICING.AUD.unlimited.price).toBe(249);
-    expect(VENDOR_PRICING.AUD.price).toBe(299);
+    expect(PLAN_PRICING.AUD.unlimited.price).toBe(300);
+    expect(VENDOR_PRICING.AUD.price).toBe(300);
   });
 
   it('includes every product in the generated sitemap', () => {

@@ -296,8 +296,9 @@ export const TermsOfService = () => {
 
               <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">7.2 Plan Access</h3>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                <li>Wedding plans are one-time purchases and do not auto-renew</li>
-                <li>Vendor Pro is a recurring subscription billed monthly</li>
+                <li>Essential (A$150), Premium (A$200) and Ultimate (A$300) are one-time purchases providing 12 months of access and do not auto-renew</li>
+                <li>Vendor Pro is A$300 per month and is a recurring monthly subscription</li>
+                <li>Advertised Australian prices exclude GST; Australian GST is added once at checkout where applicable</li>
                 <li>Access to features is granted instantly upon successful payment</li>
               </ul>
 

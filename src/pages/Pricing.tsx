@@ -5,23 +5,24 @@ import { SeoHead } from '@/components/SEO/SeoHead';
 import { PricingSection } from '@/components/Pricing/PricingSection';
 import { PricingValueComparison } from '@/components/Pricing/PricingValueComparison';
 import '@/styles/PublicSite.css';
+import { PACKAGE_PRICES_AUD } from '@/lib/packagePricing';
 
 export const Pricing: React.FC = () => {
   const pricingSchema = {
     '@context': 'https://schema.org', '@type': 'Product', name: 'Wedding Waitress',
     description: 'All-in-one wedding planning and guest-experience platform.',
     offers: [
-      { '@type': 'Offer', name: 'Essential', price: '99', priceCurrency: 'AUD', description: 'One event, 12 months, up to 100 guests; price excludes GST.' },
-      { '@type': 'Offer', name: 'Premium', price: '149', priceCurrency: 'AUD', description: 'One event, 12 months, up to 200 guests; price excludes GST.' },
-      { '@type': 'Offer', name: 'Ultimate', price: '249', priceCurrency: 'AUD', description: 'One event, 12 months, up to 500 guests; price excludes GST.' },
-      { '@type': 'Offer', name: 'Vendor Pro', price: '299', priceCurrency: 'AUD', priceSpecification: { '@type': 'UnitPriceSpecification', price: '299', priceCurrency: 'AUD', unitText: 'MONTH' }, description: 'For approved event professionals; price excludes GST.' },
+      { '@type': 'Offer', name: 'Essential', price: String(PACKAGE_PRICES_AUD.essential), priceCurrency: 'AUD', description: 'One-time payment for one event, 12 months, up to 100 guests; price excludes GST.' },
+      { '@type': 'Offer', name: 'Premium', price: String(PACKAGE_PRICES_AUD.premium), priceCurrency: 'AUD', description: 'One-time payment for one event, 12 months, up to 200 guests; price excludes GST.' },
+      { '@type': 'Offer', name: 'Ultimate', price: String(PACKAGE_PRICES_AUD.unlimited), priceCurrency: 'AUD', description: 'One-time payment for one event, 12 months, up to 500 guests; price excludes GST.' },
+      { '@type': 'Offer', name: 'Vendor Pro', price: String(PACKAGE_PRICES_AUD.vendor_pro), priceCurrency: 'AUD', priceSpecification: { '@type': 'UnitPriceSpecification', price: String(PACKAGE_PRICES_AUD.vendor_pro), priceCurrency: 'AUD', unitText: 'MONTH' }, description: 'Monthly subscription for approved event professionals; price excludes GST.' },
     ],
   };
   return (
     <div className="ww-public ww-pricing-page min-h-screen bg-[#fffdf9]">
       <SeoHead
         title="Pricing Plans | Wedding Waitress"
-        description="Wedding Waitress couple plans start at A$99 for one event, 12 months and complete platform access. Applicable taxes are calculated at checkout."
+        description="Wedding Waitress couple plans start at A$150 one-time for one event, 12 months and complete platform access. Advertised prices exclude GST."
         canonicalPath="/pricing"
         jsonLd={pricingSchema}
       />

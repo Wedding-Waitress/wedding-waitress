@@ -4,6 +4,8 @@
  * Each currency has its own Stripe price ID.
  */
 
+import { PACKAGE_PRICES_AUD } from './packagePricing';
+
 export type CurrencyCode = 'AUD' | 'USD' | 'GBP' | 'EUR';
 
 export interface CurrencyConfig {
@@ -22,7 +24,7 @@ export const CURRENCIES: Record<CurrencyCode, CurrencyConfig> = {
 
 export interface PlanPricing {
   price: number;
-  originalPrice: number;
+  originalPrice?: number;
   price_id: string;
 }
 
@@ -31,6 +33,10 @@ export interface VendorPricing {
   price_id: string;
 }
 
+const DISPLAY_RATES: Record<CurrencyCode, number> = { AUD: 1, USD: 0.66, GBP: 0.51, EUR: 0.60 };
+const converted = (amount: number, currency: CurrencyCode) =>
+  currency === 'AUD' ? amount : Math.round(amount * DISPLAY_RATES[currency]);
+
 /** Fixed pricing per currency per plan (one-time wedding plans) */
 export const PLAN_PRICING: Record<CurrencyCode, {
   essential: PlanPricing;
@@ -38,37 +44,37 @@ export const PLAN_PRICING: Record<CurrencyCode, {
   unlimited: PlanPricing;
 }> = {
   AUD: {
-    essential: { price: 99, originalPrice: 199, price_id: 'price_1T0vD35GzTmqOxGK3k6EQZee' },
-    premium:   { price: 149, originalPrice: 299, price_id: 'price_1T0vDN5GzTmqOxGKf3kyvjxs' },
-    unlimited: { price: 249, originalPrice: 499, price_id: 'price_1T0vDj5GzTmqOxGKxVXhCfub' },
+    essential: { price: PACKAGE_PRICES_AUD.essential, price_id: 'price_1T0vD35GzTmqOxGK3k6EQZee' },
+    premium:   { price: PACKAGE_PRICES_AUD.premium, price_id: 'price_1T0vDN5GzTmqOxGKf3kyvjxs' },
+    unlimited: { price: PACKAGE_PRICES_AUD.unlimited, price_id: 'price_1T0vDj5GzTmqOxGKxVXhCfub' },
   },
   USD: {
-    essential: { price: 74.99, originalPrice: 149.99, price_id: 'price_1TMhcx5GzTmqOxGKxMjCfQkz' },
-    premium:   { price: 104.99, originalPrice: 209.99, price_id: 'price_1TMhhr5GzTmqOxGKolZGjdWK' },
-    unlimited: { price: 174.99, originalPrice: 349.99, price_id: 'price_1TMhnV5GzTmqOxGKsEJGLnZs' },
+    essential: { price: converted(PACKAGE_PRICES_AUD.essential, 'USD'), price_id: 'price_1TMhcx5GzTmqOxGKxMjCfQkz' },
+    premium:   { price: converted(PACKAGE_PRICES_AUD.premium, 'USD'), price_id: 'price_1TMhhr5GzTmqOxGKolZGjdWK' },
+    unlimited: { price: converted(PACKAGE_PRICES_AUD.unlimited, 'USD'), price_id: 'price_1TMhnV5GzTmqOxGKsEJGLnZs' },
   },
   GBP: {
-    essential: { price: 64.99, originalPrice: 129.99, price_id: 'price_1TMheB5GzTmqOxGK2RUVqDvC' },
-    premium:   { price: 89.99, originalPrice: 179.99, price_id: 'price_1TMhlz5GzTmqOxGK1t1zUOCw' },
-    unlimited: { price: 149.99, originalPrice: 299.99, price_id: 'price_1TMho75GzTmqOxGKtbNat2qU' },
+    essential: { price: converted(PACKAGE_PRICES_AUD.essential, 'GBP'), price_id: 'price_1TMheB5GzTmqOxGK2RUVqDvC' },
+    premium:   { price: converted(PACKAGE_PRICES_AUD.premium, 'GBP'), price_id: 'price_1TMhlz5GzTmqOxGK1t1zUOCw' },
+    unlimited: { price: converted(PACKAGE_PRICES_AUD.unlimited, 'GBP'), price_id: 'price_1TMho75GzTmqOxGKtbNat2qU' },
   },
   EUR: {
-    essential: { price: 69.99, originalPrice: 139.99, price_id: 'price_1TMher5GzTmqOxGKTI0fTE07' },
-    premium:   { price: 99.99, originalPrice: 199.99, price_id: 'price_1TMhmL5GzTmqOxGKAW9J3JMC' },
-    unlimited: { price: 169.99, originalPrice: 339.99, price_id: 'price_1TMhoO5GzTmqOxGKVxyufvNR' },
+    essential: { price: converted(PACKAGE_PRICES_AUD.essential, 'EUR'), price_id: 'price_1TMher5GzTmqOxGKTI0fTE07' },
+    premium:   { price: converted(PACKAGE_PRICES_AUD.premium, 'EUR'), price_id: 'price_1TMhmL5GzTmqOxGKAW9J3JMC' },
+    unlimited: { price: converted(PACKAGE_PRICES_AUD.unlimited, 'EUR'), price_id: 'price_1TMhoO5GzTmqOxGKVxyufvNR' },
   },
 };
 
 /**
  * Vendor Pro monthly pricing per currency.
- * Updated 2026-05-08 — A$299/mo (100 events included, up to 10 account users).
+ * A$300/month (100 events included, up to 10 account users).
  * Source of truth: src/lib/planRegistry.ts (PLAN_REGISTRY.vendor_pro.prices).
  */
 export const VENDOR_PRICING: Record<CurrencyCode, VendorPricing> = {
-  AUD: { price: 299,    price_id: 'price_1TUoUX5GzTmqOxGK4eswrMPQ' },
-  USD: { price: 209.99, price_id: 'price_1TUoV75GzTmqOxGKLz0sDReg' },
-  GBP: { price: 179.99, price_id: 'price_1TUoY15GzTmqOxGK7AUbx77Q' },
-  EUR: { price: 199.99, price_id: 'price_1TUoYZ5GzTmqOxGKt03J6gOj' },
+  AUD: { price: PACKAGE_PRICES_AUD.vendor_pro, price_id: 'price_1TUoUX5GzTmqOxGK4eswrMPQ' },
+  USD: { price: converted(PACKAGE_PRICES_AUD.vendor_pro, 'USD'), price_id: 'price_1TUoV75GzTmqOxGKLz0sDReg' },
+  GBP: { price: converted(PACKAGE_PRICES_AUD.vendor_pro, 'GBP'), price_id: 'price_1TUoY15GzTmqOxGK7AUbx77Q' },
+  EUR: { price: converted(PACKAGE_PRICES_AUD.vendor_pro, 'EUR'), price_id: 'price_1TUoYZ5GzTmqOxGKt03J6gOj' },
 };
 
 /** Format a price with the correct currency symbol */

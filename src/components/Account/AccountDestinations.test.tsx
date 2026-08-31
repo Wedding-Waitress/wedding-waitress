@@ -26,15 +26,15 @@ vi.mock('@/integrations/supabase/client', () => ({
     functions: { invoke: mocks.invoke },
   },
 }));
-vi.mock('sonner', () => ({ toast: { success: vi.fn(), error: vi.fn() } }));
+vi.mock('sonner', () => ({ toast: { info: vi.fn(), success: vi.fn(), error: vi.fn() } }));
 
 describe('Account Centre moved destinations', () => {
   beforeEach(() => { vi.clearAllMocks(); });
 
-  it('keeps one-time upgrade checkout difference navigation', async () => {
+  it('blocks package checkout while Stripe still has the former prices', async () => {
     render(<PlansUpgradesSection />);
     fireEvent.click(screen.getByRole('button', { name: 'Choose Premium' }));
-    expect(mocks.navigate).toHaveBeenCalledWith('/dashboard/upgrade/checkout?plan=premium&from=essential');
+    expect(mocks.navigate).not.toHaveBeenCalled();
   });
 
   it('submits support through the existing transactional-email function', async () => {

@@ -27,8 +27,9 @@ describe('public pricing package-card copy and typography', () => {
     expect(source).toContain('firstLine="Download your photos, videos" secondLine="and platform exports."');
   });
 
-  it('uses the compact AUD symbol only in the public pricing-card display', () => {
-    expect(source).toContain("currency === 'AUD' ? formattedPrice.replace(/^A\\$/, '$') : formattedPrice");
+  it('keeps the explicit A$ prefix in the public pricing-card display', () => {
+    expect(source).toContain('formatLivePrice(currency, amount)');
+    expect(source).not.toContain("formattedPrice.replace(/^A\\$/, '$')");
     expect(source).toContain('formatPublicPricingPrice(effectiveCurrency, convertAudPrice(amount, effectiveCurrency, rates))');
   });
 

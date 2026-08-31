@@ -84,7 +84,7 @@ export const PlanExpiredModal: React.FC<PlanExpiredModalProps> = ({
 
           <div className="border rounded-lg p-3 text-center">
             <p className="text-sm text-muted-foreground">Plans starting from</p>
-            <p className="text-2xl font-bold text-primary">$99 AUD</p>
+            <p className="text-2xl font-bold text-primary">A$150 one-time</p>
             <p className="text-xs text-muted-foreground">one-time payment</p>
           </div>
         </div>

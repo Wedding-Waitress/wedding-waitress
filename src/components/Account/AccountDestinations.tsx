@@ -10,6 +10,7 @@ import { useProfile } from '@/hooks/useProfile';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { supabase } from '@/integrations/supabase/client';
 import { getPlanByName, PLAN_REGISTRY } from '@/lib/planRegistry';
+import { PACKAGE_CHECKOUT_AVAILABLE, PACKAGE_CHECKOUT_NOTICE } from '@/lib/packagePricing';
 import controlStyles from './AccountControls.module.css';
 import styles from './AccountDestinations.module.css';
 
@@ -47,6 +48,10 @@ export const PlansUpgradesSection = () => {
     return () => { cancelled = true; };
   }, []);
   const selectPlan = (target: PlanKey) => {
+    if (!PACKAGE_CHECKOUT_AVAILABLE) {
+      toast.info(PACKAGE_CHECKOUT_NOTICE);
+      return;
+    }
     const from = current && current.mode === 'payment' && PLAN_REGISTRY[target].mode === 'payment' ? `&from=${current.key}` : '';
     navigate(`/dashboard/upgrade/checkout?plan=${target}${from}`);
   };

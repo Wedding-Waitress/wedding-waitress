@@ -252,21 +252,21 @@ export const InvitationExporter: React.FC<Props> = ({
                 <p className="font-semibold text-sm">Essential Plan</p>
                 <p className="text-xs text-muted-foreground">Up to 100 guests</p>
               </div>
-              <p className="font-bold text-primary">$99 AUD</p>
+              <p className="font-bold text-primary">A$150 one-time</p>
             </div>
             <div className="flex items-center justify-between p-3 rounded-lg border border-primary/20 bg-primary/5">
               <div>
                 <p className="font-semibold text-sm">Premium Plan</p>
                 <p className="text-xs text-muted-foreground">Up to 300 guests</p>
               </div>
-              <p className="font-bold text-primary">$149 AUD</p>
+              <p className="font-bold text-primary">A$200 one-time</p>
             </div>
             <div className="flex items-center justify-between p-3 rounded-lg border border-primary/20 bg-primary/5">
               <div>
                 <p className="font-semibold text-sm">Unlimited Plan</p>
                 <p className="text-xs text-muted-foreground">Unlimited guests</p>
               </div>
-              <p className="font-bold text-primary">$249 AUD</p>
+              <p className="font-bold text-primary">A$300 one-time</p>
             </div>
           </div>
           <DialogFooter>

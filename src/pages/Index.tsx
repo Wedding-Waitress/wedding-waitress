@@ -396,8 +396,8 @@ export default function Index() {
               <CardHeader>
                 <CardTitle className="text-2xl">Pro</CardTitle>
                 <div className="text-4xl font-bold my-4" style={{ color: PRIMARY_COLOR }}>
-                  $149
-                  <span className="text-lg font-normal text-gray-600"> AUD</span>
+                  A$200
+                  <span className="text-lg font-normal text-gray-600"> AUD, ex GST</span>
                 </div>
                 <CardDescription>One-time payment</CardDescription>
               </CardHeader>
@@ -435,8 +435,8 @@ export default function Index() {
               <CardHeader>
                 <CardTitle className="text-2xl">Venue/Team</CardTitle>
                 <div className="text-4xl font-bold my-4" style={{ color: PRIMARY_COLOR }}>
-                  $149
-                  <span className="text-lg font-normal text-gray-600"> /mo</span>
+                  A$300
+                  <span className="text-lg font-normal text-gray-600"> /mo, ex GST</span>
                 </div>
                 <CardDescription>For professionals</CardDescription>
               </CardHeader>

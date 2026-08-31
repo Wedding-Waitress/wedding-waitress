@@ -1,13 +1,9 @@
 import type { CurrencyCode } from './currencyPricing';
+import { PACKAGE_PRICES_AUD } from './packagePricing';
 
 export const SUPPORTED_PRICING_CURRENCIES: CurrencyCode[] = ['AUD', 'USD', 'GBP', 'EUR'];
 
-export const AUD_BASE_PRICES = {
-  essential: 99,
-  premium: 149,
-  unlimited: 249,
-  vendor_pro: 299,
-} as const;
+export const AUD_BASE_PRICES = PACKAGE_PRICES_AUD;
 
 export type LiveCurrencyRates = Record<CurrencyCode, number>;
 

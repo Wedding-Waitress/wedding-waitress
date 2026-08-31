@@ -8,15 +8,15 @@ const rates = { AUD: 1, USD: 0.66, GBP: 0.51, EUR: 0.60 } as const;
 
 describe('public pricing currency selection', () => {
   it('converts every plan from the authoritative AUD base and keeps Vendor Pro monthly', () => {
-    expect(Object.values(AUD_BASE_PRICES).map((value) => convertAudPrice(value, 'AUD', rates))).toEqual([99, 149, 249, 299]);
-    expect(Object.values(AUD_BASE_PRICES).map((value) => convertAudPrice(value, 'USD', rates))).toEqual([65, 98, 164, 197]);
-    expect(Object.values(AUD_BASE_PRICES).map((value) => convertAudPrice(value, 'GBP', rates))).toEqual([50, 76, 127, 152]);
-    expect(Object.values(AUD_BASE_PRICES).map((value) => convertAudPrice(value, 'EUR', rates))).toEqual([59, 89, 149, 179]);
-    expect(formatLivePrice('AUD', 99)).toMatch(/A\$99/);
-    expect(formatLivePrice('USD', 65)).toMatch(/US\$65/);
-    expect(formatLivePrice('GBP', 50)).toMatch(/£50/);
-    expect(formatLivePrice('EUR', 59)).toMatch(/€59/);
-    expect(AUD_BASE_PRICES.vendor_pro).toBe(299);
+    expect(Object.values(AUD_BASE_PRICES).map((value) => convertAudPrice(value, 'AUD', rates))).toEqual([150, 200, 300, 300]);
+    expect(Object.values(AUD_BASE_PRICES).map((value) => convertAudPrice(value, 'USD', rates))).toEqual([99, 132, 198, 198]);
+    expect(Object.values(AUD_BASE_PRICES).map((value) => convertAudPrice(value, 'GBP', rates))).toEqual([77, 102, 153, 153]);
+    expect(Object.values(AUD_BASE_PRICES).map((value) => convertAudPrice(value, 'EUR', rates))).toEqual([90, 120, 180, 180]);
+    expect(formatLivePrice('AUD', 150)).toMatch(/A\$150/);
+    expect(formatLivePrice('USD', 99)).toMatch(/US\$99/);
+    expect(formatLivePrice('GBP', 77)).toMatch(/£77/);
+    expect(formatLivePrice('EUR', 90)).toMatch(/€90/);
+    expect(AUD_BASE_PRICES.vendor_pro).toBe(300);
   });
 
   it('provides a keyboard-operable single-selection group with non-colour status', () => {

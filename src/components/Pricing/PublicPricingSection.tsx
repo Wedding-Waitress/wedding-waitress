@@ -10,10 +10,8 @@ import { AUD_BASE_PRICES, convertAudPrice, formatLivePrice } from '@/lib/liveCur
 import { PUBLIC_COUPLE_PLAN_DETAILS, type PlanKey } from './pricingPlans';
 import { PricingCurrencyPanel } from './PricingCurrencyPanel';
 
-const formatPublicPricingPrice = (currency: CurrencyCode, amount: number) => {
-  const formattedPrice = formatLivePrice(currency, amount);
-  return currency === 'AUD' ? formattedPrice.replace(/^A\$/, '$') : formattedPrice;
-};
+const formatPublicPricingPrice = (currency: CurrencyCode, amount: number) =>
+  formatLivePrice(currency, amount);
 
 type PlatformFeature = {
   label: string;
@@ -131,6 +129,7 @@ export const PublicPricingSection: React.FC = () => {
       <div className="mx-auto max-w-[1600px]">
         <h2 id="public-pricing-heading" className="text-center text-3xl font-bold text-[#412419] sm:text-4xl md:text-5xl">Simple, Transparent Pricing</h2>
         <p className="mx-auto mt-4 max-w-2xl text-center text-lg leading-7 text-[#6f625b]">Couple plans are one-time payments for one event and 12 months of complete platform access.</p>
+        <p className="mx-auto mt-2 max-w-2xl text-center text-sm text-[#6f625b]">Advertised prices exclude GST. Australian GST is added once at checkout where applicable.</p>
         <p className="mt-4 text-center text-base font-medium text-[#412419]">7-day free trial · Up to 20 guests · No credit card required</p>
         <PricingCurrencyPanel currency={effectiveCurrency} onChange={setCurrency} loading={loading} error={error} />
         <p className="sr-only" aria-live="polite">Prices are shown in {effectiveCurrency}.</p>

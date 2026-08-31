@@ -24,7 +24,7 @@ const faqItems = [
   ['How does Kiosk Live View work at a wedding?', 'Open the event kiosk on a venue touchscreen, tablet, laptop or desktop display. Guests can approach the device, search their name and find their table or seat.'],
   ['What is included in Photo & Video Sharing?', 'It brings together guest photo and short-video uploads, a gallery, digital guestbook, digital photo booth and live slideshow in one principal product.'],
   ['Can I share my Run Sheet and DJ & MC Questionnaire?', 'Both products include their own supported sharing and PDF controls so you can prepare information for the relevant venue and suppliers.'],
-  ['Is Wedding Waitress suitable for venues and event professionals?', 'Vendor Pro is designed for eligible venues and event professionals. It is A$299 per month plus GST in Australia and requires approval.'],
+  ['Is Wedding Waitress suitable for venues and event professionals?', 'Vendor Pro is designed for eligible venues and event professionals. It is A$300 per month excluding GST; Australian GST is added at checkout, and approval is required.'],
   ['What happens to access after 12 months?', 'Active planning access ends after 12 months. You then receive a 30-day download-only window to save available photos, videos and platform exports. This does not add another month of editing or event-management access; normal retention and account policies apply afterwards.'],
   ['What is the refund policy?', 'Paid plans are generally non-refundable once activated. Please review the current Terms of Service for the complete approved policy and contact support if you believe there has been an error.'],
 ];

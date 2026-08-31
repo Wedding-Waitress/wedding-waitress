@@ -13,6 +13,7 @@ import { useCurrencyContext } from '@/contexts/CurrencyContext';
 import { PLAN_PRICING, VENDOR_PRICING, formatPrice } from '@/lib/currencyPricing';
 import { PublicPricingSection } from './PublicPricingSection';
 import { PUBLIC_COUPLE_PLAN_DETAILS, type PlanKey } from './pricingPlans';
+import { PACKAGE_CHECKOUT_AVAILABLE, PACKAGE_CHECKOUT_NOTICE } from '@/lib/packagePricing';
 
 export { PUBLIC_COUPLE_PLAN_DETAILS, type PlanKey } from './pricingPlans';
 
@@ -25,7 +26,7 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
   const { currency } = useCurrencyContext();
   const plans = PLAN_PRICING[currency];
   const vendor = VENDOR_PRICING[currency];
-  const ctaLabel = onPlanSelect ? 'Upgrade Now' : t('pricing.getStarted');
+  const ctaLabel = onPlanSelect && !PACKAGE_CHECKOUT_AVAILABLE ? 'Coming Soon' : onPlanSelect ? 'Upgrade Now' : t('pricing.getStarted');
   // Icon enhancements apply to the public homepage pricing section only.
   const publicPage = !onPlanSelect;
   if (publicPage) return <PublicPricingSection />;
@@ -38,7 +39,11 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
 
   const renderCta = (plan: PlanKey, button: React.ReactElement) => {
     if (onPlanSelect) {
-      return React.cloneElement(button, { onClick: () => onPlanSelect(plan) });
+      return React.cloneElement(button, {
+        onClick: () => onPlanSelect(plan),
+        disabled: !PACKAGE_CHECKOUT_AVAILABLE,
+        title: !PACKAGE_CHECKOUT_AVAILABLE ? PACKAGE_CHECKOUT_NOTICE : undefined,
+      });
     }
     const name = plan === 'vendor_pro' ? 'Vendor Pro' : PUBLIC_COUPLE_PLAN_DETAILS[plan].name;
     return (
@@ -67,6 +72,11 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
         <p className="text-sm text-gray-400 text-center mb-16 max-w-xl mx-auto">
           {publicPage ? 'Australian prices shown. GST is added where applicable.' : t('pricing.noHiddenFees')}
         </p>
+        {!publicPage && !PACKAGE_CHECKOUT_AVAILABLE && (
+          <p role="status" className="mx-auto -mt-10 mb-12 max-w-2xl rounded-xl border border-[#d7b985] bg-[#f6efe5] px-4 py-3 text-center text-sm text-[#70452f]">
+            {PACKAGE_CHECKOUT_NOTICE}
+          </p>
+        )}
 
         {/* Main Plans */}
         <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-4 gap-6 items-start">
@@ -78,7 +88,7 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
             </div>
             <div className="flex items-baseline gap-2 mb-1">
               <span className="text-4xl font-bold text-gray-900">{formatPrice(currency, plans.essential.price)}</span>
-              {!publicPage && <span className="text-gray-400 line-through text-lg">{formatPrice(currency, plans.essential.originalPrice)}</span>}
+              {!publicPage && plans.essential.originalPrice && <span className="text-gray-400 line-through text-lg">{formatPrice(currency, plans.essential.originalPrice)}</span>}
             </div>
             <p className="text-sm text-gray-500 mb-1">{publicPage ? `Up to ${PUBLIC_COUPLE_PLAN_DETAILS.essential.guests} guests · one event · 12 months` : t('pricing.essential.guests')}</p>
             {!publicPage && <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>}
@@ -111,7 +121,7 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
             </div>
             <div className="flex items-baseline gap-2 mb-1">
               <span className="text-4xl font-bold text-gray-900">{formatPrice(currency, plans.premium.price)}</span>
-              {!publicPage && <span className="text-gray-400 line-through text-lg">{formatPrice(currency, plans.premium.originalPrice)}</span>}
+              {!publicPage && plans.premium.originalPrice && <span className="text-gray-400 line-through text-lg">{formatPrice(currency, plans.premium.originalPrice)}</span>}
             </div>
             <p className="text-sm text-gray-500 mb-1">{publicPage ? `Up to ${PUBLIC_COUPLE_PLAN_DETAILS.premium.guests} guests · one event · 12 months` : t('pricing.premium.guests')}</p>
             {!publicPage && <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>}
@@ -137,7 +147,7 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
             </div>
             <div className="flex items-baseline gap-2 mb-1">
               <span className="text-4xl font-bold text-gray-900">{formatPrice(currency, plans.unlimited.price)}</span>
-              {!publicPage && <span className="text-gray-400 line-through text-lg">{formatPrice(currency, plans.unlimited.originalPrice)}</span>}
+              {!publicPage && plans.unlimited.originalPrice && <span className="text-gray-400 line-through text-lg">{formatPrice(currency, plans.unlimited.originalPrice)}</span>}
             </div>
             <p className="text-sm text-gray-500 mb-1">{publicPage ? `Up to ${PUBLIC_COUPLE_PLAN_DETAILS.unlimited.guests} guests · one event · 12 months` : t('pricing.unlimited.guests')}</p>
             {!publicPage && <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>}
@@ -169,7 +179,7 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
               <span className="text-gray-400 text-lg">/{t('pricing.perMonth') || 'month'}</span>
             </div>
             <p className="text-sm text-gray-400 mb-6">{t('pricing.vendorPro.guests')}</p>
-            {publicPage && <p className="text-xs text-[#C4A882] -mt-4 mb-5">A$299/month + GST in Australia · approval required</p>}
+            {publicPage && <p className="text-xs text-[#C4A882] -mt-4 mb-5">A$300/month excluding GST · approval required</p>}
             <ul className="space-y-2 mb-8">
               {(publicPage ? ['100 active events', 'For venues and event professionals', 'For wedding planners', 'For DJs and MCs', 'Complete platform access'] : [t('pricing.features.vendorActiveEvents'), t('pricing.features.unlimitedGuests'), t('pricing.features.fullPlatform'), t('pricing.features.forVenues'), t('pricing.features.weddingPlanners'), t('pricing.features.djMcPros')]).map((f) => (
                 <li key={f} className="flex items-start gap-2 text-xs text-gray-300">

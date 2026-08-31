@@ -4,6 +4,7 @@ import { estimatedSeparateToolValueAud, pricingComparisonRows } from '@/content/
 import { useCurrencyContext } from '@/contexts/CurrencyContext';
 import { useLiveExchangeRates } from '@/hooks/useLiveExchangeRates';
 import { convertAudPrice, formatLivePrice } from '@/lib/liveCurrencyPricing';
+import { PACKAGE_PRICES_AUD } from '@/lib/packagePricing';
 
 const aud = (value: number) =>
   `A$${new Intl.NumberFormat('en-AU', { maximumFractionDigits: 0 }).format(value)}`;
@@ -14,7 +15,7 @@ export const PricingValueComparison: React.FC = () => {
   const effectiveCurrency = loading || error ? 'AUD' : currency;
   const weddingWaitressPrice = formatLivePrice(
     effectiveCurrency,
-    convertAudPrice(99, effectiveCurrency, rates),
+    convertAudPrice(PACKAGE_PRICES_AUD.essential, effectiveCurrency, rates),
   );
   let lastCategory = '';
 

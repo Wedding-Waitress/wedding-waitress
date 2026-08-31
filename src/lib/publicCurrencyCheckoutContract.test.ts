@@ -19,6 +19,7 @@ describe('public pricing and checkout currency contract', () => {
   });
 
   it('keeps couple plans one-time and Vendor Pro recurring monthly', () => {
+    // These are intentionally the untouched Stripe-side amounts until the later handover.
     expect(checkout).toContain('vendor_pro: { product: "prod_UTm2XBA5rX9dGN", baseAud: 299, mode: "subscription" }');
     expect(checkout.match(/mode: "payment"/g)).toHaveLength(3);
     expect(checkout).toContain('recurring: { interval: "month" as const }');
