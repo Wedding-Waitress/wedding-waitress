@@ -40,7 +40,7 @@ export interface GalleryMeta {
   photo_booth_strip_bottom_text: string | null;
   photo_booth_strip_logo_url: string | null;
   photo_booth_strip_template_url: string | null;
-  photo_booth_strip_style: PhotoBoothStripStyle | null;
+  photo_booth_strip_style: PersistedPhotoBoothStripStyle | null;
   slideshow_enabled: boolean;
   guest_upload_enabled: boolean;
   gallery_view_enabled: boolean;

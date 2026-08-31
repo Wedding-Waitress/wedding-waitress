@@ -304,7 +304,7 @@ export const ReceptionFloorPlanCanvas = ({
       const r = resizeState.current;
       const metrics = getCanvasMetrics();
       if (!metrics) return;
-      if (r.kind === 'fixture' || r.kind === 'table') {
+      if (r.kind !== 'background') {
         const dx = (e.clientX - r.startClientX) / metrics.scale;
         const dy = (e.clientY - r.startClientY) / metrics.scale;
         const radians = (r.rotation * Math.PI) / 180;

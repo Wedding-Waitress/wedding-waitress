@@ -74,7 +74,7 @@ const gallery = {
   deleteItem: vi.fn(), deleteItems: vi.fn(), setModeration: vi.fn(async () => undefined),
   setAlbum: vi.fn(async () => undefined), bulkSetAlbum: vi.fn(async () => 1),
   setPhotoBoothEnabled: vi.fn(async () => undefined), setPhotoBoothMode: vi.fn(async () => undefined),
-  updatePhotoBoothTemplate: vi.fn(async () => undefined),
+  updatePhotoBoothTemplate: vi.fn(async (_mode: 'single' | 'strip', _payload: Record<string, any>) => undefined),
 };
 
 describe('Digital Photo Booth premium appearance', () => {
@@ -298,7 +298,7 @@ describe('Digital Photo Booth premium appearance', () => {
     mocks.gallery.mockReturnValue({ ...gallery, meta: initialMeta });
     render(<MemoryRouter><GalleryPhotoBoothFeaturePage /></MemoryRouter>);
 
-    const backgroundCard = (await screen.findByRole('heading', { name: 'Photo Strip Background' })).closest(`.${managementStyles.glassCard}`)!;
+    const backgroundCard = (await screen.findByRole('heading', { name: 'Photo Strip Background' })).closest<HTMLElement>(`.${managementStyles.glassCard}`)!;
     fireEvent.click(within(backgroundCard).getByRole('button', { name: 'Reset to default' }));
 
     expect(screen.getByTestId('photo-booth-preview')).toHaveAttribute('data-template-url', '');
@@ -363,7 +363,7 @@ describe('Digital Photo Booth premium appearance', () => {
     mocks.gallery.mockReturnValue({ ...gallery, meta: initialMeta });
     render(<MemoryRouter><GalleryPhotoBoothFeaturePage /></MemoryRouter>);
 
-    const footerCard = (await screen.findByRole('heading', { name: 'Photo Strip Footer' })).closest(`.${managementStyles.glassCard}`)!;
+    const footerCard = (await screen.findByRole('heading', { name: 'Photo Strip Footer' })).closest<HTMLElement>(`.${managementStyles.glassCard}`)!;
     fireEvent.click(within(footerCard).getByRole('button', { name: 'Reset to default' }));
 
     const preview = screen.getByTestId('photo-booth-preview');
@@ -413,7 +413,7 @@ describe('Digital Photo Booth premium appearance', () => {
     expect(await screen.findByTestId('photo-booth-preview')).toHaveAttribute('data-template-url', 'https://storage.test/custom-background.jpg');
     expect(screen.getByTestId('photo-booth-preview')).toHaveAttribute('data-logo-url', '');
     expect(screen.getByTestId('photo-booth-preview')).toHaveAttribute('data-text-backdrop', 'none');
-    expect(within(screen.getByRole('heading', { name: 'Photo Strip Footer' }).closest(`.${managementStyles.glassCard}`)!).getByText('No image')).toBeInTheDocument();
+    expect(within(screen.getByRole('heading', { name: 'Photo Strip Footer' }).closest<HTMLElement>(`.${managementStyles.glassCard}`)!).getByText('No image')).toBeInTheDocument();
   });
 
   it('shows the existing default background when persisted settings reference a retired library asset', async () => {

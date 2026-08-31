@@ -14,7 +14,7 @@ import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 import { Eye } from 'lucide-react';
 import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 
-export const GalleryViewFeaturePage: React.FC<PhotoVideoWorkspaceSelection> = (selection) => {
+export const GalleryViewFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelection>> = (selection) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { selectedEventId, selectedEvent, selectionStatus, meta, error, setPassword, updateBranding, setGuestFeature } = usePhotoVideoFeatureWorkspace(selection);

@@ -138,11 +138,19 @@ export function SeatingChartPublicView() {
     try {
       const fakeEvent = { name: data.event_name, date: data.event_date, venue: data.event_venue } as any;
       const defaultSettings = {
-        fontSize: 'medium' as const,
+        fontSize: 'standard' as const,
         sortBy: 'firstName' as const,
         showDietary: false,
+        showGuestNames: true,
+        showSeatNumbers: true,
+        showGuestList: true,
         showRelation: false,
         showRsvp: false,
+        guestNameColor: '#000000' as const,
+        seatNumberColor: '#000000' as const,
+        guestListColor: '#000000' as const,
+        dietaryColor: '#000000' as const,
+        relationshipColor: '#000000' as const,
         showLogo: true,
         paperSize: 'A4' as const,
         isBold: true,

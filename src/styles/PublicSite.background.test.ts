@@ -1,10 +1,12 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
+const read = (file: string) => readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
+
 describe('public dashboard background reuse', () => {
   it('uses the authenticated application background variables for shared dark public surfaces', () => {
-    const publicStyles = readFileSync('src/styles/PublicSite.css', 'utf8');
-    const footer = readFileSync('src/components/Layout/PublicFooter.tsx', 'utf8');
+    const publicStyles = read('src/styles/PublicSite.css');
+    const footer = read('src/components/Layout/PublicFooter.tsx');
 
     expect(publicStyles).toContain('.ww-public-dashboard-background,\n.ww-section-espresso');
     expect(publicStyles).toContain('background-color: var(--ww-application-background-color);');
@@ -17,8 +19,8 @@ describe('public dashboard background reuse', () => {
   });
 
   it('lets the long Pricing route establish natural document height around one shared footer', () => {
-    const publicStyles = readFileSync('src/styles/PublicSite.css', 'utf8');
-    const pricing = readFileSync('src/pages/Pricing.tsx', 'utf8');
+    const publicStyles = read('src/styles/PublicSite.css');
+    const pricing = read('src/pages/Pricing.tsx');
 
     expect(pricing).toContain('ww-public ww-pricing-page min-h-screen');
     expect(pricing.match(/<PublicFooter \/>/g)).toHaveLength(1);
@@ -29,8 +31,8 @@ describe('public dashboard background reuse', () => {
   });
 
   it('reuses the authenticated embossed secondary-button treatment for brown public CTAs', () => {
-    const publicStyles = readFileSync('src/styles/PublicSite.css', 'utf8');
-    const accountControls = readFileSync('src/components/Account/AccountControls.module.css', 'utf8');
+    const publicStyles = read('src/styles/PublicSite.css');
+    const accountControls = read('src/components/Account/AccountControls.module.css');
 
     const approvedBackground = 'linear-gradient(180deg, rgba(255,244,225,.16) 0%, transparent 38%), linear-gradient(180deg, #70452f 0%, #4a2a20 55%, #2b1712 100%)';
     const approvedShadow = 'inset 0 1px rgba(255,244,225,.24), inset 0 -2px rgba(12,4,2,.38), 0 6px 14px rgba(13,5,3,.25)';

@@ -195,7 +195,10 @@ export const usePlaceCardSettings = (eventId: string | null) => {
       const fallback = readQrFallback(requestedEventId);
       const needsFallback = data && (data as any).photo_video_qr_enabled === undefined;
       setSettings(data
-        ? normalizePlaceCardSettings({ ...data, ...(needsFallback ? fallback : {}) }, requestedEventId)
+        ? normalizePlaceCardSettings(
+            { ...data, ...(needsFallback ? fallback : {}) } as NullablePlaceCardSettings,
+            requestedEventId,
+          )
         : null);
       setLoadedEventId(requestedEventId);
     } catch (error) {

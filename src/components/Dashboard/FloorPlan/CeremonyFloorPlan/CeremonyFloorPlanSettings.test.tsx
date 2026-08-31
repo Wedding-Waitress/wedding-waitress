@@ -29,7 +29,7 @@ const makePlan = (overrides: Partial<CeremonyFloorPlan> = {}): CeremonyFloorPlan
 const getTotalAttending = (plan: CeremonyFloorPlan) =>
   3 + plan.bridal_party_count_left + plan.bridal_party_count_right + (plan.total_rows * plan.chairs_per_row * 2);
 
-const StatefulSettings = ({ onUpdate = vi.fn(), initialPlan = makePlan() }: { onUpdate?: ReturnType<typeof vi.fn>; initialPlan?: CeremonyFloorPlan }) => {
+const StatefulSettings = ({ onUpdate = () => undefined, initialPlan = makePlan() }: { onUpdate?: (updates: Partial<CeremonyFloorPlan>) => void; initialPlan?: CeremonyFloorPlan }) => {
   const [plan, setPlan] = useState(initialPlan);
   return <CeremonyFloorPlanSettings floorPlan={plan} totalAttending={getTotalAttending(plan)} onUpdate={async updates => {
     onUpdate(updates);

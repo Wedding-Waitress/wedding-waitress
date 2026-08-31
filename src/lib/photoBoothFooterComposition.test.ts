@@ -56,10 +56,10 @@ describe('Photo Booth footer composition', () => {
       crossOrigin = '';
       onload: null | (() => void) = null;
       onerror: null | (() => void) = null;
-      naturalWidth = PB_STRIP_PRINT.w;
-      naturalHeight = PB_STRIP_PRINT.h;
-      width = PB_STRIP_PRINT.w;
-      height = PB_STRIP_PRINT.h;
+      naturalWidth: number = PB_STRIP_PRINT.w;
+      naturalHeight: number = PB_STRIP_PRINT.h;
+      width: number = PB_STRIP_PRINT.w;
+      height: number = PB_STRIP_PRINT.h;
       complete = true;
       decode = vi.fn(async () => undefined);
       set src(value: string) {

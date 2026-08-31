@@ -182,7 +182,7 @@ interface GuestListTableProps {
   onNavigateToTables?: () => void;
   events: Event[];
   loading: boolean;
-  updateEvent: (eventId: string, event: Partial<Event>) => Promise<boolean>;
+  updateEvent: (eventId: string, event: Partial<Event>) => Promise<void>;
   guests: Guest[];
   guestsLoading: boolean;
   deleteGuest: (guestId: string) => Promise<boolean>;

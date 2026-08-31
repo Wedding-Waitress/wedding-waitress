@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-const read = (file: string) => readFileSync(file, 'utf8');
+const read = (file: string) => readFileSync(file, 'utf8').replace(/\r\n/g, '\n');
 const migration = read('supabase/migrations/20260819193000_admin_platform_reporting_sync.sql');
 const ui = read('src/components/Admin/AdminCentrePages.tsx');
 const admin = read('src/pages/Admin.tsx');

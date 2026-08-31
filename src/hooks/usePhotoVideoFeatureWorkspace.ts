@@ -11,7 +11,7 @@ export type PhotoVideoWorkspaceSelection = {
  * Shared lifecycle for every organiser Photo & Video feature route.
  * A temporarily empty event query is loading, never a confirmed empty state.
  */
-export function usePhotoVideoFeatureWorkspace(selection: PhotoVideoWorkspaceSelection) {
+export function usePhotoVideoFeatureWorkspace(selection: Partial<PhotoVideoWorkspaceSelection> = {}) {
   const gallery = useEventMediaGallery(selection.selectedEventId);
 
   const status: PhotoVideoWorkspaceStatus = selection.selectionStatus === 'empty'
@@ -22,8 +22,8 @@ export function usePhotoVideoFeatureWorkspace(selection: PhotoVideoWorkspaceSele
 
   return {
     ...gallery,
-    selectedEventId: selection.selectedEventId,
-    selectedEvent: selection.selectedEvent,
+    selectedEventId: selection.selectedEventId ?? null,
+    selectedEvent: selection.selectedEvent ?? null,
     selectionStatus: status,
   };
 }

@@ -13,7 +13,7 @@ import { Button } from '@/components/ui/enhanced-button';
 import { ExternalLink } from 'lucide-react';
 import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 
-export const GalleryTextGuestbookFeaturePage: React.FC<PhotoVideoWorkspaceSelection> = (selection) => {
+export const GalleryTextGuestbookFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelection>> = (selection) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { selectedEventId, selectedEvent, selectionStatus, meta, items, loading, error, setModeration, setGuestbookEnabled, setGuestbookShare } = usePhotoVideoFeatureWorkspace(selection);

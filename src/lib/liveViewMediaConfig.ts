@@ -9,13 +9,13 @@ const nonEmptyString = (value: unknown): string | null =>
  * rewritten through the organiser controls.
  */
 export const resolveWelcomeVideoUrl = (config: LiveViewMediaConfig): string | null =>
-  nonEmptyString(config?.video_url) ?? nonEmptyString(config?.file_url);
+  nonEmptyString(config?.['video_url']) ?? nonEmptyString(config?.['file_url']);
 
 export const withWelcomeVideoUrl = (
   config: LiveViewMediaConfig,
   videoUrl: string,
 ): Record<string, unknown> => {
-  const next = { ...(config ?? {}), video_url: videoUrl };
-  delete next.file_url;
+  const next: Record<string, unknown> = { ...(config ?? {}), video_url: videoUrl };
+  delete next['file_url'];
   return next;
 };

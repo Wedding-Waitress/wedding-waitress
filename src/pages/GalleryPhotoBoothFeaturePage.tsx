@@ -17,7 +17,7 @@ import { Camera } from 'lucide-react';
 import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 
-export const GalleryPhotoBoothFeaturePage: React.FC<PhotoVideoWorkspaceSelection> = (selection) => {
+export const GalleryPhotoBoothFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelection>> = (selection) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const {

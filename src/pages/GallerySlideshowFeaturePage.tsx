@@ -14,7 +14,7 @@ import { Button } from '@/components/ui/enhanced-button';
 import { ExternalLink } from 'lucide-react';
 import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 
-export const GallerySlideshowFeaturePage: React.FC<PhotoVideoWorkspaceSelection> = (selection) => {
+export const GallerySlideshowFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelection>> = (selection) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { selectedEventId, selectedEvent, selectionStatus, meta, items, loading, error, setSlideshowEnabled, updateSlideshowSettings } = usePhotoVideoFeatureWorkspace(selection);

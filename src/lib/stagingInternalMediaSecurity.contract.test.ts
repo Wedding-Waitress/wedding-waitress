@@ -4,7 +4,7 @@ import { describe, expect, it } from 'vitest';
 const migration = readFileSync(
   'supabase/migrations/20260830251500_staging_internal_media_security_hardening.sql',
   'utf8',
-);
+).replace(/\r\n/g, '\n');
 
 describe('staging internal media security hardening', () => {
   it('removes direct browser execution from the like-count trigger helper', () => {

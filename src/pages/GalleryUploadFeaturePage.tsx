@@ -13,7 +13,7 @@ import { GalleryGrid } from '@/components/Dashboard/PhotoVideoGallery/GalleryGri
 import { GalleryDownloadsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryDownloadsCard';
 import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 
-export const GalleryUploadFeaturePage: React.FC<PhotoVideoWorkspaceSelection> = (selection) => {
+export const GalleryUploadFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelection>> = (selection) => {
   const navigate = useNavigate();
   const { toast } = useToast();
   const { selectedEventId, selectedEvent, selectionStatus, meta, items, error, setOpen, deleteItem, deleteItems, setModeration, setAlbum, bulkSetAlbum, setGuestFeature } = usePhotoVideoFeatureWorkspace(selection);

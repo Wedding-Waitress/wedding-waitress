@@ -63,6 +63,10 @@ function Harness({ mutation }: { mutation: (id: string) => Promise<unknown> }) {
         totalAllowed: 3,
         currentEvents: events.length,
         remaining: 3 - events.length,
+        eventsError: null,
+        additionalEventsError: null,
+        guestsError: null,
+        totalGuests: 0,
         refresh: vi.fn(),
       }}
     />
