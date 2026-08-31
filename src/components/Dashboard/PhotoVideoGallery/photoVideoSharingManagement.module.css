@@ -1,12 +1,72 @@
 .photoVideoSharingSurface {
-  background-color: #1a0c07 !important;
-  background-image:
-    radial-gradient(ellipse 18% 50% at 96% 102%, rgba(255, 111, 24, 0.62), rgba(216, 74, 14, 0.3) 30%, rgba(132, 42, 10, 0.11) 58%, transparent 82%),
-    linear-gradient(116deg, transparent 61%, rgba(255, 178, 105, 0.025) 67%, rgba(242, 132, 53, 0.13) 74%, rgba(199, 76, 20, 0.065) 81%, transparent 89%),
-    radial-gradient(ellipse 68% 62% at 52% 34%, rgba(104, 47, 21, 0.3), rgba(65, 27, 14, 0.16) 52%, transparent 78%),
-    radial-gradient(ellipse 50% 38% at 68% 4%, rgba(138, 60, 22, 0.18), transparent 72%),
-    radial-gradient(ellipse at center, transparent 48%, rgba(4, 2, 1, 0.48) 100%),
-    linear-gradient(145deg, #180b07 0%, #351609 30%, #291108 58%, #160907 78%, #080403 100%) !important;
+  background-color: var(--ww-application-background-color) !important;
+  background-image: var(--ww-application-background-image) !important;
+}
+
+/* The nested feature routes live inside Dashboard's padded content region. Let
+   the shell own the same approved surface so it reaches every viewport edge and
+   continues beneath long management pages without changing their inner layout. */
+.photoVideoWorkspaceMain.photoVideoWorkspaceMain {
+  min-height: 100dvh;
+  padding: 0 !important;
+  background-color: var(--ww-application-background-color) !important;
+  background-image: var(--ww-application-background-image) !important;
+}
+
+.photoVideoWorkspaceMain .photoVideoSharingSurface {
+  background-color: transparent !important;
+  background-image: none !important;
+}
+
+/* The shell owns the full-bleed surface; this wrapper retains the landing
+   page's original responsive content offsets without exposing the light shell. */
+.photoVideoLandingContent {
+  padding-top: 1rem;
+  padding-right: max(0.75rem, env(safe-area-inset-right));
+  padding-bottom: calc(2rem + env(safe-area-inset-bottom));
+  padding-left: max(0.75rem, env(safe-area-inset-left));
+}
+
+@media (min-width: 40rem) {
+  .photoVideoLandingContent {
+    padding-top: 1.5rem;
+    padding-right: max(1rem, env(safe-area-inset-right));
+    padding-bottom: calc(3rem + env(safe-area-inset-bottom));
+    padding-left: max(1rem, env(safe-area-inset-left));
+  }
+}
+
+@media (min-width: 48rem) {
+  .photoVideoLandingContent {
+    padding-right: max(1.5rem, env(safe-area-inset-right));
+    padding-left: max(1.5rem, env(safe-area-inset-left));
+  }
+}
+
+@media (min-width: 64rem) {
+  .photoVideoLandingContent {
+    padding-right: max(2rem, env(safe-area-inset-right));
+    padding-left: max(2rem, env(safe-area-inset-left));
+  }
+}
+
+/* Actual management content scope. Components opt into their espresso classes;
+   this catches the neutral utility colours retained by those component variants
+   without touching public guest pages or media/canvas content. */
+.workspaceContent {
+  color: #fff;
+}
+
+.workspaceContent :global(input),
+.workspaceContent :global(textarea),
+.workspaceContent :global([role='combobox']) {
+  color: #f7f1eb;
+}
+
+.workspaceContent :global(input::placeholder),
+.workspaceContent :global(textarea::placeholder) {
+  color: #cbbcaf;
+  opacity: 1;
 }
 
 .manropeTypography {
@@ -135,7 +195,43 @@
   font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
 }
 
+.glassCard :global(.text-\[\#1D1D1F\]),
+.glassCard :global(.text-black),
+.glassCard :global(.text-foreground) {
+  color: #fff !important;
+}
+
+.glassCard :global(.text-\[\#6E6E73\]),
+.glassCard :global(.text-muted-foreground) {
+  color: #e8ddd2 !important;
+}
+
+.glassCard :global(label) {
+  color: #fff !important;
+}
+
+.glassCard :global(h2),
+.glassCard :global(h3),
+.glassCard :global(h4),
+.glassCard :global(.font-semibold),
+.glassCard :global(.font-medium) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.glassCard :global(p:not([class*='text-destructive'])) {
+  color: #e8ddd2 !important;
+  -webkit-text-fill-color: #e8ddd2 !important;
+}
+
 .galleryViewHeading {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.galleryViewHeading.galleryViewHeading,
+.glassCard .galleryViewHeading.galleryViewHeading,
+.galleryPanel .galleryViewHeading.galleryViewHeading {
   color: #fff !important;
 }
 
@@ -154,8 +250,25 @@
   -webkit-backdrop-filter: blur(10px);
 }
 
+.galleryViewInsetPanel.galleryViewInsetPanel :global(p),
+.galleryViewInsetPanel.galleryViewInsetPanel :global(label),
+.galleryViewInsetPanel.galleryViewInsetPanel :global(span:not([class*='text-green']):not([class*='text-amber']):not([class*='text-red'])) {
+  color: #e8ddd2 !important;
+}
+
+.galleryViewInsetPanel.galleryViewInsetPanel :global(.font-semibold),
+.galleryViewInsetPanel.galleryViewInsetPanel :global(.font-medium) {
+  color: #fff !important;
+}
+
+.galleryViewInsetPanel.galleryViewInsetPanel :global([data-placeholder]),
+.galleryViewInsetPanel.galleryViewInsetPanel :global(button[role='combobox'] > span) {
+  color: #fff !important;
+}
+
 .galleryViewInsetPanel :global(svg) {
-  color: #d9b77f;
+  color: #d9b77f !important;
+  stroke: currentColor;
 }
 
 .galleryViewQrFrame {
@@ -250,6 +363,24 @@
 .guestbookMessagesPanel {
   color: #fff;
   font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
+}
+
+.guestbookMessagesPanel.guestbookMessagesPanel {
+  border: 1px solid rgba(190, 137, 79, 0.3) !important;
+  background-color: rgba(8, 4, 3, 0.94) !important;
+  background-image: linear-gradient(145deg, rgba(57, 28, 18, 0.38), rgba(9, 5, 4, 0.94)) !important;
+}
+
+.guestbookMessagesPanel :global(p:not([class*='text-destructive'])) {
+  color: #e8ddd2;
+  -webkit-text-fill-color: #e8ddd2 !important;
+}
+
+.guestbookMessagesPanel :global(h2),
+.guestbookMessagesPanel :global(h3),
+.guestbookMessagesPanel :global(label) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
 }
 
 .guestbookStatePanel {
@@ -356,6 +487,40 @@
   color: #fff;
 }
 
+.photoBoothTemplates :global(h2),
+.photoBoothTemplates :global(h3),
+.photoBoothTemplates :global(h4),
+.photoBoothTemplates :global(label) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+.photoBoothTemplates :global(p),
+.photoBoothTemplates :global(.text-muted-foreground),
+.photoBoothTemplates :global(.text-\[\#6E6E73\]) {
+  color: #e8ddd2 !important;
+  -webkit-text-fill-color: #e8ddd2 !important;
+}
+
+.photoBoothTemplates :global(.bg-background:not(img)),
+.photoBoothTemplates :global(.bg-muted\/40) {
+  color: #e8ddd2 !important;
+  border-color: rgba(211, 161, 101, 0.42) !important;
+  background: linear-gradient(180deg, rgba(62, 35, 26, 0.62) 0%, rgba(18, 10, 8, 0.82) 100%) !important;
+}
+
+.photoBoothTemplates :global(.bg-background:not(img) svg),
+.photoBoothTemplates :global(.bg-muted\/40 svg) {
+  color: #d9b77f !important;
+  stroke: currentColor;
+}
+
+.photoBoothTemplates .galleryViewInsetPanel :global(.bg-muted\/40 svg),
+.photoBoothTemplates .galleryViewInsetPanel :global(.bg-muted\/40 svg *) {
+  color: #d9b77f !important;
+  stroke: #d9b77f !important;
+}
+
 .photoBoothTemplates :global(fieldset:disabled) {
   opacity: 0.68 !important;
 }
@@ -377,6 +542,25 @@
 .slideshowWorkspace :global(.text-\[\#1D1D1F\]),
 .slideshowWorkspace :global(label) {
   color: #fff !important;
+}
+
+.slideshowWorkspace :global(p) {
+  color: #e8ddd2 !important;
+  -webkit-text-fill-color: #e8ddd2 !important;
+}
+
+.slideshowWorkspace :global(p.font-semibold),
+.slideshowWorkspace :global(label) {
+  color: #fff !important;
+}
+
+.slideshowWorkspace :global(h2),
+.slideshowWorkspace :global(h3),
+.slideshowWorkspace :global(h4),
+.slideshowWorkspace :global(.font-semibold),
+.slideshowWorkspace :global(.font-medium) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
 }
 
 .loadingGlassPanel {
@@ -470,6 +654,7 @@
 }
 
 .galleryPanel {
+  color: #fff;
   background-color: rgba(8, 4, 3, 0.94) !important;
   background-image: linear-gradient(
     145deg,
@@ -506,6 +691,17 @@
 
 .galleryControl :global(svg) {
   color: #d9b77f;
+}
+
+.galleryControl :global([data-placeholder]),
+.galleryControl :global([data-radix-select-value]),
+.galleryControl :global(span:not([class*='text-green']):not([class*='text-amber']):not([class*='text-red'])) {
+  color: inherit !important;
+}
+
+.galleryControl.galleryControl > :global(span) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
 }
 
 .galleryControlActive.galleryControlActive.galleryControlActive.galleryControlActive.galleryControlActive {
@@ -809,6 +1005,26 @@
 
 .gallerySecondaryText {
   color: #e8ddd2 !important;
+  -webkit-text-fill-color: #e8ddd2 !important;
+}
+
+.gallerySecondaryText.gallerySecondaryText,
+.glassCard .gallerySecondaryText.gallerySecondaryText,
+.galleryPanel .gallerySecondaryText.gallerySecondaryText,
+.slideshowWorkspace .gallerySecondaryText.gallerySecondaryText,
+.photoBoothTemplates .gallerySecondaryText.gallerySecondaryText {
+  color: #e8ddd2 !important;
+  -webkit-text-fill-color: #e8ddd2 !important;
+}
+
+.mediaLoadingSurface {
+  color: #e8ddd2 !important;
+  background: linear-gradient(145deg, rgba(55, 30, 22, 0.96), rgba(15, 8, 6, 0.98)) !important;
+}
+
+.mediaLoadingSurface :global(svg),
+.mediaLoadingSpinner {
+  color: #d9b77f !important;
 }
 
 .galleryDivider {

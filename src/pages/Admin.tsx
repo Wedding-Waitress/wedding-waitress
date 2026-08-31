@@ -4,8 +4,10 @@ import { Navigate, NavLink, useLocation, useNavigate, useParams, useSearchParams
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
+import { useDashboardSession } from '@/hooks/useDashboardSession';
 import { ProfileAvatar } from '@/components/Account/ProfileAvatar';
 import { SeoHead } from '@/components/SEO/SeoHead';
+import { clearAllCaches } from '@/lib/cacheRegistry';
 import { AdminOverviewPage, AdminCustomersPage, AdminSubscriptionsPaymentsPage, AdminEventsPage, AdminAccountLifecyclePage } from '@/components/Admin/AdminCentrePages';
 import logoImage from '@/assets/wedding-waitress-full-logo.png';
 import styles from './Admin.module.css';
@@ -41,29 +43,33 @@ export const Admin: React.FC = () => {
   const [params] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
+  const { session, loading: authLoading } = useDashboardSession();
   const { isAdmin, loading: adminLoading } = useIsAdmin();
   const { profile } = useProfile();
-  const [authLoading, setAuthLoading] = useState(true);
   const [grantValid, setGrantValid] = useState(false);
+  const [grantChecked, setGrantChecked] = useState(false);
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
-    void supabase.auth.getSession().then(({ data }) => {
-      const grant = sessionStorage.getItem('ww_admin_grant');
-      if (!data.session) { navigate('/', { replace: true }); return; }
-      if (grant) {
-        try {
-          const parsed = JSON.parse(atob(grant)) as { user_id?: string; exp?: number };
-          setGrantValid(parsed.user_id === data.session.user.id && Number(parsed.exp) > Date.now());
-        } catch { setGrantValid(false); }
-      }
-      setAuthLoading(false);
-    });
-  }, [navigate]);
+    setGrantChecked(false);
+    if (!session) { setGrantValid(false); setGrantChecked(true); return; }
+    const grant = sessionStorage.getItem('ww_admin_grant');
+    if (!grant) { setGrantValid(false); setGrantChecked(true); return; }
+    try {
+      const parsed = JSON.parse(atob(grant)) as { user_id?: string; exp?: number };
+      const expiresAt = Number(parsed.exp);
+      const validGrant = parsed.user_id === session.user.id && expiresAt > Date.now();
+      setGrantValid(validGrant);
+      setGrantChecked(true);
+      if (!validGrant) return;
+      const timer = window.setTimeout(() => setGrantValid(false), Math.max(0, expiresAt - Date.now()));
+      return () => window.clearTimeout(timer);
+    } catch { setGrantValid(false); setGrantChecked(true); }
+  }, [session]);
   useEffect(() => {
-    if (adminLoading || authLoading) return;
-    if (!isAdmin || !grantValid) navigate('/dashboard', { replace: true });
-  }, [adminLoading, authLoading, grantValid, isAdmin, navigate]);
+    if (adminLoading || authLoading || !grantChecked) return;
+    if (!isAdmin || !grantValid) { clearAllCaches(); navigate('/dashboard', { replace: true }); }
+  }, [adminLoading, authLoading, grantChecked, grantValid, isAdmin, navigate]);
   useEffect(() => {
     if (!mobileOpen) return;
     const close = (event: KeyboardEvent) => event.key === 'Escape' && setMobileOpen(false);
@@ -77,21 +83,21 @@ export const Admin: React.FC = () => {
   if (location.pathname === '/admin') { const oldTab = params.get('tab'); return <Navigate to={`/admin/${oldTab ? legacy[oldTab] || 'overview' : 'overview'}`} replace />; }
   if (section && legacy[section]) return <Navigate to={`/admin/${legacy[section]}`} replace />;
   if (section && !valid.has(section as AdminSection)) return <Navigate to="/admin/overview" replace />;
-  if (adminLoading || authLoading) return <div className={styles.loading} role="status"><span />Opening Admin Centre…</div>;
+  if (adminLoading || authLoading || !grantChecked) return <div className={`${styles.loading} ww-application-background`} role="status"><span />Opening Admin Centre…</div>;
   if (!isAdmin || !grantValid) return null;
 
-  const signOut = async () => { sessionStorage.removeItem('ww_admin_grant'); sessionStorage.removeItem('ww_admin_grant_sig'); await supabase.auth.signOut(); navigate('/', { replace: true }); };
+  const signOut = async () => { sessionStorage.removeItem('ww_admin_grant'); sessionStorage.removeItem('ww_admin_grant_sig'); clearAllCaches(); await supabase.auth.signOut(); navigate('/', { replace: true }); };
   const sidebar = <div className={styles.sidebarInner}>
     <div className={styles.brand}><img src={logoImage} alt="Wedding Waitress" /><span>Admin Centre</span></div>
     <div className={styles.adminCard}><ProfileAvatar profile={profile} className={styles.avatar} /><div><strong>{name}</strong><span>{profile?.email || 'Authorised administrator'}</span><em><ShieldCheck />Owner Administrator · Verified</em></div></div>
     <nav className={styles.navigation} aria-label="Admin Centre navigation">{groups.map((group) => <section key={group.label}><h2>{group.label}</h2>{group.items.map((item) => { const Icon = item.icon; return <NavLink key={item.id} to={`/admin/${item.id}`} onClick={() => setMobileOpen(false)} className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}><Icon /><span>{item.label}</span></NavLink>; })}</section>)}</nav>
     <div className={styles.actions}><NavLink to="/dashboard" className={styles.back}><ArrowLeft />Back to Wedding Waitress</NavLink><button type="button" className={styles.logout} onClick={() => void signOut()}><LogOut />Log Out</button></div>
   </div>;
-  return <div className={styles.adminCentre}>
+  return <div className={`${styles.adminCentre} ww-application-background`} data-admin-shell>
     <SeoHead title={`${definition.label} | Admin Centre | Wedding Waitress`} description="Wedding Waitress administration." noIndex />
-    <aside className={styles.desktop}>{sidebar}</aside>
+    <aside className={`${styles.desktop} ww-sidebar-background`}>{sidebar}</aside>
     <button type="button" className={styles.mobileTrigger} onClick={() => setMobileOpen(true)} aria-expanded={mobileOpen} aria-controls="admin-mobile-nav"><Menu />Admin Centre</button>
-    {mobileOpen && <div className={styles.mobileLayer}><button type="button" className={styles.backdrop} onClick={() => setMobileOpen(false)} aria-label="Close Admin Centre navigation" /><aside id="admin-mobile-nav" className={styles.drawer} role="dialog" aria-modal="true" aria-label="Admin Centre navigation"><button type="button" className={styles.close} onClick={() => setMobileOpen(false)} aria-label="Close navigation"><X /></button>{sidebar}</aside></div>}
+    {mobileOpen && <div className={styles.mobileLayer}><button type="button" className={styles.backdrop} onClick={() => setMobileOpen(false)} aria-label="Close Admin Centre navigation" /><aside id="admin-mobile-nav" className={`${styles.drawer} ww-sidebar-background`} role="dialog" aria-modal="true" aria-label="Admin Centre navigation"><button type="button" className={styles.close} onClick={() => setMobileOpen(false)} aria-label="Close navigation"><X /></button>{sidebar}</aside></div>}
     <main className={styles.main}><header className={styles.pageHeader}><span>Admin Centre</span><h1>{definition.label}</h1><p>{definition.description}</p></header><div className={styles.content}>{content[active]}</div></main>
   </div>;
 };

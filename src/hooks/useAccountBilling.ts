@@ -1,6 +1,7 @@
 // 🔒 PRODUCTION-LOCKED — Account billing shared hook (2026-04-18)
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { getCacheGeneration, registerCache } from '@/lib/cacheRegistry';
 
 export interface BillingPaymentMethod {
   brand: string;
@@ -44,12 +45,37 @@ const empty: AccountBillingData = {
 
 // Module-level cache to share across cards
 let cache: AccountBillingData | null = null;
+let inFlight: Promise<AccountBillingData> | null = null;
 const subscribers = new Set<(d: AccountBillingData) => void>();
 
 const broadcast = (d: AccountBillingData) => {
   cache = d;
   subscribers.forEach((cb) => cb(d));
 };
+registerCache(() => { cache = null; inFlight = null; });
+
+const requestBilling = () => {
+  if (inFlight) return inFlight;
+  const generation = getCacheGeneration();
+  inFlight = (async () => {
+    const { data: res, error: invokeErr } = await supabase.functions.invoke('get-account-billing');
+    if (invokeErr) throw invokeErr;
+    const next: AccountBillingData = {
+      paymentMethod: res?.paymentMethod ?? null,
+      lastInvoice: res?.lastInvoice ?? null,
+      nextBillingDate: res?.nextBillingDate ?? null,
+      history: Array.isArray(res?.history) ? res.history : [],
+      portalUrl: res?.portalUrl ?? null,
+    };
+    if (generation !== getCacheGeneration()) throw new Error('Billing request superseded by an account change.');
+    broadcast(next);
+    return next;
+  })().finally(() => { inFlight = null; });
+  return inFlight;
+};
+
+/** Refresh billing without subscribing a page that does not display billing data. */
+export const refreshAccountBilling = requestBilling;
 
 export const useAccountBilling = () => {
   const [data, setData] = useState<AccountBillingData>(cache ?? empty);
@@ -60,16 +86,7 @@ export const useAccountBilling = () => {
     setLoading(true);
     setError(null);
     try {
-      const { data: res, error: invokeErr } = await supabase.functions.invoke('get-account-billing');
-      if (invokeErr) throw invokeErr;
-      const next: AccountBillingData = {
-        paymentMethod: res?.paymentMethod ?? null,
-        lastInvoice: res?.lastInvoice ?? null,
-        nextBillingDate: res?.nextBillingDate ?? null,
-        history: Array.isArray(res?.history) ? res.history : [],
-        portalUrl: res?.portalUrl ?? null,
-      };
-      broadcast(next);
+      const next = await requestBilling();
       setData(next);
     } catch (e) {
       const msg = e instanceof Error ? e.message : 'Failed to load billing';

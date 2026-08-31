@@ -1,0 +1,1059 @@
+.page,
+.publicPage,
+.shareModal {
+  --rs-page: #70452f;
+  --rs-panel: rgba(33, 19, 15, 0.64);
+  --rs-card: linear-gradient(180deg, rgba(101, 57, 40, 0.72), rgba(42, 23, 17, 0.76));
+  --rs-inset: linear-gradient(180deg, rgba(69, 38, 28, 0.72), rgba(23, 12, 9, 0.8));
+  --rs-field: linear-gradient(180deg, rgba(92, 51, 36, 0.88), rgba(35, 18, 13, 0.92));
+  --rs-border: rgba(201, 151, 93, 0.48);
+  --rs-border-strong: rgba(225, 183, 132, 0.7);
+  --rs-white: #fff;
+  --rs-cream: #eadbc9;
+  --rs-muted: #cbbcaf;
+  --rs-gold: #d9b77f;
+  --rs-green: #22c55e;
+  --rs-font: var(--ww-interface-font-family);
+  --rs-page-heading-size: 24px;
+  --rs-page-heading-weight: 700;
+  --rs-page-heading-line-height: 31px;
+  --rs-section-heading-size: 20px;
+  --rs-section-heading-weight: 700;
+  --rs-section-heading-line-height: 26px;
+  --rs-control-size: 14px;
+  --rs-control-weight: 600;
+  --rs-control-line-height: 20px;
+  --rs-support-size: 14px;
+  --rs-support-weight: 400;
+  --rs-support-line-height: 20px;
+  --rs-body-size: 14px;
+  --rs-body-weight: 400;
+  --rs-body-line-height: 20px;
+  --rs-button-size: 14px;
+  --rs-button-weight: 600;
+  --rs-button-line-height: 20px;
+  color: var(--rs-white);
+  font-family: var(--rs-font);
+}
+
+.page { min-height: calc(100dvh - 3rem); margin: -1.5rem; padding: 1.5rem; background: transparent; }
+
+:global(.ww-running-sheet-shell),
+:global(.ww-running-sheet-shell > .flex),
+:global(.ww-running-sheet-main) {
+  min-height: 100dvh;
+}
+
+.pageHeader { min-height: 4.25rem; padding: 0.25rem 0.5rem; }
+
+.pageHeader h1,
+.eventBanner h2,
+.publicHeader h1,
+.pageHeading {
+  font-family: var(--rs-font) !important;
+  font-size: var(--rs-page-heading-size) !important;
+  font-weight: var(--rs-page-heading-weight) !important;
+  line-height: var(--rs-page-heading-line-height) !important;
+}
+
+.sectionHeading,
+.scheduleCard h3,
+.shareModal h2,
+.statusCard h2 {
+  font-family: var(--rs-font) !important;
+  font-size: var(--rs-section-heading-size) !important;
+  font-weight: var(--rs-section-heading-weight) !important;
+  line-height: var(--rs-section-heading-line-height) !important;
+}
+
+/* Dashboard-only typography. Public/share/PDF renderers retain their own baseline. */
+.pageHeader h1 {
+  font-size: 24px !important;
+  font-weight: 600 !important;
+}
+
+.page .supportingText {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+.page .sectionHeading,
+.page .scheduleCard h3 {
+  font-size: 24px !important;
+  font-weight: 600 !important;
+}
+
+.eventDetailLabel {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 18px !important;
+}
+
+.eventDetailText {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+.controlLabel,
+.topCard label,
+.shareModal label {
+  font-family: var(--rs-font) !important;
+  font-size: var(--rs-control-size) !important;
+  font-weight: var(--rs-control-weight) !important;
+  line-height: var(--rs-control-line-height) !important;
+}
+
+.supportingText,
+.pageHeader p,
+.shareModal p {
+  font-family: var(--rs-font) !important;
+  font-size: var(--rs-support-size) !important;
+  font-weight: var(--rs-support-weight) !important;
+  line-height: var(--rs-support-line-height) !important;
+}
+
+:global(#root) .page h1,
+:global(#root) .page h2,
+:global(#root) .page h3,
+:global(#root) .page h4,
+:global(#root) .page label,
+:global(#root) .page [class*="text-foreground"],
+.publicPage h1, .publicPage h2, .publicPage h3,
+.shareModal h1, .shareModal h2, .shareModal h3 {
+  color: var(--rs-white) !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .page p,
+:global(#root) .page [class*="text-muted-foreground"],
+.publicPage p, .publicPage [class*="text-muted-foreground"],
+.shareModal p, .shareModal [class*="text-muted-foreground"] {
+  color: var(--rs-cream) !important;
+  opacity: 1 !important;
+}
+
+.page svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-white"]),
+.publicPage svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-white"]),
+.shareModal svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-white"]) {
+  color: var(--rs-gold) !important;
+  stroke: currentColor !important;
+  opacity: 1 !important;
+}
+
+.glassCard {
+  color: var(--rs-white) !important;
+  border: 1px solid rgba(201, 151, 93, 0.42) !important;
+  background: var(--rs-panel) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.2), 0 18px 42px rgba(3, 1, 1, 0.4) !important;
+  backdrop-filter: blur(18px);
+  -webkit-backdrop-filter: blur(18px);
+}
+
+.topCard { padding: 1rem 1.5rem !important; }
+.exportPanel {
+  border-color: var(--rs-border) !important;
+  background: var(--rs-inset) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.14), 0 10px 24px rgba(3, 1, 1, 0.28);
+}
+
+.eventBanner {
+  color: var(--rs-cream);
+  border: 1px solid rgba(201, 151, 93, 0.46);
+  border-radius: 1rem;
+  background: var(--rs-card);
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.16), 0 14px 30px rgba(3, 1, 1, 0.34);
+  backdrop-filter: blur(14px);
+  -webkit-backdrop-filter: blur(14px);
+}
+
+.eventBanner h2 { color: var(--rs-white) !important; }
+.eventBanner [class*="font-semibold"] { color: var(--rs-gold) !important; }
+.eventBanner span, .eventBanner div { color: var(--rs-cream) !important; opacity: 1 !important; }
+.eventBanner svg { color: var(--rs-gold) !important; }
+.eventBanner.eventBanner h2 { color: var(--rs-white) !important; }
+
+.scheduleCard {
+  padding: 1.15rem 1.25rem 1.35rem !important;
+  background: var(--rs-card) !important;
+  border-color: rgba(201, 151, 93, 0.52) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.17), 0 16px 36px rgba(3, 1, 1, 0.34) !important;
+}
+.scheduleCard :global([data-radix-collapsible-content]) { min-width: 0; }
+
+.columnHeader {
+  margin: 0.25rem 0 0.5rem;
+  min-height: 2.5rem;
+  padding-inline: 0.75rem !important;
+  color: var(--rs-gold) !important;
+  border: 1px solid rgba(201, 151, 93, 0.45) !important;
+  border-radius: 0.55rem;
+  background: linear-gradient(180deg, rgba(122, 69, 48, 0.74), rgba(61, 32, 23, 0.72));
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12);
+  font-family: var(--rs-font) !important;
+  font-size: var(--rs-body-size) !important;
+  font-weight: var(--rs-body-weight) !important;
+  line-height: var(--rs-body-line-height) !important;
+}
+.columnHeader div { color: var(--rs-gold) !important; opacity: 1 !important; }
+
+.page .columnHeader {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 18px !important;
+}
+
+.scheduleRow { margin-block: 0.2rem; border: 1px solid transparent; }
+.scheduleRow:hover { border-color: rgba(225, 183, 132, 0.3); background: rgba(117, 65, 45, 0.36) !important; }
+
+.bodyText {
+  font-family: var(--rs-font) !important;
+  font-size: var(--rs-body-size) !important;
+  font-weight: var(--rs-body-weight);
+  line-height: var(--rs-body-line-height) !important;
+}
+.bodyText:global(.font-bold) { font-weight: 700 !important; }
+.bodyText:global(.italic) { font-style: italic !important; }
+.bodyText:global(.underline) { text-decoration-line: underline !important; }
+
+.page .bodyText {
+  font-size: 13px !important;
+  font-weight: 400;
+  line-height: 18px !important;
+}
+
+.notesEditor {
+  color: var(--rs-white);
+  border: 1px solid var(--rs-border);
+  background: linear-gradient(180deg, rgba(42, 22, 16, 0.94), rgba(22, 11, 8, 0.96));
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12), 0 10px 24px rgba(3, 1, 1, 0.26);
+}
+.notesHeading { color: var(--rs-white) !important; }
+.notesHeading svg { color: var(--rs-gold) !important; stroke: var(--rs-gold) !important; }
+.notesTextarea {
+  min-height: 4.25rem !important;
+  padding: 0.65rem 0.9rem 0.65rem 2rem !important;
+  color: var(--rs-white) !important;
+  border: 1px solid var(--rs-border) !important;
+  background: var(--rs-field) !important;
+}
+.notesTextarea::placeholder {
+  color: var(--rs-muted) !important;
+  -webkit-text-fill-color: var(--rs-muted) !important;
+  opacity: 1 !important;
+}
+.notesTextarea:focus-visible {
+  outline: none !important;
+  border-color: var(--rs-border-strong) !important;
+  box-shadow: 0 0 0 2px rgba(40, 20, 14, 0.96), 0 0 0 4px rgba(217, 183, 127, 0.72) !important;
+}
+
+.scheduleCard textarea,
+.scheduleCard input,
+.page button[role="combobox"],
+.shareModal input,
+.darkControl,
+.publicPage textarea,
+.publicPage input {
+  color: var(--rs-white) !important;
+  -webkit-text-fill-color: var(--rs-white) !important;
+  border: 1px solid var(--rs-border) !important;
+  background: var(--rs-field) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 244, 229, 0.12), 0 0 0 1px rgba(201, 151, 93, 0.06) !important;
+  caret-color: var(--rs-gold);
+  opacity: 1 !important;
+}
+
+.page button[role="combobox"] > span,
+.darkControl > span { color: var(--rs-white) !important; -webkit-text-fill-color: var(--rs-white) !important; }
+.scheduleCard textarea { min-height: 2.65rem; line-height: 1.48; }
+
+.scheduleCard textarea::placeholder,
+.scheduleCard input::placeholder,
+.shareModal input::placeholder,
+.publicPage textarea::placeholder,
+.publicPage input::placeholder {
+  color: var(--rs-muted) !important;
+  -webkit-text-fill-color: var(--rs-muted) !important;
+  opacity: 1 !important;
+}
+
+.scheduleCard textarea.text-destructive,
+.scheduleCard input.text-destructive { color: #ff8178 !important; -webkit-text-fill-color: #ff8178 !important; }
+
+.scheduleCard textarea:hover,
+.scheduleCard input:hover,
+.page button[role="combobox"]:hover,
+.shareModal input:hover,
+.darkControl:hover { border-color: var(--rs-border-strong) !important; }
+
+.scheduleCard textarea:focus-visible,
+.scheduleCard input:focus-visible,
+.page button:focus-visible,
+.page [role="button"]:focus-visible,
+.shareModal button:focus-visible,
+.shareModal input:focus-visible,
+.publicPage button:focus-visible,
+.publicPage textarea:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px rgba(40, 20, 14, 0.96), 0 0 0 4px rgba(217, 183, 127, 0.72) !important;
+}
+
+.dragHandle,
+.rowActions button,
+.scheduleCard button:not([class*="greenAction"]) {
+  color: var(--rs-gold) !important;
+  border: 1px solid rgba(201, 151, 93, 0.48) !important;
+  background: linear-gradient(180deg, rgba(86, 48, 34, 0.82), rgba(28, 14, 11, 0.88)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12);
+}
+
+.dragHandle:hover,
+.rowActions button:hover,
+.scheduleCard button:not([class*="greenAction"]):hover {
+  color: var(--rs-white) !important;
+  border-color: var(--rs-border-strong) !important;
+  filter: brightness(1.06);
+}
+
+.greenAction,
+.primaryAction {
+  min-height: 2.5rem;
+  padding-inline: 1rem !important;
+  color: var(--rs-white) !important;
+  border: 1px solid #22c55e !important;
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 8px 18px rgba(22, 163, 74, 0.26) !important;
+  font-family: var(--rs-font) !important;
+  font-size: var(--rs-button-size) !important;
+  font-weight: var(--rs-button-weight) !important;
+  line-height: var(--rs-button-line-height) !important;
+}
+.page .greenAction.greenAction,
+.publicPage .greenAction.greenAction,
+.shareModal .primaryAction.primaryAction { color: #fff !important; }
+.page .greenAction.greenAction svg,
+.publicPage .greenAction.greenAction svg,
+.shareModal .primaryAction.primaryAction svg,
+.page .greenAction.greenAction svg *,
+.publicPage .greenAction.greenAction svg *,
+.shareModal .primaryAction.primaryAction svg * {
+  color: #fff !important;
+  stroke: #fff !important;
+}
+.page .greenAction.greenAction svg [fill="currentColor"],
+.publicPage .greenAction.greenAction svg [fill="currentColor"],
+.shareModal .primaryAction.primaryAction svg [fill="currentColor"] { fill: #fff !important; }
+.greenAction:hover, .primaryAction:hover { filter: brightness(1.06); }
+.greenAction:active, .primaryAction:active { transform: translateY(1px); }
+
+:global(.ww-running-sheet-menu),
+.permissionMenu {
+  --rs-border: rgba(201, 151, 93, 0.48);
+  --rs-cream: #eadbc9;
+  --rs-white: #fff;
+  --rs-font: var(--ww-interface-font-family);
+  color: #f3e7d8 !important;
+  border: 1px solid var(--rs-border) !important;
+  background: linear-gradient(180deg, rgba(82, 45, 32, 0.99), rgba(31, 16, 12, 0.99)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.14), 0 18px 38px rgba(3, 1, 1, 0.44) !important;
+  backdrop-filter: blur(18px);
+}
+
+:global(.ww-running-sheet-menu [role="menuitem"]),
+:global(.ww-running-sheet-menu [role="option"]),
+:global(.ww-running-sheet-menu span),
+:global(.ww-running-sheet-menu svg),
+.permissionMenu [role="option"] { color: var(--rs-cream) !important; opacity: 1 !important; }
+
+:global(.ww-running-sheet-menu [role="menuitem"]),
+:global(.ww-running-sheet-menu [role="option"]) {
+  font-family: var(--rs-font) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 20px !important;
+}
+
+:global(.ww-running-sheet-menu [role="menuitem"]:focus),
+:global(.ww-running-sheet-menu [role="option"]:focus),
+.permissionMenu [role="option"]:focus { color: var(--rs-white) !important; background: rgba(139, 77, 40, 0.68) !important; }
+
+:global(.ww-running-sheet-tooltip) {
+  color: #fff !important;
+  border: 1px solid rgba(201, 151, 93, 0.48) !important;
+  background: linear-gradient(180deg, rgba(82, 45, 32, 0.98), rgba(31, 16, 12, 0.98)) !important;
+  box-shadow: 0 8px 22px rgba(2, 0, 0, 0.38) !important;
+}
+
+.publicPage {
+  min-height: 100dvh;
+  overflow-x: hidden;
+}
+
+.publicHeader {
+  color: var(--rs-white);
+  border-bottom: 1px solid var(--rs-border);
+  background: var(--rs-panel);
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.16), 0 12px 30px rgba(3, 1, 1, 0.34);
+  backdrop-filter: blur(18px);
+}
+.publicHeader p, .publicHeader span { color: var(--rs-cream) !important; opacity: 1 !important; }
+
+.statusCard {
+  width: min(100%, 30rem);
+  color: var(--rs-white) !important;
+  border: 1px solid rgba(201, 151, 93, 0.52) !important;
+  background: var(--rs-card) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.17), 0 20px 44px rgba(3, 1, 1, 0.38) !important;
+}
+.statusCard p { color: var(--rs-cream) !important; }
+
+.shareModal {
+  color: var(--rs-white) !important;
+  border: 1px solid rgba(201, 151, 93, 0.56) !important;
+  background: linear-gradient(180deg, rgba(108, 61, 43, 0.98), rgba(43, 23, 17, 0.98)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.18), 0 26px 64px rgba(3, 1, 1, 0.5) !important;
+  backdrop-filter: blur(22px);
+}
+
+.shareModal label { color: var(--rs-white) !important; }
+.shareModal > button[title="Exit"] { color: var(--rs-gold) !important; border: 1px solid var(--rs-border) !important; background: var(--rs-inset) !important; }
+
+.shareTabs { border: 1px solid rgba(201, 151, 93, 0.44); background: rgba(53, 29, 21, 0.72) !important; }
+.shareTabs [role="tab"] { color: var(--rs-cream) !important; }
+.shareTabs [role="tab"][data-state="active"] {
+  color: var(--rs-white) !important;
+  background: linear-gradient(180deg, rgba(151, 93, 59, 0.94), rgba(92, 50, 35, 0.96)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.2), 0 5px 14px rgba(3, 1, 1, 0.28);
+}
+
+.managedLinkCard {
+  color: var(--rs-cream);
+  border: 1px solid rgba(201, 151, 93, 0.46);
+  background: var(--rs-inset);
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12), 0 8px 20px rgba(3, 1, 1, 0.24);
+}
+.managedLinkCard [class*="font-medium"] { color: var(--rs-white) !important; }
+.managedLinkCard button { color: var(--rs-gold) !important; }
+.editBadge.editBadge { color: #b9f6cf !important; border: 1px solid rgba(74, 222, 128, 0.46); background: rgba(18, 87, 48, 0.34); }
+.viewBadge.viewBadge { color: var(--rs-cream) !important; border: 1px solid var(--rs-border); background: rgba(255, 239, 218, 0.1); }
+.expiredBadge.expiredBadge { color: #ffb4ac !important; border: 1px solid rgba(255, 120, 110, 0.46); background: rgba(164, 38, 31, 0.26); }
+
+@media (max-width: 767px) {
+  .page { min-height: calc(100dvh - 2rem); margin: -1rem; padding: 1rem; }
+  :global(.ww-running-sheet-main) { background-position: 48% center !important; }
+  .pageHeader { align-items: flex-start; }
+  .topCard { padding: 0.85rem !important; }
+  .shareModal { padding: 1.25rem !important; }
+  .managedLinkCard { align-items: flex-start; flex-direction: column; }
+  .managedLinkCard > :last-child { width: 100%; justify-content: flex-end; }
+  .publicHeader > div { padding-inline: 1rem; }
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .tableViewport { overflow: visible !important; }
+  .tableCanvas { min-width: 0 !important; }
+  .columnHeader { display: none !important; }
+  .scheduleRow {
+    display: grid !important;
+    grid-template-columns: 2rem minmax(8rem, 0.3fr) minmax(0, 0.7fr) 2.5rem;
+    gap: 0.55rem;
+    margin-block: 0.65rem;
+    padding: 0.7rem 0.6rem !important;
+    border-color: rgba(201, 151, 93, 0.34);
+    background: rgba(70, 38, 28, 0.5);
+  }
+  .dragHandle { grid-column: 1; grid-row: 1 / span 2; align-self: start; }
+  .timeField { grid-column: 2; grid-row: 1; width: 100% !important; }
+  .whoField { grid-column: 3; grid-row: 1; width: 100% !important; }
+  .eventField { grid-column: 2 / 4; grid-row: 2; width: 100% !important; }
+  .rowActions { grid-column: 4; grid-row: 1 / span 2; align-self: start; }
+}
+
+@media (max-width: 639px) {
+  .tableViewport { overflow: visible !important; }
+  .tableCanvas { min-width: 0 !important; }
+  .columnHeader { display: none !important; }
+  .scheduleCard { padding: 0.9rem 0.65rem 1.1rem !important; }
+  .scheduleRow {
+    display: grid !important;
+    grid-template-columns: 2rem minmax(0, 1fr) 2.5rem;
+    gap: 0.5rem;
+    margin-block: 0.65rem;
+    padding: 0.65rem 0.5rem !important;
+    border-color: rgba(201, 151, 93, 0.34);
+    background: rgba(70, 38, 28, 0.5);
+  }
+  .dragHandle { grid-column: 1; grid-row: 1 / span 3; align-self: start; }
+  .timeField, .eventField, .whoField { grid-column: 2; width: 100% !important; min-width: 0; }
+  .timeField { grid-row: 1; }
+  .eventField { grid-row: 2; }
+  .whoField { grid-row: 3; }
+  .rowActions { grid-column: 3; grid-row: 1 / span 3; align-self: start; }
+  .greenAction { min-height: 2.75rem; padding-inline: 1.25rem !important; }
+}
+
+@media (prefers-reduced-motion: reduce) { .greenAction, .primaryAction { transition: none; } }
+
+/* Authenticated Run Sheet light workspace. Public/share recipient and PDF styles above remain unchanged. */
+.page,
+.shareModal,
+.dialogSurface {
+  --rs-page: #f4eadb;
+  --rs-panel: #fffdf8;
+  --rs-card: #fffdf8;
+  --rs-inset: #fbf1e3;
+  --rs-field: #fffaf2;
+  --rs-border: #d9bf98;
+  --rs-border-strong: #a97b43;
+  --rs-white: #2f1b14;
+  --rs-cream: #6c5040;
+  --rs-muted: #806553;
+  --rs-gold: #9a713e;
+  --rs-green: #18b957;
+}
+
+:global(.ww-running-sheet-main) {
+  color: #2f1b14;
+  background: linear-gradient(135deg, #f7efe3 0%, #f1e5d4 55%, #eadbc6 100%) !important;
+  background-image: none !important;
+}
+
+.page {
+  color: #2f1b14;
+  overflow-x: clip;
+  background: linear-gradient(135deg, #f7efe3 0%, #f1e5d4 55%, #eadbc6 100%) !important;
+}
+
+.pageHeader { padding-inline: 0; }
+.pageHeader h1 { color: #2f1b14 !important; }
+.pageHeader p,
+.pageHeader .supportingText { color: #6c5040 !important; }
+.headingIcon {
+  color: #8b673d;
+  border: 1px solid #dec7a5;
+  background: #f8ead5;
+  box-shadow: inset 0 1px 0 #fff, 0 4px 12px rgba(91, 58, 29, 0.1);
+}
+.headingIcon svg { color: #8b673d !important; stroke: #8b673d !important; }
+
+:global(#root) .page h1,
+:global(#root) .page h2,
+:global(#root) .page h3,
+:global(#root) .page h4,
+:global(#root) .page label,
+:global(#root) .page [class*="text-foreground"] {
+  color: #2f1b14 !important;
+}
+
+:global(#root) .page p,
+:global(#root) .page [class*="text-muted-foreground"] {
+  color: #6c5040 !important;
+}
+
+.page svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-white"]) {
+  color: #9a713e !important;
+  stroke: currentColor !important;
+}
+
+.page .glassCard,
+.page .scheduleCard {
+  color: #2f1b14 !important;
+  border: 1px solid #d9bf98 !important;
+  background: #fffdf8 !important;
+  box-shadow: inset 0 1px 0 #fff, 0 12px 30px rgba(91, 58, 29, 0.12) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.topCard { padding: 0 !important; }
+.topCard > div { padding: 1rem 1.25rem !important; }
+.exportPanel {
+  border-color: #d9bf98 !important;
+  background: #fbf1e3 !important;
+  box-shadow: inset 0 1px 0 #fff, 0 7px 18px rgba(91, 58, 29, 0.1);
+}
+.controlLabel { color: #2f1b14 !important; }
+
+.eventBanner {
+  color: #6c5040;
+  border-color: #d9bf98;
+  background: #fbf1e3;
+  box-shadow: inset 0 1px 0 #fff, 0 10px 24px rgba(91, 58, 29, 0.11);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.eventBanner.eventBanner h2 { color: #2f1b14 !important; }
+.eventBanner [class*="font-semibold"] { color: #805b31 !important; }
+.eventBanner span,
+.eventBanner div { color: #6c5040 !important; }
+.eventBanner svg { color: #9a713e !important; stroke: #9a713e !important; }
+
+.page .scheduleCard { padding: 1rem 1.1rem 1.25rem !important; }
+.page .sectionHeading { color: #2f1b14 !important; }
+.columnHeader {
+  color: #4a3025 !important;
+  border-color: #d2b587 !important;
+  background: #f0ddc1;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.84), 0 3px 8px rgba(91, 58, 29, 0.08);
+}
+.columnHeader div { color: #4a3025 !important; }
+
+.scheduleRow {
+  margin-block: .32rem;
+  padding-block: .3rem !important;
+  border-color: #e2ceb0;
+  border-radius: .7rem;
+  background: #fbf1e3;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.92), 0 3px 9px rgba(91, 58, 29, .06);
+}
+.scheduleRow:nth-child(even) { background: #f8ead7; }
+.scheduleRow:hover {
+  border-color: #c49d67;
+  background: #fff7eb !important;
+  box-shadow: inset 0 1px 0 #fff, 0 5px 13px rgba(91, 58, 29, .1);
+}
+
+.page .scheduleCard textarea,
+.page .scheduleCard input,
+.page button[role="combobox"],
+.shareModal input,
+.shareModal .darkControl {
+  color: #2f1b14 !important;
+  -webkit-text-fill-color: #2f1b14 !important;
+  border-color: #d7bd96 !important;
+  background: #fffaf2 !important;
+  box-shadow: inset 0 1px 2px rgba(91,58,29,.06), 0 1px 0 #fff !important;
+  caret-color: #805b31;
+}
+.page button[role="combobox"] > span,
+.shareModal .darkControl > span { color: #2f1b14 !important; -webkit-text-fill-color: #2f1b14 !important; }
+.page .scheduleCard textarea::placeholder,
+.page .scheduleCard input::placeholder,
+.shareModal input::placeholder {
+  color: #806553 !important;
+  -webkit-text-fill-color: #806553 !important;
+}
+.page .scheduleCard textarea.text-destructive,
+.page .scheduleCard input.text-destructive { color: #b42318 !important; -webkit-text-fill-color: #b42318 !important; }
+.page .scheduleCard textarea:hover,
+.page .scheduleCard input:hover,
+.page button[role="combobox"]:hover,
+.shareModal input:hover,
+.shareModal .darkControl:hover { border-color: #a97b43 !important; }
+.page .scheduleCard textarea:focus-visible,
+.page .scheduleCard input:focus-visible,
+.page button:focus-visible,
+.page [role="button"]:focus-visible,
+.shareModal button:focus-visible,
+.shareModal input:focus-visible {
+  outline: 2px solid #805b31 !important;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(196,157,103,.26) !important;
+}
+
+.notesEditor {
+  color: #2f1b14;
+  border-color: #d9bf98;
+  background: #f8ead7;
+  box-shadow: inset 0 1px 0 #fff, 0 7px 16px rgba(91,58,29,.08);
+}
+.notesHeading { color: #2f1b14 !important; }
+.notesTextarea { color: #2f1b14 !important; background: #fffaf2 !important; }
+
+.page .dragHandle,
+.page .rowActions button,
+.page .scheduleCard button:not([class*="greenAction"]) {
+  color: #805b31 !important;
+  border-color: #d7bd96 !important;
+  background: #fffaf2 !important;
+  box-shadow: inset 0 1px 0 #fff, 0 3px 8px rgba(91,58,29,.08);
+}
+.page .dragHandle:hover,
+.page .rowActions button:hover,
+.page .scheduleCard button:not([class*="greenAction"]):hover {
+  color: #2f1b14 !important;
+  border-color: #a97b43 !important;
+  background: #f4e2c8 !important;
+}
+
+.page .greenAction,
+.shareModal .primaryAction {
+  color: #fff !important;
+  border-color: #128d41 !important;
+  background: linear-gradient(180deg, #32d66f 0%, #18b957 54%, #109140 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.42), inset 0 -2px 0 rgba(5,91,38,.24), 0 7px 16px rgba(14,145,64,.25) !important;
+}
+.page .greenAction:disabled,
+.shareModal .primaryAction:disabled { opacity: .58 !important; box-shadow: none !important; }
+
+.mobileFieldLabel {
+  display: none;
+  color: #6c5040;
+  font-size: 11px;
+  font-weight: 700;
+  line-height: 15px;
+  letter-spacing: .05em;
+  text-transform: uppercase;
+}
+
+:global(body:has([data-running-sheet-page]) .ww-running-sheet-menu),
+.permissionMenu {
+  color: #2f1b14 !important;
+  border-color: #d1b180 !important;
+  background: #fffaf2 !important;
+  box-shadow: inset 0 1px 0 #fff, 0 16px 34px rgba(57,34,19,.2) !important;
+  backdrop-filter: none;
+}
+:global(body:has([data-running-sheet-page]) .ww-running-sheet-menu [role="menuitem"]),
+:global(body:has([data-running-sheet-page]) .ww-running-sheet-menu [role="option"]),
+:global(body:has([data-running-sheet-page]) .ww-running-sheet-menu span),
+:global(body:has([data-running-sheet-page]) .ww-running-sheet-menu svg),
+.permissionMenu [role="option"] { color: #4a3025 !important; opacity: 1 !important; }
+:global(body:has([data-running-sheet-page]) .ww-running-sheet-menu [role="menuitem"]:is(:focus,[data-highlighted])),
+:global(body:has([data-running-sheet-page]) .ww-running-sheet-menu [role="option"]:is(:focus,[data-highlighted])),
+.permissionMenu [role="option"]:is(:focus,[data-highlighted]) { color: #2f1b14 !important; background: #f0ddc1 !important; }
+:global(body:has([data-running-sheet-page]) .ww-running-sheet-menu [class*="text-destructive"]),
+:global(body:has([data-running-sheet-page]) .ww-running-sheet-menu [class*="text-destructive"] :is(span,svg)) { color: #b42318 !important; }
+:global(body:has([data-running-sheet-page]) .ww-running-sheet-tooltip) {
+  color: #fff !important;
+  border-color: #6f4c27 !important;
+  background: #3b251c !important;
+  box-shadow: 0 8px 20px rgba(57,34,19,.22) !important;
+}
+
+.shareModal,
+.dialogSurface {
+  color: #2f1b14 !important;
+  border: 1px solid #d1b180 !important;
+  background: #fffdf8 !important;
+  box-shadow: inset 0 1px 0 #fff, 0 24px 58px rgba(48,27,16,.3) !important;
+  backdrop-filter: none;
+}
+.shareModal h1,
+.shareModal h2,
+.shareModal h3,
+.shareModal label,
+.dialogSurface h2 { color: #2f1b14 !important; }
+.shareModal p,
+.shareModal [class*="text-muted-foreground"],
+.dialogSurface p { color: #6c5040 !important; opacity: 1 !important; }
+.shareModal > button[title="Exit"] { color: #805b31 !important; border-color: #d7bd96 !important; background: #fffaf2 !important; }
+.shareTabs { border-color: #d7bd96; background: #f3e1c7 !important; }
+.shareTabs [role="tab"] { color: #6c5040 !important; }
+.shareTabs [role="tab"][data-state="active"] {
+  color: #2f1b14 !important;
+  background: #fffdf8 !important;
+  box-shadow: inset 0 1px 0 #fff, 0 4px 10px rgba(91,58,29,.1);
+}
+.managedLinkCard {
+  color: #6c5040;
+  border-color: #d7bd96;
+  background: #fbf1e3;
+  box-shadow: inset 0 1px 0 #fff, 0 5px 12px rgba(91,58,29,.08);
+}
+.managedLinkCard [class*="font-medium"] { color: #2f1b14 !important; }
+.managedLinkCard button { color: #805b31 !important; }
+.editBadge.editBadge { color: #0c6832 !important; border-color: #61b77d; background: #d9f4e2; }
+.viewBadge.viewBadge { color: #315f91 !important; border-color: #87add3; background: #e3f0fc; }
+.expiredBadge.expiredBadge { color: #a71d17 !important; border-color: #e39a93; background: #fde5e2; }
+
+.dialogSurface button:not([class*="bg-destructive"]) {
+  color: #2f1b14;
+  border-color: #d7bd96;
+  background: #fffaf2;
+}
+.dialogSurface button[class*="bg-destructive"] {
+  color: #fff !important;
+  border-color: #a91f19 !important;
+  background: linear-gradient(180deg, #f25a50, #dc3f35 58%, #b92e27) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.36), 0 7px 16px rgba(185,46,39,.24);
+}
+
+.dialogSurface .destructiveAction {
+  color: #fff !important;
+  border-color: #a91f19 !important;
+  background: linear-gradient(180deg, #f25a50, #dc3f35 58%, #b92e27) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.36), 0 7px 16px rgba(185,46,39,.24);
+}
+
+@media (min-width: 640px) and (max-width: 1023px) {
+  .scheduleRow {
+    border-color: #dec6a3;
+    background: #fbf1e3;
+  }
+}
+
+@media (max-width: 639px) {
+  .page { margin: -1rem; padding: 1rem; }
+  .pageHeader { min-height: auto; }
+  .topCard > div { padding: .85rem !important; }
+  .eventBanner { padding-inline: .85rem !important; }
+  .eventBanner > div { gap: 1rem !important; }
+  .eventBanner > div > div { min-width: 0 !important; width: 100%; }
+  .scheduleRow {
+    grid-template-columns: 2rem minmax(0, 1fr) 2.75rem;
+    grid-template-rows: auto auto auto auto auto auto;
+    padding: .75rem .55rem !important;
+    border-color: #dec6a3;
+    background: #fbf1e3;
+  }
+  .mobileFieldLabel {
+    display: block;
+    grid-column: 2;
+  }
+  .timeLabel { grid-row: 1; }
+  .timeField { grid-row: 2; }
+  .eventLabel { grid-row: 3; }
+  .eventField { grid-row: 4; }
+  .whoLabel { grid-row: 5; }
+  .whoField { grid-row: 6; }
+  .dragHandle { grid-row: 1 / span 6; min-width: 2rem; min-height: 2.75rem; }
+  .rowActions { grid-row: 1 / span 6; }
+  .rowActions button { min-width: 2.75rem; min-height: 2.75rem; }
+  .scheduleCard textarea { min-height: 2.75rem; }
+  .greenAction { width: 100%; min-height: 2.75rem; }
+}
+
+/* Public Run Sheet share page: screen-only espresso liquid-glass presentation.
+   This final, public-rooted layer intentionally follows the authenticated light
+   workspace rules above so those shared component selectors cannot leak cream
+   surfaces into the public recipient view. It never participates in print/PDF. */
+@media screen {
+  .publicPage {
+    --rs-panel: rgba(29, 13, 10, 0.84);
+    --rs-card: linear-gradient(145deg, rgba(91, 47, 32, 0.9) 0%, rgba(53, 26, 19, 0.92) 50%, rgba(26, 12, 9, 0.96) 100%);
+    --rs-inset: linear-gradient(180deg, rgba(60, 30, 22, 0.96), rgba(22, 10, 8, 0.98));
+    --rs-field: linear-gradient(180deg, rgba(68, 34, 25, 0.99), rgba(26, 12, 9, 1));
+    --rs-border: rgba(207, 157, 96, 0.5);
+    --rs-border-strong: rgba(236, 194, 137, 0.84);
+    --rs-white: #fff;
+    --rs-cream: rgba(255, 246, 236, 0.78);
+    --rs-muted: rgba(255, 244, 232, 0.58);
+    --rs-gold: #ddb77b;
+    color-scheme: dark;
+    width: 100%;
+    max-width: 100vw;
+    color: var(--rs-white);
+    background:
+      radial-gradient(circle at 50% 8%, rgba(123, 64, 42, 0.5) 0%, rgba(67, 32, 24, 0.25) 29rem, transparent 58rem),
+      radial-gradient(circle at 15% 48%, rgba(82, 39, 28, 0.28), transparent 40rem),
+      radial-gradient(circle at 86% 62%, rgba(73, 33, 24, 0.2), transparent 36rem),
+      linear-gradient(135deg, #110705 0%, #2b130e 48%, #140806 100%) !important;
+    background-attachment: fixed !important;
+  }
+
+  .publicPage .statusCard {
+    min-width: 0;
+    max-width: calc(100vw - 2rem) !important;
+  }
+
+  .publicHeader {
+    border-bottom-color: rgba(222, 176, 116, 0.58) !important;
+    background:
+      linear-gradient(110deg, rgba(52, 25, 18, 0.96), rgba(23, 10, 8, 0.92) 68%, rgba(61, 29, 20, 0.9)) !important;
+    box-shadow: inset 0 -1px 0 rgba(255, 232, 200, 0.08), 0 14px 34px rgba(3, 1, 1, 0.46) !important;
+  }
+
+  .publicHeaderIcon {
+    color: var(--rs-gold) !important;
+    border: 1px solid rgba(207, 157, 96, 0.38);
+    background: rgba(95, 49, 33, 0.44) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12);
+  }
+
+  .publicHeader h1,
+  .publicPage .sectionHeading,
+  .publicPage .notesHeading {
+    color: var(--rs-white) !important;
+  }
+
+  .publicHeader p,
+  .publicHeader span,
+  .publicFooter p {
+    color: var(--rs-cream) !important;
+  }
+
+  .permissionBadge[data-permission="can-edit"] {
+    color: #c7f9d7 !important;
+    border-color: rgba(74, 222, 128, 0.72) !important;
+    background: rgba(18, 87, 48, 0.42);
+  }
+
+  .permissionBadge[data-permission="view-only"] {
+    color: #ffd2cc !important;
+    border-color: rgba(255, 129, 120, 0.72) !important;
+    background: rgba(145, 40, 32, 0.36);
+  }
+
+  .publicPage .eventBanner,
+  .publicPage .scheduleCard,
+  .publicPage .statusCard {
+    color: var(--rs-white) !important;
+    border-color: var(--rs-border) !important;
+    background: var(--rs-card) !important;
+    box-shadow:
+      inset 0 1px 0 rgba(255, 239, 218, 0.18),
+      inset 0 -1px 0 rgba(77, 35, 24, 0.42),
+      0 18px 42px rgba(3, 1, 1, 0.4) !important;
+    backdrop-filter: blur(20px) saturate(1.12);
+    -webkit-backdrop-filter: blur(20px) saturate(1.12);
+  }
+
+  .publicPage .eventBanner {
+    background:
+      radial-gradient(circle at 50% 0%, rgba(151, 82, 51, 0.28), transparent 32rem),
+      linear-gradient(145deg, rgba(79, 40, 29, 0.92), rgba(30, 14, 11, 0.95)) !important;
+  }
+
+  .publicPage .eventBanner h2 {
+    color: var(--rs-white) !important;
+  }
+
+  .publicPage .eventBanner [class*="font-semibold"] {
+    color: var(--rs-gold) !important;
+  }
+
+  .publicPage .eventBanner :is(span, div) {
+    color: var(--rs-cream) !important;
+  }
+
+  .publicPage .columnHeader {
+    color: var(--rs-gold) !important;
+    border-color: var(--rs-border) !important;
+    background: linear-gradient(180deg, rgba(125, 68, 45, 0.88), rgba(54, 27, 20, 0.92)) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 235, 207, 0.13) !important;
+  }
+
+  .publicPage .columnHeader div {
+    color: var(--rs-gold) !important;
+  }
+
+  .publicPage .scheduleRow,
+  .publicPage .scheduleRow:nth-child(even) {
+    border-color: rgba(201, 151, 94, 0.24);
+    background: rgba(31, 15, 11, 0.36) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.06), 0 4px 12px rgba(3, 1, 1, 0.2);
+  }
+
+  .publicPage .scheduleRow:nth-child(even) {
+    background: rgba(79, 40, 29, 0.26) !important;
+  }
+
+  .publicPage .scheduleRow:hover {
+    border-color: rgba(225, 183, 132, 0.44);
+    background: rgba(115, 61, 41, 0.38) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.1), 0 6px 16px rgba(3, 1, 1, 0.26);
+  }
+
+  .publicPage .scheduleCard :is(textarea, input),
+  .publicPage .notesTextarea {
+    color: var(--rs-white) !important;
+    -webkit-text-fill-color: var(--rs-white) !important;
+    border-color: var(--rs-border) !important;
+    background: var(--rs-field) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 242, 224, 0.1) !important;
+    caret-color: var(--rs-gold);
+    opacity: 1 !important;
+  }
+
+  .publicPage .scheduleCard :is(textarea, input)::placeholder,
+  .publicPage .notesTextarea::placeholder {
+    color: var(--rs-muted) !important;
+    -webkit-text-fill-color: var(--rs-muted) !important;
+    opacity: 1 !important;
+  }
+
+  .publicPage .scheduleCard :is(textarea, input):focus-visible,
+  .publicPage .notesTextarea:focus-visible,
+  .publicPage :is(button, [role="button"]):focus-visible {
+    outline: none !important;
+    border-color: var(--rs-border-strong) !important;
+    box-shadow: 0 0 0 2px #1c0d09, 0 0 0 4px rgba(221, 183, 123, 0.72) !important;
+  }
+
+  .publicPage .notesEditor {
+    color: var(--rs-white);
+    border-color: var(--rs-border);
+    background: var(--rs-inset);
+    box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.11), 0 8px 20px rgba(3, 1, 1, 0.24);
+  }
+
+  .publicPage .mobileFieldLabel {
+    color: var(--rs-gold);
+  }
+
+  .publicPage .dragHandle,
+  .publicPage .rowActions button,
+  .publicPage .scheduleCard button:not([class*="greenAction"]) {
+    color: var(--rs-gold) !important;
+    border-color: var(--rs-border) !important;
+    background: var(--rs-inset) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12), 0 4px 10px rgba(3, 1, 1, 0.2);
+  }
+
+  .publicPage .greenAction.greenAction {
+    color: #fff !important;
+    border-color: #128d41 !important;
+    background: linear-gradient(180deg, #32d66f 0%, #18b957 54%, #109140 100%) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42), inset 0 -2px 0 rgba(5, 91, 38, 0.24), 0 8px 18px rgba(14, 145, 64, 0.28) !important;
+  }
+
+  .publicFooter {
+    border-top-color: rgba(211, 162, 103, 0.44) !important;
+    background: linear-gradient(180deg, rgba(30, 14, 10, 0.74), rgba(16, 7, 5, 0.94)) !important;
+    box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.06);
+  }
+}
+
+@media screen and (max-width: 1023px) {
+  .publicPage .tableViewport {
+    overflow: visible !important;
+  }
+
+  .publicPage .tableCanvas {
+    min-width: 0 !important;
+  }
+
+  .publicPage .scheduleRow {
+    border-color: var(--rs-border);
+    background: rgba(44, 21, 15, 0.78) !important;
+  }
+
+  .publicPage .scheduleRow * {
+    min-width: 0;
+  }
+}
+
+@media screen and (max-width: 767px) {
+  .publicHeader > div,
+  .publicPage > main,
+  .publicPage > div > div,
+  .publicFooter > div {
+    max-width: 100%;
+    padding-inline: 0.75rem;
+  }
+
+  .publicPage .eventBanner > div {
+    align-items: stretch;
+    gap: 1rem;
+  }
+
+  .publicPage .eventBanner > div > div {
+    min-width: 0 !important;
+    width: 100%;
+  }
+
+  .publicPage .scheduleCard {
+    border-radius: 0.9rem;
+  }
+
+  .publicPage .scheduleCard button {
+    min-height: 2.5rem;
+  }
+
+  .publicFooter {
+    margin-top: 2rem !important;
+  }
+}

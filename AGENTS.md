@@ -1,5 +1,9 @@
 # Protected feature baselines
 
+## Preview–Print–PDF mirror contract
+
+All printable document work must follow [docs/PRINT_PDF_MIRROR_CONTRACT.md](docs/PRINT_PDF_MIRROR_CONTRACT.md). A preview, browser print, and PDF must use one authoritative renderer and intrinsic geometry. Export-only code may neutralise external preview presentation, but must not alter document content or layout. Every printable change requires a rendered-PDF comparison; passing unit tests alone is not sufficient.
+
 ## Individual Table Charts
 
 Treat the Individual Table Charts feature as an approved, protected baseline.

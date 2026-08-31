@@ -67,7 +67,7 @@ export const VenueBackgroundPanel = ({
     });
 
   return (
-    <div className="rounded-lg border border-border bg-muted/20 p-3 max-lg:p-4 space-y-3">
+    <div data-reception-panel="true" className="flex h-full min-w-0 flex-col gap-3 rounded-lg border border-border bg-muted/20 p-3 max-lg:p-4">
       <div className="flex items-center gap-2">
         <ImageIcon className="w-4 h-4 text-primary" />
         <h3 className="text-sm font-semibold text-foreground">Venue background</h3>
@@ -81,12 +81,12 @@ export const VenueBackgroundPanel = ({
         onChange={(e) => handleFile(e.target.files?.[0])}
       />
 
-      <div className="flex flex-wrap gap-2 max-lg:flex-col">
+      <div className="flex flex-col gap-2">
         <Button
           type="button"
           variant="outline"
           size="sm"
-          className="lv-premium-shade h-9 max-lg:h-11 max-lg:w-full max-lg:text-base"
+          className="lv-premium-shade h-auto min-h-9 w-full whitespace-normal max-lg:min-h-11 max-lg:text-base"
           onClick={() => fileInputRef.current?.click()}
           disabled={uploading}
         >
@@ -108,7 +108,7 @@ export const VenueBackgroundPanel = ({
               type="button"
               variant="outline"
               size="sm"
-              className="lv-premium-shade h-9 max-lg:h-11 max-lg:w-full max-lg:text-base"
+              className="lv-premium-shade min-h-9 w-full max-lg:min-h-11 max-lg:text-base"
               onClick={onCalibrate}
               disabled={!onCalibrate || bg.locked}
             >
@@ -119,7 +119,7 @@ export const VenueBackgroundPanel = ({
               type="button"
               variant="outline"
               size="sm"
-              className="lv-premium-shade h-9 max-lg:h-11 max-lg:w-full max-lg:text-base"
+              className="lv-premium-shade min-h-9 w-full max-lg:min-h-11 max-lg:text-base"
               onClick={resetToRoom}
               disabled={bg.locked}
             >
@@ -130,7 +130,7 @@ export const VenueBackgroundPanel = ({
               type="button"
               variant="outline"
               size="sm"
-              className="lv-premium-shade h-9 max-lg:h-11 max-lg:w-full max-lg:text-base"
+              className="lv-premium-shade min-h-9 w-full max-lg:min-h-11 max-lg:text-base"
               onClick={() => setBg({ locked: !bg.locked })}
             >
               {bg.locked ? (
@@ -144,7 +144,7 @@ export const VenueBackgroundPanel = ({
               type="button"
               variant="outline"
               size="sm"
-              className="lv-premium-shade h-9 max-lg:h-11 max-lg:w-full max-lg:text-base text-destructive hover:text-destructive"
+              className="lv-premium-shade min-h-9 w-full text-destructive hover:text-destructive max-lg:min-h-11 max-lg:text-base"
               onClick={onRemove}
             >
               <Trash2 className="w-3.5 h-3.5 mr-1.5" />
@@ -179,7 +179,7 @@ export const VenueBackgroundPanel = ({
         </div>
       )}
 
-      <p className="text-xs text-muted-foreground">
+      <p className="mt-auto text-xs text-muted-foreground">
         Upload your venue floor plan. PDFs use page 1 only. The image sits behind tables and
         fixtures and can be moved, resized, rotated, and faded. Files are private to your account.
       </p>

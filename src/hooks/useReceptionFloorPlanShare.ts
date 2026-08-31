@@ -10,6 +10,7 @@ import type {
 } from '@/hooks/useReceptionFloorPlan';
 import type { ReceptionTable } from '@/hooks/useReceptionTables';
 import type { ReceptionPdfEvent } from '@/lib/receptionFloorPlanPdfExporter';
+import { parseHeadSeatingOrder } from '@/lib/headTable';
 
 interface SharePayload {
   plan: ReceptionFloorPlan;
@@ -117,12 +118,45 @@ export const useReceptionFloorPlanShare = (token: string | undefined): State => 
         start_time: (e.start_time as string | null) ?? null,
         finish_time: (e.finish_time as string | null) ?? null,
       };
-      const tables: ReceptionTable[] = (raw.tables ?? []).map((t) => ({
-        id: String(t.id),
-        name: (t.name as string | null) ?? '',
-        table_no: Number(t.table_no ?? 0),
-        limit_seats: Number(t.limit_seats ?? 0),
-      })) as ReceptionTable[];
+      const positionByTableId = new Map(plan.table_positions.map((position) => [position.table_id, position]));
+      const tables: ReceptionTable[] = (raw.tables ?? []).map((t) => {
+        const id = String(t.id);
+        const snapshot = positionByTableId.get(id);
+        const rawType = (t.table_type as string | null) ?? snapshot?.table_type;
+        const tablePurpose = t.table_purpose === 'head' || snapshot?.table_purpose === 'head' ? 'head' : 'standard';
+        const headOrder = parseHeadSeatingOrder(t.head_seating_order ?? snapshot?.head_seating_order);
+        return {
+          id,
+          name: (t.name as string | null) ?? snapshot?.table_name ?? '',
+          table_no: t.table_no == null ? snapshot?.table_no ?? null : Number(t.table_no),
+          limit_seats: Number(t.limit_seats ?? snapshot?.capacity ?? 0),
+          table_type: rawType === 'square' || rawType === 'long' ? rawType : 'round',
+          notes: (t.notes as string | null) ?? null,
+          table_purpose: tablePurpose,
+          head_seating_order: headOrder,
+          guest_count: tablePurpose === 'head' ? headOrder.length : Number(t.guest_count ?? snapshot?.occupied_count ?? 0),
+          occupied_seat_numbers: tablePurpose === 'head' ? headOrder.map((_, index) => Math.floor((Number(t.limit_seats ?? snapshot?.capacity ?? 0) - headOrder.length) / 2) + index + 1) : Array.isArray(t.occupied_seat_numbers)
+            ? (t.occupied_seat_numbers as number[])
+            : snapshot?.occupied_seat_numbers ?? [],
+        };
+      });
+
+      for (const fixture of plan.fixtures) {
+        if (!fixture.linked_table_id || tables.some((table) => table.id === fixture.linked_table_id)) continue;
+        const snapshot = positionByTableId.get(fixture.linked_table_id);
+        tables.push({
+          id: fixture.linked_table_id,
+          name: fixture.linked_table_name ?? snapshot?.table_name ?? 'Bridal Table',
+          table_no: fixture.linked_table_no ?? snapshot?.table_no ?? null,
+          limit_seats: fixture.linked_table_capacity ?? snapshot?.capacity ?? 0,
+          table_type: fixture.linked_table_type ?? snapshot?.table_type ?? 'long',
+          notes: null,
+          table_purpose: snapshot?.table_purpose ?? 'standard',
+          head_seating_order: snapshot?.head_seating_order ?? [],
+          guest_count: fixture.linked_table_occupied_count ?? snapshot?.occupied_count ?? 0,
+          occupied_seat_numbers: fixture.linked_table_occupied_seat_numbers ?? snapshot?.occupied_seat_numbers ?? [],
+        });
+      }
 
       let backgroundUrl: string | null = null;
       if (plan.background.path) {

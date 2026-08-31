@@ -1,9 +1,6 @@
 .coreSurface {
-  background-color: #70452f;
-  background-image: url("../../assets/dashboard-mocha-liquid-glass.png");
-  background-position: center center;
-  background-repeat: no-repeat;
-  background-size: cover;
+  background-color: var(--ww-application-background-color);
+  background-image: var(--ww-application-background-image);
   color: #f3e7d8;
   font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
 }

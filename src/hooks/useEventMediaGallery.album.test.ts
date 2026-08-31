@@ -83,6 +83,16 @@ describe('useEventMediaGallery album persistence', () => {
     next.unmount();
   });
 
+  it('does not fetch media rows or sign media URLs for the landing-page metadata view', async () => {
+    const landing = renderHook(() => useEventMediaGallery('event-1', { loadItems: false }));
+
+    await waitFor(() => expect(landing.result.current.meta?.gallery_id).toBe('gallery-1'));
+    expect(backend.rpc).not.toHaveBeenCalledWith('get_event_media_items_host', expect.anything());
+    expect(backend.createSignedUrls).not.toHaveBeenCalled();
+    expect(backend.createSignedUrl).not.toHaveBeenCalled();
+    landing.unmount();
+  });
+
   it('saves through the existing RPC and reloads the changed album after a fresh mount', async () => {
     const first = renderHook(() => useEventMediaGallery('event-1'));
     await waitFor(() => expect(first.result.current.items).toHaveLength(1));

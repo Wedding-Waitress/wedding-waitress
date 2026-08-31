@@ -1,14 +1,11 @@
-import React, { useState, useEffect, useMemo, useRef, useCallback, lazy, Suspense } from 'react';
-import { useSearchParams } from 'react-router-dom';
+import React, { startTransition, useState, useEffect, useMemo, useRef, useCallback, lazy, Suspense, useDeferredValue } from 'react';
+import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { StatsBar } from "@/components/Dashboard/StatsBar";
 import { AppSidebar } from "@/components/Dashboard/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
-import { MyEventsPage } from "@/components/Dashboard/MyEventsPage";
 import myEventsStyles from "@/components/Dashboard/MyEventsPage.module.css";
-import { GuestListTable } from "@/components/Dashboard/GuestListTable";
 import { DashboardOverview } from "@/components/Dashboard/DashboardOverview";
 import dashboardOverviewStyles from "@/components/Dashboard/DashboardOverview.module.css";
-import { CreateTableModal } from "@/components/Dashboard/CreateTableModal";
 import { TableCard } from "@/components/Dashboard/TableCard";
 import { SortableTablesGrid } from "@/components/Dashboard/Tables/SortableTablesGrid";
 import { UnassignedGuestsPanel } from "@/components/Dashboard/Tables/UnassignedGuestsPanel";
@@ -24,7 +21,6 @@ import { useSelectedEvent } from '@/hooks/useSelectedEvent';
 import { useTables, TableWithGuestCount } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useRealtimeTables } from '@/hooks/useRealtimeTables';
-import { useProfile } from '@/hooks/useProfile';
 import { useUndoStack } from '@/hooks/useUndoStack';
 import { useToast } from '@/hooks/use-toast';
 import { SeoHead } from '@/components/SEO/SeoHead';
@@ -34,8 +30,17 @@ import tablesPageStyles from './TablesPage.module.css';
 import qrCodePageStyles from '@/components/Dashboard/QRCode/QRCodeSeatingChart.module.css';
 import guestListStyles from '@/components/Dashboard/GuestListTable.module.css';
 import signagePageStyles from '@/components/Dashboard/Signage/SignagePage.module.css';
+import invitationsPageStyles from '@/components/Dashboard/Invitations/InvitationsPage.module.css';
+import placeCardsPageStyles from '@/components/Dashboard/PlaceCards/PlaceCardsPage.module.css';
+import individualTableChartStyles from '@/components/Dashboard/IndividualTableChart/IndividualTableChartPage.module.css';
+import kitchenDietaryStyles from '@/components/Dashboard/QRCode/KitchenDietaryChartPage.module.css';
+import fullSeatingChartStyles from '@/components/Dashboard/FullSeatingChart/FullSeatingChartPage.module.css';
+import photoVideoManagementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 
 // Lazy-loaded tab pages for faster initial load
+const MyEventsPage = lazy(() => import('@/components/Dashboard/MyEventsPage').then(m => ({ default: m.MyEventsPage })));
+const GuestListTable = lazy(() => import('@/components/Dashboard/GuestListTable').then(m => ({ default: m.GuestListTable })));
+const CreateTableModal = lazy(() => import('@/components/Dashboard/CreateTableModal').then(m => ({ default: m.CreateTableModal })));
 const QRCodeSeatingChart = lazy(() => import('@/components/Dashboard/QRCode/QRCodeSeatingChart').then(m => ({ default: m.QRCodeSeatingChart })));
 const QRCodeFeatureGrid = lazy(() => import('@/components/Dashboard/QRCode/QRCodeFeatureGrid').then(m => ({ default: m.QRCodeFeatureGrid })));
 const KitchenDietaryChart = lazy(() => import('@/components/Dashboard/QRCode/KitchenDietaryChart').then(m => ({ default: m.KitchenDietaryChart })));
@@ -50,15 +55,21 @@ const DJMCQuestionnairePage = lazy(() => import('@/components/Dashboard/DJMCQues
 const InvitationsPage = lazy(() => import('@/components/Dashboard/Invitations/InvitationsPage').then(m => ({ default: m.InvitationsPage })));
 const PhotoVideoGalleryPage = lazy(() => import('@/components/Dashboard/PhotoVideoGallery').then(m => ({ default: m.PhotoVideoGalleryPage })));
 const Account = lazy(() => import('@/pages/Account').then(m => ({ default: m.Account })));
+const GalleryUploadFeaturePage = lazy(() => import('@/pages/GalleryUploadFeaturePage').then(m => ({ default: m.GalleryUploadFeaturePage })));
+const GalleryViewFeaturePage = lazy(() => import('@/pages/GalleryViewFeaturePage').then(m => ({ default: m.GalleryViewFeaturePage })));
+const GalleryPhotoBoothFeaturePage = lazy(() => import('@/pages/GalleryPhotoBoothFeaturePage').then(m => ({ default: m.GalleryPhotoBoothFeaturePage })));
+const GalleryTextGuestbookFeaturePage = lazy(() => import('@/pages/GalleryTextGuestbookFeaturePage').then(m => ({ default: m.GalleryTextGuestbookFeaturePage })));
+const GallerySlideshowFeaturePage = lazy(() => import('@/pages/GallerySlideshowFeaturePage').then(m => ({ default: m.GallerySlideshowFeaturePage })));
 
 // Feature flags removed — Running Sheet always enabled
 import { supabase } from '@/integrations/supabase/client';
-import { useNavigate } from 'react-router-dom';
 import { AppErrorBoundary } from '@/components/core/AppErrorBoundary';
 import { PlanExpiredModal } from '@/components/Dashboard/PlanExpiredModal';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { ExpiryWarningBanner } from '@/components/Dashboard/ExpiryWarningBanner';
 import { useDashboardSession } from '@/hooks/useDashboardSession';
+import { scheduleIdleWork, loadAccountRoute } from '@/lib/authenticatedRoutePreload';
+import { preloadDashboardPage, preloadFrequentDashboardPages } from '@/lib/dashboardPagePreload';
 
 /* Organiser pages that use the standardised 1px #472c1d neutral border pass.
    Photo & Video Sharing and its workspaces are intentionally excluded. */
@@ -90,27 +101,51 @@ const ESPRESSO_FULL_PAGE_TABS = new Set([
   'dietary-chart',
 ]);
 
+const DashboardPageSkeleton = () => (
+  <div
+    className="grid min-h-[18rem] grid-cols-1 gap-4 sm:grid-cols-2 xl:grid-cols-3"
+    role="status"
+    aria-label="Loading selected dashboard page"
+    aria-live="polite"
+  >
+    {Array.from({ length: 3 }, (_, index) => (
+      <div
+        key={index}
+        className="min-h-40 animate-pulse rounded-2xl border border-[#d8bc91]/25 bg-[#2a160f]/55"
+        aria-hidden="true"
+      />
+    ))}
+  </div>
+);
+
 export const Dashboard = () => {
-  const [searchParams, setSearchParams] = useSearchParams();
-  const [activeTab, setActiveTabState] = useState(() => searchParams.get('tab') || 'dashboard');
+  const [searchParams] = useSearchParams();
+  const location = useLocation();
+  const navigate = useNavigate();
+  const isPhotoVideoWorkspace = location.pathname.startsWith('/dashboard/photo-video-gallery/');
+  const urlTab = isPhotoVideoWorkspace ? 'photo-video-gallery' : searchParams.get('tab') || 'dashboard';
+  const [activeTab, setActiveTabState] = useState(urlTab);
+  // Keep the previous page visible while a cold lazy chunk resolves. Sidebar
+  // selection still updates synchronously, so navigation feedback is immediate.
+  const renderedTab = useDeferredValue(activeTab);
   
   // Wrap setActiveTab to persist in URL
   const setActiveTab = useCallback((tab: string) => {
     setActiveTabState(tab);
-    setSearchParams({ tab }, { replace: true });
-  }, [setSearchParams]);
+    startTransition(() => {
+      navigate(`/dashboard?tab=${encodeURIComponent(tab)}`);
+    });
+  }, [navigate]);
 
   // Keep activeTab in sync when URL ?tab= changes (header dropdown, back/forward)
   useEffect(() => {
-    const urlTab = searchParams.get('tab') || 'dashboard';
     if (urlTab !== activeTab) setActiveTabState(urlTab);
-  }, [searchParams, activeTab]);
+  }, [urlTab, activeTab]);
 
 
   
   const [showCreateTableModal, setShowCreateTableModal] = useState(false);
   const [editingTable, setEditingTable] = useState<TableWithGuestCount | null>(null);
-  const navigate = useNavigate();
   const {
     session,
     loading: authLoading,
@@ -132,24 +167,25 @@ export const Dashboard = () => {
     loaded: eventsLoaded,
     activeEventId: eventsActiveEventId,
     setActiveEventId: setEventsActiveEventId,
-    refetch: refetchEvents
+    createEvent,
+    updateEvent,
+    deleteEvent,
   } = useEvents();
 
   // Unified global event selection (single source of truth across all dashboard tabs).
   const {
     selectedEventId,
     selectedEvent,
+    status: selectedEventStatus,
     setSelectedEventId,
   } = useSelectedEvent(events, { loading: eventsLoading || !eventsLoaded });
   // Backward-compat aliases — both names now refer to the same value.
   const globalSelectedEventId = selectedEventId;
   const setGlobalSelectedEventId = setSelectedEventId;
 
-  const {
-    profile,
-    loading: profileLoading,
-    error: profileError
-  } = useProfile();
+  const seatingWorkspaceEventId = renderedTab === 'table-list' || renderedTab === 'guest-list'
+    ? selectedEventId
+    : null;
 
   const {
     tables: rawTables,
@@ -157,21 +193,31 @@ export const Dashboard = () => {
     createTable,
     updateTable,
     deleteTable,
-    fetchTables
-  } = useTables(selectedEventId);
+    fetchTables,
+    saveHeadTableSeating,
+  } = useTables(seatingWorkspaceEventId);
 
   // Real-time guest management
   const {
     guests,
     loading: guestsLoading,
     moveGuest,
+    updateGuest,
+    deleteGuest,
+    refetchGuests,
     reorderGuestsWithSeats,
-    refetchGuests
-  } = useRealtimeGuests(selectedEventId);
+  } = useRealtimeGuests(seatingWorkspaceEventId);
 
   // Undo stack for guest moves
   const { pushAction, undo, canUndo, lastAction } = useUndoStack();
   const { toast } = useToast();
+
+  // Warm the most frequently used feature chunks after the first dashboard
+  // paint. Intent preloading below remains the fast path for every other tab.
+  useEffect(() => scheduleIdleWork(() => {
+    preloadFrequentDashboardPages();
+    void loadAccountRoute();
+  }), []);
 
   // Bulk selection state
   const [selectedGuestIds, setSelectedGuestIds] = useState<Set<string>>(new Set());
@@ -246,6 +292,9 @@ export const Dashboard = () => {
     limit_seats: number;
     notes?: string;
     table_no?: number | null;
+    table_type?: 'round' | 'square' | 'long';
+    table_purpose?: 'standard' | 'head';
+    head_seating_order?: import('@/lib/headTable').HeadSeatEntry[];
   }) => {
     try {
       if (editingTable) {
@@ -268,7 +317,9 @@ export const Dashboard = () => {
     const seatsFilled = guests.length;
     const eventGuestLimit = currentEvent?.guest_limit || 0;
     const seatsRemaining = Math.max(0, eventGuestLimit - seatsFilled);
-    const tablesAtCapacity = tables.filter(table => table.guest_count >= table.limit_seats).length;
+    const tablesAtCapacity = tables.filter(table =>
+      (table.table_purpose === 'head' ? table.head_seating_order.length : table.guest_count) >= table.limit_seats
+    ).length;
     
     // RSVP statistics
     const sentInvites = guests.filter(g =>
@@ -311,6 +362,16 @@ export const Dashboard = () => {
   ): Promise<boolean> => {
     const guest = guests.find(g => g.id === guestId);
     const destTable = destTableId ? tables.find(t => t.id === destTableId) : null;
+    const sourceTable = sourceTableId ? tables.find(t => t.id === sourceTableId) : null;
+
+    if (destTable?.table_purpose === 'head' || sourceTable?.table_purpose === 'head') {
+      toast({
+        title: 'Use Arrange Head Table Seating',
+        description: 'Head Table assignments and left-to-right order are managed together from the Head Table card.',
+        className: 'ww-tables-toast',
+      });
+      return false;
+    }
     
     // Save to undo stack before moving
     if (guest) {
@@ -352,6 +413,7 @@ export const Dashboard = () => {
     toast({
       title: "Undo successful",
       description: `Moved ${action.guestName} back`,
+      className: 'ww-tables-toast',
     });
   }, [undo, tables, moveGuest, toast]);
 
@@ -373,6 +435,11 @@ export const Dashboard = () => {
     setIsBulkMoving(true);
     
     const destTable = destTableId ? tables.find(t => t.id === destTableId) : null;
+    if (destTable?.table_purpose === 'head') {
+      setIsBulkMoving(false);
+      toast({ title: 'Use Arrange Head Table Seating', description: 'Add Head Table guests from its seating arranger.', className: 'ww-tables-toast' });
+      return;
+    }
     let successCount = 0;
     
     for (const guestId of selectedGuestIds) {
@@ -395,6 +462,7 @@ export const Dashboard = () => {
     toast({
       title: "Bulk move complete",
       description: `Moved ${successCount} guest${successCount !== 1 ? 's' : ''}`,
+      className: 'ww-tables-toast',
     });
   };
 
@@ -413,6 +481,7 @@ export const Dashboard = () => {
 
   // Handle reordering guests within a table
   const handleReorderGuests = async (tableId: string, orderedGuestIds: string[]): Promise<boolean> => {
+    if (tables.find((table) => table.id === tableId)?.table_purpose === 'head') return false;
     return await reorderGuestsWithSeats(tableId, orderedGuestIds);
   };
   const handleCloseModal = () => {
@@ -421,20 +490,53 @@ export const Dashboard = () => {
   };
 
   // Content for different tabs
-  const renderTabContent = () => {
-    switch (activeTab) {
+  const renderTabContent = (tabId: string) => {
+    const workspaceSelection = {
+      selectedEventId,
+      selectedEvent,
+      selectionStatus: selectedEventStatus,
+    };
+    if (isPhotoVideoWorkspace) {
+      switch (location.pathname) {
+        case '/dashboard/photo-video-gallery/photo-video-sharing':
+          return <GalleryUploadFeaturePage {...workspaceSelection} />;
+        case '/dashboard/photo-video-gallery/gallery-view':
+          return <GalleryViewFeaturePage {...workspaceSelection} />;
+        case '/dashboard/photo-video-gallery/digital-photo-booth':
+          return <GalleryPhotoBoothFeaturePage {...workspaceSelection} />;
+        case '/dashboard/photo-video-gallery/digital-guestbook':
+          return <GalleryTextGuestbookFeaturePage {...workspaceSelection} />;
+        case '/dashboard/photo-video-gallery/live-slideshow':
+          return <GallerySlideshowFeaturePage {...workspaceSelection} />;
+        default:
+          return <PhotoVideoGalleryPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} />;
+      }
+    }
+
+    switch (tabId) {
       case 'dashboard':
         return (
           <DashboardOverview
-            selectedEventId={selectedEventId}
-            onEventSelect={handleEventSelect}
             events={events}
-            guests={guests}
-            onNavigateToGuestList={() => handleTabChange('guest-list')}
+            eventsLoading={eventsLoading || !eventsLoaded}
+            selectedEventId={selectedEventId}
+            onEventSelect={setSelectedEventId}
+            onNavigateToTab={(tabId, eventId) => {
+              if (eventId) setSelectedEventId(eventId);
+              handleTabChange(tabId);
+            }}
           />
         );
       case 'my-events':
-        return <MyEventsPage />;
+        return <MyEventsPage
+          events={events}
+          loading={eventsLoading}
+          activeEventId={eventsActiveEventId}
+          setActiveEventId={setEventsActiveEventId}
+          createEvent={createEvent}
+          updateEvent={updateEvent}
+          deleteEvent={deleteEvent}
+        />;
       case 'guest-list':
         return (
           <>
@@ -443,10 +545,25 @@ export const Dashboard = () => {
               description="Easily manage your wedding guest list, track RSVPs, organise guests, and send invitations via email or SMS. The simplest way to stay organised for your big day."
               noIndex
             />
-            <GuestListTable selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />
+            <GuestListTable
+              selectedEventId={selectedEventId}
+              onEventSelect={handleEventSelect}
+              onNavigateToTables={() => setActiveTab('table-list')}
+              events={events}
+              loading={eventsLoading}
+              updateEvent={updateEvent}
+              guests={guests}
+              guestsLoading={guestsLoading}
+              updateGuest={updateGuest}
+              deleteGuest={deleteGuest}
+              refetchGuests={refetchGuests}
+              tables={rawTables}
+              tablesLoading={tablesLoading}
+              fetchTables={fetchTables}
+            />
           </>
         );
-      case 'table-list':
+      case 'table-list': {
         const tablesSeo = (
           <SeoHead
             title="Tables Planner | Create & Manage Wedding Tables Easily"
@@ -513,11 +630,11 @@ export const Dashboard = () => {
                         <ul className="list-disc pl-5 space-y-1 max-lg:pl-4">
                           <li className="text-red-600 font-bold"><span className="inline-flex items-center gap-1.5"><CircleAlert size={17} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Important – Please Read:</span></li>
                           <li>Design your perfect seating arrangements by adding the number of tables you want to host your guests.</li>
-                          <li>We suggest firstly adding a <strong>"Bridal Table"</strong> then the <strong>"1 Groom's Family"</strong> table, then the <strong>"2 Bride's Family"</strong> table.</li>
-                          <li>Then add sequential numbering tables like <strong>"1, 2, 3, 4, 5 & etc"</strong></li>
+                          <li>We suggest starting with a <strong>"Head Table"</strong>, then adding tables for immediate family and your remaining guests.</li>
+                          <li>Use sequential table numbers such as <strong>"1, 2, 3, 4, 5"</strong>.</li>
                           <li>Alternatively, have some fun by creating table names like <strong>"Paris, New York, Rome, or Cairo"</strong>.</li>
-                          <li>Once you have set up all the table with names or numbers then move onto the next page &gt; <strong>"Guest List"</strong>, to add your guest names & details.</li>
-                          <li>Remember, you can always come back here, drag / drop & re-allocate that aunty who still doesn't talk to the other aunts or Uncles ha ha – Have Fun!</li>
+                          <li>Once you have set up all your tables, move to the next page &gt; <strong>"Guest List"</strong> to add guest names and details.</li>
+                          <li>You can return here at any time to drag, drop and reallocate guests between tables.</li>
                         </ul>
                       </div>
                     </div>
@@ -592,7 +709,7 @@ export const Dashboard = () => {
                         onReorderGuests={handleReorderGuests}
                       >
                           <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                            {tables.map(table => <TableCard key={table.id} table={table} onEdit={handleEditTable} onDelete={deleteTable} guests={guests} eventId={selectedEventId} />)}
+                            {tables.map(table => <TableCard key={table.id} table={table} onEdit={handleEditTable} onDelete={deleteTable} guests={guests} eventId={selectedEventId} participant1={selectedEvent?.partner1_name} participant2={selectedEvent?.partner2_name} onSaveHeadSeating={saveHeadTableSeating} />)}
                           </div>
                       </SortableTablesGrid>
                     ) : <div className={tablesPageStyles.emptyState}>
@@ -610,6 +727,7 @@ export const Dashboard = () => {
                 </CardContent>
               </Card>}
           </div>;
+      }
       case 'floor-plan':
         if (selectedEventType === 'cocktail') {
           return (
@@ -619,9 +737,9 @@ export const Dashboard = () => {
             </Card>
           );
         }
-        return <FloorPlanPage selectedEventId={selectedEventId} onEventSelect={setSelectedEventId} />;
+        return <FloorPlanPage selectedEventId={selectedEventId} onEventSelect={setSelectedEventId} events={events} eventsLoading={eventsLoading} />;
       case 'signage':
-        return <SignagePage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} />;
+        return <SignagePage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} events={events} eventsLoading={eventsLoading} />;
       case 'qr-code':
         return (
           <>
@@ -630,30 +748,28 @@ export const Dashboard = () => {
               description="Create a digital wedding seating chart with a QR code. Guests can scan to instantly find their table. No printing needed — simple, modern, and stress-free."
               noIndex
             />
-            <QRCodeSeatingChart selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} onNavigateToTab={handleTabChange} />
+            <QRCodeSeatingChart selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} onNavigateToTab={handleTabChange} events={events} eventsLoading={eventsLoading} />
           </>
         );
       case 'kiosk-live-view':
-        return <KioskSetup selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
+        return <KioskSetup selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} />;
       case 'dietary-chart':
         return <KitchenDietaryChart eventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} />;
       case 'full-seating-chart':
-        return <FullSeatingChartPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
+        return <FullSeatingChartPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} />;
       case 'place-cards':
-        return <PlaceCardsPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
+        return <PlaceCardsPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} />;
       case 'individual-table-chart':
         // Individual table seating chart feature
-        return <IndividualTableSeatingChartPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
-      case 'floor-plan':
-        return <FloorPlanPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
+        return <IndividualTableSeatingChartPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} />;
       case 'running-sheet':
-        return <RunningSheetPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
+        return <RunningSheetPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} />;
       case 'dj-mc-questionnaire':
-        return <DJMCQuestionnairePage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
+        return <DJMCQuestionnairePage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} />;
       case 'invitations':
-        return <InvitationsPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
+        return <InvitationsPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} />;
       case 'photo-video-gallery':
-        return <PhotoVideoGalleryPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} />;
+        return <PhotoVideoGalleryPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} />;
       case 'account':
         return <Account />;
       default:
@@ -673,15 +789,13 @@ export const Dashboard = () => {
     navigate('/');
   };
 
-  // Handle tab changes with refetch for tables page
+  // Route changes are optimistic; cached/realtime data remains mounted in this shell.
   const handleTabChange = (tabId: string) => {
     setActiveTab(tabId);
+  };
 
-    // Explicitly refetch events when navigating to the Tables page
-    if (tabId === 'table-list') {
-      refetchEvents();
-      refetchGuests();
-    }
+  const handleTabIntent = (tabId: string) => {
+    void preloadDashboardPage(tabId);
   };
 
   // Only block on authentication check — data loads in background with cached UI
@@ -695,7 +809,7 @@ export const Dashboard = () => {
 
   if (authError) {
     return (
-      <div className="flex min-h-[100dvh] w-full items-center justify-center bg-gradient-subtle px-4">
+      <div className="ww-application-background flex min-h-[100dvh] w-full items-center justify-center px-4">
         <Card className="ww-box w-full max-w-md p-8 text-center" role="alert">
           <CardTitle className="mb-2">Dashboard couldn’t load</CardTitle>
           <CardDescription className="mb-6">
@@ -711,7 +825,7 @@ export const Dashboard = () => {
 
   // Show authentication error or redirect to landing
   if (!session) {
-    return <div className="min-h-screen bg-gradient-subtle flex items-center justify-center">
+    return <div className="ww-application-background min-h-screen flex items-center justify-center">
         <Card className="ww-box p-8 text-center max-w-md">
           <CardTitle className="mb-4">Authentication Required</CardTitle>
           <CardDescription className="mb-6">
@@ -725,8 +839,12 @@ export const Dashboard = () => {
   }
   return <SidebarProvider>
     {/* Defensive page-level noIndex — protects every dashboard tab even if a tab forgets its own SeoHead. */}
-    <SeoHead title="Dashboard | Wedding Waitress" description="Wedding Waitress dashboard" noIndex />
-    <div className={`dashboard-shell relative min-h-screen dashboard-surface w-full mobile-contain ${activeTab === 'my-events' ? 'ww-myevents-brown' : ''}`}>
+    <SeoHead
+      title="Event Budget Planner | Wedding Waitress"
+      description="View your event at a glance and plan, track and manage your event budget."
+      noIndex
+    />
+    <div data-dashboard-shell className={`dashboard-shell ww-application-background relative min-h-screen dashboard-surface w-full mobile-contain ${activeTab === 'my-events' ? 'ww-myevents-brown' : ''}${activeTab === 'running-sheet' ? ' ww-running-sheet-shell' : ''}${activeTab === 'dj-mc-questionnaire' ? ' ww-djmc-shell' : ''}`}>
       {/* Expiry Warning Banner */}
       <div className="print:hidden">
         <ExpiryWarningBanner />
@@ -742,12 +860,12 @@ export const Dashboard = () => {
       {/* Sidebar and Main Content */}
       <div className="flex w-full">
         {/* Sidebar */}
-        <div className="print:hidden">
-          <AppSidebar activeTab={activeTab} onTabChange={handleTabChange} onSignOut={handleSignOut} />
+        <div className="print:hidden" data-dashboard-sidebar>
+          <AppSidebar activeTab={activeTab} onTabChange={handleTabChange} onTabIntent={handleTabIntent} onSignOut={handleSignOut} />
         </div>
         
         {/* Main Content - Mobile optimized padding */}
-        <main className={`flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 min-w-0 overflow-x-hidden${BROWN_OUTLINE_TABS.has(activeTab) ? ` ${pageSpacingStyles.corePageBottomSpacing}` : ''}${activeTab === 'dashboard' ? ` ${dashboardOverviewStyles.mainSurface}` : ''}${ESPRESSO_FULL_PAGE_TABS.has(activeTab) ? ` ${signagePageStyles.fullPageSurface}` : ''}${activeTab === 'my-events' ? ` ${myEventsStyles.mainSurface}` : ''}${activeTab === 'table-list' ? ` ${tablesPageStyles.mainSurface}` : ''}${activeTab === 'guest-list' ? ` ${guestListStyles.mainSurface}` : ''}${activeTab === 'qr-code' ? ` ${qrCodePageStyles.mainSurface}` : ''}${BROWN_OUTLINE_TABS.has(activeTab) ? ' ww-brown-outline-core ww-heading-system' : ''}${BROWN_OUTLINE_TABS.has(activeTab) || activeTab === 'photo-video-gallery' ? ' ww-solid-text' : ''}${activeTab === 'floor-plan' ? ' ww-floorplan-brown' : ''}${activeTab === 'kiosk-live-view' ? ' ww-kiosk-brown' : ''}`}>
+        <main data-dashboard-content className={`ww-application-background flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 min-w-0 overflow-x-hidden${BROWN_OUTLINE_TABS.has(activeTab) ? ` ${pageSpacingStyles.corePageBottomSpacing}` : ''}${activeTab === 'dashboard' ? ` ${dashboardOverviewStyles.mainSurface}` : ''}${ESPRESSO_FULL_PAGE_TABS.has(activeTab) ? ` ${signagePageStyles.fullPageSurface}` : ''}${activeTab === 'signage' ? ` ${signagePageStyles.signageWorkspaceSurface}` : ''}${activeTab === 'invitations' ? ` ${invitationsPageStyles.invitationsWorkspaceSurface}` : ''}${activeTab === 'place-cards' ? ` ${placeCardsPageStyles.placeCardsWorkspaceSurface}` : ''}${activeTab === 'individual-table-chart' ? ` ${individualTableChartStyles.workspaceSurface}` : ''}${activeTab === 'dietary-chart' ? ` ${kitchenDietaryStyles.dietaryWorkspaceSurface}` : ''}${activeTab === 'full-seating-chart' ? ` ${fullSeatingChartStyles.fullSeatingWorkspaceSurface}` : ''}${isPhotoVideoWorkspace || activeTab === 'photo-video-gallery' ? ` ${photoVideoManagementStyles.photoVideoWorkspaceMain}` : ''}${activeTab === 'my-events' ? ` ${myEventsStyles.mainSurface}` : ''}${activeTab === 'table-list' ? ` ${tablesPageStyles.mainSurface}` : ''}${activeTab === 'guest-list' ? ` ${guestListStyles.mainSurface}` : ''}${activeTab === 'qr-code' ? ` ${qrCodePageStyles.mainSurface}` : ''}${BROWN_OUTLINE_TABS.has(activeTab) ? ' ww-brown-outline-core' : ''}${BROWN_OUTLINE_TABS.has(activeTab) && activeTab !== 'running-sheet' ? ' ww-heading-system' : ''}${BROWN_OUTLINE_TABS.has(activeTab) || activeTab === 'photo-video-gallery' ? ' ww-solid-text' : ''}${activeTab === 'floor-plan' ? ' ww-floorplan-brown' : ''}${activeTab === 'kiosk-live-view' ? ' ww-kiosk-brown' : ''}${activeTab === 'running-sheet' ? ' ww-running-sheet-main' : ''}${activeTab === 'dj-mc-questionnaire' ? ' ww-djmc-main' : ''}`}>
           <div className="w-full max-w-none">
             {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements, Full Seating Chart, DJ & MC Questionnaire, Running Sheet, AI Features */}
             {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'dj-mc-questionnaire' && activeTab !== 'running-sheet' && activeTab !== 'invitations' && activeTab !== 'signage' && activeTab !== 'account' && activeTab !== 'photo-video-gallery' && <div className={`print:hidden${activeTab === 'table-list' || activeTab === 'guest-list' ? ' ww-tables-stats' : ''}${activeTab === 'table-list' ? ` ${tablesPageStyles.stats}` : ''}${activeTab === 'guest-list' ? ` ${guestListStyles.stats}` : ''}`}>
@@ -760,15 +878,10 @@ export const Dashboard = () => {
             
             {/* Tab Content */}
             <Suspense
-              fallback={(
-                <DashboardLoadingScreen
-                  contained
-                  appearance={getDashboardLoadingAppearance('/dashboard', `?tab=${encodeURIComponent(activeTab)}`)}
-                />
-              )}
+              fallback={<DashboardPageSkeleton />}
             >
               <div className="space-y-4 sm:space-y-6 mt-4 sm:mt-6">
-                {renderTabContent()}
+                {renderTabContent(renderedTab)}
               </div>
             </Suspense>
           </div>
@@ -776,15 +889,21 @@ export const Dashboard = () => {
       </div>
       
       {/* Create/Edit Table Modal */}
-      <CreateTableModal 
-        isOpen={showCreateTableModal} 
-        onClose={handleCloseModal} 
-        onSave={handleSaveTable} 
-        editingTable={editingTable} 
-        existingTables={tables}
-        eventGuestLimit={events.find(e => e.id === selectedEventId)?.guest_limit}
-        currentEventName={events.find(e => e.id === selectedEventId)?.name}
-      />
+      {showCreateTableModal && (
+        <Suspense fallback={null}>
+          <CreateTableModal
+            isOpen
+            onClose={handleCloseModal}
+            onSave={handleSaveTable}
+            editingTable={editingTable}
+            existingTables={tables}
+            eventGuestLimit={events.find(e => e.id === selectedEventId)?.guest_limit}
+            currentEventName={events.find(e => e.id === selectedEventId)?.name}
+            primaryParticipant1={selectedEvent?.partner1_name}
+            primaryParticipant2={selectedEvent?.partner2_name}
+          />
+        </Suspense>
+      )}
 
       {/* Plan Expired Modal */}
       <PlanExpiredModal

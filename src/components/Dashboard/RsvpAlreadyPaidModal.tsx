@@ -39,7 +39,7 @@ export const RsvpAlreadyPaidModal: React.FC<RsvpAlreadyPaidModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-md">
+      <DialogContent className="ww-guest-list-typography max-w-md">
         <DialogHeader>
           <DialogTitle className="flex items-center justify-center gap-2 text-lg mt-8 text-left">
             <CheckCircle2 className="w-5 h-5 text-green-600" />

@@ -7,6 +7,7 @@ import { Slider } from '@/components/ui/slider';
 import { useToast } from '@/hooks/use-toast';
 import type { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
 import type { PlaceCardPhotoVideoQr } from '@/hooks/usePlaceCardPhotoVideoQr';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   eventName: string;
@@ -20,6 +21,7 @@ interface Props {
 const DEFAULT_QR = { photo_video_qr_x: 50, photo_video_qr_y: 50, photo_video_qr_size: 22 };
 
 export const PlaceCardPhotoVideoQrPanel: React.FC<Props> = ({ eventName, qr, loading, error, settings, onSettingsChange }) => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const enabled = Boolean(settings.photo_video_qr_enabled && qr);
   const x = Number(settings.photo_video_qr_x ?? DEFAULT_QR.photo_video_qr_x);
@@ -62,7 +64,7 @@ export const PlaceCardPhotoVideoQrPanel: React.FC<Props> = ({ eventName, qr, loa
         <TriangleAlert className="mx-auto h-8 w-8" aria-hidden="true" />
         <h3 className="text-lg font-semibold">Photo &amp; Video Sharing is not set up</h3>
         <p className="text-sm text-muted-foreground">{error || 'Set up Photo & Video Sharing for this event first. The same permanent public link will then be available here.'}</p>
-        <Button type="button" variant="outline" className="w-full rounded-full" onClick={() => { window.location.href = '/dashboard/photo-video-gallery/photo-video-sharing'; }}>
+        <Button type="button" variant="outline" className="w-full rounded-full" onClick={() => navigate('/dashboard/photo-video-gallery/photo-video-sharing')}>
           <ExternalLink className="mr-2 h-4 w-4" /> Go to Photo &amp; Video Sharing setup
         </Button>
       </div>
@@ -77,9 +79,9 @@ export const PlaceCardPhotoVideoQrPanel: React.FC<Props> = ({ eventName, qr, loa
         <div className="grid gap-4 sm:grid-cols-[132px_minmax(0,1fr)] sm:items-start">
           <div className="rounded-lg p-2" style={{ background: '#ffffff' }}><img src={qr.dataUrl} alt="Photo & Video Sharing QR code preview" className="h-auto w-full" /></div>
           <div className="min-w-0 space-y-3">
-            <div><Label>Selected event</Label><p className="mt-1 font-semibold text-white">{eventName}</p></div>
+            <div><Label>Selected event</Label><p className="mt-1 font-semibold text-foreground">{eventName}</p></div>
             <div><Label htmlFor="place-card-sharing-url">Public sharing URL</Label><Input id="place-card-sharing-url" readOnly value={qr.url} className="mt-1" /></div>
-            <p className={qr.acceptingUploads ? 'text-sm text-green-300' : 'text-sm text-amber-200'}>{qr.acceptingUploads ? 'Guest uploads are currently accepting submissions.' : 'Guest uploads are currently switched off. The QR remains linked to this event.'}</p>
+            <p className={qr.acceptingUploads ? 'text-sm text-green-700' : 'text-sm text-amber-800'}>{qr.acceptingUploads ? 'Guest uploads are currently accepting submissions.' : 'Guest uploads are currently switched off. The QR remains linked to this event.'}</p>
           </div>
         </div>
         <p className="text-xs text-muted-foreground">This is the exact same permanent QR code and public link used by Photo &amp; Video Sharing. No new token or guest page is created.</p>

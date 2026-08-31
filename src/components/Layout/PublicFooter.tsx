@@ -1,70 +1,18 @@
-/**
- * Shared public footer — extracted from locked Landing footer.
- * Visual markup identical to Landing.tsx footer; only difference is that
- * "Features / Pricing / FAQ" links point to real routes instead of in-page anchors.
- */
 import React from 'react';
+import { Facebook, Instagram, Youtube } from 'lucide-react';
 import { Link } from 'react-router-dom';
-import { useTranslation } from 'react-i18next';
-import { Instagram, Facebook, Youtube } from 'lucide-react';
+import { productsByGroup } from '@/content/publicProducts';
+import { publicEventTypes } from '@/content/publicEventTypes';
 
-export const PublicFooter: React.FC = () => {
-  const { t } = useTranslation('landing');
-  return (
-    <footer className="bg-gray-900 text-white py-16 px-4">
-      <div className="max-w-7xl mx-auto">
-        <div className="grid grid-cols-1 md:grid-cols-3 md:gap-12 gap-6 md:mb-12 mb-6">
-          <div>
-            <div className="flex md:justify-start justify-center items-center gap-2 mb-4 bg-transparent">
-              <img src="/wedding-waitress-logo-full.png" alt="Wedding Waitress" className="h-10 w-auto max-w-full object-contain bg-transparent p-0 md:brightness-0 md:invert" style={{ backgroundColor: 'transparent' }} />
-            </div>
-            <p className="text-gray-400 text-sm leading-relaxed max-w-xs md:text-left text-center mx-auto md:mx-0">
-              {t('footer.tagline')}
-            </p>
-          </div>
-          <div className="grid grid-cols-3 gap-3 sm:grid-cols-3 sm:gap-6 md:gap-8 lg:gap-12 md:mt-0 mt-6">
-            <div>
-              <h4 className="font-semibold md:mb-4 mb-2 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.explore')}</h4>
-              <ul className="md:space-y-1 space-y-1 text-sm text-gray-400">
-                <li><Link to="/features" className="block py-1 hover:text-white transition-colors whitespace-nowrap">{t('footer.features')}</Link></li>
-                <li><Link to="/pricing" className="block py-1 hover:text-white transition-colors whitespace-nowrap">{t('footer.pricing')}</Link></li>
-                <li><Link to="/faq" className="block py-1 hover:text-white transition-colors whitespace-nowrap">{t('footer.faq')}</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold md:mb-4 mb-2 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.support')}</h4>
-              <ul className="md:space-y-1 space-y-1 text-sm text-gray-400">
-                <li><Link to="/contact" className="block py-1 hover:text-white transition-colors whitespace-nowrap">{t('footer.contactUs')}</Link></li>
-              </ul>
-            </div>
-            <div>
-              <h4 className="font-semibold md:mb-4 mb-2 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.legal')}</h4>
-              <ul className="md:space-y-1 space-y-1 text-sm text-gray-400">
-                <li><Link to="/privacy" className="block py-1 hover:text-white transition-colors whitespace-nowrap">{t('footer.privacy')}</Link></li>
-                <li><Link to="/terms" className="block py-1 hover:text-white transition-colors whitespace-nowrap">{t('footer.terms')}</Link></li>
-                <li><Link to="/cookies" className="block py-1 hover:text-white transition-colors whitespace-nowrap">{t('footer.cookiePolicy')}</Link></li>
-              </ul>
-            </div>
-          </div>
-          <div className="md:pl-8 lg:pl-16 md:mt-0 mt-6 md:text-left text-center">
-            <h4 className="font-semibold md:mb-4 mb-3 text-sm uppercase md:tracking-wider tracking-wide text-gray-300">{t('footer.followUs')}</h4>
-            <div className="flex md:justify-start justify-center gap-4">
-              <a href="#" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
-                <Instagram className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
-                <Facebook className="w-5 h-5" />
-              </a>
-              <a href="#" className="w-10 h-10 rounded-xl bg-white/10 flex items-center justify-center hover:bg-white/20 transition-colors">
-                <Youtube className="w-5 h-5" />
-              </a>
-            </div>
-          </div>
-        </div>
-        <div className="border-t border-white/10 pt-8 flex items-center justify-center">
-          <p className="text-gray-500 text-sm">{t('footer.copyright', { year: new Date().getFullYear() })}</p>
-        </div>
+export const PublicFooter: React.FC = () => <footer className="ww-public-dashboard-background px-4 py-14 text-white">
+  <div className="mx-auto max-w-7xl">
+    <div className="grid gap-10 border-b border-white/10 pb-10 lg:grid-cols-[.85fr_2.15fr]">
+      <div><Link to="/" aria-label="Wedding Waitress home"><img src="/wedding-waitress-logo-full.png" alt="Wedding Waitress" className="h-12 w-auto brightness-0 invert" /></Link><p className="mt-5 max-w-sm text-sm leading-7 text-white/65">An all-in-one wedding planning and guest-experience platform for guests, RSVPs, seating, stationery, event-day details and shared memories.</p><div className="mt-6 flex gap-3">{[[Instagram,'Instagram'],[Facebook,'Facebook'],[Youtube,'YouTube']].map(([Icon,label]) => { const SocialIcon = Icon as typeof Instagram; return <a key={label as string} href="#" aria-label={`Wedding Waitress on ${label}`} className="grid h-10 w-10 place-items-center rounded-full border border-white/15 hover:bg-white/10"><SocialIcon size={18} aria-hidden="true" /></a>; })}</div></div>
+      <div className="grid gap-8 sm:grid-cols-2 xl:grid-cols-5">
+        {productsByGroup.map((group) => <div key={group.name}><h2 className="text-xs font-bold uppercase tracking-[.12em] text-[#d7b985]">{group.name}</h2><ul className="mt-4 space-y-2">{group.products.map((product) => <li key={product.path}><Link className="text-sm text-white/65 hover:text-white" to={product.path}>{product.shortName}</Link></li>)}</ul></div>)}
+        <div><h2 className="text-xs font-bold uppercase tracking-[.12em] text-[#d7b985]">Event Types</h2><ul className="mt-4 space-y-2">{publicEventTypes.map((eventType) => <li key={eventType.path}><Link className="text-sm text-white/65 hover:text-white" to={eventType.path}>{eventType.shortName}</Link></li>)}</ul></div>
       </div>
-    </footer>
-  );
-};
+    </div>
+    <div className="flex flex-col gap-5 pt-8 text-sm text-white/55 lg:flex-row lg:items-center lg:justify-between"><nav className="flex flex-wrap gap-x-5 gap-y-2" aria-label="Footer"><Link to="/how-it-works">How It Works</Link><Link to="/products">Products</Link><Link to="/events">Event Types</Link><Link to="/pricing">Pricing</Link><Link to="/blog">Blog</Link><Link to="/faq">FAQ</Link><Link to="/contact">Contact</Link><Link to="/dashboard">Sign In</Link><Link to="/privacy">Privacy</Link><Link to="/terms">Terms</Link><Link to="/cookies">Cookie Policy</Link></nav><p>© {new Date().getFullYear()} Wedding Waitress</p></div>
+  </div>
+</footer>;

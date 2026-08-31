@@ -23,10 +23,13 @@ import {
   Send,
   MailPlus,
   MailCheck,
-  MailQuestion
+  MailQuestion,
+  ChartNoAxesCombined
 } from "lucide-react";
+import styles from './StatsBar.module.css';
 
 const STAT_ICON_PROPS = { size: 21, strokeWidth: 1.8, "aria-hidden": true } as const;
+const MANROPE_FONT = "'Manrope', ui-sans-serif, system-ui, sans-serif";
 
 interface StatItem {
   label: string;
@@ -130,6 +133,44 @@ export const StatsBar: React.FC<StatsBarProps> = ({
   return (
     <Card className="ww-stats-bar mb-6 border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
       <div className="p-3 sm:p-4 md:p-6">
+        <div
+          className="ww-stats-overview mb-5 flex items-start gap-2.5 text-left sm:mb-6"
+          data-stats-overview
+        >
+          <ChartNoAxesCombined
+            size={22}
+            strokeWidth={1.8}
+            className={`${styles.overviewIcon} mt-0.5 shrink-0`}
+            aria-hidden="true"
+          />
+          <div className="min-w-0">
+            <h2
+              className={styles.overviewHeading}
+              style={{
+                fontFamily: MANROPE_FONT,
+                fontSize: '24px',
+                fontWeight: 600,
+                lineHeight: '24px',
+                letterSpacing: 'normal',
+              }}
+            >
+              Guest &amp; RSVP Overview
+            </h2>
+            <p
+              className={`${styles.overviewSubtitle} mt-1 break-words`}
+              style={{
+                fontFamily: MANROPE_FONT,
+                fontSize: '13px',
+                fontWeight: 400,
+                lineHeight: '18px',
+                letterSpacing: 'normal',
+              }}
+            >
+              Monitor guest capacity, tables, seating and invitation activity at a glance, so you can stay up to date and in control of your planning.
+            </p>
+          </div>
+        </div>
+
         {/* Mobile: 2 rows × 5 columns grid (all 10 stats) */}
         <div className="sm:hidden">
           <div className="grid grid-cols-5 gap-x-1 gap-y-3">

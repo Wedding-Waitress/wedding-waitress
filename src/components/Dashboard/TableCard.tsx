@@ -36,10 +36,12 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
-import { Pencil, Trash2, Users, CircleCheck, AlertTriangle } from "lucide-react";
+import { Pencil, Trash2, Users, CircleCheck, AlertTriangle, Crown } from "lucide-react";
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { Guest } from '@/hooks/useGuests';
 import { TableGuestList } from './Tables/TableGuestList';
+import { HeadTableSeatingDialog } from './Tables/HeadTableSeatingDialog';
+import type { HeadSeatEntry } from '@/lib/headTable';
 
 interface TableCardProps {
   table: TableWithGuestCount;
@@ -48,6 +50,9 @@ interface TableCardProps {
   guests: Guest[];
   eventId: string;
   isOverTable?: string | null; // ID of table being hovered over during drag
+  participant1?: string | null;
+  participant2?: string | null;
+  onSaveHeadSeating: (tableId: string, order: HeadSeatEntry[]) => Promise<boolean>;
 }
 
 export const TableCard: React.FC<TableCardProps> = ({
@@ -56,11 +61,17 @@ export const TableCard: React.FC<TableCardProps> = ({
   onDelete,
   guests: allGuests,
   eventId,
-  isOverTable
+  isOverTable,
+  participant1,
+  participant2,
+  onSaveHeadSeating,
 }) => {
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
   const [deleteConfirmText, setDeleteConfirmText] = useState('');
   const [isDeleting, setIsDeleting] = useState(false);
+  const [showHeadSeating, setShowHeadSeating] = useState(false);
+  const isHeadTable = table.table_purpose === 'head';
+  const occupiedCount = isHeadTable ? table.head_seating_order.length : table.guest_count;
   
   // Filter guests for this table from the real-time guest list
   const guests = allGuests.filter(guest => guest.table_id === table.id);
@@ -98,13 +109,13 @@ export const TableCard: React.FC<TableCardProps> = ({
 
   // Guard against divide-by-zero and calculate progress
   const safeLimit = Math.max(table.limit_seats, 1);
-  const progressPercentage = Math.min((table.guest_count / safeLimit) * 100, 100);
-  const isFull = table.guest_count >= table.limit_seats;
+  const progressPercentage = Math.min((occupiedCount / safeLimit) * 100, 100);
+  const isFull = occupiedCount >= table.limit_seats;
 
   // Calculate capacity color based on percentage
   const getCapacityColor = () => {
-    if (table.guest_count === 0) return 'bg-gray-400';
-    if (progressPercentage >= 75) return 'bg-[#F5F0EB]0';
+    if (occupiedCount === 0) return 'bg-gray-400';
+    if (progressPercentage >= 75) return 'bg-orange-500';
     if (progressPercentage >= 51) return 'bg-blue-500';
     if (progressPercentage >= 26) return 'bg-yellow-500';
     return 'bg-orange-500';
@@ -112,7 +123,7 @@ export const TableCard: React.FC<TableCardProps> = ({
 
   // Calculate capacity status text
   const getCapacityStatus = () => {
-    if (table.guest_count === 0) return 'Empty';
+    if (occupiedCount === 0) return 'Empty';
     if (progressPercentage >= 75) return 'Almost Full';
     if (progressPercentage >= 51) return 'Good Capacity';
     if (progressPercentage >= 26) return 'Half Full';
@@ -120,7 +131,7 @@ export const TableCard: React.FC<TableCardProps> = ({
   };
 
   // Calculate remaining seats
-  const seatsRemaining = Math.max(0, table.limit_seats - table.guest_count);
+  const seatsRemaining = Math.max(0, table.limit_seats - occupiedCount);
 
 
   const handleDelete = async () => {
@@ -150,7 +161,7 @@ export const TableCard: React.FC<TableCardProps> = ({
     <>
       <Card 
         className={`ww-box ww-table-card transition-all duration-300 flex flex-col min-h-fit ${
-          table.guest_count > table.limit_seats
+          occupiedCount > table.limit_seats
             ? 'border-4 border-destructive'
             : isFull 
               ? 'border-[4px] border-emerald-600' 
@@ -162,8 +173,16 @@ export const TableCard: React.FC<TableCardProps> = ({
         <CardContent className="p-4 flex flex-col min-h-fit">
           {/* Table Name */}
           <div className="ww-table-name text-xl font-bold text-foreground mb-3 text-center">
+            {isHeadTable && <span className="mx-auto mb-2 flex w-fit items-center gap-1 rounded-full border border-[#C4A882] px-2 py-1 text-[10px] tracking-widest text-[#C4A882]"><Crown size={12} aria-hidden="true" />HEAD TABLE</span>}
             {table.name}
           </div>
+
+          {isHeadTable && (
+            <div className="mb-3 text-center text-xs text-muted-foreground">
+              {[participant1, participant2].filter(Boolean).join(' · ') || 'Primary participants can be added from the event details'}
+              <div className="mt-1">{occupiedCount} occupied · {Math.max(0, table.limit_seats - occupiedCount)} available</div>
+            </div>
+          )}
 
           {/* Enhanced Capacity Bar States */}
           <div className="mb-3">
@@ -171,18 +190,18 @@ export const TableCard: React.FC<TableCardProps> = ({
               <Tooltip>
                 <TooltipTrigger asChild>
                   <div className="cursor-help">
-                    {table.guest_count < table.limit_seats ? (
+                    {occupiedCount < table.limit_seats ? (
                       <>
                         {/* Capacity info row with percentage badge */}
                         <div className="flex items-center justify-between text-sm mb-2">
                           <span className="font-semibold text-foreground">
-                            {table.guest_count}/{table.limit_seats}
+                            {occupiedCount}/{table.limit_seats}
                           </span>
                           <span className={`text-xs font-bold px-2 py-0.5 rounded-full transition-colors ${
                             progressPercentage >= 75 ? 'bg-[#F5F0EB] text-[#967A59] dark:bg-[#6B5640] dark:text-[#C4A882]' :
                             progressPercentage >= 51 ? 'bg-blue-100 text-blue-700 dark:bg-blue-900 dark:text-blue-300' :
                             progressPercentage >= 26 ? 'bg-yellow-100 text-yellow-700 dark:bg-yellow-900 dark:text-yellow-300' :
-                            table.guest_count === 0 ? 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400' :
+                            occupiedCount === 0 ? 'bg-gray-100 text-gray-600 dark:bg-gray-800 dark:text-gray-400' :
                             'bg-orange-100 text-orange-700 dark:bg-orange-900 dark:text-orange-300'
                           }`}>
                             {Math.round(progressPercentage)}%
@@ -195,10 +214,10 @@ export const TableCard: React.FC<TableCardProps> = ({
                             className={`h-full transition-all duration-500 ease-out ${getCapacityColor()} rounded-full relative`}
                             style={{ width: `${progressPercentage}%` }}
                             role="progressbar"
-                            aria-valuenow={table.guest_count}
+                            aria-valuenow={occupiedCount}
                             aria-valuemin={0}
                             aria-valuemax={table.limit_seats}
-                            aria-label={`${table.guest_count} of ${table.limit_seats} seats filled`}
+                            aria-label={`${occupiedCount} of ${table.limit_seats} seats filled`}
                           >
                             {/* Subtle shine effect */}
                             <div className="absolute inset-0 bg-gradient-to-r from-transparent via-white to-transparent opacity-20" />
@@ -210,26 +229,26 @@ export const TableCard: React.FC<TableCardProps> = ({
                           {getCapacityStatus()} • {seatsRemaining} {seatsRemaining === 1 ? 'seat' : 'seats'} remaining
                         </div>
                       </>
-                    ) : table.guest_count === table.limit_seats ? (
+                    ) : occupiedCount === table.limit_seats ? (
                       /* Full table - enhanced green banner */
                       <div 
                         className="h-8 bg-gradient-to-r from-green-500 to-green-600 rounded-lg flex items-center justify-center shadow-md"
-                        aria-label={`Table Full — ${table.guest_count} guests`}
+                        aria-label={`Table Full — ${occupiedCount} occupants`}
                       >
                         <span className="text-white font-bold text-sm text-center flex items-center gap-2">
                           <CircleCheck size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
-                          Full Table — {table.guest_count}
+                          Full Table — {occupiedCount}
                         </span>
                       </div>
                     ) : (
                       /* Over capacity - enhanced red warning */
                       <div 
                         className="h-8 bg-gradient-to-r from-red-500 to-red-600 rounded-lg flex items-center justify-center shadow-md"
-                        aria-label={`Over capacity by ${table.guest_count - table.limit_seats} guests`}
+                        aria-label={`Over capacity by ${occupiedCount - table.limit_seats} occupants`}
                       >
                         <span className="text-white font-bold text-sm text-center flex items-center gap-2">
                           <span className="text-base">⚠</span>
-                          Over by +{table.guest_count - table.limit_seats}
+                          Over by +{occupiedCount - table.limit_seats}
                         </span>
                       </div>
                     )}
@@ -237,33 +256,33 @@ export const TableCard: React.FC<TableCardProps> = ({
                 </TooltipTrigger>
                 
                 {/* Enhanced tooltip with detailed breakdown */}
-                <TooltipContent className="max-w-xs">
+                <TooltipContent className="ww-tables-popover max-w-xs">
                   <div className="space-y-1 text-xs">
                     <p className="font-semibold text-sm">Table Capacity Details</p>
                     <div className="pt-1.5 space-y-1 border-t border-border/50 mt-1">
                       <div className="flex justify-between">
-                        <span>Current Guests:</span>
-                        <strong>{table.guest_count}</strong>
+                        <span>{isHeadTable ? 'Current Occupants:' : 'Current Guests:'}</span>
+                        <strong>{occupiedCount}</strong>
                       </div>
                       <div className="flex justify-between">
                         <span>Table Limit:</span>
                         <strong>{table.limit_seats}</strong>
                       </div>
-                      {table.guest_count < table.limit_seats && (
+                      {occupiedCount < table.limit_seats && (
                         <div className="flex justify-between text-green-600 dark:text-green-400">
                           <span>Available:</span>
                           <strong>{seatsRemaining} {seatsRemaining === 1 ? 'seat' : 'seats'}</strong>
                         </div>
                       )}
-                      {table.guest_count === table.limit_seats && (
+                      {occupiedCount === table.limit_seats && (
                         <p className="text-green-600 dark:text-green-400 text-center font-medium pt-1">
                           ✓ Perfect capacity!
                         </p>
                       )}
-                      {table.guest_count > table.limit_seats && (
+                      {occupiedCount > table.limit_seats && (
                         <div className="flex justify-between text-red-600 dark:text-red-400">
                           <span>Over by:</span>
-                          <strong>{table.guest_count - table.limit_seats}</strong>
+                          <strong>{occupiedCount - table.limit_seats}</strong>
                         </div>
                       )}
                       <div className="flex justify-between text-muted-foreground pt-1 border-t border-border/50 mt-1">
@@ -292,15 +311,24 @@ export const TableCard: React.FC<TableCardProps> = ({
               <Users size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
               Guests:
             </div>
-            <TableGuestList 
-              tableId={table.id} 
-              guests={sortedGuests} 
+            {isHeadTable ? (
+              <div className="flex flex-wrap gap-2">
+                {table.head_seating_order.flatMap((entry) => {
+                  if (entry.kind !== 'guest') return [];
+                  const guest = allGuests.find((candidate) => candidate.id === entry.guest_id);
+                  return guest ? [<span key={guest.id} className="rounded-full border border-[#C4A882] px-3 py-1 text-xs">{guest.first_name} {guest.last_name}</span>] : [];
+                })}
+              </div>
+            ) : <TableGuestList
+              tableId={table.id}
+              guests={sortedGuests}
               isOver={isOver}
-            />
+            />}
           </div>
 
         {/* Actions - Fixed at bottom */}
-        <div className="flex justify-center items-center gap-2 mt-4">
+        <div className="flex flex-wrap justify-center items-center gap-2 mt-4">
+          {isHeadTable && <Button onClick={() => setShowHeadSeating(true)} className="lv-premium-shade rounded-full bg-[#967A59] hover:bg-[#7e664b] text-white h-7 px-4 text-xs"><Crown size={14} aria-hidden="true" />Arrange Head Table Seating</Button>}
           <Button
             onClick={() => onEdit(table)}
             title="Edit table"
@@ -325,7 +353,7 @@ export const TableCard: React.FC<TableCardProps> = ({
 
       {/* Delete Confirmation Dialog */}
       <AlertDialog open={showDeleteDialog} onOpenChange={handleDeleteDialogClose}>
-        <AlertDialogContent>
+        <AlertDialogContent className="ww-tables-dialog">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
               <AlertTriangle size={18} strokeWidth={1.8} className="text-destructive shrink-0" aria-hidden="true" />
@@ -359,6 +387,7 @@ export const TableCard: React.FC<TableCardProps> = ({
           </AlertDialogFooter>
         </AlertDialogContent>
       </AlertDialog>
+      {isHeadTable && <HeadTableSeatingDialog open={showHeadSeating} onOpenChange={setShowHeadSeating} table={table} guests={allGuests} participant1={participant1} participant2={participant2} onSave={onSaveHeadSeating} />}
     </>
   );
 };

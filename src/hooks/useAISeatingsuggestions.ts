@@ -65,7 +65,7 @@ export const useAISeatingsuggestions = (eventId: string | null) => {
 
       toast({
         title: 'AI Suggestions Generated',
-        description: `Created ${data.suggestions_count} seating suggestions`
+        description: `Created ${data?.suggestions_count ?? data?.suggestions?.length ?? 0} seating suggestions`
       });
       
       await fetchSuggestions();

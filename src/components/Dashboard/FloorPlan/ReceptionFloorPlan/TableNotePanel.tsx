@@ -54,9 +54,9 @@ export const TableNotePanel = ({
   };
 
   return (
-    <div className="rounded-lg border border-[#967A59]/40 bg-[#967A59]/5 p-3 max-lg:p-4 space-y-2">
+    <div data-reception-panel="true" className="rounded-lg border border-[#967A59]/40 bg-[#967A59]/5 p-3 max-lg:p-4 space-y-2">
       <div className="flex items-center justify-between gap-2">
-        <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+        <div data-floor-plan-feature-heading="true" className="flex items-center gap-2 text-sm font-semibold text-foreground">
           <StickyNote className="w-4 h-4 text-[#967A59]" />
           Table note · <span className="text-[#7a6347]">{label}</span>
         </div>

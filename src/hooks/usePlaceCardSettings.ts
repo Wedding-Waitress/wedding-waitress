@@ -18,7 +18,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { registerCache } from '@/lib/cacheRegistry';
+import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
 
 export interface PlaceCardSettings {
   id?: string;
@@ -70,6 +70,7 @@ export interface PlaceCardSettings {
 // Module-level cache for instant loading on tab switches
 const placeCardCache = new Map<string, PlaceCardSettings>();
 registerCache(() => { placeCardCache.clear(); });
+registerEventCache((eventId) => { placeCardCache.delete(eventId); });
 
 const QR_KEYS = ['photo_video_qr_enabled', 'photo_video_qr_x', 'photo_video_qr_y', 'photo_video_qr_size'] as const;
 type PlaceCardQrSettings = Pick<PlaceCardSettings, (typeof QR_KEYS)[number]>;
@@ -80,27 +81,93 @@ const readQrFallback = (eventId: string): Partial<PlaceCardQrSettings> => {
 const writeQrFallback = (eventId: string, updates: Partial<PlaceCardSettings>) => {
   const qrUpdates = Object.fromEntries(Object.entries(updates).filter(([key]) => QR_KEYS.includes(key as any)));
   if (!Object.keys(qrUpdates).length) return;
-  localStorage.setItem(qrFallbackKey(eventId), JSON.stringify({ ...readQrFallback(eventId), ...qrUpdates }));
+  try {
+    localStorage.setItem(qrFallbackKey(eventId), JSON.stringify({ ...readQrFallback(eventId), ...qrUpdates }));
+  } catch {
+    // Storage can be unavailable in privacy-restricted browser contexts. The
+    // database remains authoritative, so a storage failure must not crash UI.
+  }
 };
+
+type NullablePlaceCardSettings = {
+  [Key in keyof PlaceCardSettings]?: PlaceCardSettings[Key] | null;
+};
+
+export const normalizePlaceCardSettings = (
+  data: NullablePlaceCardSettings,
+  eventId: string,
+  userId = '',
+): PlaceCardSettings => ({
+  ...data,
+  event_id: data.event_id ?? eventId,
+  user_id: data.user_id ?? userId,
+  font_family: data.font_family ?? 'Inter',
+  font_color: data.font_color ?? '#000000',
+  background_color: data.background_color ?? '#ffffff',
+  background_image_type: data.background_image_type ?? 'none',
+  background_image_x_position: data.background_image_x_position ?? 50,
+  background_image_y_position: data.background_image_y_position ?? 50,
+  background_image_scale: data.background_image_scale ?? 100,
+  background_image_opacity: data.background_image_opacity ?? 100,
+  mass_message: data.mass_message ?? '',
+  individual_messages:
+    data.individual_messages && typeof data.individual_messages === 'object' && !Array.isArray(data.individual_messages)
+      ? data.individual_messages
+      : {},
+  guest_font_family: data.guest_font_family ?? 'Great Vibes',
+  info_font_family: data.info_font_family ?? 'Beauty Mountains',
+  guest_name_bold: data.guest_name_bold ?? false,
+  guest_name_italic: data.guest_name_italic ?? false,
+  guest_name_underline: data.guest_name_underline ?? false,
+  guest_name_font_size: data.guest_name_font_size ?? 30,
+  info_font_size: data.info_font_size ?? 16,
+  name_spacing: data.name_spacing ?? 4,
+  background_behind_names: data.background_behind_names ?? false,
+  background_behind_table_seats: data.background_behind_table_seats ?? false,
+  guest_name_offset_x: data.guest_name_offset_x ?? 0,
+  guest_name_offset_y: data.guest_name_offset_y ?? 0,
+  table_offset_x: data.table_offset_x ?? 0,
+  table_offset_y: data.table_offset_y ?? 0,
+  seat_offset_x: data.seat_offset_x ?? 0,
+  seat_offset_y: data.seat_offset_y ?? 0,
+  guest_name_rotation: data.guest_name_rotation ?? 0,
+  table_seat_rotation: data.table_seat_rotation ?? 0,
+  info_bold: data.info_bold ?? false,
+  info_italic: data.info_italic ?? false,
+  info_underline: data.info_underline ?? false,
+  info_font_color: data.info_font_color ?? '#000000',
+  photo_video_qr_enabled: data.photo_video_qr_enabled ?? false,
+  photo_video_qr_x: data.photo_video_qr_x ?? 50,
+  photo_video_qr_y: data.photo_video_qr_y ?? 50,
+  photo_video_qr_size: data.photo_video_qr_size ?? 22,
+} as PlaceCardSettings);
 
 export const usePlaceCardSettings = (eventId: string | null) => {
   const cached = eventId ? placeCardCache.get(eventId) : undefined;
   const [settings, setSettings] = useState<PlaceCardSettings | null>(cached ?? null);
-  const [loading, setLoading] = useState(false);
+  const [loadedEventId, setLoadedEventId] = useState<string | null>(cached ? eventId : null);
+  const [loading, setLoading] = useState(Boolean(eventId && !cached));
   const { toast } = useToast();
   const saveSeqRef = React.useRef(0);
+  const fetchSeqRef = React.useRef(0);
+  const currentEventIdRef = React.useRef(eventId);
+  currentEventIdRef.current = eventId;
 
   // Keep cache in sync
   useEffect(() => {
-    if (eventId && settings) placeCardCache.set(eventId, settings);
+    if (eventId && settings?.event_id === eventId) placeCardCache.set(eventId, settings);
   }, [eventId, settings]);
 
   const fetchSettings = useCallback(async () => {
     if (!eventId) {
       setSettings(null);
+      setLoadedEventId(null);
+      setLoading(false);
       return;
     }
 
+    const requestedEventId = eventId;
+    const seq = ++fetchSeqRef.current;
     if (!placeCardCache.has(eventId)) setLoading(true);
     try {
       const { data, error } = await supabase
@@ -111,6 +178,10 @@ export const usePlaceCardSettings = (eventId: string | null) => {
 
       if (error) {
         console.error('Error fetching place card settings:', error);
+        if (seq === fetchSeqRef.current && currentEventIdRef.current === requestedEventId) {
+          setSettings(null);
+          setLoadedEventId(requestedEventId);
+        }
         toast({
           title: "Error",
           description: "Failed to fetch place card settings",
@@ -119,23 +190,32 @@ export const usePlaceCardSettings = (eventId: string | null) => {
         return;
       }
 
-      const fallback = readQrFallback(eventId);
+      if (seq !== fetchSeqRef.current || currentEventIdRef.current !== requestedEventId) return;
+
+      const fallback = readQrFallback(requestedEventId);
       const needsFallback = data && (data as any).photo_video_qr_enabled === undefined;
-      setSettings(data ? {
-        ...data,
-        ...(needsFallback ? fallback : {}),
-        background_image_type: data.background_image_type as 'none' | 'decorative' | 'full' | 'full_front' | 'full_back',
-        individual_messages: data.individual_messages as Record<string, string>
-      } : null);
+      setSettings(data
+        ? normalizePlaceCardSettings(
+            { ...data, ...(needsFallback ? fallback : {}) } as NullablePlaceCardSettings,
+            requestedEventId,
+          )
+        : null);
+      setLoadedEventId(requestedEventId);
     } catch (error) {
       console.error('Error fetching place card settings:', error);
+      if (seq === fetchSeqRef.current && currentEventIdRef.current === requestedEventId) {
+        setSettings(null);
+        setLoadedEventId(requestedEventId);
+      }
       toast({
         title: "Error",
         description: "An unexpected error occurred",
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      if (seq === fetchSeqRef.current && currentEventIdRef.current === requestedEventId) {
+        setLoading(false);
+      }
     }
   }, [eventId, toast]);
 
@@ -170,7 +250,7 @@ export const usePlaceCardSettings = (eventId: string | null) => {
       setSettings(prev => {
         if (prev) return { ...prev, ...newSettings } as PlaceCardSettings;
         // First-save path: seed a local object so UI renders from shared state immediately
-        return { event_id: eventId || '', user_id: user.id, font_family: 'Inter', font_color: '#000000', background_color: '#ffffff', background_image_type: 'none' as const, mass_message: '', individual_messages: {}, guest_font_family: 'Great Vibes', info_font_family: 'Beauty Mountains', guest_name_bold: false, guest_name_italic: false, guest_name_underline: false, guest_name_font_size: 30, info_font_size: 16, name_spacing: 4, info_bold: false, info_italic: false, info_underline: false, info_font_color: '#000000', guest_name_offset_x: 0, guest_name_offset_y: 0, table_offset_x: 0, table_offset_y: 0, seat_offset_x: 0, seat_offset_y: 0, guest_name_rotation: 0, table_seat_rotation: 0, photo_video_qr_enabled: false, photo_video_qr_x: 50, photo_video_qr_y: 50, photo_video_qr_size: 22, ...newSettings } as PlaceCardSettings;
+        return normalizePlaceCardSettings(newSettings, eventId, user.id);
       });
 
       let result;
@@ -214,12 +294,12 @@ export const usePlaceCardSettings = (eventId: string | null) => {
         return true; // Still "succeeded" from the caller's perspective
       }
 
-      setSettings({
-        ...result.data,
-        background_image_type: result.data.background_image_type as 'none' | 'decorative' | 'full' | 'full_front' | 'full_back',
-        individual_messages: result.data.individual_messages as Record<string, string>
-      });
-      if (qrOnlyUpdate) localStorage.removeItem(qrFallbackKey(eventId));
+      if (currentEventIdRef.current !== eventId) return true;
+      setSettings(normalizePlaceCardSettings(result.data, eventId, user.id));
+      setLoadedEventId(eventId);
+      if (qrOnlyUpdate) {
+        try { localStorage.removeItem(qrFallbackKey(eventId)); } catch { /* See writeQrFallback. */ }
+      }
       toast({
         title: "Success",
         description: "Settings saved successfully",
@@ -240,9 +320,13 @@ export const usePlaceCardSettings = (eventId: string | null) => {
     fetchSettings();
   }, [fetchSettings]);
 
+  const eventCache = eventId ? placeCardCache.get(eventId) : undefined;
+  const settingsForEvent = loadedEventId === eventId ? settings : (eventCache ?? null);
+  const waitingForEvent = Boolean(eventId && loadedEventId !== eventId && !eventCache);
+
   return {
-    settings,
-    loading,
+    settings: settingsForEvent,
+    loading: loading || waitingForEvent,
     updateSettings,
     refetchSettings: fetchSettings,
   };

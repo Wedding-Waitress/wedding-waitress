@@ -9,9 +9,14 @@ import type {
 } from '@/hooks/useReceptionFloorPlan';
 import type { ReceptionTable } from '@/hooks/useReceptionTables';
 import { aabbInsidePolygon, rectPolygon } from '@/lib/floorPlanShapes';
+import { getHeadTableDimensions, getReceptionTableDimensions } from '@/lib/receptionTableGeometry';
 
-const tableRadiusM = (seats: number) =>
-  Math.max(0.7, (0.18 * Math.max(4, seats)) / 2 + 0.5);
+const tableRadiusM = (table: ReceptionTable) => {
+  const dimensions = table.table_purpose === 'head'
+    ? getHeadTableDimensions(table.limit_seats)
+    : getReceptionTableDimensions(table.table_type);
+  return Math.hypot(dimensions.width, dimensions.height) / 2 + 0.45;
+};
 
 const fixtureFootprint = (f: Fixture) => ({
   x: f.x,
@@ -41,20 +46,25 @@ export interface AutoLayoutResult {
 
 export const autoArrangeReception = (
   plan: ReceptionFloorPlan,
-  tables: ReceptionTable[]
+  tables: ReceptionTable[],
+  options: { preserveExisting?: boolean } = {},
 ): AutoLayoutResult => {
   const poly =
     plan.room_polygon && plan.room_polygon.points.length > 2
       ? plan.room_polygon
       : rectPolygon(plan.room_width_m, plan.room_length_m);
 
-  const kept = plan.table_positions.filter((p) => p.locked);
+  const kept = options.preserveExisting
+    ? [...plan.table_positions]
+    : plan.table_positions.filter((p) => p.locked);
   const lockedIds = new Set(kept.map((p) => p.table_id));
-  const unlockedPositions = plan.table_positions.filter((p) => !p.locked);
+  const unlockedPositions = options.preserveExisting
+    ? []
+    : plan.table_positions.filter((p) => !p.locked);
 
   const candidateIds = new Set<string>([
     ...unlockedPositions.map((p) => p.table_id),
-    ...tables.filter((t) => !plan.table_positions.some((p) => p.table_id === t.id)).map((t) => t.id),
+    ...tables.filter((t) => !kept.some((p) => p.table_id === t.id)).map((t) => t.id),
   ]);
   for (const id of lockedIds) candidateIds.delete(id);
 
@@ -65,7 +75,7 @@ export const autoArrangeReception = (
   const result: TablePosition[] = [...kept];
 
   const avgR = candidates.length
-    ? candidates.reduce((s, t) => s + tableRadiusM(t.limit_seats), 0) / candidates.length
+    ? candidates.reduce((s, t) => s + tableRadiusM(t), 0) / candidates.length
     : 1.2;
   const step = Math.max(1.4, avgR * 2 + 0.4);
   const margin = 0.6;
@@ -77,7 +87,7 @@ export const autoArrangeReception = (
     }
     for (const p of result) {
       const t = tables.find((tt) => tt.id === p.table_id);
-      const r2 = tableRadiusM(t?.limit_seats ?? 8);
+      const r2 = t ? tableRadiusM(t) : 1.4;
       const dx = cx - p.x;
       const dy = cy - p.y;
       const min = r + r2 + 0.3;
@@ -87,7 +97,7 @@ export const autoArrangeReception = (
   };
 
   for (const t of candidates) {
-    const r = tableRadiusM(t.limit_seats);
+    const r = tableRadiusM(t);
     let placed = false;
     for (let y = margin + r; y <= plan.room_length_m - margin - r && !placed; y += step) {
       for (let x = margin + r; x <= plan.room_width_m - margin - r && !placed; x += step) {

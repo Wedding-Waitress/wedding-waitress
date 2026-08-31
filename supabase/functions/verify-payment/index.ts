@@ -18,7 +18,7 @@ const PRODUCT_TO_PLAN: Record<string, { plan_db_id: string; name: string; is_ven
   "prod_UOQhHcOhFdrhOs": { plan_db_id: "78cdab0d-d81d-4757-b7cc-f210b8b30f47", name: "Essential",  is_vendor: false },
   "prod_UOQhTWnFzXV1FK": { plan_db_id: "1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8", name: "Premium",    is_vendor: false },
   "prod_UOQhLIYTxQAd7U": { plan_db_id: "cd10f207-2109-4546-a635-0baa68ba8213", name: "Unlimited",  is_vendor: false },
-  "prod_UOQiLXxbgeXKZu": { plan_db_id: "632b476a-39da-4f6f-8457-9ba104d571da", name: "Vendor Pro", is_vendor: true  },
+  "prod_UTm2XBA5rX9dGN": { plan_db_id: "632b476a-39da-4f6f-8457-9ba104d571da", name: "Vendor Pro", is_vendor: true  },
 };
 
 // RSVP tier product IDs (initial purchase)
@@ -397,7 +397,7 @@ serve(async (req) => {
       // Get current subscription
       const { data: subData, error: subFetchError } = await supabase
         .from("user_subscriptions")
-        .select("expires_at, grace_period_ends_at")
+        .select("expires_at, grace_period_ends_at, download_only_ends_at")
         .eq("user_id", userId)
         .single();
 
@@ -411,12 +411,15 @@ serve(async (req) => {
 
       const newGrace = new Date(newExpiry);
       newGrace.setMonth(newGrace.getMonth() + 6);
+      const downloadOnlyEndsAt = new Date(newExpiry);
+      downloadOnlyEndsAt.setDate(downloadOnlyEndsAt.getDate() + 30);
 
       const { error: updateError } = await supabase
         .from("user_subscriptions")
         .update({
           expires_at: newExpiry.toISOString(),
           grace_period_ends_at: newGrace.toISOString(),
+          download_only_ends_at: downloadOnlyEndsAt.toISOString(),
           status: "active",
           is_read_only: false,
           updated_at: new Date().toISOString(),
@@ -461,6 +464,8 @@ serve(async (req) => {
     // Grace period = 6 months after expiry
     const gracePeriodEndsAt = new Date(expiresAt);
     gracePeriodEndsAt.setMonth(gracePeriodEndsAt.getMonth() + 6);
+    const downloadOnlyEndsAt = new Date(expiresAt);
+    downloadOnlyEndsAt.setDate(downloadOnlyEndsAt.getDate() + 30);
 
     // Update user_subscriptions
     const { error: subError } = await supabase
@@ -471,6 +476,7 @@ serve(async (req) => {
         started_at: now.toISOString(),
         expires_at: expiresAt.toISOString(),
         grace_period_ends_at: gracePeriodEndsAt.toISOString(),
+        download_only_ends_at: downloadOnlyEndsAt.toISOString(),
         is_read_only: planInfo.is_vendor ? true : false, // Vendor Pro is read-only until approved
         updated_at: now.toISOString(),
       })

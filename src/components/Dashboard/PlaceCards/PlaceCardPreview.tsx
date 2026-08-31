@@ -92,7 +92,14 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     const compute = () => {
       const w = el.clientWidth;
       if (w <= 0) return;
-      const next = Math.min(1, w / A4_WIDTH_PX);
+      // Reserve the preview-only guide gutter before scaling the paper so the
+      // labels and the A4 sheet both remain inside the responsive viewport.
+      const computedStyle = window.getComputedStyle(el);
+      const horizontalPadding =
+        (Number.parseFloat(computedStyle.paddingLeft) || 0) +
+        (Number.parseFloat(computedStyle.paddingRight) || 0);
+      const availablePaperWidth = Math.max(0, w - horizontalPadding);
+      const next = Math.min(1, availablePaperWidth / A4_WIDTH_PX);
       setPreviewScale(next);
     };
     compute();
@@ -813,38 +820,33 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             </div>
 
             {/* A4 Paper Container */}
-            <div ref={previewWrapperRef} className="w-full overflow-visible flex justify-center relative lg:ml-10">
-              {/* Guide labels — outside A4, in purple gap */}
-              {!isExporting && (
-                <div
-                  className="absolute pointer-events-none hidden lg:flex flex-col"
-                  style={{
-                    right: 'calc(50% + 105mm + 8px)',
-                    top: 0,
-                    height: '297mm',
-                  }}
-                >
-                  <div className="ww-placecards-guide-row absolute flex items-center gap-1.5 overflow-visible" style={{ top: '24.75mm', transform: 'translateY(-50%)', right: 0 }}>
-                    <span className="ww-placecards-guide-label text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Back of card</span>
-                    <ArrowRight size={15} strokeWidth={1.8} className="text-muted-foreground" aria-hidden="true" />
-                  </div>
-                  <div className="ww-placecards-guide-row absolute flex items-center gap-1.5 overflow-visible" style={{ top: '49.5mm', transform: 'translateY(-50%)', right: 0 }}>
-                    <span className="ww-placecards-guide-label text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border inline-flex items-center gap-1"><FoldHorizontal size={15} strokeWidth={1.8} aria-hidden="true" />Fold</span>
-                    <ArrowRight size={15} strokeWidth={1.8} className="text-muted-foreground" aria-hidden="true" />
-                  </div>
-                  <div className="ww-placecards-guide-row absolute flex items-center gap-1.5 overflow-visible" style={{ top: '74.25mm', transform: 'translateY(-50%)', right: 0 }}>
-                    <span className="ww-placecards-guide-label text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Front of card</span>
-                    <ArrowRight size={15} strokeWidth={1.8} className="text-muted-foreground" aria-hidden="true" />
-                  </div>
-                </div>
-              )}
+            <div ref={previewWrapperRef} className="ww-placecards-preview-viewport w-full overflow-visible flex justify-center relative">
               <div
+                className="ww-placecards-preview-paper-frame relative"
                 style={{
                   width: `calc(210mm * ${previewScale})`,
                   height: `calc(297mm * ${previewScale})`,
                   flexShrink: 0,
                 }}
               >
+              {/* Preview-only labels stay outside A4. Percentage offsets keep
+                  them aligned when the paper is scaled on narrower screens. */}
+              {!isExporting && (
+                <div className="ww-placecards-guide-layer absolute pointer-events-none" aria-hidden="true">
+                  <div className="ww-placecards-guide-row absolute flex items-center gap-1.5 overflow-visible" style={{ top: '8.333333%', transform: 'translateY(-50%)', right: 8 }}>
+                    <span className="ww-placecards-guide-label text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Back of card</span>
+                    <ArrowRight size={15} strokeWidth={1.8} className="text-muted-foreground shrink-0" />
+                  </div>
+                  <div className="ww-placecards-guide-row absolute flex items-center gap-1.5 overflow-visible" style={{ top: '16.666667%', transform: 'translateY(-50%)', right: 8 }}>
+                    <span className="ww-placecards-guide-label text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border inline-flex items-center gap-1"><FoldHorizontal size={15} strokeWidth={1.8} />Fold</span>
+                    <ArrowRight size={15} strokeWidth={1.8} className="text-muted-foreground shrink-0" />
+                  </div>
+                  <div className="ww-placecards-guide-row absolute flex items-center gap-1.5 overflow-visible" style={{ top: '25%', transform: 'translateY(-50%)', right: 8 }}>
+                    <span className="ww-placecards-guide-label text-xs text-muted-foreground font-medium bg-background/90 rounded px-1.5 py-0.5 shadow-sm whitespace-nowrap border border-border">Front of card</span>
+                    <ArrowRight size={15} strokeWidth={1.8} className="text-muted-foreground shrink-0" />
+                  </div>
+                </div>
+              )}
               <div 
                 style={{ 
                   width: '210mm', 

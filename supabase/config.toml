@@ -1,4 +1,6 @@
-project_id = "xytxkidpourwdbzzwcdp"
+# QA branch safety rail: this working tree is linked only to Wedding Waitress
+# Staging. Production deployment must use the production branch/configuration.
+project_id = "ufmpxsgncmvgrvvlqtuj"
 
 [functions.send-auth-email]
 verify_jwt = false
@@ -22,6 +24,9 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.create-checkout]
+verify_jwt = false
+
+[functions.get-exchange-rates]
 verify_jwt = false
 
 [functions.verify-payment]
@@ -79,8 +84,14 @@ verify_jwt = false
 [functions.close-account]
 verify_jwt = true
 
+[functions.manage-account-members]
+verify_jwt = true
+
 [functions.purge-closed-accounts]
 verify_jwt = false
 
 [functions.admin-account-action]
 verify_jwt = true
+
+[functions.djmc-pronunciation-media]
+verify_jwt = false

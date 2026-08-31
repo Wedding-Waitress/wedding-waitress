@@ -268,13 +268,13 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
             <div className="flex-1">
               {guest.table_no ? (
                 <>
-                  <div className="font-semibold text-foreground">Table {guest.table_no}</div>
-                  <div className="text-sm text-muted-foreground">Your assigned table</div>
+                  <div data-live-label className="font-semibold text-foreground">Table {guest.table_no}</div>
+                  <div data-live-body className="text-sm text-muted-foreground">Your assigned table</div>
                 </>
               ) : (
                 <>
-                  <div className="font-semibold text-foreground">No Table Assigned</div>
-                  <div className="text-sm text-muted-foreground">Please see event staff</div>
+                  <div data-live-label className="font-semibold text-foreground">No Table Assigned</div>
+                  <div data-live-body className="text-sm text-muted-foreground">Please see event staff</div>
                 </>
               )}
             </div>
@@ -285,8 +285,8 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
             <div className="flex items-start gap-3 p-2 bg-background-subtle rounded-lg">
               <Users className="w-5 h-5 text-primary mt-0.5" />
               <div className="flex-1">
-                <div className="font-semibold text-foreground">Seat {guest.seat_no}</div>
-                <div className="text-sm text-muted-foreground">Your assigned seat</div>
+                <div data-live-label className="font-semibold text-foreground">Seat {guest.seat_no}</div>
+                <div data-live-body className="text-sm text-muted-foreground">Your assigned seat</div>
               </div>
             </div>
           )}
@@ -296,8 +296,8 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
             <div className="flex items-start gap-3 p-2 bg-accent/50 rounded-lg">
               <Utensils className="w-5 h-5 text-accent-foreground mt-0.5" />
               <div className="flex-1">
-                <div className="font-semibold text-foreground">Dietary Requirements</div>
-                <div className="text-sm text-muted-foreground">{guest.dietary}</div>
+                <div data-live-label className="font-semibold text-foreground">Dietary Requirements</div>
+                <div data-live-body className="text-sm text-muted-foreground">{guest.dietary}</div>
               </div>
             </div>
           )}
@@ -306,8 +306,8 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
           <div className="flex items-start gap-3 p-2 bg-background-subtle rounded-lg">
             <UserPlus className="w-5 h-5 text-primary mt-0.5" />
             <div className="flex-1">
-              <div className="font-semibold text-foreground">Additional Guests</div>
-              <div className="text-sm text-muted-foreground">
+              <div data-live-label className="font-semibold text-foreground">Additional Guests</div>
+              <div data-live-body className="text-sm text-muted-foreground">
                 {(additionalGuestCount ?? 0) > 0 ? `${additionalGuestCount} added` : 'None added'}
               </div>
             </div>
@@ -318,7 +318,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
             <ClipboardCheck className="w-5 h-5 text-primary shrink-0 mt-0.5" />
             <div className="flex-1">
               <div className="flex items-center gap-2">
-                <span className="font-semibold text-foreground">RSVP Status:</span>
+                <span data-live-label className="font-semibold text-foreground">RSVP Status:</span>
                 <Badge 
                   variant="outline" 
                   className={`text-xs sm:text-base font-bold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border-2 whitespace-nowrap ${

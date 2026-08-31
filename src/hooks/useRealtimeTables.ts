@@ -15,8 +15,12 @@ export const useRealtimeTables = ({
 }: UseRealtimeTablesProps) => {
   // Compute tables with updated guest counts based on real-time guest data
   const tablesWithLiveCounts = useMemo(() => {
+    const guestCounts = new Map<string, number>();
+    guests.forEach((guest) => {
+      if (guest.table_id) guestCounts.set(guest.table_id, (guestCounts.get(guest.table_id) ?? 0) + 1);
+    });
     return tables.map(table => {
-      const currentGuestCount = guests.filter(guest => guest.table_id === table.id).length;
+      const currentGuestCount = guestCounts.get(table.id) ?? 0;
       return {
         ...table,
         guest_count: currentGuestCount

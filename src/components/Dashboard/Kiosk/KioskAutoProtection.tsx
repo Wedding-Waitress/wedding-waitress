@@ -8,6 +8,7 @@ import {
   UserRoundCog,
 } from 'lucide-react';
 import { useLiveViewModuleSettings } from '@/hooks/useLiveViewModuleSettings';
+import styles from './KioskSetup.module.css';
 
 interface KioskAutoProtectionProps {
   eventId: string;
@@ -41,7 +42,7 @@ export const KioskAutoProtection: React.FC<KioskAutoProtectionProps> = ({ eventI
           const checked = !!rsvpConf[key];
           return (
             <div key={key} className="flex items-center justify-between gap-3">
-              <span className="text-sm inline-flex items-center gap-[7px]">
+              <span className={`${styles.emphasizedInstruction} text-sm inline-flex items-center gap-[7px]`}>
                 <Icon className="h-4 w-4 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
                 {label}
               </span>

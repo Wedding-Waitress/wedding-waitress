@@ -3,6 +3,7 @@ import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import type { TableWithGuestCount } from '@/hooks/useTables';
 import { CreateTableModal } from './CreateTableModal';
+import tableDrawerStyles from './TableDrawer.module.css';
 
 vi.mock('@/components/ui/sheet', () => ({
   Sheet: ({ children }: { children: React.ReactNode }) => <>{children}</>,
@@ -32,6 +33,8 @@ const editingTable: TableWithGuestCount = {
   created_at: '2026-08-16T00:00:00.000Z',
   updated_at: '2026-08-16T00:00:00.000Z',
   guest_count: 6,
+  table_purpose: 'standard',
+  head_seating_order: [],
 };
 
 describe('CreateTableModal', () => {
@@ -53,6 +56,8 @@ describe('CreateTableModal', () => {
       notes: undefined,
       table_no: null,
       table_type: 'round',
+      table_purpose: 'standard',
+      head_seating_order: [],
     }));
     await waitFor(() => expect(onClose).toHaveBeenCalled());
   });
@@ -84,7 +89,70 @@ describe('CreateTableModal', () => {
       notes: 'Near the dance floor',
       table_no: 3,
       table_type: 'square',
+      table_purpose: 'standard',
+      head_seating_order: [],
     }));
     await waitFor(() => expect(onClose).toHaveBeenCalled());
+  });
+
+  it('renders an unmistakable green selected state and espresso unselected state without a white background', () => {
+    render(<CreateTableModal isOpen onClose={vi.fn()} onSave={vi.fn().mockResolvedValue(true)} />);
+
+    const headChoice = screen.getByRole('button', { name: 'Yes, add a head table' });
+    const standardChoice = screen.getByRole('button', { name: 'No, continue with standard tables' });
+
+    expect(standardChoice).toHaveAttribute('aria-pressed', 'true');
+    expect(standardChoice).toHaveAttribute('data-selection-state', 'selected');
+    expect(standardChoice).toHaveClass('ww-emboss-green', 'text-white', tableDrawerStyles.headTableChoiceSelected);
+    expect(standardChoice.querySelector('svg')).toBeInTheDocument();
+
+    expect(headChoice).toHaveAttribute('aria-pressed', 'false');
+    expect(headChoice).toHaveAttribute('data-selection-state', 'unselected');
+    expect(headChoice).toHaveClass(tableDrawerStyles.headTableChoiceUnselected);
+    expect(headChoice).not.toHaveClass('ww-emboss-green', 'bg-background');
+    expect(headChoice.querySelector('svg')).not.toBeInTheDocument();
+  });
+
+  it('keeps the existing choice state logic when either option is selected', () => {
+    render(<CreateTableModal isOpen onClose={vi.fn()} onSave={vi.fn().mockResolvedValue(true)} />);
+
+    const headChoice = screen.getByRole('button', { name: 'Yes, add a head table' });
+    const standardChoice = screen.getByRole('button', { name: 'No, continue with standard tables' });
+
+    fireEvent.click(headChoice);
+    expect(headChoice).toHaveAttribute('aria-pressed', 'true');
+    expect(standardChoice).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByDisplayValue('Head Table')).toBeInTheDocument();
+
+    fireEvent.click(standardChoice);
+    expect(standardChoice).toHaveAttribute('aria-pressed', 'true');
+    expect(headChoice).toHaveAttribute('aria-pressed', 'false');
+    expect(screen.getByLabelText('Table Name or No *')).toHaveValue('');
+  });
+
+  it('uses native keyboard-focusable buttons with exposed pressed states', () => {
+    render(<CreateTableModal isOpen onClose={vi.fn()} onSave={vi.fn().mockResolvedValue(true)} />);
+
+    const headChoice = screen.getByRole('button', { name: 'Yes, add a head table' });
+    headChoice.focus();
+
+    expect(headChoice).toHaveFocus();
+    expect(headChoice).toHaveAttribute('type', 'button');
+    expect(headChoice).toHaveAttribute('aria-pressed', 'false');
+
+    fireEvent.click(headChoice);
+    expect(headChoice).toHaveAttribute('aria-pressed', 'true');
+  });
+
+  it.each([1440, 768, 390])('keeps both full labels visible at a %ipx viewport', (width) => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, writable: true, value: width });
+    window.dispatchEvent(new Event('resize'));
+
+    render(<CreateTableModal isOpen onClose={vi.fn()} onSave={vi.fn().mockResolvedValue(true)} />);
+
+    const group = screen.getByRole('group', { name: 'Include a head table?' });
+    expect(group).toHaveClass(tableDrawerStyles.headTableChoiceGroup);
+    expect(screen.getByRole('button', { name: 'Yes, add a head table' })).toBeVisible();
+    expect(screen.getByRole('button', { name: 'No, continue with standard tables' })).toBeVisible();
   });
 });

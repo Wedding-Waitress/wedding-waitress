@@ -4,7 +4,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/u
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { useProfile } from '@/hooks/useProfile';
+import { useProfile, type UserProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import styles from './AccountDialog.module.css';
@@ -49,7 +49,13 @@ export const EditDetailsModal: React.FC<Props> = ({ open, onOpenChange }) => {
       .select('*')
       .eq('id', profile.id)
       .single();
-    if (fresh) updateCachedProfile(fresh);
+    if (fresh) {
+      updateCachedProfile({
+        ...fresh,
+        profile_image_fit: fresh.profile_image_fit === 'contain' ? 'contain' : 'cover',
+        profile_image_url: null,
+      } satisfies UserProfile);
+    }
     toast({ title: 'Saved', description: 'Your details have been updated.' });
     onOpenChange(false);
     // Soft refresh — re-render consumers without full reload

@@ -49,7 +49,8 @@ export type Database = {
           id: string
           role: string
           status: string
-          token: string
+          token: string | null
+          token_hash: string | null
         }
         Insert: {
           accepted_user_id?: string | null
@@ -60,7 +61,8 @@ export type Database = {
           id?: string
           role?: string
           status?: string
-          token?: string
+          token?: string | null
+          token_hash?: string | null
         }
         Update: {
           accepted_user_id?: string | null
@@ -71,7 +73,8 @@ export type Database = {
           id?: string
           role?: string
           status?: string
-          token?: string
+          token?: string | null
+          token_hash?: string | null
         }
         Relationships: []
       }
@@ -152,6 +155,7 @@ export type Database = {
           created_at: string
           id: string
           invited_at: string
+          member_email: string | null
           member_user_id: string
           role: string
         }
@@ -162,6 +166,7 @@ export type Database = {
           created_at?: string
           id?: string
           invited_at?: string
+          member_email?: string | null
           member_user_id: string
           role?: string
         }
@@ -172,6 +177,7 @@ export type Database = {
           created_at?: string
           id?: string
           invited_at?: string
+          member_email?: string | null
           member_user_id?: string
           role?: string
         }
@@ -672,6 +678,7 @@ export type Database = {
           music_url: string | null
           order_index: number
           pronunciation_audio_url: string | null
+          pronunciation_audio_path: string | null
           row_label: string
           section_id: string
           song_title_artist: string | null
@@ -690,6 +697,7 @@ export type Database = {
           music_url?: string | null
           order_index?: number
           pronunciation_audio_url?: string | null
+          pronunciation_audio_path?: string | null
           row_label: string
           section_id: string
           song_title_artist?: string | null
@@ -708,6 +716,7 @@ export type Database = {
           music_url?: string | null
           order_index?: number
           pronunciation_audio_url?: string | null
+          pronunciation_audio_path?: string | null
           row_label?: string
           section_id?: string
           song_title_artist?: string | null
@@ -877,6 +886,121 @@ export type Database = {
             foreignKeyName: "dynamic_qr_codes_current_event_id_fkey"
             columns: ["current_event_id"]
             isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_budget_expenses: {
+        Row: {
+          actual_cost: number | null
+          address: string | null
+          amount_paid: number
+          balance_due_date: string | null
+          category: string
+          contact_person: string | null
+          created_at: string
+          custom_category: string | null
+          display_order: number
+          email: string | null
+          estimated_cost: number | null
+          event_id: string
+          expense_name: string | null
+          id: string
+          notes: string | null
+          payment_date: string | null
+          phone: string | null
+          updated_at: string
+          user_id: string
+          vendor_name: string | null
+        }
+        Insert: {
+          actual_cost?: number | null
+          address?: string | null
+          amount_paid?: number
+          balance_due_date?: string | null
+          category: string
+          contact_person?: string | null
+          created_at?: string
+          custom_category?: string | null
+          display_order?: number
+          email?: string | null
+          estimated_cost?: number | null
+          event_id: string
+          expense_name?: string | null
+          id?: string
+          notes?: string | null
+          payment_date?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+          vendor_name?: string | null
+        }
+        Update: {
+          actual_cost?: number | null
+          address?: string | null
+          amount_paid?: number
+          balance_due_date?: string | null
+          category?: string
+          contact_person?: string | null
+          created_at?: string
+          custom_category?: string | null
+          display_order?: number
+          email?: string | null
+          estimated_cost?: number | null
+          event_id?: string
+          expense_name?: string | null
+          id?: string
+          notes?: string | null
+          payment_date?: string | null
+          phone?: string | null
+          updated_at?: string
+          user_id?: string
+          vendor_name?: string | null
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_budget_expenses_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id"]
+          },
+        ]
+      }
+      event_budget_settings: {
+        Row: {
+          anticipated_budget: number
+          created_at: string
+          currency: string
+          event_id: string
+          id: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          anticipated_budget?: number
+          created_at?: string
+          currency?: string
+          event_id: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          anticipated_budget?: number
+          created_at?: string
+          currency?: string
+          event_id?: string
+          id?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "event_budget_settings_event_id_fkey"
+            columns: ["event_id"]
+            isOneToOne: true
             referencedRelation: "events"
             referencedColumns: ["id"]
           },
@@ -4254,7 +4378,9 @@ export type Database = {
           name: string
           notes: string | null
           table_no: number | null
+          table_purpose: string
           table_type: string | null
+          head_seating_order: Json
           updated_at: string
           user_id: string
         }
@@ -4266,7 +4392,9 @@ export type Database = {
           name: string
           notes?: string | null
           table_no?: number | null
+          table_purpose?: string
           table_type?: string | null
+          head_seating_order?: Json
           updated_at?: string
           user_id: string
         }
@@ -4278,7 +4406,9 @@ export type Database = {
           name?: string
           notes?: string | null
           table_no?: number | null
+          table_purpose?: string
           table_type?: string | null
+          head_seating_order?: Json
           updated_at?: string
           user_id?: string
         }
@@ -4361,6 +4491,7 @@ export type Database = {
           created_at: string
           expires_at: string
           grace_period_ends_at: string | null
+          download_only_ends_at: string | null
           id: string
           is_read_only: boolean
           plan_id: string
@@ -4374,6 +4505,7 @@ export type Database = {
           created_at?: string
           expires_at: string
           grace_period_ends_at?: string | null
+          download_only_ends_at?: string | null
           id?: string
           is_read_only?: boolean
           plan_id: string
@@ -4387,6 +4519,7 @@ export type Database = {
           created_at?: string
           expires_at?: string
           grace_period_ends_at?: string | null
+          download_only_ends_at?: string | null
           id?: string
           is_read_only?: boolean
           plan_id?: string
@@ -5293,6 +5426,16 @@ export type Database = {
           plan_name: string
           status: string
           team_members: number
+        }[]
+      }
+      extend_starter_trial_once: { Args: never; Returns: string }
+      refresh_my_subscription_lifecycle: {
+        Args: never
+        Returns: {
+          download_only_ends_at: string
+          expires_at: string
+          is_read_only: boolean
+          status: string
         }[]
       }
       has_role: {

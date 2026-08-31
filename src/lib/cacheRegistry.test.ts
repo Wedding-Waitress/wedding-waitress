@@ -40,4 +40,15 @@ describe('cacheRegistry', () => {
     clearAllCaches();
     expect(c).toHaveBeenCalledTimes(1);
   });
+
+  it('invalidates caches associated with the confirmed deleted event', async () => {
+    const { clearEventCaches, registerEventCache } = await freshImport();
+    const clear = vi.fn();
+    registerEventCache(clear);
+
+    clearEventCaches('event-uuid');
+
+    expect(clear).toHaveBeenCalledTimes(1);
+    expect(clear).toHaveBeenCalledWith('event-uuid');
+  });
 });

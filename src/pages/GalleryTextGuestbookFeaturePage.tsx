@@ -1,8 +1,7 @@
 // Feature workspace: Digital Guestbook (unified — written, audio and video messages)
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { usePhotoVideoFeatureWorkspace } from '@/hooks/usePhotoVideoFeatureWorkspace';
+import { usePhotoVideoFeatureWorkspace, type PhotoVideoWorkspaceSelection } from '@/hooks/usePhotoVideoFeatureWorkspace';
 import { useToast } from '@/hooks/use-toast';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { FeatureWorkspaceLayout } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceLayout';
@@ -11,26 +10,14 @@ import { GalleryTextGuestbookAccessCard, buildTextGuestbookUrl } from '@/compone
 import { GalleryTextGuestbookStepsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryTextGuestbookStepsCard';
 import { GalleryGuestbookMessagesCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryGuestbookMessagesCard';
 import { Button } from '@/components/ui/enhanced-button';
-import { LoaderCircle, ExternalLink } from 'lucide-react';
+import { ExternalLink } from 'lucide-react';
 import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 
-export const GalleryTextGuestbookFeaturePage: React.FC = () => {
+export const GalleryTextGuestbookFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelection>> = (selection) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [authChecked, setAuthChecked] = useState(false);
-  const { selectedEventId, selectedEvent, selectionStatus, meta, items, loading, error, setModeration, setGuestbookEnabled, setGuestbookShare } = usePhotoVideoFeatureWorkspace();
+  const { selectedEventId, selectedEvent, selectionStatus, meta, items, loading, error, setModeration, setGuestbookEnabled, setGuestbookShare } = usePhotoVideoFeatureWorkspace(selection);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) navigate('/');
-      else setAuthChecked(true);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (!session) navigate('/');
-    });
-    return () => subscription.unsubscribe();
-  }, [navigate]);
 
   const goBack = () => navigate('/dashboard?tab=photo-video-gallery');
   const guestUrl = buildTextGuestbookUrl(meta?.primary_token ?? null);
@@ -46,14 +33,6 @@ export const GalleryTextGuestbookFeaturePage: React.FC = () => {
       setSaving(false);
     }
   };
-
-  if (!authChecked) {
-    return (
-      <div className={`min-h-screen flex items-center justify-center ${managementStyles.photoVideoSharingSurface}`}>
-        <LoaderCircle className="h-6 w-6 animate-spin text-white" strokeWidth={1.8} />
-      </div>
-    );
-  }
 
   return (
     <>

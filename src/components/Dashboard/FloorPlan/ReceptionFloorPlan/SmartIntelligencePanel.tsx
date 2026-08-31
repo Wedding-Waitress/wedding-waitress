@@ -14,11 +14,14 @@ import {
 import { Button } from '@/components/ui/button';
 import type { ReceptionTable } from '@/hooks/useReceptionTables';
 import type { ReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
+import styles from './ReceptionFloorPlanTheme.module.css';
 
 interface Props {
   plan: ReceptionFloorPlan;
   tables: ReceptionTable[];
   attendingCount: number;
+  summaryClassName?: string;
+  detailsClassName?: string;
 }
 
 type Severity = 'good' | 'info' | 'warn' | 'bad';
@@ -45,13 +48,22 @@ const FIXTURE_CLEARANCE_M = 1.0; // recommended buffer around bar/dance floor/st
  * Phase 4 — Smart intelligence for the Reception Floor Plan.
  * Pure read-only analysis. Never blocks the user; warnings + nudges only.
  */
-export const SmartIntelligencePanel = ({ plan, tables, attendingCount }: Props) => {
+export const SmartIntelligencePanel = ({
+  plan,
+  tables,
+  attendingCount,
+  summaryClassName = '',
+  detailsClassName = '',
+}: Props) => {
   const [open, setOpen] = useState(true);
 
   const findings = useMemo<Finding[]>(() => {
     const out: Finding[] = [];
 
-    const placedIds = new Set(plan.table_positions.map((p) => p.table_id));
+    const placedIds = new Set([
+      ...plan.table_positions.map((p) => p.table_id),
+      ...plan.fixtures.flatMap((fixture) => fixture.linked_table_id ? [fixture.linked_table_id] : []),
+    ]);
     const placed = plan.table_positions
       .map((pos) => {
         const t = tables.find((tt) => tt.id === pos.table_id);
@@ -59,7 +71,9 @@ export const SmartIntelligencePanel = ({ plan, tables, attendingCount }: Props) 
       })
       .filter((x): x is { pos: typeof plan.table_positions[number]; table: ReceptionTable } => !!x);
 
-    const placedSeats = placed.reduce((s, p) => s + (p.table.limit_seats || 0), 0);
+    const placedSeats = tables
+      .filter((table) => placedIds.has(table.id))
+      .reduce((sum, table) => sum + (table.limit_seats || 0), 0);
     const totalSeats = tables.reduce((s, t) => s + (t.limit_seats || 0), 0);
 
     // ── Capacity ────────────────────────────────────────────────────────────
@@ -216,13 +230,13 @@ export const SmartIntelligencePanel = ({ plan, tables, attendingCount }: Props) 
         detail: 'Place it along a wall away from the bridal table to keep traffic flowing.',
       });
     }
-    if (placed.length > 0 && !types.has('bridal_table')) {
+    if (placed.length > 0 && !tables.some((table) => table.table_purpose === 'head')) {
       out.push({
-        id: 'sug-bridal',
+        id: 'sug-head-table',
         severity: 'info',
         category: 'suggestion',
-        title: 'Add a Bridal Table fixture.',
-        detail: 'Anchor the room with the bridal table on a focal wall.',
+        title: 'Consider adding a Head Table.',
+        detail: 'Create or designate it on the Tables page and it will synchronise here automatically.',
       });
     }
     const unplaced = tables.length - placedIds.size;
@@ -251,6 +265,8 @@ export const SmartIntelligencePanel = ({ plan, tables, attendingCount }: Props) 
 
   const headerTone: Severity =
     counts.bad > 0 ? 'bad' : counts.warn > 0 ? 'warn' : counts.info > 0 ? 'info' : 'good';
+  const priorityFinding =
+    findings.find((finding) => finding.severity === headerTone) ?? findings[0];
 
   const toneClasses = (s: Severity) =>
     s === 'bad'
@@ -272,7 +288,8 @@ export const SmartIntelligencePanel = ({ plan, tables, attendingCount }: Props) 
   };
 
   return (
-    <div className={`rounded-lg border ${toneClasses(headerTone)}`}>
+    <>
+    <section data-reception-setup-card="smart-suggestions" data-reception-smart-panel="true" className={`${summaryClassName} rounded-lg border ${toneClasses(headerTone)}`}>
       <button
         type="button"
         onClick={() => setOpen((v) => !v)}
@@ -280,7 +297,7 @@ export const SmartIntelligencePanel = ({ plan, tables, attendingCount }: Props) 
         aria-expanded={open}
       >
         <Sparkles className="w-4 h-4 shrink-0" />
-        <span className="text-sm font-semibold">Smart suggestions</span>
+        <span data-floor-plan-feature-heading="true" className="text-sm font-semibold">Smart Suggestions</span>
         <span className="ml-1 text-xs opacity-80">
           {counts.bad > 0 && <span className="mr-2">{counts.bad} critical</span>}
           {counts.warn > 0 && <span className="mr-2">{counts.warn} warning{counts.warn === 1 ? '' : 's'}</span>}
@@ -294,35 +311,43 @@ export const SmartIntelligencePanel = ({ plan, tables, attendingCount }: Props) 
         </span>
       </button>
 
+      <p className="px-3 pb-3 text-xs text-muted-foreground" data-reception-smart-priority="true">
+        {priorityFinding?.title ?? 'Add tables and an attending guest list to see layout guidance.'}
+      </p>
+
+    </section>
+
       {open && (
-        <div className="border-t border-current/10 p-3 space-y-2 bg-background/60 text-foreground">
+        <div data-reception-smart-details="true" className={`${detailsClassName} rounded-lg border border-current/10 p-3 bg-background/60 text-foreground`}>
           {findings.length === 0 ? (
             <p className="text-sm text-muted-foreground">
               Add some tables and an attending guest list to see smart layout tips here.
             </p>
           ) : (
-            findings.map((f) => {
-              const Icon = iconFor(f.severity, f.category);
-              return (
-                <div
-                  key={f.id}
-                  className={`rounded-md border p-2.5 flex items-start gap-2 ${toneClasses(f.severity)}`}
-                >
-                  <Icon className="w-4 h-4 mt-0.5 shrink-0" />
-                  <div className="text-sm flex-1 min-w-0">
-                    <div className="font-medium">{f.title}</div>
-                    {f.detail && (
-                      <div className="text-xs opacity-90 mt-0.5">{f.detail}</div>
-                    )}
+            <div className={styles.smartSuggestionGrid} data-reception-smart-grid="true">
+              {findings.map((f) => {
+                const Icon = iconFor(f.severity, f.category);
+                return (
+                  <div
+                    key={f.id}
+                    className={`${styles.smartSuggestionCard} rounded-md border p-2.5 flex items-start gap-2 ${toneClasses(f.severity)}`}
+                  >
+                    <Icon className="w-4 h-4 mt-0.5 shrink-0" />
+                    <div className="text-sm flex-1 min-w-0">
+                      <div className="font-medium">{f.title}</div>
+                      {f.detail && (
+                        <div className="text-xs opacity-90 mt-0.5">{f.detail}</div>
+                      )}
+                    </div>
                   </div>
-                </div>
-              );
-            })
+                );
+              })}
+            </div>
           )}
-          <p className="text-[11px] text-muted-foreground pt-1">
+          <div className={styles.smartDetailsFooter}>
+          <p className="text-[11px] text-muted-foreground">
             Tips only — nothing here blocks saving, exporting, or sharing your plan.
           </p>
-          <div className="flex justify-end">
             <Button
               type="button"
               size="sm"
@@ -335,6 +360,6 @@ export const SmartIntelligencePanel = ({ plan, tables, attendingCount }: Props) 
           </div>
         </div>
       )}
-    </div>
+    </>
   );
 };

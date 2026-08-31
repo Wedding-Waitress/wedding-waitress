@@ -11,8 +11,10 @@ import { AuthGatedCtaLink } from '@/components/auth/AuthGatedCtaLink';
 import { useTranslation } from 'react-i18next';
 import { useCurrencyContext } from '@/contexts/CurrencyContext';
 import { PLAN_PRICING, VENDOR_PRICING, formatPrice } from '@/lib/currencyPricing';
+import { PublicPricingSection } from './PublicPricingSection';
+import { PUBLIC_COUPLE_PLAN_DETAILS, type PlanKey } from './pricingPlans';
 
-export type PlanKey = 'essential' | 'premium' | 'unlimited' | 'vendor_pro';
+export { PUBLIC_COUPLE_PLAN_DETAILS, type PlanKey } from './pricingPlans';
 
 interface Props {
   onPlanSelect?: (plan: PlanKey) => void;
@@ -26,6 +28,7 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
   const ctaLabel = onPlanSelect ? 'Upgrade Now' : t('pricing.getStarted');
   // Icon enhancements apply to the public homepage pricing section only.
   const publicPage = !onPlanSelect;
+  if (publicPage) return <PublicPricingSection />;
   const ctaContent = publicPage ? (
     <span className="inline-flex items-center justify-center gap-2">
       {ctaLabel}
@@ -37,8 +40,9 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
     if (onPlanSelect) {
       return React.cloneElement(button, { onClick: () => onPlanSelect(plan) });
     }
+    const name = plan === 'vendor_pro' ? 'Vendor Pro' : PUBLIC_COUPLE_PLAN_DETAILS[plan].name;
     return (
-      <AuthGatedCtaLink to="/dashboard" asChild alwaysSignUp>
+      <AuthGatedCtaLink to="/dashboard" asChild alwaysSignUp signUpPlan={{ key: plan, name }}>
         {button}
       </AuthGatedCtaLink>
     );
@@ -53,17 +57,15 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
             {t('pricing.title')}
           </span>
         </h2>
-        <p className="text-lg text-gray-500 text-center mb-4 max-w-xl mx-auto">
-          {t('pricing.subtitle')}
-        </p>
+        <p className="text-lg text-gray-500 text-center mb-4 max-w-xl mx-auto">{publicPage ? 'Couple plans are one-time payments for one event and 12 months of complete platform access.' : t('pricing.subtitle')}</p>
         <p className="text-base font-medium text-primary text-center mb-4 max-w-2xl mx-auto">
-          {t('pricing.trialNote')}
+          {publicPage ? '7-day free trial · Up to 20 guests · No credit card required' : t('pricing.trialNote')}
         </p>
         <p className="text-sm text-gray-500 text-center mb-2 max-w-xl mx-auto">
           {t('pricing.reassurance')}
         </p>
         <p className="text-sm text-gray-400 text-center mb-16 max-w-xl mx-auto">
-          {t('pricing.noHiddenFees')}
+          {publicPage ? 'Australian prices shown. GST is added where applicable.' : t('pricing.noHiddenFees')}
         </p>
 
         {/* Main Plans */}
@@ -72,16 +74,17 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
           <div className="bg-white rounded-[20px] p-8 shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-300">
             <div className="flex items-center gap-2 mb-4">
               <Zap size={22} strokeWidth={1.8} aria-hidden="true" className="text-primary" />
-              <h3 className="text-xl font-bold text-gray-900">{t('pricing.essential.name')}</h3>
+              <h3 className="text-xl font-bold text-gray-900">{publicPage ? PUBLIC_COUPLE_PLAN_DETAILS.essential.name : t('pricing.essential.name')}</h3>
             </div>
             <div className="flex items-baseline gap-2 mb-1">
               <span className="text-4xl font-bold text-gray-900">{formatPrice(currency, plans.essential.price)}</span>
-              <span className="text-gray-400 line-through text-lg">{formatPrice(currency, plans.essential.originalPrice)}</span>
+              {!publicPage && <span className="text-gray-400 line-through text-lg">{formatPrice(currency, plans.essential.originalPrice)}</span>}
             </div>
-            <p className="text-sm text-gray-500 mb-1">{t('pricing.essential.guests')}</p>
-            <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>
+            <p className="text-sm text-gray-500 mb-1">{publicPage ? `Up to ${PUBLIC_COUPLE_PLAN_DETAILS.essential.guests} guests · one event · 12 months` : t('pricing.essential.guests')}</p>
+            {!publicPage && <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>}
+            {publicPage && <p className="text-xs text-primary/70 mb-6">GST added where applicable</p>}
             <ul className="space-y-3 mb-8">
-              {[t('pricing.features.oneEvent'), t('pricing.features.fullAccess'), t('pricing.features.easySetup')].map((f) => (
+              {(publicPage ? ['One event', 'Complete platform access', '12 months of access'] : [t('pricing.features.oneEvent'), t('pricing.features.fullAccess'), t('pricing.features.easySetup')]).map((f) => (
                 <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
                   <CircleCheck size={16} strokeWidth={1.8} aria-hidden="true" className="text-primary mt-0.5 shrink-0" />
                   {f}
@@ -90,7 +93,7 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
             </ul>
             {renderCta('essential', <Button variant="outline" className="w-full rounded-xl">{ctaContent}</Button>)}
             <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
-            <p className="text-xs text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
+            {!publicPage && <p className="text-xs text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>}
           </div>
 
           {/* Premium — highlighted */}
@@ -104,41 +107,43 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
             <p className="text-xs text-primary/70 text-center mt-2">{t('pricing.bestForMost')}</p>
             <div className="flex items-center gap-2 mb-4 mt-1">
               <Crown size={22} strokeWidth={1.8} aria-hidden="true" className="text-primary" />
-              <h3 className="text-xl font-bold text-gray-900">{t('pricing.premium.name')}</h3>
+              <h3 className="text-xl font-bold text-gray-900">{publicPage ? PUBLIC_COUPLE_PLAN_DETAILS.premium.name : t('pricing.premium.name')}</h3>
             </div>
             <div className="flex items-baseline gap-2 mb-1">
               <span className="text-4xl font-bold text-gray-900">{formatPrice(currency, plans.premium.price)}</span>
-              <span className="text-gray-400 line-through text-lg">{formatPrice(currency, plans.premium.originalPrice)}</span>
+              {!publicPage && <span className="text-gray-400 line-through text-lg">{formatPrice(currency, plans.premium.originalPrice)}</span>}
             </div>
-            <p className="text-sm text-gray-500 mb-1">{t('pricing.premium.guests')}</p>
-            <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>
+            <p className="text-sm text-gray-500 mb-1">{publicPage ? `Up to ${PUBLIC_COUPLE_PLAN_DETAILS.premium.guests} guests · one event · 12 months` : t('pricing.premium.guests')}</p>
+            {!publicPage && <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>}
+            {publicPage && <p className="text-xs text-primary/70 mb-6">GST added where applicable</p>}
             <ul className="space-y-3 mb-8">
-              {[t('pricing.features.oneEvent'), t('pricing.features.fullAccess'), t('pricing.features.easySetup')].map((f) => (
+              {(publicPage ? ['One event', 'Complete platform access', '12 months of access'] : [t('pricing.features.oneEvent'), t('pricing.features.fullAccess'), t('pricing.features.easySetup')]).map((f) => (
                 <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
                   <CircleCheck size={16} strokeWidth={1.8} aria-hidden="true" className="text-primary mt-0.5 shrink-0" />
                   {f}
                 </li>
               ))}
             </ul>
-            {renderCta('premium', <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">{ctaContent}</Button>)}
+            {renderCta('premium', <Button className={`w-full rounded-xl ${publicPage ? 'ww-button-espresso' : 'bg-primary text-white hover:bg-primary/90'}`}>{ctaContent}</Button>)}
             <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
-            <p className="text-xs text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
+            {!publicPage && <p className="text-xs text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>}
           </div>
 
           {/* Unlimited */}
           <div className="bg-white rounded-[20px] p-8 shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-300">
             <div className="flex items-center gap-2 mb-4">
               <Heart size={22} strokeWidth={1.8} aria-hidden="true" className="text-primary" />
-              <h3 className="text-xl font-bold text-gray-900">{t('pricing.unlimited.name')}</h3>
+              <h3 className="text-xl font-bold text-gray-900">{publicPage ? PUBLIC_COUPLE_PLAN_DETAILS.unlimited.name : t('pricing.unlimited.name')}</h3>
             </div>
             <div className="flex items-baseline gap-2 mb-1">
               <span className="text-4xl font-bold text-gray-900">{formatPrice(currency, plans.unlimited.price)}</span>
-              <span className="text-gray-400 line-through text-lg">{formatPrice(currency, plans.unlimited.originalPrice)}</span>
+              {!publicPage && <span className="text-gray-400 line-through text-lg">{formatPrice(currency, plans.unlimited.originalPrice)}</span>}
             </div>
-            <p className="text-sm text-gray-500 mb-1">{t('pricing.unlimited.guests')}</p>
-            <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>
+            <p className="text-sm text-gray-500 mb-1">{publicPage ? `Up to ${PUBLIC_COUPLE_PLAN_DETAILS.unlimited.guests} guests · one event · 12 months` : t('pricing.unlimited.guests')}</p>
+            {!publicPage && <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>}
+            {publicPage && <p className="text-xs text-primary/70 mb-6">GST added where applicable</p>}
             <ul className="space-y-3 mb-8">
-              {[t('pricing.features.oneEvent'), t('pricing.features.fullAccess'), t('pricing.features.easySetup')].map((f) => (
+              {(publicPage ? ['One event', 'Complete platform access', '12 months of access'] : [t('pricing.features.oneEvent'), t('pricing.features.fullAccess'), t('pricing.features.easySetup')]).map((f) => (
                 <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
                   <CircleCheck size={16} strokeWidth={1.8} aria-hidden="true" className="text-primary mt-0.5 shrink-0" />
                   {f}
@@ -147,7 +152,7 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
             </ul>
             {renderCta('unlimited', <Button variant="outline" className="w-full rounded-xl">{ctaContent}</Button>)}
             <p className="text-xs text-gray-400 text-center mt-2">{t('pricing.trialUnderButton')}</p>
-            <p className="text-xs text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>
+            {!publicPage && <p className="text-xs text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>}
           </div>
 
           {/* Vendor Pro */}
@@ -164,21 +169,22 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
               <span className="text-gray-400 text-lg">/{t('pricing.perMonth') || 'month'}</span>
             </div>
             <p className="text-sm text-gray-400 mb-6">{t('pricing.vendorPro.guests')}</p>
+            {publicPage && <p className="text-xs text-[#C4A882] -mt-4 mb-5">A$299/month + GST in Australia · approval required</p>}
             <ul className="space-y-2 mb-8">
-              {[t('pricing.features.unlimitedEvents'), t('pricing.features.unlimitedGuests'), t('pricing.features.fullPlatform'), t('pricing.features.forVenues'), t('pricing.features.weddingPlanners'), t('pricing.features.djMcPros')].map((f) => (
+              {(publicPage ? ['For venues and event professionals', 'For wedding planners', 'For DJs and MCs', 'Complete platform access'] : [t('pricing.features.unlimitedEvents'), t('pricing.features.unlimitedGuests'), t('pricing.features.fullPlatform'), t('pricing.features.forVenues'), t('pricing.features.weddingPlanners'), t('pricing.features.djMcPros')]).map((f) => (
                 <li key={f} className="flex items-start gap-2 text-xs text-gray-300">
                   <CircleCheck size={16} strokeWidth={1.8} aria-hidden="true" className="text-[#C4A882] mt-0.5 shrink-0" />
                   {f}
                 </li>
               ))}
             </ul>
-            {renderCta('vendor_pro', <Button className="w-full rounded-xl bg-primary text-white hover:bg-primary/90">{ctaContent}</Button>)}
+            {renderCta('vendor_pro', <Button className={`w-full rounded-xl ${publicPage ? 'ww-button-espresso' : 'bg-primary text-white hover:bg-primary/90'}`}>{ctaContent}</Button>)}
             <p className="text-xs text-gray-500 text-center mt-3">{t('pricing.approvalRequired')}</p>
           </div>
         </div>
         <div className="text-center mt-12">
-          <p className="text-base font-medium text-gray-700">{t('pricing.riskReversal1')}</p>
-          <p className="text-sm text-gray-400 mt-1">{t('pricing.riskReversal2')}</p>
+          <p className="text-base font-medium text-gray-700">{publicPage ? 'Start with the free trial, then choose the capacity your event needs.' : t('pricing.riskReversal1')}</p>
+          {!publicPage && <p className="text-sm text-gray-400 mt-1">{t('pricing.riskReversal2')}</p>}
         </div>
       </div>
     </section>

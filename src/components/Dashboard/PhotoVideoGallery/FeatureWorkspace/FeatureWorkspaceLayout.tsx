@@ -162,6 +162,7 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
         'mx-auto w-full px-4 sm:px-6 lg:px-8 pt-6 sm:pt-10 pb-8 sm:pb-12',
         contentWidth === 'wide' ? 'max-w-[1500px]' : 'max-w-[1400px]',
         brownOutline && 'ww-brown-outline',
+        usesPhotoVideoSharingBackground && managementStyles.workspaceContent,
       )}>
         {children}
       </main>

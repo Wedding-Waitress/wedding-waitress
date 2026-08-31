@@ -3,16 +3,16 @@
  * Part of the approved public homepage surface (locked 2026-04-18).
  * Any change requires explicit owner approval. See LOCKED_TRANSLATION_KEYS.md.
  */
-import React, { useState, useRef, useEffect } from 'react';
-import { Button } from '@/components/ui/button';
+import React, { useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { Loader2 } from 'lucide-react';
+import { CheckCircle2, LoaderCircle, Mail, Phone, Send, UserPlus, UserRound } from 'lucide-react';
 import { useTranslation } from 'react-i18next';
 import { SignInModal } from './SignInModal';
+import { AuthError, AuthLegal, VerificationCodeForm, authModalStyles as styles } from './AuthModalParts';
 
 interface FormData {
   first_name: string;
@@ -37,12 +37,11 @@ export const EmbeddedSignUpForm: React.FC = () => {
   const [resendTimer, setResendTimer] = useState(0);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     setError('');
-    if (!formData.first_name || !formData.last_name || !formData.email) {
+    if (!formData.first_name || !formData.last_name || !formData.email || !formData.mobile) {
       setError(t('form.fillRequired'));
       return;
     }
@@ -145,33 +144,6 @@ export const EmbeddedSignUpForm: React.FC = () => {
     }
   };
 
-  const handleCodeChange = (index: number, value: string) => {
-    if (value.length > 1) {
-      const pastedCode = value.slice(0, 6);
-      const newCode = [...verificationCode];
-      for (let i = 0; i < pastedCode.length && i + index < 6; i++) {
-        newCode[i + index] = pastedCode[i];
-      }
-      setVerificationCode(newCode);
-      const nextIndex = Math.min(index + pastedCode.length, 5);
-      inputRefs.current[nextIndex]?.focus();
-    } else {
-      const newCode = [...verificationCode];
-      newCode[index] = value;
-      setVerificationCode(newCode);
-      if (value && index < 5) {
-        inputRefs.current[index + 1]?.focus();
-      }
-    }
-  };
-
-  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-    if (e.key === 'Enter') handleVerifyCode();
-  };
-
   const handleResend = async () => {
     if (resendTimer > 0) return;
     setLoading(true);
@@ -212,101 +184,49 @@ export const EmbeddedSignUpForm: React.FC = () => {
 
   return (
     <>
-    <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.08)] p-8 w-full max-w-[420px]">
-      <h2 className="text-xl font-semibold text-center text-gray-900">
-        {step === 'form' ? t('form.createFreeAccount') : t('form.enterCode')}
+    <div className={styles.dialog}>
+      <h2 className={styles.title}>
+        <span className={styles.titleRow}>{step === 'form' ? <UserPlus className={styles.titleIcon} aria-hidden /> : <CheckCircle2 className={styles.titleIcon} aria-hidden />}{step === 'form' ? 'Create your free account' : 'Check your email'}</span>
       </h2>
       {step === 'form' && (
-        <p className="text-sm text-gray-500 text-center mt-2">
-          {t('form.verificationSent')}
-        </p>
+        <div className="text-center">
+          <span className={styles.reassurance}><CheckCircle2 size={16} aria-hidden />No credit card required</span>
+          <p className={styles.trial}>7-day free trial · Up to 20 guests</p>
+          <p className={styles.description}>Start planning your wedding in one connected place.</p>
+        </div>
       )}
       {step === 'verify' && (
-        <p className="text-sm text-gray-500 text-center mt-2">
-          {t('form.emailedCode', { email: formData.email })}
-        </p>
+        <p className={styles.description}>We sent a 6-digit verification code to {formData.email}.</p>
       )}
 
       {step === 'form' ? (
-        <form onSubmit={handleSubmit} className="space-y-4 mt-6">
-          <div className="space-y-3">
-            <div>
-              <Label htmlFor="feat_first_name" className="text-sm font-medium">{t('form.firstNameLabel')}</Label>
-              <Input id="feat_first_name" type="text" value={formData.first_name} onChange={(e) => setFormData({ ...formData, first_name: e.target.value })} className="mt-1 border-2 border-[#967A59]/70 focus-visible:border-[#967A59]" disabled={loading} />
+        <form onSubmit={handleSubmit} className={styles.body}>
+          <div className={styles.fieldStack}>
+            <div className={styles.fieldGroup}>
+              <Label htmlFor="feat_first_name" className={styles.label}><UserRound aria-hidden />First name *</Label>
+              <Input id="feat_first_name" type="text" value={formData.first_name} onChange={(e) => setFormData({ ...formData, first_name: e.target.value })} className={styles.input} autoComplete="given-name" required disabled={loading} />
             </div>
-            <div>
-              <Label htmlFor="feat_last_name" className="text-sm font-medium">{t('form.lastNameLabel')}</Label>
-              <Input id="feat_last_name" type="text" value={formData.last_name} onChange={(e) => setFormData({ ...formData, last_name: e.target.value })} className="mt-1 border-2 border-[#967A59]/70 focus-visible:border-[#967A59]" disabled={loading} />
+            <div className={styles.fieldGroup}>
+              <Label htmlFor="feat_last_name" className={styles.label}><UserRound aria-hidden />Last name *</Label>
+              <Input id="feat_last_name" type="text" value={formData.last_name} onChange={(e) => setFormData({ ...formData, last_name: e.target.value })} className={styles.input} autoComplete="family-name" required disabled={loading} />
             </div>
-            <div>
-              <Label htmlFor="feat_email" className="text-sm font-medium">{t('form.emailLabel')}</Label>
-              <Input id="feat_email" type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className="mt-1 border-2 border-[#967A59]/70 focus-visible:border-[#967A59]" disabled={loading} />
+            <div className={styles.fieldGroup}>
+              <Label htmlFor="feat_email" className={styles.label}><Mail aria-hidden />Email *</Label>
+              <Input id="feat_email" type="email" value={formData.email} onChange={(e) => setFormData({ ...formData, email: e.target.value })} className={styles.input} autoComplete="email" required disabled={loading} />
             </div>
-            <div>
-              <Label htmlFor="feat_mobile" className="text-sm font-medium">{t('form.mobileLabel')}</Label>
-              <Input id="feat_mobile" type="tel" placeholder={t('form.mobilePlaceholder')} value={formData.mobile} onChange={(e) => setFormData({ ...formData, mobile: e.target.value })} className="mt-1 border-2 border-[#967A59]/70 focus-visible:border-[#967A59]" disabled={loading} />
+            <div className={styles.fieldGroup}>
+              <Label htmlFor="feat_mobile" className={styles.label}><Phone aria-hidden />Mobile *</Label>
+              <Input id="feat_mobile" type="tel" placeholder="04XX XXX XXX" value={formData.mobile} onChange={(e) => setFormData({ ...formData, mobile: e.target.value })} className={styles.input} autoComplete="tel" required disabled={loading} />
             </div>
           </div>
 
-          {error && <div className="text-sm text-red-600 bg-red-50 p-2 rounded">{error}</div>}
-
-          <div className="space-y-3">
-            <Button type="submit" className="w-full" disabled={loading}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t('form.sendVerificationCode')}
-            </Button>
-            <p className="text-xs text-gray-500 text-center">
-              {t('form.termsAgree')}{' '}
-              <a href="/terms" className="underline hover:text-gray-700">{t('form.termsOfServiceLink')}</a>
-              {' '}&{' '}
-              <a href="/privacy" className="underline hover:text-gray-700">{t('form.privacyPolicyLink')}</a>
-            </p>
-            <div className="text-center">
-              <span className="text-sm text-gray-500">
-                {t('form.alreadyHaveAccount')}{' '}
-                <button
-                  type="button"
-                  onClick={() => setSignInOpen(true)}
-                  className="font-bold hover:underline"
-                  style={{ color: '#856A4C' }}
-                >
-                  {t('form.signInLink')}
-                </button>
-              </span>
-            </div>
-          </div>
+          <AuthError message={error} />
+          <button type="submit" className={styles.primaryButton} disabled={loading}>{loading ? <LoaderCircle size={18} className="animate-spin" aria-hidden /> : <Send size={18} aria-hidden />}{loading ? 'Creating your account…' : 'Create Free Account & Continue'}</button>
+          <AuthLegal onNavigate={(path) => navigate(path)} />
+          <p className={styles.switchLine}>Already have an account? <button type="button" onClick={() => setSignInOpen(true)} className={styles.linkButton}>Sign in</button></p>
         </form>
       ) : (
-        <div className="space-y-4 mt-6">
-          <div className="flex justify-center gap-2">
-            {verificationCode.map((digit, index) => (
-              <Input
-                key={index}
-                ref={(el) => (inputRefs.current[index] = el)}
-                type="text"
-                inputMode="numeric"
-                maxLength={6}
-                className="w-12 h-12 text-center text-lg font-semibold border-2 border-[#967A59]/70 focus-visible:border-[#967A59]"
-                value={digit}
-                onChange={(e) => handleCodeChange(index, e.target.value)}
-                onKeyDown={(e) => handleKeyDown(index, e)}
-                disabled={loading}
-              />
-            ))}
-          </div>
-          {error && <div className="text-sm text-red-600 bg-red-50 p-2 rounded text-center">{error}</div>}
-          <div className="space-y-3">
-            <Button onClick={handleVerifyCode} className="w-full" disabled={loading || verificationCode.join('').length !== 6}>
-              {loading && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
-              {t('form.verifyCode')}
-            </Button>
-            <div className="text-center">
-              <button type="button" onClick={handleResend} disabled={resendTimer > 0 || loading} className="text-sm text-gray-500 hover:text-gray-700 disabled:opacity-50 disabled:cursor-not-allowed">
-                {resendTimer > 0 ? t('form.resendIn', { seconds: resendTimer }) : t('form.resendCode')}
-              </button>
-            </div>
-          </div>
-        </div>
+        <VerificationCodeForm email={formData.email} code={verificationCode} setCode={setVerificationCode} loading={loading} error={error} resendTimer={resendTimer} onVerify={handleVerifyCode} onResend={handleResend} onCorrectEmail={() => { setStep('form'); setVerificationCode(['', '', '', '', '', '']); setError(''); }} />
       )}
     </div>
     <SignInModal open={signInOpen} onOpenChange={setSignInOpen} onBackToSignUp={() => setSignInOpen(false)} />

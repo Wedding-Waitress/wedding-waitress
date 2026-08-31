@@ -47,9 +47,9 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { TableWithGuestCount } from '@/hooks/useTables';
+import { defaultHeadSeatingOrder, type HeadSeatEntry, type TablePurpose } from '@/lib/headTable';
 import { useToast } from '@/hooks/use-toast';
-import { Circle, Square, Save, X, Table2, Users, TableProperties, Pencil, AlertTriangle } from 'lucide-react';
-import '@fontsource/manrope/latin-600.css';
+import { Circle, Square, Save, X, Table2, Users, TableProperties, Pencil, AlertTriangle, Check, Crown } from 'lucide-react';
 import eventDrawerStyles from './EventCreateModal.module.css';
 import tableDrawerStyles from './TableDrawer.module.css';
 
@@ -58,11 +58,13 @@ export type TableType = 'round' | 'square' | 'long';
 interface CreateTableModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onSave: (data: { name: string; limit_seats: number; notes?: string; table_no?: number | null; table_type?: TableType }) => Promise<boolean>;
+  onSave: (data: { name: string; limit_seats: number; notes?: string; table_no?: number | null; table_type?: TableType; table_purpose?: TablePurpose; head_seating_order?: HeadSeatEntry[] }) => Promise<boolean>;
   editingTable?: TableWithGuestCount | null;
   existingTables?: TableWithGuestCount[];
   eventGuestLimit?: number;
   currentEventName?: string;
+  primaryParticipant1?: string | null;
+  primaryParticipant2?: string | null;
 }
 
 export const CreateTableModal: React.FC<CreateTableModalProps> = ({
@@ -72,18 +74,23 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
   editingTable,
   existingTables = [],
   eventGuestLimit,
-  currentEventName
+  currentEventName,
+  primaryParticipant1,
+  primaryParticipant2,
 }) => {
   const [name, setName] = useState('');
   const [limitSeats, setLimitSeats] = useState<number>(8);
   const [notes, setNotes] = useState('');
   const [tableType, setTableType] = useState<TableType>('round');
+  const [tablePurpose, setTablePurpose] = useState<TablePurpose>('standard');
   const [errors, setErrors] = useState<{ name?: string; limitSeats?: string }>({});
   const [isSubmitting, setIsSubmitting] = useState(false);
   const [validationState, setValidationState] = useState<'idle' | 'valid' | 'invalid' | 'duplicate'>('idle');
   const [showWarningDialog, setShowWarningDialog] = useState(false);
   const [showSeatLimitDialog, setShowSeatLimitDialog] = useState(false);
   const { toast } = useToast();
+  const existingHeadTable = existingTables.find((table) => table.table_purpose === 'head' && table.id !== editingTable?.id);
+  const isHeadTable = tablePurpose === 'head';
 
   useEffect(() => {
     if (!isOpen) return;
@@ -109,16 +116,42 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
         setNotes(editingTable.notes || '');
         // Pre-populate table type from database, default to 'round' if null
         setTableType(editingTable.table_type || 'round');
+        setTablePurpose(editingTable.table_purpose || 'standard');
       } else {
         setName('');
         setLimitSeats(8);
         setNotes('');
         setTableType('round');
+        setTablePurpose('standard');
       }
       setErrors({});
       setValidationState('idle');
     }
   }, [isOpen, editingTable]);
+
+  const selectHeadTable = () => {
+    if (existingHeadTable) return;
+    const participantOrder = defaultHeadSeatingOrder(primaryParticipant1, primaryParticipant2);
+    setTablePurpose('head');
+    setTableType('long');
+    setName(editingTable?.name || 'Head Table');
+    setLimitSeats(editingTable
+      ? Math.max(editingTable.limit_seats, editingTable.guest_count + participantOrder.length)
+      : Math.max(2, participantOrder.length));
+  };
+
+  const selectStandardTable = () => {
+    setTablePurpose('standard');
+    if (editingTable) {
+      setName(editingTable.name);
+      setLimitSeats(editingTable.limit_seats);
+      setTableType(editingTable.table_type || 'round');
+    } else {
+      setName('');
+      setLimitSeats(8);
+      setTableType('round');
+    }
+  };
 
   // Auto-adjust seat limit when switching table types
   const handleTableTypeChange = (newType: TableType) => {
@@ -196,7 +229,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
     }
     
     // Dynamic validation based on table type
-    if (tableType === 'long') {
+    if (isHeadTable || tableType === 'long') {
       if (!limitSeats || limitSeats < 1 || limitSeats > 50) {
         newErrors.limitSeats = 'Long table limit must be between 1 and 50';
       }
@@ -268,7 +301,13 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
         limit_seats: limitSeats,
         notes: notes.trim() || undefined,
         table_no: tableNo,
-        table_type: tableType
+        table_type: isHeadTable ? 'long' : tableType,
+        table_purpose: tablePurpose,
+        head_seating_order: isHeadTable
+          ? (editingTable?.head_seating_order?.length
+              ? editingTable.head_seating_order
+              : defaultHeadSeatingOrder(primaryParticipant1, primaryParticipant2))
+          : [],
       });
 
       setIsSubmitting(false);
@@ -328,6 +367,59 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
         </SheetHeader>
         
         <div className={`space-y-4 sm:space-y-6 py-4 pb-40 max-md:pb-6 overflow-y-auto flex-1 mobile-scroll-container ${eventDrawerStyles.body}`}>
+          {!editingTable && (
+            <div className="grid gap-3 rounded-2xl border border-[#C4A882] p-4">
+              <div>
+                <Label className="flex items-center gap-2 text-base"><Crown size={18} aria-hidden="true" />Include a head table?</Label>
+                <p className="mt-1 text-sm text-muted-foreground">A head table seats the couple, hosts, bridal party, family or other special guests facing the room.</p>
+              </div>
+              {existingHeadTable ? (
+                <p className="text-sm text-[#C4A882]">This event already has a Head Table. Edit or arrange it from its table card.</p>
+              ) : (
+                <div className={tableDrawerStyles.headTableChoiceGroup} role="group" aria-label="Include a head table?">
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    aria-pressed={isHeadTable}
+                    data-choice="head"
+                    data-selection-state={isHeadTable ? 'selected' : 'unselected'}
+                    className={`${tableDrawerStyles.headTableChoice} ${isHeadTable ? `${tableDrawerStyles.headTableChoiceSelected} ww-emboss-green text-white` : tableDrawerStyles.headTableChoiceUnselected}`}
+                    onClick={selectHeadTable}
+                  >
+                    {isHeadTable && <Check className={tableDrawerStyles.headTableChoiceCheck} aria-hidden="true" />}
+                    <span>Yes, add a head table</span>
+                  </Button>
+                  <Button
+                    type="button"
+                    variant="ghost"
+                    aria-pressed={!isHeadTable}
+                    data-choice="standard"
+                    data-selection-state={!isHeadTable ? 'selected' : 'unselected'}
+                    className={`${tableDrawerStyles.headTableChoice} ${!isHeadTable ? `${tableDrawerStyles.headTableChoiceSelected} ww-emboss-green text-white` : tableDrawerStyles.headTableChoiceUnselected}`}
+                    onClick={selectStandardTable}
+                  >
+                    {!isHeadTable && <Check className={tableDrawerStyles.headTableChoiceCheck} aria-hidden="true" />}
+                    <span>No, continue with standard tables</span>
+                  </Button>
+                </div>
+              )}
+            </div>
+          )}
+
+          {editingTable?.table_purpose === 'standard' && (
+            <div className="grid gap-2 rounded-2xl border border-[#C4A882] p-4">
+              <Label className="flex items-center gap-2"><Crown size={18} aria-hidden="true" />Designate as Head Table</Label>
+              <p className="text-sm text-muted-foreground">Converts this table to the event's one-sided Head Table while preserving its ID and assigned guests.</p>
+              {existingHeadTable ? (
+                <p className="text-sm text-destructive">{existingHeadTable.name} is already the Head Table. Only one is allowed per event.</p>
+              ) : (
+                <Button type="button" className="min-h-11 rounded-full sm:w-fit" variant={isHeadTable ? 'default' : 'outline'} onClick={isHeadTable ? selectStandardTable : selectHeadTable}>
+                  {isHeadTable ? 'Keep as standard table' : 'Designate as Head Table'}
+                </Button>
+              )}
+            </div>
+          )}
+
           <div className="grid gap-2">
             <Label htmlFor="name" className="flex items-center gap-1.5"><Table2 size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Table Name or No *</Label>
             <Input
@@ -363,8 +455,8 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
             )}
           </div>
 
-          {/* Table Type Selection */}
-          <div className="grid gap-2">
+          {/* Head Tables have authoritative one-sided rectangular geometry. */}
+          {!isHeadTable && <div className="grid gap-2">
             <Label>Table Shape & Max Capacity Allowed<span className="text-red-500">*</span></Label>
             <div className={`grid grid-cols-3 gap-2 sm:gap-3 ${tableDrawerStyles.shapeGrid}`}>
               <button
@@ -421,7 +513,14 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
             <p className="text-xs sm:text-sm text-destructive font-medium mt-1">
               {getTableTypeHelperText()}
             </p>
-          </div>
+          </div>}
+
+          {isHeadTable && (
+            <div className="rounded-2xl border border-[#C4A882] p-4">
+              <p className="font-semibold">Head Table geometry</p>
+              <p className="mt-1 text-sm text-muted-foreground">A rectangular table with all chairs along one long side, facing the room.</p>
+            </div>
+          )}
 
           <div className="grid gap-2">
             <Label htmlFor="limit" className="flex items-center gap-1.5"><Users size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Table Limit *</Label>
@@ -510,7 +609,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
             onClick={handleSave}
             disabled={isSubmitting || Object.values(errors).some(Boolean) || validationState === 'duplicate'}
           >
-            <Save size={18} strokeWidth={1.8} className="hidden lg:inline-block mr-2 text-white" aria-hidden="true" />
+            <Save size={18} strokeWidth={1.8} className="inline-block mr-2 text-white" aria-hidden="true" />
             {isSubmitting ? 'Saving...' : 'Save'}
           </Button>
           <Button
@@ -520,7 +619,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
             onClick={handleClose}
             disabled={isSubmitting}
           >
-            <X size={18} strokeWidth={1.8} className="hidden lg:inline-block mr-2 text-white" aria-hidden="true" />
+            <X size={18} strokeWidth={1.8} className="inline-block mr-2 text-white" aria-hidden="true" />
             Cancel
           </Button>
         </div>

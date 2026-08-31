@@ -320,7 +320,7 @@ export const GalleryGrid: React.FC<{
         data-appearance={isEspressoGallery ? 'espresso-glass' : undefined}
         className={`p-12 text-center rounded-2xl border ${isEspressoGallery ? managementStyles.galleryPanel : dark ? 'bg-black border-white/15' : 'bg-white border-border'}`}
       >
-        <Camera className={`h-12 w-12 mx-auto mb-3 ${dark ? 'text-white/80' : 'text-muted-foreground'}`} />
+        <Camera className={`h-12 w-12 mx-auto mb-3 ${isEspressoGallery ? managementStyles.galleryWarmIcon : dark ? 'text-white/80' : 'text-muted-foreground'}`} />
         <p className={dark ? 'text-white/80' : 'text-muted-foreground'}>{emptyText || 'No uploads yet — share the QR code with your guests.'}</p>
       </div>
     );
@@ -356,7 +356,7 @@ export const GalleryGrid: React.FC<{
       ) : (
         <>
           <Button
-            className="lv-premium-shade"
+            className={`lv-premium-shade ${isEspressoGallery ? managementStyles.galleryControl : ''}`}
             variant="outline"
             size="sm"
             onClick={selectAllVisible}
@@ -376,7 +376,7 @@ export const GalleryGrid: React.FC<{
             </Button>
           )}
           <Button
-            className="lv-premium-shade"
+            className={`lv-premium-shade ${isEspressoGallery ? managementStyles.galleryControl : ''}`}
             variant="outline"
             size="sm"
             onClick={exitSelectMode}
@@ -395,7 +395,7 @@ export const GalleryGrid: React.FC<{
     >
       <div className="flex items-start justify-between gap-3 flex-wrap mb-4">
         <div className="min-w-0">
-          <h2 className="text-xl font-bold flex items-center gap-2" style={{ color: dark ? '#FFFFFF' : '#000000' }}><Images className={`h-5 w-5 text-[#967A59] shrink-0 ${isEspressoGallery ? managementStyles.galleryWarmIcon : ''}`} /> {title || 'Guest Uploads'} ({items.length})</h2>
+          <h2 className={`text-xl font-bold flex items-center gap-2 ${isEspressoGallery ? managementStyles.galleryViewHeading : ''}`} style={isEspressoGallery ? undefined : { color: dark ? '#FFFFFF' : '#000000' }}><Images className={`h-5 w-5 text-[#967A59] shrink-0 ${isEspressoGallery ? managementStyles.galleryWarmIcon : ''}`} /> {title || 'Guest Uploads'} ({items.length})</h2>
           <p className={`text-sm mt-1 break-words ${isEspressoGallery ? managementStyles.gallerySecondaryText : ''}`} style={{ color: dark ? 'rgba(255,255,255,0.85)' : '#1a1a1a' }}>{description || 'Review, organise, approve, hide and download guest photos, videos and messages.'}</p>
         </div>
         {headerRight && (
@@ -496,22 +496,22 @@ export const GalleryGrid: React.FC<{
 
 
       {selectMode && (
-        <div className="flex items-center justify-between gap-3 flex-wrap mb-4 p-3 rounded-md border border-border bg-muted/40">
+        <div className={`flex items-center justify-between gap-3 flex-wrap mb-4 p-3 rounded-md border border-border bg-muted/40 ${isEspressoGallery ? managementStyles.galleryViewInsetPanel : ''}`}>
           <div className="flex items-center gap-3 flex-wrap">
             <button
               type="button"
               onClick={selectAllVisible}
-              className="lv-premium-shade px-3 h-9 rounded-md text-sm border bg-white text-[#1D1D1F] border-border hover:bg-muted"
+              className={`lv-premium-shade px-3 h-9 rounded-md text-sm border bg-white text-[#1D1D1F] border-border hover:bg-muted ${isEspressoGallery ? managementStyles.galleryControl : ''}`}
             >
               {allVisibleSelected ? 'Clear visible' : `Select all visible (${visibleIds.length})`}
             </button>
-            <span className="text-sm text-muted-foreground">
+            <span className={`text-sm text-muted-foreground ${isEspressoGallery ? managementStyles.gallerySecondaryText : ''}`}>
               {visibleSelectedCount} selected{selected.size > visibleSelectedCount ? ` (${selected.size - visibleSelectedCount} hidden by filters)` : ''}
             </span>
           </div>
           <div className="flex gap-2 flex-wrap">
             <Button
-              className="lv-premium-shade"
+              className={`lv-premium-shade ${isEspressoGallery ? managementStyles.galleryControl : ''}`}
               variant="outline"
               size="sm"
               disabled={bulkBusy || visibleSelectedCount === 0}
@@ -520,7 +520,7 @@ export const GalleryGrid: React.FC<{
               <Check className="h-4 w-4 mr-1 text-green-600" /> Approve
             </Button>
             <Button
-              className="lv-premium-shade"
+              className={`lv-premium-shade ${isEspressoGallery ? managementStyles.galleryControl : ''}`}
               variant="outline"
               size="sm"
               disabled={bulkBusy || visibleSelectedCount === 0}
@@ -554,7 +554,7 @@ export const GalleryGrid: React.FC<{
             )}
 
             <Button
-              className="lv-premium-shade"
+              className={`lv-premium-shade ${isEspressoGallery ? managementStyles.galleryControl : ''}`}
               variant="outline"
               size="sm"
               disabled={bulkBusy || visibleSelectedCount === 0}
@@ -576,7 +576,7 @@ export const GalleryGrid: React.FC<{
       )}
 
       {filtered.length === 0 ? (
-        <p className={`text-sm py-8 text-center ${dark ? 'text-white/70' : 'text-muted-foreground'}`}>No items in this view.</p>
+        <p className={`text-sm py-8 text-center ${isEspressoGallery ? managementStyles.gallerySecondaryText : dark ? 'text-white/70' : 'text-muted-foreground'}`}>No items in this view.</p>
       ) : (
         <div
           className={
@@ -615,6 +615,7 @@ export const GalleryGrid: React.FC<{
                   <MediaThumb
                     item={it}
                     photoFit={isCompletedPhotoBoothStrip ? 'contain' : 'cover'}
+                    appearance={isEspressoGallery ? 'espresso-glass' : 'default'}
                     onOpen={() => {
                       if (selectMode) { toggleOne(it.id); return; }
                       if (it.signed_url) setLightboxId(it.id);

@@ -14,7 +14,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { DJMCQuestionnaire, DJMCSection, DJMCItem, DJMCShareToken, SectionType } from '@/types/djMCQuestionnaire';
 import { DEFAULT_SECTION_TEMPLATES, SECTION_ORDER } from '@/lib/djMCQuestionnaireTemplates';
-import { registerCache } from '@/lib/cacheRegistry';
+import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
 
 // Self-save cooldown: ignore realtime events within this window after a local save
 const SELF_SAVE_COOLDOWN_MS = 2000;
@@ -23,6 +23,7 @@ const SELF_SAVE_COOLDOWN_MS = 2000;
 const questionnaireCache = new Map<string, DJMCQuestionnaire>();
 const shareTokensCache = new Map<string, DJMCShareToken[]>();
 registerCache(() => { questionnaireCache.clear(); shareTokensCache.clear(); });
+registerEventCache((eventId) => { questionnaireCache.delete(eventId); shareTokensCache.delete(eventId); });
 
 export function useDJMCQuestionnaire(eventId: string | null) {
   const [questionnaire, setQuestionnaire] = useState<DJMCQuestionnaire | null>(
@@ -142,6 +143,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
         value_text: null,
         music_url: null,
         pronunciation_audio_url: null,
+        pronunciation_audio_path: null,
         duration: null,
         order_index: itemIndex,
         is_default: true,
@@ -388,7 +390,9 @@ export function useDJMCQuestionnaire(eventId: string | null) {
           value_text: item.value_text,
           song_title_artist: item.song_title_artist,
           music_url: item.music_url,
-          pronunciation_audio_url: item.pronunciation_audio_url,
+          // A duplicate must never share a private storage object with its source.
+          pronunciation_audio_url: null,
+          pronunciation_audio_path: null,
           duration: item.duration,
           order_index: item.order_index + 1,
           is_default: false,
@@ -567,7 +571,9 @@ export function useDJMCQuestionnaire(eventId: string | null) {
           row_label: item.row_label,
           value_text: item.value_text,
           music_url: item.music_url,
-          pronunciation_audio_url: item.pronunciation_audio_url,
+          // A duplicate must never share a private storage object with its source.
+          pronunciation_audio_url: null,
+          pronunciation_audio_path: null,
           duration: item.duration,
           order_index: index,
           is_default: false,

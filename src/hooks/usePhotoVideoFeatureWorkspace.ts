@@ -1,30 +1,29 @@
-import { useEvents } from '@/hooks/useEvents';
 import { useEventMediaGallery } from '@/hooks/useEventMediaGallery';
-import { useSelectedEvent } from '@/hooks/useSelectedEvent';
 
 export type PhotoVideoWorkspaceStatus = 'loading' | 'empty' | 'selected';
+export type PhotoVideoWorkspaceSelection = {
+  selectedEventId: string | null;
+  selectedEvent: { id: string; name?: string | null } | null;
+  selectionStatus: PhotoVideoWorkspaceStatus;
+};
 
 /**
  * Shared lifecycle for every organiser Photo & Video feature route.
  * A temporarily empty event query is loading, never a confirmed empty state.
  */
-export function usePhotoVideoFeatureWorkspace() {
-  const eventsQuery = useEvents();
-  const selection = useSelectedEvent(eventsQuery.events, {
-    loading: eventsQuery.loading || !eventsQuery.loaded,
-  });
+export function usePhotoVideoFeatureWorkspace(selection: Partial<PhotoVideoWorkspaceSelection> = {}) {
   const gallery = useEventMediaGallery(selection.selectedEventId);
 
-  const status: PhotoVideoWorkspaceStatus = selection.status === 'empty'
+  const status: PhotoVideoWorkspaceStatus = selection.selectionStatus === 'empty'
     ? 'empty'
-    : selection.status === 'loading' || (gallery.loading && !gallery.meta)
+    : selection.selectionStatus === 'loading' || (gallery.loading && !gallery.meta)
       ? 'loading'
       : 'selected';
 
   return {
     ...gallery,
-    selectedEventId: selection.selectedEventId,
-    selectedEvent: selection.selectedEvent,
+    selectedEventId: selection.selectedEventId ?? null,
+    selectedEvent: selection.selectedEvent ?? null,
     selectionStatus: status,
   };
 }

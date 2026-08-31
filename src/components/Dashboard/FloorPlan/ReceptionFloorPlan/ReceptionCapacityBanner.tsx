@@ -7,6 +7,7 @@ interface Props {
   plan: ReceptionFloorPlan;
   tables: ReceptionTable[];
   attendingCount: number;
+  compact?: boolean;
 }
 
 /**
@@ -14,9 +15,12 @@ interface Props {
  * Capacity banner: compares attending guests vs total seats across PLACED tables.
  * Also flags unplaced tables.
  */
-export const ReceptionCapacityBanner = ({ plan, tables, attendingCount }: Props) => {
+export const ReceptionCapacityBanner = ({ plan, tables, attendingCount, compact = false }: Props) => {
   const stats = useMemo(() => {
-    const placedIds = new Set(plan.table_positions.map((p) => p.table_id));
+    const placedIds = new Set([
+      ...plan.table_positions.map((p) => p.table_id),
+      ...plan.fixtures.flatMap((fixture) => fixture.linked_table_id ? [fixture.linked_table_id] : []),
+    ]);
     const placedTables = tables.filter((t) => placedIds.has(t.id));
     const placedSeats = placedTables.reduce((sum, t) => sum + (t.limit_seats || 0), 0);
     const totalSeats = tables.reduce((sum, t) => sum + (t.limit_seats || 0), 0);
@@ -28,7 +32,7 @@ export const ReceptionCapacityBanner = ({ plan, tables, attendingCount }: Props)
       totalSeats,
       unplacedCount,
     };
-  }, [plan.table_positions, tables]);
+  }, [plan.fixtures, plan.table_positions, tables]);
 
   const overCapacity = attendingCount > stats.placedSeats;
   const undersized = attendingCount > stats.totalSeats;
@@ -48,7 +52,7 @@ export const ReceptionCapacityBanner = ({ plan, tables, attendingCount }: Props)
   const Icon = tone === 'good' ? CheckCircle2 : AlertTriangle;
 
   return (
-    <div className={`rounded-lg border p-3 flex flex-wrap items-center gap-3 ${toneClasses}`}>
+    <div data-reception-status={tone} data-compact={compact || undefined} className={`rounded-lg border p-3 flex flex-wrap items-center gap-3 ${toneClasses}`}>
       <Icon className="w-5 h-5 shrink-0" />
 
       <div className="flex flex-wrap items-center gap-x-6 gap-y-1 text-sm">
@@ -67,7 +71,7 @@ export const ReceptionCapacityBanner = ({ plan, tables, attendingCount }: Props)
         />
       </div>
 
-      <div className="ml-auto text-xs sm:text-sm font-medium">
+      <div className={`${compact ? 'w-full' : 'ml-auto'} text-xs sm:text-sm font-medium`}>
         {undersized && (
           <span>
             Not enough seats in total — add {attendingCount - stats.totalSeats} more on the Tables page.

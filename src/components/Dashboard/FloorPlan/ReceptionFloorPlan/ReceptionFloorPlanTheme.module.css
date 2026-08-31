@@ -1,0 +1,1025 @@
+:global(main[data-dashboard-content]:has([data-floor-plan-mode="reception"])) {
+  min-height: 100dvh;
+}
+
+.receptionPage {
+  --ceremony-champagne-border: var(--reception-border);
+  --reception-border: rgba(239, 220, 196, 0.72);
+  --reception-border-strong: rgba(255, 235, 207, 0.9);
+  --reception-text: #f7eee4;
+  --reception-muted: #eadbc9;
+  --reception-icon: #f2ddbd;
+  --reception-inset: linear-gradient(180deg, rgba(255, 239, 218, 0.07), rgba(15, 7, 5, 0.86));
+  min-width: 0;
+  color: var(--reception-text);
+}
+
+/* Dashboard-only typography. The authoritative A4 renderer is explicitly excluded. */
+.receptionPage :global([data-reception-panel="true"] :is(h2, h3)),
+.receptionPage :global([data-reception-workspace="true"] > :not([data-reception-document-area="true"]) h3),
+.receptionPage :global([data-floor-plan-feature-heading="true"]) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+.receptionPage :global([data-reception-panel="true"] :is(div, span, strong, p, input, textarea)),
+.receptionPage :global([data-reception-workspace="true"] > :not([data-reception-document-area="true"]) :is(div, span, strong, p)) {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+.receptionPage :global([data-reception-panel="true"] label),
+.receptionPage :global([data-reception-workspace="true"] > :not([data-reception-document-area="true"]) label) {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.receptionPage :global([data-reception-panel="true"] :is(p, input, textarea)),
+.receptionPage :global([data-reception-workspace="true"] > :not([data-reception-document-area="true"]) :is(p, input, textarea)) {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+.receptionPage :global([data-reception-panel="true"] button),
+.receptionPage :global([data-reception-workspace="true"] > :not([data-reception-document-area="true"]) button),
+.receptionPage :global([data-reception-panel="true"] [role="button"]),
+.receptionPage :global([data-reception-panel="true"] a),
+.headerResetButton {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+.receptionPage :global([data-floor-plan-feature-heading="true"]) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+.receptionPage :global([data-reception-status] span) {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+.receptionPage :global([data-reception-status] .font-semibold),
+.receptionPage :global([data-reception-table-placement-status="true"]) {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.receptionPage :global([data-reception-document-area="true"] > p) {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+.headerPanel,
+.masterCard {
+  min-width: 0;
+  color: var(--reception-text) !important;
+  border: 1px solid var(--reception-border) !important;
+  background:
+    radial-gradient(circle at 88% 0%, rgba(219, 160, 99, 0.13), transparent 31%),
+    linear-gradient(145deg, rgba(79, 43, 31, 0.84), rgba(24, 12, 9, 0.93)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.18),
+    inset 0 -1px 0 rgba(56, 27, 19, 0.58),
+    0 20px 44px rgba(3, 1, 1, 0.36) !important;
+  backdrop-filter: blur(18px) saturate(1.08);
+  -webkit-backdrop-filter: blur(18px) saturate(1.08);
+}
+
+.headerPanel :is(h1, h2, h3, label, strong),
+.masterCard > * > :first-child :is(h1, h2, h3, strong) {
+  color: #fff !important;
+}
+
+:global(#root) .receptionPage .headerPanel :is(h1, h2, h3, h4, label, strong),
+:global(#root) .receptionPage .masterCard > * > :first-child :is(h1, h2, h3, h4, strong) {
+  color: #fff !important;
+}
+
+.headerPanel :is(p, [class*="text-muted-foreground"]),
+.masterCard > * > :first-child [class*="text-muted-foreground"] {
+  color: var(--reception-muted) !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .receptionPage .headerPanel :is(p, [class*="text-muted-foreground"]),
+:global(#root) .receptionPage .masterCard > * > :first-child [class*="text-muted-foreground"] {
+  color: var(--reception-muted) !important;
+  opacity: 1 !important;
+}
+
+.headerPanel svg:not([class*="text-green"]):not([class*="text-red"]),
+.masterCard > * > :first-child svg:not([class*="text-green"]):not([class*="text-red"]) {
+  color: var(--reception-icon) !important;
+  stroke: currentColor !important;
+}
+
+.control,
+.receptionPage :global([data-reception-panel="true"] input:not([type="file"]):not([type="checkbox"]):not([type="radio"])),
+.receptionPage :global([data-reception-panel="true"] textarea) {
+  color: #fff !important;
+  border: 1px solid var(--reception-border) !important;
+  background: var(--reception-inset) !important;
+  box-shadow: inset 0 2px 6px rgba(3, 1, 1, 0.35), inset 0 1px 0 rgba(255, 239, 218, 0.11) !important;
+}
+
+.control:hover,
+.receptionPage :global([data-reception-panel="true"] input:hover),
+.receptionPage :global([data-reception-panel="true"] textarea:hover) {
+  border-color: var(--reception-border-strong) !important;
+}
+
+.control:focus-visible,
+.receptionPage :global([data-reception-panel="true"] input:focus-visible),
+.receptionPage :global([data-reception-panel="true"] textarea:focus-visible) {
+  outline: 2px solid rgba(239, 220, 196, 0.45) !important;
+  outline-offset: 2px;
+  box-shadow: inset 0 2px 6px rgba(3, 1, 1, 0.34), 0 0 0 3px rgba(239, 220, 196, 0.14) !important;
+}
+
+.control :is(span, svg) { color: #fff !important; }
+
+.headerResetButton {
+  color: #fff !important;
+  border: 1px solid rgba(248, 113, 113, 0.62) !important;
+  background: linear-gradient(180deg, rgba(126, 34, 34, 0.62), rgba(69, 10, 10, 0.78)) !important;
+  box-shadow: inset 0 1px 0 rgba(254, 226, 226, 0.12), 0 5px 14px rgba(69, 10, 10, 0.24) !important;
+}
+
+.headerResetButton svg {
+  color: #fee2e2 !important;
+  stroke: currentColor !important;
+}
+
+.headerResetButton:hover:not(:disabled) {
+  border-color: rgba(252, 165, 165, 0.82) !important;
+  background: linear-gradient(180deg, rgba(153, 42, 42, 0.68), rgba(82, 13, 13, 0.84)) !important;
+  box-shadow: inset 0 1px 0 rgba(254, 226, 226, 0.16), 0 0 18px rgba(220, 38, 38, 0.22) !important;
+}
+
+.headerResetButton:active:not(:disabled) {
+  transform: translateY(1px);
+  filter: brightness(0.94);
+}
+
+.headerResetButton:focus-visible {
+  outline: 2px solid rgba(252, 165, 165, 0.78) !important;
+  outline-offset: 2px;
+  box-shadow: inset 0 1px 0 rgba(254, 226, 226, 0.14), 0 0 0 3px rgba(220, 38, 38, 0.2) !important;
+}
+
+.headerResetButton:disabled {
+  opacity: 0.48;
+}
+
+.masterCard {
+  min-width: 0;
+  color: #f3e7d8 !important;
+  border: 1px solid var(--reception-border) !important;
+  background:
+    radial-gradient(circle at 82% 0%, rgba(224, 169, 107, 0.12), transparent 34%),
+    linear-gradient(150deg, rgba(84, 46, 34, 0.88), rgba(23, 11, 8, 0.95)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.18),
+    inset 0 -1px 0 rgba(56, 27, 19, 0.58),
+    0 20px 44px rgba(3, 1, 1, 0.36) !important;
+  backdrop-filter: blur(18px) saturate(1.08);
+  -webkit-backdrop-filter: blur(18px) saturate(1.08);
+}
+
+.masterContent {
+  min-width: 0;
+  padding: 0 !important;
+}
+
+.setupMaster {
+  min-width: 0;
+  border: 1px solid var(--reception-border);
+  border-radius: .85rem;
+  padding: 1rem;
+}
+
+.setupTitle {
+  margin: 0 0 .85rem;
+  color: #fff !important;
+  font-size: 24px;
+  font-weight: 600;
+  line-height: 1.35;
+}
+
+.setupGrid {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
+  gap: .75rem;
+  align-items: stretch;
+}
+
+.setupCard {
+  display: flex;
+  min-width: 0;
+  min-height: 10.5rem;
+  flex-direction: column;
+  gap: .7rem;
+  border: 1px solid var(--reception-border);
+  border-radius: .7rem;
+  padding: .85rem;
+}
+
+.setupCardHeading {
+  display: flex;
+  align-items: center;
+  gap: .5rem;
+}
+
+.setupCardHeading h3 {
+  margin: 0;
+  color: #fff !important;
+  font-size: 20px;
+  font-weight: 500;
+}
+
+.setupActions {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: .5rem;
+  margin-top: auto;
+}
+
+.setupActions a {
+  min-height: 2.25rem;
+  display: inline-flex;
+  align-items: center;
+}
+
+.dimensionInputs {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: .5rem;
+}
+
+.smartDetails {
+  min-width: 0;
+  grid-column: 1 / -1;
+}
+
+.smartSuggestionGrid {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
+  gap: .65rem;
+}
+
+.smartSuggestionCard {
+  min-width: 0;
+  height: 100%;
+  overflow-wrap: anywhere;
+}
+
+.smartDetailsFooter {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: .75rem;
+  margin-top: .75rem;
+}
+
+@media (min-width: 768px) {
+  .setupGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+
+  .smartSuggestionGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .setupGrid {
+    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr);
+  }
+
+  .smartSuggestionGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+@media (max-width: 479px) {
+  .setupMaster {
+    padding: .75rem;
+  }
+
+  .setupCard {
+    min-height: 0;
+  }
+
+  .dimensionInputs {
+    grid-template-columns: minmax(0, 1fr);
+  }
+
+  .setupActions > :is(button, a) {
+    width: 100%;
+    justify-content: center;
+  }
+}
+
+.managementGrid {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: repeat(1, minmax(0, 1fr));
+  gap: 1rem;
+  align-items: stretch;
+}
+
+.managementGrid > :global([data-reception-panel="true"]) {
+  height: 100%;
+  min-width: 0;
+}
+
+@media (min-width: 768px) {
+  .managementGrid {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+}
+
+@media (min-width: 1280px) {
+  .managementGrid {
+    grid-template-columns: repeat(4, minmax(0, 1fr));
+  }
+}
+
+.fixtureHeader {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: .75rem;
+  margin-bottom: .65rem;
+}
+
+.fixtureHeaderLeft {
+  display: flex;
+  min-width: 0;
+  align-items: center;
+  flex-wrap: wrap;
+  gap: .65rem;
+}
+
+.fixturePlacementStatus {
+  min-width: 0;
+  margin: 0;
+  padding: .35rem .65rem;
+  color: var(--reception-muted) !important;
+  border: 1px solid var(--reception-border);
+  border-radius: 999px;
+  background: var(--reception-inset);
+  font-size: .75rem;
+  line-height: 1.3;
+  text-align: right;
+}
+
+.shareToggle {
+  width: 3.5rem !important;
+  height: 1.75rem !important;
+  padding: 3px !important;
+  border: 1px solid rgba(239, 220, 196, .88) !important;
+  background: #45413e !important;
+  transition: background-color 160ms ease, border-color 160ms ease, box-shadow 160ms ease !important;
+}
+
+.shareToggle[data-state="checked"] {
+  border-color: rgba(134, 239, 172, .9) !important;
+  background: #16a34a !important;
+}
+
+.shareToggle > span {
+  width: 1.25rem !important;
+  height: 1.25rem !important;
+  background: #fff !important;
+  transform: translateX(0) !important;
+  transition: transform 160ms ease !important;
+}
+
+.shareToggle[data-state="checked"] > span {
+  transform: translateX(1.65rem) !important;
+}
+
+.shareToggle:focus-visible {
+  outline: 2px solid rgba(239, 220, 196, .9) !important;
+  outline-offset: 3px;
+}
+
+.shareLinkControls {
+  display: grid;
+  min-width: 0;
+  grid-template-columns: minmax(0, 1fr);
+  gap: .5rem;
+}
+
+.shareUrlField {
+  display: block;
+  width: 100%;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.shareLinkButtons {
+  display: flex;
+  min-width: 0;
+  flex-wrap: wrap;
+  gap: .5rem;
+}
+
+.shareLinkButtons > button {
+  flex: 1 1 6.5rem;
+}
+
+.fixturePaletteCard {
+  display: flex;
+  min-width: 0;
+  min-height: 4.25rem;
+  align-items: center;
+  justify-content: center;
+  gap: .45rem;
+  border: 1px solid rgba(255, 255, 255, .34);
+  border-radius: .65rem;
+  padding: .65rem .5rem;
+  color: #fff !important;
+  text-align: center;
+  font-size: .78rem;
+  font-weight: 700;
+  line-height: 1.15;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .2), 0 5px 14px rgba(12, 5, 3, .16);
+  transition: border-color 150ms ease, box-shadow 150ms ease, filter 150ms ease, transform 150ms ease;
+}
+
+.fixturePaletteCard :is(svg, span) {
+  color: #fff !important;
+}
+
+.fixturePaletteCard:hover {
+  border-color: rgba(255, 248, 231, .88);
+  filter: brightness(1.08);
+  box-shadow: inset 0 0 0 999px rgba(255, 255, 255, .05), 0 8px 18px rgba(12, 5, 3, .23);
+  transform: translateY(-1px);
+}
+
+.fixturePaletteCard:focus-visible {
+  outline: 2px solid #fff8e7;
+  outline-offset: 2px;
+  box-shadow: 0 0 0 4px rgba(190, 153, 96, .34), 0 8px 18px rgba(12, 5, 3, .24);
+}
+
+.fixturePaletteCard:active {
+  filter: brightness(.96);
+  transform: translateY(0);
+  box-shadow: inset 0 3px 10px rgba(12, 5, 3, .25);
+}
+
+.fixturePaletteCard[data-selected="true"] {
+  outline: 2px solid #d9b879;
+  outline-offset: 2px;
+}
+
+.fixturePaletteCard[data-dragging="true"] {
+  filter: brightness(1.1);
+  transform: translateY(-2px) scale(1.01);
+  box-shadow: 0 10px 24px rgba(12, 5, 3, .32), 0 0 0 3px rgba(255, 248, 231, .28);
+}
+
+.fixturePaletteCard[aria-disabled="true"] {
+  cursor: not-allowed;
+  opacity: .48;
+}
+
+@media (min-width: 1280px) {
+  .fixturePaletteGrid {
+    grid-template-columns: repeat(14, minmax(0, 1fr)) !important;
+  }
+
+  .fixturePaletteGrid > .fixturePaletteCard {
+    grid-column: span 2;
+  }
+
+}
+
+@media (max-width: 479px) {
+  .fixtureHeader {
+    align-items: stretch;
+    flex-direction: column;
+  }
+
+  .fixtureHeaderLeft {
+    align-items: flex-start;
+    flex-direction: column;
+  }
+
+  .fixturePlacementStatus {
+    width: 100%;
+    margin-left: 0;
+    text-align: left;
+  }
+
+  .fixtureHeader > button {
+    width: 100%;
+  }
+
+  .fixturePaletteCard {
+    min-height: 4.5rem;
+    flex-direction: column;
+  }
+}
+
+.receptionPage :global([data-reception-toolbar="true"]) {
+  padding: 1rem;
+  border: 1px solid var(--reception-border);
+  border-radius: .75rem;
+  background:
+    radial-gradient(circle at 88% 0%, rgba(219, 160, 99, 0.13), transparent 31%),
+    linear-gradient(145deg, rgba(79, 43, 31, 0.84), rgba(24, 12, 9, 0.93));
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.16), 0 12px 28px rgba(3, 1, 1, 0.24);
+  backdrop-filter: blur(18px) saturate(1.08);
+  -webkit-backdrop-filter: blur(18px) saturate(1.08);
+}
+
+.receptionPage :global([data-reception-document-area="true"]) {
+  border: 0 !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+.receptionPage :global([data-reception-panel="true"]),
+.receptionPage :global([data-reception-smart-panel="true"]) {
+  color: var(--reception-text) !important;
+  border-color: var(--reception-border) !important;
+  background:
+    linear-gradient(180deg, rgba(255, 239, 218, 0.055), rgba(11, 5, 4, 0.42)),
+    rgba(28, 14, 10, 0.54) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12), 0 10px 24px rgba(3, 1, 1, 0.18);
+}
+
+.receptionPage :global([data-reception-panel="true"] :is(h2, h3, h4, label, strong, [class*="text-foreground"])),
+.receptionPage :global([data-reception-smart-panel="true"] :is(h2, h3, h4, label, strong)) {
+  color: #fff !important;
+}
+
+:global(#root) .receptionPage :global([data-reception-panel="true"] :is(h2, h3, h4, label, strong, [class*="text-foreground"])),
+:global(#root) .receptionPage :global([data-reception-smart-panel="true"] :is(h2, h3, h4, label, strong)) {
+  color: #fff !important;
+}
+
+.receptionPage :global([data-reception-panel="true"] [class*="text-muted-foreground"]),
+.receptionPage :global([data-reception-smart-panel="true"] [class*="text-muted-foreground"]) {
+  color: var(--reception-muted) !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .receptionPage :global([data-reception-panel="true"] :is(p, li, [class*="text-muted-foreground"])),
+:global(#root) .receptionPage :global([data-reception-smart-panel="true"] :is(p, li, [class*="text-muted-foreground"])) {
+  color: var(--reception-muted) !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .receptionPage :global([data-reception-panel="true"] a) {
+  color: var(--reception-icon) !important;
+}
+
+.receptionPage :global([data-reception-panel="true"] svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-amber"])),
+.receptionPage :global([data-reception-smart-panel="true"] > button svg) {
+  color: var(--reception-icon) !important;
+  stroke: currentColor !important;
+}
+
+.receptionPage :global([data-reception-panel="true"] button:not([role="switch"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not([class*="bg-amber"]):not([class*="bg-emerald"])),
+.receptionPage :global([data-reception-toolbar="true"] .lv-premium-shade):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not([class*="bg-amber"]):not([class*="bg-emerald"]) {
+  color: #fff !important;
+  border-color: var(--reception-border) !important;
+  background: var(--reception-inset) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12), 0 5px 13px rgba(3, 1, 1, 0.2) !important;
+}
+
+.receptionPage :global([data-reception-panel="true"] button:not([role="switch"]):hover),
+.receptionPage :global([data-reception-toolbar="true"] .lv-premium-shade:hover) {
+  border-color: var(--reception-border-strong) !important;
+  filter: brightness(1.08);
+}
+
+.receptionPage :global([data-reception-panel="true"] button:not([role="switch"]) :is(span, svg)) {
+  color: inherit !important;
+}
+
+.receptionPage :global([data-reception-toolbar="true"] button[class*="967A59"]) {
+  color: #fff !important;
+  border-color: var(--reception-border-strong) !important;
+  background: linear-gradient(180deg, rgba(169, 123, 82, 0.94), rgba(113, 70, 45, 0.98)) !important;
+}
+
+.receptionPage :global([data-reception-panel="true"] button:focus-visible),
+.receptionPage :global([data-reception-toolbar="true"] button:focus-visible) {
+  outline: 2px solid rgba(239, 220, 196, 0.5) !important;
+  outline-offset: 2px;
+}
+
+.receptionPage :global([data-reception-status="good"]) {
+  color: #d7f9df !important;
+  border-color: rgba(74, 222, 128, 0.58) !important;
+  background: linear-gradient(135deg, rgba(19, 92, 48, 0.72), rgba(8, 47, 26, 0.82)) !important;
+}
+
+.receptionPage :global([data-reception-status="warn"]) {
+  color: #fff1c2 !important;
+  border-color: rgba(251, 191, 36, 0.62) !important;
+  background: linear-gradient(135deg, rgba(120, 74, 12, 0.74), rgba(66, 39, 5, 0.84)) !important;
+}
+
+.receptionPage :global([data-reception-status="bad"]) {
+  color: #fee2e2 !important;
+  border-color: rgba(248, 113, 113, 0.62) !important;
+  background: linear-gradient(135deg, rgba(126, 34, 34, 0.76), rgba(69, 10, 10, 0.86)) !important;
+}
+
+.receptionPage :global([data-reception-panel="true"] button[class*="bg-amber"]) {
+  color: #fff1c2 !important;
+  border-color: rgba(251, 191, 36, 0.62) !important;
+  background: rgba(104, 63, 10, 0.72) !important;
+}
+
+.receptionPage :global([data-reception-panel="true"] button[class*="bg-emerald"]),
+.receptionPage :global([data-reception-panel="true"] button[class*="bg-green"]) {
+  color: #dcfce7 !important;
+  border-color: rgba(74, 222, 128, 0.58) !important;
+  background: rgba(20, 83, 45, 0.72) !important;
+}
+
+.receptionPage :global([data-reception-panel="true"] button[class*="967A59"]) {
+  color: #fff !important;
+  border-color: var(--reception-border-strong) !important;
+  background: rgba(124, 80, 55, 0.74) !important;
+}
+
+.receptionPage :global([data-reception-panel="true"] button[class*="text-destructive"]) {
+  color: #fecaca !important;
+  border-color: rgba(248, 113, 113, 0.58) !important;
+  background: rgba(112, 28, 28, 0.5) !important;
+}
+
+.receptionPage :global([data-reception-smart-panel="true"] > button) {
+  color: #fff1c2 !important;
+  background: rgba(78, 41, 19, 0.48) !important;
+}
+
+.receptionPage :global([data-reception-smart-panel="true"] > div) {
+  color: var(--reception-text) !important;
+  border-color: rgba(239, 220, 196, 0.22) !important;
+  background: rgba(12, 6, 4, 0.36) !important;
+}
+
+.receptionPage :global([data-reception-smart-details="true"]) {
+  color: var(--reception-text) !important;
+  border-color: rgba(239, 220, 196, 0.28) !important;
+  background: rgba(12, 6, 4, 0.48) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.1), 0 10px 24px rgba(3, 1, 1, 0.18);
+}
+
+.receptionPage :global([data-reception-smart-details="true"] [class*="border-green"]) {
+  color: #d7f9df !important;
+  border-color: rgba(74, 222, 128, 0.48) !important;
+  background: rgba(20, 83, 45, 0.56) !important;
+}
+
+.receptionPage :global([data-reception-smart-details="true"] [class*="border-amber"]) {
+  color: #fff1c2 !important;
+  border-color: rgba(251, 191, 36, 0.5) !important;
+  background: rgba(104, 63, 10, 0.58) !important;
+}
+
+.receptionPage :global([data-reception-smart-details="true"] [class*="border-destructive"]) {
+  color: #fee2e2 !important;
+  border-color: rgba(248, 113, 113, 0.52) !important;
+  background: rgba(112, 28, 28, 0.58) !important;
+}
+
+.receptionPage :global([data-reception-smart-panel="true"] [class*="border-green"]) {
+  color: #d7f9df !important;
+  border-color: rgba(74, 222, 128, 0.48) !important;
+  background: rgba(20, 83, 45, 0.56) !important;
+}
+
+.receptionPage :global([data-reception-smart-panel="true"] [class*="border-amber"]) {
+  color: #fff1c2 !important;
+  border-color: rgba(251, 191, 36, 0.5) !important;
+  background: rgba(104, 63, 10, 0.58) !important;
+}
+
+.receptionPage :global([data-reception-smart-panel="true"] [class*="border-destructive"]) {
+  color: #fee2e2 !important;
+  border-color: rgba(248, 113, 113, 0.52) !important;
+  background: rgba(112, 28, 28, 0.58) !important;
+}
+
+.receptionPage :global([data-reception-workspace="true"]) { min-width: 0; }
+
+.receptionPage :global([data-reception-technical-workspace="true"]) {
+  min-width: 0;
+  border-color: var(--reception-border) !important;
+  background: rgba(15, 7, 5, 0.48) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.1);
+}
+
+.receptionPage :global([data-reception-technical-workspace="true"] > p) {
+  color: var(--reception-muted) !important;
+}
+
+.portalSurface,
+:global(.reception-portal-surface) {
+  z-index: 100 !important;
+  color: var(--reception-text, #f7eee4) !important;
+  border: 1px solid rgba(239, 220, 196, 0.72) !important;
+  background:
+    radial-gradient(circle at 88% 0%, rgba(223, 166, 104, 0.12), transparent 34%),
+    linear-gradient(155deg, rgba(69, 37, 27, 0.98), rgba(14, 7, 5, 0.99)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.14), 0 18px 42px rgba(3, 1, 1, 0.48) !important;
+  backdrop-filter: blur(20px) saturate(1.08);
+  -webkit-backdrop-filter: blur(20px) saturate(1.08);
+}
+
+:global(.reception-portal-surface) {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+:global(.reception-portal-surface) :is(h1, h2, h3, h4, [role="heading"]) {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+:global(.reception-portal-surface) label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+:global(.reception-portal-surface) :is(p, input, textarea, [role="option"], [role="menuitem"], [role="tooltip"]) {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+:global(.reception-portal-surface) button:not([role="switch"]):not([role="slider"]) {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+.portalItem,
+.portalSurface :global([role="menuitem"]),
+:global(.reception-portal-surface) :is(h1, h2, h3, h4, label, [role="option"], [role="menuitem"]) {
+  color: #f7eee4 !important;
+}
+
+.portalItem,
+.portalSurface :global([role="option"]) {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+.portalItem svg,
+.portalSurface :global(svg),
+:global(.reception-portal-surface) svg {
+  color: #f2ddbd !important;
+  stroke: currentColor !important;
+}
+
+.portalItem:is(:hover, :focus, [data-highlighted]),
+.portalSurface :global([role="menuitem"]:is(:hover, :focus, [data-highlighted])),
+:global(.reception-portal-surface) :is([role="option"], [role="menuitem"]):is(:hover, :focus, [data-highlighted]) {
+  color: #fff !important;
+  background: rgba(133, 76, 52, 0.52) !important;
+}
+
+:global(.reception-portal-surface) :is(input, textarea, button[role="combobox"]) {
+  color: #fff !important;
+  border-color: rgba(239, 220, 196, 0.72) !important;
+  background: linear-gradient(180deg, rgba(255, 239, 218, 0.07), rgba(15, 7, 5, 0.86)) !important;
+}
+
+:global(.reception-portal-surface) button:not([role="combobox"]):not([class*="bg-green"]):not([class*="bg-amber"]):not(:global(.reception-primary-action)) {
+  color: #fff !important;
+  border-color: rgba(239, 220, 196, 0.72) !important;
+  background: linear-gradient(180deg, rgba(255, 239, 218, 0.07), rgba(15, 7, 5, 0.86)) !important;
+}
+
+:global(.reception-portal-surface) button[class*="text-destructive"] {
+  color: #fecaca !important;
+  border-color: rgba(248, 113, 113, 0.58) !important;
+  background: rgba(112, 28, 28, 0.52) !important;
+}
+
+:global(.reception-portal-surface) :is(p, [class*="text-muted-foreground"]) {
+  color: #eadbc9 !important;
+}
+
+:global(.reception-portal-surface) [class*="text-foreground"] {
+  color: #fff !important;
+}
+
+:global(.reception-portal-surface) [class*="bg-card"],
+:global(.reception-portal-surface) [class*="bg-muted"] {
+  border-color: rgba(239, 220, 196, 0.36) !important;
+  background: rgba(19, 9, 6, 0.52) !important;
+}
+
+@media (max-width: 767px) {
+  :global(main[data-dashboard-content]:has([data-floor-plan-mode="reception"])) {
+    background-attachment: scroll;
+    background-position: center top;
+  }
+
+  .masterContent { padding-inline: 0 !important; }
+
+  .receptionPage :global([data-reception-panel="true"]),
+  .receptionPage :global([data-reception-status]),
+  .receptionPage :global([data-reception-smart-panel="true"]) {
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .receptionPage *,
+  .portalSurface *,
+  :global(.reception-portal-surface) * {
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* Approved light champagne organiser theme. Never target the authoritative A4 subtree. */
+.receptionPage {
+  --reception-border: #cdb99e;
+  --reception-border-strong: #a98b66;
+  --reception-text: #2b1711;
+  --reception-muted: #684b40;
+  --reception-icon: #806344;
+  --reception-inset: linear-gradient(180deg, #fffdf8, #f5ebdd);
+  color: #2b1711;
+}
+
+.headerPanel,
+.masterCard {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fbf8f2 !important;
+  box-shadow: inset 0 1px 0 #fff, 0 12px 28px rgba(84,57,40,.13) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.headerPanel :is(h1, h2, h3, label, strong),
+.masterCard > * > :first-child :is(h1, h2, h3, strong),
+:global(#root) .receptionPage .headerPanel :is(h1, h2, h3, h4, label, strong),
+:global(#root) .receptionPage .masterCard > * > :first-child :is(h1, h2, h3, h4, strong) { color: #2b1711 !important; }
+.headerPanel :is(p, [class*="text-muted-foreground"]),
+.masterCard > * > :first-child [class*="text-muted-foreground"],
+:global(#root) .receptionPage .headerPanel :is(p, [class*="text-muted-foreground"]),
+:global(#root) .receptionPage .masterCard > * > :first-child [class*="text-muted-foreground"] { color: #684b40 !important; }
+.headerPanel svg:not([class*="text-green"]):not([class*="text-red"]),
+.masterCard > * > :first-child svg:not([class*="text-green"]):not([class*="text-red"]) { color: #806344 !important; }
+
+.control,
+.receptionPage :global([data-reception-panel="true"] input:not([type="file"]):not([type="checkbox"]):not([type="radio"])),
+.receptionPage :global([data-reception-panel="true"] textarea) {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fffdf8 !important;
+  box-shadow: inset 0 1px 2px rgba(91,60,42,.08), 0 2px 7px rgba(80,52,35,.06) !important;
+}
+.control:hover,
+.receptionPage :global([data-reception-panel="true"] input:hover),
+.receptionPage :global([data-reception-panel="true"] textarea:hover) { border-color: #a98b66 !important; }
+.control:focus-visible,
+.receptionPage :global([data-reception-panel="true"] input:focus-visible),
+.receptionPage :global([data-reception-panel="true"] textarea:focus-visible) {
+  outline: 2px solid #806344 !important;
+  box-shadow: 0 0 0 3px rgba(128,99,68,.16) !important;
+}
+.control :is(span, svg) { color: #2b1711 !important; }
+.control svg { color: #806344 !important; }
+
+.headerResetButton,
+.receptionPage :global([data-reception-panel="true"] button[class*="text-destructive"]) {
+  color: #fff !important;
+  border-color: #c92f28 !important;
+  background: linear-gradient(180deg, #f85b53, #d9342c) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), inset 0 -2px 0 rgba(125,18,14,.3), 0 6px 14px rgba(217,52,44,.22) !important;
+}
+.headerResetButton svg,
+.receptionPage :global([data-reception-panel="true"] button[class*="text-destructive"] svg) { color: #fff !important; }
+
+.setupMaster { border-color: #cdb99e; background: #fbf8f2; }
+.setupTitle { color: #2b1711 !important; }
+.setupCard { border-color: #dccbb4; background: #f5ebdd; box-shadow: inset 0 1px 0 #fff, 0 5px 14px rgba(80,52,35,.07); }
+.setupCardHeading h3 { color: #2b1711 !important; }
+.fixturePlacementStatus { color: #684b40 !important; border-color: #cdb99e; background: #f5ebdd; }
+
+.receptionPage :global([data-reception-toolbar="true"]) {
+  border-color: #cdb99e;
+  background: #fbf8f2;
+  box-shadow: inset 0 1px 0 #fff, 0 9px 22px rgba(84,57,40,.1);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.receptionPage :global([data-reception-panel="true"]),
+.receptionPage :global([data-reception-smart-panel="true"]) {
+  color: #2b1711 !important;
+  border-color: #dccbb4 !important;
+  background: #f5ebdd !important;
+  box-shadow: inset 0 1px 0 #fff, 0 5px 14px rgba(80,52,35,.07);
+}
+.receptionPage :global([data-reception-panel="true"] :is(h2, h3, h4, label, strong, [class*="text-foreground"])),
+.receptionPage :global([data-reception-smart-panel="true"] :is(h2, h3, h4, label, strong)),
+:global(#root) .receptionPage :global([data-reception-panel="true"] :is(h2, h3, h4, label, strong, [class*="text-foreground"])),
+:global(#root) .receptionPage :global([data-reception-smart-panel="true"] :is(h2, h3, h4, label, strong)) { color: #2b1711 !important; }
+.receptionPage :global([data-reception-panel="true"] [class*="text-muted-foreground"]),
+.receptionPage :global([data-reception-smart-panel="true"] [class*="text-muted-foreground"]),
+:global(#root) .receptionPage :global([data-reception-panel="true"] :is(p, li, [class*="text-muted-foreground"])),
+:global(#root) .receptionPage :global([data-reception-smart-panel="true"] :is(p, li, [class*="text-muted-foreground"])) { color: #684b40 !important; }
+:global(#root) .receptionPage :global([data-reception-panel="true"] a) { color: #6f5334 !important; }
+.receptionPage :global([data-reception-panel="true"] svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-amber"])),
+.receptionPage :global([data-reception-smart-panel="true"] > button svg) { color: #806344 !important; }
+
+.receptionPage :global([data-reception-panel="true"] button:not([role="switch"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not([class*="bg-amber"]):not([class*="bg-emerald"])),
+.receptionPage :global([data-reception-toolbar="true"] .lv-premium-shade):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not([class*="bg-amber"]):not([class*="bg-emerald"]) {
+  color: #2b1711 !important;
+  border-color: #a98b66 !important;
+  background: linear-gradient(180deg, #fffdf8, #ead8bf) !important;
+  box-shadow: inset 0 1px 0 #fff, inset 0 -2px 0 rgba(107,76,48,.14), 0 4px 10px rgba(80,52,35,.1) !important;
+}
+.receptionPage :global([data-reception-panel="true"] button:not([role="switch"]):hover),
+.receptionPage :global([data-reception-toolbar="true"] .lv-premium-shade:hover) { border-color: #806344 !important; filter: brightness(1.02); }
+
+.receptionPage :global([data-reception-panel="true"] button[class*="bg-emerald"]),
+.receptionPage :global([data-reception-panel="true"] button[class*="bg-green"]),
+.receptionPage :global([data-reception-toolbar="true"] button[class*="967A59"]) {
+  color: #fff !important;
+  border-color: #159447 !important;
+  background: linear-gradient(180deg, #35d06f, #16a34a) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 0 rgba(5,91,37,.34), 0 6px 14px rgba(22,163,74,.22) !important;
+}
+
+.receptionPage :global([data-reception-status="good"]) { color: #176b38 !important; border-color: #2e9f58 !important; background: #e6f5e9 !important; }
+.receptionPage :global([data-reception-status="warn"]) { color: #8a4b08 !important; border-color: #d97706 !important; background: #fff1d6 !important; }
+.receptionPage :global([data-reception-status="bad"]) { color: #a61e19 !important; border-color: #d9342c !important; background: #fde8e5 !important; }
+
+.receptionPage :global([data-reception-smart-panel="true"] > button) { color: #2b1711 !important; background: #ead8bf !important; }
+.receptionPage :global([data-reception-smart-panel="true"] > div),
+.receptionPage :global([data-reception-smart-details="true"]) { color: #2b1711 !important; border-color: #dccbb4 !important; background: #fffaf2 !important; box-shadow: inset 0 1px 0 #fff; }
+.receptionPage :global([data-reception-smart-details="true"] [class*="border-green"]),
+.receptionPage :global([data-reception-smart-panel="true"] [class*="border-green"]) { color: #176b38 !important; border-color: #2e9f58 !important; background: #e6f5e9 !important; }
+.receptionPage :global([data-reception-smart-details="true"] [class*="border-amber"]),
+.receptionPage :global([data-reception-smart-panel="true"] [class*="border-amber"]) { color: #8a4b08 !important; border-color: #d97706 !important; background: #fff1d6 !important; }
+.receptionPage :global([data-reception-smart-details="true"] [class*="border-destructive"]),
+.receptionPage :global([data-reception-smart-panel="true"] [class*="border-destructive"]) { color: #a61e19 !important; border-color: #d9342c !important; background: #fde8e5 !important; }
+
+.receptionPage :global([data-reception-technical-workspace="true"]) { border-color: #dccbb4 !important; background: #f5ebdd !important; box-shadow: inset 0 1px 0 #fff; }
+.receptionPage :global([data-reception-technical-workspace="true"] > p) { color: #684b40 !important; }
+.shareToggle { border-color: #a98b66 !important; background: #ded1bf !important; }
+.shareToggle[data-state="checked"] { border-color: #2e9f58 !important; background: #16a34a !important; }
+
+.portalSurface,
+:global(.reception-portal-surface) {
+  z-index: 10000 !important;
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fbf8f2 !important;
+  box-shadow: 0 18px 42px rgba(70,43,29,.22) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.portalItem,
+.portalSurface :global([role="menuitem"]),
+:global(.reception-portal-surface) :is(h1, h2, h3, h4, label, [role="option"], [role="menuitem"], [class*="text-foreground"]) { color: #2b1711 !important; }
+.portalItem svg, .portalSurface :global(svg), :global(.reception-portal-surface) svg { color: #806344 !important; }
+.portalItem:is(:hover, :focus, [data-highlighted]),
+.portalSurface :global([role="menuitem"]:is(:hover, :focus, [data-highlighted])),
+:global(.reception-portal-surface) :is([role="option"], [role="menuitem"]):is(:hover, :focus, [data-highlighted]) { color: #2b1711 !important; background: #f0e2d1 !important; }
+:global(.reception-portal-surface) :is(input, textarea, button[role="combobox"]) { color: #2b1711 !important; border-color: #cdb99e !important; background: #fffdf8 !important; }
+:global(.reception-portal-surface) button:not([role="combobox"]):not([class*="bg-green"]):not([class*="bg-amber"]):not([class*="967A59"]):not(:global(.reception-primary-action)) { color: #2b1711 !important; border-color: #a98b66 !important; background: linear-gradient(180deg, #fffdf8, #ead8bf) !important; }
+:global(.reception-portal-surface) button[class*="967A59"] { color: #fff !important; border-color: #159447 !important; background: linear-gradient(180deg, #35d06f, #16a34a) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 0 rgba(5,91,37,.34), 0 6px 14px rgba(22,163,74,.22) !important; }
+:global(.reception-portal-surface) button:global(.reception-primary-action) { color: #fff !important; border-color: #159447 !important; background: linear-gradient(180deg, #35d06f, #16a34a) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 0 rgba(5,91,37,.34), 0 6px 14px rgba(22,163,74,.22) !important; }
+:global(.reception-portal-surface) button[class*="text-destructive"] { color: #fff !important; border-color: #c92f28 !important; background: linear-gradient(180deg, #f85b53, #d9342c) !important; }
+:global(.reception-portal-surface) :is(p, [class*="text-muted-foreground"]) { color: #684b40 !important; }
+:global(.reception-portal-surface) [class*="bg-card"],
+:global(.reception-portal-surface) [class*="bg-muted"] { border-color: #dccbb4 !important; background: #f5ebdd !important; }

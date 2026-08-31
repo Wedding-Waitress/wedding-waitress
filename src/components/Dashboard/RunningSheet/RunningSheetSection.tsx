@@ -57,6 +57,7 @@ import {
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { RunningSheetItem } from '@/types/runningSheet';
 import { RunningSheetRow } from './RunningSheetRow';
+import styles from './RunningSheetTheme.module.css';
 
 interface RunningSheetSectionProps {
   label: string;
@@ -161,7 +162,7 @@ export function RunningSheetSection({
 
   return (
     <>
-      <Card className="border-0 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
+      <Card className={`${styles.glassCard} ${styles.scheduleCard}`}>
         <Collapsible open={!isCollapsed} onOpenChange={(open) => setIsCollapsed(!open)}>
           <CardHeader className="py-3 px-4">
             <div className="flex items-center justify-between">
@@ -189,12 +190,12 @@ export function RunningSheetSection({
                     onChange={(e) => setLocalLabel(e.target.value)}
                     onBlur={handleLabelBlur}
                     onKeyDown={handleLabelKeyDown}
-                    className="h-8 text-lg font-bold flex-1"
+                    className={`h-8 flex-1 ${styles.sectionHeading}`}
                   />
                 ) : (
                   <h3
                     onClick={() => !disabled && setEditingLabel(true)}
-                    className="text-lg font-bold text-primary cursor-text hover:bg-muted/50 px-2 py-1 rounded transition-colors"
+                    className={`text-primary cursor-text hover:bg-muted/50 px-2 py-1 rounded transition-colors ${styles.sectionHeading}`}
                   >
                     {label}
                   </h3>
@@ -209,7 +210,7 @@ export function RunningSheetSection({
                       <MessageSquareText size={16} strokeWidth={1.8} className={notes ? 'text-primary' : 'text-muted-foreground'} aria-hidden="true" />
                     </Button>
                   </TooltipTrigger>
-                  <TooltipContent>Notes</TooltipContent>
+                  <TooltipContent className="ww-running-sheet-tooltip">Notes</TooltipContent>
                 </Tooltip>
 
                 <DropdownMenu>
@@ -221,9 +222,9 @@ export function RunningSheetSection({
                         </Button>
                       </DropdownMenuTrigger>
                     </TooltipTrigger>
-                    <TooltipContent>More actions</TooltipContent>
+                    <TooltipContent className="ww-running-sheet-tooltip">More actions</TooltipContent>
                   </Tooltip>
-                  <DropdownMenuContent align="end">
+                  <DropdownMenuContent align="end" className="ww-running-sheet-menu">
                     <DropdownMenuItem onClick={() => setShowClearDialog(true)}>
                       <Eraser size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                       Clear All Fields
@@ -247,8 +248,8 @@ export function RunningSheetSection({
 
             {showNotes && (
               <div className="mt-3">
-                <div className="border-2 border-primary rounded-md bg-background px-3 py-2">
-                  <div className="text-sm font-medium text-primary mb-1 flex items-center gap-2">
+                <div className={`rounded-md px-3 py-2 ${styles.notesEditor}`}>
+                  <div className={`mb-1 flex items-center gap-2 ${styles.notesHeading} ${styles.controlLabel}`}>
                     <NotebookPen size={17} strokeWidth={1.8} aria-hidden="true" />
                     Notes
                   </div>
@@ -257,7 +258,7 @@ export function RunningSheetSection({
                     value={notes || ''}
                     onChange={(e) => onNotesChange(e.target.value || null)}
                     placeholder="e.g., special instructions, timing notes, etc."
-                    className="text-sm resize-y border-0 p-0 focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px]"
+                    className={`resize-y min-h-[40px] ${styles.bodyText} ${styles.notesTextarea}`}
                     rows={2}
                     disabled={disabled}
                   />
@@ -269,10 +270,10 @@ export function RunningSheetSection({
           <CollapsibleContent>
             <CardContent className="pt-0 px-2 pb-3">
               {/* Tablet-only horizontal scroll wrapper preserves desktop layout */}
-              <div className="max-lg:overflow-x-auto max-lg:[-webkit-overflow-scrolling:touch] lg:overflow-visible">
-                <div className="max-lg:min-w-[1024px]">
+              <div className={`max-lg:overflow-x-auto max-lg:[-webkit-overflow-scrolling:touch] lg:overflow-visible ${styles.tableViewport}`}>
+                <div className={`max-lg:min-w-[1024px] ${styles.tableCanvas}`}>
                   {/* Column headers */}
-                  <div className="flex items-center gap-2 px-2 py-2 border-b border-border text-xs font-medium text-muted-foreground uppercase tracking-wide">
+                  <div className={`flex items-center gap-2 px-2 py-2 border-b border-border text-muted-foreground uppercase tracking-wide ${styles.columnHeader}`}>
                     <div className="w-6 shrink-0" />
                     <div className="basis-1/5 min-w-0 flex items-center gap-1.5">
                       <Clock3 size={16} strokeWidth={1.8} aria-hidden="true" />
@@ -314,7 +315,7 @@ export function RunningSheetSection({
                   {/* Add Row */}
                   {!disabled && (
                     <div className="mt-3 flex justify-center">
-                      <Button variant="outline" size="sm" onClick={onAddItem} className="gap-1.5" aria-label="Add row">
+                      <Button variant="outline" size="sm" onClick={onAddItem} className={`gap-1.5 ${styles.greenAction}`} aria-label="Add row">
                         <Plus size={16} strokeWidth={1.8} aria-hidden="true" />
                         Add Row
 
@@ -330,7 +331,7 @@ export function RunningSheetSection({
 
       {/* Clear All Fields Dialog */}
       <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className={styles.dialogSurface}>
           <AlertDialogHeader>
             <AlertDialogTitle>Clear All Fields?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -339,7 +340,7 @@ export function RunningSheetSection({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => {
+            <AlertDialogAction className={styles.destructiveAction} onClick={() => {
               items.forEach(item => onUpdateItem(item.id, { time_text: '', description_rich: { text: '' }, responsible: '' }));
               setShowClearDialog(false);
             }}>
@@ -351,7 +352,7 @@ export function RunningSheetSection({
 
       {/* Reset Dialog */}
       <AlertDialog open={showResetDialog} onOpenChange={setShowResetDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className={styles.dialogSurface}>
           <AlertDialogHeader>
             <AlertDialogTitle>Reset to Default?</AlertDialogTitle>
             <AlertDialogDescription>
@@ -360,7 +361,7 @@ export function RunningSheetSection({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction onClick={() => { onResetToDefault(); setShowResetDialog(false); }}>
+            <AlertDialogAction className={styles.destructiveAction} onClick={() => { onResetToDefault(); setShowResetDialog(false); }}>
               Reset
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -368,7 +369,7 @@ export function RunningSheetSection({
       </AlertDialog>
       {/* Delete All Rows Dialog */}
       <AlertDialog open={showDeleteAllDialog} onOpenChange={setShowDeleteAllDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className={styles.dialogSurface}>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete All Rows?</AlertDialogTitle>
             <AlertDialogDescription>

@@ -50,7 +50,11 @@ export function slideshowSettingsFromRow(row: any): SlideshowSettings {
     include_photos: includePhotos || !includeVideos, // never both off
     include_videos: includeVideos,
     albums: Array.isArray(row.slideshow_albums)
-      ? [...new Set(row.slideshow_albums.filter((a: any) => typeof a === 'string').map(normaliseGalleryAlbum))]
+      ? [...new Set<string>(
+          row.slideshow_albums
+            .filter((album: unknown): album is string => typeof album === 'string')
+            .map((album: string) => normaliseGalleryAlbum(album)),
+        )]
       : [],
     order,
     slide_duration_sec: Math.max(3, Math.min(60, Number(duration) || 5)),

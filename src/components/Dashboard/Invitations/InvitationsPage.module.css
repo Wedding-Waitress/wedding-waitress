@@ -1,313 +1,267 @@
 .page {
-  --inv-segment-frame-border: rgba(239, 220, 196, 0.72);
-  --inv-segment-frame-background: rgba(14, 7, 5, 0.66);
-  --inv-segment-frame-shadow: inset 0 2px 7px rgba(3, 1, 1, 0.38), inset 0 1px 0 rgba(255, 239, 218, 0.08);
-  --inv-segment-inactive-border: #472c1d;
-  --inv-segment-active-background: linear-gradient(180deg, rgba(122, 68, 47, 0.9), rgba(47, 24, 17, 0.94));
-  --inv-segment-active-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.2), 0 7px 16px rgba(3, 1, 1, 0.29);
   min-width: 0;
+}
+
+:global(main[data-dashboard-content]).invitationsWorkspaceSurface {
+  background-color: #f2e9dc !important;
+  background-image: none !important;
 }
 
 .headerPanel,
-.managementPanel {
+.managementPanel,
+.previewStage {
   min-width: 0;
 }
 
-:global(#root) .page :is(h1, h2, h3, h4, label, strong),
-:global(#root) .page [class*="text-foreground"] {
-  color: #ffffff !important;
+/* Invitations interface typography only. The preview stage is excluded except
+   for its external zoom annotation, preserving every card-rendered glyph. */
+:global(#root) .page .headerPanel h1 {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 24px !important;
+  font-weight: 600 !important;
 }
 
-:global(#root) .page :is(p, li),
-:global(#root) .page [class*="text-muted-foreground"] {
-  color: #eadbc9 !important;
-  opacity: 1 !important;
+:global(#root) .page :is(p, li):not(.previewStage *),
+:global(#root) .page > span {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
 }
 
-:global(#root) .page svg:not([class*="text-green"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-rose"]):not([class*="text-destructive"]):not([class*="text-white"]) {
-  color: #f2ddbd !important;
-  stroke: currentColor !important;
+:global(#root) .page .headerPanel label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
 }
 
-:global(#root) .page :global(.ww-signage-premium-designer) [class*="border-[#967A59]"] {
-  color: #f2ddbd !important;
-  border-color: rgba(239, 220, 196, 0.72) !important;
+:global(#root) .page .headerPanel [class*="exportPanel"] > div:first-child > span:first-child,
+:global(#root) .page[class*="ww-box"] h3,
+:global(#root) .page > [class*="ww-box"] h3 {
+  font-size: 20px !important;
+  font-weight: 500 !important;
 }
 
-.guidelinesPanel {
-  border: 1px solid rgba(239, 220, 196, 0.72) !important;
+:global(#root) .page .headerPanel [class*="exportPanel"] > div:first-child > span:last-child {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
 }
 
-:global(#root) .guidelinesPanel [class*="text-green"] {
-  color: #86efac !important;
+:global(#root) .page :is(button, [role="tab"]):not(.previewStage *) {
+  font-size: 13px !important;
+  font-weight: 500 !important;
 }
 
-:global(#root) .guidelinesPanel [class*="text-green"] svg {
-  color: #86efac !important;
-  stroke: currentColor !important;
+:global(#root) .page [role="combobox"]:not(.previewStage *) {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+.managementPanel [role="tab"] {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+.artworkTitle {
+  overflow: visible !important;
+  white-space: normal !important;
+  text-overflow: clip !important;
+  overflow-wrap: anywhere;
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) > div:first-child [class*="text-2xl"] {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 24px !important;
+  font-weight: 600 !important;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) :is(p, input, textarea),
+:global(#root) .page :global(.ww-invitations-designer) :is(span, div)[class*="text-xs"]:not([class*="rounded-full"]),
+:global(#root) .page :global(.ww-invitations-designer) :is(span, div)[class*="text-sm"]:not([class*="rounded-full"]) {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) :is(h3, h4),
+:global(#root) .page :global(.ww-invitations-designer) :global(.ww-invitations-section-heading) {
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) :is(button, [role="tab"]) {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) span[class*="rounded-full"],
+:global(#root) .page :global(.ww-invitations-designer) span[class*="text-[10px]"] {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+:global(.ww-invitations-premium-dialog) :is(h2, h3) {
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+:global(.ww-invitations-premium-dialog) :is(p, input, textarea),
+:global(.ww-invitations-premium-dialog) :is(span, div)[class*="text-xs"],
+:global(.ww-invitations-premium-dialog) :is(span, div)[class*="text-sm"] {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+:global(.ww-invitations-premium-dialog) label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+:global(.ww-invitations-premium-dialog) :is(button, [role="tab"]) {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+:global(.ww-invitations-premium-portal),
+:global(.ww-invitations-premium-portal) [role="option"] {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+:global(.ww-invitations-premium-portal) label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+:global(.ww-invitations-premium-portal) button {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+:global(.ww-invitations-interface) :is(h2, h3, h4),
+:global(.ww-invitations-interface) [class*="CardTitle"] {
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+:global(.ww-invitations-interface) :is(p, input, textarea),
+:global(.ww-invitations-interface) :is(span, div)[class*="text-xs"],
+:global(.ww-invitations-interface) :is(span, div)[class*="text-sm"] {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+:global(.ww-invitations-interface) label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+:global(.ww-invitations-interface) :is(button, [role="tab"]) {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+:global(.ww-invitations-interface) button p:first-child {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+:global(.ww-invitations-premium-dialog) [class*="text-[10px]"] {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.previewStage [class*="self-center"] > span {
+  font-size: 13px !important;
+  font-weight: 600 !important;
 }
 
 .managementPanel [role="tablist"] {
   height: auto !important;
   gap: 0.35rem;
-  border: 1px solid var(--inv-segment-frame-border) !important;
   border-radius: 999px;
-  background: var(--inv-segment-frame-background) !important;
   padding: 0.25rem !important;
-  box-shadow: var(--inv-segment-frame-shadow);
 }
 
 .managementPanel [role="tab"] {
   min-width: 0;
-  color: #d9c4aa !important;
-  border: 1px solid var(--inv-segment-inactive-border) !important;
   border-radius: 999px;
-  background: transparent !important;
-}
-
-:global(#root) .managementPanel [role="tab"],
-:global(#root) .managementPanel [role="tab"] span {
-  color: #d9c4aa !important;
-}
-
-.managementPanel [role="tab"] svg {
-  color: #f2ddbd !important;
-  stroke: currentColor !important;
-}
-
-:global(#root) .managementPanel [role="tab"] svg {
-  color: #f2ddbd !important;
-  stroke: currentColor !important;
-}
-
-.managementPanel [role="tab"]:hover {
-  color: #ffffff !important;
-  background: rgba(112, 63, 43, 0.45) !important;
-}
-
-.managementPanel [role="tab"][data-state="active"] {
-  color: #ffffff !important;
-  border-color: var(--inv-segment-frame-border) !important;
-  background: var(--inv-segment-active-background) !important;
-  box-shadow: var(--inv-segment-active-shadow) !important;
-}
-
-:global(#root) .managementPanel [role="tab"][data-state="active"],
-:global(#root) .managementPanel [role="tab"][data-state="active"] span {
-  color: #ffffff !important;
-}
-
-.artworkList {
-  scrollbar-color: rgba(239, 220, 196, 0.72) rgba(15, 7, 5, 0.52);
 }
 
 .artworkCard,
 .newArtwork {
-  color: #f3e7d8 !important;
-  border: 1px solid rgba(239, 220, 196, 0.72) !important;
-  background: linear-gradient(155deg, rgba(79, 43, 32, 0.82), rgba(20, 10, 8, 0.93)) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.13), 0 9px 22px rgba(3, 1, 1, 0.29) !important;
+  border: 1px solid;
 }
 
 .artworkCard:hover,
 .newArtwork:hover {
-  border-color: rgba(255, 235, 207, 0.9) !important;
-  background: linear-gradient(155deg, rgba(103, 57, 40, 0.88), rgba(27, 13, 10, 0.96)) !important;
   transform: translateY(-1px);
 }
 
-.artworkCardActive {
-  border-color: rgba(239, 220, 196, 0.92) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 247, 235, 0.2), 0 0 0 2px rgba(239, 220, 196, 0.12), 0 12px 28px rgba(3, 1, 1, 0.34) !important;
-}
-
 .thumbnail {
-  border: 1px solid rgba(239, 220, 196, 0.58);
-  background: rgba(12, 6, 4, 0.62) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.08);
+  border: 1px solid;
 }
 
 .thumbnail img {
   border: 0 !important;
 }
 
-.blankThumbnail {
-  background:
-    radial-gradient(ellipse at 50% 0%, rgba(239, 202, 154, 0.13), transparent 58%),
-    linear-gradient(155deg, rgba(76, 41, 30, 0.9), rgba(17, 8, 6, 0.98));
-  box-shadow:
-    inset 0 1px 0 rgba(255, 239, 218, 0.14),
-    inset 0 -12px 24px rgba(3, 1, 1, 0.22);
-}
-
-.artworkCard p,
-.newArtwork span {
-  color: #f3e7d8 !important;
-}
-
-:global(#root) .artworkCard p,
-:global(#root) .newArtwork span {
-  color: #f3e7d8 !important;
-}
-
-.artworkActions button {
-  color: #f2ddbd !important;
-  border: 1px solid rgba(239, 220, 196, 0.66) !important;
-  background: rgba(20, 10, 7, 0.58) !important;
-}
-
-.artworkActions button svg,
-.newArtwork svg {
-  color: #f2ddbd !important;
-  stroke: currentColor !important;
-}
-
-:global(#root) .artworkActions button:not([aria-label="Delete card"]),
-:global(#root) .artworkActions button:not([aria-label="Delete card"]) svg,
-:global(#root) .newArtwork svg {
-  color: #f2ddbd !important;
-  stroke: currentColor !important;
-}
-
-.artworkActions button[aria-label="Delete card"] {
-  color: #fecaca !important;
-  border-color: #ef4444 !important;
-  background: rgba(127, 29, 29, 0.42) !important;
-}
-
-.artworkActions button[aria-label="Delete card"] svg {
-  color: #f87171 !important;
-}
-
-:global(#root) .artworkActions button[aria-label="Delete card"],
-:global(#root) .artworkActions button[aria-label="Delete card"] svg {
-  color: #f87171 !important;
-  stroke: currentColor !important;
-}
-
 .newArtwork {
   border-style: dashed !important;
 }
 
-.emptyMessage {
-  color: #eadbc9 !important;
-}
-
-:global(#root) .page :global(.ww-signage-premium-designer) > div:first-child {
+:global(#root) .page :global(.ww-invitations-designer) > div:first-child {
   background: transparent !important;
 }
 
-:global(#root) .page :global(.ww-signage-premium-designer) [role="tablist"] {
+:global(#root) .page :global(.ww-invitations-designer) [role="tablist"] {
   display: grid !important;
   grid-template-columns: repeat(4, minmax(0, 1fr));
   height: auto !important;
   gap: 0.35rem !important;
   padding: 0.25rem !important;
-  border: 1px solid var(--inv-segment-frame-border) !important;
   border-radius: 999px !important;
-  background: var(--inv-segment-frame-background) !important;
-  box-shadow: var(--inv-segment-frame-shadow) !important;
 }
 
-:global(#root) .page :global(.ww-signage-premium-designer) [role="tab"] {
+:global(#root) .page :global(.ww-invitations-designer) [role="tab"] {
   min-width: 0;
   min-height: 0 !important;
   height: auto !important;
   flex-direction: row !important;
   gap: 0.375rem !important;
   padding: 0.375rem 1rem !important;
-  border: 1px solid var(--inv-segment-inactive-border) !important;
   border-radius: 999px !important;
-  background: transparent !important;
-  box-shadow: none !important;
-  color: #d9c4aa !important;
-  font-size: 0.875rem !important;
+  font-size: 13px !important;
   font-weight: 500 !important;
   line-height: 1.25rem !important;
   white-space: nowrap !important;
-  transition: all 180ms cubic-bezier(0.4, 0, 0.2, 1);
+  transition: color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    background-color 180ms cubic-bezier(0.4, 0, 0.2, 1),
+    border-color 180ms cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-:global(#root) .page :global(.ww-signage-premium-designer) [role="tab"] svg {
+:global(#root) .page :global(.ww-invitations-designer) [role="tab"] svg {
   width: 17px !important;
   height: 17px !important;
-}
-
-/* The shared designer control skin intentionally gives every ordinary button a
-   champagne border. These tabs are the invitations segmented-control exception:
-   only the selected segment uses that border, exactly like the gallery selector. */
-:global(#root) .page.page.page.page.page.page.page.page :global(.ww-signage-premium-designer) [role="tab"][data-state="inactive"] {
-  border-color: var(--inv-segment-inactive-border) !important;
-}
-
-:global(#root) .page :global(.ww-signage-premium-designer) [role="tab"]:hover {
-  color: #ffffff !important;
-  border-color: var(--inv-segment-inactive-border) !important;
-  background: rgba(112, 63, 43, 0.45) !important;
-}
-
-:global(#root) .page :global(.ww-signage-premium-designer) [role="tab"][data-state="active"] {
-  color: #ffffff !important;
-  border-color: var(--inv-segment-frame-border) !important;
-  background: var(--inv-segment-active-background) !important;
-  box-shadow: var(--inv-segment-active-shadow) !important;
-}
-
-:global(.ww-invitations-premium-dialog) {
-  color: #f3e7d8 !important;
-  border: 1px solid rgba(239, 220, 196, 0.72) !important;
-  background: linear-gradient(155deg, rgba(76, 41, 30, 0.995), rgba(19, 9, 7, 0.995)) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.16), 0 24px 60px rgba(3, 1, 1, 0.58) !important;
-}
-
-:global(.ww-invitations-premium-dialog) :is(h2, h3, label) {
-  color: #ffffff !important;
-}
-
-:global(.ww-invitations-premium-dialog) p {
-  color: #eadbc9 !important;
-}
-
-:global(.ww-invitations-premium-dialog) input,
-:global(.ww-invitations-premium-dialog) button:not([class*="bg-red"]):not([class*="bg-destructive"]) {
-  color: #f3e7d8 !important;
-  border: 1px solid rgba(239, 220, 196, 0.72) !important;
-  background: linear-gradient(180deg, rgba(91, 49, 35, 0.88), rgba(20, 10, 7, 0.96)) !important;
-}
-
-:global(.ww-invitations-premium-dialog) button[class*="bg-red"],
-:global(.ww-invitations-premium-dialog) button[class*="bg-destructive"] {
-  color: #ffffff !important;
-  border-color: #ef4444 !important;
-  background: linear-gradient(180deg, #f87171, #ef4444 58%, #dc2626) !important;
-}
-
-:global(.ww-invitations-premium-portal) {
-  color: #f3e7d8 !important;
-  border: 1px solid rgba(239, 220, 196, 0.72) !important;
-  background: linear-gradient(180deg, rgba(76, 41, 30, 0.995), rgba(20, 10, 8, 0.995)) !important;
-  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.15), 0 20px 44px rgba(3, 1, 1, 0.52) !important;
-}
-
-:global(.ww-invitations-premium-portal) [role="option"] {
-  color: #f3e7d8 !important;
-}
-
-:global(.ww-invitations-premium-portal) [role="option"][data-highlighted] {
-  color: #ffffff !important;
-  background: rgba(139, 77, 40, 0.72) !important;
-}
-
-:global(.ww-invitations-premium-portal) svg {
-  color: #f2ddbd !important;
-  stroke: currentColor !important;
 }
 
 @media (max-width: 767px) {
   .managementPanel [role="tab"] {
     min-height: 3rem;
     padding-inline: 0.3rem !important;
-    font-size: 0.72rem !important;
+    font-size: 13px !important;
   }
 
   .artworkCard,
@@ -322,7 +276,7 @@
     flex-direction: column !important;
     gap: 0.25rem !important;
     padding: 0.5rem 0.125rem !important;
-    font-size: 0.65625rem !important;
+    font-size: 13px !important;
     line-height: 1.2 !important;
     white-space: normal !important;
   }
@@ -345,4 +299,518 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+/* Approved light champagne organiser interface. Invitation artwork remains
+   isolated inside .previewStage and is intentionally not targeted here. */
+.page {
+  --inv-segment-frame-border: #cdb99e;
+  --inv-segment-frame-background: #ede0d0;
+  --inv-segment-frame-shadow: inset 0 1px 2px rgba(104, 75, 64, 0.1), inset 0 1px 0 rgba(255, 255, 255, 0.85);
+  --inv-segment-inactive-border: #cdb99e;
+  --inv-segment-active-background: linear-gradient(180deg, #15803d 0%, #166534 100%);
+  --inv-segment-active-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34), 0 7px 16px rgba(22, 101, 52, 0.22);
+  color: #2b1711;
+  background: #f2e9dc !important;
+  min-height: calc(100dvh - 4rem);
+  min-width: 0;
+  margin: -1.5rem -2rem;
+  overflow-x: clip;
+  padding: clamp(1rem, 2vw, 2rem);
+  isolation: isolate;
+}
+
+.divider {
+  width: 100%;
+  height: 1px;
+  background: #cdb99e;
+}
+
+.selectTrigger,
+.exportPanel,
+.editorLayout,
+.designerShell,
+.previewStage {
+  min-width: 0;
+}
+
+.exportPanel {
+  max-width: 100%;
+}
+
+.exportButton {
+  color: #ffffff;
+  border-color: #166534;
+  background: linear-gradient(180deg, #15803d 0%, #166534 100%);
+}
+
+.infoStrip {
+  border: 1px solid #cdb99e;
+}
+
+:global(#root) .page .headerPanel,
+:global(#root) .page .managementPanel {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fbf8f2 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.94), 0 16px 34px rgba(87, 58, 39, 0.13) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:global(#root) .page :is(.headerPanel, .managementPanel) :is(h1, h2, h3, h4, label, strong),
+:global(#root) .page :is(.headerPanel, .managementPanel) [class*="text-foreground"] {
+  color: #2b1711 !important;
+}
+
+:global(#root) .page :is(.headerPanel, .managementPanel) :is(p, li),
+:global(#root) .page :is(.headerPanel, .managementPanel) [class*="text-muted-foreground"] {
+  color: #684b40 !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .page :is(.headerPanel, .managementPanel) svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-white"]) {
+  color: #a18764 !important;
+  stroke: currentColor !important;
+}
+
+.guidelinesPanel {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #f5ebdd !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86), 0 7px 16px rgba(87, 58, 39, 0.08);
+}
+
+:global(#root) .guidelinesPanel [class*="text-green"],
+:global(#root) .guidelinesPanel [class*="text-green"] svg {
+  color: #166534 !important;
+}
+
+:global(#root) .page .headerPanel .selectTrigger,
+:global(#root) .page .headerPanel .selectTrigger span {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: linear-gradient(180deg, #fffdf9 0%, #f3e8da 100%) !important;
+  box-shadow: inset 0 1px 2px rgba(104, 75, 64, 0.1), 0 2px 5px rgba(87, 58, 39, 0.08) !important;
+  -webkit-text-fill-color: #2b1711;
+}
+
+:global(#root) .page .headerPanel [class*="exportPanel"] {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #f5ebdd !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.92), 0 7px 16px rgba(87, 58, 39, 0.1) !important;
+}
+
+:global(#root) .page .headerPanel [class*="exportButton"],
+:global(#root) .page .headerPanel [class*="exportButton"]:hover {
+  color: #ffffff !important;
+  border-color: #166534 !important;
+  background: linear-gradient(180deg, #15803d 0%, #166534 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34), 0 8px 18px rgba(22, 101, 52, 0.24) !important;
+}
+
+:global(#root) .page .headerPanel [class*="exportButton"] svg {
+  color: #ffffff !important;
+}
+
+.managementPanel [role="tablist"],
+:global(#root) .page :global(.ww-invitations-designer) [role="tablist"] {
+  border-color: #cdb99e !important;
+  background: #ede0d0 !important;
+  box-shadow: var(--inv-segment-frame-shadow) !important;
+}
+
+.managementPanel [role="tab"],
+:global(#root) .page :global(.ww-invitations-designer) [role="tab"] {
+  color: #684b40 !important;
+  border-color: #cdb99e !important;
+  background: #f5ebdd !important;
+}
+
+:global(#root) .managementPanel [role="tab"],
+:global(#root) .managementPanel [role="tab"] span,
+:global(#root) .page :global(.ww-invitations-designer) [role="tab"] span {
+  color: #684b40 !important;
+}
+
+.managementPanel [role="tab"] svg,
+:global(#root) .page :global(.ww-invitations-designer) [role="tab"] svg {
+  color: #a18764 !important;
+}
+
+.managementPanel [role="tab"]:hover,
+:global(#root) .page :global(.ww-invitations-designer) [role="tab"]:hover {
+  color: #2b1711 !important;
+  background: #fbf8f2 !important;
+}
+
+.managementPanel [role="tab"][data-state="active"],
+:global(#root) .page :global(.ww-invitations-designer) [role="tab"][data-state="active"] {
+  color: #ffffff !important;
+  border-color: #16a34a !important;
+  background: var(--inv-segment-active-background) !important;
+  box-shadow: var(--inv-segment-active-shadow) !important;
+}
+
+:global(#root) .managementPanel [role="tab"][data-state="active"],
+:global(#root) .managementPanel [role="tab"][data-state="active"] span,
+:global(#root) .page :global(.ww-invitations-designer) [role="tab"][data-state="active"] span,
+:global(#root) .page :global(.ww-invitations-designer) [role="tab"][data-state="active"] svg {
+  color: #ffffff !important;
+}
+
+.artworkList {
+  scrollbar-color: #a18764 #ede0d0;
+}
+
+.artworkCard,
+.newArtwork {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #f5ebdd !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88), 0 7px 16px rgba(87, 58, 39, 0.1) !important;
+}
+
+.artworkCard:hover,
+.newArtwork:hover {
+  border-color: #a18764 !important;
+  background: #fbf8f2 !important;
+}
+
+.artworkCardActive {
+  border-color: #16a34a !important;
+  box-shadow: inset 0 1px 0 #ffffff, 0 0 0 2px rgba(34, 197, 94, 0.14), 0 9px 20px rgba(87, 58, 39, 0.12) !important;
+}
+
+.thumbnail {
+  border-color: #cdb99e;
+  background: #ede0d0 !important;
+  box-shadow: inset 0 1px 2px rgba(104, 75, 64, 0.1);
+}
+
+.blankThumbnail {
+  background: linear-gradient(180deg, #fffdf9 0%, #ede0d0 100%);
+  box-shadow: inset 0 1px 0 #ffffff;
+}
+
+.artworkCard p,
+.newArtwork span,
+:global(#root) .artworkCard p,
+:global(#root) .newArtwork span {
+  color: #2b1711 !important;
+}
+
+.artworkActions button {
+  color: #684b40 !important;
+  border-color: #cdb99e !important;
+  background: linear-gradient(180deg, #fffdf9 0%, #ede0d0 100%) !important;
+}
+
+.artworkActions button[aria-label="Edit card"],
+:global(#root) .artworkActions button[aria-label="Edit card"] {
+  color: #ffffff !important;
+  border-color: #166534 !important;
+  background: linear-gradient(180deg, #15803d 0%, #166534 100%) !important;
+}
+
+.artworkActions button[aria-label="Edit card"] svg,
+:global(#root) .artworkActions button[aria-label="Edit card"] svg {
+  color: #ffffff !important;
+  stroke: currentColor !important;
+}
+
+.artworkActions button[aria-label="Duplicate card"],
+:global(#root) .artworkActions button[aria-label="Duplicate card"] {
+  color: #ffffff !important;
+  border-color: #684b40 !important;
+  background: linear-gradient(180deg, #806344 0%, #684b40 100%) !important;
+}
+
+.artworkActions button[aria-label="Duplicate card"] svg,
+:global(#root) .artworkActions button[aria-label="Duplicate card"] svg {
+  color: #ffffff !important;
+  stroke: currentColor !important;
+}
+
+.artworkActions button svg,
+.newArtwork svg,
+:global(#root) .artworkActions button:not([aria-label="Delete card"]) svg,
+:global(#root) .newArtwork svg {
+  color: #806344 !important;
+}
+
+.artworkActions button[aria-label="Delete card"],
+:global(#root) .artworkActions button[aria-label="Delete card"] {
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  background: linear-gradient(180deg, #f87171 0%, #ef4444 58%, #dc2626 100%) !important;
+}
+
+.artworkActions button[aria-label="Delete card"] svg,
+:global(#root) .artworkActions button[aria-label="Delete card"] svg {
+  color: #ffffff !important;
+}
+
+.emptyMessage {
+  color: #684b40 !important;
+}
+
+:global(#root) .page .infoStrip {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #f5ebdd !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.88), 0 7px 16px rgba(87, 58, 39, 0.09) !important;
+}
+
+:global(#root) .page .infoStrip p {
+  color: #684b40 !important;
+}
+
+:global(#root) .page .designerShell :global(.ww-invitations-designer) {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fbf8f2 !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.94), 0 16px 34px rgba(87, 58, 39, 0.13) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:global(#root) .page .designerShell :global(.ww-invitations-designer) > div:first-child {
+  border-bottom-color: #cdb99e;
+  background: #f5ebdd !important;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) :is(h1, h2, h3, h4, label, strong),
+:global(#root) .page :global(.ww-invitations-designer) [class*="text-foreground"] {
+  color: #2b1711 !important;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) :is(p, span):not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]),
+:global(#root) .page :global(.ww-invitations-designer) [class*="text-muted-foreground"] {
+  color: #684b40 !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-white"]) {
+  color: #a18764 !important;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) input:not([type="color"]),
+:global(#root) .page :global(.ww-invitations-designer) textarea,
+:global(#root) .page :global(.ww-invitations-designer) button[role="combobox"],
+:global(#root) .page :global(.ww-invitations-designer) button[role="combobox"] span {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: linear-gradient(180deg, #fffdf9 0%, #f3e8da 100%) !important;
+  box-shadow: inset 0 1px 2px rgba(104, 75, 64, 0.1), 0 2px 5px rgba(87, 58, 39, 0.08) !important;
+  -webkit-text-fill-color: #2b1711;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) :is(input, textarea)::placeholder {
+  color: #8a7065 !important;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) [class*="bg-muted"],
+:global(#root) .page :global(.ww-invitations-designer) [class*="border-accent"],
+:global(#root) .page :global(.ww-invitations-designer) [class*="border-dashed"] {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #f5ebdd !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.86), 0 5px 12px rgba(87, 58, 39, 0.08);
+}
+
+:global(#root) .page :global(.ww-invitations-designer) [class*="border-t"] {
+  border-color: #cdb99e !important;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) :global(.ww-signage-preset-zones) > span {
+  color: #684b40 !important;
+  border-color: #cdb99e !important;
+  background: #ede0d0;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) :global(.ww-signage-preset-zones) button,
+:global(#root) .page :global(.ww-invitations-designer) button:not([role="tab"]):not([role="switch"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not(:global(.ww-signage-reset-action)):not([style]) {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: linear-gradient(180deg, #fffdf9 0%, #ede0d0 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.96), 0 5px 12px rgba(87, 58, 39, 0.11) !important;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) :global(.ww-signage-add-custom-zone),
+:global(#root) .page :global(.ww-invitations-designer) button[class*="bg-green"] {
+  color: #ffffff !important;
+  border-color: #166534 !important;
+  background: linear-gradient(180deg, #15803d 0%, #166534 100%) !important;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) :global(.ww-signage-reset-action),
+:global(#root) .page :global(.ww-invitations-designer) button[class*="bg-red"],
+:global(#root) .page :global(.ww-invitations-designer) button[class*="bg-destructive"] {
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  background: linear-gradient(180deg, #f87171 0%, #ef4444 58%, #dc2626 100%) !important;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) [role="switch"][data-state="checked"] {
+  border-color: #166534 !important;
+  background: #15803d !important;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) [role="switch"][data-state="unchecked"] {
+  border-color: #cdb99e !important;
+  background: #cbb9a3 !important;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) [role="radio"] {
+  border-color: #a18764 !important;
+  background: #fffdf9 !important;
+}
+
+:global(#root) .page :global(.ww-invitations-designer) [role="radio"][data-state="checked"] {
+  color: #16a34a !important;
+  border-color: #16a34a !important;
+}
+
+.previewStage {
+  background: #ede0d0 !important;
+  box-shadow: inset 0 0 0 1px #cdb99e, 0 12px 28px rgba(87, 58, 39, 0.1) !important;
+}
+
+.previewStage :global(.ww-signage-preview-zoom-controls) {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fbf8f2 !important;
+  box-shadow: 0 6px 16px rgba(87, 58, 39, 0.14) !important;
+}
+
+.previewStage :global(.ww-signage-preview-zoom-controls) :is(span, button, svg) {
+  color: #684b40 !important;
+  stroke: currentColor !important;
+}
+
+:global(#root) .page :is(.headerPanel, .managementPanel) :is(button, input, textarea, [role="tab"]):focus-visible,
+:global(#root) .page :global(.ww-invitations-designer) :is(button, input, textarea, [role="button"]):focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px #fbf8f2, 0 0 0 4px #755332 !important;
+}
+
+:global(.ww-invitations-premium-dialog) {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fbf8f2 !important;
+  box-shadow: inset 0 1px 0 #ffffff, 0 24px 60px rgba(87, 58, 39, 0.24) !important;
+}
+
+:global(.ww-invitations-premium-dialog) :is(h2, h3, label, strong) {
+  color: #2b1711 !important;
+}
+
+:global(.ww-invitations-premium-dialog) p {
+  color: #684b40 !important;
+}
+
+:global(.ww-invitations-premium-dialog) input,
+:global(.ww-invitations-premium-dialog) button:not(:global(.ww-invitations-create-action)):not(:global(.ww-invitations-delete-action)) {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: linear-gradient(180deg, #fffdf9 0%, #ede0d0 100%) !important;
+}
+
+:global(.ww-invitations-premium-dialog) :global(.ww-invitations-create-action) {
+  color: #ffffff !important;
+  border-color: #166534 !important;
+  background: linear-gradient(180deg, #15803d 0%, #166534 100%) !important;
+}
+
+:global(#root) .page :is(.headerPanel, .managementPanel) :is(button:not(:disabled), input:not(:disabled), textarea:not(:disabled), [role="tab"]),
+:global(#root) .page .designerShell :global(.ww-invitations-designer) :is(button:not(:disabled), input:not(:disabled), textarea:not(:disabled), [role="tab"], label),
+:global(#root) .page :is(.headerPanel, .managementPanel, .infoStrip) :is(h1, h2, h3, h4, p, li, label, span) {
+  opacity: 1 !important;
+}
+
+@media (max-width: 767px) {
+  .page {
+    min-height: calc(100dvh - 3.5rem);
+    margin: -1rem -0.75rem;
+    padding: 1rem 0.75rem 2rem;
+  }
+
+  .page,
+  .page > *,
+  .headerPanel,
+  .managementPanel,
+  .guidelinesPanel,
+  .editorLayout,
+  .designerShell,
+  .previewStage,
+  .exportPanel {
+    min-width: 0;
+    max-width: 100%;
+  }
+}
+
+:global(.ww-invitations-premium-dialog) :global(.ww-invitations-delete-action) {
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  background: linear-gradient(180deg, #f87171 0%, #ef4444 58%, #dc2626 100%) !important;
+}
+
+:global(.ww-invitations-premium-dialog) button:focus-visible,
+:global(.ww-invitations-premium-dialog) input:focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px #fbf8f2, 0 0 0 4px #755332 !important;
+}
+
+:global(.ww-invitations-studio-portal) {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fbf8f2 !important;
+  box-shadow: inset 0 1px 0 #ffffff, 0 16px 36px rgba(87, 58, 39, 0.22) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:global(.ww-invitations-studio-portal) :is([cmdk-root], [cmdk-list], [cmdk-group], [cmdk-input-wrapper]) {
+  color: #2b1711 !important;
+  background: transparent !important;
+}
+
+:global(.ww-invitations-studio-portal) input {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fffdf9 !important;
+}
+
+:global(.ww-invitations-studio-portal) :is(input::placeholder, p, [cmdk-group-heading]) {
+  color: #684b40 !important;
+}
+
+:global(.ww-invitations-studio-portal) :is([role="option"], [cmdk-item]) {
+  color: #2b1711 !important;
+}
+
+:global(.ww-invitations-studio-portal) :is([role="option"][data-highlighted], [cmdk-item][data-selected="true"]) {
+  color: #2b1711 !important;
+  background: #ede0d0 !important;
+}
+
+:global(.ww-invitations-studio-portal) svg {
+  color: #a18764 !important;
+  stroke: currentColor !important;
+}
+
+:global(.ww-invitations-interface) {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fbf8f2 !important;
+}
+
+:global(.ww-invitations-interface) :is(h2, h3, h4, label, strong) {
+  color: #2b1711 !important;
+}
+
+:global(.ww-invitations-interface) :is(p, [class*="text-muted-foreground"]) {
+  color: #684b40 !important;
 }

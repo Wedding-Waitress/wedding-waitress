@@ -14,6 +14,9 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('@/hooks/useEvents', () => ({ useEvents: mocks.events }));
 vi.mock('@/hooks/useSelectedEvent', () => ({ useSelectedEvent: mocks.selectedEvent }));
+vi.mock('@/hooks/usePhotoVideoFeatureWorkspace', () => ({
+  usePhotoVideoFeatureWorkspace: () => ({ ...mocks.gallery(), ...mocks.selectedEvent(), selectionStatus: 'selected' }),
+}));
 vi.mock('@/hooks/useEventMediaGallery', () => ({ useEventMediaGallery: mocks.gallery }));
 vi.mock('@/components/SEO/SeoHead', () => ({ SeoHead: () => null }));
 vi.mock('qrcode', () => ({ default: { toDataURL: mocks.qrToDataUrl } }));

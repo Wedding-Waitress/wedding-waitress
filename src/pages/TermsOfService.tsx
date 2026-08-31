@@ -145,7 +145,7 @@ export const TermsOfService = () => {
                   <h4 className="font-bold text-foreground mb-2">3. Premium Plan</h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground">
                     <li>One-time payment</li>
-                    <li>Up to 300 guests</li>
+                    <li>Up to 200 guests</li>
                     <li>Access valid for 12 months</li>
                     <li>Includes full access to all wedding & event planning tools</li>
                     <li>Limited to 1 event</li>
@@ -153,10 +153,10 @@ export const TermsOfService = () => {
                 </div>
 
                 <div>
-                  <h4 className="font-bold text-foreground mb-2">4. Unlimited Plan</h4>
+                  <h4 className="font-bold text-foreground mb-2">4. Ultimate Plan</h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground">
                     <li>One-time payment</li>
-                    <li>Unlimited guests</li>
+                    <li>Up to 500 guests</li>
                     <li>Access valid for 12 months</li>
                     <li>Includes full access to all wedding & event planning tools</li>
                     <li>Limited to 1 event</li>
@@ -184,7 +184,7 @@ export const TermsOfService = () => {
                     <li>Designed for venues, wedding planners, and event professionals</li>
                     <li>Includes:
                       <ul className="list-disc pl-6 space-y-1 mt-1">
-                        <li>Unlimited events</li>
+                        <li>Up to 100 included events</li>
                         <li>Unlimited guests</li>
                         <li>Full platform access</li>
                       </ul>
@@ -208,7 +208,7 @@ export const TermsOfService = () => {
                 Users may purchase extensions to extend their plan duration.
               </p>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                <li>Available for Essential, Premium, and Unlimited plans</li>
+                <li>Available for Essential, Premium, and Ultimate plans</li>
                 <li>Duration options may vary (e.g., monthly or yearly extensions)</li>
                 <li>Pricing varies depending on plan type and extension length</li>
               </ul>

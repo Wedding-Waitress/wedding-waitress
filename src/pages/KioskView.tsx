@@ -14,6 +14,7 @@ import {
 import { supabase } from '@/integrations/supabase/client';
 import { KioskGuestCard } from '@/components/Kiosk/KioskGuestCard';
 import { normalizeRsvp } from '@/lib/rsvp';
+import styles from './KioskView.module.css';
 
 interface Guest {
   id: string;
@@ -270,7 +271,7 @@ export const KioskView: React.FC = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
+      <div className={`${styles.page} ww-application-background min-h-screen flex items-center justify-center`}>
         <div className="text-white text-center">
           <div className="animate-spin w-12 h-12 border-4 border-white border-t-transparent rounded-full mx-auto mb-6"></div>
           <p className="text-2xl font-medium">Loading event details...</p>
@@ -281,7 +282,7 @@ export const KioskView: React.FC = () => {
 
   if (!event) {
     return (
-      <div className="min-h-screen bg-gradient-hero flex items-center justify-center">
+      <div className={`${styles.page} ww-application-background min-h-screen flex items-center justify-center`}>
         <div className="text-white text-center max-w-2xl px-8">
           <AlertCircle className="w-24 h-24 mx-auto mb-6" />
           <h1 className="text-4xl font-bold mb-4">Event Not Found</h1>
@@ -294,29 +295,29 @@ export const KioskView: React.FC = () => {
   }
 
   return (
-    <div className="min-h-screen bg-gradient-hero text-white overflow-hidden">
+    <div className={`${styles.page} ww-application-background min-h-screen text-white overflow-hidden`}>
       {/* Header */}
       <div className="bg-white/10 backdrop-blur-sm border-b border-white/20">
         <div className="w-full px-4 sm:px-8 py-6">
           <div className="text-center flex flex-col items-center gap-2">
             <h1 className="text-2xl sm:text-3xl font-bold">{event.name}</h1>
             {event.date && (
-              <div className="flex items-center justify-center text-white/90 text-base sm:text-lg">
+              <div data-kiosk-body className="flex items-center justify-center text-white/90 text-base sm:text-lg">
                 <Calendar className="w-5 h-5 mr-2 shrink-0" />
                 <span>{formatHeaderDate(event.date)}</span>
               </div>
             )}
             {event.venue && (
-              <div className="flex items-center justify-center text-white/90 text-base sm:text-lg">
+              <div data-kiosk-body className="flex items-center justify-center text-white/90 text-base sm:text-lg">
                 <MapPin className="w-5 h-5 mr-2 shrink-0" />
                 <span>{event.venue}</span>
               </div>
             )}
             {event.venue_address && (
-              <div className="text-white/80 text-sm sm:text-base">{event.venue_address}</div>
+              <div data-kiosk-body className="text-white/80 text-sm sm:text-base">{event.venue_address}</div>
             )}
             {(event.start_time || event.finish_time) && (
-              <div className="text-white/80 text-sm sm:text-base">
+              <div data-kiosk-body className="text-white/80 text-sm sm:text-base">
                 Reception: {formatTime(event.start_time)}
                 {event.finish_time ? ` – ${formatTime(event.finish_time)}` : ''}
               </div>
@@ -362,7 +363,7 @@ export const KioskView: React.FC = () => {
                   <div className="max-w-md mx-auto p-6 bg-primary/10 rounded-xl">
                     <div className="flex items-center justify-center gap-3 mb-3">
                       <HelpCircle className="w-5 h-5 text-primary" />
-                      <span className="font-semibold text-primary">Need Help?</span>
+                      <span data-kiosk-label className="font-semibold text-primary">Need Help?</span>
                     </div>
                     <p className="text-sm text-muted-foreground">
                       Can't find your name? Please ask event staff for assistance

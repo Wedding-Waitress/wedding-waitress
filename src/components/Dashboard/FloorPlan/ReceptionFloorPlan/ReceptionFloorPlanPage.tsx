@@ -1,28 +1,22 @@
-import { useState } from 'react';
-import { supabase } from '@/integrations/supabase/client';
+import { useEffect, useRef, useState } from 'react';
+import { createPortal } from 'react-dom';
 import { Card, CardContent } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import {
-  DropdownMenu,
-  DropdownMenuContent,
-  DropdownMenuItem,
-  DropdownMenuTrigger,
-} from '@/components/ui/dropdown-menu';
-import { LayoutGrid, Loader2, CheckCircle2, RotateCcw, FileDown, ChevronDown, Building2, UploadCloud } from 'lucide-react';
+import { Loader2, Printer, Download, Building2, UploadCloud, Ruler, Users } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useReceptionTables } from '@/hooks/useReceptionTables';
 import { useReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
 import { useAttendingGuestCount } from '@/hooks/useAttendingGuestCount';
+import type { Event } from '@/hooks/useEvents';
 import { ReceptionFloorPlanCanvas } from './ReceptionFloorPlanCanvas';
 import { ReceptionCapacityBanner } from './ReceptionCapacityBanner';
 import { ResetLayoutDialog } from './ResetLayoutDialog';
 import { VenueBackgroundPanel } from './VenueBackgroundPanel';
 import {
-  generateReceptionFloorPlanPDF,
+  exportReceptionPreviewToPdf,
   type ReceptionPdfPageSize,
-  type ReceptionPdfEvent,
 } from '@/lib/receptionFloorPlanPdfExporter';
 import { BackgroundCalibrationOverlay } from './BackgroundCalibrationOverlay';
 import { RoomShapePanel } from './RoomShapePanel';
@@ -31,25 +25,32 @@ import { ChooseVenueDialog } from './ChooseVenueDialog';
 import { SubmitTemplateDialog } from './SubmitTemplateDialog';
 import { SmartIntelligencePanel } from './SmartIntelligencePanel';
 import { AutoLayoutPanel } from './AutoLayoutPanel';
-import { ApprovalStatusPanel } from './ApprovalStatusPanel';
 import { VendorNotesPanel } from './VendorNotesPanel';
 import { TableNotePanel } from './TableNotePanel';
+import styles from './ReceptionFloorPlanTheme.module.css';
+import headerStyles from '../FloorPlanPage.module.css';
+import { reconcileReceptionFloorPlan } from '@/lib/receptionFloorPlanSync';
 
 
 interface ReceptionFloorPlanPageProps {
   selectedEventId: string;
+  selectedEvent: Event;
+  headerControlsContainer: HTMLDivElement | null;
 }
 
 /**
  * Phase 1A — Step 5
  * Room canvas + synced tables + fixtures + capacity banner.
  */
-export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPageProps) => {
-  const { tables, loading: tablesLoading } = useReceptionTables(selectedEventId);
+export const ReceptionFloorPlanPage = ({
+  selectedEventId,
+  selectedEvent,
+  headerControlsContainer,
+}: ReceptionFloorPlanPageProps) => {
+  const { tables, loading: tablesLoading, ready: tablesReady } = useReceptionTables(selectedEventId);
   const {
     plan,
     loading: planLoading,
-    saving,
     update,
     backgroundUrl,
     uploadBackground,
@@ -66,8 +67,16 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
   const [chooseVenueOpen, setChooseVenueOpen] = useState(false);
   const [submitTemplateOpen, setSubmitTemplateOpen] = useState(false);
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
+  const receptionA4Ref = useRef<HTMLDivElement>(null);
+  const [generatedAt] = useState(() => new Date());
 
   const loading = tablesLoading || planLoading || !plan;
+
+  useEffect(() => {
+    if (!plan || plan.event_id !== selectedEventId || tablesLoading || !tablesReady) return;
+    const reconciled = reconcileReceptionFloorPlan(plan, tables);
+    if (reconciled !== plan) update(() => reconciled);
+  }, [plan, selectedEventId, tables, tablesLoading, tablesReady, update]);
 
 
   const handleReset = (scope: 'tables' | 'fixtures' | 'all') => {
@@ -88,22 +97,14 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
   };
 
   const handleExport = async (size: ReceptionPdfPageSize) => {
-    if (!plan) return;
+    if (!plan || !receptionA4Ref.current) return;
     setExporting(size);
     try {
-      const { data: ev, error } = await supabase
-        .from('events')
-        .select('name, date, venue, partner1_name, partner2_name, start_time, finish_time')
-        .eq('id', selectedEventId)
-        .maybeSingle();
-      if (error || !ev) throw error || new Error('Event not found');
-      await generateReceptionFloorPlanPDF(
-        plan,
-        tables,
-        ev as ReceptionPdfEvent,
-        attendingCount,
-        size
-      );
+      await exportReceptionPreviewToPdf({
+        pageElement: receptionA4Ref.current,
+        eventName: selectedEvent.name,
+        eventDate: selectedEvent.date,
+      });
       toast({
         title: 'Floor plan exported',
         description: `${size.toUpperCase()} PDF downloaded successfully.`,
@@ -120,233 +121,146 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
     }
   };
 
-  return (
-    <Card className="border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-      <CardContent className="pt-6 space-y-4 max-lg:px-4">
-        <div className="flex items-center justify-between gap-3 flex-wrap max-lg:flex-col max-lg:items-stretch">
-          <div className="flex items-center gap-3">
-            <LayoutGrid className="w-6 h-6 text-primary" />
-            <h2 className="text-xl font-bold text-foreground">Reception Floor Plan</h2>
-          </div>
-          {plan && (
-            <div className="flex items-center gap-3 max-lg:flex-col max-lg:items-stretch max-lg:gap-2 max-lg:w-full">
-              <div className="text-xs text-muted-foreground flex items-center gap-1 max-lg:justify-center">
-                {saving ? (
-                  <>
-                    <Loader2 className="w-3.5 h-3.5 animate-spin" /> Saving…
-                  </>
-                ) : (
-                  <>
-                    <CheckCircle2 className="w-3.5 h-3.5 text-green-600" /> Saved{' '}
-                    {new Date(plan.last_saved_at).toLocaleTimeString()}
-                  </>
-                )}
-              </div>
-              <div className="flex items-center gap-2 max-lg:w-full">
-                <Button
-                  variant="outline"
-                  size="sm"
-                  className="lv-premium-shade h-9 max-lg:h-11 max-lg:flex-1 max-lg:text-base"
-                  onClick={() => setResetOpen(true)}
-                  disabled={plan.table_positions.length === 0 && plan.fixtures.length === 0}
-                >
-                  <RotateCcw className="w-3.5 h-3.5 mr-1.5" />
-                  Reset layout
-                </Button>
-                <DropdownMenu>
-                  <DropdownMenuTrigger asChild>
-                    <Button
-                      size="sm"
-                      className="lv-premium-shade h-9 max-lg:h-11 max-lg:flex-1 max-lg:text-base bg-[#967A59] hover:bg-[#7a6347] text-white"
-                      disabled={!!exporting}
-                    >
-                      {exporting ? (
-                        <Loader2 className="w-3.5 h-3.5 mr-1.5 animate-spin" />
-                      ) : (
-                        <FileDown className="w-3.5 h-3.5 mr-1.5" />
-                      )}
-                      {exporting ? `Exporting ${exporting.toUpperCase()}…` : 'Export PDF'}
-                      <ChevronDown className="w-3.5 h-3.5 ml-1" />
-                    </Button>
-                  </DropdownMenuTrigger>
-                  <DropdownMenuContent align="end">
-                    <DropdownMenuItem onClick={() => handleExport('a4')}>
-                      A4 (210 × 297mm)
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleExport('a3')}>
-                      A3 (297 × 420mm)
-                    </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => handleExport('a2')}>
-                      A2 (420 × 594mm)
-                    </DropdownMenuItem>
-                  </DropdownMenuContent>
-                </DropdownMenu>
-              </div>
-            </div>
-          )}
+  const headerControls = plan ? (
+    <div
+        className={`${headerStyles.exportControls} flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-end`}
+        data-floor-plan-export-controls="true"
+        data-reception-export-controls="true"
+      >
+        <p className={`${headerStyles.featureHeading} text-sm font-bold inline-flex items-center gap-1.5 whitespace-nowrap`}>
+          <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+          <span>Export Controls</span>
+        </p>
+        <span id="reception-floor-plan-export-description" className="sr-only">
+          Download your reception floor plan PDF.
+        </span>
+        <div className="flex w-full items-center justify-center sm:w-auto">
+          <button
+            type="button"
+            onClick={() => handleExport('a4')}
+            disabled={!!exporting}
+            aria-label="Download reception floor plan PDF"
+            aria-describedby="reception-floor-plan-export-description"
+            className={`${headerStyles.exportButton} inline-flex h-7 flex-1 shrink-0 items-center justify-center gap-1.5 rounded-full border-2 border-green-500 bg-background px-2.5 text-xs font-medium text-green-600 transition-colors hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 sm:flex-none`}
+          >
+            {exporting ? (
+              <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" />
+            ) : (
+              <Download className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
+            )}
+            {exporting ? 'Exporting...' : 'Download PDF'}
+          </button>
         </div>
+    </div>
+  ) : null;
+
+  return (
+    <Card className={`${styles.masterCard} border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`} data-reception-master-card="true">
+      <CardContent className={`${styles.masterContent} space-y-4 max-lg:px-4`}>
+        {headerControlsContainer && headerControls
+          ? createPortal(headerControls, headerControlsContainer)
+          : null}
 
         {loading ? (
-          <div className="flex items-center gap-2 text-sm text-muted-foreground py-8 justify-center">
+          <div className={`${headerStyles.interfaceText} flex items-center gap-2 text-sm text-muted-foreground py-8 justify-center`}>
             <Loader2 className="w-4 h-4 animate-spin" /> Loading reception floor plan…
           </div>
         ) : (
           <>
-            {/* Venue template directory actions */}
-            <div className="flex flex-wrap items-center gap-2 max-lg:flex-col max-lg:items-stretch rounded-lg border border-border bg-muted/10 p-3 max-lg:p-4">
-              <div className="flex items-center gap-2 text-sm font-medium text-foreground">
-                <Building2 className="w-4 h-4 text-primary" />
-                Venue templates
+            <section className={styles.setupMaster} data-reception-setup-master="true" data-reception-panel="true">
+              <h2 className={styles.setupTitle}>Reception Setup &amp; Status</h2>
+              <div className={styles.setupGrid} data-reception-setup-grid="true">
+                <section className={styles.setupCard} data-reception-setup-card="venue-templates" data-reception-panel="true">
+                  <div className={styles.setupCardHeading}>
+                    <Building2 className="h-4 w-4 text-primary" aria-hidden="true" />
+                    <h3>Venue Templates</h3>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Start from an approved venue, share your own, or browse the public directory.
+                  </p>
+                  <div className={styles.setupActions}>
+                    <Button size="sm" variant="outline" className="lv-premium-shade h-9" onClick={() => setChooseVenueOpen(true)} title="Load an approved venue layout into this floor plan">
+                      <Building2 className="mr-1.5 h-3.5 w-3.5" /> Choose venue
+                    </Button>
+                    <Button size="sm" variant="outline" className="lv-premium-shade h-9" onClick={() => setSubmitTemplateOpen(true)} title="Submit your current layout to the public venue directory">
+                      <UploadCloud className="mr-1.5 h-3.5 w-3.5" /> Submit as template
+                    </Button>
+                    <a href="/venues" target="_blank" rel="noopener noreferrer" className="text-xs underline text-primary hover:text-primary/80">
+                      Browse Public Directory →
+                    </a>
+                  </div>
+                </section>
+
+                <section className={styles.setupCard} data-reception-setup-card="room-dimensions" data-reception-panel="true">
+                  <div className={styles.setupCardHeading}>
+                    <Ruler className="h-4 w-4 text-primary" aria-hidden="true" />
+                    <h3>Room Dimensions</h3>
+                  </div>
+                  <div className={styles.dimensionInputs}>
+                    <div className="space-y-1">
+                      <Label htmlFor="room-width" className="text-xs">Room width (m)</Label>
+                      <Input id="room-width" type="number" min={2} max={50} step={0.5} value={plan.room_width_m} onChange={(e) => update((p) => ({ ...p, room_width_m: Math.max(2, Math.min(50, Number(e.target.value) || p.room_width_m)) }))} className="h-9 w-full" />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="room-length" className="text-xs">Room length (m)</Label>
+                      <Input id="room-length" type="number" min={2} max={50} step={0.5} value={plan.room_length_m} onChange={(e) => update((p) => ({ ...p, room_length_m: Math.max(2, Math.min(50, Number(e.target.value) || p.room_length_m)) }))} className="h-9 w-full" />
+                    </div>
+                    <div className="space-y-1">
+                      <Label htmlFor="grid-size" className="text-xs">Grid (cm)</Label>
+                      <Input id="grid-size" type="number" min={25} max={200} step={25} value={plan.grid_size_cm} onChange={(e) => update((p) => ({ ...p, grid_size_cm: Math.max(25, Math.min(200, Number(e.target.value) || p.grid_size_cm)) }))} className="h-9 w-full" />
+                    </div>
+                  </div>
+                  <p className="text-xs text-muted-foreground">
+                    Drag tables from Tables to Place into the room. Click a table to rotate, lock, or remove it. Chairs render automatically from each table&apos;s seat count.
+                  </p>
+                </section>
+
+                <section className={styles.setupCard} data-reception-setup-card="seating-status" data-reception-panel="true">
+                  <div className={styles.setupCardHeading}>
+                    <Users className="h-4 w-4 text-primary" aria-hidden="true" />
+                    <h3>Seating Status</h3>
+                  </div>
+                  <ReceptionCapacityBanner plan={plan} tables={tables} attendingCount={attendingCount} compact />
+                </section>
+
+                <SmartIntelligencePanel plan={plan} tables={tables} attendingCount={attendingCount} summaryClassName={styles.setupCard} detailsClassName={styles.smartDetails} />
               </div>
-              <p className="text-xs text-muted-foreground flex-1 max-lg:text-center">
-                Start from an approved venue, share your own, or browse the public directory.
-              </p>
-              <div className="flex items-center gap-2 max-lg:w-full max-lg:flex-wrap">
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="lv-premium-shade h-9 max-lg:h-11 max-lg:flex-1 max-lg:text-base"
-                  onClick={() => setChooseVenueOpen(true)}
-                  title="Load an approved venue layout into this floor plan"
-                >
-                  <Building2 className="w-3.5 h-3.5 mr-1.5" />
-                  Choose venue
-                </Button>
-                <Button
-                  size="sm"
-                  variant="outline"
-                  className="lv-premium-shade h-9 max-lg:h-11 max-lg:flex-1 max-lg:text-base"
-                  onClick={() => setSubmitTemplateOpen(true)}
-                  title="Submit your current layout to the public venue directory"
-                >
-                  <UploadCloud className="w-3.5 h-3.5 mr-1.5" />
-                  Submit as template
-                </Button>
-                <a
-                  href="/venues"
-                  target="_blank"
-                  rel="noopener noreferrer"
-                  className="text-xs underline text-primary hover:text-primary/80 max-lg:w-full max-lg:text-center"
-                >
-                  Browse public directory →
-                </a>
-              </div>
-            </div>
+            </section>
 
             {/* Empty-state hint when no tables exist yet */}
             {tables.length === 0 && (
-              <div className="rounded-lg border border-dashed border-primary/40 bg-primary/5 p-4 text-sm text-foreground/80">
+              <div data-reception-panel="true" className="rounded-lg border border-dashed border-primary/40 bg-primary/5 p-4 text-sm text-foreground/80">
                 <strong className="text-primary">No tables yet.</strong> Add tables in the
                 <span className="italic"> Tables</span> tab first — they'll appear here automatically
                 so you can drag them into the room.
               </div>
             )}
 
-            {/* Room dimensions */}
-            <div className="flex flex-wrap items-end gap-4 max-lg:gap-3 rounded-lg border border-border bg-muted/20 p-3 max-lg:p-4">
-              <div className="space-y-1 max-lg:w-full">
-                <Label htmlFor="room-width" className="text-xs">
-                  Room width (m)
-                </Label>
-                <Input
-                  id="room-width"
-                  type="number"
-                  min={2}
-                  max={50}
-                  step={0.5}
-                  value={plan.room_width_m}
-                  onChange={(e) =>
-                    update((p) => ({
-                      ...p,
-                      room_width_m: Math.max(2, Math.min(50, Number(e.target.value) || p.room_width_m)),
-                    }))
-                  }
-                  className="h-9 w-28 max-lg:h-11 max-lg:w-full max-lg:text-base"
-                />
-              </div>
-              <div className="space-y-1 max-lg:w-full">
-                <Label htmlFor="room-length" className="text-xs">
-                  Room length (m)
-                </Label>
-                <Input
-                  id="room-length"
-                  type="number"
-                  min={2}
-                  max={50}
-                  step={0.5}
-                  value={plan.room_length_m}
-                  onChange={(e) =>
-                    update((p) => ({
-                      ...p,
-                      room_length_m: Math.max(2, Math.min(50, Number(e.target.value) || p.room_length_m)),
-                    }))
-                  }
-                  className="h-9 w-28 max-lg:h-11 max-lg:w-full max-lg:text-base"
-                />
-              </div>
-              <div className="space-y-1 max-lg:w-full">
-                <Label htmlFor="grid-size" className="text-xs">
-                  Grid (cm)
-                </Label>
-                <Input
-                  id="grid-size"
-                  type="number"
-                  min={25}
-                  max={200}
-                  step={25}
-                  value={plan.grid_size_cm}
-                  onChange={(e) =>
-                    update((p) => ({
-                      ...p,
-                      grid_size_cm: Math.max(25, Math.min(200, Number(e.target.value) || p.grid_size_cm)),
-                    }))
-                  }
-                  className="h-9 w-24 max-lg:h-11 max-lg:w-full max-lg:text-base"
-                />
-              </div>
-              <p className="text-xs text-muted-foreground ml-auto max-w-xs max-lg:ml-0 max-lg:max-w-full">
-                Drag tables from the left into the room. Click a table to rotate, lock, or remove it.
-                Chairs render automatically from each table's seat count.
-              </p>
+            <div className={styles.managementGrid} data-reception-management-grid="true">
+              <VenueBackgroundPanel
+                plan={plan}
+                uploading={uploadingBackground}
+                onUpload={uploadBackground}
+                onRemove={removeBackground}
+                onChange={update}
+                onCalibrate={
+                  plan.background.path && backgroundUrl
+                    ? () => setCalibrating(true)
+                    : undefined
+                }
+              />
+
+              <AutoLayoutPanel plan={plan} tables={tables} onApply={update} />
+
+              <RoomShapePanel plan={plan} onChange={update} />
+
+              <ShareLinkPanel
+                plan={plan}
+                onGenerate={generateShareToken}
+                onRevoke={revokeShareToken}
+                onApprovalChange={update}
+              />
             </div>
-
-
-            <ApprovalStatusPanel plan={plan} onChange={update} />
-
-            <ReceptionCapacityBanner
-              plan={plan}
-              tables={tables}
-              attendingCount={attendingCount}
-            />
-
-            <SmartIntelligencePanel
-              plan={plan}
-              tables={tables}
-              attendingCount={attendingCount}
-            />
-
-            <VenueBackgroundPanel
-              plan={plan}
-              uploading={uploadingBackground}
-              onUpload={uploadBackground}
-              onRemove={removeBackground}
-              onChange={update}
-              onCalibrate={
-                plan.background.path && backgroundUrl
-                  ? () => setCalibrating(true)
-                  : undefined
-              }
-            />
-
-            <AutoLayoutPanel plan={plan} tables={tables} onApply={update} />
-
-            <RoomShapePanel plan={plan} onChange={update} />
-
-            <ShareLinkPanel
-              plan={plan}
-              onGenerate={generateShareToken}
-              onRevoke={revokeShareToken}
-            />
 
             <TableNotePanel
               plan={plan}
@@ -359,9 +273,15 @@ export const ReceptionFloorPlanPage = ({ selectedEventId }: ReceptionFloorPlanPa
             <ReceptionFloorPlanCanvas
               plan={plan}
               tables={tables}
+              event={selectedEvent}
+              attendingCount={attendingCount}
+              generatedAt={generatedAt}
+              a4Ref={receptionA4Ref}
               backgroundUrl={backgroundUrl}
               onChange={update}
               onSelectedTableChange={setSelectedTableId}
+              onResetRequest={() => setResetOpen(true)}
+              resetDisabled={plan.table_positions.length === 0 && plan.fixtures.length === 0}
             />
 
             <VendorNotesPanel plan={plan} onChange={update} />

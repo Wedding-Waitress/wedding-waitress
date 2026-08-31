@@ -3,40 +3,46 @@
  * Part of the approved public homepage surface (locked 2026-04-18).
  * Any change requires explicit owner approval. See LOCKED_TRANSLATION_KEYS.md.
  */
-import React, { useState, useRef, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import React, { useState, useRef, useEffect, useId } from 'react';
+import { Dialog, DialogContent } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useNavigate } from 'react-router-dom';
-import { LoaderCircle, CircleUserRound, KeyRound, Mail, Send, LogIn, ArrowLeft, RotateCcw, TriangleAlert } from 'lucide-react';
+import { LoaderCircle, CircleUserRound, KeyRound, Mail, Send } from 'lucide-react';
 import { secureEmailSchema } from '@/lib/security/validation';
 import { logSecurityEvent, loginRateLimiter } from '@/lib/security/monitoring';
 import { sanitize } from '@/lib/security/inputSanitizer';
+import { getSafeAuthenticatedReturnTo } from '@/lib/authNavigation';
+import { AuthError, AuthLegal, AuthModalHeader, VerificationCodeForm, authModalStyles as styles } from './AuthModalParts';
 
 interface SignInModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
   onBackToSignUp: () => void;
+  redirectTo?: string;
 }
 
 export const SignInModal: React.FC<SignInModalProps> = ({ 
   open, 
   onOpenChange, 
-  onBackToSignUp 
+  onBackToSignUp,
+  redirectTo,
 }) => {
   const [step, setStep] = useState<'form' | 'verify'>('form');
   const [loading, setLoading] = useState(false);
   const [email, setEmail] = useState('');
+  const [password, setPassword] = useState('');
   const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
   const [error, setError] = useState('');
   const [resendTimer, setResendTimer] = useState(0);
   const [cooldownTimer, setCooldownTimer] = useState(0);
   const { toast } = useToast();
   const navigate = useNavigate();
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
+  const emailRef = useRef<HTMLInputElement>(null);
+  const idPrefix = useId();
+  const qaPasswordLoginEnabled = import.meta.env.VITE_QA_PASSWORD_LOGIN === 'true';
   // State updates are asynchronous, so `loading` can still be false if Radix
   // emits onOpenChange(false) during the same click that starts the OTP request.
   // This synchronous ref closes that race without preventing normal dismissal.
@@ -61,14 +67,11 @@ export const SignInModal: React.FC<SignInModalProps> = ({
   // Focus first field when modal opens
   useEffect(() => {
     if (open && step === 'form') {
-      const emailInput = document.querySelector('#signin-email') as HTMLInputElement;
-      if (emailInput) {
-        setTimeout(() => emailInput.focus(), 100);
-      }
+      setTimeout(() => emailRef.current?.focus(), 100);
     }
   }, [open, step]);
 
-  const mapSupabaseError = (error: any) => {
+  const mapSupabaseError = (error: { message?: string } | null, passwordLogin = false) => {
     if (!error?.message) return 'An unexpected error occurred';
     
     switch (error.message) {
@@ -76,7 +79,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
         return 'This email address is restricted in Supabase settings. Please check your Authentication settings.';
       case 'Invalid login credentials':
       case 'invalid_credentials':
-        return 'Invalid verification code';
+        return passwordLogin ? 'Invalid email or password' : 'Invalid verification code';
       case 'Token has expired or is invalid':
       case 'otp_expired':
         return 'This code has expired. Please tap "Resend code" to get a new one.';
@@ -120,6 +123,23 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     setLoading(true);
     
     try {
+      if (qaPasswordLoginEnabled) {
+        const { data, error } = await supabase.auth.signInWithPassword({
+          email: sanitizedEmail,
+          password,
+        });
+
+        if (error) {
+          setError(mapSupabaseError(error, true));
+          logSecurityEvent.authFailure(error.message || 'Password login failed', sanitizedEmail);
+        } else if (data.user) {
+          onOpenChange(false);
+          toast({ title: 'Signed in ✔' });
+          navigate(getSafeAuthenticatedReturnTo(redirectTo));
+        }
+        return;
+      }
+
       const { error } = await supabase.auth.signInWithOtp({
         email: sanitizedEmail
       });
@@ -174,12 +194,6 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     }
   };
 
-  const handleOtpRequestClick = (e: React.MouseEvent<HTMLButtonElement>) => {
-    e.preventDefault();
-    e.stopPropagation();
-    void handleEmailSubmit(e);
-  };
-
   // Handle code verification
   const handleVerifyCode = async () => {
     const code = verificationCode.join('');
@@ -206,48 +220,12 @@ export const SignInModal: React.FC<SignInModalProps> = ({
         toast({
           title: "Signed in ✔",
         });
-        navigate('/dashboard');
+        navigate(getSafeAuthenticatedReturnTo(redirectTo));
       }
     } catch (err) {
       setError('Verification failed. Please try again.');
     } finally {
       setLoading(false);
-    }
-  };
-
-  // Handle code input changes
-  const handleCodeChange = (index: number, value: string) => {
-    if (value.length > 1) {
-      // Handle paste
-      const pastedCode = value.slice(0, 6);
-      const newCode = [...verificationCode];
-      for (let i = 0; i < pastedCode.length && i + index < 6; i++) {
-        newCode[i + index] = pastedCode[i];
-      }
-      setVerificationCode(newCode);
-      
-      // Focus the last filled input or next empty one
-      const nextIndex = Math.min(index + pastedCode.length, 5);
-      inputRefs.current[nextIndex]?.focus();
-    } else {
-      const newCode = [...verificationCode];
-      newCode[index] = value;
-      setVerificationCode(newCode);
-
-      // Move to next input if digit entered
-      if (value && index < 5) {
-        inputRefs.current[index + 1]?.focus();
-      }
-    }
-  };
-
-  // Handle backspace
-  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-    if (e.key === 'Enter') {
-      handleVerifyCode();
     }
   };
 
@@ -300,16 +278,30 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     if (!newOpen) {
       setStep('form');
       setEmail('');
+      setPassword('');
       setVerificationCode(['', '', '', '', '', '']);
       setError('');
       setResendTimer(0);
     }
   };
 
+  const correctEmail = () => {
+    setStep('form');
+    setVerificationCode(['', '', '', '', '', '']);
+    setError('');
+    setResendTimer(0);
+  };
+
+  const navigateFromModal = (path: string) => {
+    onOpenChange(false);
+    navigate(path);
+  };
+
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
-        className="sm:max-w-[420px] p-6"
+        className={`${styles.dialog} ${styles.signInDialog}`}
+        overlayClassName="bg-black/75"
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
         onFocusOutside={(e) => e.preventDefault()}
@@ -317,135 +309,50 @@ export const SignInModal: React.FC<SignInModalProps> = ({
           if (loading) e.preventDefault();
         }}
       >
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-center">
-            <span className="inline-flex items-center justify-center gap-2">
-              {step === 'form'
-                ? <CircleUserRound size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
-                : <KeyRound size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />}
-              {step === 'form' ? 'Sign in' : 'Enter the 6-digit code'}
-            </span>
-          </DialogTitle>
-          <DialogDescription className="text-center">
-            {step === 'form' 
-              ? 'Enter your email to get a verification code' 
-              : `We've emailed a one-time code to ${email}`
-            }
-          </DialogDescription>
-        </DialogHeader>
-
         {step === 'form' ? (
-          <div className="space-y-4 mt-4">
-            <form onSubmit={handleEmailSubmit} className="space-y-4">
-              <div>
-                <Label htmlFor="signin-email" className="flex items-center gap-2 text-sm font-medium">
-                  <Mail size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
-                  Email
-                </Label>
-                <Input
-                  id="signin-email"
-                  type="email"
-                  value={email}
-                  onChange={(e) => setEmail(e.target.value)}
-                  className="mt-1"
-                  disabled={loading}
-                />
-              </div>
-
-              {(error || cooldownTimer > 0) && (
-                <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 p-2 rounded">
-                  <TriangleAlert size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 mt-0.5" />
-                  {cooldownTimer > 0 
-                    ? `Please wait ${cooldownTimer} seconds before trying again.`
-                    : error
-                  }
+          <>
+          <AuthModalHeader
+            icon={CircleUserRound}
+            title="Welcome back"
+            description={qaPasswordLoginEnabled
+              ? 'Use the temporary QA credentials to continue.'
+              : 'Continue planning your wedding in one connected place.'}
+          />
+            <form onSubmit={handleEmailSubmit} className={styles.body} noValidate>
+              <div className={styles.fieldStack}>
+                <div className={styles.fieldGroup}>
+                  <Label htmlFor={`${idPrefix}-email`} className={styles.label}><Mail aria-hidden />Email</Label>
+                  <Input ref={emailRef} id={`${idPrefix}-email`} type="email" value={email} onChange={(event) => setEmail(event.target.value)} className={styles.input} autoComplete="email" required aria-invalid={Boolean(error)} disabled={loading} />
                 </div>
-              )}
-
-              <Button 
-                type="button"
-                onClick={handleOtpRequestClick}
-                className="w-full" 
-                disabled={loading || !email || cooldownTimer > 0}
-              >
+                {qaPasswordLoginEnabled && (
+                  <div className={styles.fieldGroup}>
+                    <Label htmlFor={`${idPrefix}-password`} className={styles.label}><KeyRound aria-hidden />Password</Label>
+                    <Input id={`${idPrefix}-password`} type="password" value={password} onChange={(event) => setPassword(event.target.value)} className={styles.input} autoComplete="current-password" required aria-invalid={Boolean(error)} disabled={loading} />
+                  </div>
+                )}
+              </div>
+              <AuthError message={cooldownTimer > 0 ? `Please wait ${cooldownTimer} seconds before trying again.` : error} />
+              <button type="submit" className={styles.primaryButton} disabled={loading || !email || (qaPasswordLoginEnabled && !password) || cooldownTimer > 0} aria-live="polite">
+                {loading ? <LoaderCircle size={18} className="animate-spin" aria-hidden /> : qaPasswordLoginEnabled ? <KeyRound size={18} aria-hidden /> : <Send size={18} aria-hidden />}
                 {loading
-                  ? <LoaderCircle size={18} strokeWidth={1.8} aria-hidden="true" className="mr-2 shrink-0 animate-spin" />
-                  : <Send size={18} strokeWidth={1.8} aria-hidden="true" className="mr-2 shrink-0" />}
-                {cooldownTimer > 0 ? `Wait ${cooldownTimer}s` : 'Email me the code'}
-              </Button>
+                  ? qaPasswordLoginEnabled ? 'Signing in…' : 'Emailing your code…'
+                  : cooldownTimer > 0
+                    ? `Wait ${cooldownTimer}s`
+                    : qaPasswordLoginEnabled ? 'Sign In with Temporary Password' : 'Email Me a Sign-In Code'}
+              </button>
+              <AuthLegal onNavigate={navigateFromModal} />
+              <p className={styles.switchLine}>New to Wedding Waitress?{' '}<button type="button" onClick={onBackToSignUp} className={styles.linkButton}>Create a free account</button></p>
             </form>
-
-            <div className="space-y-3">
-              <p className="text-xs text-muted-foreground text-center">
-                By continuing you agree to our{' '}
-                <span className="underline hover:text-foreground cursor-pointer" onClick={() => { onOpenChange(false); navigate('/terms'); }}>Terms of Service</span>
-                {' '}&{' '}
-                <span className="underline hover:text-foreground cursor-pointer" onClick={() => { onOpenChange(false); navigate('/privacy'); }}>Privacy Policy</span>
-              </p>
-
-              <div className="text-center">
-                <button
-                  type="button"
-                  onClick={onBackToSignUp}
-                  className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground"
-                >
-                  <ArrowLeft size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
-                  Back to Sign Up
-                </button>
-              </div>
-            </div>
-          </div>
+          </>
         ) : (
-          <div className="space-y-4 mt-4">
-            <div className="flex justify-center gap-2">
-              {verificationCode.map((digit, index) => (
-                <Input
-                  key={index}
-                  ref={(el) => (inputRefs.current[index] = el)}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={6}
-                  className="w-12 h-12 text-center text-lg font-semibold border-2 border-[#967A59]/70 focus-visible:border-[#967A59]"
-                  value={digit}
-                  onChange={(e) => handleCodeChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  disabled={loading}
-                />
-              ))}
-            </div>
-
-            {error && (
-              <div className="flex items-start justify-center gap-2 text-sm text-destructive bg-destructive/10 p-2 rounded text-center">
-                <TriangleAlert size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 mt-0.5" />
-                {error}
-              </div>
-            )}
-
-            <div className="space-y-3">
-              <Button 
-                onClick={handleVerifyCode} 
-                className="w-full" 
-                disabled={loading || verificationCode.join('').length !== 6}
-              >
-                {loading
-                  ? <LoaderCircle size={18} strokeWidth={1.8} aria-hidden="true" className="mr-2 shrink-0 animate-spin" />
-                  : <LogIn size={18} strokeWidth={1.8} aria-hidden="true" className="mr-2 shrink-0" />}
-                Verify Code
-              </Button>
-
-              <div className="text-center">
-                <button
-                  type="button"
-                  onClick={handleResend}
-                  disabled={resendTimer > 0 || loading}
-                  className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <RotateCcw size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
-                  {resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend code'}
-                </button>
-              </div>
-            </div>
-          </div>
+          <>
+          <AuthModalHeader
+            icon={Mail}
+            title="Check your email"
+            description={`We sent a 6-digit sign-in code to ${email.trim().toLowerCase()}.`}
+          />
+            <VerificationCodeForm email={email.trim().toLowerCase()} code={verificationCode} setCode={setVerificationCode} loading={loading} error={error} resendTimer={resendTimer} onVerify={handleVerifyCode} onResend={handleResend} onCorrectEmail={correctEmail} />
+          </>
         )}
       </DialogContent>
     </Dialog>

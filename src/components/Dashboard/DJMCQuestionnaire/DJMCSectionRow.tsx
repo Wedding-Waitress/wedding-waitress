@@ -29,9 +29,12 @@ import {
 import { DJMCItem, SectionType } from '@/types/djMCQuestionnaire';
 import { DJMCMusicUrlField } from './DJMCMusicUrlField';
 import { DJMCPronunciationRecorder } from './DJMCPronunciationRecorder';
+import theme from './DJMCQuestionnaireTheme.module.css';
 
 interface DJMCSectionRowProps {
   item: DJMCItem;
+  eventId: string;
+  shareToken?: string;
   sectionType: SectionType;
   onUpdate: (updates: Partial<DJMCItem>) => void;
   onDelete: () => void;
@@ -42,6 +45,8 @@ interface DJMCSectionRowProps {
 
 export function DJMCSectionRow({
   item,
+  eventId,
+  shareToken,
   sectionType,
   onUpdate,
   onDelete,
@@ -182,7 +187,7 @@ export function DJMCSectionRow({
       <div
         ref={setNodeRef}
         style={style}
-        className={`flex items-center gap-2 py-2 px-1 rounded-md hover:bg-[#EDE5DB] group`}
+        className={`${theme.row} flex items-center gap-2 py-2 px-1 rounded-md group`}
       >
         {/* Drag Handle */}
         <div
@@ -246,7 +251,7 @@ export function DJMCSectionRow({
                   <EllipsisVertical size={16} strokeWidth={1.8} />
                 </Button>
               </DropdownMenuTrigger>
-              <DropdownMenuContent align="end" className="w-56">
+              <DropdownMenuContent align="end" className="w-56 ww-djmc-portal">
                 <DropdownMenuItem onClick={() => onUpdate({ is_section_header: !item.is_section_header })}>
                   <Highlighter size={18} strokeWidth={1.8} className="mr-2" />
                   Highlight Row
@@ -287,7 +292,7 @@ export function DJMCSectionRow({
         )}
 
         <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
-          <AlertDialogContent>
+          <AlertDialogContent className={theme.dialogSurface}>
             <AlertDialogHeader>
               <AlertDialogTitle>Clear Text?</AlertDialogTitle>
               <AlertDialogDescription>This will clear all text on this row. Once cleared, it cannot be retrieved.</AlertDialogDescription>
@@ -300,7 +305,7 @@ export function DJMCSectionRow({
         </AlertDialog>
 
         <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-          <AlertDialogContent>
+          <AlertDialogContent className={theme.dialogSurface}>
             <AlertDialogHeader>
               <AlertDialogTitle>Delete Row?</AlertDialogTitle>
               <AlertDialogDescription>This will delete this row. Once deleted, it cannot be retrieved.</AlertDialogDescription>
@@ -320,7 +325,7 @@ export function DJMCSectionRow({
     <div
       ref={setNodeRef}
       style={style}
-        className={`flex items-center gap-2 py-2 px-1 rounded-md hover:bg-[#EDE5DB] group`}
+        className={`${theme.row} flex items-center gap-2 py-2 px-1 rounded-md group`}
     >
       {/* Drag Handle */}
       <div
@@ -453,8 +458,13 @@ export function DJMCSectionRow({
           </div>
           <div className="w-10 shrink-0 flex justify-center">
             <DJMCPronunciationRecorder
-              audioUrl={item.pronunciation_audio_url}
-              onChange={(url) => onUpdate({ pronunciation_audio_url: url })}
+              audioPath={item.pronunciation_audio_path || null}
+              legacyAudioUrl={item.pronunciation_audio_url}
+              eventId={eventId}
+              itemId={item.id}
+              shareToken={shareToken}
+              onChange={(path) => onUpdate({ pronunciation_audio_path: path, pronunciation_audio_url: null })}
+              disabled={disabled}
             />
           </div>
         </div>
@@ -551,8 +561,13 @@ export function DJMCSectionRow({
         {showPronunciation && (
           <div className="w-10 shrink-0 flex justify-center">
             <DJMCPronunciationRecorder
-              audioUrl={item.pronunciation_audio_url}
-              onChange={(url) => onUpdate({ pronunciation_audio_url: url })}
+              audioPath={item.pronunciation_audio_path || null}
+              legacyAudioUrl={item.pronunciation_audio_url}
+              eventId={eventId}
+              itemId={item.id}
+              shareToken={shareToken}
+              onChange={(path) => onUpdate({ pronunciation_audio_path: path, pronunciation_audio_url: null })}
+              disabled={disabled}
             />
           </div>
         )}
@@ -623,8 +638,13 @@ export function DJMCSectionRow({
         </div>
         <div className="w-10 shrink-0 flex justify-center">
             <DJMCPronunciationRecorder
-              audioUrl={item.pronunciation_audio_url}
-              onChange={(url) => onUpdate({ pronunciation_audio_url: url })}
+              audioPath={item.pronunciation_audio_path || null}
+              legacyAudioUrl={item.pronunciation_audio_url}
+              eventId={eventId}
+              itemId={item.id}
+              shareToken={shareToken}
+              onChange={(path) => onUpdate({ pronunciation_audio_path: path, pronunciation_audio_url: null })}
+              disabled={disabled}
             />
           </div>
         </div>
@@ -671,8 +691,13 @@ export function DJMCSectionRow({
       {sectionType === 'speeches' && (
         <div className="w-10 shrink-0 flex justify-center">
           <DJMCPronunciationRecorder
-            audioUrl={item.pronunciation_audio_url}
-            onChange={(url) => onUpdate({ pronunciation_audio_url: url })}
+            audioPath={item.pronunciation_audio_path || null}
+            legacyAudioUrl={item.pronunciation_audio_url}
+            eventId={eventId}
+            itemId={item.id}
+            shareToken={shareToken}
+            onChange={(path) => onUpdate({ pronunciation_audio_path: path, pronunciation_audio_url: null })}
+            disabled={disabled}
           />
         </div>
       )}
@@ -698,7 +723,7 @@ export function DJMCSectionRow({
                 <EllipsisVertical size={16} strokeWidth={1.8} />
               </Button>
             </DropdownMenuTrigger>
-            <DropdownMenuContent align="end" className="w-56">
+            <DropdownMenuContent align="end" className="w-56 ww-djmc-portal">
               <DropdownMenuItem onClick={() => onUpdate({ is_section_header: !item.is_section_header })}>
                 <Highlighter size={18} strokeWidth={1.8} className="mr-2" />
                 Highlight Row
@@ -739,7 +764,7 @@ export function DJMCSectionRow({
       )}
 
       <AlertDialog open={showClearDialog} onOpenChange={setShowClearDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className={theme.dialogSurface}>
           <AlertDialogHeader>
             <AlertDialogTitle>Clear Text?</AlertDialogTitle>
             <AlertDialogDescription>This will clear all text on this row. Once cleared, it cannot be retrieved.</AlertDialogDescription>
@@ -752,7 +777,7 @@ export function DJMCSectionRow({
       </AlertDialog>
 
       <AlertDialog open={showDeleteDialog} onOpenChange={setShowDeleteDialog}>
-        <AlertDialogContent>
+        <AlertDialogContent className={theme.dialogSurface}>
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Row?</AlertDialogTitle>
             <AlertDialogDescription>This will delete this row. Once deleted, it cannot be retrieved.</AlertDialogDescription>

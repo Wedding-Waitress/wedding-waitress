@@ -50,7 +50,7 @@ export const GuestLimitDialog: React.FC<GuestLimitDialogProps> = ({
   if (variant === 'congratulations') {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
-        <DialogContent className="ww-table-limit-dialog max-w-md border-green-300 overflow-hidden">
+        <DialogContent className="ww-table-limit-dialog ww-guest-list-typography max-w-md border-green-300 overflow-hidden">
           {/* Confetti overlay */}
           {showConfetti && (
             <div className="absolute inset-0 pointer-events-none overflow-hidden z-10">
@@ -95,7 +95,7 @@ export const GuestLimitDialog: React.FC<GuestLimitDialogProps> = ({
   // Exceeded variant
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="ww-table-limit-dialog max-w-md border-red-300">
+      <DialogContent className="ww-table-limit-dialog ww-guest-list-typography max-w-md border-red-300">
         <div className="bg-red-50 rounded-xl p-6 text-center space-y-4">
           <div className="flex justify-center">
             <div className="bg-red-100 rounded-full p-4">
