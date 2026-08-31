@@ -1,9 +1,9 @@
 import React from 'react';
 import { CalendarRange, AlertTriangle } from 'lucide-react';
-import { useEventLimits } from '@/hooks/useEventLimits';
+import type { EventLimitsState } from '@/hooks/useEventLimits';
 
-export const EventUsagePill: React.FC = () => {
-  const { loading, currentEvents, totalAllowed, additionalPurchased, remaining } = useEventLimits();
+export const EventUsagePill: React.FC<{ eventLimits: EventLimitsState }> = ({ eventLimits }) => {
+  const { loading, currentEvents, totalAllowed, additionalPurchased, remaining } = eventLimits;
   if (loading) return null;
 
   const nearLimit = remaining <= 1 && remaining >= 0;

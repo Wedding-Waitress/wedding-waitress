@@ -5,27 +5,29 @@ import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { PublicMotion } from "@/components/Layout/PublicMotion";
 import { ThemeProvider } from "next-themes";
 import { AppErrorBoundary } from "@/components/core/AppErrorBoundary";
-// Eager: highest-priority entry points (Landing is the marketing root)
-import { Landing } from "./pages/Landing";
-import NotFound from "./pages/NotFound";
-// Eager-load public guest upload page so /gallery/:token always ships in the main bundle
-import { GuestMediaUpload } from "./pages/GuestMediaUpload";
+import {
+  loadAccountRoute,
+  loadAdminRoute,
+  loadDashboardRoute,
+  loadUpgradeCheckoutRoute,
+} from '@/lib/authenticatedRoutePreload';
+// Route entry points stay isolated so authenticated users never download the
+// marketing site or guest media uploader before the dashboard can render.
+const Landing = lazy(() => import("./pages/Landing").then(m => ({ default: m.Landing })));
+const NotFound = lazy(() => import("./pages/NotFound"));
+const GuestMediaUpload = lazy(() => import("./pages/GuestMediaUpload").then(m => ({ default: m.GuestMediaUpload })));
 const GalleryLiveView = lazy(() => import("./pages/GalleryLiveView"));
 const GuestVideoGuestbook = lazy(() => import("./pages/GuestVideoGuestbook"));
 const GuestPhotoBooth = lazy(() => import("./pages/GuestPhotoBooth"));
 // Lazy: split everything else into separate chunks for instant initial load
-const Dashboard = lazy(() => import("./pages/Dashboard").then(m => ({ default: m.Dashboard })));
-const Account = lazy(() => import("./pages/Account").then(m => ({ default: m.Account })));
+const Dashboard = lazy(() => loadDashboardRoute().then(m => ({ default: m.Dashboard })));
+const Account = lazy(() => loadAccountRoute().then(m => ({ default: m.Account })));
 const AccountRecovery = lazy(() => import("./pages/AccountRecovery"));
-const GalleryUploadFeaturePage = lazy(() => import("./pages/GalleryUploadFeaturePage").then(m => ({ default: m.GalleryUploadFeaturePage })));
-const GalleryViewFeaturePage = lazy(() => import("./pages/GalleryViewFeaturePage").then(m => ({ default: m.GalleryViewFeaturePage })));
-const GalleryPhotoBoothFeaturePage = lazy(() => import("./pages/GalleryPhotoBoothFeaturePage").then(m => ({ default: m.GalleryPhotoBoothFeaturePage })));
-const GalleryTextGuestbookFeaturePage = lazy(() => import("./pages/GalleryTextGuestbookFeaturePage").then(m => ({ default: m.GalleryTextGuestbookFeaturePage })));
-const GallerySlideshowFeaturePage = lazy(() => import("./pages/GallerySlideshowFeaturePage").then(m => ({ default: m.GallerySlideshowFeaturePage })));
-
-const Admin = lazy(() => import("./pages/Admin").then(m => ({ default: m.Admin })));
+const AcceptTeamInvitation = lazy(() => import("./pages/AcceptTeamInvitation").then(m => ({ default: m.AcceptTeamInvitation })));
+const Admin = lazy(() => loadAdminRoute().then(m => ({ default: m.Admin })));
 const GuestLookup = lazy(() => import("./pages/GuestLookup").then(m => ({ default: m.GuestLookup })));
 const KioskView = lazy(() => import("./pages/KioskView").then(m => ({ default: m.KioskView })));
 const ResetPassword = lazy(() => import("./pages/ResetPassword").then(m => ({ default: m.ResetPassword })));
@@ -40,26 +42,36 @@ const ReceptionFloorPlanShareView = lazy(() => import("./pages/ReceptionFloorPla
 const VenueDirectory = lazy(() => import("./pages/VenueDirectory").then(m => ({ default: m.VenueDirectory })));
 const VenueDetail = lazy(() => import("./pages/VenueDetail").then(m => ({ default: m.VenueDetail })));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess").then(m => ({ default: m.PaymentSuccess })));
-const UpgradeCheckout = lazy(() => import("./pages/UpgradeCheckout").then(m => ({ default: m.UpgradeCheckout })));
+const UpgradeCheckout = lazy(() => loadUpgradeCheckoutRoute().then(m => ({ default: m.UpgradeCheckout })));
 const QRRedirect = lazy(() => import("./pages/QRRedirect").then(m => ({ default: m.QRRedirect })));
 
-const ProductMyEvents = lazy(() => import("./pages/products/ProductMyEvents").then(m => ({ default: m.ProductMyEvents })));
-const ProductTables = lazy(() => import("./pages/products/ProductTables").then(m => ({ default: m.ProductTables })));
-const ProductGuestList = lazy(() => import("./pages/products/ProductGuestList").then(m => ({ default: m.ProductGuestList })));
-const ProductQrCodeSeatingChart = lazy(() => import("./pages/products/ProductQrCodeSeatingChart").then(m => ({ default: m.ProductQrCodeSeatingChart })));
-const ProductInvitationsCards = lazy(() => import("./pages/products/ProductInvitationsCards").then(m => ({ default: m.ProductInvitationsCards })));
-const ProductNamePlaceCards = lazy(() => import("./pages/products/ProductNamePlaceCards").then(m => ({ default: m.ProductNamePlaceCards })));
-const ProductFullSeatingChart = lazy(() => import("./pages/products/ProductFullSeatingChart").then(m => ({ default: m.ProductFullSeatingChart })));
-const ProductFloorPlan = lazy(() => import("./pages/products/ProductFloorPlan").then(m => ({ default: m.ProductFloorPlan })));
-const ProductIndividualTableCharts = lazy(() => import("./pages/products/ProductIndividualTableCharts").then(m => ({ default: m.ProductIndividualTableCharts })));
-const ProductDietaryRequirements = lazy(() => import("./pages/products/ProductDietaryRequirements").then(m => ({ default: m.ProductDietaryRequirements })));
-const ProductRunningSheet = lazy(() => import("./pages/products/ProductRunningSheet").then(m => ({ default: m.ProductRunningSheet })));
-const ProductKioskLiveView = lazy(() => import("./pages/products/ProductKioskLiveView").then(m => ({ default: m.ProductKioskLiveView })));
-const ProductDjMcQuestionnaire = lazy(() => import("./pages/products/ProductDjMcQuestionnaire").then(m => ({ default: m.ProductDjMcQuestionnaire })));
+const productRoutes = () => import("./pages/products/PublicProductRoutes");
+const ProductMyEvents = lazy(() => productRoutes().then(m => ({ default: m.ProductMyEvents })));
+const ProductTables = lazy(() => productRoutes().then(m => ({ default: m.ProductTables })));
+const ProductGuestList = lazy(() => productRoutes().then(m => ({ default: m.ProductGuestList })));
+const ProductQrCodeSeatingChart = lazy(() => productRoutes().then(m => ({ default: m.ProductQrCodeSeatingChart })));
+const ProductSeatingChartSigns = lazy(() => productRoutes().then(m => ({ default: m.ProductSeatingChartSigns })));
+const ProductInvitationsCards = lazy(() => productRoutes().then(m => ({ default: m.ProductInvitationsCards })));
+const ProductNamePlaceCards = lazy(() => productRoutes().then(m => ({ default: m.ProductNamePlaceCards })));
+const ProductFullSeatingChart = lazy(() => productRoutes().then(m => ({ default: m.ProductFullSeatingChart })));
+const ProductFloorPlan = lazy(() => productRoutes().then(m => ({ default: m.ProductFloorPlan })));
+const ProductIndividualTableCharts = lazy(() => productRoutes().then(m => ({ default: m.ProductIndividualTableCharts })));
+const ProductDietaryRequirements = lazy(() => productRoutes().then(m => ({ default: m.ProductDietaryRequirements })));
+const ProductRunningSheet = lazy(() => productRoutes().then(m => ({ default: m.ProductRunningSheet })));
+const ProductKioskLiveView = lazy(() => productRoutes().then(m => ({ default: m.ProductKioskLiveView })));
+const ProductDjMcQuestionnaire = lazy(() => productRoutes().then(m => ({ default: m.ProductDjMcQuestionnaire })));
+const ProductPhotoVideoSharing = lazy(() => productRoutes().then(m => ({ default: m.ProductPhotoVideoSharing })));
+const eventRoutes = () => import("./pages/events/PublicEventRoutes");
+const EventsIndex = lazy(() => eventRoutes().then(m => ({ default: m.EventsIndex })));
+const EventWeddings = lazy(() => eventRoutes().then(m => ({ default: m.EventWeddings })));
+const EventEngagements = lazy(() => eventRoutes().then(m => ({ default: m.EventEngagements })));
+const EventBirthdaysParties = lazy(() => eventRoutes().then(m => ({ default: m.EventBirthdaysParties })));
+const EventCorporateEvents = lazy(() => eventRoutes().then(m => ({ default: m.EventCorporateEvents })));
+const EventChristmasSeasonal = lazy(() => eventRoutes().then(m => ({ default: m.EventChristmasSeasonal })));
+const EventMemorials = lazy(() => eventRoutes().then(m => ({ default: m.EventMemorials })));
 const Blog = lazy(() => import("./pages/Blog").then(m => ({ default: m.Blog })));
 const BlogPost = lazy(() => import("./pages/BlogPost").then(m => ({ default: m.BlogPost })));
 const HowItWorks = lazy(() => import("./pages/HowItWorks").then(m => ({ default: m.HowItWorks })));
-const Features = lazy(() => import("./pages/Features").then(m => ({ default: m.Features })));
 const Pricing = lazy(() => import("./pages/Pricing").then(m => ({ default: m.Pricing })));
 const Faq = lazy(() => import("./pages/Faq").then(m => ({ default: m.Faq })));
 const Products = lazy(() => import("./pages/Products").then(m => ({ default: m.Products })));
@@ -70,6 +82,9 @@ import {
   DashboardLoadingScreen,
   getDashboardLoadingAppearance,
 } from "@/components/Dashboard/DashboardLoadingScreen";
+import { AuthenticatedSessionProvider } from '@/contexts/AuthenticatedSessionContext';
+import { AuthenticatedRouteGate } from '@/components/auth/AuthenticatedRouteGate';
+import { getAnalyticsPagePath } from '@/lib/analyticsPath';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -95,7 +110,7 @@ const RouteFallback = () => {
   }
 
   return (
-    <div className="min-h-screen w-full bg-background animate-pulse" aria-hidden="true">
+    <div className="ww-application-background min-h-screen w-full animate-pulse" aria-hidden="true">
       <div className="h-14 w-full bg-muted/40" />
       <div className="mx-auto mt-8 max-w-5xl space-y-4 px-4">
         <div className="h-8 w-2/3 rounded bg-muted/50" />
@@ -113,6 +128,12 @@ const GlobalPaymentOverlay = () => {
   return <PaymentProcessingOverlay />;
 };
 
+const AuthenticatedRouteScope = () => (
+  <AuthenticatedSessionProvider>
+    <AuthenticatedRouteGate />
+  </AuthenticatedSessionProvider>
+);
+
 // Scroll to top on route change
 const ScrollToTop = () => {
   const { pathname } = useLocation();
@@ -129,7 +150,7 @@ const RouteTracker = () => {
     const w = window as Window & { gtag?: (...args: unknown[]) => void };
     if (typeof w.gtag === 'function') {
       w.gtag('event', 'page_view', {
-        page_path: location.pathname + location.search,
+        page_path: getAnalyticsPagePath(location.pathname, location.search),
         page_title: document.title,
       });
     }
@@ -151,6 +172,7 @@ const App = () => (
         <BrowserRouter>
           <ScrollToTop />
           <RouteTracker />
+          <PublicMotion />
           <Toaster />
           <Sonner />
           <GlobalPaymentOverlay />
@@ -162,28 +184,21 @@ const App = () => (
           <Route path="/gallery-guestbook/:token" element={<GuestVideoGuestbook />} />
           <Route path="/gallery-photobooth/:token" element={<GuestPhotoBooth />} />
           <Route path="/" element={<Landing />} />
-          <Route path="/dashboard" element={<Dashboard />} />
-          <Route path="/account" element={<Account />} />
-          <Route path="/account/:section" element={<Account />} />
+          <Route element={<AuthenticatedRouteScope />}>
+            <Route path="/dashboard/*" element={<Dashboard />} />
+            <Route path="/account/:section?" element={<Account />} />
+            <Route path="/accept-team-invitation" element={<AcceptTeamInvitation />} />
+            <Route path="/admin/:section?" element={<Admin />} />
+            <Route path="/dashboard/photo-video-gallery/audio-guestbook" element={<Navigate to="/dashboard/photo-video-gallery/digital-guestbook" replace />} />
+            <Route path="/dashboard/photo-video-gallery/upload-photos-videos" element={<Navigate to="/dashboard/photo-video-gallery/photo-video-sharing" replace />} />
+            <Route path="/dashboard/photo-video-gallery/photo-booth" element={<Navigate to="/dashboard/photo-video-gallery/digital-photo-booth" replace />} />
+            <Route path="/dashboard/photo-video-gallery/guestbook-text-message" element={<Navigate to="/dashboard/photo-video-gallery/digital-guestbook" replace />} />
+            <Route path="/dashboard/photo-video-gallery/guestbook-voice-message" element={<Navigate to="/dashboard/photo-video-gallery/digital-guestbook" replace />} />
+            <Route path="/dashboard/upgrade" element={<Navigate to="/account/plans-upgrades" replace />} />
+            <Route path="/dashboard/upgrade/checkout" element={<UpgradeCheckout />} />
+          </Route>
           <Route path="/account-recovery" element={<AccountRecovery />} />
-          <Route path="/dashboard/photo-video-gallery/photo-video-sharing" element={<GalleryUploadFeaturePage />} />
-          <Route path="/dashboard/photo-video-gallery/gallery-view" element={<GalleryViewFeaturePage />} />
-          <Route path="/dashboard/photo-video-gallery/digital-photo-booth" element={<GalleryPhotoBoothFeaturePage />} />
-          <Route path="/dashboard/photo-video-gallery/digital-guestbook" element={<GalleryTextGuestbookFeaturePage />} />
-          <Route path="/dashboard/photo-video-gallery/audio-guestbook" element={<Navigate to="/dashboard/photo-video-gallery/digital-guestbook" replace />} />
-          <Route path="/dashboard/photo-video-gallery/live-slideshow" element={<GallerySlideshowFeaturePage />} />
-
-          {/* Legacy workspace routes — permanent redirects so bookmarks keep working */}
-          <Route path="/dashboard/photo-video-gallery/upload-photos-videos" element={<Navigate to="/dashboard/photo-video-gallery/photo-video-sharing" replace />} />
-          <Route path="/dashboard/photo-video-gallery/photo-booth" element={<Navigate to="/dashboard/photo-video-gallery/digital-photo-booth" replace />} />
-          <Route path="/dashboard/photo-video-gallery/guestbook-text-message" element={<Navigate to="/dashboard/photo-video-gallery/digital-guestbook" replace />} />
-          <Route path="/dashboard/photo-video-gallery/guestbook-voice-message" element={<Navigate to="/dashboard/photo-video-gallery/digital-guestbook" replace />} />
-
-          <Route path="/dashboard/upgrade" element={<Navigate to="/account/plans-upgrades" replace />} />
-          <Route path="/dashboard/upgrade/checkout" element={<UpgradeCheckout />} />
           {/* Running Sheet is now a dashboard tab, no standalone route */}
-          <Route path="/admin" element={<Admin />} />
-          <Route path="/admin/:section" element={<Admin />} />
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />
           <Route path="/terms" element={<TermsOfService />} />
@@ -192,17 +207,25 @@ const App = () => (
           {/* Guest seating lookup */}
           {/* SEO landing pages */}
           <Route path="/how-it-works" element={<HowItWorks />} />
-          <Route path="/features" element={<Features />} />
+          <Route path="/features" element={<Navigate to="/products" replace />} />
           <Route path="/pricing" element={<Pricing />} />
           <Route path="/faq" element={<Faq />} />
           {/* Feature pages — replaced by clean root URLs (redirects below) */}
           {/* Products index page */}
           <Route path="/products" element={<Products />} />
+          <Route path="/events" element={<EventsIndex />} />
+          <Route path="/events/weddings" element={<EventWeddings />} />
+          <Route path="/events/engagements" element={<EventEngagements />} />
+          <Route path="/events/birthdays-parties" element={<EventBirthdaysParties />} />
+          <Route path="/events/corporate-events" element={<EventCorporateEvents />} />
+          <Route path="/events/christmas-seasonal-events" element={<EventChristmasSeasonal />} />
+          <Route path="/events/memorials-celebrations-of-life" element={<EventMemorials />} />
           {/* Clean root-level product pages (canonical, indexable) */}
           <Route path="/my-events" element={<ProductMyEvents />} />
           <Route path="/tables" element={<ProductTables />} />
           <Route path="/guest-list" element={<ProductGuestList />} />
           <Route path="/qr-code-seating-chart" element={<ProductQrCodeSeatingChart />} />
+          <Route path="/seating-chart-signs" element={<ProductSeatingChartSigns />} />
           <Route path="/invitations-cards" element={<ProductInvitationsCards />} />
           <Route path="/name-place-cards" element={<ProductNamePlaceCards />} />
           <Route path="/full-seating-chart" element={<ProductFullSeatingChart />} />
@@ -212,11 +235,13 @@ const App = () => (
           <Route path="/running-sheet" element={<ProductRunningSheet />} />
           <Route path="/kiosk-live-view" element={<ProductKioskLiveView />} />
           <Route path="/dj-mc-questionnaire" element={<ProductDjMcQuestionnaire />} />
+          <Route path="/photo-video-sharing" element={<ProductPhotoVideoSharing />} />
           {/* Legacy /products/* — permanent client redirects to clean URLs */}
           <Route path="/products/my-events" element={<Navigate to="/my-events" replace />} />
           <Route path="/products/tables" element={<Navigate to="/tables" replace />} />
           <Route path="/products/guest-list" element={<Navigate to="/guest-list" replace />} />
           <Route path="/products/qr-code-seating-chart" element={<Navigate to="/qr-code-seating-chart" replace />} />
+          <Route path="/products/seating-chart-signs" element={<Navigate to="/seating-chart-signs" replace />} />
           <Route path="/products/invitations-cards" element={<Navigate to="/invitations-cards" replace />} />
           <Route path="/products/name-place-cards" element={<Navigate to="/name-place-cards" replace />} />
           <Route path="/products/full-seating-chart" element={<Navigate to="/full-seating-chart" replace />} />
@@ -227,6 +252,7 @@ const App = () => (
           <Route path="/running-sheet-product" element={<Navigate to="/running-sheet" replace />} />
           <Route path="/products/kiosk-live-view" element={<Navigate to="/kiosk-live-view" replace />} />
           <Route path="/products/dj-mc-questionnaire" element={<Navigate to="/dj-mc-questionnaire" replace />} />
+          <Route path="/products/photo-video-sharing" element={<Navigate to="/photo-video-sharing" replace />} />
           {/* Legacy /features/* — permanent client redirects to clean URLs */}
           <Route path="/features/events" element={<Navigate to="/my-events" replace />} />
           <Route path="/features/guest-list" element={<Navigate to="/guest-list" replace />} />

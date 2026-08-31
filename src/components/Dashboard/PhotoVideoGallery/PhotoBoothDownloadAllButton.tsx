@@ -112,7 +112,7 @@ export const PhotoBoothDownloadAllButton: React.FC<{
         {busy ? <LoaderCircle className="h-4 w-4 mr-2 animate-spin shrink-0" strokeWidth={1.8} /> : <FolderDown className="h-4 w-4 mr-2 shrink-0" strokeWidth={1.8} />}
         <span className="whitespace-nowrap">Download All</span>
       </span>
-      <span className="text-xs text-muted-foreground shrink-0">{busy && done > 0 ? `${done}/${total}` : total}</span>
+      <span className={cn('text-xs text-muted-foreground shrink-0', appearance === 'espresso-glass' && managementStyles.gallerySecondaryText)}>{busy && done > 0 ? `${done}/${total}` : total}</span>
     </Button>
   );
 };

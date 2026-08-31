@@ -88,7 +88,7 @@ export const KioskGuestCard: React.FC<KioskGuestCardProps> = ({ guest, showRsvp 
               <div className="flex items-center">
                 <MapPin className="w-6 h-6 text-primary mr-3" />
                 <div>
-                  <p className="text-lg font-semibold text-foreground">
+                  <p data-kiosk-label className="text-lg font-semibold text-foreground">
                     Table {guest.table_no}
                   </p>
                   {guest.table_name && (
@@ -100,7 +100,7 @@ export const KioskGuestCard: React.FC<KioskGuestCardProps> = ({ guest, showRsvp 
               </div>
               {guest.seat_no && (
                 <div className="text-right">
-                  <p className="text-lg font-semibold text-primary">
+                  <p data-kiosk-label className="text-lg font-semibold text-primary">
                     Seat {guest.seat_no}
                   </p>
                 </div>
@@ -121,9 +121,9 @@ export const KioskGuestCard: React.FC<KioskGuestCardProps> = ({ guest, showRsvp 
           <div className="flex items-center justify-between mb-4">
             <div className="flex items-center">
               <RSVPIcon className="w-5 h-5 mr-2" />
-              <span className="text-lg font-medium text-foreground">RSVP Status:</span>
+              <span data-kiosk-label className="text-lg font-medium text-foreground">RSVP Status:</span>
             </div>
-            <Badge className={`px-4 py-2 text-lg font-medium ${getRSVPColor(guest.rsvp)}`}>
+            <Badge data-kiosk-status className={`px-4 py-2 text-lg font-medium ${getRSVPColor(guest.rsvp)}`}>
               {getRsvpDisplayLabel(guest.rsvp)}
             </Badge>
           </div>
@@ -134,7 +134,7 @@ export const KioskGuestCard: React.FC<KioskGuestCardProps> = ({ guest, showRsvp 
           <div className="flex items-start p-3 bg-blue-50 rounded-lg border border-blue-200">
             <Utensils className="w-5 h-5 text-blue-500 mr-3 mt-1 flex-shrink-0" />
             <div>
-              <p className="text-sm font-medium text-blue-800 mb-1">Dietary Requirements:</p>
+              <p data-kiosk-label className="text-sm font-medium text-blue-800 mb-1">Dietary Requirements:</p>
               <p className="text-sm text-blue-700">{guest.dietary}</p>
             </div>
           </div>

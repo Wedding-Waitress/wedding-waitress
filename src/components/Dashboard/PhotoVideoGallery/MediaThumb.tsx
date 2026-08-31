@@ -5,6 +5,7 @@
 import React, { useEffect, useRef, useState } from 'react';
 import { Play, FileImage, FileVideo, Mic, TriangleAlert, LoaderCircle } from 'lucide-react';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
+import managementStyles from './photoVideoSharingManagement.module.css';
 
 type Status = 'idle' | 'loading' | 'ready' | 'error';
 
@@ -28,12 +29,16 @@ export const MediaThumb: React.FC<{
   item: GalleryItem;
   onOpen: () => void;
   photoFit?: 'cover' | 'contain';
-}> = ({ item, onOpen, photoFit = 'cover' }) => {
+  appearance?: 'default' | 'espresso-glass';
+}> = ({ item, onOpen, photoFit = 'cover', appearance = 'default' }) => {
   const { ref, inView } = useInView<HTMLDivElement>();
   const [status, setStatus] = useState<Status>('idle');
   const [attempt, setAttempt] = useState(0);
   const containsPhoto = item.kind === 'photo' && photoFit === 'contain';
-  const previewSurfaceClass = containsPhoto ? 'bg-[#0b0604]' : 'bg-muted';
+  const isEspresso = appearance === 'espresso-glass';
+  const previewSurfaceClass = containsPhoto
+    ? 'bg-[#0b0604]'
+    : isEspresso ? managementStyles.mediaLoadingSurface : 'bg-muted';
 
   useEffect(() => { setStatus('idle'); setAttempt(0); }, [item.signed_url, item.id]);
 
@@ -100,7 +105,7 @@ export const MediaThumb: React.FC<{
           )}
           {status !== 'ready' && status !== 'error' && (
             <div className={`absolute inset-0 flex items-center justify-center ${previewSurfaceClass}`}>
-              <LoaderCircle className={`h-5 w-5 animate-spin ${containsPhoto ? 'text-[#d9b77f]' : 'text-muted-foreground'}`} />
+              <LoaderCircle className={`h-5 w-5 animate-spin ${containsPhoto || isEspresso ? managementStyles.mediaLoadingSpinner : 'text-muted-foreground'}`} />
             </div>
           )}
           {status === 'error' && <Fallback label="Preview unavailable" warn />}
@@ -127,8 +132,8 @@ export const MediaThumb: React.FC<{
             <div className="absolute inset-0 bg-gradient-to-br from-[#2b2b2e] to-[#4a4a4f]" />
           )}
           {status !== 'ready' && status !== 'error' && (
-            <div className="absolute inset-0 flex items-center justify-center bg-muted">
-              <LoaderCircle className="h-5 w-5 animate-spin text-muted-foreground" />
+            <div className={`absolute inset-0 flex items-center justify-center ${isEspresso ? managementStyles.mediaLoadingSurface : 'bg-muted'}`}>
+              <LoaderCircle className={`h-5 w-5 animate-spin ${isEspresso ? managementStyles.mediaLoadingSpinner : 'text-muted-foreground'}`} />
             </div>
           )}
           <div className="absolute inset-0 flex items-center justify-center bg-black/25 pointer-events-none">

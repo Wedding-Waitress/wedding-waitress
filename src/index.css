@@ -170,6 +170,29 @@ html {
 
 @layer base {
   :root {
+    /* Shared authenticated-shell geometry (approved Dashboard dimensions). */
+    --ww-sidebar-width: 16rem;
+    --ww-sidebar-width-mobile: 17.5rem;
+    --ww-interface-font-family: Manrope, ui-sans-serif, system-ui, sans-serif;
+    --ww-auth-nav-font-family: var(--ww-interface-font-family);
+    --ww-auth-nav-font-size: .86rem;
+    --ww-auth-nav-font-weight: 400;
+    --ww-auth-nav-active-weight: 500;
+    --ww-auth-nav-row-height: 2rem;
+    --ww-auth-nav-padding-block: .75rem;
+    --ww-auth-nav-padding-inline: .5rem;
+    --ww-auth-nav-radius: .625rem;
+    --ww-auth-nav-icon-size: 1.125rem;
+    --ww-auth-nav-item-gap: .5rem;
+    --ww-auth-nav-row-gap: .25rem;
+    --ww-auth-nav-border-width: 1px;
+    --ww-auth-nav-active-border: rgba(242, 221, 189, .76);
+    --ww-compact-button-height: 2.25rem;
+    --ww-compact-button-mobile-height: 2.75rem;
+    --ww-compact-button-radius: .5625rem;
+    --ww-compact-button-padding-inline: .75rem;
+    --ww-compact-button-font-weight: 500;
+
     /* Brand Colors - Brown Theme */
     --primary: 30 25% 47%;
     --primary-foreground: 30 20% 98%;
@@ -181,6 +204,26 @@ html {
     --background-subtle: 30 15% 94%;
     --background-muted: 30 12% 92%;
     --foreground: 240 3% 12%;
+    /* Universal application canvas: deep espresso at both edges with one
+       restrained, continuous coffee-brown lift through the centre. */
+    --ww-application-background-color: #120806;
+    --ww-application-background-image: linear-gradient(
+      180deg,
+      #120806 0%,
+      #170a07 12%,
+      #25110b 31%,
+      #351b12 50%,
+      #28130d 69%,
+      #180b08 88%,
+      #120806 100%
+    );
+    --ww-application-background-position: center top;
+    --ww-application-background-size: 100% 100%;
+    --ww-application-background-repeat: no-repeat;
+    /* Every authenticated navigation rail and drawer reuses the approved
+       application canvas verbatim so its tonal direction cannot drift. */
+    --ww-sidebar-background-color: var(--ww-application-background-color);
+    --ww-sidebar-background-image: var(--ww-application-background-image);
     
     /* Card System */
     --card: 30 10% 95%;
@@ -245,6 +288,8 @@ html {
     width: 100%;
     height: 100%;
     min-height: 100vh;
+    min-height: 100dvh;
+    background-color: var(--ww-application-background-color) !important;
   }
 
   /* Universal: never allow horizontal page scroll on any device */
@@ -258,11 +303,20 @@ html {
   }
 
   body {
-    @apply bg-background text-foreground antialiased;
+    @apply text-foreground antialiased;
+    font-family: var(--ww-interface-font-family);
     font-feature-settings: "rlig" 1, "calt" 1;
     margin: 0 !important;
     -webkit-print-color-adjust: exact;
     print-color-adjust: exact;
+  }
+
+  button,
+  input,
+  optgroup,
+  select,
+  textarea {
+    font-family: var(--ww-interface-font-family);
   }
 
   /* PAGE & COLOR CONTROL FOR PRINTING */
@@ -525,11 +579,26 @@ html {
   /* ===== Wedding Waitress Premium Dashboard Design System ===== */
   /* Cream + gold treatment, applied globally via shell + .ww-box primitive */
 
+  .ww-application-background {
+    min-height: 100dvh;
+    background-color: var(--ww-application-background-color) !important;
+    background-image: var(--ww-application-background-image) !important;
+    background-position: var(--ww-application-background-position) !important;
+    background-repeat: var(--ww-application-background-repeat) !important;
+    background-size: var(--ww-application-background-size) !important;
+  }
+
+  .ww-sidebar-background {
+    min-height: 100dvh;
+    background-color: var(--ww-sidebar-background-color) !important;
+    background-image: var(--ww-sidebar-background-image) !important;
+    background-position: var(--ww-application-background-position) !important;
+    background-repeat: var(--ww-application-background-repeat) !important;
+    background-size: var(--ww-application-background-size) !important;
+  }
+
   .dashboard-surface {
-    background:
-      radial-gradient(circle at 30% 0%, rgba(201,168,122,0.10), transparent 55%),
-      radial-gradient(circle at 85% 100%, rgba(150,122,89,0.08), transparent 50%),
-      linear-gradient(180deg, #FBF7F0 0%, #F5EFE4 100%);
+    background-color: var(--ww-application-background-color);
   }
 
   .dashboard-card {
@@ -924,7 +993,7 @@ html {
   border: 1px solid #967A59;
   background: #FBF7F2;
   color: #6B5638;
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--ww-interface-font-family);
   font-size: 12px;
   font-weight: 500;
   line-height: 1;
@@ -953,7 +1022,7 @@ html {
   border-radius: 9999px;
   background-color: #967A59;
   color: #ffffff;
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif;
+  font-family: var(--ww-interface-font-family);
   font-size: 12px;
   font-weight: 500;
   line-height: 1;
@@ -1408,7 +1477,7 @@ img { content-visibility: auto; }
    Dashboard.tsx). Photo & Video Sharing pages are excluded.
    - Main page headings (directly over page background): 24px
    - Section / card headings (inside boxes): 20px
-   Both: Inter, 700, solid #472c1d.
+   Both: Manrope, 700, solid #472c1d.
    ============================================================ */
 
 .ww-heading-system :is(h1, h2, h3, h4, .dashboard-section-title):not(
@@ -1419,8 +1488,10 @@ img { content-visibility: auto; }
     [class*="preview"] *
   ):not(
     [data-export] *
+  ):not(
+    .ww-stats-overview *
   ) {
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif !important;
+  font-family: var(--ww-interface-font-family) !important;
   font-size: 20px !important;
   line-height: 1.3 !important;
   font-weight: 700 !important;
@@ -1436,6 +1507,8 @@ img { content-visibility: auto; }
     [class*="preview"] *
   ):not(
     [data-export] *
+  ):not(
+    .ww-stats-overview *
   ) {
   font-size: 24px !important;
   line-height: 1.25 !important;
@@ -1449,13 +1522,13 @@ img { content-visibility: auto; }
 
 /* ── Create Event slide-out panel: brown outline + heading system ───────── */
 .ww-create-event-panel :is(h2, [data-radix-dialog-title]) {
-  font-family: Inter, sans-serif;
+  font-family: var(--ww-interface-font-family);
   font-size: 24px;
   font-weight: 700;
   color: #472c1d;
 }
 .ww-create-event-panel h3 {
-  font-family: Inter, sans-serif;
+  font-family: var(--ww-interface-font-family);
   font-size: 20px;
   font-weight: 700;
   color: #472c1d;
@@ -1476,18 +1549,20 @@ img { content-visibility: auto; }
   border-color: transparent !important;
 }
 
-/* ---- Tables page: stats bar solid brown ---- */
-.ww-tables-stats :is(p, svg, .text-primary) {
+/* ---- Tables / Guest List shared KPI colours ----
+   Keep the legacy brown treatment scoped to the KPI rows. The overview copy
+   has its own semantic colour contract in StatsBar.module.css. */
+.ww-tables-stats :is(.ww-stat-label, .ww-stat-value, .ww-stat-icon, .text-primary) {
   color: #472c1d !important;
 }
-.ww-tables-stats svg {
+.ww-tables-stats .ww-stat-icon svg {
   stroke: #472c1d !important;
 }
 
 /* ---- Create / Edit Table slide-out panels ---- */
 .ww-table-panel [data-radix-dialog-title],
 .ww-table-panel h2 {
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif !important;
+  font-family: var(--ww-interface-font-family) !important;
   font-size: 24px !important;
   line-height: 1.25 !important;
   font-weight: 700 !important;
@@ -1528,7 +1603,7 @@ img { content-visibility: auto; }
 
 /* ── Edit Guest slide-out panel: brown heading, labels + 1px brown borders ── */
 .ww-edit-guest-panel :is(h2, [data-radix-dialog-title]) {
-  font-family: Inter, sans-serif;
+  font-family: var(--ww-interface-font-family);
   font-size: 24px;
   font-weight: 700;
   color: #472c1d;
@@ -1863,7 +1938,7 @@ img { content-visibility: auto; }
 
 /* ===== Dietary Requirements page — dark brown theme (scoped) ===== */
 .ww-dietary-brown .dietary-main-heading {
-  font-family: Inter, ui-sans-serif, system-ui, sans-serif !important;
+  font-family: var(--ww-interface-font-family) !important;
   font-size: 24px !important;
   font-weight: 700 !important;
   color: #472c1d !important;

@@ -1,8 +1,8 @@
 .drawer .title {
-  color: #ffffff !important;
+  color: #2b1711 !important;
   font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif !important;
-  font-size: 1.25rem !important;
-  font-weight: 600 !important;
+  font-size: 20px !important;
+  font-weight: 500 !important;
   line-height: 1.25 !important;
   letter-spacing: -0.012em !important;
   -webkit-font-smoothing: auto;
@@ -10,14 +10,55 @@
   text-rendering: auto;
 }
 
+.drawer {
+  --table-panel: #fbf8f2;
+  --table-card: #f5ebdd;
+  --table-card-deep: #ede0d0;
+  --table-text: #2b1711;
+  --table-text-soft: #684b40;
+  --table-gold: #a18764;
+  --table-gold-strong: #806344;
+  --table-border: #cdb99e;
+  --table-focus: #755332;
+  color: var(--table-text) !important;
+  background: var(--table-panel) !important;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+.drawer :is([class~="text-xs"], [class~="text-sm"], [class~="text-base"], [class~="text-lg"], [class*="text-[1"]) {
+  font-size: 13px !important;
+}
+
+.drawer :is(p, li, input, textarea, select, option),
+.drawer :is(input, textarea)::placeholder,
+.readOnlyField {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+.drawer :is(label, .fieldLabel),
+.capacityWarning p:first-child {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 18px !important;
+}
+
+.drawer :is(button, [role="button"]) {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
 .drawer label,
 .drawer .fieldLabel {
-  color: #f3e7d8 !important;
+  color: var(--table-text) !important;
 }
 
 .drawer .title svg,
 .drawer label svg {
-  color: #d9b77f !important;
+  color: var(--table-gold-strong) !important;
   stroke: currentColor !important;
 }
 
@@ -25,13 +66,13 @@
 .drawer.drawer textarea,
 .drawer.drawer select,
 .drawer.drawer [role="combobox"] {
-  color: #ffffff !important;
-  border: 1px solid rgba(201, 151, 93, 0.4) !important;
-  background: linear-gradient(180deg, rgba(255, 239, 218, 0.06), rgba(17, 9, 7, 0.72)) !important;
+  color: var(--table-text) !important;
+  border: 1px solid var(--table-border) !important;
+  background: var(--table-card) !important;
   outline: none !important;
   box-shadow:
-    inset 0 1px 0 rgba(255, 244, 229, 0.12),
-    0 1px 3px rgba(3, 1, 1, 0.24) !important;
+    inset 0 1px 0 #fff,
+    0 1px 3px rgba(76, 48, 31, 0.12) !important;
 }
 
 .drawer.drawer input:focus,
@@ -43,46 +84,55 @@
 .drawer.drawer [role="combobox"]:focus,
 .drawer.drawer [role="combobox"]:focus-visible,
 .drawer.drawer [role="combobox"][data-state="open"] {
-  border: 1px solid rgba(201, 151, 93, 0.4) !important;
+  border: 1px solid var(--table-focus) !important;
   outline: none !important;
   box-shadow:
-    inset 0 1px 0 rgba(255, 244, 229, 0.16),
-    0 0 0 1px rgba(201, 151, 93, 0.22) !important;
+    inset 0 1px 0 #fff,
+    0 0 0 3px rgba(117, 83, 50, 0.2) !important;
 }
 
 .drawer.drawer input::placeholder,
 .drawer.drawer textarea::placeholder {
-  color: rgba(232, 221, 210, 0.68) !important;
+  color: var(--table-text-soft) !important;
   opacity: 1 !important;
 }
 
+.drawer.drawer input[aria-invalid="true"],
+.drawer.drawer input[class*="border-red"],
+.drawer.drawer textarea[aria-invalid="true"],
+.drawer.drawer [role="combobox"][aria-invalid="true"] {
+  border-color: #dc2626 !important;
+  box-shadow: 0 0 0 3px rgba(220, 38, 38, 0.16) !important;
+}
+
+.drawer.drawer input[class*="border-green"] { border-color: #16a34a !important; }
+
 .shapeGrid .shapeOption {
-  color: #e8ddd2 !important;
-  border: 1px solid rgba(201, 151, 93, 0.4) !important;
-  background: linear-gradient(180deg, rgba(65, 35, 26, 0.7), rgba(19, 10, 8, 0.76)) !important;
+  color: var(--table-text) !important;
+  border: 1px solid var(--table-border) !important;
+  background: var(--table-card) !important;
   outline: none !important;
   box-shadow:
-    inset 0 1px 0 rgba(255, 239, 218, 0.11),
-    0 6px 16px rgba(3, 1, 1, 0.2) !important;
+    inset 0 1px 0 #fff,
+    0 6px 16px rgba(76, 48, 31, 0.1) !important;
 }
 
 .shapeGrid .shapeOption:hover:not(:disabled),
 .shapeGrid .shapeOption:focus-visible {
-  color: #ffffff !important;
-  border-color: rgba(226, 185, 132, 0.68) !important;
-  background: linear-gradient(180deg, rgba(84, 46, 32, 0.78), rgba(28, 14, 11, 0.84)) !important;
+  color: var(--table-text) !important;
+  border-color: var(--table-focus) !important;
+  background: var(--table-card-deep) !important;
   outline: none !important;
-  box-shadow: 0 0 0 2px rgba(201, 151, 93, 0.22) !important;
+  box-shadow: 0 0 0 3px rgba(117, 83, 50, 0.18) !important;
 }
 
 .shapeGrid .shapeOption[aria-pressed="true"] {
   color: #ffffff !important;
-  border-color: rgba(226, 185, 132, 0.82) !important;
-  background: linear-gradient(180deg, rgba(116, 65, 42, 0.82), rgba(52, 27, 19, 0.9)) !important;
+  border-color: #16a34a !important;
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%) !important;
   box-shadow:
-    inset 0 1px 0 rgba(255, 239, 218, 0.2),
-    0 0 0 1px rgba(201, 151, 93, 0.22),
-    0 8px 20px rgba(3, 1, 1, 0.24) !important;
+    inset 0 1px 0 rgba(255, 255, 255, 0.28),
+    0 8px 20px rgba(22, 163, 74, 0.26) !important;
 }
 
 .shapeGrid .shapeOption svg,
@@ -92,69 +142,176 @@
 
 .shapeGrid .shapeOption[aria-pressed="true"] svg,
 .shapeGrid .shapeOption[aria-pressed="true"] .longShape {
-  color: #e1be85 !important;
-  border-color: #e1be85 !important;
+  color: #ffffff !important;
+  border-color: #ffffff !important;
 }
 
 .longShape {
-  border-color: rgba(232, 221, 210, 0.74) !important;
+  border-color: var(--table-gold-strong) !important;
+}
+
+.headTableChoiceGroup {
+  display: grid;
+  grid-template-columns: repeat(2, minmax(0, 1fr));
+  gap: 0.625rem;
+}
+
+.headTableChoice {
+  width: 100%;
+  min-height: 3rem;
+  height: auto !important;
+  padding: 0.625rem 1rem !important;
+  gap: 0.5rem;
+  border-radius: 9999px !important;
+  white-space: normal !important;
+  line-height: 1.25;
+  text-align: center;
+  transition:
+    transform 150ms ease,
+    box-shadow 150ms ease,
+    background-color 150ms ease,
+    border-color 150ms ease,
+    color 150ms ease !important;
+}
+
+.headTableChoiceSelected,
+.headTableChoiceSelected:hover:not(:disabled),
+.headTableChoiceSelected:active:not(:disabled) {
+  color: #ffffff !important;
+  border: 0 !important;
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.28), 0 8px 18px rgba(22, 163, 74, 0.26) !important;
+}
+
+.headTableChoiceUnselected {
+  color: var(--table-text) !important;
+  border: 1px solid var(--table-border) !important;
+  background-color: var(--table-card) !important;
+  background-image: none !important;
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 5px 14px rgba(76, 48, 31, 0.1) !important;
+}
+
+.headTableChoiceUnselected:hover:not(:disabled) {
+  color: var(--table-text) !important;
+  border-color: var(--table-focus) !important;
+  background-color: var(--table-card-deep) !important;
+  background-image: none !important;
+  transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 #fff,
+    0 7px 17px rgba(76, 48, 31, 0.14) !important;
+}
+
+.headTableChoiceUnselected:active:not(:disabled) {
+  transform: translateY(1px);
+  box-shadow: inset 0 2px 5px rgba(76, 48, 31, 0.18) !important;
+}
+
+.headTableChoice:focus-visible {
+  outline: 2px solid var(--table-focus) !important;
+  outline-offset: 2px !important;
+  box-shadow: 0 0 0 4px rgba(117, 83, 50, 0.2) !important;
+}
+
+.headTableChoiceCheck {
+  width: 1rem;
+  height: 1rem;
+  flex: 0 0 auto;
+  color: currentColor !important;
+  stroke-width: 2.5;
+}
+
+@media (max-width: 519px) {
+  .headTableChoiceGroup {
+    grid-template-columns: minmax(0, 1fr);
+  }
 }
 
 .readOnlyField {
-  color: #e8ddd2 !important;
-  border: 1px solid rgba(201, 151, 93, 0.28) !important;
-  background: rgba(20, 10, 8, 0.58) !important;
-  box-shadow: inset 0 1px 3px rgba(3, 1, 1, 0.28);
-  opacity: 0.82;
+  color: var(--table-text-soft) !important;
+  border: 1px solid var(--table-border) !important;
+  background: var(--table-card-deep) !important;
+  box-shadow: inset 0 1px 3px rgba(76, 48, 31, 0.1);
+  opacity: 1;
 }
 
 .capacityWarning {
   border-width: 1px !important;
   border-style: solid !important;
-  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.08);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.55);
 }
 
 .capacityWarning[data-tone="error"] {
   border-color: rgba(239, 68, 68, 0.72) !important;
-  background: rgba(92, 24, 21, 0.58) !important;
+  background: #fff0ef !important;
 }
 
 .capacityWarning[data-tone="warning"] {
   border-color: rgba(234, 179, 8, 0.7) !important;
-  background: rgba(92, 66, 15, 0.42) !important;
+  background: #fff7d6 !important;
 }
 
 .portalSurface,
 :global(body.ww-table-drawer-open) :global(.ww-table-limit-dialog),
 :global(body.ww-table-drawer-open) [data-radix-popper-content-wrapper] > div {
-  color: #f3e7d8 !important;
-  border: 1px solid rgba(201, 151, 93, 0.4) !important;
-  background: linear-gradient(180deg, rgba(72, 39, 28, 0.98), rgba(25, 13, 10, 0.99)) !important;
+  color: #2b1711 !important;
+  border: 1px solid #cdb99e !important;
+  background: #fbf8f2 !important;
   outline: none !important;
   box-shadow:
-    inset 0 1px 0 rgba(255, 239, 218, 0.14),
-    0 18px 40px rgba(3, 1, 1, 0.42) !important;
-  backdrop-filter: blur(18px);
-  -webkit-backdrop-filter: blur(18px);
+    inset 0 1px 0 #fff,
+    0 18px 40px rgba(76, 48, 31, 0.2) !important;
+}
+
+.portalSurface {
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
+}
+
+.portalSurface :is(h1, h2, h3, h4) {
+  overflow-wrap: anywhere;
+  white-space: normal;
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+.portalSurface :is(p, li, input, textarea),
+.portalSurface :is(input, textarea)::placeholder {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+.portalSurface label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.portalSurface :is(button, [role="button"]) {
+  font-size: 13px !important;
+  font-weight: 500 !important;
 }
 
 .portalSurface [class*="text-muted-foreground"],
 :global(body.ww-table-drawer-open) :global(.ww-table-limit-dialog) [class*="text-muted-foreground"] {
-  color: #e8ddd2 !important;
+  color: #684b40 !important;
 }
 
 .portalSurface h2,
 :global(body.ww-table-drawer-open) :global(.ww-table-limit-dialog) h2 {
-  color: #ffffff !important;
+  color: #2b1711 !important;
   font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif !important;
 }
 
 :global(body.ww-table-drawer-open) :global(.ww-table-limit-dialog) [class*="bg-red-50"] {
-  background: rgba(92, 24, 21, 0.58) !important;
+  background: #fff0ef !important;
 }
 
 :global(body.ww-table-drawer-open) :global(.ww-table-limit-dialog) [class*="bg-green-50"] {
-  background: rgba(20, 83, 45, 0.45) !important;
+  background: #eaf8ed !important;
 }
 
 .portalSurface button,
@@ -162,8 +319,43 @@
   outline: none !important;
 }
 
+.drawer [class*="rounded-2xl"][class*="border"] {
+  border-color: var(--table-border) !important;
+  background: var(--table-card) !important;
+}
+
+.drawer [class*="text-muted-foreground"] { color: var(--table-text-soft) !important; opacity: 1 !important; }
+
+.drawer [class*="bg-green"],
+.portalSurface button:not([class*="outline"]) {
+  color: #fff !important;
+  border: 0 !important;
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%) !important;
+}
+
+.drawer [class*="bg-red"] {
+  color: #fff !important;
+  border: 0 !important;
+  background: linear-gradient(180deg, #f87171 0%, #ef4444 58%, #dc2626 100%) !important;
+}
+
+.drawer [class*="bg-green"] svg,
+.drawer [class*="bg-red"] svg { color: #fff !important; stroke: currentColor !important; }
+
+:global(body.ww-table-drawer-open) [data-radix-popper-content-wrapper] [role="option"] { color: #2b1711 !important; }
+:global(body.ww-table-drawer-open) [data-radix-popper-content-wrapper] [role="option"][data-highlighted] { background: #ede0d0 !important; }
+
+@media (prefers-reduced-motion: reduce) {
+  .drawer *, .portalSurface * {
+    scroll-behavior: auto !important;
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
 @media (min-width: 640px) {
   .drawer .title {
-    font-size: 1.5rem !important;
+    font-size: 20px !important;
   }
 }

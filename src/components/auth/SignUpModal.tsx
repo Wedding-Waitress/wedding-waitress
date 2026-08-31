@@ -1,447 +1,214 @@
-/**
- * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY
- * Part of the approved public homepage surface (locked 2026-04-18).
- * Any change requires explicit owner approval. See LOCKED_TRANSLATION_KEYS.md.
- */
-import React, { useState, useRef, useEffect } from 'react';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogTrigger } from '@/components/ui/dialog';
-import { Button } from '@/components/ui/button';
+import React, { useEffect, useId, useRef, useState } from 'react';
+import { CheckCircle2, LoaderCircle, Mail, Phone, Send, UserPlus, UserRound } from 'lucide-react';
+import { useNavigate } from 'react-router-dom';
+import { Dialog, DialogContent, DialogTrigger } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { useNavigate } from 'react-router-dom';
-import { LoaderCircle, UserPlus, UserRound, Mail, Phone, KeyRound, Send, LogIn, RotateCcw, TriangleAlert } from 'lucide-react';
+import { getSafeAuthenticatedReturnTo } from '@/lib/authNavigation';
+import { AuthError, AuthLegal, AuthModalHeader, VerificationCodeForm, authModalStyles as styles } from './AuthModalParts';
 import { SignInModal } from './SignInModal';
+
+export interface SignUpPlanContext {
+  key: 'essential' | 'premium' | 'unlimited' | 'vendor_pro';
+  name: 'Essential' | 'Premium' | 'Ultimate' | 'Vendor Pro';
+  currency?: import('@/lib/currencyPricing').CurrencyCode;
+}
 
 interface SignUpModalProps {
   children: React.ReactNode;
+  selectedPlan?: SignUpPlanContext;
+  redirectTo?: string;
 }
 
-interface FormData {
-  first_name: string;
-  last_name: string;
-  email: string;
-  mobile?: string;
-}
+interface FormData { first_name: string; last_name: string; email: string; mobile: string; }
 
-export const SignUpModal: React.FC<SignUpModalProps> = ({ children }) => {
+const emptyCode = () => ['', '', '', '', '', ''];
+const emptyForm = (): FormData => ({ first_name: '', last_name: '', email: '', mobile: '' });
+const mapVerificationError = (message?: string) => {
+  if (!message) return 'Verification failed. Please try again.';
+  if (/expired/i.test(message)) return 'This code has expired. Request a new code and try again.';
+  if (/invalid|token/i.test(message)) return 'That code is incorrect. Check the code and try again.';
+  return message;
+};
+
+export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan, redirectTo }) => {
   const [open, setOpen] = useState(false);
   const [step, setStep] = useState<'form' | 'verify'>('form');
   const [loading, setLoading] = useState(false);
-  const [formData, setFormData] = useState<FormData>({
-    first_name: '',
-    last_name: '',
-    email: '',
-    mobile: ''
-  });
-  const [verificationCode, setVerificationCode] = useState(['', '', '', '', '', '']);
+  const [formData, setFormData] = useState<FormData>(emptyForm);
+  const [verificationCode, setVerificationCode] = useState(emptyCode);
   const [error, setError] = useState('');
   const [resendTimer, setResendTimer] = useState(0);
   const [signInOpen, setSignInOpen] = useState(false);
+  const firstNameRef = useRef<HTMLInputElement>(null);
+  const requestInFlightRef = useRef(false);
+  const idPrefix = useId();
   const { toast } = useToast();
   const navigate = useNavigate();
-  const inputRefs = useRef<(HTMLInputElement | null)[]>([]);
 
-  // Focus first field when modal opens
   useEffect(() => {
-    if (open && step === 'form') {
-      const firstInput = document.querySelector('#first_name') as HTMLInputElement;
-      if (firstInput) {
-        setTimeout(() => firstInput.focus(), 100);
-      }
-    }
+    if (open && step === 'form') window.setTimeout(() => firstNameRef.current?.focus(), 100);
   }, [open, step]);
 
-  // Handle form submission
-  const handleSubmit = async (e: React.FormEvent) => {
-    e.preventDefault();
+  useEffect(() => {
+    if (resendTimer <= 0) return;
+    const timer = window.setInterval(() => setResendTimer((current) => Math.max(0, current - 1)), 1000);
+    return () => window.clearInterval(timer);
+  }, [resendTimer > 0]);
+
+  const requestCode = async () => {
+    const { error: requestError } = await supabase.auth.signInWithOtp({
+      email: formData.email.trim().toLowerCase(),
+      options: {
+        shouldCreateUser: true,
+        data: {
+          first_name: formData.first_name.trim(),
+          last_name: formData.last_name.trim(),
+          mobile: formData.mobile.trim(),
+          ...(selectedPlan ? { intended_plan: selectedPlan.key, intended_currency: selectedPlan.currency || 'AUD' } : {}),
+        },
+      },
+    });
+    return requestError;
+  };
+
+  const handleSubmit = async (event: React.FormEvent) => {
+    event.preventDefault();
     setError('');
-    
-    // Validate required fields
-    if (!formData.first_name || !formData.last_name || !formData.email) {
-      setError('Please fill in all required fields');
+    if ([formData.first_name, formData.last_name, formData.email, formData.mobile].some((value) => !value.trim())) {
+      setError('Please fill in all required fields.');
+      return;
+    }
+    if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(formData.email.trim())) {
+      setError('Please enter a valid email address.');
       return;
     }
 
-    // Email validation
-    const emailRegex = /^[^\s@]+@[^\s@]+\.[^\s@]+$/;
-    if (!emailRegex.test(formData.email)) {
-      setError('Please enter a valid email address');
-      return;
-    }
-
+    requestInFlightRef.current = true;
     setLoading(true);
-    
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: formData.email,
-        options: {
-          shouldCreateUser: true,
-          data: {
-            first_name: formData.first_name,
-            last_name: formData.last_name,
-            mobile: formData.mobile || null
-          }
-        }
-      });
-
-      if (error) {
-        setError(error.message);
-      } else {
-        setStep('verify');
-        startResendTimer();
+      const requestError = await requestCode();
+      if (requestError) { setError(requestError.message); return; }
+      if (selectedPlan) {
+        sessionStorage.setItem('ww_intended_plan', selectedPlan.key);
+        sessionStorage.setItem('ww_intended_currency', selectedPlan.currency || 'AUD');
       }
-    } catch (err) {
+      setStep('verify');
+      setResendTimer(30);
+    } catch {
       setError('An unexpected error occurred. Please try again.');
     } finally {
+      requestInFlightRef.current = false;
       setLoading(false);
     }
   };
 
-  // Handle code verification
   const handleVerifyCode = async () => {
     const code = verificationCode.join('');
-    if (code.length !== 6) {
-      setError('Please enter the complete 6-digit code');
-      return;
-    }
-
+    if (code.length !== 6) { setError('Please enter the complete 6-digit code.'); return; }
     setLoading(true);
     setError('');
-
     try {
-      const { data, error } = await supabase.auth.verifyOtp({
-        email: formData.email,
-        token: code,
-        type: 'email'
+      const { data, error: verifyError } = await supabase.auth.verifyOtp({
+        email: formData.email.trim().toLowerCase(), token: code, type: 'email',
       });
-
-      if (error) {
-        setError(error.message);
-      } else if (data.user) {
-        // Upsert profile data
-        const { error: profileError } = await supabase
-          .from('profiles')
-          .upsert({
-            id: data.user.id,
-            first_name: formData.first_name,
-            last_name: formData.last_name,
-            email: formData.email,
-            mobile: formData.mobile || null
-          });
-
-        if (profileError) {
-          console.error('Profile creation error:', profileError);
-        }
-
-        // Success!
-        setOpen(false);
-        toast({
-          title: "Welcome to Wedding Waitress 🎉",
-          description: "Your account has been created successfully!"
-        });
-        navigate('/dashboard');
-      }
-    } catch (err) {
+      if (verifyError) { setError(mapVerificationError(verifyError.message)); return; }
+      if (!data.user) return;
+      const { error: profileError } = await supabase.from('profiles').upsert({
+        id: data.user.id,
+        first_name: formData.first_name.trim(),
+        last_name: formData.last_name.trim(),
+        email: formData.email.trim().toLowerCase(),
+        mobile: formData.mobile.trim(),
+      });
+      if (profileError) console.error('Profile creation error:', profileError);
+      setOpen(false);
+      toast({ title: 'Welcome to Wedding Waitress', description: 'Your account has been created successfully!' });
+      navigate(getSafeAuthenticatedReturnTo(redirectTo));
+    } catch {
       setError('Verification failed. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  // Handle code input changes
-  const handleCodeChange = (index: number, value: string) => {
-    if (value.length > 1) {
-      // Handle paste
-      const pastedCode = value.slice(0, 6);
-      const newCode = [...verificationCode];
-      for (let i = 0; i < pastedCode.length && i + index < 6; i++) {
-        newCode[i + index] = pastedCode[i];
-      }
-      setVerificationCode(newCode);
-      
-      // Focus the last filled input or next empty one
-      const nextIndex = Math.min(index + pastedCode.length, 5);
-      inputRefs.current[nextIndex]?.focus();
-    } else {
-      const newCode = [...verificationCode];
-      newCode[index] = value;
-      setVerificationCode(newCode);
-
-      // Move to next input if digit entered
-      if (value && index < 5) {
-        inputRefs.current[index + 1]?.focus();
-      }
-    }
-  };
-
-  // Handle backspace
-  const handleKeyDown = (index: number, e: React.KeyboardEvent) => {
-    if (e.key === 'Backspace' && !verificationCode[index] && index > 0) {
-      inputRefs.current[index - 1]?.focus();
-    }
-    if (e.key === 'Enter') {
-      handleVerifyCode();
-    }
-  };
-
-  // Resend OTP
   const handleResend = async () => {
-    if (resendTimer > 0) return;
-
+    if (resendTimer > 0 || loading) return;
     setLoading(true);
+    setError('');
     try {
-      const { error } = await supabase.auth.signInWithOtp({
-        email: formData.email,
-        options: {
-          shouldCreateUser: true,
-          data: {
-            first_name: formData.first_name,
-            last_name: formData.last_name,
-            mobile: formData.mobile || null
-          }
-        }
-      });
-
-      if (!error) {
-        toast({
-          title: "Code sent!",
-          description: "A new verification code has been sent to your email."
-        });
-        startResendTimer();
-      } else {
-        setError(error.message);
-      }
-    } catch (err) {
+      const requestError = await requestCode();
+      if (requestError) { setError(requestError.message); return; }
+      setResendTimer(30);
+      toast({ title: 'Code sent!', description: 'A new verification code has been sent to your email.' });
+    } catch {
       setError('Failed to resend code. Please try again.');
     } finally {
       setLoading(false);
     }
   };
 
-  const startResendTimer = () => {
-    setResendTimer(30);
-    const timer = setInterval(() => {
-      setResendTimer((prev) => {
-        if (prev <= 1) {
-          clearInterval(timer);
-          return 0;
-        }
-        return prev - 1;
-      });
-    }, 1000);
+  const reset = () => {
+    setStep('form'); setFormData(emptyForm()); setVerificationCode(emptyCode()); setError(''); setResendTimer(0);
   };
-
-  // Reset modal state when closed
-  const handleOpenChange = (newOpen: boolean) => {
-    setOpen(newOpen);
-    if (!newOpen) {
-      setStep('form');
-      setFormData({ first_name: '', last_name: '', email: '', mobile: '' });
-      setVerificationCode(['', '', '', '', '', '']);
-      setError('');
-      setResendTimer(0);
-    }
+  const handleOpenChange = (nextOpen: boolean) => {
+    if (!nextOpen && (requestInFlightRef.current || loading)) return;
+    setOpen(nextOpen);
+    if (!nextOpen) reset();
+  };
+  const correctEmail = () => {
+    setStep('form'); setVerificationCode(emptyCode()); setError(''); setResendTimer(0);
+  };
+  const navigateFromModal = (path: string) => { setOpen(false); navigate(path); };
+  const updateField = (field: keyof FormData) => (event: React.ChangeEvent<HTMLInputElement>) => {
+    setFormData((current) => ({ ...current, [field]: event.target.value }));
   };
 
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
-      <DialogTrigger asChild>
-        {children}
-      </DialogTrigger>
-      <DialogContent className="sm:max-w-[420px] p-6">
-        <DialogHeader>
-          <DialogTitle className="text-xl font-semibold text-center">
-            <span className="inline-flex items-center justify-center gap-2">
-              {step === 'form'
-                ? <UserPlus size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
-                : <KeyRound size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />}
-              {step === 'form' ? 'Create your free account' : 'Enter the 6-digit code'}
-            </span>
-          </DialogTitle>
-          {step === 'form' && (
-            <p className="text-sm text-muted-foreground text-center mt-2">
-              Once submitted a verification code will be sent to your email
-            </p>
-          )}
-          {step === 'verify' && (
-            <p className="text-sm text-muted-foreground text-center mt-2">
-              We've emailed a one-time code to {formData.email}
-            </p>
-          )}
-        </DialogHeader>
-
+      <DialogTrigger asChild>{children}</DialogTrigger>
+      <DialogContent className={styles.dialog} overlayClassName="bg-black/75" onEscapeKeyDown={(event) => { if (loading) event.preventDefault(); }}>
         {step === 'form' ? (
-          <form onSubmit={handleSubmit} className="space-y-4 mt-4">
-            <div className="space-y-3">
-              <div>
-                <Label htmlFor="first_name" className="flex items-center gap-2 text-sm font-medium">
-                  <UserRound size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
-                  First name *
-                </Label>
-                <Input
-                  id="first_name"
-                  type="text"
-                  value={formData.first_name}
-                  onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-                  className="mt-1"
-                  disabled={loading}
-                />
+          <>
+            <AuthModalHeader icon={UserPlus} title="Create your free account" description="Start planning your wedding in one connected place." signUpReassurance selectedPlan={selectedPlan?.name} />
+            <form onSubmit={handleSubmit} className={styles.body} noValidate>
+              <div className={styles.fieldStack}>
+                <div className={styles.fieldGroup}>
+                  <Label htmlFor={`${idPrefix}-first-name`} className={styles.label}><UserRound aria-hidden />First name *</Label>
+                  <Input ref={firstNameRef} id={`${idPrefix}-first-name`} className={styles.input} value={formData.first_name} onChange={updateField('first_name')} autoComplete="given-name" required disabled={loading} aria-invalid={Boolean(error && !formData.first_name.trim())} />
+                </div>
+                <div className={styles.fieldGroup}>
+                  <Label htmlFor={`${idPrefix}-last-name`} className={styles.label}><UserRound aria-hidden />Last name *</Label>
+                  <Input id={`${idPrefix}-last-name`} className={styles.input} value={formData.last_name} onChange={updateField('last_name')} autoComplete="family-name" required disabled={loading} aria-invalid={Boolean(error && !formData.last_name.trim())} />
+                </div>
+                <div className={styles.fieldGroup}>
+                  <Label htmlFor={`${idPrefix}-email`} className={styles.label}><Mail aria-hidden />Email *</Label>
+                  <Input id={`${idPrefix}-email`} type="email" className={styles.input} value={formData.email} onChange={updateField('email')} autoComplete="email" required disabled={loading} aria-invalid={Boolean(error && !formData.email.trim())} />
+                </div>
+                <div className={styles.fieldGroup}>
+                  <Label htmlFor={`${idPrefix}-mobile`} className={styles.label}><Phone aria-hidden />Mobile *</Label>
+                  <Input id={`${idPrefix}-mobile`} type="tel" inputMode="tel" placeholder="04XX XXX XXX" className={styles.input} value={formData.mobile} onChange={updateField('mobile')} autoComplete="tel" required disabled={loading} aria-invalid={Boolean(error && !formData.mobile.trim())} />
+                </div>
               </div>
-
-              <div>
-                <Label htmlFor="last_name" className="flex items-center gap-2 text-sm font-medium">
-                  <UserRound size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
-                  Last name *
-                </Label>
-                <Input
-                  id="last_name"
-                  type="text"
-                  value={formData.last_name}
-                  onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-                  className="mt-1"
-                  disabled={loading}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="email" className="flex items-center gap-2 text-sm font-medium">
-                  <Mail size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
-                  Email *
-                </Label>
-                <Input
-                  id="email"
-                  type="email"
-                  value={formData.email}
-                  onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-                  className="mt-1"
-                  disabled={loading}
-                />
-              </div>
-
-              <div>
-                <Label htmlFor="mobile" className="flex items-center gap-2 text-sm font-medium">
-                  <Phone size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
-                  Mobile *
-                </Label>
-                <Input
-                  id="mobile"
-                  type="tel"
-                  placeholder="04XX XXX XXX"
-                  value={formData.mobile}
-                  onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-                  className="mt-1"
-                  disabled={loading}
-                />
-              </div>
-            </div>
-
-            {error && (
-              <div className="flex items-start gap-2 text-sm text-destructive bg-destructive/10 p-2 rounded">
-                <TriangleAlert size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 mt-0.5" />
-                {error}
-              </div>
-            )}
-
-            <div className="space-y-3">
-              <Button 
-                type="submit" 
-                className="w-full" 
-                disabled={loading}
-              >
-                {loading
-                  ? <LoaderCircle size={18} strokeWidth={1.8} aria-hidden="true" className="mr-2 shrink-0 animate-spin" />
-                  : <Send size={18} strokeWidth={1.8} aria-hidden="true" className="mr-2 shrink-0" />}
-                Send verification code
-              </Button>
-
-              <p className="text-xs text-muted-foreground text-center">
-                By continuing you agree to our{' '}
-                <span className="underline hover:text-foreground cursor-pointer" onClick={() => { setOpen(false); navigate('/terms'); }}>Terms of Service</span>
-                {' '}&{' '}
-                <span className="underline hover:text-foreground cursor-pointer" onClick={() => { setOpen(false); navigate('/privacy'); }}>Privacy Policy</span>
-              </p>
-
-              <div className="text-center">
-                <span className="text-sm text-muted-foreground">
-                  I already have an account →{' '}
-                  <button
-                    type="button"
-                    onClick={() => {
-                      setOpen(false);
-                      setSignInOpen(true);
-                    }}
-                    className="font-bold text-[#856A4C] hover:text-[#967A59]"
-                  >
-                    Sign In
-                  </button>
-                </span>
-              </div>
-            </div>
-          </form>
+              <AuthError message={error} />
+              <button type="submit" className={styles.primaryButton} disabled={loading} aria-live="polite">
+                {loading ? <LoaderCircle size={18} className="animate-spin" aria-hidden /> : <Send size={18} aria-hidden />}
+                {loading ? 'Creating your account…' : 'Create Free Account & Continue'}
+              </button>
+              <AuthLegal onNavigate={navigateFromModal} />
+              <p className={styles.switchLine}>Already have an account?{' '}<button type="button" className={styles.linkButton} onClick={() => { setOpen(false); setSignInOpen(true); }}>Sign in</button></p>
+            </form>
+          </>
         ) : (
-          <div className="space-y-4 mt-4">
-            <div className="flex justify-center gap-2">
-              {verificationCode.map((digit, index) => (
-                <Input
-                  key={index}
-                  ref={(el) => (inputRefs.current[index] = el)}
-                  type="text"
-                  inputMode="numeric"
-                  maxLength={6}
-                  className="w-12 h-12 text-center text-lg font-semibold"
-                  value={digit}
-                  onChange={(e) => handleCodeChange(index, e.target.value)}
-                  onKeyDown={(e) => handleKeyDown(index, e)}
-                  disabled={loading}
-                />
-              ))}
-            </div>
-
-            {error && (
-              <div className="flex items-start justify-center gap-2 text-sm text-destructive bg-destructive/10 p-2 rounded text-center">
-                <TriangleAlert size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0 mt-0.5" />
-                {error}
-              </div>
-            )}
-
-            <div className="space-y-3">
-              <Button 
-                onClick={handleVerifyCode} 
-                className="w-full" 
-                disabled={loading || verificationCode.join('').length !== 6}
-              >
-                {loading
-                  ? <LoaderCircle size={18} strokeWidth={1.8} aria-hidden="true" className="mr-2 shrink-0 animate-spin" />
-                  : <LogIn size={18} strokeWidth={1.8} aria-hidden="true" className="mr-2 shrink-0" />}
-                Verify Code
-              </Button>
-
-              <div className="text-center">
-                <button
-                  type="button"
-                  onClick={handleResend}
-                  disabled={resendTimer > 0 || loading}
-                  className="inline-flex items-center gap-1.5 text-sm text-muted-foreground hover:text-foreground disabled:opacity-50 disabled:cursor-not-allowed"
-                >
-                  <RotateCcw size={18} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
-                  {resendTimer > 0 ? `Resend in ${resendTimer}s` : 'Resend code'}
-                </button>
-              </div>
-            </div>
-          </div>
+          <>
+            <AuthModalHeader icon={CheckCircle2} title="Check your email" description={`We sent a 6-digit verification code to ${formData.email.trim().toLowerCase()}.`} selectedPlan={selectedPlan?.name} />
+            <VerificationCodeForm email={formData.email.trim().toLowerCase()} code={verificationCode} setCode={setVerificationCode} loading={loading} error={error} resendTimer={resendTimer} onVerify={handleVerifyCode} onResend={handleResend} onCorrectEmail={correctEmail} />
+          </>
         )}
       </DialogContent>
-      
-      <SignInModal 
-        open={signInOpen} 
-        onOpenChange={setSignInOpen}
-        onBackToSignUp={() => {
-          setSignInOpen(false);
-          setOpen(true);
-        }}
-      />
+      <SignInModal open={signInOpen} onOpenChange={setSignInOpen} onBackToSignUp={() => { setSignInOpen(false); setOpen(true); }} redirectTo={redirectTo} />
     </Dialog>
   );
 };

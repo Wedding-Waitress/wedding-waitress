@@ -5,8 +5,9 @@ import { Button } from '@/components/ui/button';
 import { useAccountRole } from '@/hooks/useAccountRole';
 import { useAccountSeats } from '@/hooks/useAccountSeats';
 import { supabase } from '@/integrations/supabase/client';
-import { ComingSoonSheet } from './ComingSoonSheet';
+import { TeamAccessDialog } from './TeamAccessDialog';
 import controlStyles from './AccountControls.module.css';
+import { TEAM_ACCESS_ENABLED, TEAM_ACCESS_UNAVAILABLE_MESSAGE } from '@/lib/teamAccessAvailability';
 
 interface Props {
   icon: LucideIcon;
@@ -14,9 +15,9 @@ interface Props {
 
 export const AccountAccessCard: React.FC<Props> = ({ icon }) => {
   const { isMaster } = useAccountRole();
-  const { usedSeats, maxSeats, remainingSeats } = useAccountSeats();
+  const { usedSeats, maxSeats, remainingSeats, refresh: refreshSeats } = useAccountSeats();
   const [email, setEmail] = useState<string>('—');
-  const [open, setOpen] = useState(false);
+  const [dialog, setDialog] = useState<'invite' | 'manage' | null>(null);
 
   useEffect(() => {
     (async () => {
@@ -46,18 +47,27 @@ export const AccountAccessCard: React.FC<Props> = ({ icon }) => {
           )}
         </div>
 
+        {!TEAM_ACCESS_ENABLED && (
+          <div className="rounded-xl border border-amber-300/70 bg-amber-50 px-4 py-3 text-sm text-amber-950" role="status">
+            <strong className="block">Team access is coming soon</strong>
+            <span>{TEAM_ACCESS_UNAVAILABLE_MESSAGE}</span>
+          </div>
+        )}
+
         {/* Stat grid */}
+        {TEAM_ACCESS_ENABLED && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
           <Stat label="Seats used" value={`${usedSeats} / ${maxSeats}`} sub="People with account access" />
           <Stat label="Seats available" value={`${remainingSeats}`} sub="Available team invitations" />
         </div>
+        )}
 
         {/* Master actions */}
-        {isMaster && (
+        {TEAM_ACCESS_ENABLED && isMaster && (
           <div className="mt-5 flex flex-col sm:flex-row gap-2.5">
             <Button
               variant="outline"
-              onClick={() => setOpen(true)}
+              onClick={() => setDialog('invite')}
               className={`${controlStyles.primaryButton} w-full sm:w-auto`}
             >
               <UserPlus className="w-4 h-4 mr-2" />
@@ -65,7 +75,7 @@ export const AccountAccessCard: React.FC<Props> = ({ icon }) => {
             </Button>
             <Button
               variant="outline"
-              onClick={() => setOpen(true)}
+              onClick={() => setDialog('manage')}
               className={`${controlStyles.secondaryButton} w-full sm:w-auto`}
             >
               <UserCog className="w-4 h-4 mr-2" />
@@ -74,7 +84,7 @@ export const AccountAccessCard: React.FC<Props> = ({ icon }) => {
           </div>
         )}
       </SectionCard>
-      <ComingSoonSheet open={open} onOpenChange={setOpen} title="User Management — Coming Soon" />
+      {TEAM_ACCESS_ENABLED && <TeamAccessDialog open={dialog !== null} onOpenChange={(open) => { if (!open) setDialog(null); }} mode={dialog ?? 'manage'} onChanged={refreshSeats} />}
     </>
   );
 };

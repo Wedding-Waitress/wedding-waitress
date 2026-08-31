@@ -25,18 +25,15 @@ import {
   AlertDialogTitle,
   AlertDialogAction,
 } from '@/components/ui/alert-dialog';
-import { useEvents } from '@/hooks/useEvents';
+import type { Event } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { format } from 'date-fns';
 import { IndividualTableChartPreview } from './IndividualTableChartPreview';
 import { IndividualTableChartCustomizer } from './IndividualTableChartCustomizer';
-import { generateIndividualTableChartPDF, generateAllTablesChartPDF } from '@/lib/individualTableChartEngine';
-import { saveAs } from 'file-saver';
 import { toast } from 'sonner';
 import { normalizeDietaryAccentColor } from '@/lib/dietaryChartSettings';
 import type { DietaryAccentColor } from '@/lib/dietaryChartSettings';
-import premiumStyles from '../Signage/SignagePage.module.css';
 import styles from './IndividualTableChartPage.module.css';
 export interface IndividualChartSettings {
   tableShape: 'round' | 'square' | 'long';
@@ -69,6 +66,8 @@ export interface IndividualChartSettings {
 interface IndividualTableSeatingChartPageProps {
   selectedEventId: string | null;
   onEventSelect: (eventId: string) => void;
+  events: Event[];
+  eventsLoading: boolean;
 }
 
 const defaultSettings: IndividualChartSettings = {
@@ -99,6 +98,8 @@ const defaultSettings: IndividualChartSettings = {
 export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingChartPageProps> = ({
   selectedEventId,
   onEventSelect,
+  events,
+  eventsLoading,
 }) => {
   const [selectedTableId, setSelectedTableId] = useState<string | null>(() => {
     return sessionStorage.getItem('ww:individual_table_chart_selected_table') || null;
@@ -128,7 +129,6 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   
   const [showGuestLimitWarning, setShowGuestLimitWarning] = useState(false);
 
-  const { events, loading: eventsLoading } = useEvents();
   const { tables, loading: tablesLoading } = useTables(selectedEventId);
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
 
@@ -212,8 +212,12 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
     
     setIsExporting(true);
     try {
-      toast.info('Generating PDF...');
+      toast.info('Generating PDF...', { className: styles.toastTypography });
       
+      const [{ generateIndividualTableChartPDF }, { saveAs }] = await Promise.all([
+        import('@/lib/individualTableChartEngine'),
+        import('file-saver'),
+      ]);
       const pdfBlob = await generateIndividualTableChartPDF(
         settings,
         selectedTable,
@@ -232,10 +236,10 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       const fileName = `${eventName}-Download Single Page-${date}.pdf`;
       
       saveAs(pdfBlob, fileName);
-      toast.success('PDF downloaded successfully!');
+      toast.success('PDF downloaded successfully!', { className: styles.toastTypography });
     } catch (error) {
       console.error('PDF export error:', error);
-      toast.error('Failed to generate PDF');
+      toast.error('Failed to generate PDF', { className: styles.toastTypography });
     } finally {
       setIsExporting(false);
     }
@@ -246,8 +250,12 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
     
     setIsExportingAll(true);
     try {
-      toast.info(`Generating PDF for ${tables.length} tables...`);
+      toast.info(`Generating PDF for ${tables.length} tables...`, { className: styles.toastTypography });
       
+      const [{ generateAllTablesChartPDF }, { saveAs }] = await Promise.all([
+        import('@/lib/individualTableChartEngine'),
+        import('file-saver'),
+      ]);
       const pdfBlob = await generateAllTablesChartPDF(
         settings,
         tables,
@@ -264,10 +272,10 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       const fileName = `${eventName}-Download All Pages-${date}.pdf`;
       
       saveAs(pdfBlob, fileName);
-      toast.success(`Successfully exported ${tables.length} tables to PDF!`);
+      toast.success(`Successfully exported ${tables.length} tables to PDF!`, { className: styles.toastTypography });
     } catch (error) {
       console.error('PDF export all error:', error);
-      toast.error('Failed to export all tables');
+      toast.error('Failed to export all tables', { className: styles.toastTypography });
     } finally {
       setIsExportingAll(false);
     }
@@ -276,16 +284,16 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   const isDataReady = selectedEvent && selectedTable && !tablesLoading && !guestsLoading;
 
   return (
-    <div className={`${premiumStyles.page} ${styles.page} space-y-6 ww-itc-brown`}>
+    <div className={`${styles.page} space-y-6`}>
       {/* Guest Limit Warning Dialog */}
       <AlertDialog open={showGuestLimitWarning} onOpenChange={setShowGuestLimitWarning}>
         <AlertDialogContent className={styles.dialogPanel}>
           <AlertDialogHeader>
-            <AlertDialogTitle className="text-amber-600 flex items-center gap-2">
+            <AlertDialogTitle className={`${styles.sectionHeading} text-amber-600 flex items-center gap-2`}>
               <TriangleAlert className="w-[18px] h-[18px]" strokeWidth={1.8} />
               Table Has Too Many Guests
             </AlertDialogTitle>
-            <AlertDialogDescription>
+            <AlertDialogDescription className={styles.interfaceText}>
               To view a table that has 20+ guests, please choose the <strong>Long Table</strong> option in the Chart Settings.
             </AlertDialogDescription>
           </AlertDialogHeader>
@@ -297,7 +305,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         </AlertDialogContent>
       </AlertDialog>
       {/* Event and Table Selection */}
-      <Card className={`${premiumStyles.mainStudio} ${styles.headerPanel}`}>
+      <Card className={styles.headerPanel}>
         <CardHeader className="space-y-0">
           <div
             data-individual-chart-top-layout="true"
@@ -306,11 +314,11 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
             <div data-individual-chart-existing-controls="true" className="space-y-4 min-w-0">
               {/* Title and Description */}
               <div>
-            <h1 className="text-2xl font-bold text-foreground mb-2 flex items-center gap-2">
+            <h1 className={`${styles.pageHeading} text-2xl font-bold text-foreground mb-2 flex items-center gap-2`}>
               <TableProperties className="w-6 h-6 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Individual Table Seating Chart
             </h1>
-            <p className="text-muted-foreground">
+            <p className={`${styles.pageDescription} text-muted-foreground`}>
               Generate detailed seating charts for individual tables
             </p>
               </div>
@@ -319,7 +327,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
               <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 flex-wrap">
             {/* Choose Event Section */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-              <label className="text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]">
+              <label className={`${styles.interfaceLabel} text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]`}>
                 <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Choose Event:
               </label>
@@ -333,13 +341,13 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 }}
                 disabled={eventsLoading}
               >
-                <SelectTrigger className={`${styles.selectTrigger} w-full sm:w-[300px] font-bold`}>
+                <SelectTrigger className={`${styles.selectTrigger} ${styles.headerSelectTrigger} ${styles.interactiveText} w-full sm:w-[300px] font-bold`}>
                   <SelectValue placeholder="Choose Event" />
                 </SelectTrigger>
-                <SelectContent className={styles.portalSurface}>
+                <SelectContent className={styles.headerSelectMenu}>
                   {events.length > 0 ? (
                     events.map((event) => (
-                      <SelectItem key={event.id} value={event.id}>
+                      <SelectItem className={styles.headerSelectOption} key={event.id} value={event.id}>
                         <div className="flex items-center space-x-2">
                           <CalendarDays className="w-[17px] h-[17px]" strokeWidth={1.8} aria-hidden="true" />
                           <span>{event.name}</span>
@@ -347,7 +355,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                       </SelectItem>
                     ))
                   ) : (
-                    <SelectItem value="no-events" disabled>
+                    <SelectItem className={styles.headerSelectOption} value="no-events" disabled>
                       {eventsLoading ? "Loading events..." : "No events found"}
                     </SelectItem>
                   )}
@@ -357,7 +365,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
             {/* Table Section */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-              <label className="text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]">
+              <label className={`${styles.interfaceLabel} text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]`}>
                 <Table2 className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Choose Table:
               </label>
@@ -366,12 +374,12 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 onValueChange={setSelectedTableId}
                 disabled={!selectedEventId || tablesLoading}
               >
-                <SelectTrigger className={`${styles.selectTrigger} w-full sm:w-[300px]`}>
+                <SelectTrigger className={`${styles.selectTrigger} ${styles.headerSelectTrigger} ${styles.compactCounter} w-full sm:w-[300px]`}>
                   <SelectValue placeholder="Select a table" />
                 </SelectTrigger>
-                <SelectContent className={styles.portalSurface}>
+                <SelectContent className={styles.headerSelectMenu}>
                   {tables.map((table) => (
-                    <SelectItem key={table.id} value={table.id}>
+                    <SelectItem className={styles.headerSelectOption} key={table.id} value={table.id}>
                       {table.name} ({table.guest_count} of {table.limit_seats} guests)
                     </SelectItem>
                   ))}
@@ -388,11 +396,11 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 className={`${styles.exportPanel} rounded-xl p-3 sm:p-4 flex flex-col justify-between gap-3 min-w-0`}
               >
                 <div className="text-sm flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <span className="font-bold inline-flex items-center gap-1.5">
+                  <span className={`${styles.sectionHeading} font-bold inline-flex items-center gap-1.5`}>
                     <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                     Export Controls
                   </span>
-                  <span className="text-muted-foreground">Download &amp; share your individual table charts with your venue.</span>
+                  <span className={`${styles.interfaceText} text-muted-foreground`}>Download &amp; share your individual table charts with your venue.</span>
                 </div>
                 <div className="flex flex-wrap items-center gap-2 max-sm:flex-col max-sm:items-stretch">
                 <button 
@@ -428,8 +436,8 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       {!selectedEventId && (
         <Card className={`${styles.emptyPanel} p-8 text-center`}>
           <Users className="w-16 h-16 mx-auto text-primary mb-4" />
-          <CardTitle className="mb-2">Select an Event</CardTitle>
-          <CardDescription>
+          <CardTitle className={`${styles.sectionHeading} mb-2`}>Select an Event</CardTitle>
+          <CardDescription className={styles.interfaceText}>
             Choose an event to start creating individual table seating charts
           </CardDescription>
         </Card>
@@ -438,8 +446,8 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       {selectedEventId && !selectedTableId && (
         <Card className={`${styles.emptyPanel} p-8 text-center`}>
           <Users className="w-16 h-16 mx-auto text-primary mb-4" />
-          <CardTitle className="mb-2">Select a Table</CardTitle>
-          <CardDescription>
+          <CardTitle className={`${styles.sectionHeading} mb-2`}>Select a Table</CardTitle>
+          <CardDescription className={styles.interfaceText}>
             Choose a specific table to generate its seating chart
           </CardDescription>
         </Card>
@@ -485,8 +493,8 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
               <div className="text-amber-600 mb-4">
                 <TriangleAlert className="w-16 h-16 mx-auto" strokeWidth={1.8} aria-hidden="true" />
               </div>
-              <CardTitle className="mb-2 text-amber-600">Table Has Too Many Guests</CardTitle>
-              <CardDescription className="text-base">
+              <CardTitle className={`${styles.sectionHeading} mb-2 text-amber-600`}>Table Has Too Many Guests</CardTitle>
+              <CardDescription className={`${styles.interfaceText} text-base`}>
                 This table has a capacity of {selectedTable?.limit_seats || 0} guests. Round and Square tables can only display up to 20 guests.
                 <br /><br />
                 Please select <strong>Long Table</strong> in Chart Settings to view this table.

@@ -12,5 +12,14 @@ Allow: /
 
 User-agent: *
 Allow: /
+Disallow: /dashboard/
+Disallow: /account/
+Disallow: /admin/
+Disallow: /gallery/
+Disallow: /gallery-live/
+Disallow: /gallery-guestbook/
+Disallow: /gallery-photobooth/
+Disallow: /s/
+Disallow: /kiosk/
 
 Sitemap: https://weddingwaitress.com.au/sitemap.xml

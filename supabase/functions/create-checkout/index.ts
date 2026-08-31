@@ -1,6 +1,14 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import { convertedAmountCents, getAudExchangeRates, isPricingCurrency } from "../_shared/exchangeRates.ts";
+
+const PUBLIC_PLAN_CATALOG = {
+  essential: { product: "prod_UOQhHcOhFdrhOs", baseAud: 99, mode: "payment" },
+  premium: { product: "prod_UOQhTWnFzXV1FK", baseAud: 149, mode: "payment" },
+  unlimited: { product: "prod_UOQhLIYTxQAd7U", baseAud: 249, mode: "payment" },
+  vendor_pro: { product: "prod_UTm2XBA5rX9dGN", baseAud: 299, mode: "subscription" },
+} as const;
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -78,10 +86,17 @@ serve(async (req) => {
       idempotency_key,
       delivery_method,
       upgrade_from_plan,
+      pricing_currency,
     } = await req.json();
-    if (!price_id) throw new Error("price_id is required");
+    const publicPlan = !upgrade_from_plan && typeof plan_type === "string" && plan_type in PUBLIC_PLAN_CATALOG
+      ? PUBLIC_PLAN_CATALOG[plan_type as keyof typeof PUBLIC_PLAN_CATALOG]
+      : null;
+    if (publicPlan && !isPricingCurrency(pricing_currency)) {
+      return new Response(JSON.stringify({ error: "Unsupported pricing currency" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    }
+    if (!price_id && !publicPlan) throw new Error("price_id is required");
 
-    const checkoutMode = mode === "subscription" ? "subscription" : "payment";
+    const checkoutMode = publicPlan ? publicPlan.mode : mode === "subscription" ? "subscription" : "payment";
     const isEmbedded = ui_mode === "embedded";
     const lineQuantity = Number.isFinite(quantity) && quantity > 0 ? Math.floor(quantity) : 1;
     const purchaseTypeMeta =
@@ -105,28 +120,19 @@ serve(async (req) => {
       apiVersion: "2025-08-27.basil",
     });
 
-    // Find OR create the Stripe customer, and ensure address.country = "AU"
-    // so Stripe automatic_tax has a location to calculate GST against without
-    // collecting a billing address from the user in the embedded checkout UI.
+    // Find or create the Stripe customer. Do not force a country: Stripe Tax
+    // determines GST/VAT from the customer's verified checkout location.
     const customers = await stripe.customers.list({ email: user.email, limit: 1 });
     let customerId: string;
     if (customers.data.length > 0) {
       customerId = customers.data[0].id;
-      const existing = customers.data[0];
-      if (!existing.address || existing.address.country !== "AU") {
-        await stripe.customers.update(customerId, { address: { country: "AU" } });
-        logStep("Customer address forced to AU", { customerId });
-      } else {
-        logStep("Existing Stripe customer already AU", { customerId });
-      }
     } else {
       const created = await stripe.customers.create({
         email: user.email,
-        address: { country: "AU" },
         metadata: { user_id: user.id },
       });
       customerId = created.id;
-      logStep("Created Stripe customer with AU address", { customerId });
+      logStep("Created Stripe customer", { customerId });
     }
 
     const origin = req.headers.get("origin") || "https://wedding-waitress.lovable.app";
@@ -139,6 +145,7 @@ serve(async (req) => {
     let resolvedProductId = "";
     let resolvedCurrency = "";
     let originalAmountCents = 0;
+    let checkoutQuote: { currency: string; amount: number; base_aud: number; rate: number; updated_at: string; source: string } | null = null;
     if (upgrade_from_plan) {
       const ALLOWED: Record<string, Record<string, true>> = {
         essential: { premium: true, unlimited: true },
@@ -238,7 +245,20 @@ serve(async (req) => {
       });
     }
 
-    if (!resolvedProductId) {
+    if (publicPlan) {
+      const quote = await getAudExchangeRates(true);
+      resolvedProductId = publicPlan.product;
+      resolvedCurrency = pricing_currency.toLowerCase();
+      originalAmountCents = convertedAmountCents(publicPlan.baseAud, pricing_currency, quote.rates);
+      checkoutQuote = {
+        currency: pricing_currency,
+        amount: originalAmountCents,
+        base_aud: publicPlan.baseAud * 100,
+        rate: quote.rates[pricing_currency],
+        updated_at: quote.updatedAt,
+        source: quote.source,
+      };
+    } else if (!resolvedProductId) {
       const resolvedPrice = await stripe.prices.retrieve(price_id);
       resolvedProductId = typeof resolvedPrice.product === "string" ? resolvedPrice.product : resolvedPrice.product?.id || "";
       resolvedCurrency = resolvedPrice.currency;
@@ -246,7 +266,15 @@ serve(async (req) => {
     }
     if (!resolvedProductId || !resolvedCurrency || originalAmountCents <= 0) throw new Error("Purchase price is not configured");
 
-    let checkoutLineItem: Stripe.Checkout.SessionCreateParams.LineItem = upgradeLineItem ?? { price: price_id, quantity: lineQuantity };
+    let checkoutLineItem: Stripe.Checkout.SessionCreateParams.LineItem = publicPlan
+      ? { quantity: 1, price_data: {
+          currency: resolvedCurrency,
+          product: resolvedProductId,
+          unit_amount: originalAmountCents,
+          tax_behavior: "exclusive",
+          ...(publicPlan.mode === "subscription" ? { recurring: { interval: "month" as const } } : {}),
+        } }
+      : upgradeLineItem ?? { price: price_id, quantity: lineQuantity };
     const isBaseRsvp = plan_type === "rsvp" && price_id === "price_1TSzPs5GzTmqOxGK4Ca8kAAz";
     if (isBaseRsvp) originalAmountCents = 10000;
     if (isBaseRsvp) {
@@ -258,6 +286,7 @@ serve(async (req) => {
       line_items: [checkoutLineItem],
       mode: checkoutMode as Stripe.Checkout.SessionCreateParams.Mode,
       automatic_tax: { enabled: true },
+      customer_update: { address: "auto" },
       metadata: {
         user_id: user.id,
         plan_type: plan_type || "",
@@ -275,6 +304,11 @@ serve(async (req) => {
         to_plan: upgrade_from_plan ? (plan_type || "") : "",
         upgrade_diff_amount: upgradeDiffMeta,
         original_amount_cents: String(originalAmountCents),
+        pricing_base_aud_cents: checkoutQuote ? String(checkoutQuote.base_aud) : "",
+        pricing_currency: checkoutQuote?.currency || resolvedCurrency.toUpperCase(),
+        pricing_exchange_rate: checkoutQuote ? String(checkoutQuote.rate) : "",
+        pricing_quote_timestamp: checkoutQuote?.updated_at || "",
+        pricing_rate_source: checkoutQuote?.source || "",
       },
     };
 
@@ -309,7 +343,7 @@ serve(async (req) => {
         );
       }
       return new Response(
-        JSON.stringify({ client_secret: session.client_secret, publishable_key: publishableKey }),
+        JSON.stringify({ client_secret: session.client_secret, publishable_key: publishableKey, checkout_quote: checkoutQuote }),
         {
           headers: { ...corsHeaders, "Content-Type": "application/json" },
           status: 200,

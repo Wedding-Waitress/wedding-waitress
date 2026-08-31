@@ -86,7 +86,7 @@ export const ChooseVenueDialog = ({ open, onOpenChange, plan, onApply }: Props) 
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-4xl max-lg:max-w-[calc(100vw-1.5rem)] max-h-[90vh] flex flex-col p-0 overflow-hidden">
+      <DialogContent className="reception-portal-surface max-w-4xl max-lg:max-w-[calc(100vw-1.5rem)] max-h-[90vh] flex flex-col p-0 overflow-hidden">
         <DialogHeader className="px-6 max-lg:px-4 pt-6 max-lg:pt-5 pb-3 border-b">
           <DialogTitle className="text-lg max-lg:text-center flex items-center gap-2 max-lg:justify-center">
             <Building2 className="w-5 h-5 text-primary" />
@@ -111,14 +111,14 @@ export const ChooseVenueDialog = ({ open, onOpenChange, plan, onApply }: Props) 
           <div className="flex flex-wrap gap-2 max-lg:grid max-lg:grid-cols-2">
             <Select value={country} onValueChange={setCountry}>
               <SelectTrigger className="h-9 max-lg:h-11 max-lg:text-base flex-1 min-w-[140px]"><SelectValue placeholder="Country" /></SelectTrigger>
-              <SelectContent>
+              <SelectContent className="reception-portal-surface">
                 <SelectItem value="all">All countries</SelectItem>
                 {countries.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
               </SelectContent>
             </Select>
             <Select value={capacityBand} onValueChange={setCapacityBand}>
               <SelectTrigger className="h-9 max-lg:h-11 max-lg:text-base flex-1 min-w-[140px]"><SelectValue placeholder="Capacity" /></SelectTrigger>
-              <SelectContent>
+              <SelectContent className="reception-portal-surface">
                 <SelectItem value="all">Any capacity</SelectItem>
                 <SelectItem value="s">Up to 80</SelectItem>
                 <SelectItem value="m">81–200</SelectItem>
@@ -164,7 +164,6 @@ export const ChooseVenueDialog = ({ open, onOpenChange, plan, onApply }: Props) 
                   >
                     <div className="aspect-[4/3] bg-muted/40 flex items-center justify-center overflow-hidden">
                       {thumb ? (
-                        // eslint-disable-next-line @next/next/no-img-element
                         <img
                           src={thumb}
                           alt={`${t.venue_name} ${t.room_name}`}
@@ -220,7 +219,7 @@ export const ChooseVenueDialog = ({ open, onOpenChange, plan, onApply }: Props) 
             Cancel
           </Button>
           <Button
-            className="lv-premium-shade h-9 max-lg:h-11 max-lg:flex-1 max-lg:text-base bg-[#967A59] hover:bg-[#7a6347] text-white order-1 max-lg:order-1 ml-auto max-lg:ml-0"
+            className="reception-primary-action lv-premium-shade h-9 max-lg:h-11 max-lg:flex-1 max-lg:text-base bg-[#967A59] hover:bg-[#7a6347] text-white order-1 max-lg:order-1 ml-auto max-lg:ml-0"
             onClick={handleApply}
             disabled={!selected || applying}
           >

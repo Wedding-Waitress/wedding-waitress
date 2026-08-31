@@ -15,6 +15,7 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { getCacheGeneration, registerCache } from "@/lib/cacheRegistry";
 import styles from "./AdminCentrePages.module.css";
 
 type Customer = {
@@ -32,6 +33,14 @@ type Customer = {
   plan_started_at: string | null;
   plan_expires_at: string | null;
   event_count: number;
+  guest_count?: number;
+  table_count?: number;
+  seated_guest_count?: number;
+  feature_usage_count?: number;
+  media_item_count?: number;
+  media_storage_bytes?: number;
+  team_member_count?: number;
+  active_team_member_count?: number;
 };
 type Subscription = {
   id: string;
@@ -63,6 +72,26 @@ type EventRow = {
   attending_count: number;
   plan_name: string | null;
   event_status: string;
+  seated_guest_count?: number;
+  unseated_guest_count?: number;
+  dietary_guest_count?: number;
+  declined_count?: number;
+  table_count?: number;
+  seating_capacity?: number;
+  invite_attempt_count?: number;
+  invite_success_count?: number;
+  sms_invite_count?: number;
+  email_invite_count?: number;
+  sms_usage_count?: number;
+  email_usage_count?: number;
+  media_photo_count?: number;
+  media_video_count?: number;
+  media_storage_bytes?: number;
+  guestbook_recording_count?: number;
+  guestbook_text_count?: number;
+  photo_booth_capture_count?: number;
+  qr_scan_count?: number;
+  feature_count?: number;
 };
 type Lifecycle = {
   account_owner_id: string;
@@ -91,7 +120,21 @@ type Payment = {
   payment_method: string | null;
 };
 type Snapshot = {
+  reporting_version?: number;
   generated_at: string;
+  platform_totals?: {
+    customers: number;
+    events: number;
+    tables: number;
+    guests: number;
+    seated_guests: number;
+    invitations_sent: number;
+    media_items: number;
+    media_storage_bytes: number;
+    guestbook_entries: number;
+    photo_booth_captures: number;
+    feature_configurations: number;
+  };
   customers: Customer[];
   subscriptions: Subscription[];
   events: EventRow[];
@@ -109,6 +152,7 @@ type Snapshot = {
     account_lifecycle: boolean;
     admin_actions: boolean;
     stripe_live_data: boolean;
+    platform_reporting?: boolean;
   };
 };
 const empty: Snapshot = {
@@ -124,6 +168,33 @@ const empty: Snapshot = {
     admin_actions: false,
     stripe_live_data: false,
   },
+};
+const SNAPSHOT_FRESH_MS = 30_000;
+let snapshotCache: Snapshot | null = null;
+let snapshotCachedAt = 0;
+let snapshotRequest: Promise<Snapshot> | null = null;
+registerCache(() => {
+  snapshotCache = null;
+  snapshotCachedAt = 0;
+  snapshotRequest = null;
+});
+
+const requestAdminSnapshot = () => {
+  if (snapshotRequest) return snapshotRequest;
+  const generation = getCacheGeneration();
+  snapshotRequest = (async () => {
+      let { data: result, error } = await supabase.rpc("get_admin_platform_snapshot" as never);
+      if (error && (error as { code?: string }).code === "42883") {
+        ({ data: result, error } = await supabase.rpc("get_admin_centre_snapshot" as never));
+      }
+      if (error) throw error;
+      if (generation !== getCacheGeneration()) throw new Error("Admin request superseded by an account change.");
+      snapshotCache = (result || empty) as unknown as Snapshot;
+      snapshotCachedAt = Date.now();
+      return snapshotCache;
+    })()
+    .finally(() => { snapshotRequest = null; });
+  return snapshotRequest;
 };
 const date = (value: string | null | undefined) =>
   value
@@ -180,28 +251,36 @@ const Metric = ({
 );
 
 function useAdminSnapshot() {
-  const [data, setData] = useState<Snapshot>(empty);
-  const [loading, setLoading] = useState(true);
+  const [data, setData] = useState<Snapshot>(snapshotCache ?? empty);
+  const [loading, setLoading] = useState(!snapshotCache);
   const [unavailable, setUnavailable] = useState(false);
-  const load = useCallback(async () => {
-    setLoading(true);
+  const [refreshing, setRefreshing] = useState(false);
+  const load = useCallback(async (force = false) => {
+    const fresh = snapshotCache && Date.now() - snapshotCachedAt < SNAPSHOT_FRESH_MS;
+    if (!force && fresh) {
+      setData(snapshotCache);
+      setLoading(false);
+      return;
+    }
+    setLoading(!snapshotCache);
+    setRefreshing(!!snapshotCache);
     setUnavailable(false);
-    const { data: result, error } = await supabase.rpc(
-      "get_admin_centre_snapshot" as never,
-    );
-    if (error) {
+    try {
+      setData(await requestAdminSnapshot());
+    } catch (error) {
       console.error("[Admin Centre] snapshot unavailable", {
-        code: error.code,
-        message: error.message,
+        code: (error as { code?: string }).code,
+        message: error instanceof Error ? error.message : String(error),
       });
       setUnavailable(true);
-    } else setData((result || empty) as unknown as Snapshot);
+    }
     setLoading(false);
+    setRefreshing(false);
   }, []);
   useEffect(() => {
     void load();
   }, [load]);
-  return { data, loading, unavailable, reload: load };
+  return { data, loading, unavailable, refreshing, reload: () => void load(true) };
 }
 const State = ({
   loading,
@@ -250,6 +329,24 @@ const Section = ({
     </div>
     {children}
   </section>
+);
+
+const SnapshotFreshness = ({
+  generatedAt,
+  refreshing,
+  reload,
+}: {
+  generatedAt: string;
+  refreshing: boolean;
+  reload: () => void;
+}) => (
+  <div className={styles.freshness} role="status">
+    <span>Reporting snapshot {generatedAt ? `updated ${date(generatedAt)}` : "ready"}</span>
+    <button className={styles.button} type="button" onClick={reload} disabled={refreshing}>
+      <RefreshCw size={14} className={refreshing ? styles.spinning : undefined} />
+      {refreshing ? "Refreshing…" : "Refresh"}
+    </button>
+  </div>
 );
 
 type Action = {
@@ -378,7 +475,7 @@ function AdminActionDialog({
 }
 
 export const AdminOverviewPage = () => {
-  const { data, loading, unavailable, reload } = useAdminSnapshot();
+  const { data, loading, unavailable, refreshing, reload } = useAdminSnapshot();
   const now = Date.now(),
     week = 7 * 864e5,
     monthStart = new Date(
@@ -436,6 +533,7 @@ export const AdminOverviewPage = () => {
   return (
     <div className={styles.page} data-admin-page>
       <State loading={loading} unavailable={unavailable} reload={reload} />
+      {!loading && !unavailable && <SnapshotFreshness generatedAt={data.generated_at} refreshing={refreshing} reload={reload} />}
       {!loading && !unavailable && (
         <>
           <Section title="Customer overview">
@@ -678,6 +776,19 @@ export const AdminOverviewPage = () => {
               />
             </div>
           </Section>
+          {data.platform_totals && (
+            <Section title="Platform feature usage" description="Authoritative operational counts only; private customer content is not included.">
+              <div className={styles.metrics}>
+                <Metric label="Tables configured" value={data.platform_totals.tables} />
+                <Metric label="Seated guests" value={data.platform_totals.seated_guests} />
+                <Metric label="RSVP invitations recorded" value={data.platform_totals.invitations_sent} />
+                <Metric label="Feature configurations" value={data.platform_totals.feature_configurations} />
+                <Metric label="Photo / video items" value={data.platform_totals.media_items} />
+                <Metric label="Guestbook entries" value={data.platform_totals.guestbook_entries} />
+                <Metric label="Photo-booth captures" value={data.platform_totals.photo_booth_captures} />
+              </div>
+            </Section>
+          )}
           <Section title="Needs Attention">
             {attention.length ? (
               <ul className={styles.attentionList}>
@@ -737,7 +848,7 @@ export const AdminOverviewPage = () => {
 };
 
 export const AdminCustomersPage = () => {
-  const { data, loading, unavailable, reload } = useAdminSnapshot();
+  const { data, loading, unavailable, refreshing, reload } = useAdminSnapshot();
   const [search, setSearch] = useState("");
   const [type, setType] = useState("all");
   const [plan, setPlan] = useState("all");
@@ -772,6 +883,7 @@ export const AdminCustomersPage = () => {
   return (
     <div className={styles.page} data-admin-page>
       <State loading={loading} unavailable={unavailable} reload={reload} />
+      {!loading && !unavailable && <SnapshotFreshness generatedAt={data.generated_at} refreshing={refreshing} reload={reload} />}
       {!loading && !unavailable && (
         <>
           <div className={styles.toolbar}>
@@ -1011,6 +1123,18 @@ export const AdminCustomersPage = () => {
                 <strong>Events:</strong> {selected.event_count}
               </p>
               <p>
+                <strong>Platform usage:</strong> {selected.table_count ?? 0} tables · {selected.guest_count ?? 0} guests · {selected.seated_guest_count ?? 0} seated
+              </p>
+              <p>
+                <strong>Configured features:</strong> {selected.feature_usage_count ?? 0} across this customer's events
+              </p>
+              <p>
+                <strong>Media:</strong> {selected.media_item_count ?? 0} uploaded items
+              </p>
+              <p>
+                <strong>Team access:</strong> {selected.active_team_member_count ?? 0} active of {selected.team_member_count ?? 0} recorded seats
+              </p>
+              <p>
                 <strong>Last sign-in:</strong> {date(selected.last_sign_in_at)}
               </p>
             </div>
@@ -1027,7 +1151,7 @@ export const AdminCustomersPage = () => {
 };
 
 export const AdminSubscriptionsPaymentsPage = () => {
-  const { data, loading, unavailable, reload } = useAdminSnapshot();
+  const { data, loading, unavailable, refreshing, reload } = useAdminSnapshot();
   const [search, setSearch] = useState("");
   const [plan, setPlan] = useState("all");
   const [status, setStatus] = useState("all");
@@ -1044,6 +1168,7 @@ export const AdminSubscriptionsPaymentsPage = () => {
   return (
     <div className={styles.page} data-admin-page>
       <State loading={loading} unavailable={unavailable} reload={reload} />
+      {!loading && !unavailable && <SnapshotFreshness generatedAt={data.generated_at} refreshing={refreshing} reload={reload} />}
       {!loading && !unavailable && (
         <>
           <Section title="Subscription summary">
@@ -1309,7 +1434,7 @@ export const AdminSubscriptionsPaymentsPage = () => {
 };
 
 export const AdminEventsPage = () => {
-  const { data, loading, unavailable, reload } = useAdminSnapshot();
+  const { data, loading, unavailable, refreshing, reload } = useAdminSnapshot();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [type, setType] = useState("all");
@@ -1342,6 +1467,7 @@ export const AdminEventsPage = () => {
   return (
     <div className={styles.page} data-admin-page>
       <State loading={loading} unavailable={unavailable} reload={reload} />
+      {!loading && !unavailable && <SnapshotFreshness generatedAt={data.generated_at} refreshing={refreshing} reload={reload} />}
       {!loading && !unavailable && (
         <>
           <Section title="Event summary">
@@ -1511,11 +1637,26 @@ export const AdminEventsPage = () => {
                 <strong>Guests:</strong> {selected.guest_count}
               </p>
               <p>
+                <strong>Tables and seating:</strong> {selected.table_count ?? 0} tables · {selected.seating_capacity ?? 0} capacity · {selected.seated_guest_count ?? 0} seated · {selected.unseated_guest_count ?? 0} unseated
+              </p>
+              <p>
+                <strong>Dietary records:</strong> {selected.dietary_guest_count ?? 0} guests (count only)
+              </p>
+              <p>
                 <strong>RSVP invitations recorded:</strong>{" "}
                 {selected.invitations_sent}
               </p>
               <p>
                 <strong>Attending:</strong> {selected.attending_count}
+              </p>
+              <p>
+                <strong>Messaging:</strong> {selected.sms_usage_count ?? selected.sms_invite_count ?? 0} SMS · {selected.email_usage_count ?? selected.email_invite_count ?? 0} email records
+              </p>
+              <p>
+                <strong>Feature usage:</strong> {selected.feature_count ?? 0} configured modules · {selected.qr_scan_count ?? 0} QR scans
+              </p>
+              <p>
+                <strong>Media:</strong> {selected.media_photo_count ?? 0} photos · {selected.media_video_count ?? 0} videos · {selected.photo_booth_capture_count ?? 0} photo-booth captures · {(selected.guestbook_text_count ?? 0) + (selected.guestbook_recording_count ?? 0)} guestbook entries
               </p>
               <p>
                 <strong>Plan:</strong> {selected.plan_name || "—"}
@@ -1529,7 +1670,7 @@ export const AdminEventsPage = () => {
 };
 
 export const AdminAccountLifecyclePage = () => {
-  const { data, loading, unavailable, reload } = useAdminSnapshot();
+  const { data, loading, unavailable, refreshing, reload } = useAdminSnapshot();
   const [search, setSearch] = useState("");
   const [status, setStatus] = useState("all");
   const [action, setAction] = useState<Action | null>(null);
@@ -1544,6 +1685,7 @@ export const AdminAccountLifecyclePage = () => {
   return (
     <div className={styles.page} data-admin-page>
       <State loading={loading} unavailable={unavailable} reload={reload} />
+      {!loading && !unavailable && <SnapshotFreshness generatedAt={data.generated_at} refreshing={refreshing} reload={reload} />}
       {!loading && !unavailable && (
         <>
           <Section title="Lifecycle summary">

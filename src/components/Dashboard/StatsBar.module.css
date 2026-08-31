@@ -1,0 +1,20 @@
+.overviewIcon {
+  color: #d9b77f;
+}
+
+.overviewIcon,
+.overviewIcon * {
+  stroke: currentColor;
+}
+
+.overviewIcon [fill]:not([fill="none"]) {
+  fill: currentColor;
+}
+
+.overviewHeading {
+  color: #ffffff;
+}
+
+.overviewSubtitle {
+  color: rgba(255, 255, 255, 0.8);
+}

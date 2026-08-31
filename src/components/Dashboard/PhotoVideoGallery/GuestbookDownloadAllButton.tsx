@@ -98,7 +98,7 @@ export const GuestbookDownloadAllButton: React.FC<{
     >
       {busy ? <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.8} /> : <Download className="h-4 w-4" strokeWidth={1.8} />}
       <span>Download All</span>
-      <span className="text-xs text-muted-foreground">{list.length}</span>
+      <span className={cn('text-xs text-muted-foreground', appearance === 'espresso-glass' && managementStyles.gallerySecondaryText)}>{list.length}</span>
     </Button>
   );
 };

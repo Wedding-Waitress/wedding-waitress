@@ -28,7 +28,9 @@ export const secureGuestSchema = z.object({
     .min(1, "Table selection is required")
     .refine(val => val !== "none", "Table selection is required"),
   
-  seat_no: z.coerce.number()
+  seat_no: z.coerce.number({
+    invalid_type_error: "Seat selection is required",
+  })
     .min(1, "Seat selection is required")
     .max(100, "Invalid seat number"),
   

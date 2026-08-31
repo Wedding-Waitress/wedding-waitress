@@ -16,8 +16,7 @@
  * Last locked: 2025-11-12
  */
 
-import React, { useState, useEffect, useMemo, useCallback, useRef } from 'react';
-import * as XLSX from 'xlsx-js-style';
+import React, { lazy, Suspense, useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 
@@ -87,34 +86,20 @@ import { Switch } from "@/components/ui/switch";
 import { Separator } from "@/components/ui/separator";
 import { toast } from "@/hooks/use-toast";
 import { cn } from "@/lib/utils";
-import { useEvents } from '@/hooks/useEvents';
-import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
-import { useTables } from '@/hooks/useTables';
-import { GuestIntelligencePanel } from './GuestIntelligence/GuestIntelligencePanel';
-import { AddGuestModal } from './AddGuestModal';
-import { GuestDeleteConfirmationModal } from './GuestDeleteConfirmationModal';
+import type { Event } from '@/hooks/useEvents';
+import type { Guest } from '@/hooks/useGuests';
+import type { TableWithGuestCount } from '@/hooks/useTables';
 
 import { RelationBadge } from './RelationBadge';
 import { supabase } from "@/integrations/supabase/client";
 import { getRsvpBadgeVariant, getRsvpDisplayLabel } from "@/lib/rsvp";
 import { formatDisplayDate } from '@/lib/utils';
 import { RELATION_ROLE_LABELS, computeRelationDisplay } from "@/lib/relationUtils";
-import { DeleteConfirmationModal } from './DeleteConfirmationModal';
-import { ImportErrorModal } from './ImportErrorModal';
-import { GuestLimitDialog } from './GuestLimitDialog';
 import { whoIsAnalytics } from '@/lib/analytics';
 import { GuestBulkActionsBar } from './GuestBulkActionsBar';
-import { BulkTableAssignmentModal } from './BulkTableAssignmentModal';
-import { BulkRsvpUpdateModal } from './BulkRsvpUpdateModal';
-import { SendRsvpConfirmModal } from './SendRsvpConfirmModal';
-import { RsvpActivationModal } from './RsvpActivationModal';
-import { RsvpAlreadyPaidModal } from './RsvpAlreadyPaidModal';
-import { RsvpOverageModal } from './RsvpOverageModal';
-import { ResendSmartRsvpModal } from './ResendSmartRsvpModal';
 import { SmartSmsCreditStatus, getCreditHealth } from './SmartSmsCreditStatus';
 import { useSmsCredits } from '@/hooks/useSmsCredits';
 import { SmartRsvpFeatureStrip } from './SmartRsvpFeatureStrip';
-import { SmartRsvpAnalyticsPanel } from './SmartRsvpAnalyticsPanel';
 import { GuestDeliveryBadges } from './GuestDeliveryBadges';
 import { useSearchParams } from 'react-router-dom';
 import { toast as sonnerToast } from 'sonner';
@@ -132,6 +117,21 @@ import {
   normalizeRole, 
   ImportError 
 } from '@/lib/relationValidation';
+import { getGuestCreationPrerequisite } from '@/lib/guestListPrerequisites';
+
+const AddGuestModal = lazy(() => import('./AddGuestModal').then(module => ({ default: module.AddGuestModal })));
+const GuestDeleteConfirmationModal = lazy(() => import('./GuestDeleteConfirmationModal').then(module => ({ default: module.GuestDeleteConfirmationModal })));
+const ImportErrorModal = lazy(() => import('./ImportErrorModal').then(module => ({ default: module.ImportErrorModal })));
+const GuestLimitDialog = lazy(() => import('./GuestLimitDialog').then(module => ({ default: module.GuestLimitDialog })));
+const BulkTableAssignmentModal = lazy(() => import('./BulkTableAssignmentModal').then(module => ({ default: module.BulkTableAssignmentModal })));
+const BulkRsvpUpdateModal = lazy(() => import('./BulkRsvpUpdateModal').then(module => ({ default: module.BulkRsvpUpdateModal })));
+const SendRsvpConfirmModal = lazy(() => import('./SendRsvpConfirmModal').then(module => ({ default: module.SendRsvpConfirmModal })));
+const RsvpActivationModal = lazy(() => import('./RsvpActivationModal').then(module => ({ default: module.RsvpActivationModal })));
+const RsvpAlreadyPaidModal = lazy(() => import('./RsvpAlreadyPaidModal').then(module => ({ default: module.RsvpAlreadyPaidModal })));
+const RsvpOverageModal = lazy(() => import('./RsvpOverageModal').then(module => ({ default: module.RsvpOverageModal })));
+const ResendSmartRsvpModal = lazy(() => import('./ResendSmartRsvpModal').then(module => ({ default: module.ResendSmartRsvpModal })));
+const SmartRsvpAnalyticsPanel = lazy(() => import('./SmartRsvpAnalyticsPanel').then(module => ({ default: module.SmartRsvpAnalyticsPanel })));
+const GuestIntelligencePanel = lazy(() => import('./GuestIntelligence/GuestIntelligencePanel').then(module => ({ default: module.GuestIntelligencePanel })));
 
 type SortOption =
   | 'first_name' | 'last_name' | 'table_name'
@@ -179,6 +179,18 @@ const RSVP_OPTIONS = ['Pending', 'Attending', 'Not Attending'];
 interface GuestListTableProps {
   selectedEventId?: string | null;
   onEventSelect?: (eventId: string) => void;
+  onNavigateToTables?: () => void;
+  events: Event[];
+  loading: boolean;
+  updateEvent: (eventId: string, event: Partial<Event>) => Promise<boolean>;
+  guests: Guest[];
+  guestsLoading: boolean;
+  deleteGuest: (guestId: string) => Promise<boolean>;
+  refetchGuests: () => Promise<void>;
+  updateGuest: (guestId: string, updates: Partial<Guest>) => Promise<boolean>;
+  tables: TableWithGuestCount[];
+  tablesLoading: boolean;
+  fetchTables: () => Promise<void>;
 }
 
 interface RelationSettings {
@@ -190,18 +202,28 @@ interface RelationSettings {
 }
 
 export const GuestListTable: React.FC<GuestListTableProps> = ({ 
-  selectedEventId: propSelectedEventId, 
-  onEventSelect: propOnEventSelect 
+  selectedEventId: propSelectedEventId,
+  onEventSelect: propOnEventSelect,
+  onNavigateToTables,
+  events,
+  loading,
+  updateEvent,
+  guests,
+  guestsLoading,
+  deleteGuest,
+  refetchGuests,
+  updateGuest,
+  tables,
+  tablesLoading,
+  fetchTables,
 }) => {
-  const { events, loading, updateEvent } = useEvents();
   const [localSelectedEventId, setLocalSelectedEventId] = useState<string | null>(null);
-  
-  // Use prop selectedEventId if provided, otherwise use local state
+
+  // Dashboard supplies the shared event selection; local state remains a standalone fallback.
   const selectedEventId = propSelectedEventId !== undefined ? propSelectedEventId : localSelectedEventId;
   const [showAddModal, setShowAddModal] = useState(false);
   const [allowGuestPlusOnes, setAllowGuestPlusOnes] = useState(false);
   const [collectGuestAddresses, setCollectGuestAddresses] = useState(false);
-  const { guests, loading: guestsLoading, deleteGuest, refetchGuests, updateGuest } = useRealtimeGuests(selectedEventId);
   // Mobile-only: locally acknowledged +1 alerts so highlight clears instantly
   // before the backend [NEW+] strip lands via realtime.
   const [ackedPlusOneIds, setAckedPlusOneIds] = useState<Set<string>>(new Set());
@@ -233,7 +255,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       return changed ? next : prev;
     });
   }, [guests]);
-  const { tables, fetchTables } = useTables(selectedEventId);
   const [editingGuest, setEditingGuest] = useState<any>(null);
   const [guestToDelete, setGuestToDelete] = useState<any>(null);
   const [showDeleteModal, setShowDeleteModal] = useState(false);
@@ -626,8 +647,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     }
   };
 
-  // Selection persistence handled centrally by useSelectedEvent (Dashboard).
-  // Sort preference for the standalone case is loaded when the user picks an event below.
+  // Selection persistence is handled centrally by useSelectedEvent in Dashboard.
 
 
   // Save sort preference when changed
@@ -698,8 +718,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     setGuestToDelete(null);
   };
 
-  // Selection change handler — delegates to parent (Dashboard) when wired,
-  // otherwise updates local fallback state. Persistence is centralised in useSelectedEvent.
+  // Delegate selection to Dashboard when wired, otherwise update the standalone fallback.
   const handleEventSelect = (eventId: string) => {
     if (eventId === "no-event") return;
     if (propOnEventSelect) {
@@ -1064,7 +1083,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
 
   // CSV Functions
-  const downloadTemplate = () => {
+  const downloadTemplate = async () => {
+    const XLSX = await import('xlsx-js-style');
     const TEMPLATE_HEADERS = ['First Name', 'Last Name', 'Table Name', 'Seat No', 'RSVP', 'Dietary', 'Mobile', 'Email', 'Notes', 'Relation Partner', 'Relation Role'];
     const sampleData = [
       ['John', 'Doe', 'Table 1', 1, 'Attending', 'NA', '1234567890', 'john@example.com', 'Sample note', 'partner_one', 'father'],
@@ -1082,7 +1102,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     XLSX.writeFile(wb, 'Guest-List-Import-Template.xlsx');
   };
 
-  const exportGuestList = () => {
+  const exportGuestList = async () => {
+    const XLSX = await import('xlsx-js-style');
     if (!selectedEvent || !sortedGuests.length) return;
     
     const rows = sortedGuests.map(guest => [
@@ -1466,48 +1487,51 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   const handleAddGuest = () => {
     if (!selectedEvent) return;
-    
+
+    const prerequisite = getGuestCreationPrerequisite(selectedEventId, tablesLoading, tables.length);
+    if (prerequisite === 'loading-tables') {
+      toast({
+        title: "Loading tables",
+        description: "Please wait while the table setup is checked.",
+      });
+      return;
+    }
+
+    if (prerequisite === 'create-tables') {
+      setShowAddModal(false);
+      toast({
+        title: "Create tables first",
+        description: "Create at least one table before adding guests to this event.",
+        variant: "destructive",
+      });
+      return;
+    }
+
     const guestCount = guests.length;
     const partner1Missing = !selectedEvent.partner1_name?.trim();
     const partner2Missing = !selectedEvent.partner2_name?.trim();
-    
-    // Check admin settings for first guest alert override
+
     const shouldBlockFirstGuest = !relationSettings.relation_disable_first_guest_alert;
-    
-    // Determine if required names are missing based on toggle state
     const namesAreMissing = relationsHidden
-      ? false                                   // Off mode: names not required
+      ? false
       : eventType === 'two'
-        ? (partner1Missing || partner2Missing)  // Wedding/engagement: need BOTH
-        : partner1Missing;                       // Single event: only need Partner 1
-    
-    // Gating rule: Only block for first guest if required names are missing AND haven't been saved
+        ? (partner1Missing || partner2Missing)
+        : partner1Missing;
+
     if (shouldBlockFirstGuest && guestCount === 0 && namesAreMissing && !partnerNamesSaved) {
-      // Analytics tracking
       whoIsAnalytics.addGuestBlockedMissingNames(selectedEvent.id);
-      
-      // Prevent opening the form
       setShowNamesValidation(true);
-      
-      // Scroll to the couple names section
+
       const coupleNamesSection = document.getElementById('guest-tools-section');
       if (coupleNamesSection) {
-        coupleNamesSection.scrollIntoView({ 
-          behavior: 'smooth', 
-          block: 'center' 
-        });
-        
-        // Focus on the first partner input
+        coupleNamesSection.scrollIntoView({ behavior: 'smooth', block: 'center' });
         setTimeout(() => {
-          const partner1Input = document.getElementById('partner1-name');
-          if (partner1Input) {
-            partner1Input.focus();
-          }
+          document.getElementById('partner1-name')?.focus();
         }, 500);
       }
-      
       return;
     }
+
     // Guest limit check - block if already at or over limit
     const eventGuestLimit = selectedEvent?.guest_limit || 0;
     if (eventGuestLimit > 0 && guestCount >= eventGuestLimit) {
@@ -1516,7 +1540,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       return;
     }
     
-    // Normal flow - open the add guest modal (allowed after saving required names)
+    // Normal flow - open the add guest modal after all prerequisites pass.
     setEditingGuest(null);
     setShowAddModal(true);
   };
@@ -1795,18 +1819,19 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               )}
 
               {/* Smart SMS Credit Status — premium credit intelligence */}
+              <div className={styles.infoCardsRow}>
               {selectedEventId && (
                 <SmartSmsCreditStatus
                   eventId={selectedEventId}
                   variant="full"
                   recipientCount={selectedGuestIds.size || undefined}
-                  className={`${styles.smsPanel} mb-4`}
+                  className={styles.smsPanel}
                 />
               )}
 
               {/* Guest Live View APP Protection. You have full control in what your guests see by switching preferences On / Off. — informational banner */}
-              <div className={`${styles.protectionPanel} bg-card border border-border rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.10)] p-4 mb-4 flex flex-col md:flex-row md:items-center gap-4`}>
-                <div className="flex items-start gap-3 flex-1 min-w-0">
+              <div className={`${styles.protectionPanel} bg-card border border-border rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.10)] p-4`}>
+                <div className="flex items-start gap-3 min-w-0">
                   <div className="bg-primary/10 text-primary rounded-full p-2.5 shrink-0">
                     <ShieldCheck size={21} strokeWidth={1.8} aria-hidden="true" />
                   </div>
@@ -1818,27 +1843,28 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     <p className="text-sm text-muted-foreground leading-relaxed mt-1">
                       You still have full control over what guests can view during the final week through your Guest Live View Configuration settings.
                     </p>
+                    <Button
+                      variant="outline"
+                      className="lv-premium-shade mt-3 w-fit max-w-full"
+                      onClick={() => {
+                        const url = new URL(window.location.href);
+                        url.searchParams.set('tab', 'qr-code');
+                        url.hash = 'guest-live-view-configuration';
+                        window.history.pushState({}, '', url);
+                        window.dispatchEvent(new PopStateEvent('popstate'));
+                        setTimeout(() => {
+                          document
+                            .getElementById('guest-live-view-configuration')
+                            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+                        }, 250);
+                      }}
+                    >
+                      <Settings2 size={15} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
+                      Configure Guest Live View →
+                    </Button>
                   </div>
                 </div>
-                <Button
-                  variant="outline"
-                  className="lv-premium-shade shrink-0 max-md:w-full"
-                  onClick={() => {
-                    const url = new URL(window.location.href);
-                    url.searchParams.set('tab', 'qr-code');
-                    url.hash = 'guest-live-view-configuration';
-                    window.history.pushState({}, '', url);
-                    window.dispatchEvent(new PopStateEvent('popstate'));
-                    setTimeout(() => {
-                      document
-                        .getElementById('guest-live-view-configuration')
-                        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                    }, 250);
-                  }}
-                >
-                  <Settings2 size={15} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
-                  Configure Guest Live View →
-                </Button>
+              </div>
               </div>
 
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
@@ -2093,12 +2119,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     </div>
                   </div>
 
-                  <button
-                    type="button"
-                    className="mt-3 text-sm font-medium text-[#967A59] hover:text-[#7a6347] underline underline-offset-2 self-start"
-                  >
-                    ​
-                  </button>
                 </div>
 
                 {/* BOX 4: Step 4 - Guest Contact Settings */}
@@ -2143,26 +2163,36 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   <h3 className="text-lg font-bold text-primary mb-0.5 flex items-center gap-2"><UserPlus size={20} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Step 5: Add Your Guests</h3>
                   <p className="text-sm text-muted-foreground mb-6">Start building your guest list</p>
                   <div className="flex-1 flex flex-col items-center justify-center">
-                  <Button
-                    variant="default"
-                    size="lg"
-                    onClick={() => {
-                      if (!selectedEventId) {
-                        toast({
-                          title: "No event selected",
-                          description: "Please select an event first",
-                          variant: "destructive",
-                        });
-                        return;
-                      }
-                      handleAddGuest();
-                    }}
-                    className="bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2 px-8 py-3 text-base lv-premium-shade"
-                  >
-                    <UserPlus size={16} strokeWidth={1.8} aria-hidden="true" />
-                    + Add Guest
-                  </Button>
-                  <p className="text-xs text-muted-foreground mt-3">Guests will appear in the table below</p>
+                  {getGuestCreationPrerequisite(selectedEventId, tablesLoading, tables.length) === 'loading-tables' ? (
+                    <p className="text-sm text-muted-foreground" role="status">Checking table setup...</p>
+                  ) : getGuestCreationPrerequisite(selectedEventId, tablesLoading, tables.length) === 'create-tables' ? (
+                    <div className="flex flex-col items-center text-center gap-3" role="status">
+                      <p className="text-sm text-muted-foreground">Create at least one table before adding guests.</p>
+                      {onNavigateToTables && (
+                        <Button
+                          variant="default"
+                          size="lg"
+                          onClick={onNavigateToTables}
+                          className="bg-green-500 hover:bg-green-600 text-white rounded-full px-8 py-3 text-base lv-premium-shade"
+                        >
+                          Create Tables First
+                        </Button>
+                      )}
+                    </div>
+                  ) : (
+                    <>
+                      <Button
+                        variant="default"
+                        size="lg"
+                        onClick={handleAddGuest}
+                        className="bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2 px-8 py-3 text-base lv-premium-shade"
+                      >
+                        <UserPlus size={16} strokeWidth={1.8} aria-hidden="true" />
+                        + Add Guest
+                      </Button>
+                      <p className="text-xs text-muted-foreground mt-3">Guests will appear in the table below</p>
+                    </>
+                  )}
                   </div>
                 </div>
               </div>
@@ -3060,7 +3090,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         </div>
       )}
 
-      <AddGuestModal 
+      <Suspense fallback={null}>
+      {showAddModal && <AddGuestModal
         isOpen={showAddModal}
         onClose={() => {
           setShowAddModal(false);
@@ -3071,21 +3102,21 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         editGuest={editingGuest}
         isEdit={!!editingGuest}
         relationsHidden={relationsHidden}
-      />
-        <GuestDeleteConfirmationModal
+      />}
+        {showDeleteModal && <GuestDeleteConfirmationModal
           isOpen={showDeleteModal}
           onClose={handleCloseDeleteModal}
           onConfirm={handleConfirmDeleteGuest}
           guestName={guestToDelete ? `${guestToDelete.first_name} ${guestToDelete.last_name}` : ''}
           isLoading={isDeleting}
-        />
-        <ImportErrorModal
+        />}
+        {showImportErrors && <ImportErrorModal
           isOpen={showImportErrors}
           onClose={() => setShowImportErrors(false)}
           errors={importErrors}
           totalRows={importStats.total}
           successfulRows={importStats.successful}
-        />
+        />}
 
         {/* Bulk Actions Modal */}
         <GuestBulkActionsBar
@@ -3179,21 +3210,21 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         />
 
         {/* Bulk Table Assignment Modal */}
-        <BulkTableAssignmentModal
+        {showBulkTableModal && <BulkTableAssignmentModal
           isOpen={showBulkTableModal}
           onClose={() => setShowBulkTableModal(false)}
           selectedGuests={sortedGuests.filter(g => selectedGuestIds.has(g.id))}
           tables={tables}
           onConfirm={handleBulkTableAssignment}
-        />
+        />}
 
         {/* Bulk RSVP Update Modal */}
-        <BulkRsvpUpdateModal
+        {showBulkRsvpModal && <BulkRsvpUpdateModal
           isOpen={showBulkRsvpModal}
           onClose={() => setShowBulkRsvpModal(false)}
           selectedGuests={sortedGuests.filter(g => selectedGuestIds.has(g.id))}
           onConfirm={handleBulkRsvpUpdate}
-        />
+        />}
 
         {/* Bulk Delete Confirmation */}
         <Dialog open={showBulkDeleteModal} onOpenChange={(open) => { if (!open) { setBulkDeleteConfirmText(''); } setShowBulkDeleteModal(open); }}>
@@ -3248,7 +3279,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         </Dialog>
 
         {/* Send RSVP Confirm Modal */}
-        <SendRsvpConfirmModal
+        {showSendModal && <SendRsvpConfirmModal
           isOpen={showSendModal}
           onClose={() => setShowSendModal(false)}
           channel={sendChannel}
@@ -3266,10 +3297,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               await refetchGuests();
             }
           }}
-        />
+        />}
 
         {/* RSVP Activation Modal (payment gate) */}
-        <RsvpActivationModal
+        {showActivationModal && <RsvpActivationModal
           isOpen={showActivationModal}
           onClose={() => setShowActivationModal(false)}
           totalGuestCount={guests.length}
@@ -3281,10 +3312,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               description: "Payment processing will be available once Stripe is connected. Contact support for assistance.",
             });
           }}
-        />
+        />}
 
         {/* RSVP Already Paid Modal (within tier) */}
-        {rsvpPurchase && (
+        {rsvpPurchase && showAlreadyPaidModal && (
           <RsvpAlreadyPaidModal
             isOpen={showAlreadyPaidModal}
             onClose={() => setShowAlreadyPaidModal(false)}
@@ -3301,17 +3332,17 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         )}
 
         {/* RSVP Overage Modal (tier paid, but guest count exceeded total capacity) */}
-        <RsvpOverageModal
+        {showOverageModal && <RsvpOverageModal
           isOpen={showOverageModal}
           onClose={() => setShowOverageModal(false)}
           eventId={selectedEventId}
           currentGuestCount={guests.length}
           totalCapacity={rsvpTotalCapacity}
           tierLabel={rsvpPurchase?.guest_tier_label || ''}
-        />
+        />}
 
         {/* Resend Smart RSVP — precision re-targeting */}
-        <ResendSmartRsvpModal
+        {showResendModal && <ResendSmartRsvpModal
           isOpen={showResendModal}
           onClose={() => setShowResendModal(false)}
           eventId={selectedEventId}
@@ -3323,17 +3354,17 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             if (result) await refetchGuests();
             return !!result;
           }}
-        />
+        />}
 
         {/* Smart RSVP Analytics — slide-over (Communications Centre) */}
-        <SmartRsvpAnalyticsPanel
+        {showAnalyticsPanel && <SmartRsvpAnalyticsPanel
           eventId={selectedEventId}
           open={showAnalyticsPanel}
           onOpenChange={setShowAnalyticsPanel}
-        />
+        />}
 
         {/* Guest Intelligence Centre — modular insights panel (Phase 1) */}
-        <GuestIntelligencePanel
+        {showIntelligencePanel && <GuestIntelligencePanel
           open={showIntelligencePanel}
           onClose={() => setShowIntelligencePanel(false)}
           guests={guests}
@@ -3346,14 +3377,15 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             partner1_name: (selectedEvent as any).partner1_name ?? null,
             partner2_name: (selectedEvent as any).partner2_name ?? null,
           } : null}
-        />
+        />}
 
-        <GuestLimitDialog
+        {showGuestLimitDialog && <GuestLimitDialog
           isOpen={showGuestLimitDialog}
           onClose={() => setShowGuestLimitDialog(false)}
           variant={guestLimitDialogVariant}
           guestLimit={selectedEvent?.guest_limit || 0}
-        />
+        />}
+      </Suspense>
     </div>
     );
 };

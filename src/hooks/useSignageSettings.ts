@@ -1,7 +1,7 @@
 import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { registerCache } from '@/lib/cacheRegistry';
+import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
 import type { TextZone, QrConfig, InvitationCardSettings } from '@/hooks/useInvitationCardSettings';
 import { previewUrlFor } from '@/lib/imagePipeline';
 
@@ -58,6 +58,7 @@ const buildDefault = (eventId: string, userId: string, orientation: 'portrait' |
 
 const cache = new Map<string, SignageSettings>();
 registerCache(() => { cache.clear(); });
+registerEventCache((eventId) => { cache.delete(eventId); });
 
 export const useSignageSettings = (eventId: string | null) => {
   const [settings, setSettings] = useState<SignageSettings | null>(eventId ? cache.get(eventId) ?? null : null);

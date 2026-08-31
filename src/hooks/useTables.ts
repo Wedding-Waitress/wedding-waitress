@@ -18,7 +18,8 @@
 import { useState, useEffect } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { registerCache } from '@/lib/cacheRegistry';
+import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
+import { parseHeadSeatingOrder, type HeadSeatEntry, type TablePurpose } from '@/lib/headTable';
 
 export type TableType = 'round' | 'square' | 'long';
 
@@ -31,6 +32,8 @@ export interface Table {
   notes?: string;
   table_no?: number | null;
   table_type?: TableType | null;
+  table_purpose: TablePurpose;
+  head_seating_order: HeadSeatEntry[];
   created_at: string;
   updated_at: string;
 }
@@ -41,18 +44,50 @@ export interface TableWithGuestCount extends Table {
 
 // Module-level cache for instant loading on tab switches
 const tablesCache = new Map<string, TableWithGuestCount[]>();
-registerCache(() => { tablesCache.clear(); });
+const tablesRequests = new Map<string, Promise<TableWithGuestCount[]>>();
+registerCache(() => { tablesCache.clear(); tablesRequests.clear(); });
+registerEventCache((eventId) => { tablesCache.delete(eventId); tablesRequests.delete(eventId); });
+
+const sortTables = (tables: TableWithGuestCount[]) => tables.sort((a, b) => {
+  if (a.table_purpose === 'head' && b.table_purpose !== 'head') return -1;
+  if (a.table_purpose !== 'head' && b.table_purpose === 'head') return 1;
+  if (a.table_no === null && b.table_no !== null) return -1;
+  if (a.table_no !== null && b.table_no === null) return 1;
+  if (a.table_no === null && b.table_no === null) return a.name.localeCompare(b.name);
+  if (a.table_no !== null && b.table_no !== null) return a.table_no - b.table_no;
+  return 0;
+});
+
+const requestTables = (eventId: string) => {
+  const existing = tablesRequests.get(eventId);
+  if (existing) return existing;
+  const request = Promise.all([
+    supabase.from('tables').select('*').eq('event_id', eventId),
+    supabase.from('guests').select('table_id').eq('event_id', eventId),
+  ]).then(([{ data: tablesData, error: tablesError }, { data: guestRows, error: guestsError }]) => {
+    if (tablesError) throw tablesError;
+    if (guestsError) throw guestsError;
+    const counts = new Map<string, number>();
+    (guestRows ?? []).forEach((guest) => {
+      if (guest.table_id) counts.set(guest.table_id, (counts.get(guest.table_id) ?? 0) + 1);
+    });
+    return sortTables((tablesData ?? []).map((table) => ({
+      ...table,
+      table_type: (table.table_type as TableType) || 'round',
+      table_purpose: table.table_purpose === 'head' ? 'head' : 'standard',
+      head_seating_order: parseHeadSeatingOrder(table.head_seating_order),
+      guest_count: counts.get(table.id) ?? 0,
+    })) as TableWithGuestCount[]);
+  }).finally(() => tablesRequests.delete(eventId));
+  tablesRequests.set(eventId, request);
+  return request;
+};
 
 export const useTables = (eventId: string | null) => {
   const cached = eventId ? tablesCache.get(eventId) : undefined;
   const [tables, setTables] = useState<TableWithGuestCount[]>(cached ?? []);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
-
-  // Keep cache in sync
-  useEffect(() => {
-    if (eventId && tables.length > 0) tablesCache.set(eventId, tables);
-  }, [eventId, tables]);
 
   // Single source of truth for table guest counts
   const getCurrentCount = async (tableId: string): Promise<number> => {
@@ -75,45 +110,8 @@ export const useTables = (eventId: string | null) => {
 
     if (!tablesCache.has(eventId)) setLoading(true);
     try {
-      // Fetch tables with guest counts
-      const { data: tablesData, error: tablesError } = await supabase
-        .from('tables')
-        .select('*')
-        .eq('event_id', eventId);
-
-      if (tablesError) throw tablesError;
-
-      // Fetch guest counts for each table using single source of truth
-      const tablesWithCounts: TableWithGuestCount[] = await Promise.all(
-        (tablesData || []).map(async (table) => {
-          const guestCount = await getCurrentCount(table.id);
-          return {
-            ...table,
-            table_type: (table.table_type as TableType) || 'round',
-            guest_count: guestCount
-          };
-        })
-      );
-
-      // Custom sorting: named tables first (alphabetically), then numbered tables (sequentially)
-      const sortedTables = tablesWithCounts.sort((a, b) => {
-        // Named tables (table_no is null) come first
-        if (a.table_no === null && b.table_no !== null) return -1;
-        if (a.table_no !== null && b.table_no === null) return 1;
-        
-        // Both are named tables - sort alphabetically by name
-        if (a.table_no === null && b.table_no === null) {
-          return a.name.localeCompare(b.name);
-        }
-        
-        // Both are numbered tables - sort by table number
-        if (a.table_no !== null && b.table_no !== null) {
-          return a.table_no - b.table_no;
-        }
-        
-        return 0;
-      });
-
+      const sortedTables = await requestTables(eventId);
+      tablesCache.set(eventId, sortedTables);
       setTables(sortedTables);
     } catch (error) {
       console.error('Error fetching tables:', error);
@@ -133,6 +131,8 @@ export const useTables = (eventId: string | null) => {
     notes?: string;
     table_no?: number | null;
     table_type?: TableType | null;
+    table_purpose?: TablePurpose;
+    head_seating_order?: HeadSeatEntry[];
   }) => {
     if (!eventId) return false;
 
@@ -141,6 +141,7 @@ export const useTables = (eventId: string | null) => {
         .from('tables')
         .insert({
           ...tableData,
+          table_type: tableData.table_purpose === 'head' ? 'long' : tableData.table_type,
           event_id: eventId,
           user_id: (await supabase.auth.getUser()).data.user?.id
         })
@@ -159,7 +160,13 @@ export const useTables = (eventId: string | null) => {
       console.error('Error creating table:', error);
       
       // Handle unique constraint violation for table numbers
-      if (error?.code === '23505' && error?.message?.includes('uq_tables_event_table_no')) {
+      if (error?.code === '23505' && error?.message?.includes('uq_tables_one_head_per_event')) {
+        toast({
+          title: 'Head Table already exists',
+          description: 'Only one Head Table is allowed for each event.',
+          variant: 'destructive',
+        });
+      } else if (error?.code === '23505' && error?.message?.includes('uq_tables_event_table_no')) {
         toast({
           title: "Error",
           description: "You already added this table number. Choose another table number.",
@@ -184,14 +191,48 @@ export const useTables = (eventId: string | null) => {
     notes?: string;
     table_no?: number | null;
     table_type?: TableType | null;
+    table_purpose?: TablePurpose;
+    head_seating_order?: HeadSeatEntry[];
   }) => {
     try {
+      let nextOrder = tableData.head_seating_order ?? [];
+      const currentTable = tables.find((table) => table.id === tableId);
+      if (tableData.table_purpose === 'head' && currentTable?.table_purpose !== 'head') {
+        const { data: assignedGuests, error: guestError } = await supabase
+          .from('guests')
+          .select('id, seat_no, created_at')
+          .eq('event_id', currentTable.event_id)
+          .eq('table_id', tableId)
+          .order('seat_no', { ascending: true, nullsFirst: false })
+          .order('created_at', { ascending: true });
+        if (guestError) throw guestError;
+        (assignedGuests ?? []).forEach((guest, index) => {
+          const entry: HeadSeatEntry = { kind: 'guest', guest_id: guest.id };
+          nextOrder = index % 2 === 0 ? [entry, ...nextOrder] : [...nextOrder, entry];
+        });
+      }
+
       const { error } = await supabase
         .from('tables')
-        .update(tableData)
+        .update({
+          ...tableData,
+          limit_seats: tableData.table_purpose === 'head'
+            ? Math.max(tableData.limit_seats, nextOrder.length)
+            : tableData.limit_seats,
+          table_type: tableData.table_purpose === 'head' ? 'long' : tableData.table_type,
+          head_seating_order: tableData.table_purpose === 'standard' ? [] : nextOrder,
+        })
         .eq('id', tableId);
 
       if (error) throw error;
+
+      if (tableData.table_purpose === 'head' && nextOrder.length > 0) {
+        const { error: seatingError } = await (supabase.rpc as any)('save_head_table_seating', {
+          p_table_id: tableId,
+          p_order: nextOrder,
+        });
+        if (seatingError) throw seatingError;
+      }
 
       await fetchTables();
       toast({
@@ -203,7 +244,13 @@ export const useTables = (eventId: string | null) => {
       console.error('Error updating table:', error);
       
       // Handle unique constraint violation for table numbers
-      if (error?.code === '23505' && error?.message?.includes('uq_tables_event_table_no')) {
+      if (error?.code === '23505' && error?.message?.includes('uq_tables_one_head_per_event')) {
+        toast({
+          title: 'Head Table already exists',
+          description: 'Only one Head Table is allowed for each event.',
+          variant: 'destructive',
+        });
+      } else if (error?.code === '23505' && error?.message?.includes('uq_tables_event_table_no')) {
         toast({
           title: "Error",
           description: "You already added this table number. Choose another table number.",
@@ -283,6 +330,19 @@ export const useTables = (eventId: string | null) => {
     }
   };
 
+  const saveHeadTableSeating = async (tableId: string, order: HeadSeatEntry[]) => {
+    const { error } = await (supabase.rpc as any)('save_head_table_seating', {
+      p_table_id: tableId,
+      p_order: order,
+    });
+    if (error) {
+      toast({ title: 'Unable to save Head Table seating', description: error.message, variant: 'destructive' });
+      return false;
+    }
+    await fetchTables();
+    return true;
+  };
+
   useEffect(() => {
     fetchTables();
   }, [eventId]);
@@ -295,6 +355,7 @@ export const useTables = (eventId: string | null) => {
     updateTable,
     deleteTable,
     getGuestsForTable,
-    getCurrentCount
+    getCurrentCount,
+    saveHeadTableSeating,
   };
 };

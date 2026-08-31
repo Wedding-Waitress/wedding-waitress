@@ -3,6 +3,7 @@ import { Guest } from '@/hooks/useGuests';
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { A4_PAGE_STYLE } from '@/lib/a4';
 import { IndividualChartSettings } from './IndividualTableSeatingChartPage';
+import { getHeadParticipantName } from '@/lib/headTable';
 
 interface IndividualTableChartPrintPageProps {
   settings: IndividualChartSettings;
@@ -270,6 +271,36 @@ const GuestList = ({ guests, settings }: { guests: Guest[]; settings: Individual
   );
 };
 
+const HeadTable = ({ settings, table, guests, event }: {
+  settings: IndividualChartSettings;
+  table: TableWithGuestCount;
+  guests: Guest[];
+  event: any;
+}) => {
+  const guestById = new Map(guests.map((guest) => [guest.id, guest]));
+  const occupants = table.head_seating_order.map((entry) => entry.kind === 'participant'
+    ? { key: entry.participant, name: getHeadParticipantName(entry, event?.partner1_name, event?.partner2_name) }
+    : { key: entry.guest_id, name: `${guestById.get(entry.guest_id)?.first_name ?? 'Guest'} ${guestById.get(entry.guest_id)?.last_name ?? ''}`.trim() });
+  const occupantOffset = Math.floor((table.limit_seats - occupants.length) / 2);
+  const positions = Array.from({ length: table.limit_seats }, (_, index) => occupants[index - occupantOffset] ?? null);
+  const fontSizePt = Math.max(8, getGuestTextPt(settings) - (positions.length > 12 ? 2 : 0));
+  return (
+    <div data-table-layout="head" data-head-table-order="left-to-right-as-viewed-by-guests" style={{ width: '100%', alignSelf: 'center', padding: '35mm 8mm 0', boxSizing: 'border-box' }}>
+      <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.max(1, positions.length)}, minmax(0, 1fr))`, alignItems: 'end', gap: '3px' }}>
+        {positions.map((occupant, index) => (
+          <div key={occupant?.key ?? `available-${index}`} style={{ minWidth: 0, textAlign: 'center' }}>
+            <div style={{ minHeight: '34px', fontSize: `${fontSizePt}pt`, lineHeight: 1.1, overflowWrap: 'anywhere' }}>{settings.includeNames ? occupant?.name ?? '' : ''}</div>
+            <div style={{ display: 'flex', justifyContent: 'center', marginTop: '5px' }}><Seat number={index + 1} show={settings.showSeatNumbers} color={settings.seatNumberColor} /></div>
+          </div>
+        ))}
+      </div>
+      <div style={{ height: '90px', marginTop: '7px', border: '1px solid #000', borderRadius: '4px', display: 'flex', alignItems: 'center', justifyContent: 'center', fontSize: '16pt', fontWeight: 700 }}>
+        {table.name}
+      </div>
+    </div>
+  );
+};
+
 export const IndividualTableChartPrintPage: React.FC<IndividualTableChartPrintPageProps> = ({
   settings, table, guests, event, totalTables = 1, currentTableIndex = 1,
 }) => {
@@ -290,7 +321,9 @@ export const IndividualTableChartPrintPage: React.FC<IndividualTableChartPrintPa
         </header>
 
         <main data-content-safe-zone="true" style={{ minHeight: 0, display: 'grid', gridTemplateRows: 'minmax(0, 1fr) auto', gap: '6mm', paddingBottom: `${FOOTER_CLEARANCE_MM}mm`, boxSizing: 'border-box', overflow: 'hidden' }}>
-          {settings.tableShape === 'long'
+          {table.table_purpose === 'head'
+            ? <HeadTable settings={settings} table={table} guests={guests} event={event} />
+            : settings.tableShape === 'long'
             ? <LongTable settings={settings} table={table} guests={sortedGuests} />
             : <><div data-diagram-safe-region="true" style={{ minHeight: 0, padding: `${DIAGRAM_SAFE_GAP_MM}mm 0`, boxSizing: 'border-box', display: 'flex', alignItems: 'center', justifyContent: 'center', overflow: 'hidden' }}><RadialTable settings={settings} table={table} guests={sortedGuests} /></div><GuestList settings={settings} guests={sortedGuests} /></>}
         </main>

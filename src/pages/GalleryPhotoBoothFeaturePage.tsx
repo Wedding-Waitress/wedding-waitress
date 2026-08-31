@@ -1,8 +1,7 @@
 // Feature workspace: Digital Photo Booth
-import React, { useEffect, useMemo, useState } from 'react';
+import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
-import { supabase } from '@/integrations/supabase/client';
-import { usePhotoVideoFeatureWorkspace } from '@/hooks/usePhotoVideoFeatureWorkspace';
+import { usePhotoVideoFeatureWorkspace, type PhotoVideoWorkspaceSelection } from '@/hooks/usePhotoVideoFeatureWorkspace';
 import { useToast } from '@/hooks/use-toast';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { FeatureWorkspaceLayout } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceLayout';
@@ -14,31 +13,19 @@ import { categoryOf } from '@/lib/mediaPrivacy';
 import { GalleryGrid } from '@/components/Dashboard/PhotoVideoGallery/GalleryGrid';
 import { PhotoBoothDownloadAllButton } from '@/components/Dashboard/PhotoVideoGallery/PhotoBoothDownloadAllButton';
 import { Button } from '@/components/ui/enhanced-button';
-import { LoaderCircle, Camera } from 'lucide-react';
+import { Camera } from 'lucide-react';
 import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 
-export const GalleryPhotoBoothFeaturePage: React.FC = () => {
+export const GalleryPhotoBoothFeaturePage: React.FC<PhotoVideoWorkspaceSelection> = (selection) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const [authChecked, setAuthChecked] = useState(false);
   const {
     selectedEventId, selectedEvent, selectionStatus, meta, items, error,
     deleteItem, deleteItems, setModeration, setAlbum, bulkSetAlbum,
     setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate,
-  } = usePhotoVideoFeatureWorkspace();
+  } = usePhotoVideoFeatureWorkspace(selection);
   const [saving, setSaving] = useState(false);
-
-  useEffect(() => {
-    supabase.auth.getSession().then(({ data: { session } }) => {
-      if (!session) navigate('/');
-      else setAuthChecked(true);
-    });
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_e, session) => {
-      if (!session) navigate('/');
-    });
-    return () => subscription.unsubscribe();
-  }, [navigate]);
 
   const goBack = () => navigate('/dashboard?tab=photo-video-gallery');
 
@@ -57,14 +44,6 @@ export const GalleryPhotoBoothFeaturePage: React.FC = () => {
       setSaving(false);
     }
   };
-
-  if (!authChecked) {
-    return (
-      <div className={`min-h-screen flex items-center justify-center ${managementStyles.photoVideoSharingSurface}`}>
-        <LoaderCircle className="h-6 w-6 animate-spin text-white" strokeWidth={1.8} />
-      </div>
-    );
-  }
 
   return (
     <>

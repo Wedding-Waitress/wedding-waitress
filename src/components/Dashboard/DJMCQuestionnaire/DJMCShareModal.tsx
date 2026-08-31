@@ -35,6 +35,7 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { buildDJQuestionnaireUrl } from '@/lib/urlUtils';
 import { supabase } from '@/integrations/supabase/client';
+import theme from './DJMCQuestionnaireTheme.module.css';
 
 interface DJMCShareModalProps {
   open: boolean;
@@ -67,17 +68,16 @@ export function DJMCShareModal({
 
   const handleGenerate = useCallback(async () => {
     setGenerating(true);
-    const token = await onGenerateToken(permission, recipientName || undefined, 90);
-    setGenerating(false);
-
-    if (token) {
-      const url = buildDJQuestionnaireUrl(token, eventSlug);
-      await navigator.clipboard.writeText(url);
-      toast({
-        title: 'Share Link Created',
-        description: 'Link copied to clipboard',
-      });
-      setRecipientName('');
+    try {
+      const token = await onGenerateToken(permission, recipientName || undefined, 90);
+      if (token) {
+        const url = buildDJQuestionnaireUrl(token, eventSlug);
+        await navigator.clipboard.writeText(url);
+        toast({ className: 'ww-djmc-toast', title: 'Share Link Created', description: 'Link copied to clipboard' });
+        setRecipientName('');
+      }
+    } finally {
+      setGenerating(false);
     }
   }, [permission, recipientName, onGenerateToken, toast, eventSlug]);
 
@@ -87,6 +87,7 @@ export function DJMCShareModal({
     setCopiedId(token);
     setTimeout(() => setCopiedId(null), 2000);
     toast({
+      className: 'ww-djmc-toast',
       title: 'Link Copied',
       description: 'Share link copied to clipboard',
     });
@@ -95,20 +96,22 @@ export function DJMCShareModal({
   const toggleTokenPermission = useCallback(async (tokenId: string, currentPermission: string) => {
     const newPermission = currentPermission === 'can_edit' ? 'view_only' : 'can_edit';
     try {
-      await supabase
+      const { error } = await supabase
         .from('dj_mc_share_tokens')
         .update({ permission: newPermission })
         .eq('id', tokenId);
+      if (error) throw error;
       onTokensUpdated?.();
-      toast({ title: 'Updated', description: `Link set to ${newPermission === 'can_edit' ? 'Can Edit' : 'View Only'}` });
+      toast({ className: 'ww-djmc-toast', title: 'Updated', description: `Link set to ${newPermission === 'can_edit' ? 'Can Edit' : 'View Only'}` });
     } catch (error) {
-      console.error('Error updating token permission:', error);
+      console.error('Error updating DJ/MC share-token permission:', error);
+      toast({ className: 'ww-djmc-toast', title: 'Update failed', description: 'The link permission was not changed.', variant: 'destructive' });
     }
   }, [onTokensUpdated, toast]);
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className={`${theme.shareModal} max-w-lg`}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UsersRound size={18} strokeWidth={1.8} className="text-primary" />
@@ -120,7 +123,7 @@ export function DJMCShareModal({
         </DialogHeader>
 
         <Tabs defaultValue="create" className="mt-4">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className={`${theme.shareTabs} grid w-full grid-cols-2`}>
             <TabsTrigger value="create">Create Link</TabsTrigger>
             <TabsTrigger value="manage">
               Manage ({shareTokens.length})
@@ -147,11 +150,11 @@ export function DJMCShareModal({
                 <SelectTrigger id="permission">
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className="ww-djmc-portal">
                   <SelectItem value="view_only">
                     <div className="flex flex-col items-start">
                       <span>View Only</span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className={`${theme.bodyText} text-muted-foreground`}>
                         Can see but not edit
                       </span>
                     </div>
@@ -159,7 +162,7 @@ export function DJMCShareModal({
                   <SelectItem value="can_edit">
                     <div className="flex flex-col items-start">
                       <span>Can Edit</span>
-                      <span className="text-xs text-muted-foreground">
+                      <span className={`${theme.bodyText} text-muted-foreground`}>
                         Can modify entries
                       </span>
                     </div>
@@ -171,7 +174,7 @@ export function DJMCShareModal({
             <Button
               onClick={handleGenerate}
               disabled={generating}
-              className="w-full"
+              className={`${theme.primaryAction} w-full`}
             >
               {generating ? (
                 <div className="h-4 w-4 border-2 border-primary-foreground border-t-transparent rounded-full animate-spin mr-2" />
@@ -184,18 +187,20 @@ export function DJMCShareModal({
 
           <TabsContent value="manage" className="mt-4">
             {shareTokens.length === 0 ? (
-              <div className="text-center py-8 text-muted-foreground">
+              <div className={`text-center py-8 text-muted-foreground ${theme.bodyText}`}>
                 No share links created yet
               </div>
             ) : (
               <div className="space-y-3 max-h-64 overflow-y-auto">
-                {shareTokens.map((token) => (
+                {shareTokens.map((token) => {
+                  const expired = Boolean(token.expires_at && new Date(token.expires_at).getTime() <= Date.now());
+                  return (
                   <div
                     key={token.id}
-                    className="flex items-center justify-between p-3 bg-muted/50 rounded-lg"
+                    className={`${theme.managedLink} flex items-center justify-between p-3 rounded-lg`}
                   >
                     <div className="flex-1 min-w-0">
-                      <div className="font-medium text-sm truncate">
+                      <div className={`${theme.bodyText} truncate`}>
                         {token.recipient_name || 'Unnamed'}
                       </div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
@@ -206,11 +211,8 @@ export function DJMCShareModal({
                         }`}>
                           {token.permission === 'can_edit' ? 'Can Edit' : 'View Only'}
                         </span>
-                        {token.last_accessed_at && (
-                          <span>
-                            Last used: {format(new Date(token.last_accessed_at), 'MMM d, yyyy')}
-                          </span>
-                        )}
+                        <span className={theme.bodyText}>{expired ? 'Expired' : 'Active'}</span>
+                        <span className={theme.bodyText}>Last used: {token.last_accessed_at ? format(new Date(token.last_accessed_at), 'MMM d, yyyy') : 'Never'}</span>
                       </div>
                     </div>
                     <TooltipProvider>
@@ -230,7 +232,7 @@ export function DJMCShareModal({
                               )}
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>
+                          <TooltipContent className="ww-djmc-portal">
                             {token.permission === 'can_edit' ? 'Switch to View Only' : 'Switch to Can Edit'}
                           </TooltipContent>
                         </Tooltip>
@@ -249,7 +251,7 @@ export function DJMCShareModal({
                               )}
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>Copy Link</TooltipContent>
+                          <TooltipContent className="ww-djmc-portal">Copy Link</TooltipContent>
                         </Tooltip>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -268,7 +270,7 @@ export function DJMCShareModal({
                               </a>
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>Open Link</TooltipContent>
+                          <TooltipContent className="ww-djmc-portal">Open Link</TooltipContent>
                         </Tooltip>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -281,12 +283,13 @@ export function DJMCShareModal({
                               <Trash2 size={18} strokeWidth={1.8} className=" text-destructive" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>Delete Link</TooltipContent>
+                          <TooltipContent className="ww-djmc-portal">Delete Link</TooltipContent>
                         </Tooltip>
                       </div>
                     </TooltipProvider>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </TabsContent>

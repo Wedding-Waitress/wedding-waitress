@@ -23,9 +23,9 @@ const MAX_LEN = 4000;
 export const VendorNotesPanel = ({ plan, onChange }: Props) => {
   const value = plan.vendor_notes ?? '';
   return (
-    <div className="rounded-lg border border-border bg-card p-3 max-lg:p-4 space-y-2">
+    <div data-reception-panel="true" className="rounded-lg border border-border bg-card p-3 max-lg:p-4 space-y-2">
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+        <div data-floor-plan-feature-heading="true" className="flex items-center gap-2 text-sm font-semibold text-foreground">
           <ClipboardList className="w-4 h-4 text-[#967A59]" />
           Vendor setup notes
         </div>

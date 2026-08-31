@@ -132,7 +132,7 @@ export const CookieBanner = () => {
               <Button
                 size="sm"
                 onClick={handleAcceptAll}
-                className="flex-1 sm:flex-none rounded-xl bg-primary text-primary-foreground hover:bg-primary/90 text-xs"
+                className="ww-button-espresso flex-1 sm:flex-none rounded-xl text-xs"
               >
                 <CircleCheck size={16} strokeWidth={1.8} aria-hidden="true" className="mr-1.5 shrink-0" />
                 Accept All
@@ -216,7 +216,7 @@ export const CookieBanner = () => {
             </Button>
             <Button
               onClick={handleSavePreferences}
-              className="rounded-xl bg-primary text-primary-foreground hover:bg-primary/90"
+              className="ww-button-espresso rounded-xl"
             >
               <Save size={16} strokeWidth={1.8} aria-hidden="true" className="mr-1.5 shrink-0" />
               Save Preferences

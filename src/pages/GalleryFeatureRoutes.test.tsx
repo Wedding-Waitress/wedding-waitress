@@ -20,6 +20,9 @@ const hooks = vi.hoisted(() => ({
 
 vi.mock('@/hooks/useEvents', () => ({ useEvents: hooks.events }));
 vi.mock('@/hooks/useSelectedEvent', () => ({ useSelectedEvent: hooks.selected }));
+vi.mock('@/hooks/usePhotoVideoFeatureWorkspace', () => ({
+  usePhotoVideoFeatureWorkspace: () => ({ ...hooks.gallery(), ...hooks.selected(), selectionStatus: 'selected' }),
+}));
 vi.mock('@/hooks/useEventMediaGallery', () => ({
   useEventMediaGallery: hooks.gallery,
   GALLERY_ALBUMS: ['Ceremony', 'Reception', 'Dance Floor', 'Speeches', 'Bridal Party', 'Other'],

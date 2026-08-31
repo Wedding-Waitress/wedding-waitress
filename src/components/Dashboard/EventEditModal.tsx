@@ -12,7 +12,7 @@
 import React, { useState, useEffect, useMemo, useCallback } from 'react';
 import ReactDOM from 'react-dom';
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { X, Save, Trash2 } from "lucide-react";
+import { X, Save } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -22,7 +22,6 @@ import { TimePicker } from './TimePicker';
 import { LocationDetailsPopover } from './LocationDetailsPopover';
 import { EventNameCombobox } from './EventNameCombobox';
 import { format } from 'date-fns';
-import '@fontsource/manrope/latin-600.css';
 import styles from './EventCreateModal.module.css';
 
 interface Event {
@@ -556,10 +555,12 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         }}>
           <Button onClick={handleSave} disabled={!isFormValid || isSaving}
             className={`lv-premium-shade flex-1 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white ${styles.createButton}`}>
+            <Save className="w-5 h-5 mr-2 text-white" />
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>
           <Button variant="destructive" onClick={onClose}
             className={`lv-premium-shade flex-1 h-11 rounded-full bg-red-500 hover:bg-red-600 text-white ${styles.cancelButton}`}>
+            <X className="w-5 h-5 mr-2 text-white" />
             Cancel
           </Button>
         </div>
@@ -597,7 +598,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
             disabled={!isFormValid || isSaving}
             className={`lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-1 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full ${styles.createButton}`}
           >
-            <Save className="hidden lg:inline-block w-5 h-5 mr-2 text-white" />
+            <Save className="w-5 h-5 mr-2 text-white" />
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>
           <Button
@@ -605,7 +606,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
             onClick={onClose}
             className={`lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-2 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-red-500 hover:bg-red-600 text-white max-lg:order-2 max-lg:w-full ${styles.cancelButton}`}
           >
-            <Trash2 className="hidden lg:inline-block w-5 h-5 mr-2 text-white" />
+            <X className="w-5 h-5 mr-2 text-white" />
             Cancel
           </Button>
         </div>

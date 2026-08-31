@@ -21,6 +21,12 @@ const mocks = vi.hoisted(() => ({
 
 vi.mock('@/hooks/useEvents', () => ({ useEvents: mocks.events }));
 vi.mock('@/hooks/useSelectedEvent', () => ({ useSelectedEvent: mocks.selectedEvent }));
+vi.mock('@/hooks/usePhotoVideoFeatureWorkspace', () => ({
+  usePhotoVideoFeatureWorkspace: () => {
+    const gallery = mocks.gallery();
+    return { ...gallery, ...mocks.selectedEvent(), selectionStatus: gallery.loading && !gallery.meta ? 'loading' : 'selected' };
+  },
+}));
 vi.mock('@/hooks/useEventMediaGallery', () => ({
   useEventMediaGallery: mocks.gallery,
   GALLERY_ALBUMS: ['Ceremony', 'Reception', 'Dance Floor', 'Speeches', 'Bridal Party', 'Other'],
@@ -115,7 +121,9 @@ describe('Photo & Video Sharing management appearance', () => {
 
     const pageHeading = await screen.findByRole('heading', { name: 'Photo & Video Sharing', level: 1 });
     const surface = container.querySelector('[data-appearance="photo-video-sharing"]');
+    const workspaceContent = container.querySelector('main');
     expect(surface).toHaveClass(managementStyles.photoVideoSharingSurface);
+    expect(workspaceContent).toHaveClass(managementStyles.workspaceContent);
     expect(pageHeading.closest('header')).toHaveClass(managementStyles.manropeTypography);
     expect(screen.getByText('Manage the photos and videos shared by your guests.')).toBeInTheDocument();
 
@@ -209,6 +217,9 @@ describe('Photo & Video Sharing management appearance', () => {
     );
 
     expect(css).toMatch(/\.galleryPanel[\s\S]*rgba\(8, 4, 3, 0\.94\)[\s\S]*rgba\(190, 137, 79, 0\.3\)/);
+    expect(css).toMatch(/\.glassCard[\s\S]*\.text-\\\[\\#1D1D1F\\\][\s\S]*color:\s*#fff\s*!important/);
+    expect(css).toMatch(/\.glassCard[\s\S]*\.text-muted-foreground[\s\S]*color:\s*#e8ddd2\s*!important/);
+    expect(css).toMatch(/\.galleryPanel[\s\S]*color:\s*#fff/);
     expect(css).toMatch(/:global\(\.ww-brown-outline\)[\s\S]*\.galleryControl[\s\S]*color:\s*#fff\s*!important/);
     expect(css).toMatch(/\.galleryControlActive[\s\S]*:global\(\.opacity-75\)[\s\S]*opacity:\s*1/);
     expect(css).toMatch(/@media \(hover: hover\) and \(pointer: fine\)[\s\S]*\.galleryControl:hover:not\(:active\)[\s\S]*\.galleryMediaTile:hover:not\(:active\)/);
@@ -286,25 +297,24 @@ describe('Photo & Video Sharing management appearance', () => {
     });
   });
 
-  it('reuses every approved homepage background layer exactly', () => {
+  it('reuses the single approved application background token', () => {
     const root = process.cwd();
-    const homepage = fs.readFileSync(
-      path.join(root, 'src/components/Dashboard/PhotoVideoGallery/PhotoVideoGalleryPage.tsx'),
-      'utf8',
-    );
     const managementCss = fs.readFileSync(
       path.join(root, 'src/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css'),
       'utf8',
     );
-    const backgroundBlock = homepage.match(/backgroundImage:\s*\[([\s\S]*?)\]\.join\(', '\)/)?.[1] ?? '';
-    const homepageLayers = Array.from(backgroundBlock.matchAll(/'([^']+)'/g), match => match[1]);
-    const normalise = (value: string) => value.replace(/\s+/g, ' ').trim();
-    const normalisedCss = normalise(managementCss);
+    const applicationCss = fs.readFileSync(path.join(root, 'src/index.css'), 'utf8');
+    const landingSurface = managementCss.match(/\.photoVideoSharingSurface\s*\{([\s\S]*?)\n\}/)?.[1] ?? '';
+    const shellSurface = managementCss.match(/\.photoVideoWorkspaceMain\.photoVideoWorkspaceMain\s*\{([\s\S]*?)\n\}/)?.[1] ?? '';
 
-    expect(homepage).toContain("backgroundColor: '#1a0c07'");
-    expect(managementCss).toContain('background-color: #1a0c07');
-    expect(homepageLayers).toHaveLength(6);
-    homepageLayers.forEach(layer => expect(normalisedCss).toContain(normalise(layer)));
+    expect(landingSurface).toContain('background-color: var(--ww-application-background-color)');
+    expect(landingSurface).toContain('background-image: var(--ww-application-background-image)');
+    expect(shellSurface).toContain('background-color: var(--ww-application-background-color)');
+    expect(shellSurface).toContain('background-image: var(--ww-application-background-image)');
+    expect(applicationCss).toContain('--ww-application-background-color: #120806');
+    expect(applicationCss).toMatch(/--ww-application-background-image:\s*linear-gradient\(\s*180deg,/);
+    expect(applicationCss).not.toContain('rgba(255, 111, 24, 0.62)');
+    expect(applicationCss).not.toContain('linear-gradient(116deg');
   });
 });
 

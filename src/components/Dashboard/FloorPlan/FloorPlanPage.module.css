@@ -1,0 +1,275 @@
+:global(main[data-dashboard-content]:has([data-floor-plan-mode="ceremony"])) {
+  min-height: 100dvh;
+}
+
+.ceremonyPage {
+  --ceremony-champagne-border: rgba(239, 220, 196, 0.72);
+  --ceremony-champagne-text: #eadbc9;
+  --ceremony-champagne-icon: #f2ddbd;
+  min-width: 0;
+  color: #f3e7d8;
+}
+
+.pageHeading {
+  font-size: 24px !important;
+  font-weight: 600 !important;
+}
+
+.pageDescription,
+.interfaceText {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+.featureHeading {
+  min-width: 0;
+  overflow-wrap: anywhere;
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+.interfaceLabel {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.interfaceControl,
+.exportButton {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+.portalItem,
+.portalSurface [role="option"] {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+.headerPanel,
+.emptyPanel {
+  min-width: 0;
+  color: #f3e7d8 !important;
+  border: 1px solid var(--ceremony-champagne-border) !important;
+  background:
+    radial-gradient(circle at 88% 0%, rgba(219, 160, 99, 0.13), transparent 31%),
+    linear-gradient(145deg, rgba(79, 43, 31, 0.82), rgba(24, 12, 9, 0.91)) !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.18),
+    inset 0 -1px 0 rgba(56, 27, 19, 0.58),
+    0 20px 44px rgba(3, 1, 1, 0.36) !important;
+  backdrop-filter: blur(18px) saturate(1.08);
+  -webkit-backdrop-filter: blur(18px) saturate(1.08);
+}
+
+:global(#root) .headerPanel,
+:global(#root) .emptyPanel {
+  border-color: var(--ceremony-champagne-border) !important;
+}
+
+:global(#root) .headerPanel :is(h1, h2, h3, h4, label, strong),
+:global(#root) .emptyPanel :is(h1, h2, h3, h4, label, strong) {
+  color: #ffffff !important;
+}
+
+:global(#root) .headerPanel :is(p, [class*="text-muted-foreground"]),
+:global(#root) .emptyPanel :is(p, [class*="text-muted-foreground"]) {
+  color: var(--ceremony-champagne-text) !important;
+  opacity: 1 !important;
+}
+
+.headerPanel svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]),
+.emptyPanel svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]) {
+  color: var(--ceremony-champagne-icon) !important;
+  stroke: currentColor !important;
+}
+
+.control {
+  color: #ffffff !important;
+  border: 1px solid var(--ceremony-champagne-border) !important;
+  background: linear-gradient(180deg, rgba(255, 239, 218, 0.07), rgba(15, 7, 5, 0.86)) !important;
+  box-shadow: inset 0 2px 6px rgba(3, 1, 1, 0.35), inset 0 1px 0 rgba(255, 239, 218, 0.11) !important;
+}
+
+:global(#root) .control {
+  border-color: var(--ceremony-champagne-border) !important;
+}
+
+.control:hover {
+  border-color: rgba(255, 235, 207, 0.9) !important;
+  background: linear-gradient(180deg, rgba(255, 239, 218, 0.11), rgba(22, 10, 7, 0.9)) !important;
+}
+
+.control:focus-visible {
+  outline: 2px solid rgba(239, 220, 196, 0.42) !important;
+  outline-offset: 2px;
+  box-shadow: inset 0 2px 6px rgba(3, 1, 1, 0.34), 0 0 0 3px rgba(239, 220, 196, 0.14) !important;
+}
+
+.control :is(span, svg) {
+  color: #ffffff !important;
+}
+
+.portalSurface {
+  z-index: 100 !important;
+  color: #f3e7d8 !important;
+  border: 1px solid rgba(239, 220, 196, 0.72) !important;
+  background:
+    radial-gradient(circle at 88% 0%, rgba(223, 166, 104, 0.12), transparent 34%),
+    linear-gradient(155deg, rgba(69, 37, 27, 0.98), rgba(14, 7, 5, 0.99)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.14), 0 18px 42px rgba(3, 1, 1, 0.48) !important;
+  backdrop-filter: blur(20px) saturate(1.08);
+  -webkit-backdrop-filter: blur(20px) saturate(1.08);
+}
+
+.portalItem,
+.portalSurface [role="option"] {
+  color: #f3e7d8 !important;
+}
+
+.portalItem svg,
+.portalSurface [role="option"] svg {
+  color: #f2ddbd !important;
+  stroke: currentColor !important;
+}
+
+.portalItem:is(:hover, :focus, [data-highlighted]),
+.portalSurface [role="option"]:is(:hover, :focus, [data-highlighted]) {
+  color: #ffffff !important;
+  background: rgba(133, 76, 52, 0.52) !important;
+}
+
+.exportButton {
+  color: #dcfce7 !important;
+  border-color: #22c55e !important;
+  background: linear-gradient(180deg, rgba(35, 132, 70, 0.9), rgba(16, 82, 40, 0.96)) !important;
+  box-shadow: inset 0 1px 0 rgba(220, 252, 231, 0.24), 0 7px 16px rgba(10, 74, 34, 0.3) !important;
+}
+
+.exportControls {
+  width: 100%;
+  max-width: 100%;
+  border: 1px solid var(--ceremony-champagne-border);
+  border-radius: .75rem;
+  padding: .625rem .75rem;
+  background: rgba(18, 9, 6, 0.28);
+}
+
+:global(#root) .exportButton {
+  border-color: #22c55e !important;
+}
+
+.exportButton:hover:not(:disabled) {
+  color: #ffffff !important;
+  filter: brightness(1.08);
+  transform: translateY(-1px);
+}
+
+.exportButton svg {
+  color: #dcfce7 !important;
+  stroke: currentColor !important;
+}
+
+.previewRegion,
+.previewRegion > * {
+  min-width: 0;
+  border: 0;
+  border-radius: 0;
+  padding: 0;
+  background: transparent;
+  box-shadow: none;
+}
+
+@media (min-width: 640px) {
+  .exportControls { width: auto; }
+}
+
+@media (max-width: 439px) {
+  :global([data-floor-plan-page="true"]) {
+    width: calc(100vw - 1rem);
+    max-width: calc(100vw - 1rem);
+    min-width: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ceremonyPage *:not([data-ceremony-a4-renderer="true"]):not([data-ceremony-a4-renderer="true"] *),
+  .portalSurface * {
+    transition-duration: 0.01ms !important;
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}
+
+/* Approved light champagne organiser theme. Printable descendants remain isolated. */
+.workspaceSurface {
+  min-height: 100dvh;
+  background: #f2e9dc !important;
+  background-image: none !important;
+}
+
+:global(main[data-dashboard-content]:has([data-floor-plan-mode="ceremony"])),
+:global(main[data-dashboard-content]:has([data-floor-plan-mode="reception"])) {
+  min-height: 100dvh;
+  background: #f2e9dc !important;
+  background-image: none !important;
+}
+
+.ceremonyPage {
+  --ceremony-champagne-border: #cdb99e;
+  --ceremony-champagne-text: #684b40;
+  --ceremony-champagne-icon: #806344;
+  color: #2b1711;
+}
+
+.headerPanel,
+.emptyPanel {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fbf8f2 !important;
+  box-shadow: inset 0 1px 0 #fff, 0 12px 28px rgba(84, 57, 40, .13) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+:global(#root) .headerPanel :is(h1, h2, h3, h4, label, strong),
+:global(#root) .emptyPanel :is(h1, h2, h3, h4, label, strong) { color: #2b1711 !important; }
+:global(#root) .headerPanel :is(p, [class*="text-muted-foreground"]),
+:global(#root) .emptyPanel :is(p, [class*="text-muted-foreground"]) { color: #684b40 !important; }
+.headerPanel svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]),
+.emptyPanel svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]) { color: #806344 !important; }
+
+.control {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: linear-gradient(180deg, #fffdf8, #f5ebdd) !important;
+  box-shadow: inset 0 1px 0 #fff, inset 0 -2px 4px rgba(109, 76, 52, .1), 0 4px 10px rgba(80, 52, 35, .08) !important;
+}
+.control:hover { border-color: #a98b66 !important; background: linear-gradient(180deg, #fff, #f0e2d1) !important; }
+.control:focus-visible { outline: 2px solid #806344 !important; box-shadow: 0 0 0 3px rgba(128, 99, 68, .16) !important; }
+.control :is(span, svg) { color: #2b1711 !important; }
+.control svg { color: #806344 !important; }
+
+.portalSurface {
+  z-index: 10000 !important;
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fbf8f2 !important;
+  box-shadow: 0 18px 42px rgba(70, 43, 29, .22) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+.portalItem, .portalSurface [role="option"] { color: #2b1711 !important; }
+.portalItem svg, .portalSurface [role="option"] svg { color: #806344 !important; }
+.portalItem:is(:hover, :focus, [data-highlighted]),
+.portalSurface [role="option"]:is(:hover, :focus, [data-highlighted]) { color: #2b1711 !important; background: #f0e2d1 !important; }
+
+.exportControls { border-color: #cdb99e; background: #f5ebdd; box-shadow: inset 0 1px 0 #fff; }
+.exportButton {
+  color: #fff !important;
+  border-color: #159447 !important;
+  background: linear-gradient(180deg, #35d06f, #16a34a) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 0 rgba(5,91,37,.34), 0 6px 14px rgba(22,163,74,.24) !important;
+}
+.exportButton svg { color: #fff !important; }

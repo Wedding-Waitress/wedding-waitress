@@ -58,7 +58,7 @@ export const GuestDeleteConfirmationModal: React.FC<GuestDeleteConfirmationModal
 
   return (
     <Dialog open={isOpen} onOpenChange={handleClose}>
-      <DialogContent className="sm:max-w-md">
+      <DialogContent className="ww-guest-list-typography sm:max-w-md">
         <DialogHeader>
           <div className="flex items-center space-x-2">
             <AlertTriangle size={18} strokeWidth={1.8} className="text-destructive shrink-0" aria-hidden="true" />

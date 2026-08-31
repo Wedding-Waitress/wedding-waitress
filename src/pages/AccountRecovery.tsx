@@ -35,11 +35,11 @@ const AccountRecovery: React.FC = () => {
   };
   const logout = async () => { await supabase.auth.signOut(); navigate('/', { replace: true }); };
 
-  if (loading) return <div className={styles.screen}>Checking account recovery…</div>;
+  if (loading) return <div className={`${styles.screen} ww-application-background`}>Checking account recovery…</div>;
   if (!session) return <Navigate to="/" replace />;
-  if (lifecycle?.status === 'permanently_deleted') return <main className={styles.screen}><section className={styles.card}><span className={styles.eyebrow}>Recovery period ended</span><h1>Account recovery is no longer available</h1><p>The 12-month recovery deadline has passed and eligible operational information has been permanently deleted or de-identified. Records required by law may remain securely retained.</p><div className={styles.actions}><Button className={controlStyles.secondaryButton} onClick={() => void logout()}><LogOut />Log Out</Button></div></section></main>;
+  if (lifecycle?.status === 'permanently_deleted') return <main className={`${styles.screen} ww-application-background`}><section className={styles.card}><span className={styles.eyebrow}>Recovery period ended</span><h1>Account recovery is no longer available</h1><p>The 12-month recovery deadline has passed and eligible operational information has been permanently deleted or de-identified. Records required by law may remain securely retained.</p><div className={styles.actions}><Button className={controlStyles.secondaryButton} onClick={() => void logout()}><LogOut />Log Out</Button></div></section></main>;
   if (lifecycle?.status !== 'scheduled_for_deletion') return <Navigate to="/dashboard" replace />;
-  return <main className={styles.screen}>
+  return <main className={`${styles.screen} ww-application-background`}>
     <SeoHead title="Welcome Back | Wedding Waitress" description="Reactivate your Wedding Waitress account." noIndex />
     <section className={styles.card} aria-labelledby="recovery-title">
       <span className={styles.eyebrow}>Account recovery</span>

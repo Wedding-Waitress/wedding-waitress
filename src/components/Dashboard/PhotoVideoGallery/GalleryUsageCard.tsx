@@ -126,7 +126,7 @@ const Bar: React.FC<{
       </div>
       <Progress value={pct} className="h-2 bg-[#E8E1D6]/50 [&>div]:bg-green-500" />
 
-      {sub && <div className={cn('mt-1 text-xs text-muted-foreground', glass && '!text-[#e8ddd2]')}>{sub}</div>}
+      {sub && <div className={cn('mt-1 text-xs text-muted-foreground', glass && managementStyles.gallerySecondaryText)}>{sub}</div>}
     </div>
   );
 };

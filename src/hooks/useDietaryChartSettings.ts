@@ -1,7 +1,7 @@
 import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { registerCache } from '@/lib/cacheRegistry';
+import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
 import {
   DEFAULT_DIETARY_ACCENT_COLOR,
   DietaryAccentColor,
@@ -53,6 +53,7 @@ const DEFAULT_SETTINGS: DietaryChartSettings = {
 // Module-level cache for instant loading on tab switches
 const settingsCache = new Map<string, DietaryChartSettings>();
 registerCache(() => { settingsCache.clear(); });
+registerEventCache((eventId) => { settingsCache.delete(eventId); });
 
 type PendingSave = {
   eventId: string;

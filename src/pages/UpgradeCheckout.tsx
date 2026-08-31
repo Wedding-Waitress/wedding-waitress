@@ -9,6 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { PLAN_DETAILS, type PlanKey } from '@/lib/upgradePlans';
 import { usePaymentProcessing } from '@/contexts/PaymentProcessingContext';
+import { formatLivePrice, isCurrencyCode } from '@/lib/liveCurrencyPricing';
 
 let stripePromise: Promise<Stripe | null> | null = null;
 const getStripe = (publishableKey: string) => {
@@ -23,6 +24,8 @@ export const UpgradeCheckout: React.FC = () => {
   const planKey = (params.get('plan') as PlanKey) || 'premium';
   const fromKey = (params.get('from') as PlanKey | null) || null;
   const plan = PLAN_DETAILS[planKey];
+  const requestedCurrencyRaw = params.get('currency') || sessionStorage.getItem('ww_intended_currency') || localStorage.getItem('ww_currency') || 'AUD';
+  const requestedCurrency = isCurrencyCode(requestedCurrencyRaw) ? requestedCurrencyRaw : 'AUD';
   const fromPlan = fromKey ? PLAN_DETAILS[fromKey] : null;
   // Difference-only pricing applies between two one-time wedding plans.
   const isDiffUpgrade =
@@ -32,6 +35,7 @@ export const UpgradeCheckout: React.FC = () => {
   const [clientSecret, setClientSecret] = useState<string | null>(null);
   const [publishableKey, setPublishableKey] = useState<string | null>(null);
   const [error, setError] = useState<string | null>(null);
+  const [checkoutQuote, setCheckoutQuote] = useState<{ currency: string; amount: number } | null>(null);
   const { processing, startProcessing } = usePaymentProcessing();
 
   // Fallback: when Stripe begins redirecting after Pay, the iframe takes
@@ -72,6 +76,7 @@ export const UpgradeCheckout: React.FC = () => {
             price_id: plan.price_id,
             mode: plan.mode,
             plan_type: plan.key,
+            pricing_currency: requestedCurrency,
             ui_mode: 'embedded',
             ...(isDiffUpgrade ? { upgrade_from_plan: fromPlan!.key } : {}),
           },
@@ -95,6 +100,7 @@ export const UpgradeCheckout: React.FC = () => {
         }
         setClientSecret(data.client_secret);
         setPublishableKey(pk);
+        if (data.checkout_quote) setCheckoutQuote(data.checkout_quote);
       } catch (error: unknown) {
         const msg = error instanceof Error ? error.message : 'Failed to start checkout';
         setError(msg);
@@ -104,7 +110,7 @@ export const UpgradeCheckout: React.FC = () => {
     return () => {
       cancelled = true;
     };
-  }, [plan, isDiffUpgrade, fromPlan, toast, navigate]);
+  }, [plan, isDiffUpgrade, fromPlan, requestedCurrency, toast, navigate]);
 
   if (!plan) {
     return <div className="p-8">Unknown plan.</div>;
@@ -131,7 +137,7 @@ export const UpgradeCheckout: React.FC = () => {
             <p className="text-sm uppercase tracking-wide text-[#967A59] font-semibold mb-2">Selected Plan</p>
             <h2 className="text-2xl font-bold text-gray-900 mb-3">{plan.name}</h2>
             <div className="flex items-baseline gap-2 mb-2">
-              <span className="text-4xl font-bold text-gray-900">A${plan.price_aud}</span>
+              <span className="text-4xl font-bold text-gray-900">{checkoutQuote ? formatLivePrice(checkoutQuote.currency as import('@/lib/currencyPricing').CurrencyCode, checkoutQuote.amount / 100) : `A$${plan.price_aud}`}</span>
               {plan.original_price_aud && (
                 <span className="text-gray-400 line-through text-lg">A${plan.original_price_aud}</span>
               )}
@@ -151,7 +157,7 @@ export const UpgradeCheckout: React.FC = () => {
             <div className="border-t border-border pt-4 flex items-center justify-between">
               <span className="text-sm text-gray-600">Total due today</span>
               <span className="text-lg font-bold text-gray-900">
-                A${isDiffUpgrade ? diffAmount : plan.price_aud}
+                {checkoutQuote ? formatLivePrice(checkoutQuote.currency as import('@/lib/currencyPricing').CurrencyCode, checkoutQuote.amount / 100) : `A$${isDiffUpgrade ? diffAmount : plan.price_aud}`}
                 {plan.recurring ? `/${plan.recurring}` : ''}
               </span>
             </div>
@@ -161,6 +167,7 @@ export const UpgradeCheckout: React.FC = () => {
                 and {plan.name} (A${plan.price_aud}).
               </p>
             )}
+            <p className="mt-4 text-xs leading-5 text-gray-500">Prices exclude applicable taxes. GST, VAT or other taxes are calculated at checkout based on your location.</p>
           </div>
 
           {/* RIGHT: Embedded Stripe Checkout */}

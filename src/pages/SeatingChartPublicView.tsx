@@ -166,7 +166,7 @@ export function SeatingChartPublicView() {
 
   if (loading) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-muted/30">
+      <div className="ww-application-background min-h-screen flex items-center justify-center">
         <div className="h-8 w-8 border-4 border-primary border-t-transparent rounded-full animate-spin" />
       </div>
     );
@@ -174,7 +174,7 @@ export function SeatingChartPublicView() {
 
   if (error || !data) {
     return (
-      <div className="min-h-screen flex items-center justify-center bg-muted/30">
+      <div className="ww-application-background min-h-screen flex items-center justify-center">
         <div className="text-center space-y-4 p-8">
           <h1 className="text-2xl font-bold text-destructive">Link Invalid</h1>
           <p className="text-muted-foreground">{error || 'Something went wrong.'}</p>
@@ -186,7 +186,7 @@ export function SeatingChartPublicView() {
   const totalPages = pages.length || 1;
 
   return (
-    <div className="min-h-screen bg-muted/30 flex flex-col">
+    <div className="ww-application-background min-h-screen flex flex-col">
       {/* Header */}
       <div className="bg-background border-b p-6 text-center space-y-4">
         <p className="text-muted-foreground text-sm">

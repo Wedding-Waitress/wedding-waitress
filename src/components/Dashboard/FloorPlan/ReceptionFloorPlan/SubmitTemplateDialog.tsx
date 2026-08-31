@@ -73,7 +73,7 @@ export const SubmitTemplateDialog = ({ open, onOpenChange, plan, backgroundUrl }
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg max-lg:max-w-[calc(100vw-1.5rem)] p-0 overflow-hidden">
+      <DialogContent className="reception-portal-surface max-w-lg max-lg:max-w-[calc(100vw-1.5rem)] p-0 overflow-hidden">
         <DialogHeader className="px-6 max-lg:px-4 pt-6 max-lg:pt-5 pb-3 border-b">
           <DialogTitle className="text-lg max-lg:text-center flex items-center gap-2 max-lg:justify-center">
             <UploadCloud className="w-5 h-5 text-primary" />
@@ -167,7 +167,7 @@ export const SubmitTemplateDialog = ({ open, onOpenChange, plan, backgroundUrl }
             Cancel
           </Button>
           <Button
-            className="lv-premium-shade h-9 max-lg:h-11 max-lg:flex-1 max-lg:text-base bg-[#967A59] hover:bg-[#7a6347] text-white order-1 ml-auto max-lg:ml-0"
+            className="reception-primary-action lv-premium-shade h-9 max-lg:h-11 max-lg:flex-1 max-lg:text-base bg-[#967A59] hover:bg-[#7a6347] text-white order-1 ml-auto max-lg:ml-0"
             onClick={handleSubmit}
             disabled={submitting}
           >

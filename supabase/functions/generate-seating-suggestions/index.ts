@@ -136,8 +136,43 @@ serve(async (req) => {
 
     // Call Lovable AI
     const lovableApiKey = Deno.env.get('LOVABLE_API_KEY');
-    if (!lovableApiKey) {
-      throw new Error('LOVABLE_API_KEY not configured');
+    const isStaging = supabaseUrl.includes('ufmpxsgncmvgrvvlqtuj');
+    if (isStaging || !lovableApiKey) {
+      const remaining = new Map(tables.map((table) => [
+        table.id,
+        Math.max(0, Number(table.limit_seats || 0) - guests.filter((guest) => guest.table_id === table.id).length),
+      ]));
+      const familyTables = new Map<string, string>();
+      for (const guest of guests) {
+        if (guest.family_group && guest.table_id) familyTables.set(guest.family_group, guest.table_id);
+      }
+      const suggestions = [];
+      for (const guest of guests.filter((row) => !row.table_id)) {
+        const familyTable = guest.family_group ? familyTables.get(guest.family_group) : undefined;
+        let tableId = familyTable && (remaining.get(familyTable) || 0) > 0 ? familyTable : undefined;
+        if (!tableId) {
+          tableId = [...remaining.entries()].sort((a, b) => b[1] - a[1]).find(([, seats]) => seats > 0)?.[0];
+        }
+        if (!tableId) break;
+        remaining.set(tableId, (remaining.get(tableId) || 0) - 1);
+        if (guest.family_group) familyTables.set(guest.family_group, tableId);
+        suggestions.push({
+          guest_id: guest.id,
+          suggested_table_id: tableId,
+          confidence_score: familyTable === tableId ? 0.85 : 0.65,
+          reasoning: familyTable === tableId ? 'Keeps this family group together.' : 'Uses the table with the most available seats.',
+        });
+      }
+      await supabase.from('ai_seating_suggestions').delete().eq('event_id', event_id).eq('status', 'pending');
+      if (suggestions.length) {
+        const { error: insertError } = await supabase.from('ai_seating_suggestions').insert(
+          suggestions.map((suggestion) => ({ event_id, ...suggestion, status: 'pending' })),
+        );
+        if (insertError) throw insertError;
+      }
+      return new Response(JSON.stringify({ suggestions, suggestions_count: suggestions.length, source: 'private_rules' }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
     }
 
     const aiResponse = await fetch('https://ai.gateway.lovable.dev/v1/chat/completions', {
@@ -265,7 +300,7 @@ Only suggest changes for guests who would benefit from reassignment.`
     }
 
     return new Response(
-      JSON.stringify({ suggestions }),
+      JSON.stringify({ suggestions, suggestions_count: suggestions.length, source: 'ai' }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' } }
     );
   } catch (error) {

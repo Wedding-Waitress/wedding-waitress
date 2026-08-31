@@ -7,6 +7,7 @@ import { exportRunningSheetPDF } from '@/lib/runningSheetPdfExporter';
 import { RunningSheetSection } from '@/components/Dashboard/RunningSheet/RunningSheetSection';
 import { RunningSheetItem } from '@/types/runningSheet';
 import { decodeShareToken } from '@/lib/shareTokens';
+import styles from '@/components/Dashboard/RunningSheet/RunningSheetTheme.module.css';
 
 interface RunningSheetData {
   sheet_id: string;
@@ -370,8 +371,8 @@ export function RunningSheetPublicView() {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center">
-        <div className="text-center">
+      <div className={`${styles.publicPage} ww-application-background flex items-center justify-center p-4`} data-public-running-sheet-state="loading">
+        <div className={`${styles.statusCard} rounded-2xl p-8 text-center`}>
           <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-muted-foreground">Loading run sheet...</p>
         </div>
@@ -381,8 +382,8 @@ export function RunningSheetPublicView() {
 
   if (error) {
     return (
-      <div className="min-h-screen bg-background flex items-center justify-center p-4">
-        <Card className="max-w-md w-full">
+      <div className={`${styles.publicPage} ww-application-background flex items-center justify-center p-4`} data-public-running-sheet-state="unavailable">
+        <Card className={styles.statusCard}>
           <CardContent className="pt-6 text-center">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
             <h2 className="text-xl font-semibold mb-2">Link Unavailable</h2>
@@ -402,13 +403,13 @@ export function RunningSheetPublicView() {
   const hasReception = !!(data.event_date || data.event_venue);
 
   return (
-    <div className="min-h-screen bg-background">
+    <div className={`${styles.publicPage} ww-application-background`} data-public-running-sheet-state="ready">
       {/* Header */}
-      <header className="bg-card border-b border-border print:static">
+      <header className={`${styles.publicHeader} print:static`}>
         <div className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-4">
-          <div className="flex items-center justify-between">
+          <div className="flex items-center justify-between gap-4 max-md:flex-col max-md:items-stretch">
             <div className="flex items-center gap-3">
-              <div className="p-2 bg-primary/10 rounded-lg">
+              <div className={`${styles.publicHeaderIcon} p-2 bg-primary/10 rounded-lg`}>
                 <FileText className="h-6 w-6 text-primary" />
               </div>
               <div>
@@ -416,7 +417,7 @@ export function RunningSheetPublicView() {
                 <h1 className="text-xl font-bold">{data.event_name}</h1>
               </div>
             </div>
-            <div className="flex items-center gap-2 print:hidden">
+            <div className="flex items-center gap-2 flex-wrap print:hidden max-sm:[&>*]:w-full">
               {canEdit && saveStatus !== 'idle' && (
                 <span className={`inline-flex items-center gap-1.5 px-3 py-1.5 text-xs font-medium rounded-full transition-opacity ${
                   saveStatus === 'saving' ? 'text-muted-foreground bg-muted' :
@@ -429,15 +430,18 @@ export function RunningSheetPublicView() {
                   {saveStatus === 'saving' ? 'Saving...' : saveStatus === 'saved' ? 'Saved' : 'Save failed'}
                 </span>
               )}
-              <span className={`inline-flex items-center px-4 py-2 text-sm font-medium border-2 rounded-full ${
+              <span
+                className={`${styles.permissionBadge} inline-flex items-center px-4 py-2 text-sm font-medium border-2 rounded-full ${
                 canEdit
                   ? 'border-green-500 text-green-600'
                   : 'border-red-500 text-red-500'
-              }`}>
+                }`}
+                data-permission={canEdit ? 'can-edit' : 'view-only'}
+              >
                 {canEdit ? 'Can Edit' : 'View Only'}
               </span>
               <button
-                className="inline-flex items-center px-4 py-2 text-sm font-medium border-2 border-green-500 rounded-full text-green-600 bg-transparent hover:bg-green-50 transition-colors disabled:opacity-50"
+                className={`inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-full transition-all disabled:opacity-50 ${styles.greenAction}`}
                 disabled={downloadingPDF}
                 onClick={async () => {
                   setDownloadingPDF(true);
@@ -472,9 +476,9 @@ export function RunningSheetPublicView() {
 
       {/* Event Info Banner — matching dashboard layout */}
       {(hasCeremony || hasReception) && (
-        <div className="bg-primary/5 border-b border-primary/10 print:bg-transparent">
+        <div className="px-4 py-4 print:bg-transparent">
           <div className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-4">
-            <div className="text-center space-y-3">
+            <div className={`text-center space-y-3 p-4 ${styles.eventBanner}`}>
               <h2 className="text-xl font-semibold text-primary">{data.event_name}</h2>
               <div className={`flex justify-center gap-8 flex-wrap ${
                 hasCeremony && hasReception ? '' : 'max-w-md mx-auto'
@@ -529,7 +533,7 @@ export function RunningSheetPublicView() {
       </main>
 
       {/* Footer */}
-      <footer className="border-t border-border mt-12 print:border-0">
+      <footer className={`${styles.publicFooter} border-t border-border mt-12 print:border-0`}>
         <div className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-6 text-center">
           <a href="https://www.weddingwaitress.com.au" target="_blank" rel="noopener noreferrer" className="inline-flex flex-col items-center gap-2 hover:opacity-80 transition-opacity">
             <img

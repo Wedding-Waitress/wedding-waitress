@@ -11,6 +11,7 @@ import { exportInvitationPNG, exportInvitationPDF, exportInvitation2Up, exportBu
 import { InvitationSendModal } from './InvitationSendModal';
 import type { InvitationTemplate, TextZone } from '@/hooks/useInvitationTemplates';
 import type { QrConfig } from '@/lib/invitationQR';
+import { useNavigate } from 'react-router-dom';
 
 interface Props {
   template: InvitationTemplate;
@@ -33,6 +34,7 @@ export const InvitationExporter: React.FC<Props> = ({
   qrConfig,
   qrDataUrl,
 }) => {
+  const navigate = useNavigate();
   const { toast } = useToast();
   const { plan, isStarterPlan } = useUserPlan();
   const { guests } = useGuests(eventId);
@@ -110,7 +112,7 @@ export const InvitationExporter: React.FC<Props> = ({
 
   return (
     <>
-      <Card>
+      <Card className="ww-invitations-interface">
         <CardHeader className="pb-2">
           <CardTitle className="text-sm flex items-center gap-2">
             <Download className="w-4 h-4" /> Export & Share
@@ -235,7 +237,7 @@ export const InvitationExporter: React.FC<Props> = ({
 
       {/* Upgrade Modal */}
       <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
-        <DialogContent className="sm:max-w-md">
+        <DialogContent className="ww-invitations-premium-dialog sm:max-w-md">
           <DialogHeader>
             <DialogTitle className="flex items-center gap-2">
               <Lock className="w-5 h-5 text-primary" /> Export Limit Reached
@@ -272,7 +274,7 @@ export const InvitationExporter: React.FC<Props> = ({
             <Button onClick={() => {
               setShowUpgradeModal(false);
               // Navigate to pricing - uses existing pricing page
-              window.location.href = '/#pricing';
+              navigate('/#pricing');
             }}>
               View Plans
             </Button>

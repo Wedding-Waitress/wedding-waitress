@@ -23,7 +23,7 @@ import { Tabs, TabsContent, TabsList, TabsTrigger } from "@/components/ui/tabs";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
-import { PlaceCardSettings } from "@/hooks/usePlaceCardSettings";
+import { normalizePlaceCardSettings, PlaceCardSettings } from "@/hooks/usePlaceCardSettings";
 import { Guest } from "@/hooks/useGuests";
 import { Palette, Type, Image, MessageSquare, MessageSquareText, Sparkles, Grid3X3, Trash2, Upload, Images, QrCode, Move, UserRound, Armchair, RotateCcw } from "lucide-react";
 import { PlaceCardGalleryModal } from "./PlaceCardGalleryModal";
@@ -86,39 +86,11 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
     setLocalMassMessage(settings?.mass_message || "");
   }, [settings?.mass_message]);
 
-  const currentSettings = settings || {
-    event_id: "",
-    user_id: "",
-    font_family: "Inter",
-    font_color: "#000000",
-    background_color: "#ffffff",
-    background_image_url: null,
-    background_image_type: "none" as const,
-    background_image_x_position: 50,
-    background_image_y_position: 50,
-    background_image_scale: 100,
-    background_image_opacity: 100,
-    mass_message: "",
-    individual_messages: {},
-    guest_font_family: "Great Vibes",
-    info_font_family: "Beauty Mountains",
-    guest_name_bold: false,
-    guest_name_italic: false,
-    guest_name_underline: false,
-    guest_name_font_size: 30,
-    info_font_size: 16,
-    name_spacing: 4,
-    background_behind_names: false,
-    background_behind_table_seats: false,
-    info_bold: false,
-    info_italic: false,
-    info_underline: false,
-    info_font_color: "#000000",
-    photo_video_qr_enabled: false,
-    photo_video_qr_x: 50,
-    photo_video_qr_y: 50,
-    photo_video_qr_size: 22,
-  };
+  const currentSettings = normalizePlaceCardSettings(
+    settings || {},
+    settings?.event_id || "",
+    settings?.user_id || "",
+  );
   const handleSettingChange = async (key: keyof PlaceCardSettings, value: any) => {
     await onSettingsChange({
       [key]: value,
@@ -281,7 +253,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   };
   return (
     <>
-      <Card className="ww-signage-premium-designer ww-placecards-premium-designer border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-fit sticky top-0 mt-12 bg-white">
+      <Card className="ww-placecards-premium-designer h-fit sticky top-0 mt-12">
         <CardHeader>
           <CardTitle className="flex items-center gap-2 py-[10px] text-2xl font-bold text-foreground">
             <Palette size={22} strokeWidth={1.8} className="text-foreground shrink-0" aria-hidden="true" />
@@ -340,7 +312,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="ww-signage-premium-portal">
+                        <SelectContent className="ww-placecards-portal">
                           {[12, 14, 16, 18, 20, 22, 24, 26, 28, 30, 32, 36, 40, 44, 48].map((size) => (
                             <SelectItem key={size} value={size.toString()}>
                               {size}pt
@@ -358,7 +330,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                       <ColorPickerPopover
                         value={currentSettings.font_color}
                         onChange={(color) => handleSettingChange("font_color", color)}
-                        contentClassName="ww-signage-premium-portal"
+                        contentClassName="ww-placecards-portal"
                       />
                     </div>
                     <div>
@@ -382,7 +354,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="ww-signage-premium-portal">
+                        <SelectContent className="ww-placecards-portal">
                           <SelectItem value="default">Default</SelectItem>
                           <SelectItem value="bold">Bold</SelectItem>
                           <SelectItem value="italic">Italic</SelectItem>
@@ -418,7 +390,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="ww-signage-premium-portal">
+                        <SelectContent className="ww-placecards-portal">
                           {[8, 9, 10, 11, 12, 13, 14, 16, 18, 20, 22, 24].map((size) => (
                             <SelectItem key={size} value={size.toString()}>
                               {size}pt
@@ -436,7 +408,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                       <ColorPickerPopover
                         value={(currentSettings as any).info_font_color || "#000000"}
                         onChange={(color) => handleSettingChange("info_font_color" as any, color)}
-                        contentClassName="ww-signage-premium-portal"
+                        contentClassName="ww-placecards-portal"
                       />
                     </div>
                     <div>
@@ -460,7 +432,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="ww-signage-premium-portal">
+                        <SelectContent className="ww-placecards-portal">
                           <SelectItem value="default">Default</SelectItem>
                           <SelectItem value="bold">Bold</SelectItem>
                           <SelectItem value="italic">Italic</SelectItem>
@@ -714,7 +686,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="ww-signage-premium-portal">
+                        <SelectContent className="ww-placecards-portal">
                           {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((val) => (
                             <SelectItem key={val} value={String(val)}>
                               {val}%
@@ -734,7 +706,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="ww-signage-premium-portal">
+                        <SelectContent className="ww-placecards-portal">
                           {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((val) => (
                             <SelectItem key={val} value={String(val)}>
                               {val}%
@@ -754,7 +726,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         <SelectTrigger>
                           <SelectValue />
                         </SelectTrigger>
-                        <SelectContent className="ww-signage-premium-portal">
+                        <SelectContent className="ww-placecards-portal">
                           {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map((val) => (
                             <SelectItem key={val} value={String(val)}>
                               {val}%
@@ -773,7 +745,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <ColorPickerPopover
                     value={settings?.background_color || "#ffffff"}
                     onChange={(color) => handleSettingChange("background_color", color)}
-                    contentClassName="ww-signage-premium-portal"
+                    contentClassName="ww-placecards-portal"
                   />
                 </div>
 
@@ -891,18 +863,20 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       </Card>
 
       {/* Gallery Modal */}
-      <PlaceCardGalleryModal
-        open={galleryModalOpen}
-        onOpenChange={setGalleryModalOpen}
-        selectedImageUrl={settings.background_image_url || null}
-        onSelectImage={async (imageUrl) => {
-          await handleSettingChange("background_image_url", imageUrl);
-          toast({
-            title: "Image Selected",
-            description: "Gallery image has been applied",
-          });
-        }}
-      />
+      {galleryModalOpen && (
+        <PlaceCardGalleryModal
+          open
+          onOpenChange={setGalleryModalOpen}
+          selectedImageUrl={currentSettings.background_image_url || null}
+          onSelectImage={async (imageUrl) => {
+            await handleSettingChange("background_image_url", imageUrl);
+            toast({
+              title: "Image Selected",
+              description: "Gallery image has been applied",
+            });
+          }}
+        />
+      )}
     </>
   );
 };

@@ -6,13 +6,14 @@ import { Admin } from './Admin';
 
 const mocks=vi.hoisted(()=>({isAdmin:true,getSession:vi.fn(),signOut:vi.fn()}));
 vi.mock('@/hooks/useIsAdmin',()=>({useIsAdmin:()=>({isAdmin:mocks.isAdmin,loading:false})}));
+vi.mock('@/hooks/useDashboardSession',()=>({useDashboardSession:()=>({session:{user:{id:'admin-1'}},loading:false,error:null,retry:vi.fn()})}));
 vi.mock('@/hooks/useProfile',()=>({useProfile:()=>({profile:{first_name:'Nader',last_name:'Elalfy',email:'admin@example.com'}})}));
 vi.mock('@/integrations/supabase/client',()=>({supabase:{auth:{getSession:mocks.getSession,signOut:mocks.signOut}}}));
 vi.mock('@/components/SEO/SeoHead',()=>({SeoHead:()=>null}));
 vi.mock('@/components/Account/ProfileAvatar',()=>({ProfileAvatar:()=> <span>NE</span>}));
 vi.mock('@/components/Admin/AdminCentrePages',()=>({AdminOverviewPage:()=> <div>Overview page</div>,AdminCustomersPage:()=> <div>Customers page</div>,AdminSubscriptionsPaymentsPage:()=> <div>Subscriptions page</div>,AdminEventsPage:()=> <div>Events page</div>,AdminAccountLifecyclePage:()=> <div>Lifecycle page</div>}));
 
-const renderAdmin=(entry:string)=>{const router=createMemoryRouter([{path:'/admin',element:<Admin/>},{path:'/admin/:section',element:<Admin/>},{path:'/dashboard',element:<div>Wedding Waitress dashboard</div>},{path:'/',element:<div>Signed out</div>}],{initialEntries:[entry]});render(<RouterProvider router={router}/>);return router;};
+const renderAdmin=(entry:string)=>{const router=createMemoryRouter([{path:'/admin/:section?',element:<Admin/>},{path:'/dashboard',element:<div>Wedding Waitress dashboard</div>},{path:'/',element:<div>Signed out</div>}],{initialEntries:[entry]});render(<RouterProvider router={router}/>);return router;};
 describe('Admin Centre routing and protection',()=>{
   beforeEach(()=>{vi.clearAllMocks();mocks.isAdmin=true;mocks.getSession.mockResolvedValue({data:{session:{user:{id:'admin-1'}}}});sessionStorage.setItem('ww_admin_grant',btoa(JSON.stringify({user_id:'admin-1',exp:Date.now()+600000})));sessionStorage.setItem('ww_admin_grant_sig','signed');});
   it('redirects /admin to the routed overview',async()=>{const router=renderAdmin('/admin');expect(await screen.findByText('Overview page')).toBeInTheDocument();expect(router.state.location.pathname).toBe('/admin/overview');});
@@ -21,4 +22,5 @@ describe('Admin Centre routing and protection',()=>{
   it('denies an ordinary user even with a forged browser grant',async()=>{mocks.isAdmin=false;renderAdmin('/admin/overview');expect(await screen.findByText('Wedding Waitress dashboard')).toBeInTheDocument();});
   it('requires the SMS verification grant before opening a route',async()=>{sessionStorage.clear();renderAdmin('/admin/events');expect(await screen.findByText('Wedding Waitress dashboard')).toBeInTheDocument();});
   it('keeps Back and Log Out separate',async()=>{renderAdmin('/admin/overview');await screen.findByText('Overview page');fireEvent.click(screen.getByRole('button',{name:'Log Out'}));await waitFor(()=>expect(mocks.signOut).toHaveBeenCalled());expect(await screen.findByText('Signed out')).toBeInTheDocument();});
+  it('keeps the Admin Centre shell mounted while section content changes',async()=>{renderAdmin('/admin/overview');await screen.findByText('Overview page');const shell=document.querySelector('[data-admin-shell]');fireEvent.click(screen.getByRole('link',{name:'Customers'}));expect(screen.getByRole('link',{name:'Customers'})).toHaveAttribute('aria-current','page');expect(await screen.findByText('Customers page')).toBeInTheDocument();expect(document.querySelector('[data-admin-shell]')).toBe(shell);});
 });

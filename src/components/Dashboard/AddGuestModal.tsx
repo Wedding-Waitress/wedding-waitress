@@ -49,7 +49,7 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { X, AlertCircle, Users, Utensils, Calendar, MapPin, Plus, UserPlus, Trash2, Pencil, UserRound, Phone, Mail, ClipboardCheck, Table2, StickyNote, Save } from 'lucide-react';
+import { X, AlertCircle, Users, Utensils, Calendar, MapPin, Plus, UserPlus, Pencil, UserRound, Phone, Mail, ClipboardCheck, Table2, StickyNote, Save } from 'lucide-react';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTables } from "@/hooks/useTables";
@@ -1732,7 +1732,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             disabled={loading}
             onClick={form.handleSubmit(onSubmit)}
           >
-            <Save size={18} strokeWidth={1.8} className={cn("hidden lg:inline-block mr-2", isEdit && "text-white")} aria-hidden="true" />
+            <Save size={18} strokeWidth={1.8} className="inline-block mr-2 text-white" aria-hidden="true" />
             {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Guest' : 'Add Guest')}
           </Button>
           <Button
@@ -1743,9 +1743,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             onClick={handleClose}
             disabled={loading}
           >
-            {isEdit
-              ? <Trash2 size={18} strokeWidth={1.8} className="hidden lg:inline-block mr-2 text-white" aria-hidden="true" />
-              : <X size={18} strokeWidth={1.8} className="hidden lg:inline-block mr-2" aria-hidden="true" />}
+            <X size={18} strokeWidth={1.8} className="inline-block mr-2 text-white" aria-hidden="true" />
             Cancel
           </Button>
         </div>

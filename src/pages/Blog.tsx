@@ -6,6 +6,7 @@
 import { Link } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Header } from '@/components/Layout/Header';
+import { PublicFooter } from '@/components/Layout/PublicFooter';
 import { CookieBanner } from '@/components/ui/CookieBanner';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { useBlogPosts } from '@/content/blogPosts';
@@ -19,6 +20,7 @@ import blogSeatingChartStepByStep from '@/assets/blog-seating-chart-step-by-step
 import blogSeatingEtiquette from '@/assets/blog-seating-etiquette.jpg';
 import blogSeatingTemplates from '@/assets/blog-seating-templates.jpg';
 import blogSeatingMistakes from '@/assets/blog-seating-mistakes.jpg';
+import '@/styles/PublicSite.css';
 
 const BLOG_COVER_IMAGES: Record<string, string> = {
   'blog-qr-scanning': blogQrScanning,
@@ -49,7 +51,7 @@ export const Blog = () => {
   };
 
   return (
-    <div className="min-h-screen flex flex-col bg-[#faf8f5]">
+    <div className="ww-public min-h-screen flex flex-col bg-[#faf8f5]">
       <SeoHead
         title="Wedding Planning Tips & Ideas | Wedding Waitress Blog"
         description="Discover wedding planning tips, seating chart ideas, and guest management advice for your big day."
@@ -76,7 +78,7 @@ export const Blog = () => {
             {posts.map((post) => (
               <article
                 key={post.slug}
-                className="bg-white rounded-2xl border border-[#eee5d8] shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col"
+                className="ww-brand-border bg-white rounded-2xl border shadow-sm hover:shadow-md transition-all overflow-hidden flex flex-col"
               >
                 <Link
                   to={`/blog/${post.slug}`}
@@ -99,14 +101,14 @@ export const Blog = () => {
                   )}
                 </Link>
                 <div className="p-6 flex flex-col flex-1">
-                  <div className="text-xs uppercase tracking-wider text-[#967A59] font-semibold mb-2">
-                    {post.readingTime}
+                  <div className="ww-public-link text-xs uppercase tracking-wider font-semibold mb-2">
+                    {post.date} · {post.readingTime}
                   </div>
                   <h2 className="text-xl font-bold text-[#1D1D1F] mb-3 leading-snug">
                     <Link
                       to={`/blog/${post.slug}`}
                       onClick={() => window.scrollTo(0, 0)}
-                      className="hover:text-[#967A59] transition-colors"
+                      className="ww-public-link transition-colors"
                     >
                       {post.title}
                     </Link>
@@ -115,7 +117,7 @@ export const Blog = () => {
                   <Link
                     to={`/blog/${post.slug}`}
                     onClick={() => window.scrollTo(0, 0)}
-                    className="mt-5 inline-flex items-center justify-center px-5 py-2.5 rounded-full bg-[#967A59] text-white font-semibold text-sm hover:bg-[#7a6347] transition-colors w-fit"
+                    className="ww-button-espresso mt-5 px-5 py-2.5 text-sm w-fit"
                   >
                     {t('blog.readMore')}
                   </Link>
@@ -126,11 +128,7 @@ export const Blog = () => {
         </section>
       </main>
 
-      <footer className="bg-[#1D1D1F] text-white">
-        <div className="max-w-6xl mx-auto px-6 py-10 text-center text-sm text-white/60">
-          {t('blog.copyright', { year: new Date().getFullYear() })}
-        </div>
-      </footer>
+      <PublicFooter />
       <CookieBanner />
     </div>
   );

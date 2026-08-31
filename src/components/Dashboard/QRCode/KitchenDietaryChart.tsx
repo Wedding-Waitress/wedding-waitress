@@ -26,12 +26,10 @@ import { Separator } from '@/components/ui/separator';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { ChefHat, ChevronLeft, ChevronRight, CalendarDays, UtensilsCrossed, Printer, FileDown, Files, LoaderCircle, TriangleAlert } from 'lucide-react';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
-import { useEvents } from '@/hooks/useEvents';
 import { useTables } from '@/hooks/useTables';
 import { useDietaryChartSettings } from '@/hooks/useDietaryChartSettings';
 import { DietaryChartCustomizer } from './DietaryChartCustomizer';
 import { useToast } from '@/hooks/use-toast';
-import { exportDietaryPreviewToPdf } from '@/lib/dietaryChartPdfExporter';
 import { format } from 'date-fns';
 const dietaryLogo = '/wedding-waitress-logo-brown.png';
 import { computeRelationDisplay } from '@/lib/relationUtils';
@@ -276,6 +274,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         description: 'Creating your dietary chart (current page)...',
       });
 
+      const { exportDietaryPreviewToPdf } = await import('@/lib/dietaryChartPdfExporter');
       await exportDietaryPreviewToPdf({
         eventName: currentEvent.name,
         eventDate: currentEvent.date,
@@ -315,6 +314,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         description: 'Creating your dietary chart (all pages)...',
       });
 
+      const { exportDietaryPreviewToPdf } = await import('@/lib/dietaryChartPdfExporter');
       await exportDietaryPreviewToPdf({
         eventName: currentEvent.name,
         eventDate: currentEvent.date,
@@ -344,10 +344,10 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
   if (guestsLoading) {
     return (
-      <Card className="ww-box w-full">
+      <Card className={`${styles.page} ${styles.emptyPanel} ww-box w-full`}>
         <CardContent className="p-6">
           <div className="flex items-center justify-center">
-            <div className="text-muted-foreground">Loading dietary requirements...</div>
+            <div data-dietary-body className="text-muted-foreground">Loading dietary requirements...</div>
           </div>
         </CardContent>
       </Card>
@@ -527,8 +527,8 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                 <div className="flex items-start gap-2">
                   <ChefHat className="w-[25px] h-[25px] mt-0.5 text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                   <div className="min-w-0">
-                    <CardTitle className="dietary-main-heading text-left text-2xl font-bold text-[#472c1d]">Kitchen Dietary Requirements</CardTitle>
-                    <CardDescription className="text-left">
+                    <CardTitle className={`${styles.pageHeading} dietary-main-heading text-left text-2xl font-bold text-[#472c1d]`}>Kitchen Dietary Requirements</CardTitle>
+                    <CardDescription className={`${styles.pageDescription} text-left`}>
                       Staff reference sheet for guests with dietary requirements and allergies
                     </CardDescription>
                   </div>
@@ -536,7 +536,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
 
                 <div className="flex flex-col sm:flex-row sm:items-center gap-3 sm:gap-4 flex-wrap">
                   <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-                    <label className="text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]">
+                    <label className={`${styles.interfaceLabel} text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]`}>
                       <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                       Choose Event:
                     </label>
@@ -568,7 +568,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       className={`${styles.statsPill} w-fit max-w-full h-10 px-3 py-2 whitespace-normal`}
                     >
                       <UtensilsCrossed className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
-                      <span className="ml-1.5">
+                      <span className={`${styles.compactStatus} ml-1.5`}>
                         {dietaryGuests.length} Guest{dietaryGuests.length !== 1 ? 's' : ''} with dietary requirements
                       </span>
                     </Badge>
@@ -580,11 +580,11 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
               {currentEvent && dietaryGuests.length > 0 && (
                 <div className={`${styles.exportPanel} rounded-xl p-3 sm:p-4 flex flex-col justify-between gap-3 min-w-0`}>
                   <div className="text-sm space-y-1">
-                    <span className="font-bold text-sm inline-flex items-center gap-1.5">
+                    <span className={`${styles.sectionHeading} font-bold text-sm inline-flex items-center gap-1.5`}>
                       <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                       Export Controls
                     </span>
-                    <p className="text-muted-foreground">
+                    <p className={`${styles.interfaceDescription} text-muted-foreground`}>
                       Download &amp; share your dietary requirements guests with your venue/kitchen.
                     </p>
                   </div>
@@ -627,7 +627,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
           <Card className={`${styles.emptyPanel} print:hidden`}>
             <CardContent className="p-8 text-center">
               <ChefHat className="w-16 h-16 mx-auto text-muted-foreground mb-4" strokeWidth={1.8} aria-hidden="true" />
-              <CardTitle className="mb-2">Select an Event</CardTitle>
+              <CardTitle className={`${styles.sectionHeading} mb-2`}>Select an Event</CardTitle>
               <CardDescription>
                 Choose an event from the dropdown above to view dietary requirements
               </CardDescription>

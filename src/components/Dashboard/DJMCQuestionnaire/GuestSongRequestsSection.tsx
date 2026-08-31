@@ -12,7 +12,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import { useGuestSongRequests, type SongRequestStatus, type GuestSongRequestRow } from '@/hooks/useGuestSongRequests';
 import { useGuestSongRequestSettings } from '@/hooks/useGuestSongRequestSettings';
-import { exportGuestSongRequestsToPDF } from '@/lib/guestSongRequestsPdfExporter';
+import theme from './DJMCQuestionnaireTheme.module.css';
 
 interface Props {
   eventId: string | null;
@@ -21,9 +21,9 @@ interface Props {
 }
 
 const statusStyles: Record<SongRequestStatus, string> = {
-  pending: 'bg-amber-100 text-amber-800 border-amber-300',
-  approved: 'bg-green-100 text-green-800 border-green-300',
-  rejected: 'bg-red-100 text-red-700 border-red-300',
+  pending: theme.statusPending,
+  approved: theme.statusApproved,
+  rejected: theme.statusRejected,
 };
 
 const statusLabel: Record<SongRequestStatus, string> = {
@@ -47,6 +47,7 @@ export const GuestSongRequestsSection: React.FC<Props> = ({ eventId, eventName, 
     if (rows.length === 0) return;
     setExporting(true);
     try {
+      const { exportGuestSongRequestsToPDF } = await import('@/lib/guestSongRequestsPdfExporter');
       await exportGuestSongRequestsToPDF({
         rows,
         eventName: eventName || 'Event',
@@ -58,24 +59,24 @@ export const GuestSongRequestsSection: React.FC<Props> = ({ eventId, eventName, 
   };
 
   return (
-    <Card className="border border-primary/40 shadow-sm">
+    <Card className={theme.sectionCard}>
       <CardHeader className="pb-3">
         <div className="flex flex-wrap items-center justify-between gap-3">
-          <CardTitle className="text-xl font-bold text-foreground flex items-center gap-2">
+          <CardTitle className={`${theme.sectionHeading} text-foreground flex items-center gap-2`}>
             <ListMusic size={19} strokeWidth={1.8} className="text-[#856A4C]" aria-hidden="true" />
             Guest Song Requests
           </CardTitle>
           <div className="flex flex-wrap items-center gap-2">
-            <Badge variant="outline" className="border-primary/40">Total {counts.total}</Badge>
-            <Badge className="bg-amber-100 text-amber-800 border-amber-300 hover:bg-amber-100 inline-flex items-center gap-1.5"><Clock3 size={15} strokeWidth={1.8} aria-hidden="true" />Pending {counts.pending}</Badge>
-            <Badge className="bg-green-100 text-green-800 border-green-300 hover:bg-green-100 inline-flex items-center gap-1.5"><CircleCheck size={15} strokeWidth={1.8} aria-hidden="true" />Approved {counts.approved}</Badge>
-            <Badge className="bg-red-100 text-red-700 border-red-300 hover:bg-red-100 inline-flex items-center gap-1.5"><CircleX size={15} strokeWidth={1.8} aria-hidden="true" />Rejected {counts.rejected}</Badge>
+            <Badge variant="outline" className={theme.countBadge}>Total {counts.total}</Badge>
+            <Badge className={`${theme.statusPending} inline-flex items-center gap-1.5`}><Clock3 size={15} strokeWidth={1.8} aria-hidden="true" />Pending {counts.pending}</Badge>
+            <Badge className={`${theme.statusApproved} inline-flex items-center gap-1.5`}><CircleCheck size={15} strokeWidth={1.8} aria-hidden="true" />Approved {counts.approved}</Badge>
+            <Badge className={`${theme.statusRejected} inline-flex items-center gap-1.5`}><CircleX size={15} strokeWidth={1.8} aria-hidden="true" />Rejected {counts.rejected}</Badge>
             <Button
               size="sm"
               variant="outline"
               onClick={handleExport}
               disabled={exporting || rows.length === 0}
-              className="lv-premium-shade"
+              className={`${theme.primaryAction} lv-premium-shade`}
             >
               {exporting ? (
                 <LoaderCircle size={16} strokeWidth={1.8} className="mr-1.5 animate-spin" aria-hidden="true" />
@@ -87,16 +88,16 @@ export const GuestSongRequestsSection: React.FC<Props> = ({ eventId, eventName, 
           </div>
         </div>
         {!settings?.enabled && (
-          <p className="text-xs text-muted-foreground pt-1">
+          <p className={`${theme.bodyText} text-muted-foreground pt-1`}>
             Guest song requests are currently turned off. Enable them under QR Code Seating Chart → Guest Live View Configuration.
           </p>
         )}
       </CardHeader>
       <CardContent>
         {loading ? (
-          <p className="text-sm text-muted-foreground">Loading…</p>
+          <p className={`${theme.bodyText} text-muted-foreground`}>Loading…</p>
         ) : rows.length === 0 ? (
-          <div className="text-sm text-muted-foreground bg-muted/40 rounded-md p-6 text-center">
+          <div className={`${theme.emptyPanel} ${theme.bodyText} text-muted-foreground rounded-md p-6 text-center`}>
             No guest song requests yet. Once guests submit requests from the Live View app they will appear here in real time.
           </div>
         ) : (
@@ -122,20 +123,20 @@ const RequestRow: React.FC<{
   onDelete: () => void;
 }> = ({ row, onStatusChange, onDelete }) => {
   return (
-    <div className="flex flex-wrap items-start gap-3 rounded-lg border border-border bg-background p-3">
+    <div className={`${theme.managedLink} flex flex-wrap items-start gap-3 rounded-lg p-3`}>
       <div className="flex-1 min-w-[240px] space-y-1">
         <div className="flex flex-wrap items-center gap-2">
-          <p className="text-sm font-semibold text-foreground">
+          <p className={`${theme.bodyText} text-foreground`}>
             {row.song_title || <span className="italic text-muted-foreground">Untitled song</span>}
           </p>
           {row.artist_name && (
-            <span className="text-sm text-muted-foreground">— {row.artist_name}</span>
+            <span className={`${theme.bodyText} text-muted-foreground`}>— {row.artist_name}</span>
           )}
           <Badge variant="outline" className={`text-[10px] uppercase tracking-wide ${statusStyles[row.status]}`}>
             {statusLabel[row.status]}
           </Badge>
         </div>
-        <p className="text-xs text-muted-foreground">
+        <p className={`${theme.bodyText} text-muted-foreground`}>
           Requested by <span className="font-medium text-foreground">{row.guest_name || 'Guest'}</span> · {new Date(row.created_at).toLocaleString()}
         </p>
         {row.music_link && (
@@ -143,13 +144,13 @@ const RequestRow: React.FC<{
             href={row.music_link}
             target="_blank"
             rel="noopener noreferrer"
-            className="text-xs text-primary inline-flex items-center gap-1 hover:underline break-all"
+            className={`${theme.bodyText} text-primary inline-flex items-center gap-1 hover:underline break-all`}
           >
             <ExternalLink size={14} strokeWidth={1.8} /> {row.music_link}
           </a>
         )}
         {row.note && (
-          <p className="text-xs text-foreground/80 italic">“{row.note}”</p>
+          <p className={`${theme.bodyText} text-foreground/80 italic`}>“{row.note}”</p>
         )}
       </div>
       <div className="flex items-center gap-2">
@@ -157,7 +158,7 @@ const RequestRow: React.FC<{
           <SelectTrigger className="h-9 w-[130px] text-xs">
             <SelectValue />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="ww-djmc-portal">
             <SelectItem value="pending">Pending</SelectItem>
             <SelectItem value="approved">Approved</SelectItem>
             <SelectItem value="rejected">Rejected</SelectItem>
@@ -169,7 +170,7 @@ const RequestRow: React.FC<{
               <Trash2 size={16} strokeWidth={1.8} />
             </Button>
           </AlertDialogTrigger>
-          <AlertDialogContent>
+          <AlertDialogContent className={theme.dialogSurface}>
             <AlertDialogHeader>
               <AlertDialogTitle>Delete this song request?</AlertDialogTitle>
               <AlertDialogDescription>

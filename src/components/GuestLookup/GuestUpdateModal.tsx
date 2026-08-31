@@ -288,7 +288,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
 
   const headerTitle = 'Update Your Information';
   const headerSubtitle = (
-    <div className="text-sm text-foreground space-y-1">
+    <div data-live-body className="text-sm text-foreground space-y-1">
       <span className="block">{helperText || "Please update, edit your details & save below."}</span>
       <span className="block">You're info will automatically be sent to the event organiser</span>
     </div>

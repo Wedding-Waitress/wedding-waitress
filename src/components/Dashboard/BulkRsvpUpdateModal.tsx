@@ -55,7 +55,7 @@ export const BulkRsvpUpdateModal = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="max-w-2xl">
+      <DialogContent className="ww-guest-list-typography max-w-2xl">
         <DialogHeader>
           <DialogTitle>Update RSVP Status for {selectedGuests.length} Guests</DialogTitle>
         </DialogHeader>

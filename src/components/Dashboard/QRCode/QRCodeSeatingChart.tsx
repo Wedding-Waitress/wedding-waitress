@@ -11,12 +11,12 @@
  *
  * Last locked: 2026-02-19
  */
-import React, { useState, useEffect } from 'react';
+import React from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/button';
 import { CalendarDays, QrCode, MapPin, Clock3, CircleCheck, ExternalLink } from 'lucide-react';
-import { useEvents } from '@/hooks/useEvents';
+import type { Event } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { QRCodeMainCard } from './QRCodeMainCard';
 import { useEventDynamicQR } from '@/hooks/useEventDynamicQR';
@@ -27,16 +27,16 @@ interface QRCodeSeatingChartProps {
   selectedEventId?: string | null;
   onEventSelect?: (eventId: string) => void;
   onNavigateToTab?: (tab: string) => void;
+  events: Event[];
+  eventsLoading: boolean;
 }
 export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
   selectedEventId,
   onEventSelect,
-  onNavigateToTab
+  onNavigateToTab,
+  events,
+  eventsLoading,
 }) => {
-  const {
-    events,
-    loading: eventsLoading
-  } = useEvents();
   const { toast } = useToast();
   const selectedEvent = events.find(event => event.id === selectedEventId);
   const { dynamicUrl } = useEventDynamicQR(selectedEventId || null);
@@ -125,7 +125,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
             </div>
             
             {selectedEvent && (
-              <div className="flex flex-wrap items-center gap-x-3 gap-y-1 text-sm sm:text-lg font-medium text-[#967A59]">
+              <div className={`${styles.eventDetailsText} flex flex-wrap items-center gap-x-3 gap-y-1 text-sm sm:text-lg font-medium text-[#967A59]`}>
                 <span className="inline-flex items-center gap-1.5">
                   <MapPin className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                   {selectedEvent.venue || 'Venue not specified'}
@@ -156,12 +156,12 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
           
           {/* Connected & Synced Status Bar */}
           {selectedEvent && (
-            <div className="flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-green-50 border border-green-300 rounded-lg">
+            <div className={`${styles.connectionBar} flex flex-wrap items-center gap-2 sm:gap-3 px-3 sm:px-4 py-2 bg-green-50 border border-green-300 rounded-lg`}>
               <CircleCheck className="w-4 h-4 text-green-600 flex-shrink-0" strokeWidth={1.8} aria-hidden="true" />
-              <span className="text-xs sm:text-sm font-medium text-green-800">Connected & Synced</span>
+              <span className={`${styles.statusLabel} text-xs sm:text-sm font-medium text-green-800`}>Connected & Synced</span>
               <span className="hidden sm:inline text-sm text-green-700">—</span>
-              <span className="text-xs sm:text-sm text-green-700 truncate">Linked: <strong>{selectedEvent.name}</strong></span>
-              <span className="hidden sm:inline-flex items-center gap-1.5 text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded ml-auto">
+              <span className={`${styles.statusDetail} text-xs sm:text-sm text-green-700 truncate`}>Linked: <strong>{selectedEvent.name}</strong></span>
+              <span className={`${styles.compactStatus} hidden sm:inline-flex items-center gap-1.5 text-xs text-green-600 bg-green-100 px-2 py-0.5 rounded ml-auto`}>
                 <ExternalLink className="w-[14px] h-[14px]" strokeWidth={1.8} aria-hidden="true" />
                 Opens guest lookup
               </span>
@@ -171,7 +171,7 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
       </Card>
 
       {/* Main QR Code Card */}
-      {currentEventId && <QRCodeMainCard eventId={currentEventId} />}
+      {currentEventId && selectedEvent && <QRCodeMainCard eventId={currentEventId} event={selectedEvent} />}
 
 
 

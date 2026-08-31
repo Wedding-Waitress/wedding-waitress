@@ -343,6 +343,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
       toast({
         title: "Please wait",
         description: "Previous operation is still processing",
+        className: 'ww-tables-toast',
       });
       return;
     }
@@ -511,6 +512,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
         title: "Error",
         description: "Failed to move guest. Please try again.",
         variant: "destructive",
+        className: 'ww-tables-toast',
       });
     } finally {
       processingRef.current = false;

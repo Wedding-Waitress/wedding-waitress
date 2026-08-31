@@ -1,12 +1,7 @@
 // Guest-side guestbook upload hook — register → tus resumable upload → finalize
 import { useCallback, useState } from 'react';
 import * as tus from 'tus-js-client';
-import { supabase } from '@/integrations/supabase/client';
-
-const SUPABASE_URL =
-  (import.meta as any).env?.VITE_SUPABASE_URL ?? 'https://xytxkidpourwdbzzwcdp.supabase.co';
-const SUPABASE_PUBLISHABLE_KEY =
-  (import.meta as any).env?.VITE_SUPABASE_PUBLISHABLE_KEY ?? '';
+import { SUPABASE_PUBLISHABLE_KEY, SUPABASE_URL, supabase } from '@/integrations/supabase/client';
 
 export interface GuestbookUploadOptions {
   token: string;
@@ -18,13 +13,18 @@ export interface GuestbookUploadOptions {
   filename: string;
 }
 
+export interface GuestbookUploadResult {
+  itemId: string;
+  deleteToken: string;
+}
+
 export function useGuestbookUpload() {
   const [progress, setProgress] = useState(0);
   const [uploading, setUploading] = useState(false);
   const [error, setError] = useState<string | null>(null);
 
-  /** Returns the created media item id on success, or null on failure. */
-  const upload = useCallback(async (blob: Blob, opts: GuestbookUploadOptions): Promise<string | null> => {
+  /** Returns the item id and its one-submission deletion secret, or null on failure. */
+  const upload = useCallback(async (blob: Blob, opts: GuestbookUploadOptions): Promise<GuestbookUploadResult | null> => {
     setUploading(true);
     setError(null);
     setProgress(0);
@@ -86,7 +86,7 @@ export function useGuestbookUpload() {
       }
       setUploading(false);
       setProgress(100);
-      return item_id;
+      return { itemId: item_id, deleteToken: upload_token };
     } catch (e: any) {
       setError(e?.message || 'Upload failed');
       setUploading(false);

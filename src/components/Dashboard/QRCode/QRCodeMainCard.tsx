@@ -27,7 +27,7 @@ import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/
 import { Progress } from '@/components/ui/progress';
 import { Slider } from '@/components/ui/slider';
 import { QrCode as QrCodeIcon, Copy, Download, RotateCcw, FileDown, Palette, ChevronDown, FileText, Code, Image as ImageIcon, ExternalLink, Link, Eye, EyeOff, Upload, Mail, Edit, Trash2, Loader2, Video, Square, Circle, Diamond, Plus, Minus, MapPin, UtensilsCrossed, CheckCircle2 } from 'lucide-react';
-import { useEvents } from '@/hooks/useEvents';
+import type { Event } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { useLiveViewVisibility } from '@/hooks/useLiveViewVisibility';
 import { useLiveViewModuleSettings } from '@/hooks/useLiveViewModuleSettings';
@@ -36,12 +36,13 @@ import { useEventDynamicQR } from '@/hooks/useEventDynamicQR';
 import { supabase } from '@/integrations/supabase/client';
 import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
+import { resolveWelcomeVideoUrl } from '@/lib/liveViewMediaConfig';
 import type { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 import { DEFAULT_QR_SETTINGS } from '@/hooks/useQRCodeSettings';
-import jsPDF from 'jspdf';
 import styles from './QRCodeSeatingChart.module.css';
 interface QRCodeMainCardProps {
   eventId: string;
+  event: Event;
 }
 
 interface QRColorsSettings {
@@ -83,19 +84,18 @@ const defaultLogo: QRLogoSettings = {
 };
 
 export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
-  eventId
+  eventId,
+  event,
 }) => {
-  const {
-    events
-  } = useEvents();
   const {
     toast
   } = useToast();
   const { settings: visibilitySettings, updateVisibility } = useLiveViewVisibility(eventId);
   const { settings: moduleSettings, updateModuleConfig } = useLiveViewModuleSettings(eventId);
+  const welcomeVideoUrl = resolveWelcomeVideoUrl(moduleSettings?.welcome_video_config);
   const { uploadVideo, deleteVideo, uploadProgress, isUploading, isProcessing } = useWelcomeVideoUpload(eventId);
-  const selectedEvent = events.find(event => event.id === eventId);
-  const currentEvent = events.find(event => event.id === eventId);
+  const selectedEvent = event;
+  const currentEvent = event;
   const { settings: songRequestSettings, updateSettings: updateSongRequestSettings } = useGuestSongRequestSettings(eventId);
   const { dynamicUrl } = useEventDynamicQR(eventId);
   const eventUrl = dynamicUrl || (selectedEvent?.slug ? buildGuestLookupUrl(selectedEvent.slug) : '');
@@ -107,6 +107,52 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [downloading, setDownloading] = useState<'png' | 'jpg' | null>(null);
+  const [linkingReceptionFloorPlan, setLinkingReceptionFloorPlan] = useState(false);
+
+  const linkExistingReceptionFloorPlan = useCallback(async () => {
+    if (!eventId || linkingReceptionFloorPlan) return;
+    setLinkingReceptionFloorPlan(true);
+    try {
+      const { data, error } = await supabase
+        .from('reception_floor_plans')
+        .select('share_enabled, share_token')
+        .eq('event_id', eventId)
+        .maybeSingle();
+
+      if (error) throw error;
+      if (!data) {
+        toast({
+          title: 'No reception floor plan found',
+          description: 'Create and save a reception floor plan before displaying it to guests.',
+          variant: 'destructive',
+        });
+        return;
+      }
+      if (!data.share_enabled || !data.share_token) {
+        toast({
+          title: 'Enable the read-only floor plan link first',
+          description: 'Open Floor Plan → Reception, enable the read-only link, then select this option again.',
+          variant: 'destructive',
+        });
+        return;
+      }
+
+      await updateModuleConfig('reception_floor_plan_config', {
+        ...moduleSettings?.reception_floor_plan_config,
+        source: 'existing',
+        share_token: data.share_token,
+      });
+    } catch (error) {
+      console.error('Error linking reception floor plan:', error);
+      toast({
+        title: 'Could not link reception floor plan',
+        description: 'Please try again.',
+        variant: 'destructive',
+      });
+    } finally {
+      setLinkingReceptionFloorPlan(false);
+    }
+  }, [eventId, linkingReceptionFloorPlan, moduleSettings?.reception_floor_plan_config, toast, updateModuleConfig]);
 
   // Preview state
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
@@ -372,6 +418,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
     if (!qrDataUrl) return;
     try {
       const { savePdfAsync, PDF_DEFAULT_OPTIONS } = await import('@/lib/pdfExportUtils');
+      const { default: jsPDF } = await import('jspdf');
       const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', ...PDF_DEFAULT_OPTIONS });
       await new Promise<void>((resolve, reject) => {
         const img = new Image();
@@ -1029,11 +1076,11 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             </p>
                           </div>
                           
-                          {moduleSettings?.welcome_video_config?.video_url ? (
+                          {welcomeVideoUrl ? (
                             <div className="space-y-3">
                               <div className="relative rounded-lg overflow-hidden bg-black">
                                 <iframe
-                                  src={moduleSettings.welcome_video_config.video_url}
+                                  src={welcomeVideoUrl}
                                   className="w-full aspect-video"
                                   allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
                                   allowFullScreen
@@ -1412,12 +1459,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             {/* Use Existing Floor Plan Option */}
                             <button
                               type="button"
-                              onClick={() => {
-                                updateModuleConfig('reception_floor_plan_config', {
-                                  ...moduleSettings?.reception_floor_plan_config,
-                                  source: 'existing'
-                                });
-                              }}
+                              onClick={() => void linkExistingReceptionFloorPlan()}
+                              disabled={linkingReceptionFloorPlan}
                               className={`p-4 rounded-lg border-2 text-left transition-all ${
                                 moduleSettings?.reception_floor_plan_config?.source === 'existing'
                                   ? 'border-amber-500 bg-amber-50'
@@ -1553,7 +1596,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             </div>
                           )}
 
-                          {/* Coming soon message when 'existing' is selected */}
+                          {/* Confirm the secure existing-plan link. */}
                           {moduleSettings?.reception_floor_plan_config?.source === 'existing' && (
                             <div className="mt-3 p-3 bg-amber-50 rounded-md border border-amber-200">
                               <div className="flex items-center gap-2">
@@ -1563,7 +1606,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                     Using existing floor plan
                                   </p>
                                   <p className="text-xs text-amber-700 mt-0.5">
-                                    Coming soon — Reception floor plan configuration is not yet available.
+                                    Guests will see the current read-only dashboard floor plan. Revoking its share link removes public access immediately.
                                   </p>
                                 </div>
                               </div>

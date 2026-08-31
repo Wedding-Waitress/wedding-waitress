@@ -1,7 +1,7 @@
 import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { registerCache } from '@/lib/cacheRegistry';
+import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
 import { FullSeatingChartColor, FullSeatingChartGuestTextSize, normalizeFullSeatingChartColor, normalizeFullSeatingChartGuestTextSize } from '@/lib/fullSeatingChartDisplaySettings';
 
 export interface FullSeatingChartSettings {
@@ -49,6 +49,7 @@ const DEFAULT_SETTINGS: FullSeatingChartSettings = {
 // Module-level cache for instant loading on tab switches
 const settingsCache = new Map<string, FullSeatingChartSettings>();
 registerCache(() => { settingsCache.clear(); });
+registerEventCache((eventId) => { settingsCache.delete(eventId); });
 
 type PendingSave = {
   eventId: string;

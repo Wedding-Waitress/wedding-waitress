@@ -10,11 +10,10 @@
  */
 
 import React, { useState, useMemo, useCallback, useEffect } from 'react';
-import '@fontsource/manrope/latin-600.css';
 import ReactDOM from 'react-dom';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from "@/components/ui/dialog";
 import { Sheet, SheetContent, SheetHeader, SheetTitle } from "@/components/ui/sheet";
-import { X, CalendarPlus, Trash2 } from "lucide-react";
+import { X, CalendarPlus } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
@@ -572,6 +571,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
             disabled={isSaving}
             className={`lv-premium-shade flex-1 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white ${styles.createButton}`}
           >
+            <CalendarPlus className="w-5 h-5 mr-2 text-white" />
             {isSaving ? 'Creating...' : 'Create Event'}
           </Button>
           <Button
@@ -579,6 +579,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
             onClick={handleClose}
             className={`lv-premium-shade flex-1 h-11 rounded-full bg-red-500 hover:bg-red-600 text-white ${styles.cancelButton}`}
           >
+            <X className="w-5 h-5 mr-2 text-white" />
             Cancel
           </Button>
         </div>
@@ -617,7 +618,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
             disabled={isSaving}
             className={`lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-1 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full ${styles.createButton}`}
           >
-            <CalendarPlus className="hidden lg:inline-block w-5 h-5 mr-2 text-white" />
+            <CalendarPlus className="w-5 h-5 mr-2 text-white" />
             {isSaving ? 'Creating...' : 'Create Event'}
           </Button>
           <Button
@@ -625,7 +626,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
             onClick={handleClose}
             className={`lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-2 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-red-500 hover:bg-red-600 text-white max-lg:order-2 max-lg:w-full ${styles.cancelButton}`}
           >
-            <Trash2 className="hidden lg:inline-block w-5 h-5 mr-2 text-white" />
+            <X className="w-5 h-5 mr-2 text-white" />
             Cancel
           </Button>
         </div>

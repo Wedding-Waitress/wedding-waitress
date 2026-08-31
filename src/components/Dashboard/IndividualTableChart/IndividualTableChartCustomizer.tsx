@@ -97,7 +97,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
   return (
     <Card className={styles.settingsPanel}>
       <CardHeader>
-        <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
+        <CardTitle className={`${styles.majorHeading} flex items-center gap-2 text-2xl font-bold text-foreground`}>
           <Settings2 className="w-[22px] h-[22px] text-foreground shrink-0" strokeWidth={1.8} aria-hidden="true" />
           Chart Settings
         </CardTitle>
@@ -106,7 +106,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
         {/* Table Settings */}
         <div className="space-y-4">
           <div className="mt-2">
-            <h3 className="font-semibold text-sm flex items-center gap-2">
+            <h3 className={`${styles.sectionHeading} font-semibold text-sm flex items-center gap-2`}>
               <TableProperties className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Table Settings
             </h3>
@@ -114,7 +114,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
           </div>
           
           <div className="space-y-2">
-            <span className={`${styles.sectionLabel} rounded-full px-3 py-0.5 inline-flex items-center gap-1.5 text-sm font-semibold`}>
+            <span className={`${styles.sectionLabel} ${styles.sectionHeading} rounded-full px-3 py-0.5 inline-flex items-center gap-1.5 text-sm font-semibold`}>
               <Shapes className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Table Shape
             </span>
@@ -161,7 +161,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
           {settings.tableShape === 'long' && (
             <>
               <div className="space-y-4">
-                <h3 className="font-semibold text-sm">End Seats</h3>
+                <h3 className={`${styles.sectionHeading} font-semibold text-sm`}>End Seats</h3>
                 <div className="flex items-center justify-between">
                   <Label htmlFor="enable-end-seats">Add Top/Bottom Seats</Label>
                   <Switch
@@ -176,7 +176,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               </div>
               <Separator className={styles.divider} />
               <div className={`${styles.longInfoPanel} space-y-4`}>
-                <h3 className="font-semibold text-sm">Long Table Info</h3>
+                <h3 className={`${styles.sectionHeading} font-semibold text-sm`}>Long Table Info</h3>
                 <p className="text-xs text-muted-foreground">
                   Font sizes automatically scale based on guest count to ensure all content fits on one A4 page.
                 </p>
@@ -194,7 +194,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
 
         {/* Display Options */}
         <div className="space-y-4">
-          <span className={`${styles.sectionLabel} rounded-full px-3 py-0.5 inline-flex items-center gap-1.5 text-sm font-semibold`}>
+          <span className={`${styles.sectionLabel} ${styles.sectionHeading} rounded-full px-3 py-0.5 inline-flex items-center gap-1.5 text-sm font-semibold`}>
             <Eye className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
             Display Options
           </span>
@@ -290,7 +290,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
         {/* Typography */}
         {
           <div className="space-y-4">
-           <span className={`${styles.sectionLabel} rounded-full px-3 py-0.5 inline-flex items-center gap-2 text-sm font-semibold`}>
+           <span className={`${styles.sectionLabel} ${styles.sectionHeading} rounded-full px-3 py-0.5 inline-flex items-center gap-2 text-sm font-semibold`}>
               <Type className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Typography
             </span>

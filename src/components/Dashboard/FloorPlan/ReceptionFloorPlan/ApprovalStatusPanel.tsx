@@ -52,9 +52,9 @@ interface Props {
 
 export const ApprovalStatusPanel = ({ plan, onChange }: Props) => {
   return (
-    <div className="rounded-lg border border-border bg-card p-3 max-lg:p-4">
+    <div data-reception-approval-status="true" className="border-t border-border/40 pt-3">
       <div className="flex flex-wrap items-center gap-3 max-lg:flex-col max-lg:items-stretch">
-        <div className="flex items-center gap-2 text-sm font-semibold text-foreground">
+        <div data-floor-plan-feature-heading="true" className="flex items-center gap-2 text-sm font-semibold text-foreground">
           <ClipboardCheck className="w-4 h-4 text-[#967A59]" />
           Venue approval status
         </div>

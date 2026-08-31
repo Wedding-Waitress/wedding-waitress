@@ -35,6 +35,7 @@ import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
 import { buildRunningSheetUrl } from '@/lib/urlUtils';
 import { supabase } from '@/integrations/supabase/client';
+import styles from './RunningSheetTheme.module.css';
 
 interface RunningSheetShareModalProps {
   open: boolean;
@@ -81,6 +82,12 @@ export function RunningSheetShareModal({
     toast({ title: 'Link Copied', description: 'Share link copied to clipboard' });
   }, [toast, eventSlug]);
 
+  const openLink = useCallback((token: string) => {
+    const url = buildRunningSheetUrl(token, eventSlug);
+    const openedWindow = window.open(url, '_blank', 'noopener,noreferrer');
+    if (openedWindow) openedWindow.opener = null;
+  }, [eventSlug]);
+
   const toggleTokenPermission = useCallback(async (tokenId: string, currentPermission: string) => {
     const newPermission = currentPermission === 'can_edit' ? 'view_only' : 'can_edit';
     try {
@@ -103,7 +110,7 @@ export function RunningSheetShareModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="max-w-lg">
+      <DialogContent className={`max-w-lg ${styles.shareModal}`} data-running-sheet-share-modal>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Share2 size={18} strokeWidth={1.8} className="text-primary" aria-hidden="true" />
@@ -115,7 +122,7 @@ export function RunningSheetShareModal({
         </DialogHeader>
 
         <Tabs defaultValue="create" className="mt-4">
-          <TabsList className="grid w-full grid-cols-2">
+          <TabsList className={`grid w-full grid-cols-2 ${styles.shareTabs}`}>
             <TabsTrigger value="create">Create Link</TabsTrigger>
             <TabsTrigger value="manage">Manage ({shareTokens.length})</TabsTrigger>
           </TabsList>
@@ -137,10 +144,10 @@ export function RunningSheetShareModal({
                 value={permission}
                 onValueChange={(v) => setPermission(v as 'view_only' | 'can_edit')}
               >
-                <SelectTrigger id="rs-permission">
+                <SelectTrigger id="rs-permission" className={styles.darkControl}>
                   <SelectValue />
                 </SelectTrigger>
-                <SelectContent>
+                <SelectContent className={styles.permissionMenu}>
                   <SelectItem value="view_only">
                     <div className="flex flex-col items-start">
                       <span>View Only</span>
@@ -157,7 +164,7 @@ export function RunningSheetShareModal({
               </Select>
             </div>
 
-            <Button onClick={handleGenerate} disabled={generating} className="w-full">
+            <Button onClick={handleGenerate} disabled={generating} className={`w-full ${styles.primaryAction}`}>
               {generating ? (
                 <LoaderCircle size={18} strokeWidth={1.8} className="animate-spin mr-2" aria-hidden="true" />
               ) : (
@@ -172,17 +179,21 @@ export function RunningSheetShareModal({
               <div className="text-center py-8 text-muted-foreground">No share links created yet</div>
             ) : (
               <div className="space-y-3 max-h-64 overflow-y-auto">
-                {shareTokens.map((token) => (
-                  <div key={token.id} className="flex items-center justify-between p-3 bg-muted/50 rounded-lg">
+                {shareTokens.map((token) => {
+                  const isExpired = !!token.expires_at && new Date(token.expires_at).getTime() <= Date.now();
+                  return (
+                  <div key={token.id} className={`flex items-center justify-between gap-2 p-3 rounded-lg ${styles.managedLinkCard}`} data-link-state={isExpired ? 'expired' : 'active'}>
                     <div className="flex-1 min-w-0">
                       <div className="font-medium text-sm truncate">{(token.recipient_name?.trim().toLowerCase() === 'running sheet' ? 'Run Sheet' : token.recipient_name?.trim()) || 'Unnamed'}</div>
                       <div className="flex items-center gap-2 text-xs text-muted-foreground">
                         <span className={`px-1.5 py-0.5 rounded ${
-                          token.permission === 'can_edit'
-                            ? 'bg-green-100 text-green-700'
-                            : 'bg-red-100 text-red-700'
+                          isExpired
+                            ? styles.expiredBadge
+                            : token.permission === 'can_edit'
+                            ? styles.editBadge
+                            : styles.viewBadge
                         }`}>
-                          {token.permission === 'can_edit' ? 'Can Edit' : 'View Only'}
+                          {isExpired ? 'Expired' : token.permission === 'can_edit' ? 'Can Edit' : 'View Only'}
                         </span>
                         {token.last_accessed_at && (
                           <span>Last used: {format(new Date(token.last_accessed_at), 'd MMMM yyyy - h:mm a')}</span>
@@ -207,27 +218,25 @@ export function RunningSheetShareModal({
                               )}
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>
+                          <TooltipContent className="ww-running-sheet-tooltip">
                             {token.permission === 'can_edit' ? 'Switch to View Only' : 'Switch to Can Edit'}
                           </TooltipContent>
                         </Tooltip>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyLink(token.token)} aria-label="Copy link">
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => copyLink(token.token)} aria-label="Copy link" disabled={isExpired}>
                               {copiedId === token.token ? <CircleCheck size={18} strokeWidth={1.8} className="text-green-600" aria-hidden="true" /> : <Copy size={18} strokeWidth={1.8} aria-hidden="true" />}
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>Copy Link</TooltipContent>
+                          <TooltipContent className="ww-running-sheet-tooltip">Copy Link</TooltipContent>
                         </Tooltip>
                         <Tooltip>
                           <TooltipTrigger asChild>
-                            <Button variant="ghost" size="icon" className="h-8 w-8" asChild>
-                              <a href={buildRunningSheetUrl(token.token, eventSlug)} target="_blank" rel="noopener noreferrer" aria-label="Open link">
-                                <ExternalLink size={18} strokeWidth={1.8} aria-hidden="true" />
-                              </a>
+                            <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => openLink(token.token)} aria-label="Open link" disabled={isExpired}>
+                              <ExternalLink size={18} strokeWidth={1.8} aria-hidden="true" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>Open Link</TooltipContent>
+                          <TooltipContent className="ww-running-sheet-tooltip">Open Link</TooltipContent>
                         </Tooltip>
                         <Tooltip>
                           <TooltipTrigger asChild>
@@ -235,12 +244,13 @@ export function RunningSheetShareModal({
                               <Trash2 size={18} strokeWidth={1.8} className="text-destructive" aria-hidden="true" />
                             </Button>
                           </TooltipTrigger>
-                          <TooltipContent>Delete Link</TooltipContent>
+                          <TooltipContent className="ww-running-sheet-tooltip">Delete Link</TooltipContent>
                         </Tooltip>
                       </div>
                     </TooltipProvider>
                   </div>
-                ))}
+                  );
+                })}
               </div>
             )}
           </TabsContent>

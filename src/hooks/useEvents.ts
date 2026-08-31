@@ -5,12 +5,19 @@
  * with full ceremony and reception field support.
  */
 
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useProfile } from '@/hooks/useProfile';
-import { registerCache } from '@/lib/cacheRegistry';
-import { getSelectedEventId } from '@/hooks/useSelectedEvent';
+import { clearEventCaches, getCacheGeneration, registerCache, registerEventCache } from '@/lib/cacheRegistry';
+import { getSelectedEventId, setSelectedEventId } from '@/hooks/useSelectedEvent';
+import {
+  deleteOwnedEventRow,
+  EventDeletionError,
+  EVENT_DELETED_EVENT,
+  getEventDeletionMessage,
+  notifyEventDeleted,
+} from '@/lib/eventDeletion';
 
 export interface Event {
   id: string;
@@ -52,6 +59,7 @@ export interface Event {
 // Module-level cache for instant loading on return visits
 let eventsCache: Event[] | null = null;
 registerCache(() => { eventsCache = null; });
+registerEventCache((eventId) => { eventsCache = eventsCache?.filter((event) => event.id !== eventId) ?? null; });
 export const useEvents = () => {
   const [events, setEvents] = useState<Event[]>(eventsCache ?? []);
   const [loading, setLoading] = useState(!eventsCache);
@@ -59,6 +67,7 @@ export const useEvents = () => {
   const [activeEventId, setActiveEventId] = useState<string | null>(null);
   const { toast } = useToast();
   const { profile, updateDisplayCountdownEvent } = useProfile();
+  const eventsRequestRef = useRef<Promise<void> | null>(null);
 
   // Keep cache in sync
   useEffect(() => {
@@ -71,7 +80,11 @@ export const useEvents = () => {
   };
 
   const fetchEvents = async () => {
-    try {
+    if (eventsRequestRef.current) return eventsRequestRef.current;
+
+    const request = (async () => {
+      const generation = getCacheGeneration();
+      try {
       if (!eventsCache) setLoading(true);
       
       // Fetch events with guest count AND additional fields in parallel
@@ -88,8 +101,8 @@ export const useEvents = () => {
         `),
       ]);
       
-      if (error) {
-        console.error('Error fetching events:', error);
+      if (error || fullErr) {
+        console.error('Error fetching events:', error || fullErr);
         toast({
           title: "Error",
           description: "Failed to load events",
@@ -128,21 +141,30 @@ export const useEvents = () => {
           collect_guest_addresses: extraData.collect_guest_addresses ?? false,
         };
       });
+      if (generation !== getCacheGeneration()) return;
       // Publish the resolved collection to the shared cache before React mounts
       // another feature route. This prevents a new route from observing the
       // temporary `[]` loading value as a genuine no-events result.
       eventsCache = nextEvents;
       setEvents(nextEvents);
       setLoaded(true);
-    } catch (error) {
+      } catch (error) {
       console.error('Error fetching events:', error);
       toast({
         title: "Error",
         description: "Failed to load events",
         variant: "destructive",
       });
+      } finally {
+        setLoading(false);
+      }
+    })();
+
+    eventsRequestRef.current = request;
+    try {
+      await request;
     } finally {
-      setLoading(false);
+      if (eventsRequestRef.current === request) eventsRequestRef.current = null;
     }
   };
 
@@ -294,51 +316,54 @@ export const useEvents = () => {
 
   const deleteEvent = async (id: string) => {
     try {
-      // Permission gate: Master Account Holder only.
       const { data: { user: authUser } } = await supabase.auth.getUser();
-      if (authUser) {
-        const { data: membership } = await supabase
-          .from('account_members' as any)
-          .select('role')
-          .eq('member_user_id', authUser.id)
-          .order('invited_at', { ascending: true })
-          .limit(1)
-          .maybeSingle();
-        const role = (membership as any)?.role;
-        if (role === 'standard') {
-          toast({
-            title: 'Restricted',
-            description: 'Only the Master Account Holder can delete events.',
-          });
-          return;
-        }
+      if (!authUser) {
+        throw new EventDeletionError('not-authenticated', 'User not authenticated.');
       }
 
-      const { error } = await supabase
-        .from('events')
-        .delete()
-        .eq('id', id);
+      const { data: membership } = await supabase
+        .from('account_members' as any)
+        .select('role')
+        .eq('member_user_id', authUser.id)
+        .order('invited_at', { ascending: true })
+        .limit(1)
+        .maybeSingle();
+      if ((membership as any)?.role === 'standard') {
+        throw new EventDeletionError('not-authorized', 'Only the Master Account Holder can delete events.');
+      }
 
-      if (error) throw error;
+      const deleted = await deleteOwnedEventRow(id, authUser.id);
+      const remainingEvents = events.filter((event) => event.id !== deleted.id);
+      eventsCache = remainingEvents;
+      setEvents(remainingEvents);
+      clearEventCaches(deleted.id);
 
+      const replacementId = remainingEvents[0]?.id ?? null;
+      if (activeEventId === deleted.id) {
+        setActiveEventId(replacementId);
+        void updateDisplayCountdownEvent(replacementId);
+      }
+      if (getSelectedEventId() === deleted.id) {
+        setSelectedEventId(replacementId);
+      }
+
+      notifyEventDeleted(deleted.id, authUser.id, replacementId);
       await fetchEvents();
-      if (activeEventId === id) {
-        setActiveEventId(null);
-      }
-      // Clear global selection if it was the deleted event (route through useSelectedEvent — single source of truth)
-      if (typeof window !== 'undefined' && getSelectedEventId() === id) {
-        window.dispatchEvent(new Event('ww:selected-event-cleared'));
-      }
-      
+
       toast({
         title: "Success",
         description: "Event deleted successfully",
       });
+      return deleted;
     } catch (error) {
-      console.error('Error deleting event:', error);
+      console.error('Event deletion failed', {
+        eventId: id,
+        reason: error instanceof EventDeletionError ? error.reason : 'unexpected',
+        code: error instanceof EventDeletionError ? error.code : undefined,
+      });
       toast({
         title: "Error",
-        description: "Failed to delete event",
+        description: getEventDeletionMessage(error),
         variant: "destructive",
       });
       throw error;
@@ -360,8 +385,16 @@ export const useEvents = () => {
         return;
       }
 
-      // Initial fetch for authenticated users
-      fetchEvents();
+      // A sibling dashboard tool may mount its own consumer while the shared
+      // authenticated shell is already warm. Reuse the account-scoped cache in
+      // that case instead of issuing the same two event requests again.
+      if (eventsCache) {
+        setEvents(eventsCache);
+        setLoaded(true);
+        setLoading(false);
+      } else {
+        void fetchEvents();
+      }
 
       // Set up realtime subscription for this user's events (channel name unique per user to avoid collisions on remounts)
       const channel = supabase
@@ -393,7 +426,7 @@ export const useEvents = () => {
       if (session?.user) {
         // Defer Supabase calls to avoid deadlocks
         setTimeout(() => {
-          fetchEvents();
+          if (!eventsCache) void fetchEvents();
         }, 0);
       } else {
         setEvents([]);
@@ -410,6 +443,23 @@ export const useEvents = () => {
       subscription.unsubscribe();
       if (realtimeCleanup) realtimeCleanup();
     };
+  }, []);
+
+  // Synchronize every mounted useEvents collection after a confirmed deletion.
+  useEffect(() => {
+    const handleEventDeleted = (event: globalThis.Event) => {
+      const detail = (event as CustomEvent<{ eventId: string; replacementId: string | null }>).detail;
+      const deletedId = detail?.eventId;
+      if (!deletedId) return;
+      setEvents((currentEvents) => {
+        const remainingEvents = currentEvents.filter((item) => item.id !== deletedId);
+        eventsCache = remainingEvents;
+        return remainingEvents;
+      });
+      setActiveEventId((currentId) => currentId === deletedId ? detail.replacementId : currentId);
+    };
+    window.addEventListener(EVENT_DELETED_EVENT, handleEventDeleted);
+    return () => window.removeEventListener(EVENT_DELETED_EVENT, handleEventDeleted);
   }, []);
 
   // Initialize activeEventId from profile or auto-select first event

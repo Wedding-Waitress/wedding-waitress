@@ -40,7 +40,7 @@ export const VenueDetail = () => {
 
   if (loading) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="ww-public min-h-screen bg-background">
         <Header />
         <div className="flex items-center justify-center gap-2 py-24 text-sm text-muted-foreground">
           <Loader2 className="w-4 h-4 animate-spin" /> Loading venue…
@@ -51,7 +51,7 @@ export const VenueDetail = () => {
 
   if (notFound || !template) {
     return (
-      <div className="min-h-screen bg-background">
+      <div className="ww-public min-h-screen bg-background">
         <Header />
         <div className="max-w-2xl mx-auto px-4 py-24 text-center">
           <h1 className="text-2xl font-bold text-foreground">Venue not found</h1>
@@ -89,7 +89,7 @@ export const VenueDetail = () => {
         <script type="application/ld+json">{JSON.stringify(jsonLd)}</script>
       </Helmet>
 
-      <div className="min-h-screen bg-background">
+      <div className="ww-public min-h-screen bg-background">
         <Header />
         <main className="max-w-5xl mx-auto px-4 py-10">
           <Link to="/venues" className="inline-flex items-center text-sm text-muted-foreground hover:text-primary mb-4">

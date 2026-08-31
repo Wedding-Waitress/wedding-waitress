@@ -49,21 +49,23 @@
 }
 
 .title {
-  font-size: 1.25rem;
-  font-weight: 700;
+  font-size: 20px;
+  font-weight: 500;
   color: #2f2118;
 }
 
 .total {
   color: #967a59;
-  font-size: 1rem;
+  font-size: 13px;
   font-weight: 600;
 }
 
 .description {
   margin-top: 0.25rem;
   color: #68594e;
-  font-size: 0.875rem;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
 }
 
 .adminButton {
@@ -97,8 +99,8 @@
 .uploaderLabel {
   display: block;
   margin-bottom: 0.35rem;
-  font-size: 0.78rem;
-  font-weight: 700;
+  font-size: 13px;
+  font-weight: 600;
 }
 
 .uploaderControls {
@@ -135,7 +137,9 @@
 .uploadSummary {
   margin-top: 0.42rem;
   color: #68594e;
-  font-size: 0.75rem;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
 }
 
 .uploadCounts {
@@ -143,7 +147,7 @@
   flex-wrap: wrap;
   gap: 0.75rem;
   margin-top: 0.45rem;
-  font-size: 0.75rem;
+  font-size: 13px;
   font-weight: 600;
 }
 
@@ -165,7 +169,9 @@
   border-radius: 0.5rem;
   background: #fff;
   padding: 0.35rem 0.55rem;
-  font-size: 0.75rem;
+  font-size: 13px;
+  font-weight: 400;
+  line-height: 18px;
 }
 
 .uploadFileName {
@@ -289,9 +295,9 @@
   min-height: 2.35rem;
   padding: 0.55rem 0.55rem 0.4rem;
   color: #2f2118;
-  font-size: 0.78rem;
-  font-weight: 700;
-  line-height: 1.2;
+  overflow-wrap: anywhere;
+  font-size: 20px;
+  font-weight: 500;
 }
 
 .cardActions {
@@ -309,7 +315,8 @@
   background: #fffaf3;
   padding: 0.3rem;
   color: #472c1d;
-  font-size: 0.7rem;
+  font-size: 13px;
+  font-weight: 500;
 }
 
 .cardAction svg {
@@ -597,4 +604,186 @@
 
 .viewport {
   scrollbar-color: rgba(239, 220, 196, 0.72) rgba(15, 7, 5, 0.52);
+}
+
+/* Feature-owned library typography. Template artwork remains image-only. */
+.libraryDialog :is(h1, h2, h3, h4) {
+  font-size: 20px !important;
+  font-weight: 500 !important;
+}
+
+.libraryDialog :is(p, input, textarea),
+.libraryDialog :is(span, div)[class*="text-xs"],
+.libraryDialog :is(span, div)[class*="text-sm"] {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+.libraryDialog label {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+}
+
+.libraryDialog button {
+  font-size: 13px !important;
+  font-weight: 500 !important;
+}
+
+.categoryInput.categoryInput,
+.searchInput.searchInput,
+.categorySelect.categorySelect,
+.portal [role="option"] {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+/* Approved Invitations light theme. This modal is rendered in a portal, so it
+   is scoped through its feature-owned CSS-module classes rather than the page. */
+.libraryDialog.libraryDialog {
+  color: #2b1711;
+  border-color: #cdb99e;
+  background: #fbf8f2;
+  box-shadow: inset 0 1px 0 #ffffff, 0 28px 72px rgba(87, 58, 39, 0.26);
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.libraryDialog > button[class*='absolute'] {
+  color: #684b40;
+  border-color: #cdb99e;
+  background: #fffdf9;
+}
+
+.libraryDialog > button[class*='absolute']:hover,
+.libraryDialog > button[class*='absolute']:focus-visible {
+  color: #2b1711;
+  background: #ede0d0;
+}
+
+.libraryDialog :is(h1, h2, h3, label, strong),
+.title {
+  color: #2b1711 !important;
+}
+
+.libraryDialog p,
+.description,
+.uploadRequirements,
+.uploadSummary,
+.emptyState {
+  color: #684b40 !important;
+}
+
+.libraryDialog svg:not([class*='text-green']):not([class*='text-red']):not([class*='text-destructive']):not([class*='text-white']) {
+  color: #a18764 !important;
+}
+
+.header,
+.footer {
+  border-color: #cdb99e !important;
+  background: #f5ebdd !important;
+}
+
+.uploader,
+.uploadRow,
+.confirmCard {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fbf8f2 !important;
+  box-shadow: inset 0 1px 0 #ffffff, 0 10px 24px rgba(87, 58, 39, 0.12) !important;
+}
+
+.categoryInput.categoryInput,
+.searchInput.searchInput,
+.categorySelect.categorySelect,
+.portal input {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: linear-gradient(180deg, #fffdf9 0%, #f3e8da 100%) !important;
+  box-shadow: inset 0 1px 2px rgba(104, 75, 64, 0.1), 0 2px 5px rgba(87, 58, 39, 0.08) !important;
+}
+
+.categoryInput::placeholder,
+.searchInput::placeholder,
+.portal input::placeholder {
+  color: #8a7065 !important;
+}
+
+.templateCard,
+.card {
+  color: #2b1711;
+  border-color: #cdb99e;
+  background: #f5ebdd;
+  box-shadow: inset 0 1px 0 #ffffff, 0 8px 20px rgba(87, 58, 39, 0.11);
+}
+
+.cardSelected,
+.templateCardSelected {
+  border-color: #16a34a !important;
+  box-shadow: 0 0 0 2px rgba(34, 197, 94, 0.16), 0 10px 24px rgba(87, 58, 39, 0.13) !important;
+}
+
+.cardName {
+  color: #2b1711;
+}
+
+.imageButton,
+.imageFrame {
+  background: #ede0d0;
+}
+
+.cardAction.cardAction,
+.secondaryButton.secondaryButton,
+.libraryDialog button:not(.imageButton):not(.deleteAction):not([class*='bg-green']):not([class*='bg-emerald']):not([class*='bg-red']):not([class*='bg-rose']):not([class*='bg-destructive']):not(.primaryButton) {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: linear-gradient(180deg, #fffdf9 0%, #ede0d0 100%) !important;
+  box-shadow: inset 0 1px 0 #ffffff, 0 5px 12px rgba(87, 58, 39, 0.1) !important;
+}
+
+.primaryButton.primaryButton,
+.libraryDialog button[class*='bg-green'],
+.libraryDialog button[class*='bg-emerald'] {
+  color: #ffffff !important;
+  border-color: #16a34a !important;
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%) !important;
+}
+
+.deleteAction.deleteAction,
+.libraryDialog button[class*='bg-red'],
+.libraryDialog button[class*='bg-rose'],
+.libraryDialog button[class*='bg-destructive'] {
+  color: #ffffff !important;
+  border-color: #dc2626 !important;
+  background: linear-gradient(180deg, #f87171 0%, #ef4444 58%, #dc2626 100%) !important;
+}
+
+.portal {
+  color: #2b1711 !important;
+  border-color: #cdb99e !important;
+  background: #fbf8f2 !important;
+  box-shadow: inset 0 1px 0 #ffffff, 0 16px 36px rgba(87, 58, 39, 0.22) !important;
+}
+
+.portal [role='option'],
+.portal button,
+.portal label,
+.portal p {
+  color: #2b1711 !important;
+}
+
+.portal [role='option'][data-highlighted],
+.portal button:hover {
+  color: #2b1711 !important;
+  background: #ede0d0 !important;
+}
+
+.viewport {
+  scrollbar-color: #a18764 #ede0d0;
+}
+
+.libraryDialog :is(button, input, [role='option']):focus-visible {
+  outline: none !important;
+  box-shadow: 0 0 0 2px #fbf8f2, 0 0 0 4px #755332 !important;
 }

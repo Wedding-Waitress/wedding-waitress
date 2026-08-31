@@ -235,7 +235,7 @@ export const GalleryDownloadsCard: React.FC<{
                 {isBusy ? <LoaderCircle className="h-4 w-4 mr-2 animate-spin shrink-0" /> : <Download className="h-4 w-4 mr-2 shrink-0" />}
                 <span className="whitespace-nowrap">{labelFor(scope)}</span>
               </span>
-              <span className="text-xs text-muted-foreground shrink-0">{count}</span>
+              <span className={cn('text-xs text-muted-foreground shrink-0', isGlass && managementStyles.gallerySecondaryText)}>{count}</span>
             </Button>
           );
         })}
@@ -243,7 +243,7 @@ export const GalleryDownloadsCard: React.FC<{
 
 
       {busy && (
-        <div className="space-y-2 rounded-md border border-border bg-muted/30 p-3">
+        <div className={cn('space-y-2 rounded-md border border-border bg-muted/30 p-3', isGlass && managementStyles.galleryViewInsetPanel)}>
           <div className={cn('flex items-center justify-between text-xs text-muted-foreground', isGlass && '!text-[#e8ddd2]')}>
             <span>
               Preparing {labelFor(busy).replace('Download ', '').toLowerCase()} ZIP…

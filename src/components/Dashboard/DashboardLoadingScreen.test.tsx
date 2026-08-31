@@ -40,17 +40,17 @@ describe('DashboardLoadingScreen', () => {
     );
   });
 
-  it('covers the viewport during a Photo & Video Sharing tab transition', () => {
+  it('keeps Photo & Video Sharing tab transitions inside the content region', () => {
     const { container } = render(
       <DashboardLoadingScreen contained appearance="photo-video-sharing" />,
     );
 
     expect(container.querySelector('[data-dashboard-loading-screen]')).toHaveClass(
-      'fixed',
-      'inset-0',
-      'min-h-[100dvh]',
+      'relative',
+      'min-h-[60vh]',
       managementStyles.photoVideoSharingSurface,
     );
+    expect(container.querySelector('[data-dashboard-loading-screen]')).not.toHaveClass('fixed', 'inset-0');
   });
 
   it('preserves the original neutral dashboard loading treatments by default', () => {
@@ -58,7 +58,7 @@ describe('DashboardLoadingScreen', () => {
     const fullScreen = container.querySelector('[data-dashboard-loading-screen]');
 
     expect(fullScreen).toHaveAttribute('data-loading-appearance', 'neutral');
-    expect(fullScreen).toHaveClass('min-h-screen', 'bg-gradient-subtle');
+    expect(fullScreen).toHaveClass('min-h-screen', 'ww-application-background');
     expect(fullScreen).not.toHaveClass(managementStyles.photoVideoSharingSurface);
     expect(container.querySelector('[data-dashboard-loading-card]')).toHaveClass('ww-box');
 
@@ -99,15 +99,15 @@ describe('DashboardLoadingScreen', () => {
     expect(screen.getByText('Please wait while we set up your workspace')).toHaveClass('mt-1', 'text-sm');
   });
 
-  it('keeps the core loading surface viewport-wide for contained tab transitions', () => {
+  it('keeps the core loading surface inside the content region for tab transitions', () => {
     const { container } = render(<DashboardLoadingScreen contained appearance="core" />);
 
     expect(container.querySelector('[data-dashboard-loading-screen]')).toHaveClass(
-      'fixed',
-      'inset-0',
-      'min-h-[100dvh]',
+      'relative',
+      'min-h-[60vh]',
       coreStyles.coreSurface,
     );
+    expect(container.querySelector('[data-dashboard-loading-screen]')).not.toHaveClass('fixed', 'inset-0');
     expect(container.querySelector('[data-dashboard-loading-card]')).toHaveClass(
       'max-w-xs',
       managementStyles.glassCard,

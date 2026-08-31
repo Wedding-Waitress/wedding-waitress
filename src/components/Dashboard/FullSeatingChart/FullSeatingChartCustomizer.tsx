@@ -91,13 +91,13 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
       <CardHeader>
         <div className="flex items-center gap-2">
           <Settings2 className="w-[22px] h-[22px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
-          <CardTitle className="font-bold text-[#472c1d]" style={{ fontSize: 20 }}>Chart Settings</CardTitle>
+          <CardTitle className={`${styles.majorHeading} font-bold text-[#472c1d]`}>Chart Settings</CardTitle>
         </div>
         <div className="mt-2">
-          <h3 className="text-xl font-bold text-[#472c1d]">
+          <h3 className={`${styles.sectionHeading} text-xl font-bold text-[#472c1d]`}>
             Full Seating Chart Customization
           </h3>
-          <CardDescription className="mt-1">
+          <CardDescription className={`${styles.interfaceDescription} mt-1`}>
             Customize your full seating chart layout and appearance
           </CardDescription>
         </div>
@@ -108,7 +108,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <ArrowUpDown className="w-[18px] h-[18px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
-            <span className={`${styles.sectionLabel} text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold`}>Sort Order</span>
+            <span className={`${styles.sectionLabel} ${styles.interfaceLabel} text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold`}>Sort Order</span>
           </div>
           
           <div>
@@ -140,7 +140,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
         <div className="space-y-4">
           <div className="flex items-center gap-2">
             <Eye className="w-[18px] h-[18px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
-            <span className={`${styles.sectionLabel} text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold`}>Display Options</span>
+            <span className={`${styles.sectionLabel} ${styles.sectionHeading} text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold`}>Display Options</span>
           </div>
 
           <div className="flex items-center gap-1">
@@ -195,7 +195,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
         <div className="space-y-3">
           <div className="flex items-center gap-2">
             <Type className="w-[18px] h-[18px] text-[#472c1d] shrink-0" strokeWidth={1.8} aria-hidden="true" />
-            <span className={`${styles.sectionLabel} text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold`}>Typography</span>
+            <span className={`${styles.sectionLabel} ${styles.sectionHeading} text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold`}>Typography</span>
           </div>
 
           <div className="space-y-2">

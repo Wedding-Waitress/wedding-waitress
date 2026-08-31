@@ -30,12 +30,21 @@ const formatDate = (iso: string | null) => {
 export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
   const { plan, isTrialExpired } = useUserPlan();
   const { data: billing } = useAccountBilling();
-  const { includedEvents, additionalPurchased, remaining, currentEvents } = useEventLimits();
+  const {
+    loading: usageLoading,
+    eventsError,
+    additionalEventsError,
+    guestsError,
+    includedEvents,
+    additionalPurchased,
+    remaining,
+    currentEvents,
+    totalGuests,
+  } = useEventLimits();
   const { usedSeats, maxSeats } = useAccountSeats();
   const { toast } = useToast();
   const navigate = useNavigate();
   const [startDate, setStartDate] = useState<string | null>(null);
-  const [totalGuests, setTotalGuests] = useState(0);
   const [busy] = useState(false);
 
   useEffect(() => {
@@ -43,13 +52,9 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
     (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const [{ data: sub }, { count: guests }] = await Promise.all([
-        supabase.from('user_subscriptions').select('created_at').eq('user_id', user.id).limit(1).maybeSingle(),
-        supabase.from('guests').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
-      ]);
+      const { data: sub } = await supabase.from('user_subscriptions').select('created_at').eq('user_id', user.id).limit(1).maybeSingle();
       if (!active) return;
       setStartDate(sub?.created_at ?? user.created_at ?? null);
-      setTotalGuests(guests ?? 0);
     })();
     return () => { active = false; };
   }, []);
@@ -123,10 +128,10 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
             Plan inclusions
           </div>
           <Row label="Included events" value={`${includedEvents}`} />
-          <Row label="Events used" value={`${currentEvents}`} />
-          <Row label="Additional events purchased" value={`${additionalPurchased}`} />
-          <Row label="Remaining events" value={`${remaining}`} />
-          <Row label="Guest allowance" value={plan?.guest_limit ? `${totalGuests} / ${plan.guest_limit}` : `${totalGuests} used · Unlimited`} />
+          <Row label="Events used" value={usageLoading ? 'Loading…' : eventsError ? 'Unavailable' : `${currentEvents}`} />
+          <Row label="Additional events purchased" value={usageLoading ? 'Loading…' : additionalEventsError ? 'Unavailable' : `${additionalPurchased}`} />
+          <Row label="Remaining events" value={usageLoading ? 'Loading…' : eventsError || additionalEventsError ? 'Unavailable' : `${remaining}`} />
+          <Row label="Guest allowance" value={usageLoading ? 'Loading…' : guestsError ? 'Unavailable' : plan?.guest_limit ? `${totalGuests} / ${plan.guest_limit}` : `${totalGuests} used · Unlimited`} />
           <Row label="User seats" value={`${usedSeats} / ${maxSeats}`} />
         </div>
       </div>

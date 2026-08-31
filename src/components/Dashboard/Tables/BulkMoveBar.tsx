@@ -61,7 +61,7 @@ export const BulkMoveBar: React.FC<BulkMoveBarProps> = ({
           <SelectTrigger className="w-[180px] h-9">
             <SelectValue placeholder="Move to..." />
           </SelectTrigger>
-          <SelectContent>
+          <SelectContent className="ww-tables-menu">
             <SelectItem value="unassigned">
               <span className="flex items-center gap-2">
                 Unassigned

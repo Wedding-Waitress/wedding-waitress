@@ -4,7 +4,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { deleteEventMediaItems } from '@/lib/deleteEventMedia';
 import type { SlideshowSettings } from '@/lib/slideshowSettings';
 import type { PersistedPhotoBoothStripStyle } from '@/lib/photoBoothTemplate';
-import { registerCache } from '@/lib/cacheRegistry';
+import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
 
 export interface GalleryMeta {
   gallery_id: string;
@@ -135,8 +135,14 @@ registerCache(() => {
   galleryMetaCache.clear();
   galleryItemsCache.clear();
 });
+registerEventCache((eventId) => {
+  ensuredGalleries.delete(eventId);
+  galleryMetaCache.delete(eventId);
+  galleryItemsCache.delete(eventId);
+});
 
-export function useEventMediaGallery(eventId: string | null) {
+export function useEventMediaGallery(eventId: string | null, options: { loadItems?: boolean } = {}) {
+  const shouldLoadItems = options.loadItems !== false;
   const [meta, setMetaState] = useState<GalleryMeta | null>(() => eventId ? galleryMetaCache.get(eventId) ?? null : null);
   const [items, setItemsState] = useState<GalleryItem[]>(() => eventId ? galleryItemsCache.get(eventId) ?? [] : []);
   const [loading, setLoading] = useState(() => Boolean(eventId && !galleryMetaCache.has(eventId)));
@@ -210,6 +216,10 @@ export function useEventMediaGallery(eventId: string | null) {
     setItems(rows.map(r => ({ ...r, signed_url: map.get(r.id) })));
   }, [setItems]);
 
+  const loadRequestedItems = useCallback(async (eid: string) => {
+    if (shouldLoadItems) await loadItems(eid);
+  }, [loadItems, shouldLoadItems]);
+
   const refresh = useCallback(async () => {
     if (!eventId) return;
     setLoading(true);
@@ -219,7 +229,7 @@ export function useEventMediaGallery(eventId: string | null) {
         // Warm path: gallery known to exist — fetch meta + items in parallel.
         const [metaRow] = await Promise.all([
           fetchMeta(eventId),
-          loadItems(eventId),
+          loadRequestedItems(eventId),
         ]);
         if (!metaRow) {
           // Row disappeared (unlikely) — fall through to ensure + retry.
@@ -236,7 +246,7 @@ export function useEventMediaGallery(eventId: string | null) {
         // Run the probe + items in parallel to hide latency when the row is already present.
         const [metaRow] = await Promise.all([
           fetchMeta(eventId),
-          loadItems(eventId),
+          loadRequestedItems(eventId),
         ]);
         if (metaRow) {
           setMeta(metaRow);
@@ -254,20 +264,21 @@ export function useEventMediaGallery(eventId: string | null) {
     } finally {
       setLoading(false);
     }
-  }, [eventId, ensureGallery, fetchMeta, loadItems]);
+  }, [eventId, ensureGallery, fetchMeta, loadRequestedItems]);
 
   useEffect(() => {
     if (!eventId) { setMeta(null); setItems([]); setError(null); return; }
     setMeta(galleryMetaCache.get(eventId) ?? null);
     setItems(galleryItemsCache.get(eventId) ?? []);
     refresh();
+    if (!shouldLoadItems) return;
     const channel = supabase
       .channel(`event-media:${eventId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'event_media_items', filter: `event_id=eq.${eventId}` },
         () => { loadItems(eventId).catch(() => {}); })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
-  }, [eventId, refresh, loadItems, setItems, setMeta]);
+  }, [eventId, refresh, loadItems, setItems, setMeta, shouldLoadItems]);
 
   const setOpen = useCallback(async (open: boolean) => {
     if (!eventId) return;
