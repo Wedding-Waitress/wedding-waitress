@@ -15,8 +15,9 @@ describe('public Wedding Waitress brand colour system', () => {
     expect(landing).toContain('if (index === 0) return');
     expect(landing).toContain('alt="Bride and groom celebrating their wedding"');
     expect(landing).toContain('className="relative aspect-[3/2] w-full"');
-    expect(landing).toContain('className="h-full w-full object-contain object-center"');
+    expect(landing).toContain('className="h-full w-full object-fill"');
     expect(landing).toContain('className="absolute inset-x-0 bottom-0 flex h-12 items-center bg-white/50 px-6 backdrop-blur-sm"');
+    expect(landing).toContain('<h3 className="text-2xl font-semibold">{eventType.name}</h3>');
     expect(landing).toContain('className="ww-card ww-focus group overflow-hidden md:col-span-2 lg:col-span-1 ring-2 ring-[#a88558]/30"');
     expect(weddingsCardImage.size).toBeLessThan(300_000);
   });
