@@ -8,6 +8,7 @@ const landing = readFileSync('src/pages/Landing.tsx', 'utf8');
 const productLayout = readFileSync('src/components/Layout/ProductPageLayout.tsx', 'utf8');
 const currencySelector = readFileSync('src/components/ui/CurrencySelector.tsx', 'utf8');
 const weddingsCardImage = statSync('src/assets/homepage-weddings-card.jpg');
+const engagementsCardImage = statSync('src/assets/homepage-engagements-card.jpg');
 
 describe('public Wedding Waitress brand colour system', () => {
   it('uses an optimized photograph only for the Weddings homepage event card', () => {
@@ -20,6 +21,16 @@ describe('public Wedding Waitress brand colour system', () => {
     expect(landing).toContain('<h3 className="text-2xl font-semibold">{eventType.name}</h3>');
     expect(landing).toContain('className="ww-card ww-focus group overflow-hidden md:col-span-2 lg:col-span-1 ring-2 ring-[#a88558]/30"');
     expect(weddingsCardImage.size).toBeLessThan(300_000);
+  });
+
+  it('matches the approved Weddings design on the Engagements homepage event card', () => {
+    expect(landing).toContain("import engagementsCardImage from '@/assets/homepage-engagements-card.jpg';");
+    expect(landing).toContain('if (index === 1) return');
+    expect(landing).toContain('alt="Engaged couple celebrating their proposal"');
+    expect(landing).toContain('<img src={engagementsCardImage} alt="Engaged couple celebrating their proposal" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
+    expect(landing.match(/className="relative aspect-\[3\/2\] w-full"/g)).toHaveLength(2);
+    expect(landing.match(/className="absolute inset-x-0 bottom-0 flex h-11 items-center bg-white\/50 px-6 backdrop-blur-sm"/g)).toHaveLength(2);
+    expect(engagementsCardImage.size).toBeLessThan(300_000);
   });
 
   it('uses the exact dominant colour sampled from the approved logo as one token', () => {
