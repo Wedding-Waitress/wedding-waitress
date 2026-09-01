@@ -51,6 +51,11 @@ describe('dashboard sidebar navigation control', () => {
       'Guest ListAdd4',
       'QR Code Seating Chart',
     ]);
+
+    const badges = [1, 2, 3, 4].map((number) => document.querySelector(`[data-workflow-badge="${number}"]`));
+    expect(badges.every(Boolean)).toBe(true);
+    expect(document.querySelectorAll('[data-workflow-action-slot="true"]')).toHaveLength(4);
+    expect(new Set(badges.map((badge) => badge?.className)).size).toBe(1);
   });
 
   it('keeps only account and logout actions in the non-admin profile menu', async () => {

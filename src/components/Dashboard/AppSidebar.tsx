@@ -129,31 +129,33 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     isActive={isActive}
                     aria-current={isActive ? 'page' : undefined}
                     tooltip={item.label}
-                    className={`${styles.navButton} ${isGreenItem ? styles.specialNav : ''} flex items-center gap-2 ${isMobile ? 'py-4' : 'py-3'}`}
+                    className={`${styles.navButton} ${isGreenItem ? `${styles.specialNav} ${styles.workflowNav}` : ''} flex items-center gap-2 ${isMobile ? 'py-4' : 'py-3'}`}
                   >
                     <Icon size={18} strokeWidth={1.8} className="!w-[18px] !h-[18px] shrink-0" />
-                    <span className={`${isGreenItem ? styles.specialText : ''} ${isActive ? 'font-bold' : 'font-normal'} text-base`}>
+                    <span className={`${isGreenItem ? `${styles.specialText} ${styles.workflowLabel}` : ''} ${isActive ? 'font-bold' : 'font-normal'} text-base`}>
                       {getMobileLabel(item.id, item.label)}
                     </span>
-                    {workflowStep?.actionLabel === 'Start Here' && (
-                       <span className="bg-green-500 text-white text-xs font-normal ml-auto px-2 py-0.5 rounded-full whitespace-nowrap">
-                        Start Here
-                       </span>
-                    )}
-                    {workflowStep?.actionLabel === 'Create' && (
-                       <span className={`${styles.specialAction} text-sm font-normal ml-auto`}>
-                        Create
-                      </span>
-                    )}
-                    {workflowStep?.actionLabel === 'Add' && (
-                       <span className={`${styles.specialAction} text-sm font-normal ml-auto`}>
-                        Add
-                      </span>
-                    )}
-                    {badgeNumber && (
-                      <span className={`${styles.countBadge} flex items-center justify-center w-6 h-6 rounded-full text-sm font-normal ml-1`}>
-                        {badgeNumber}
-                      </span>
+                    {workflowStep && (
+                      <>
+                        <span className={styles.workflowActionSlot} data-workflow-action-slot="true">
+                          {workflowStep.actionLabel === 'Start Here' && (
+                            <span className="rounded-full bg-green-500 px-2 py-0.5 text-xs font-normal text-white whitespace-nowrap">
+                              Start Here
+                            </span>
+                          )}
+                          {(workflowStep.actionLabel === 'Create' || workflowStep.actionLabel === 'Add') && (
+                            <span className={`${styles.specialAction} text-sm font-normal`}>
+                              {workflowStep.actionLabel}
+                            </span>
+                          )}
+                        </span>
+                        <span
+                          className={`${styles.countBadge} flex h-6 w-6 shrink-0 items-center justify-center rounded-full text-sm font-normal`}
+                          data-workflow-badge={badgeNumber}
+                        >
+                          {badgeNumber}
+                        </span>
+                      </>
                     )}
                   </SidebarMenuButton>
                 </SidebarMenuItem>

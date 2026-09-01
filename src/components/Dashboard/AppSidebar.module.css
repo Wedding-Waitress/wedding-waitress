@@ -109,6 +109,37 @@
   border-color: rgba(239, 211, 172, 0.7) !important;
 }
 
+/* Fixed workflow columns keep every number badge on the same right edge.
+   The action column remains reserved when a step has no optional label, while
+   the minmax label column safely truncates long translations. */
+.workflowNav {
+  display: grid !important;
+  grid-template-columns: 18px minmax(0, 1fr) 4.5rem 1.5rem;
+  column-gap: 0.5rem;
+}
+
+.workflowLabel {
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+
+.workflowActionSlot {
+  display: flex;
+  width: 4.5rem;
+  min-width: 0;
+  align-items: center;
+  justify-content: flex-end;
+  overflow: hidden;
+  white-space: nowrap;
+}
+
+.workflowNav .countBadge {
+  margin-left: 0 !important;
+  justify-self: end;
+}
+
 .specialText,
 .specialAction,
 .countBadge {
