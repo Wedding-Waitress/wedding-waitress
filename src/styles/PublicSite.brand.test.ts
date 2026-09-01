@@ -26,8 +26,8 @@ describe('public Wedding Waitress brand colour system', () => {
     expect(landing).toContain('alt="Bride and groom celebrating their wedding"');
     expect(landing).toContain('className="relative aspect-[3/2] w-full"');
     expect(landing).toContain('className="h-full w-full object-fill"');
-    expect(landing).toContain('className="absolute inset-x-0 bottom-0 flex h-11 items-center bg-white/50 px-6 backdrop-blur-sm"');
-    expect(landing).toContain('<h3 className="text-2xl font-semibold">{eventType.name}</h3>');
+    expect(landing).toContain('className="absolute inset-x-0 bottom-0 flex h-9 items-center bg-white/50 px-6 backdrop-blur-sm"');
+    expect(landing).toContain('<h3 className="text-xl font-semibold">{eventType.name}</h3>');
     expect(landing).toContain('className="ww-card ww-focus group overflow-hidden md:col-span-2 lg:col-span-1 ring-2 ring-[#a88558]/30"');
     expect(weddingsCardImage.size).toBeLessThan(300_000);
   });
@@ -61,15 +61,19 @@ describe('public Wedding Waitress brand colour system', () => {
     expect(landing).toContain('if (index === 4) return');
     expect(landing).toContain('alt="Colleagues celebrating a Christmas party with gifts"');
     expect(landing).toContain('<img src={christmasPartiesCardImage} alt="Colleagues celebrating a Christmas party with gifts" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
-    expect(landing).toContain('<h3 className="text-2xl font-semibold">Christmas Parties</h3>');
+    expect(landing).toContain('<h3 className="text-xl font-semibold">Christmas Parties</h3>');
     expect(christmasPartiesCardImage.size).toBeLessThan(300_000);
   });
 
   it('matches the approved design and homepage-only title on Celebrations of Life', () => {
+    const eventSection = landing.slice(landing.indexOf('One platform for every kind of gathering'), landing.indexOf('const highlights'));
     expect(landing).toContain("import celebrationsOfLifeCardImage from '@/assets/homepage-celebrations-of-life-card.jpg';");
     expect(landing).toContain('<img src={celebrationsOfLifeCardImage} alt="Friends raising champagne together at a celebration" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
-    expect(landing).toContain('<h3 className="text-2xl font-semibold">Celebrations of Life</h3>');
+    expect(landing).toContain('<h3 className="text-xl font-semibold">Memorials & Celebrations of Life</h3>');
     expect(landing).toContain('to={eventType.path}');
+    expect(eventSection.match(/h-9 items-center bg-white\/50/g)).toHaveLength(6);
+    expect(eventSection.match(/text-xl font-semibold/g)).toHaveLength(6);
+    expect(eventSection).not.toContain('text-2xl font-semibold');
     expect(celebrationsOfLifeCardImage.size).toBeLessThan(300_000);
   });
 
