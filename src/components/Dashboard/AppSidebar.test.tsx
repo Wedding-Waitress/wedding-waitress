@@ -51,6 +51,11 @@ describe('dashboard sidebar navigation control', () => {
       'Guest ListAdd4',
       'QR Code Seating Chart',
     ]);
+
+    expect(screen.getByText('2', { selector: 'span' })).toHaveClass('ml-auto');
+    for (const number of ['1', '3', '4']) {
+      expect(screen.getByText(number, { selector: 'span' })).toHaveClass('ml-1');
+    }
   });
 
   it('keeps only account and logout actions in the non-admin profile menu', async () => {
