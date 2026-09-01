@@ -15,6 +15,7 @@ const christmasPartiesCardImage = statSync('src/assets/homepage-christmas-partie
 const workflowMyEventsImage = statSync('src/assets/homepage-workflow-my-events.jpg');
 const workflowBudgetPlannerImage = statSync('src/assets/homepage-workflow-budget-planner.jpg');
 const workflowGuestListImage = statSync('src/assets/homepage-workflow-guest-list.jpg');
+const workflowTablesImage = statSync('src/assets/homepage-workflow-tables.jpg');
 
 describe('public Wedding Waitress brand colour system', () => {
   it('uses an optimized photograph only for the Weddings homepage event card', () => {
@@ -87,8 +88,16 @@ describe('public Wedding Waitress brand colour system', () => {
     expect(landing).toContain('<img src={workflowGuestListImage} alt="Guest list planning on a computer" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
     expect(landing).toContain('className="ww-public-link absolute right-3 top-3 rounded-full bg-white/80 px-2 py-1 text-sm font-bold backdrop-blur-sm">04</span>');
     expect(workflowSection).not.toContain('text-2xl font-semibold');
-    expect(workflowSection.match(/text-xl font-semibold/g)).toHaveLength(4);
+    expect(workflowSection.match(/text-xl font-semibold/g)).toHaveLength(5);
     expect(workflowGuestListImage.size).toBeLessThan(300_000);
+  });
+
+  it('uses the approved image treatment on Tables without changing its heading size', () => {
+    expect(landing).toContain("import workflowTablesImage from '@/assets/homepage-workflow-tables.jpg';");
+    expect(landing).toContain('<img src={workflowTablesImage} alt="Wedding reception tables arranged for guests" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
+    expect(landing).toContain('className="ww-public-link absolute right-3 top-3 rounded-full bg-white/80 px-2 py-1 text-sm font-bold backdrop-blur-sm">03</span>');
+    expect(landing).toContain('<h3 className="text-xl font-semibold">{title}</h3>');
+    expect(workflowTablesImage.size).toBeLessThan(300_000);
   });
 
   it('uses the exact dominant colour sampled from the approved logo as one token', () => {
