@@ -105,7 +105,8 @@ describe('DashboardOverview', () => {
 
     await screen.findByRole('heading', { name: 'Guest List' });
 
-    expect(screen.getByText('3')).toBeInTheDocument();
+    const guestCard = screen.getByRole('heading', { name: 'Guest List' }).closest('[class*="overviewCard"]');
+    expect(within(guestCard as HTMLElement).getByText('3')).toBeInTheDocument();
     expect(screen.getByText('guests invited')).toBeInTheDocument();
     expect(screen.getByText('Everything looks on track')).toBeInTheDocument();
     expect(screen.getByRole('progressbar', { name: 'Wedding setup progress' })).toHaveAttribute('aria-valuenow', '4');
@@ -115,7 +116,7 @@ describe('DashboardOverview', () => {
     const grid = eventHeading.parentElement?.parentElement?.parentElement?.parentElement;
     expect(grid).not.toBeNull();
     const headings = within(grid as HTMLElement).getAllByRole('heading', { level: 2 }).map((heading) => heading.textContent);
-    expect(headings).toEqual(['Event Overview', 'Guest List', 'Tables & Seating', 'Dietary Requirements', 'Needs Attention', 'Wedding Setup Progress']);
+    expect(headings).toEqual(['Event Overview', 'Tables & Seating', 'Guest List', 'Dietary Requirements', 'Needs Attention', 'Wedding Setup Progress']);
   });
 
   it('gives all six cards a working bottom destination for the Dashboard-selected event', async () => {
@@ -125,8 +126,8 @@ describe('DashboardOverview', () => {
 
     const destinations: Array<[string, string, string]> = [
       ['Event Overview', 'View Event Details', 'my-events'],
-      ['Guest List', 'View Guest List', 'guest-list'],
       ['Tables & Seating', 'View Tables', 'table-list'],
+      ['Guest List', 'View Guest List', 'guest-list'],
       ['Dietary Requirements', 'View Dietary Requirements', 'dietary-chart'],
       ['Needs Attention', 'View Event Details', 'my-events'],
       ['Wedding Setup Progress', 'View QR Code', 'qr-code'],

@@ -2,7 +2,7 @@ import React, { useRef, useState, useEffect } from 'react';
 import { Header } from "@/components/Layout/Header";
 import { Button } from "@/components/ui/enhanced-button";
 import { SignUpModal } from "@/components/auth/SignUpModal";
-import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, Send, ChevronDown, MessageSquare, CalendarPlus, UserPlus, Palette, Share2 } from "lucide-react";
+import { ArrowRight, Users, MapPin, QrCode, Mail, Calendar, Layout, Music, UtensilsCrossed, CreditCard, Monitor, BarChart3, Star, Instagram, Facebook, Youtube, FileText, ClipboardList, Mic, Grid3X3, Heart, Check, Crown, Zap, Building2, Send, ChevronDown, MessageSquare, CalendarPlus, UserPlus, Palette, Share2, WalletCards, TableProperties } from "lucide-react";
 import { Link } from "react-router-dom";
 import { CookieBanner } from "@/components/ui/CookieBanner";
 import { useTranslation } from 'react-i18next';
@@ -182,13 +182,13 @@ export const Landing = () => {
   };
 
   const featureCards = [
-    { key: "guestList", img: featureGuestlist, icon: Users },
+    { key: "myEvents", img: featureMyevents, icon: ClipboardList },
     { key: "tables", img: featureTables, icon: MapPin },
+    { key: "guestList", img: featureGuestlist, icon: Users },
     { key: "qr", img: featureQr, icon: QrCode },
     { key: "invitations", img: featureInvitations, icon: Mail },
     { key: "runningSheet", img: featureTimeline, icon: Calendar },
     { key: "floorPlan", img: featureFloorplan, icon: Layout },
-    { key: "myEvents", img: featureMyevents, icon: ClipboardList },
     { key: "placeCards", img: featurePlacecards, icon: CreditCard },
     { key: "tableCharts", img: featureTablecharts, icon: Grid3X3 },
     { key: "dietary", img: featureDietary, icon: UtensilsCrossed },
@@ -214,12 +214,12 @@ export const Landing = () => {
   };
 
   const alternatingFeatures = [
-    { id: "guest-list", key: "guestList", img: featureGuestlist },
+    { id: "my-events", key: "myEvents", img: featureMyevents },
     { id: "tables-seating", key: "tables", img: featureTables },
+    { id: "guest-list", key: "guestList", img: featureGuestlist },
     { id: "qr-seating", key: "qr", img: featureQr },
     { id: "running-sheet", key: "runningSheet", img: featureTimeline },
     { id: "invitations", key: "invitations", img: featureInvitations },
-    { id: "my-events", key: "myEvents", img: featureMyevents },
     { id: "place-cards", key: "placeCards", img: featurePlacecards },
     { id: "table-charts", key: "tableCharts", img: featureTablecharts },
     { id: "dietary", key: "dietary", img: featureDietary },
@@ -305,12 +305,13 @@ export const Landing = () => {
           <p className="text-lg text-gray-500 text-center mb-16 max-w-4xl mx-auto whitespace-nowrap">
             {t('howItWorks.subtitle')}
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-4 gap-8">
+          <div className="grid grid-cols-1 sm:grid-cols-2 lg:grid-cols-5 gap-8">
             {[
               { icon: CalendarPlus, step: '1', titleKey: 'step1Title', descKey: 'step1Desc' },
-              { icon: UserPlus, step: '2', titleKey: 'step2Title', descKey: 'step2Desc' },
-              { icon: Palette, step: '3', titleKey: 'step3Title', descKey: 'step3Desc' },
-              { icon: Share2, step: '4', titleKey: 'step4Title', descKey: 'step4Desc' },
+              { icon: WalletCards, step: '2', titleKey: 'step2Title', descKey: 'step2Desc' },
+              { icon: TableProperties, step: '3', titleKey: 'step3Title', descKey: 'step3Desc' },
+              { icon: UserPlus, step: '4', titleKey: 'step4Title', descKey: 'step4Desc' },
+              { icon: Share2, step: '5', titleKey: 'step5Title', descKey: 'step5Desc' },
             ].map((item) => (
               <div key={item.step} className="text-center group">
                 <div className="w-16 h-16 rounded-2xl flex items-center justify-center mx-auto mb-5 transition-transform duration-300 group-hover:scale-110" style={{ backgroundColor: 'rgba(150, 122, 89, 0.1)' }}>

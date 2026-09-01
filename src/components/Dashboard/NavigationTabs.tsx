@@ -1,6 +1,7 @@
 import React, { useState } from 'react';
 import { Button } from "@/components/ui/enhanced-button";
 import { Check } from "lucide-react";
+import { PLANNING_WORKFLOW_STEPS } from '@/config/planningWorkflow';
 
 interface TabItem {
   id: string;
@@ -18,9 +19,7 @@ export const NavigationTabs: React.FC<NavigationTabsProps> = ({
   onTabChange
 }) => {
   const tabs: TabItem[] = [
-    { id: "my-events", label: "My Events" },
-    { id: "guest-list", label: "Guest List" },
-    { id: "table-list", label: "Table List" },
+    ...PLANNING_WORKFLOW_STEPS.map(({ id, label }) => ({ id, label })),
     { id: "floor-plan", label: "Floor Plan" },
     { id: "signage", label: "Signage" },
     { id: "venue-charts", label: "Venue Charts" },

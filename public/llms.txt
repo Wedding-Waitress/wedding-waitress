@@ -16,8 +16,9 @@
 ## Core features
 
 - [My Events](https://weddingwaitress.com.au/my-events): Create and manage multiple events with countdowns.
-- [Guest List](https://weddingwaitress.com.au/guest-list): Manage guests, RSVPs, dietary, and invitations.
+- Event Budget Planner: Plan and manage the event budget from the connected dashboard.
 - [Tables](https://weddingwaitress.com.au/tables): Create tables and assign guests via drag-and-drop.
+- [Guest List](https://weddingwaitress.com.au/guest-list): Manage guests, RSVPs, dietary, and invitations.
 - [QR Code Seating Chart](https://weddingwaitress.com.au/qr-code-seating-chart): Branded QR codes guests scan to find their seat.
 - [Full Seating Chart](https://weddingwaitress.com.au/full-seating-chart): Printable A4 master seating chart.
 - [Individual Table Charts](https://weddingwaitress.com.au/individual-table-charts): Per-table seating charts.

@@ -1,9 +1,9 @@
 {
   "sidebar": {
-    "dashboard": "لوحة التحكم",
     "myEvents": "فعالياتي",
-    "guestList": "قائمة الضيوف",
+    "dashboard": "مخطط ميزانية المناسبة",
     "tables": "الطاولات",
+    "guestList": "قائمة الضيوف",
     "floorPlan": "مخطط الأرضية",
     "qrCode": "رمز QR",
     "placeCards": "بطاقات المقاعد",

@@ -5,6 +5,7 @@ import { AppSidebar } from "@/components/Dashboard/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import myEventsStyles from "@/components/Dashboard/MyEventsPage.module.css";
 import { DashboardOverview } from "@/components/Dashboard/DashboardOverview";
+import { PlanningWorkflowInstruction } from "@/components/Dashboard/PlanningWorkflowInstruction";
 import dashboardOverviewStyles from "@/components/Dashboard/DashboardOverview.module.css";
 import { TableCard } from "@/components/Dashboard/TableCard";
 import { SortableTablesGrid } from "@/components/Dashboard/Tables/SortableTablesGrid";
@@ -536,6 +537,7 @@ export const Dashboard = () => {
           createEvent={createEvent}
           updateEvent={updateEvent}
           deleteEvent={deleteEvent}
+          onNavigateToTab={handleTabChange}
         />;
       case 'guest-list':
         return (
@@ -545,6 +547,7 @@ export const Dashboard = () => {
               description="Easily manage your wedding guest list, track RSVPs, organise guests, and send invitations via email or SMS. The simplest way to stay organised for your big day."
               noIndex
             />
+            <PlanningWorkflowInstruction stepId="guest-list" onContinue={handleTabChange} />
             <GuestListTable
               selectedEventId={selectedEventId}
               onEventSelect={handleEventSelect}
@@ -575,6 +578,7 @@ export const Dashboard = () => {
           return (
             <div className={tablesPageStyles.page}>
               {tablesSeo}
+            <PlanningWorkflowInstruction stepId="table-list" onContinue={handleTabChange} />
             <Card className={`ww-box ${tablesPageStyles.unavailablePanel}`}>
               <CardHeader className="flex flex-col gap-4 pb-6">
                 {/* Event Selector */}
@@ -617,6 +621,7 @@ export const Dashboard = () => {
         }
         return <div className={`space-y-6 ${tablesPageStyles.page}`}>
             {tablesSeo}
+            <PlanningWorkflowInstruction stepId="table-list" onContinue={handleTabChange} />
             <Card className={`border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] ${tablesPageStyles.setupPanel}`}>
               <CardHeader className="flex flex-col gap-4 pb-6 max-lg:px-4">
                 {/* Top row - Title */}
@@ -630,10 +635,10 @@ export const Dashboard = () => {
                         <ul className="list-disc pl-5 space-y-1 max-lg:pl-4">
                           <li className="text-red-600 font-bold"><span className="inline-flex items-center gap-1.5"><CircleAlert size={17} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Important – Please Read:</span></li>
                           <li>Design your perfect seating arrangements by adding the number of tables you want to host your guests.</li>
-                          <li>We suggest starting with a <strong>"Head Table"</strong>, then adding tables for immediate family and your remaining guests.</li>
+                          <li>Create the <strong>Head Table</strong> first, then create the remaining guest tables.</li>
                           <li>Use sequential table numbers such as <strong>"1, 2, 3, 4, 5"</strong>.</li>
                           <li>Alternatively, have some fun by creating table names like <strong>"Paris, New York, Rome, or Cairo"</strong>.</li>
-                          <li>Once you have set up all your tables, move to the next page &gt; <strong>"Guest List"</strong> to add guest names and details.</li>
+                          <li>When complete, continue to <strong>Guest List</strong> to add and manage guests and allocate them to tables.</li>
                           <li>You can return here at any time to drag, drop and reallocate guests between tables.</li>
                         </ul>
                       </div>

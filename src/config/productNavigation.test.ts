@@ -1,6 +1,7 @@
 import { describe, expect, it } from 'vitest';
 import { publicProducts } from '@/content/publicProducts';
 import { productIconById, productNavigationItems } from './productNavigation';
+import { PLANNING_WORKFLOW_STEPS } from './planningWorkflow';
 
 describe('shared product navigation icon configuration', () => {
   it('defines one unique dashboard mapping for all 15 public products', () => {
@@ -13,5 +14,12 @@ describe('shared product navigation icon configuration', () => {
     for (const product of publicProducts) {
       expect(product.navigationIcon, product.name).toBe(productIconById[product.id]);
     }
+  });
+
+  it('places all remaining products after the approved first four workflow pages', () => {
+    const remaining = productNavigationItems.filter((item) => !['my-events', 'table-list', 'guest-list'].includes(item.sidebarId));
+    expect([...PLANNING_WORKFLOW_STEPS.map((step) => step.label), remaining[0].sidebarLabel]).toEqual([
+      'My Events', 'Event Budget Planner', 'Tables', 'Guest List', 'QR Code Seating Chart',
+    ]);
   });
 });

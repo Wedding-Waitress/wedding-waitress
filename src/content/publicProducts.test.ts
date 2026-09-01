@@ -16,6 +16,10 @@ describe('public product catalogue', () => {
     publicProducts.forEach((product) => expect(productGroups).toContain(product.group));
   });
 
+  it('keeps the public planning catalogue in Tables-before-Guest-List order', () => {
+    expect(publicProducts.slice(0, 3).map((product) => product.id)).toEqual(['my-events', 'tables', 'guest-list']);
+  });
+
   it('keeps Photo & Video Sharing as one product with five linkable experiences', () => {
     expect(publicProducts.filter((product) => product.id === 'photo-video-sharing')).toHaveLength(1);
     expect(photoVideoSectionIds).toEqual(['sharing', 'gallery', 'guestbook', 'photo-booth', 'live-slideshow']);

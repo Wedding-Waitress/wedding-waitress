@@ -1,4 +1,4 @@
-import { ArrowRight, CalendarPlus, Palette, Share2, UserPlus } from 'lucide-react';
+import { ArrowRight, Palette, Share2 } from 'lucide-react';
 import { Link } from 'react-router-dom';
 import { AuthGatedCtaLink } from '@/components/auth/AuthGatedCtaLink';
 import { Header } from '@/components/Layout/Header';
@@ -6,23 +6,35 @@ import { PublicFooter } from '@/components/Layout/PublicFooter';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { CookieBanner } from '@/components/ui/CookieBanner';
 import '@/styles/PublicSite.css';
+import { PLANNING_WORKFLOW_STEPS, type PlanningWorkflowTabId } from '@/config/planningWorkflow';
+
+const publicWorkflowPaths: Record<PlanningWorkflowTabId, string> = {
+  'my-events': '/my-events',
+  dashboard: '/dashboard?tab=dashboard',
+  'table-list': '/tables',
+  'guest-list': '/guest-list',
+};
 
 const stages = [
-  { icon: CalendarPlus, title: 'Create Your Event', text: 'Add your wedding date, venues, guest capacity and key event information. My Events becomes the overview for every connected planning tool.', links: [['My Events','/my-events']] },
-  { icon: UserPlus, title: 'Build Your Guest List and Tables', text: 'Organise individuals, couples and families, track RSVPs and dietary needs, then create tables and assign seats.', links: [['Guest List & RSVP','/guest-list'],['Tables','/tables']] },
+  ...PLANNING_WORKFLOW_STEPS.map((step) => ({
+    icon: step.icon,
+    title: step.label,
+    text: step.instruction,
+    links: [[step.label, publicWorkflowPaths[step.id]]] as readonly (readonly [string, string])[],
+  })),
   { icon: Palette, title: 'Design and Prepare Everything', text: 'Create invitations, cards, signage, floor plans, place cards, seating references and kitchen-ready dietary lists from the same event data.', links: [['Invitations & Cards','/invitations-cards'],['Floor Plans','/floor-plan'],['Seating Chart Signs','/seating-chart-signs']] },
   { icon: Share2, title: 'Share With Guests and Run Your Day', text: 'Help guests find seats, brief your DJ and MC, share the run sheet, and bring guest photos, messages and the live slideshow together.', links: [['QR Seating','/qr-code-seating-chart'],['Run Sheet','/running-sheet'],['Photo & Video Sharing','/photo-video-sharing']] },
 ] as const;
 
 export const HowItWorks = () => (
   <div className="ww-public min-h-screen">
-    <SeoHead title="How Wedding Waitress Works | One Connected Wedding Plan" description="See how to create your event, organise guests and tables, prepare every detail, share with guests and run the wedding day in four connected stages." canonicalPath="/how-it-works" />
+    <SeoHead title="How Wedding Waitress Works | One Connected Wedding Plan" description="See how to create your event, plan its budget, create tables, add guests, prepare every detail and run the wedding day in six connected stages." canonicalPath="/how-it-works" />
     <Header />
     <main>
       <section className="ww-section ww-section-cream text-center">
         <div className="ww-container max-w-4xl">
           <p className="ww-eyebrow mb-3">How it works</p>
-          <h1 className="ww-display">Four stages from first plan to wedding day</h1>
+          <h1 className="ww-display">Six stages from first plan to wedding day</h1>
           <p className="ww-lead mx-auto mt-6 max-w-3xl">Wedding Waitress keeps the information you add connected, so each step supports the stationery, seating, supplier and guest experiences that follow.</p>
         </div>
       </section>

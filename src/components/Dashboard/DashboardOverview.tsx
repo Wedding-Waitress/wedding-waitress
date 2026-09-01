@@ -6,6 +6,8 @@ import type { Event } from '@/hooks/useEvents';
 import { useDashboardOverview } from '@/hooks/useDashboardOverview';
 import { EventBudgetPlanner } from './EventBudgetPlanner/EventBudgetPlanner';
 import styles from './DashboardOverview.module.css';
+import { PlanningWorkflowInstruction } from './PlanningWorkflowInstruction';
+import { PLANNING_WORKFLOW_STEPS } from '@/config/planningWorkflow';
 
 type DashboardEvent = Pick<Event, 'id' | 'name'> & Partial<Pick<Event,
   'date' | 'venue' | 'start_time' | 'ceremony_enabled' | 'ceremony_name' |
@@ -87,8 +89,8 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
 
   const setupSteps = data ? [
     { label: 'Event Created', complete: true, pending: false, tabId: 'my-events' },
-    { label: 'Guests Added', complete: data.totalGuests > 0, pending: false, tabId: 'guest-list' },
-    { label: 'Tables Assigned', complete: data.attendingGuests > 0 && data.unseatedAttendingGuests === 0 && data.tableCount > 0, pending: false, tabId: 'table-list' },
+    { label: 'Tables Created', complete: data.tableCount > 0, pending: false, tabId: 'table-list' },
+    { label: 'Guests Added and Assigned', complete: data.totalGuests > 0 && data.unseatedAttendingGuests === 0, pending: false, tabId: 'guest-list' },
     { label: 'QR Code Ready', complete: data.qrReady === true, pending: data.qrReady === null, tabId: 'qr-code' },
   ] : [];
   const completedSteps = setupSteps.filter((step) => step.complete).length;
@@ -103,9 +105,9 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
   const firstIncompleteSetupTab = !selectedEvent?.date || !selectedEvent?.venue
     ? 'my-events'
     : !setupSteps[1]?.complete
-      ? 'guest-list'
+      ? 'table-list'
       : !setupSteps[2]?.complete
-        ? 'table-list'
+        ? 'guest-list'
         : 'qr-code';
   const setupComplete = setupSteps.length > 0 && setupSteps.every((step) => step.complete);
 
@@ -115,6 +117,12 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
         <h1 className={styles.heading}>Event Budget Planner</h1>
         <p>View your event at a glance and plan, track and manage your event budget.</p>
       </header>
+
+      <PlanningWorkflowInstruction stepId="dashboard" onContinue={(tabId) => openPage(tabId)} />
+
+      <nav className="grid min-w-0 grid-cols-1 gap-2 sm:grid-cols-2 xl:grid-cols-4" aria-label="First four planning workflow pages">
+        {PLANNING_WORKFLOW_STEPS.map((step) => <button key={step.id} type="button" onClick={() => openPage(step.id)} className="flex min-w-0 items-center gap-3 overflow-hidden rounded-xl border border-[#d7b985]/60 bg-white px-3 py-3 text-left text-[#412419] hover:bg-[#fffaf2]"><span className="inline-flex h-7 w-7 shrink-0 items-center justify-center rounded-full bg-[#412419] text-xs font-bold text-white">{step.number}</span><span className="min-w-0 truncate text-sm font-semibold">{step.label}</span>{step.actionLabel === 'Start Here' && <span className="ml-auto shrink-0 rounded-full bg-green-600 px-2 py-0.5 text-[10px] font-semibold text-white">Start Here</span>}</button>)}
+      </nav>
 
       <Card className={styles.eventPanel}>
         <label id="dashboard-event-selector-label" className={styles.eventLabel}>
@@ -168,19 +176,19 @@ export const DashboardOverview: React.FC<DashboardOverviewProps> = ({
           <DashboardAction onClick={() => openPage('my-events')}>View Event Details</DashboardAction>
         </Card>
 
-        <Card className={`${styles.overviewCard} ${styles.guestCard}`}>
-          <div className={styles.cardHeading}><span className={styles.iconTile}><UsersRound size={20} strokeWidth={1.7} aria-hidden="true" /></span><div><h2>Guest List</h2><p>Invitation and RSVP overview</p></div></div>
-          <div className={styles.primaryMetric}><strong>{data.totalGuests}</strong><span>{data.totalGuests === 1 ? 'guest invited' : 'guests invited'}</span></div>
-          <dl className={styles.metricList}><div><dt>Attending</dt><dd>{data.attendingGuests}</dd></div><div><dt>Awaiting RSVP</dt><dd>{data.pendingGuests}</dd></div><div><dt>Declined</dt><dd>{data.declinedGuests}</dd></div></dl>
-          <DashboardAction onClick={() => openPage('guest-list')}>View Guest List</DashboardAction>
-        </Card>
-
         <Card className={`${styles.overviewCard} ${styles.seatingCard}`}>
           <div className={styles.cardHeading}><span className={styles.iconTile}><TableProperties size={20} strokeWidth={1.7} aria-hidden="true" /></span><div><h2>Tables &amp; Seating</h2><p>Confirmed guest seating progress</p></div></div>
           <div className={styles.primaryMetric}><strong>{data.tableCount}</strong><span>{data.tableCount === 1 ? 'table created' : 'tables created'}</span></div>
           <dl className={styles.metricList}><div><dt>Assigned</dt><dd>{data.seatedAttendingGuests}</dd></div><div><dt>Still need a table</dt><dd>{data.unseatedAttendingGuests}</dd></div></dl>
           <div className={styles.progressBlock}><div><span>Seating progress</span><strong>{seatingProgress}%</strong></div><div className={styles.progressTrack} role="progressbar" aria-label="Confirmed guest seating progress" aria-valuemin={0} aria-valuemax={100} aria-valuenow={seatingProgress}><span style={{ width: `${seatingProgress}%` }} /></div></div>
           <DashboardAction onClick={() => openPage('table-list')}>View Tables</DashboardAction>
+        </Card>
+
+        <Card className={`${styles.overviewCard} ${styles.guestCard}`}>
+          <div className={styles.cardHeading}><span className={styles.iconTile}><UsersRound size={20} strokeWidth={1.7} aria-hidden="true" /></span><div><h2>Guest List</h2><p>Invitation and RSVP overview</p></div></div>
+          <div className={styles.primaryMetric}><strong>{data.totalGuests}</strong><span>{data.totalGuests === 1 ? 'guest invited' : 'guests invited'}</span></div>
+          <dl className={styles.metricList}><div><dt>Attending</dt><dd>{data.attendingGuests}</dd></div><div><dt>Awaiting RSVP</dt><dd>{data.pendingGuests}</dd></div><div><dt>Declined</dt><dd>{data.declinedGuests}</dd></div></dl>
+          <DashboardAction onClick={() => openPage('guest-list')}>View Guest List</DashboardAction>
         </Card>
 
         <Card className={`${styles.overviewCard} ${styles.dietaryCard}`}>

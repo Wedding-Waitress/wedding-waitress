@@ -61,19 +61,6 @@ export const publicProducts: PublicProduct[] = [
     connects: 'My Events supplies core event information to invitations, charts, floor plans, schedules and guest-facing experiences.', related: ['guest-list', 'invitations-cards', 'running-sheet'],
   },
   {
-    id: 'guest-list', name: 'Guest List & RSVP', shortName: 'Guest List & RSVP', path: '/guest-list', group: 'Plan & Organise', icon: Users, navigationIcon: productIconById['guest-list'],
-    image: guestList, imageAlt: 'Wedding guest list and RSVP management screen', seoTitle: 'Wedding Guest List & RSVP Manager | Wedding Waitress',
-    metaDescription: 'Manage individuals, couples and families, RSVP details, plus-ones, addresses, dietary needs, relationships and seating in one guest list.',
-    h1: 'A guest list that powers the whole wedding', lead: 'Organise individuals, couples and families, then carry accurate guest information into invitations, tables, catering references and seating outputs.',
-    demonstration: 'Track responses, contact and mailing details, relationships, plus-ones, dietary requirements, table assignments and seat numbers in one working list.',
-    benefits: [
-      { title: 'Households handled properly', text: 'Manage individuals, couples and family groups without losing the details that belong to each guest.' },
-      { title: 'RSVP information together', text: 'Keep responses and supported invitation delivery information beside each guest record.' },
-      { title: 'Ready for seating and service', text: 'Use the same guest data for tables, dietary lists, place cards and check-off charts.' },
-    ],
-    connects: 'Guest List & RSVP feeds Invitations & Cards, Tables, Dietary Requirements, QR Seating and printable seating documents.', related: ['invitations-cards', 'tables', 'dietary-requirements', 'qr-code-seating-chart'],
-  },
-  {
     id: 'tables', name: 'Tables', shortName: 'Tables', path: '/tables', group: 'Plan & Organise', icon: TableProperties, navigationIcon: productIconById.tables,
     image: tables, imageAlt: 'Wedding table and seat assignment planner', seoTitle: 'Wedding Table & Seat Planner | Wedding Waitress',
     metaDescription: 'Create and name wedding tables, set capacities, and assign guests and seats with live connections to your guest list and seating outputs.',
@@ -85,6 +72,19 @@ export const publicProducts: PublicProduct[] = [
       { title: 'Outputs update from one source', text: 'Use the assignments in QR lookup, charts, place cards and venue references.' },
     ],
     connects: 'Tables uses the Guest List and supplies QR Seating, Full Seating Chart, Individual Table Charts, Name Place Cards and floor-plan outputs.', related: ['guest-list', 'individual-table-charts', 'full-seating-chart', 'name-place-cards'],
+  },
+  {
+    id: 'guest-list', name: 'Guest List & RSVP', shortName: 'Guest List & RSVP', path: '/guest-list', group: 'Plan & Organise', icon: Users, navigationIcon: productIconById['guest-list'],
+    image: guestList, imageAlt: 'Wedding guest list and RSVP management screen', seoTitle: 'Wedding Guest List & RSVP Manager | Wedding Waitress',
+    metaDescription: 'Manage individuals, couples and families, RSVP details, plus-ones, addresses, dietary needs, relationships and seating in one guest list.',
+    h1: 'A guest list that powers the whole wedding', lead: 'Organise individuals, couples and families, then carry accurate guest information into invitations, tables, catering references and seating outputs.',
+    demonstration: 'Track responses, contact and mailing details, relationships, plus-ones, dietary requirements, table assignments and seat numbers in one working list.',
+    benefits: [
+      { title: 'Households handled properly', text: 'Manage individuals, couples and family groups without losing the details that belong to each guest.' },
+      { title: 'RSVP information together', text: 'Keep responses and supported invitation delivery information beside each guest record.' },
+      { title: 'Ready for seating and service', text: 'Use the same guest data for tables, dietary lists, place cards and check-off charts.' },
+    ],
+    connects: 'Guest List & RSVP feeds Invitations & Cards, Tables, Dietary Requirements, QR Seating and printable seating documents.', related: ['invitations-cards', 'tables', 'dietary-requirements', 'qr-code-seating-chart'],
   },
   {
     id: 'floor-plan', name: 'Ceremony & Reception Floor Plans', shortName: 'Floor Plans', path: '/floor-plan', group: 'Plan & Organise', icon: PanelsTopLeft, navigationIcon: productIconById['floor-plan'],

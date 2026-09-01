@@ -27,8 +27,10 @@ const WelcomeEmail = ({ firstName }: WelcomeProps) => (
         </Text>
         <Text style={text}>During your trial, you can:</Text>
         <ul style={list}>
-          <li style={listItem}>Create your guest list</li>
-          <li style={listItem}>Organise your tables</li>
+          <li style={listItem}>Create and manage your event in My Events</li>
+          <li style={listItem}>Plan and manage your event budget</li>
+          <li style={listItem}>Create your Head Table and remaining guest tables</li>
+          <li style={listItem}>Add and manage guests and allocate them to tables</li>
           <li style={listItem}>Send invitations</li>
           <li style={listItem}>And much more</li>
         </ul>

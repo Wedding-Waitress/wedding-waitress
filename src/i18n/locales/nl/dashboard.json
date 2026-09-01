@@ -1,9 +1,9 @@
 {
   "sidebar": {
-    "dashboard": "Dashboard",
     "myEvents": "Mijn Evenementen",
-    "guestList": "Gastenlijst",
+    "dashboard": "Evenementbudgetplanner",
     "tables": "Tafels",
+    "guestList": "Gastenlijst",
     "floorPlan": "Plattegrond",
     "qrCode": "QR-Code",
     "placeCards": "Plaatskaarten",

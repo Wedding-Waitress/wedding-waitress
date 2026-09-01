@@ -1,9 +1,9 @@
 {
   "sidebar": {
-    "dashboard": "Tableau de Bord",
     "myEvents": "Mes Événements",
-    "guestList": "Liste d'Invités",
+    "dashboard": "Planificateur de Budget d'Événement",
     "tables": "Tables",
+    "guestList": "Liste d'Invités",
     "floorPlan": "Plan du Lieu",
     "qrCode": "Code QR",
     "placeCards": "Cartons de Table",

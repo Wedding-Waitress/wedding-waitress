@@ -23,7 +23,7 @@ describe('Dashboard overview responsive layout contract', () => {
     expect(componentSource).toContain('<section className={styles.overviewPanel} aria-labelledby="dashboard-overview-heading">');
     expect(componentSource.indexOf('className={styles.overviewPanel}')).toBeLessThan(componentSource.indexOf('className={styles.cardGrid}'));
     expect(cssSource).toMatch(/\.overviewPanel \{[^}]*border: 1px solid var\(--dashboard-border\);[^}]*background: var\(--dashboard-panel\);[^}]*box-shadow:/);
-    const orderedCards = ['>Event Overview</h2>', '>Guest List</h2>', '>Tables &amp; Seating</h2>', '>Dietary Requirements</h2>', '>Needs Attention</h2>', '>Wedding Setup Progress</h2>'];
+    const orderedCards = ['>Event Overview</h2>', '>Tables &amp; Seating</h2>', '>Guest List</h2>', '>Dietary Requirements</h2>', '>Needs Attention</h2>', '>Wedding Setup Progress</h2>'];
     orderedCards.reduce((position, card) => { const next = componentSource.indexOf(card); expect(next).toBeGreaterThan(position); return next; }, -1);
   });
 

@@ -1,9 +1,9 @@
 {
   "sidebar": {
-    "dashboard": "ダッシュボード",
     "myEvents": "マイイベント",
-    "guestList": "ゲストリスト",
+    "dashboard": "イベント予算プランナー",
     "tables": "テーブル",
+    "guestList": "ゲストリスト",
     "floorPlan": "フロアプラン",
     "qrCode": "QRコード",
     "placeCards": "席札",

@@ -1,6 +1,5 @@
 import React from 'react';
 import { 
-  Home, 
   LogOut,
   Shield,
   UserCircle,
@@ -38,6 +37,7 @@ import logoImage from '@/assets/wedding-waitress-full-logo.png';
 import styles from './AppSidebar.module.css';
 import { ProfileAvatar } from '@/components/Account/ProfileAvatar';
 import { productNavigationItems } from '@/config/productNavigation';
+import { PLANNING_WORKFLOW_IDS, PLANNING_WORKFLOW_STEPS } from '@/config/planningWorkflow';
 import { loadAccountRoute, loadAdminRoute } from '@/lib/authenticatedRoutePreload';
 
 interface AppSidebarProps {
@@ -49,8 +49,10 @@ interface AppSidebarProps {
 
   // Filter menu items based on feature flags
   const allMenuItems = [
-    { id: "dashboard", label: "Event Budget Planner", icon: Home },
-    ...productNavigationItems.map(({ sidebarId, sidebarLabel, icon }) => ({ id: sidebarId, label: sidebarLabel, icon })),
+    ...PLANNING_WORKFLOW_STEPS,
+    ...productNavigationItems
+      .filter(({ sidebarId }) => !PLANNING_WORKFLOW_IDS.has(sidebarId))
+      .map(({ sidebarId: id, sidebarLabel: label, icon }) => ({ id, label, icon })),
   ];
   
   const menuItems = allMenuItems;
@@ -113,14 +115,9 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 const Icon = item.icon;
                 const isActive = activeTab === item.id;
                 
-                const isGreenItem = ['my-events', 'table-list', 'guest-list'].includes(item.id);
-                const getBadgeNumber = () => {
-                  if (item.id === 'my-events') return '1';
-                  if (item.id === 'table-list') return '2';
-                  if (item.id === 'guest-list') return '3';
-                  return null;
-                };
-                const badgeNumber = getBadgeNumber();
+                const workflowStep = PLANNING_WORKFLOW_STEPS.find((step) => step.id === item.id);
+                const isGreenItem = Boolean(workflowStep);
+                const badgeNumber = workflowStep?.number;
                 
                 return (
                 <SidebarMenuItem key={item.id}>
@@ -138,17 +135,17 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                     <span className={`${isGreenItem ? styles.specialText : ''} ${isActive ? 'font-bold' : 'font-normal'} text-base`}>
                       {getMobileLabel(item.id, item.label)}
                     </span>
-                    {item.id === 'my-events' && (
+                    {workflowStep?.actionLabel === 'Start Here' && (
                        <span className="bg-green-500 text-white text-xs font-normal ml-auto px-2 py-0.5 rounded-full whitespace-nowrap">
                         Start Here
                        </span>
                     )}
-                    {item.id === 'table-list' && (
+                    {workflowStep?.actionLabel === 'Create' && (
                        <span className={`${styles.specialAction} text-sm font-normal ml-auto`}>
                         Create
                       </span>
                     )}
-                    {item.id === 'guest-list' && (
+                    {workflowStep?.actionLabel === 'Add' && (
                        <span className={`${styles.specialAction} text-sm font-normal ml-auto`}>
                         Add
                       </span>

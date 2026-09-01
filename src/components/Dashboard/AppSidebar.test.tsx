@@ -24,7 +24,7 @@ describe('dashboard sidebar navigation control', () => {
     document.cookie = 'sidebar:state=true; path=/';
   });
 
-  it.each([1280, 768, 390])('uses the table-first workflow order at %ipx', async (width) => {
+  it.each([1280, 768, 390])('uses the approved workflow order at %ipx', async (width) => {
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
 
     render(
@@ -45,10 +45,10 @@ describe('dashboard sidebar navigation control', () => {
         .some((label) => name.startsWith(label)),
     );
     expect(workflowNames.slice(0, 5)).toEqual([
-      'Event Budget Planner',
       'My EventsStart Here1',
-      'TablesCreate2',
-      'Guest ListAdd3',
+      'Event Budget Planner2',
+      'TablesCreate3',
+      'Guest ListAdd4',
       'QR Code Seating Chart',
     ]);
   });

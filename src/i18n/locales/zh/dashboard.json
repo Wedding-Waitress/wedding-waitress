@@ -1,9 +1,9 @@
 {
   "sidebar": {
-    "dashboard": "仪表板",
     "myEvents": "我的活动",
-    "guestList": "宾客名单",
+    "dashboard": "活动预算规划器",
     "tables": "桌位",
+    "guestList": "宾客名单",
     "floorPlan": "平面图",
     "qrCode": "二维码",
     "placeCards": "席位卡",

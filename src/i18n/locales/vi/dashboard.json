@@ -1,9 +1,9 @@
 {
   "sidebar": {
-    "dashboard": "Bảng Điều Khiển",
     "myEvents": "Sự Kiện Của Tôi",
-    "guestList": "Danh Sách Khách Mời",
+    "dashboard": "Công Cụ Lập Ngân Sách Sự Kiện",
     "tables": "Bàn",
+    "guestList": "Danh Sách Khách Mời",
     "floorPlan": "Sơ Đồ Mặt Bằng",
     "qrCode": "Mã QR",
     "placeCards": "Thẻ Chỗ Ngồi",

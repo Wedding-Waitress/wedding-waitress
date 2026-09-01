@@ -41,8 +41,8 @@ export const Features: React.FC = () => {
 
   const featureCards = [
     { key: 'myEvents', img: featureMyevents, icon: ClipboardList, route: '/my-events' },
-    { key: 'guestList', img: featureGuestlist, icon: Users, route: '/guest-list' },
     { key: 'tables', img: featureTables, icon: MapPin, route: '/tables' },
+    { key: 'guestList', img: featureGuestlist, icon: Users, route: '/guest-list' },
     { key: 'qr', img: featureQr, icon: QrCode, route: '/qr-code-seating-chart' },
     { key: 'invitations', img: featureInvitations, icon: Mail, route: '/invitations-cards' },
     { key: 'runningSheet', img: featureTimeline, icon: Calendar, route: '/running-sheet' },

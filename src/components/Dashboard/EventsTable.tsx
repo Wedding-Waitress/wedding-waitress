@@ -266,13 +266,6 @@ export const EventsTable: React.FC<EventsTableProps> = ({
               <span className="truncate">My Events{selectedEventProp?.name ? ` - ${selectedEventProp.name}` : ''}</span>
             </h3>
 
-            <div className="flex min-w-0 flex-1 items-center gap-1.5 max-lg:basis-full max-lg:justify-center max-sm:items-start max-sm:text-left">
-              <span className="ww-events-badge shrink-0 bg-green-500 text-white text-xs sm:text-sm font-medium px-2 py-0.5 rounded">Start here</span>
-              <p className="ww-events-supporting min-w-0 text-xs sm:text-sm text-muted-foreground/80 2xl:whitespace-nowrap">
-                by creating &amp; managing your events, then create the number of tables you want in the next "Tables" page.
-              </p>
-            </div>
-
             <div className="ml-auto flex shrink-0 items-center gap-2 max-lg:ml-0 max-lg:basis-full max-lg:flex-wrap max-lg:justify-center">
               <Badge variant="outline" className="ww-events-badge bg-white border-primary text-primary rounded-full text-sm">
                 <CalendarCheck2 size={16} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />

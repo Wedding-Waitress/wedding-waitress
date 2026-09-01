@@ -1,10 +1,6 @@
 import React from 'react';
 import { useLocation } from 'react-router-dom';
 import { 
-  Home, 
-  Calendar, 
-  Users, 
-  MapPin, 
   QrCode, 
   CreditCard,
   ChefHat,
@@ -12,8 +8,10 @@ import {
   FileImage,
   LayoutGrid,
   FileText,
+  Users,
   LogOut
 } from 'lucide-react';
+import { PLANNING_WORKFLOW_STEPS } from '@/config/planningWorkflow';
 
 interface DashboardSidebarProps {
   activeTab: string;
@@ -22,10 +20,7 @@ interface DashboardSidebarProps {
 }
 
 const menuItems = [
-  { id: "dashboard", label: "Dashboard", icon: Home },
-  { id: "my-events", label: "My Events", icon: Calendar },
-  { id: "table-list", label: "Tables", icon: MapPin },
-  { id: "guest-list", label: "Guest List", icon: Users },
+  ...PLANNING_WORKFLOW_STEPS,
   { id: "qr-code", label: "QR Code Seating Chart", icon: QrCode },
   { id: "place-cards", label: "Name Place Cards", icon: CreditCard },
   { id: "individual-table-chart", label: "Individual Table Charts", icon: Users },
@@ -58,6 +53,7 @@ const SidebarMenuContent = ({ activeTab, onTabChange, onSignOut }: { activeTab: 
               >
                 <Icon className="w-5 h-5 flex-shrink-0" aria-hidden="true" />
                 <span className="text-sm font-medium">{item.label}</span>
+                {'number' in item && <span className="ml-auto inline-flex h-6 w-6 items-center justify-center rounded-full border border-primary/40 text-xs">{item.number}</span>}
               </button>
             );
           })}

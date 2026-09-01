@@ -1,9 +1,9 @@
 {
   "sidebar": {
-    "dashboard": "Dashboard",
     "myEvents": "My Events",
-    "guestList": "Guest List",
+    "dashboard": "Event Budget Planner",
     "tables": "Tables",
+    "guestList": "Guest List",
     "floorPlan": "Floor Plan",
     "qrCode": "QR Code",
     "placeCards": "Place Cards",
