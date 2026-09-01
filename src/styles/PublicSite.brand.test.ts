@@ -13,6 +13,7 @@ const birthdaysCardImage = statSync('src/assets/homepage-birthdays-card.jpg');
 const corporateEventsCardImage = statSync('src/assets/homepage-corporate-events-card.jpg');
 const christmasPartiesCardImage = statSync('src/assets/homepage-christmas-parties-card.jpg');
 const workflowMyEventsImage = statSync('src/assets/homepage-workflow-my-events.jpg');
+const workflowBudgetPlannerImage = statSync('src/assets/homepage-workflow-budget-planner.jpg');
 
 describe('public Wedding Waitress brand colour system', () => {
   it('uses an optimized photograph only for the Weddings homepage event card', () => {
@@ -67,6 +68,15 @@ describe('public Wedding Waitress brand colour system', () => {
     expect(landing).toContain('className="ww-public-link absolute right-3 top-3 rounded-full bg-white/80 px-2 py-1 text-sm font-bold backdrop-blur-sm">01</span>');
     expect(landing).toContain('steps.map(([Icon,title,text], index) => { if (index === 0) return');
     expect(workflowMyEventsImage.size).toBeLessThan(300_000);
+  });
+
+  it('uses the approved image treatment and homepage-only title on the budget workflow card', () => {
+    expect(landing).toContain("import workflowBudgetPlannerImage from '@/assets/homepage-workflow-budget-planner.jpg';");
+    expect(landing).toContain('alt="Couple meeting with a wedding planner to organise their budget"');
+    expect(landing).toContain('<img src={workflowBudgetPlannerImage} alt="Couple meeting with a wedding planner to organise their budget" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
+    expect(landing).toContain('className="ww-public-link absolute right-3 top-3 rounded-full bg-white/80 px-2 py-1 text-sm font-bold backdrop-blur-sm">02</span>');
+    expect(landing).toContain('<h3 className="text-2xl font-semibold">Budget Planner</h3>');
+    expect(workflowBudgetPlannerImage.size).toBeLessThan(300_000);
   });
 
   it('uses the exact dominant colour sampled from the approved logo as one token', () => {
