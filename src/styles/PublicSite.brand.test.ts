@@ -35,11 +35,11 @@ describe('public Wedding Waitress brand colour system', () => {
     expect(currencySelector).toContain('ww-selector-trigger');
   });
 
-  it('enlarges the home product medallions without changing the product data', () => {
+  it('uses a balanced four-column desktop and two-column tablet/mobile home product grid', () => {
     expect(publicCss).toContain('.ww-product-icon-grid .ww-icon-orb { width: 6.25rem; height: 6.25rem; }');
     expect(publicCss).toContain('.ww-product-icon-grid .ww-icon-orb svg { width: 2.625rem; height: 2.625rem; }');
-    expect(landing).toContain('ww-product-icon-grid');
-    expect(landing).toContain('md:grid-cols-4 lg:grid-cols-5');
+    expect(landing).toContain('ww-product-icon-grid mt-10 grid grid-cols-2 gap-x-2 gap-y-8 lg:grid-cols-4');
+    expect(landing).not.toContain('ww-product-icon-grid mt-10 grid grid-cols-2 gap-x-2 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5');
   });
 
   it('shares the approved embossed button surface with public icon medallions', () => {
