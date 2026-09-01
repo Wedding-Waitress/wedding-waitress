@@ -139,8 +139,8 @@ export const Header: React.FC<HeaderProps> = ({
     <header className="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
       <div className="w-full px-4 py-3">
         <div
-          className={`mx-auto flex max-w-7xl items-center justify-between ${
-            !user ? 'min-[1320px]:justify-end min-[1320px]:gap-2' : ''
+          className={`mx-auto flex items-center justify-between ${
+            !user ? 'max-w-[81rem] min-[1320px]:justify-end min-[1320px]:gap-2' : 'max-w-7xl'
           }`}
         >
           {/* Logo — always left. Click: scroll to top, no reload if already on / */}
@@ -166,7 +166,7 @@ export const Header: React.FC<HeaderProps> = ({
             role="link"
             aria-label="Go to homepage"
             className={`flex items-center flex-shrink-0 cursor-pointer touch-manipulation ${
-              !user ? 'min-[1320px]:pr-3' : ''
+              !user ? 'min-[1320px]:-translate-x-2 min-[1320px]:pr-3' : ''
             }`}
           >
             <img
@@ -183,7 +183,7 @@ export const Header: React.FC<HeaderProps> = ({
               {/* Desktop Nav — right side (lg+ only) */}
               <div className="hidden min-[1320px]:flex items-center gap-1 lg:gap-2">
                 <nav className="flex items-center space-x-1 lg:space-x-2">
-                  <Link to="/how-it-works" aria-current={location.pathname === '/how-it-works' ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-public-nav-link text-[15px] font-medium transition-colors px-3 py-2 rounded-lg">
+                  <Link to="/how-it-works" aria-current={location.pathname === '/how-it-works' ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-public-nav-link whitespace-nowrap text-[15px] font-medium transition-colors px-3 py-2 rounded-lg">
                     {t('nav.howItWorks')}
                   </Link>
                   <DropdownMenu open={productsMenuOpen} onOpenChange={setProductsMenuOpen}>

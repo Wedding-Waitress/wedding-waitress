@@ -216,6 +216,7 @@ export const eventTypeById = (id: PublicEventTypeId | string) => publicEventType
 
 export const relevantEventIdsByProduct: Record<string, PublicEventTypeId[]> = {
   'my-events': ['weddings', 'engagements', 'memorials-celebrations-of-life'],
+  'event-budget-planner': ['weddings', 'corporate-events', 'birthdays-parties'],
   'guest-list': ['weddings', 'corporate-events', 'birthdays-parties'],
   tables: ['weddings', 'corporate-events', 'birthdays-parties'],
   'qr-code-seating-chart': ['weddings', 'corporate-events'],

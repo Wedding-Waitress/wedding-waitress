@@ -5,10 +5,10 @@ import { PLAN_PRICING, VENDOR_PRICING } from '@/lib/currencyPricing';
 import { readFileSync } from 'node:fs';
 
 describe('public product catalogue', () => {
-  it('contains all 15 principal products with unique clean URLs', () => {
-    expect(publicProducts).toHaveLength(15);
-    expect(new Set(publicProducts.map((product) => product.id)).size).toBe(15);
-    expect(new Set(publicProducts.map((product) => product.path)).size).toBe(15);
+  it('contains all 16 principal products with unique clean URLs', () => {
+    expect(publicProducts).toHaveLength(16);
+    expect(new Set(publicProducts.map((product) => product.id)).size).toBe(16);
+    expect(new Set(publicProducts.map((product) => product.path)).size).toBe(16);
     publicProducts.forEach((product) => expect(product.path).toMatch(/^\/[a-z0-9-]+$/));
   });
 
@@ -16,8 +16,26 @@ describe('public product catalogue', () => {
     publicProducts.forEach((product) => expect(productGroups).toContain(product.group));
   });
 
-  it('keeps the public planning catalogue in Tables-before-Guest-List order', () => {
-    expect(publicProducts.slice(0, 3).map((product) => product.id)).toEqual(['my-events', 'tables', 'guest-list']);
+  it('keeps the public planning catalogue in the approved order', () => {
+    expect(publicProducts.slice(0, 5).map((product) => product.id)).toEqual([
+      'my-events', 'event-budget-planner', 'tables', 'guest-list', 'floor-plan',
+    ]);
+  });
+
+  it('publishes the Event Budget Planner route and SEO metadata', () => {
+    const product = publicProducts.find((item) => item.id === 'event-budget-planner');
+    const app = readFileSync('src/App.tsx', 'utf8');
+    const seoRoutes = readFileSync('scripts/seo-routes.mjs', 'utf8');
+
+    expect(product).toMatchObject({
+      name: 'Event Budget Planner',
+      path: '/event-budget-planner',
+      seoTitle: 'Event Budget Planner | Wedding Waitress',
+      h1: 'Event Budget Planner',
+    });
+    expect(product?.metaDescription).toContain('track estimated and actual costs, payments and due dates');
+    expect(app).toContain('<Route path="/event-budget-planner" element={<ProductEventBudgetPlanner />} />');
+    expect(seoRoutes).toContain('page("/event-budget-planner", "Event Budget Planner | Wedding Waitress"');
   });
 
   it('keeps Photo & Video Sharing as one product with five linkable experiences', () => {

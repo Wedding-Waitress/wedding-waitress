@@ -47,6 +47,7 @@ const QRRedirect = lazy(() => import("./pages/QRRedirect").then(m => ({ default:
 
 const productRoutes = () => import("./pages/products/PublicProductRoutes");
 const ProductMyEvents = lazy(() => productRoutes().then(m => ({ default: m.ProductMyEvents })));
+const ProductEventBudgetPlanner = lazy(() => productRoutes().then(m => ({ default: m.ProductEventBudgetPlanner })));
 const ProductTables = lazy(() => productRoutes().then(m => ({ default: m.ProductTables })));
 const ProductGuestList = lazy(() => productRoutes().then(m => ({ default: m.ProductGuestList })));
 const ProductQrCodeSeatingChart = lazy(() => productRoutes().then(m => ({ default: m.ProductQrCodeSeatingChart })));
@@ -222,6 +223,7 @@ const App = () => (
           <Route path="/events/memorials-celebrations-of-life" element={<EventMemorials />} />
           {/* Clean root-level product pages (canonical, indexable) */}
           <Route path="/my-events" element={<ProductMyEvents />} />
+          <Route path="/event-budget-planner" element={<ProductEventBudgetPlanner />} />
           <Route path="/tables" element={<ProductTables />} />
           <Route path="/guest-list" element={<ProductGuestList />} />
           <Route path="/qr-code-seating-chart" element={<ProductQrCodeSeatingChart />} />
@@ -238,6 +240,7 @@ const App = () => (
           <Route path="/photo-video-sharing" element={<ProductPhotoVideoSharing />} />
           {/* Legacy /products/* — permanent client redirects to clean URLs */}
           <Route path="/products/my-events" element={<Navigate to="/my-events" replace />} />
+          <Route path="/products/event-budget-planner" element={<Navigate to="/event-budget-planner" replace />} />
           <Route path="/products/tables" element={<Navigate to="/tables" replace />} />
           <Route path="/products/guest-list" element={<Navigate to="/guest-list" replace />} />
           <Route path="/products/qr-code-seating-chart" element={<Navigate to="/qr-code-seating-chart" replace />} />

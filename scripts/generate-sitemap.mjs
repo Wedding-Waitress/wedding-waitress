@@ -17,6 +17,7 @@ const entries = [
   { path: '/pricing', changefreq: 'monthly', priority: '0.9' },
   { path: '/faq', changefreq: 'monthly', priority: '0.7' },
   { path: '/my-events', changefreq: 'monthly', priority: '0.9' },
+  { path: '/event-budget-planner', changefreq: 'monthly', priority: '0.9' },
   { path: '/guest-list', changefreq: 'monthly', priority: '0.9' },
   { path: '/tables', changefreq: 'monthly', priority: '0.9' },
   { path: '/qr-code-seating-chart', changefreq: 'monthly', priority: '0.9' },

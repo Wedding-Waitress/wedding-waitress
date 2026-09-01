@@ -3,8 +3,16 @@ import { describe, expect, it } from 'vitest';
 
 const header = readFileSync('src/components/Layout/Header.tsx', 'utf8');
 const publicCss = readFileSync('src/styles/PublicSite.css', 'utf8');
+const products = readFileSync('src/content/publicProducts.ts', 'utf8');
 
 describe('shared public Products menu link feedback', () => {
+  it('keeps the Plan & Organise products in the approved order', () => {
+    const ids = ['my-events', 'event-budget-planner', 'tables', 'guest-list', 'floor-plan'];
+    ids.slice(1).forEach((id, index) => {
+      expect(products.indexOf(`id: '${id}'`)).toBeGreaterThan(products.indexOf(`id: '${ids[index]}'`));
+    });
+  });
+
   it('marks only the matching desktop and mobile product links as current', () => {
     expect(header.match(/aria-current=\{location\.pathname === product\.path \? 'page' : undefined\}/g)).toHaveLength(2);
   });

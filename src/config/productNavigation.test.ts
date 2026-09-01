@@ -4,16 +4,17 @@ import { productIconById, productNavigationItems } from './productNavigation';
 import { PLANNING_WORKFLOW_STEPS } from './planningWorkflow';
 
 describe('shared product navigation icon configuration', () => {
-  it('defines one unique dashboard mapping for all 15 public products', () => {
+  it('defines the 15 established product mappings alongside the budget workflow mapping', () => {
     expect(productNavigationItems).toHaveLength(15);
     expect(new Set(productNavigationItems.map((item) => item.productId)).size).toBe(15);
     expect(new Set(productNavigationItems.map((item) => item.sidebarId)).size).toBe(15);
   });
 
   it('gives every public product navigation link the same icon reference as its dashboard item', () => {
-    for (const product of publicProducts) {
+    for (const product of publicProducts.filter((item) => item.id !== 'event-budget-planner')) {
       expect(product.navigationIcon, product.name).toBe(productIconById[product.id]);
     }
+    expect(publicProducts.find((item) => item.id === 'event-budget-planner')?.navigationIcon).toBe(PLANNING_WORKFLOW_STEPS[1].icon);
   });
 
   it('places all remaining products after the approved first four workflow pages', () => {

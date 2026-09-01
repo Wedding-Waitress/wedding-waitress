@@ -5,6 +5,7 @@ import {
   MonitorSmartphone, Mic2, ListChecks, Camera,
 } from 'lucide-react';
 import { productIconById } from '@/config/productNavigation';
+import { PLANNING_WORKFLOW_BY_ID } from '@/config/planningWorkflow';
 
 import myEvents from '@/assets/feature-myevents.jpg';
 import guestList from '@/assets/feature-guestlist.jpg';
@@ -21,6 +22,7 @@ import kiosk from '@/assets/feature-kiosk.jpg';
 import djMc from '@/assets/feature-djmc.jpg';
 import runSheet from '@/assets/feature-timeline.jpg';
 import photoSharing from '@/assets/Wedding-Waitress-Upload-Hero-Default.png';
+import budgetPlanner from '@/assets/blog-planning-laptop.jpg';
 
 export type ProductGroup = 'Plan & Organise' | 'Guest Experience' | 'Print & Export' | 'Event-Day Planning';
 
@@ -59,6 +61,19 @@ export const publicProducts: PublicProduct[] = [
       { title: 'Plan at your pace', text: 'Return throughout your access period and continue from the latest saved details.' },
     ],
     connects: 'My Events supplies core event information to invitations, charts, floor plans, schedules and guest-facing experiences.', related: ['guest-list', 'invitations-cards', 'running-sheet'],
+  },
+  {
+    id: 'event-budget-planner', name: 'Event Budget Planner', shortName: 'Event Budget Planner', path: '/event-budget-planner', group: 'Plan & Organise', icon: PLANNING_WORKFLOW_BY_ID.dashboard.icon, navigationIcon: PLANNING_WORKFLOW_BY_ID.dashboard.icon,
+    image: budgetPlanner, imageAlt: 'A couple planning their wedding costs together', seoTitle: 'Event Budget Planner | Wedding Waitress',
+    metaDescription: 'Set an anticipated event budget, record vendor expenses, track estimated and actual costs, payments and due dates, and print or download your budget.',
+    h1: 'Event Budget Planner', lead: 'Set your anticipated budget, organise costs and payments, and keep a clear view of what has been paid, what is outstanding and what remains.',
+    demonstration: 'Choose the event budget currency, add expenses by category, record vendor and contact details, compare budgeted and actual costs, track deposits and due dates, then search, filter, sort, print or download the budget as a PDF.',
+    benefits: [
+      { title: 'See the complete budget', text: 'Review total budget, budgeted and actual costs, amounts paid and outstanding, and the remaining or over-budget amount.' },
+      { title: 'Keep expense details together', text: 'Record categories, businesses, contacts, costs, payments, balance due dates and notes for each expense.' },
+      { title: 'Prepare a practical reference', text: 'Search, filter and sort expenses, then use the supported print view or download the budget as a PDF.' },
+    ],
+    connects: 'Event Budget Planner is saved to the event selected in My Events, keeping that event\'s spending plan alongside the rest of its Wedding Waitress planning tools.', related: ['my-events', 'running-sheet', 'tables'],
   },
   {
     id: 'tables', name: 'Tables', shortName: 'Tables', path: '/tables', group: 'Plan & Organise', icon: TableProperties, navigationIcon: productIconById.tables,
