@@ -88,10 +88,24 @@ describe('shared public authentication modals', () => {
     expect(await screen.findByRole('heading', { name: 'Welcome back' })).toBeInTheDocument();
     expect(screen.getByText('Continue planning your wedding in one connected place.')).toBeInTheDocument();
     expect(screen.queryByText('Secure password-free sign in')).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Email Me a Sign-In Code' })).toBeDisabled();
+    expect(screen.getByRole('button', { name: 'Email Me a Sign-In Code' })).toBeEnabled();
     fireEvent.click(screen.getByRole('button', { name: 'Create a free account' }));
     expect(backToSignUp).toHaveBeenCalledTimes(1);
     expect(screen.queryByLabelText(/password/i)).not.toBeInTheDocument();
+  });
+
+  it('shows existing email validation without requesting a sign-in code', async () => {
+    renderInRouter(<SignInModal open onOpenChange={vi.fn()} onBackToSignUp={vi.fn()} />);
+    const submitButton = await screen.findByRole('button', { name: 'Email Me a Sign-In Code' });
+
+    fireEvent.click(submitButton);
+    expect(await screen.findByRole('alert')).toHaveTextContent('Please enter a valid email address');
+    expect(mocks.signInWithOtp).not.toHaveBeenCalled();
+
+    fireEvent.change(screen.getByLabelText('Email'), { target: { value: 'not-an-email' } });
+    fireEvent.click(submitButton);
+    expect(await screen.findByRole('alert')).toHaveTextContent('Please enter a valid email address');
+    expect(mocks.signInWithOtp).not.toHaveBeenCalled();
   });
 
   it('advances sign-in to the same six-digit OTP presentation', async () => {

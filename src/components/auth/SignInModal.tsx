@@ -280,7 +280,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
   return (
     <Dialog open={open} onOpenChange={handleOpenChange}>
       <DialogContent
-        className={`${styles.dialog} ${styles.signInDialog}`}
+        className={styles.dialog}
         overlayClassName="bg-black/75"
         onPointerDownOutside={(e) => e.preventDefault()}
         onInteractOutside={(e) => e.preventDefault()}
@@ -304,7 +304,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
                 </div>
               </div>
               <AuthError message={cooldownTimer > 0 ? `Please wait ${cooldownTimer} seconds before trying again.` : error} />
-              <button type="submit" className={styles.primaryButton} disabled={loading || !email || cooldownTimer > 0} aria-live="polite">
+              <button type="submit" className={styles.primaryButton} disabled={loading || cooldownTimer > 0} aria-live="polite">
                 {loading ? <LoaderCircle size={18} className="animate-spin" aria-hidden /> : <Send size={18} aria-hidden />}
                 {loading
                   ? 'Emailing your code…'
