@@ -10,10 +10,12 @@ const currencySelector = readFileSync('src/components/ui/CurrencySelector.tsx', 
 const weddingsCardImage = statSync('src/assets/homepage-weddings-card.jpg');
 const engagementsCardImage = statSync('src/assets/homepage-engagements-card.jpg');
 const birthdaysCardImage = statSync('src/assets/homepage-birthdays-card.jpg');
+const celebrationsOfLifeCardImage = statSync('src/assets/homepage-celebrations-of-life-card.jpg');
 const corporateEventsCardImage = statSync('src/assets/homepage-corporate-events-card.jpg');
 const christmasPartiesCardImage = statSync('src/assets/homepage-christmas-parties-card.jpg');
 const workflowMyEventsImage = statSync('src/assets/homepage-workflow-my-events.jpg');
 const workflowBudgetPlannerImage = statSync('src/assets/homepage-workflow-budget-planner.jpg');
+const workflowCelebrationImage = statSync('src/assets/homepage-workflow-celebration.jpg');
 const workflowGuestListImage = statSync('src/assets/homepage-workflow-guest-list.jpg');
 const workflowTablesImage = statSync('src/assets/homepage-workflow-tables.jpg');
 
@@ -63,12 +65,20 @@ describe('public Wedding Waitress brand colour system', () => {
     expect(christmasPartiesCardImage.size).toBeLessThan(300_000);
   });
 
+  it('matches the approved design and homepage-only title on Celebrations of Life', () => {
+    expect(landing).toContain("import celebrationsOfLifeCardImage from '@/assets/homepage-celebrations-of-life-card.jpg';");
+    expect(landing).toContain('<img src={celebrationsOfLifeCardImage} alt="Friends raising champagne together at a celebration" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
+    expect(landing).toContain('<h3 className="text-2xl font-semibold">Celebrations of Life</h3>');
+    expect(landing).toContain('to={eventType.path}');
+    expect(celebrationsOfLifeCardImage.size).toBeLessThan(300_000);
+  });
+
   it('uses the approved image treatment on the first homepage workflow card', () => {
     expect(landing).toContain("import workflowMyEventsImage from '@/assets/homepage-workflow-my-events.jpg';");
     expect(landing).toContain('alt="Bride and groom ready to plan their wedding event"');
     expect(landing).toContain('<img src={workflowMyEventsImage} alt="Bride and groom ready to plan their wedding event" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
     expect(landing).toContain('className="ww-public-link absolute right-3 top-3 rounded-full bg-white/80 px-2 py-1 text-sm font-bold backdrop-blur-sm">01</span>');
-    expect(landing).toContain('steps.map(([Icon,title,text], index) => { if (index === 0) return');
+    expect(landing).toContain('steps.map(([,title,text], index) => { if (index === 0) return');
     expect(workflowMyEventsImage.size).toBeLessThan(300_000);
   });
 
@@ -98,6 +108,14 @@ describe('public Wedding Waitress brand colour system', () => {
     expect(landing).toContain('className="ww-public-link absolute right-3 top-3 rounded-full bg-white/80 px-2 py-1 text-sm font-bold backdrop-blur-sm">03</span>');
     expect(landing).toContain('<h3 className="text-xl font-semibold">{title}</h3>');
     expect(workflowTablesImage.size).toBeLessThan(300_000);
+  });
+
+  it('uses the approved image treatment on Share, Celebrate & Enjoy without changing its font size', () => {
+    expect(landing).toContain("import workflowCelebrationImage from '@/assets/homepage-workflow-celebration.jpg';");
+    expect(landing).toContain('<img src={workflowCelebrationImage} alt="Bride celebrating with friends and champagne" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
+    expect(landing).toContain('className="ww-public-link absolute right-3 top-3 rounded-full bg-white/80 px-2 py-1 text-sm font-bold backdrop-blur-sm">05</span>');
+    expect(landing).toContain('<h3 className="text-xl font-semibold leading-none">{title}</h3>');
+    expect(workflowCelebrationImage.size).toBeLessThan(300_000);
   });
 
   it('uses the exact dominant colour sampled from the approved logo as one token', () => {
