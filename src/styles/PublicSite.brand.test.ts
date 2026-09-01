@@ -1,4 +1,4 @@
-import { readFileSync } from 'node:fs';
+import { readFileSync, statSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const publicCss = readFileSync('src/styles/PublicSite.css', 'utf8');
@@ -7,8 +7,18 @@ const header = readFileSync('src/components/Layout/Header.tsx', 'utf8');
 const landing = readFileSync('src/pages/Landing.tsx', 'utf8');
 const productLayout = readFileSync('src/components/Layout/ProductPageLayout.tsx', 'utf8');
 const currencySelector = readFileSync('src/components/ui/CurrencySelector.tsx', 'utf8');
+const weddingsCardImage = statSync('src/assets/homepage-weddings-card.jpg');
 
 describe('public Wedding Waitress brand colour system', () => {
+  it('uses an optimized photograph only for the Weddings homepage event card', () => {
+    expect(landing).toContain("import weddingsCardImage from '@/assets/homepage-weddings-card.jpg';");
+    expect(landing).toContain('if (index === 0) return');
+    expect(landing).toContain('alt="Bride and groom celebrating their wedding"');
+    expect(landing).toContain('className="h-[140px] w-full object-cover object-[center_38%]"');
+    expect(landing).toContain('className="ww-card ww-focus group overflow-hidden md:col-span-2 lg:col-span-1 ring-2 ring-[#a88558]/30"');
+    expect(weddingsCardImage.size).toBeLessThan(300_000);
+  });
+
   it('uses the exact dominant colour sampled from the approved logo as one token', () => {
     expect(publicCss.match(/--ww-dark-brown:/g)).toHaveLength(1);
     expect(publicCss).toContain('--ww-dark-brown: #412419;');
