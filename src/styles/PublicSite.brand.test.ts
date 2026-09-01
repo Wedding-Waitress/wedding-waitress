@@ -9,6 +9,7 @@ const productLayout = readFileSync('src/components/Layout/ProductPageLayout.tsx'
 const currencySelector = readFileSync('src/components/ui/CurrencySelector.tsx', 'utf8');
 const weddingsCardImage = statSync('src/assets/homepage-weddings-card.jpg');
 const engagementsCardImage = statSync('src/assets/homepage-engagements-card.jpg');
+const birthdaysCardImage = statSync('src/assets/homepage-birthdays-card.jpg');
 
 describe('public Wedding Waitress brand colour system', () => {
   it('uses an optimized photograph only for the Weddings homepage event card', () => {
@@ -28,9 +29,17 @@ describe('public Wedding Waitress brand colour system', () => {
     expect(landing).toContain('if (index === 1) return');
     expect(landing).toContain('alt="Engaged couple celebrating their proposal"');
     expect(landing).toContain('<img src={engagementsCardImage} alt="Engaged couple celebrating their proposal" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
-    expect(landing.match(/className="relative aspect-\[3\/2\] w-full"/g)).toHaveLength(2);
-    expect(landing.match(/className="absolute inset-x-0 bottom-0 flex h-11 items-center bg-white\/50 px-6 backdrop-blur-sm"/g)).toHaveLength(2);
     expect(engagementsCardImage.size).toBeLessThan(300_000);
+  });
+
+  it('matches the approved design on the Birthdays & Parties homepage event card', () => {
+    expect(landing).toContain("import birthdaysCardImage from '@/assets/homepage-birthdays-card.jpg';");
+    expect(landing).toContain('if (index === 2) return');
+    expect(landing).toContain('alt="Children celebrating a birthday with cake and balloons"');
+    expect(landing).toContain('<img src={birthdaysCardImage} alt="Children celebrating a birthday with cake and balloons" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
+    expect(landing.match(/className="relative aspect-\[3\/2\] w-full"/g)).toHaveLength(3);
+    expect(landing.match(/className="absolute inset-x-0 bottom-0 flex h-11 items-center bg-white\/50 px-6 backdrop-blur-sm"/g)).toHaveLength(3);
+    expect(birthdaysCardImage.size).toBeLessThan(300_000);
   });
 
   it('uses the exact dominant colour sampled from the approved logo as one token', () => {
