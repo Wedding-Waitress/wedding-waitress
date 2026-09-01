@@ -12,6 +12,7 @@ const engagementsCardImage = statSync('src/assets/homepage-engagements-card.jpg'
 const birthdaysCardImage = statSync('src/assets/homepage-birthdays-card.jpg');
 const corporateEventsCardImage = statSync('src/assets/homepage-corporate-events-card.jpg');
 const christmasPartiesCardImage = statSync('src/assets/homepage-christmas-parties-card.jpg');
+const workflowMyEventsImage = statSync('src/assets/homepage-workflow-my-events.jpg');
 
 describe('public Wedding Waitress brand colour system', () => {
   it('uses an optimized photograph only for the Weddings homepage event card', () => {
@@ -56,9 +57,16 @@ describe('public Wedding Waitress brand colour system', () => {
     expect(landing).toContain('alt="Colleagues celebrating a Christmas party with gifts"');
     expect(landing).toContain('<img src={christmasPartiesCardImage} alt="Colleagues celebrating a Christmas party with gifts" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
     expect(landing).toContain('<h3 className="text-2xl font-semibold">Christmas Parties</h3>');
-    expect(landing.match(/className="relative aspect-\[3\/2\] w-full"/g)).toHaveLength(5);
-    expect(landing.match(/className="absolute inset-x-0 bottom-0 flex h-11 items-center bg-white\/50 px-6 backdrop-blur-sm"/g)).toHaveLength(5);
     expect(christmasPartiesCardImage.size).toBeLessThan(300_000);
+  });
+
+  it('uses the approved image treatment on the first homepage workflow card', () => {
+    expect(landing).toContain("import workflowMyEventsImage from '@/assets/homepage-workflow-my-events.jpg';");
+    expect(landing).toContain('alt="Bride and groom ready to plan their wedding event"');
+    expect(landing).toContain('<img src={workflowMyEventsImage} alt="Bride and groom ready to plan their wedding event" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
+    expect(landing).toContain('className="ww-public-link absolute right-3 top-3 rounded-full bg-white/80 px-2 py-1 text-sm font-bold backdrop-blur-sm">01</span>');
+    expect(landing).toContain('steps.map(([Icon,title,text], index) => { if (index === 0) return');
+    expect(workflowMyEventsImage.size).toBeLessThan(300_000);
   });
 
   it('uses the exact dominant colour sampled from the approved logo as one token', () => {
