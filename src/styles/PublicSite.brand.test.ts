@@ -2,6 +2,7 @@ import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
 const publicCss = readFileSync('src/styles/PublicSite.css', 'utf8');
+const app = readFileSync('src/App.tsx', 'utf8');
 const header = readFileSync('src/components/Layout/Header.tsx', 'utf8');
 const landing = readFileSync('src/pages/Landing.tsx', 'utf8');
 const productLayout = readFileSync('src/components/Layout/ProductPageLayout.tsx', 'utf8');
@@ -40,6 +41,14 @@ describe('public Wedding Waitress brand colour system', () => {
     expect(publicCss).toContain('.ww-product-icon-grid .ww-icon-orb svg { width: 2.625rem; height: 2.625rem; }');
     expect(landing).toContain('ww-product-icon-grid mt-10 grid grid-cols-2 gap-x-2 gap-y-8 lg:grid-cols-4');
     expect(landing).not.toContain('ww-product-icon-grid mt-10 grid grid-cols-2 gap-x-2 gap-y-8 sm:grid-cols-3 md:grid-cols-4 lg:grid-cols-5');
+  });
+
+  it('removes the homepage pricing section without removing pricing navigation or its page', () => {
+    expect(landing).not.toContain('Straightforward pricing');
+    expect(landing).not.toContain('One event. Twelve months. The complete platform.');
+    expect(landing).not.toContain('Compare Pricing');
+    expect(header).toContain('<Link to="/pricing"');
+    expect(app).toContain('<Route path="/pricing" element={<Pricing />} />');
   });
 
   it('shares the approved embossed button surface with public icon medallions', () => {
