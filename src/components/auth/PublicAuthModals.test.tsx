@@ -120,6 +120,28 @@ describe('shared public authentication modals', () => {
     expect(screen.getByRole('button', { name: 'Correct email' })).toBeInTheDocument();
   });
 
+  it('keeps verification disabled until six digits and submits the completed sign-in code', async () => {
+    renderInRouter(<SignInModal open onOpenChange={vi.fn()} onBackToSignUp={vi.fn()} />);
+    fireEvent.change(await screen.findByLabelText('Email'), { target: { value: 'flow-test@example.com' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Email Me a Sign-In Code' }));
+
+    const inputs = await screen.findAllByLabelText(/Verification code digit/);
+    const verifyButton = screen.getByRole('button', { name: 'Verify Code' });
+    expect(verifyButton).toBeDisabled();
+
+    ['1', '2', '3', '4', '5', '6'].forEach((digit, index) => {
+      fireEvent.change(inputs[index], { target: { value: digit } });
+    });
+
+    expect(verifyButton).toBeEnabled();
+    fireEvent.click(verifyButton);
+    await waitFor(() => expect(mocks.verifyOtp).toHaveBeenCalledWith({
+      email: 'flow-test@example.com',
+      token: '123456',
+      type: 'email',
+    }));
+  });
+
   it('keeps the shared close control keyboard accessible and supports Escape', async () => {
     const onOpenChange = vi.fn();
     renderInRouter(

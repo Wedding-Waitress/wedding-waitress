@@ -49,10 +49,10 @@ const SIGNAGE_PRESET_Y_POSITIONS: Record<string, number> = {
 
 const SIGNAGE_PRESET_STYLES: Record<string, { font_family: string; font_size: number }> = {
   couple_names: { font_family: 'Great Vibes', font_size: 56 },
-  event_name: { font_family: 'ET Emilia Grace Demo', font_size: 28 },
-  welcome_message: { font_family: 'ET Emilia Grace Demo', font_size: 22 },
+  event_name: { font_family: 'Lora', font_size: 28 },
+  welcome_message: { font_family: 'Lora', font_size: 22 },
   welcome_to_our_wedding: { font_family: 'Great Vibes', font_size: 36 },
-  qr_instructions: { font_family: 'ET Emilia Grace Demo', font_size: 18 },
+  qr_instructions: { font_family: 'Lora', font_size: 18 },
 };
 
 // Australian print sizes (portrait). UI-only — does not affect canvas/exporter yet.
@@ -270,7 +270,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
       z.id === zoneId ? {
         ...z,
         text: defaultText,
-        font_family: style?.font_family || 'ET Emilia Grace Demo',
+        font_family: style?.font_family || 'Lora',
         font_size: style?.font_size || 22,
         font_color: '#000000',
         font_weight: 'normal' as const,

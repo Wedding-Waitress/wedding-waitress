@@ -436,7 +436,7 @@
 
 .designerShell :global(.ww-signage-premium-designer) input::placeholder,
 .designerShell :global(.ww-signage-premium-designer) textarea::placeholder {
-  color: rgba(237, 220, 199, 0.62) !important;
+  color: #ffffff !important;
 }
 
 .designerShell :global(.ww-signage-premium-designer) [class*="bg-muted"],
@@ -651,7 +651,7 @@
 }
 
 :global(.ww-signage-premium-portal) input::placeholder {
-  color: rgba(237, 220, 199, 0.6) !important;
+  color: #ffffff !important;
 }
 
 :global(.ww-signage-premium-portal) p,

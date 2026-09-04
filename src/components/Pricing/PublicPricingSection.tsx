@@ -6,12 +6,9 @@ import { Button } from '@/components/ui/enhanced-button';
 import { useCurrencyContext } from '@/contexts/CurrencyContext';
 import type { CurrencyCode } from '@/lib/currencyPricing';
 import { useLiveExchangeRates } from '@/hooks/useLiveExchangeRates';
-import { AUD_BASE_PRICES, convertAudPrice, formatLivePrice } from '@/lib/liveCurrencyPricing';
+import { AUD_BASE_PRICES, convertAudPrice, formatLivePrice, formatPublicPricingPrice } from '@/lib/liveCurrencyPricing';
 import { PUBLIC_COUPLE_PLAN_DETAILS, type PlanKey } from './pricingPlans';
 import { PricingCurrencyPanel } from './PricingCurrencyPanel';
-
-const formatPublicPricingPrice = (currency: CurrencyCode, amount: number) =>
-  formatLivePrice(currency, amount);
 
 type PlatformFeature = {
   label: string;
@@ -37,7 +34,7 @@ const platformFeatures: readonly PlatformFeature[] = [
     desktopLines: ['Prepare kitchen dietary', 'requirement reports'],
   },
   { label: 'Export a complete seating chart' },
-  { label: 'Run a guest lookup kiosk at your venue' },
+  { label: 'Run a guest lookup Live Slideshow at your venue' },
   { label: 'Complete your DJ & MC questionnaire' },
   { label: 'Create and share your event run sheet' },
 ] as const;
@@ -121,8 +118,10 @@ export const PublicPricingSection: React.FC = () => {
   const { currency, setCurrency } = useCurrencyContext();
   const { rates, loading, error } = useLiveExchangeRates();
   const effectiveCurrency: CurrencyCode = error || loading ? 'AUD' : currency;
-  const display = (amount: number) =>
+  const displayCouplePrice = (amount: number) =>
     formatPublicPricingPrice(effectiveCurrency, convertAudPrice(amount, effectiveCurrency, rates));
+  const displayVendorPrice = (amount: number) =>
+    formatLivePrice(effectiveCurrency, convertAudPrice(amount, effectiveCurrency, rates));
 
   return (
     <section id="pricing" className="overflow-x-clip px-4 py-14 md:py-16" aria-labelledby="public-pricing-heading">
@@ -136,7 +135,7 @@ export const PublicPricingSection: React.FC = () => {
         <div className="mt-12 grid grid-cols-1 items-stretch gap-6 md:grid-cols-2 2xl:grid-cols-4">
           {couplePlans.map(({ key, icon: Icon, popular }) => {
             const details = PUBLIC_COUPLE_PLAN_DETAILS[key];
-            const price = display(AUD_BASE_PRICES[key]);
+            const price = displayCouplePrice(AUD_BASE_PRICES[key]);
             return (
               <article key={key} aria-labelledby={`${key}-plan-title`} className={`relative flex h-full flex-col rounded-[20px] bg-white p-7 shadow-[0_6px_30px_rgba(43,23,17,.10)] ${popular ? 'border-2 border-[#70452f]' : 'border border-[#e7d8c7]'}`}>
                 {popular && <div className="absolute -top-4 left-1/2 -translate-x-1/2"><span className="ww-button-espresso inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold text-white"><Gem size={14} strokeWidth={1.8} aria-hidden="true" />Most Popular</span></div>}
@@ -157,10 +156,10 @@ export const PublicPricingSection: React.FC = () => {
             );
           })}
 
-          <article aria-labelledby="vendor-plan-title" className="ww-public-dashboard-background relative flex h-full flex-col rounded-[20px] border border-[#d7b985]/65 p-7 text-[#fff8ee] shadow-[0_8px_35px_rgba(20,8,4,.28)]">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2"><span className="rounded-full border border-[#d7b985]/70 bg-[#f6efe5] px-4 py-1.5 text-xs font-semibold whitespace-nowrap text-[#412419] shadow-md">For Venues &amp; Vendors</span></div>
+          <article data-pricing-dark-surface="vendor-pro" data-solid-text-surface="dark" aria-labelledby="vendor-plan-title" className="ww-public-dashboard-background relative flex h-full flex-col rounded-[20px] border border-[#d7b985]/65 p-7 text-[#fff8ee] shadow-[0_8px_35px_rgba(20,8,4,.28)]">
+            <div className="absolute -top-4 left-1/2 -translate-x-1/2"><span id="vendor-plan-badge" data-pricing-vendor-badge className="rounded-full border border-[#d7b985]/70 bg-[#f6efe5] px-4 py-1.5 text-xs font-semibold whitespace-nowrap text-[#412419] shadow-md">For Venues &amp; Vendors</span></div>
             <div className="mt-2 flex items-center gap-2"><Building2 size={22} strokeWidth={1.8} aria-hidden="true" className="text-[#ead5b7]" /><h3 id="vendor-plan-title" className="text-4xl font-bold !text-[#fff8ee]">Vendor Pro</h3></div>
-            <p className="mt-5 flex min-h-[40px] items-baseline gap-2 text-[#fff8ee]" aria-label={`Vendor Pro, ${display(AUD_BASE_PRICES.vendor_pro)} per month`}><span className="text-2xl font-bold">{display(AUD_BASE_PRICES.vendor_pro)}</span><span className="text-base text-[#ead5b7]">/month</span></p>
+            <p className="mt-5 flex min-h-[40px] items-baseline gap-2 text-[#fff8ee]" aria-label={`Vendor Pro, ${displayVendorPrice(AUD_BASE_PRICES.vendor_pro)} per month`}><span className="text-2xl font-bold">{displayVendorPrice(AUD_BASE_PRICES.vendor_pro)}</span><span className="text-base text-[#ead5b7]">/month</span></p>
             <div className="mt-3 leading-6"><p className="font-semibold text-[#fff8ee]">For venues, vendors and event professionals</p><p className="text-sm text-[#ead5b7]">Monthly subscription · Approval required</p></div>
             <ul className="mt-6 space-y-2 border-t border-[#d7b985]/45 pt-5">
               {['For venues and event professionals', 'For wedding planners', 'For DJs and MCs', 'Up to 100 active events', 'Complete platform access', 'Monthly subscription', 'Approval required', '30-day downloads after subscription ends'].map((benefit) => <li key={benefit} className="flex gap-2 text-[13px] leading-[18px] text-[#fff8ee]"><CircleCheck size={14} strokeWidth={1.8} aria-hidden="true" className="mt-0.5 shrink-0 text-[#ead5b7]" />{benefit}</li>)}

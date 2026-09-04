@@ -70,8 +70,8 @@
       "title": "Sơ đồ chỗ ngồi đầy đủ",
       "desc": "Tạo sơ đồ chỗ ngồi tổng thể có thể in hoàn chỉnh."
     },
-    "kiosk": {
-      "title": "Chế độ xem trực tiếp Kiosk",
+    "liveSlideshow": {
+      "title": "Trình chiếu trực tiếp",
       "desc": "Khách tìm chỗ ngồi ngay lập tức tại địa điểm."
     },
     "djmc": {
@@ -120,9 +120,9 @@
       "title": "Biểu đồ chỗ ngồi đầy đủ",
       "desc": "Tạo biểu đồ chỗ ngồi hoàn chỉnh sẵn sàng in hiển thị mọi khách và bàn."
     },
-    "kiosk": {
-      "title": "Kiosk trực tiếp",
-      "desc": "Thiết lập kiosk check-in tự phục vụ tại lối vào địa điểm."
+    "liveSlideshow": {
+      "title": "Trình chiếu trực tiếp",
+      "desc": "Thiết lập Trình chiếu trực tiếp check-in tự phục vụ tại lối vào địa điểm."
     },
     "djmc": {
       "title": "Bảng câu hỏi DJ & MC",
@@ -148,8 +148,8 @@
       "title": "Thẻ tên",
       "desc": "Thẻ in đẹp"
     },
-    "kiosk": {
-      "title": "Kiosk trực tiếp",
+    "liveSlideshow": {
+      "title": "Trình chiếu trực tiếp",
       "desc": "Check-in tự phục vụ"
     },
     "seatingCharts": {
@@ -403,10 +403,10 @@
       "seo2Heading": "Thông Tin Chỗ Ngồi Số",
       "seo2Text": "Quét và xem bàn từ <0>sơ đồ chỗ ngồi</0>.",
       "seo3Heading": "Đơn Giản Hóa Trải Nghiệm",
-      "seo3Text": "Kết hợp mã QR với <0>ki-ốt</0> tại lối vào.",
+      "seo3Text": "Kết hợp mã QR với <0>Trình chiếu trực tiếp</0> tại lối vào.",
       "related1": "Quản Lý Danh Sách Khách",
       "related2": "Công Cụ Sắp Xếp Chỗ",
-      "related3": "Ki-ốt Check-In"
+      "related3": "Trình chiếu trực tiếp"
     },
     "invitations": {
       "title": "Thiệp Mời Số & Quản Lý RSVP",
@@ -513,13 +513,13 @@
       "related2": "Quản Lý Danh Sách Khách",
       "related3": "Công Cụ Sắp Xếp Chỗ"
     },
-    "kiosk": {
-      "title": "Ki-ốt Check-In Khách Đám Cưới",
-      "description": "Tạo trải nghiệm chuyên nghiệp với ki-ốt trực tiếp.",
-      "pageTitle": "Ki-ốt Check-In Đám Cưới",
-      "metaDesc": "Thiết lập ki-ốt check-in khách.",
+    "liveSlideshow": {
+      "title": "Trình chiếu trực tiếp",
+      "description": "Tạo trải nghiệm chuyên nghiệp với Trình chiếu trực tiếp trực tiếp.",
+      "pageTitle": "Trình chiếu trực tiếp | Wedding Waitress",
+      "metaDesc": "Thiết lập Trình chiếu trực tiếp check-in khách.",
       "seo1Heading": "Bật Self Check-In",
-      "seo1Text": "Thiết lập ki-ốt số với <0>hệ thống mã QR</0>.",
+      "seo1Text": "Thiết lập Trình chiếu trực tiếp số với <0>hệ thống mã QR</0>.",
       "seo2Heading": "Tìm Bàn Ngay",
       "seo2Text": "Khách tìm tên và xem bàn từ <0>danh sách khách</0>.",
       "seo3Heading": "Cải Thiện Trải Nghiệm Đón Tiếp",
@@ -556,7 +556,7 @@
       "seo3Text": "Xem bàn ghế phù hợp với không gian.",
       "related1": "Công Cụ Sắp Xếp Chỗ",
       "related2": "Sơ Đồ Đầy Đủ",
-      "related3": "Ki-ốt Check-In"
+      "related3": "Trình chiếu trực tiếp"
     }
   },
   "heroMain": {
@@ -611,8 +611,8 @@
         "heading": "Sơ đồ chỗ ngồi đầy đủ",
         "text": "Tạo sơ đồ tổng thể có thể in."
       },
-      "kioskLiveView": {
-        "heading": "Chế độ xem kiosk trực tiếp",
+      "liveSlideshow": {
+        "heading": "Trình chiếu trực tiếp",
         "text": "Khách tìm chỗ ngồi ngay tại địa điểm."
       },
       "djMc": {
@@ -902,10 +902,10 @@
       "pageTitle": "Tạo Sơ Đồ Chỗ Ngồi Đám Cưới | Toàn Bộ Kế Hoạch Sắp Xếp Chỗ Ngồi Trực Tuyến",
       "finalCtaLabel": "Bắt Đầu Lên Kế Hoạch Sự Kiện Của Bạn"
     },
-    "kioskLiveView": {
+    "liveSlideshow": {
       "primaryCta": "Bắt đầu Lập kế hoạch cho Sự kiện của Bạn",
-      "pageTitle": "Hiển thị Kiosk chỗ ngồi đám cưới | Chế độ xem khách trực tiếp",
-      "h1": "Kiosk Live Seating View cho sự kiện của bạn",
+      "pageTitle": "Trình chiếu trực tiếp | Wedding Waitress",
+      "h1": "Trình chiếu trực tiếp",
       "h": [
         [
           "Hiển thị chỗ ngồi trên màn hình trực tiếp",
@@ -926,7 +926,7 @@
       ],
       "finalCtaLabel": "Bắt đầu Lập kế hoạch cho Sự kiện của Bạn",
       "lead": "Hiển thị sơ đồ chỗ ngồi của bạn trên màn hình tại địa điểm của bạn. Cho phép khách nhanh chóng tìm thấy bàn của họ một cách hiện đại và tương tác.",
-      "metaDescription": "Hiển thị sơ đồ chỗ ngồi đám cưới của bạn trên màn hình hoặc Kiosk. Khách có thể dễ dàng tìm thấy bàn của mình trong thời gian thực tại sự kiện của bạn."
+      "metaDescription": "Hiển thị sơ đồ chỗ ngồi đám cưới của bạn trên màn hình hoặc Trình chiếu trực tiếp. Khách có thể dễ dàng tìm thấy bàn của mình trong thời gian thực tại sự kiện của bạn."
     },
     "djMc": {
       "finalCtaLabel": "Bắt đầu lập kế hoạch sự kiện của bạn",

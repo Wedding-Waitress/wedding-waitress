@@ -96,7 +96,7 @@
 :global(#root) .settingsPanel :is(input, button[role="combobox"]) { border-color: var(--ceremony-champagne-border) !important; }
 .settingsPanel :is(input, button[role="combobox"]):hover { border-color: rgba(255, 235, 207, 0.9) !important; }
 .settingsPanel :is(input, button[role="combobox"]):focus-visible { outline: 2px solid rgba(239, 220, 196, 0.42) !important; outline-offset: 2px; }
-.settingsPanel input::placeholder { color: rgba(234, 219, 201, 0.68) !important; }
+.settingsPanel input::placeholder { color: #fff !important; opacity: 1 !important; }
 
 :global(#root) .settingsPanel [data-orientation="horizontal"] > span:first-child { background-color: rgba(239, 220, 196, 0.24) !important; }
 :global(#root) .settingsPanel [data-orientation="horizontal"] > span:first-child > span { background-color: #d9b77f !important; }

@@ -196,7 +196,7 @@ const DynamicQRCard: React.FC<DynamicQRCardProps> = ({
               </SelectTrigger>
               <SelectContent className="bg-popover border-border z-50">
                 <SelectItem value="guest_lookup">Guest Lookup (Search & RSVP)</SelectItem>
-                <SelectItem value="kiosk">Kiosk Mode (Check-in)</SelectItem>
+                <SelectItem value="kiosk">Live Slideshow (Guest Lookup)</SelectItem>
               </SelectContent>
             </Select>
           </div>

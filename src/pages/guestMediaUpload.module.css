@@ -28,7 +28,7 @@
 }
 
 .navigationTabInactive {
-  color: rgba(255, 255, 255, 0.88);
+  color: #ffffff;
   border: 0;
   background: transparent;
   box-shadow: none;
@@ -346,10 +346,10 @@
 }
 
 .guestbookDangerAction:disabled {
-  color: rgba(255, 255, 255, 0.78) !important;
+  color: #ffffff !important;
   border-color: rgba(255, 151, 143, 0.26) !important;
   background-color: #7f1d1d !important;
-  opacity: 0.72 !important;
+  opacity: 1 !important;
 }
 
 .guestbookDangerAction:focus-visible {

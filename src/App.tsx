@@ -8,6 +8,7 @@ import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-route
 import { PublicMotion } from "@/components/Layout/PublicMotion";
 import { ThemeProvider } from "next-themes";
 import { AppErrorBoundary } from "@/components/core/AppErrorBoundary";
+import { startAppOwnedTypographyNormalization } from "@/lib/appOwnedTypography";
 import {
   loadAccountRoute,
   loadAdminRoute,
@@ -29,7 +30,7 @@ const AccountRecovery = lazy(() => import("./pages/AccountRecovery"));
 const AcceptTeamInvitation = lazy(() => import("./pages/AcceptTeamInvitation").then(m => ({ default: m.AcceptTeamInvitation })));
 const Admin = lazy(() => loadAdminRoute().then(m => ({ default: m.Admin })));
 const GuestLookup = lazy(() => import("./pages/GuestLookup").then(m => ({ default: m.GuestLookup })));
-const KioskView = lazy(() => import("./pages/KioskView").then(m => ({ default: m.KioskView })));
+const LiveSlideshowView = lazy(() => import("./pages/LiveSlideshowView").then(m => ({ default: m.LiveSlideshowView })));
 const ResetPassword = lazy(() => import("./pages/ResetPassword").then(m => ({ default: m.ResetPassword })));
 const PrivacyPolicy = lazy(() => import("./pages/PrivacyPolicy").then(m => ({ default: m.PrivacyPolicy })));
 const TermsOfService = lazy(() => import("./pages/TermsOfService").then(m => ({ default: m.TermsOfService })));
@@ -44,6 +45,7 @@ const VenueDetail = lazy(() => import("./pages/VenueDetail").then(m => ({ defaul
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess").then(m => ({ default: m.PaymentSuccess })));
 const UpgradeCheckout = lazy(() => loadUpgradeCheckoutRoute().then(m => ({ default: m.UpgradeCheckout })));
 const QRRedirect = lazy(() => import("./pages/QRRedirect").then(m => ({ default: m.QRRedirect })));
+const GuidedEventSetup = lazy(() => import("./components/Onboarding/GuidedEventSetup").then(m => ({ default: m.GuidedEventSetup })));
 
 const productRoutes = () => import("./pages/products/PublicProductRoutes");
 const ProductMyEvents = lazy(() => productRoutes().then(m => ({ default: m.ProductMyEvents })));
@@ -59,7 +61,7 @@ const ProductFloorPlan = lazy(() => productRoutes().then(m => ({ default: m.Prod
 const ProductIndividualTableCharts = lazy(() => productRoutes().then(m => ({ default: m.ProductIndividualTableCharts })));
 const ProductDietaryRequirements = lazy(() => productRoutes().then(m => ({ default: m.ProductDietaryRequirements })));
 const ProductRunningSheet = lazy(() => productRoutes().then(m => ({ default: m.ProductRunningSheet })));
-const ProductKioskLiveView = lazy(() => productRoutes().then(m => ({ default: m.ProductKioskLiveView })));
+const ProductLiveSlideshow = lazy(() => productRoutes().then(m => ({ default: m.ProductLiveSlideshow })));
 const ProductDjMcQuestionnaire = lazy(() => productRoutes().then(m => ({ default: m.ProductDjMcQuestionnaire })));
 const ProductPhotoVideoSharing = lazy(() => productRoutes().then(m => ({ default: m.ProductPhotoVideoSharing })));
 const eventRoutes = () => import("./pages/events/PublicEventRoutes");
@@ -86,6 +88,11 @@ import {
 import { AuthenticatedSessionProvider } from '@/contexts/AuthenticatedSessionContext';
 import { AuthenticatedRouteGate } from '@/components/auth/AuthenticatedRouteGate';
 import { getAnalyticsPagePath } from '@/lib/analyticsPath';
+import { scrollPageToTop } from '@/lib/pageScroll';
+import {
+  LegacyLiveSlideshowViewRedirect,
+  PreserveLocationRedirect,
+} from '@/components/routing/PreserveLocationRedirect';
 
 const queryClient = new QueryClient({
   defaultOptions: {
@@ -139,7 +146,7 @@ const AuthenticatedRouteScope = () => (
 const ScrollToTop = () => {
   const { pathname } = useLocation();
   useEffect(() => {
-    window.scrollTo(0, 0);
+    scrollPageToTop();
   }, [pathname]);
   return null;
 };
@@ -159,8 +166,11 @@ const RouteTracker = () => {
   return null;
 };
 
-const App = () => (
-  <QueryClientProvider client={queryClient}>
+const App = () => {
+  useEffect(() => startAppOwnedTypographyNormalization(), []);
+
+  return (
+    <QueryClientProvider client={queryClient}>
     <ThemeProvider
       attribute="class"
       defaultTheme="system"
@@ -186,6 +196,7 @@ const App = () => (
           <Route path="/gallery-photobooth/:token" element={<GuestPhotoBooth />} />
           <Route path="/" element={<Landing />} />
           <Route element={<AuthenticatedRouteScope />}>
+            <Route path="/onboarding/event-setup" element={<GuidedEventSetup />} />
             <Route path="/dashboard/*" element={<Dashboard />} />
             <Route path="/account/:section?" element={<Account />} />
             <Route path="/accept-team-invitation" element={<AcceptTeamInvitation />} />
@@ -235,7 +246,8 @@ const App = () => (
           <Route path="/individual-table-charts" element={<ProductIndividualTableCharts />} />
           <Route path="/dietary-requirements" element={<ProductDietaryRequirements />} />
           <Route path="/running-sheet" element={<ProductRunningSheet />} />
-          <Route path="/kiosk-live-view" element={<ProductKioskLiveView />} />
+          <Route path="/live-slideshow" element={<ProductLiveSlideshow />} />
+          <Route path="/kiosk-live-view" element={<PreserveLocationRedirect to="/live-slideshow" />} />
           <Route path="/dj-mc-questionnaire" element={<ProductDjMcQuestionnaire />} />
           <Route path="/photo-video-sharing" element={<ProductPhotoVideoSharing />} />
           {/* Legacy /products/* — permanent client redirects to clean URLs */}
@@ -253,7 +265,7 @@ const App = () => (
           <Route path="/products/dietary-requirements" element={<Navigate to="/dietary-requirements" replace />} />
           <Route path="/products/running-sheet" element={<Navigate to="/running-sheet" replace />} />
           <Route path="/running-sheet-product" element={<Navigate to="/running-sheet" replace />} />
-          <Route path="/products/kiosk-live-view" element={<Navigate to="/kiosk-live-view" replace />} />
+          <Route path="/products/kiosk-live-view" element={<PreserveLocationRedirect to="/live-slideshow" />} />
           <Route path="/products/dj-mc-questionnaire" element={<Navigate to="/dj-mc-questionnaire" replace />} />
           <Route path="/products/photo-video-sharing" element={<Navigate to="/photo-video-sharing" replace />} />
           {/* Legacy /features/* — permanent client redirects to clean URLs */}
@@ -267,7 +279,7 @@ const App = () => (
           <Route path="/features/floor-plan" element={<Navigate to="/floor-plan" replace />} />
           <Route path="/features/dietary" element={<Navigate to="/dietary-requirements" replace />} />
           <Route path="/features/full-seating" element={<Navigate to="/full-seating-chart" replace />} />
-          <Route path="/features/kiosk" element={<Navigate to="/kiosk-live-view" replace />} />
+          <Route path="/features/kiosk" element={<PreserveLocationRedirect to="/live-slideshow" />} />
           <Route path="/features/dj-mc" element={<Navigate to="/dj-mc-questionnaire" replace />} />
           <Route path="/features/planning" element={<Navigate to="/running-sheet" replace />} />
           <Route path="/features/running-sheet" element={<Navigate to="/running-sheet" replace />} />
@@ -275,8 +287,9 @@ const App = () => (
           <Route path="/blog" element={<Blog />} />
           <Route path="/blog/:slug" element={<BlogPost />} />
           <Route path="/s/:eventSlug" element={<GuestLookup />} />
-          {/* Kiosk mode */}
-          <Route path="/kiosk/:eventSlug" element={<KioskView />} />
+          {/* Guest lookup Live Slideshow (separate from the Photo & Video Sharing slideshow). */}
+          <Route path="/live-slideshow/:eventSlug" element={<LiveSlideshowView />} />
+          <Route path="/kiosk/:eventSlug" element={<LegacyLiveSlideshowViewRedirect />} />
           {/* DJ-MC Questionnaire public view */}
           <Route path="/dj-mc/:eventSlug/:token" element={<DJMCPublicView />} />
           <Route path="/dj-mc/:token" element={<DJMCPublicView />} />
@@ -310,7 +323,8 @@ const App = () => (
         </CurrencyProvider>
       </AppErrorBoundary>
     </ThemeProvider>
-  </QueryClientProvider>
-);
+    </QueryClientProvider>
+  );
+};
 
 export default App;

@@ -70,8 +70,8 @@
       "title": "Plano completo de asientos",
       "desc": "Genera un plano maestro de asientos completo e imprimible."
     },
-    "kiosk": {
-      "title": "Vista en vivo de quiosco",
+    "liveSlideshow": {
+      "title": "Presentación en vivo",
       "desc": "Los invitados encuentran su asiento al instante en el lugar."
     },
     "djmc": {
@@ -120,9 +120,9 @@
       "title": "Plano completo de asientos",
       "desc": "Crea un plano de asientos completo y listo para imprimir que muestra cada invitado y mesa. Exporta a PDF con estilo personalizado y tu marca de evento."
     },
-    "kiosk": {
-      "title": "Vista kiosco en vivo",
-      "desc": "Configura kioscos de check-in autoservicio en la entrada de tu venue. Los invitados buscan su nombre y ven su asignación de mesa al instante."
+    "liveSlideshow": {
+      "title": "Presentación en vivo",
+      "desc": "Configura Presentación en vivo de check-in autoservicio en la entrada de tu venue. Los invitados buscan su nombre y ven su asignación de mesa al instante."
     },
     "djmc": {
       "title": "Cuestionario DJ y MC",
@@ -148,8 +148,8 @@
       "title": "Tarjetas de mesa",
       "desc": "Hermosas tarjetas impresas"
     },
-    "kiosk": {
-      "title": "Vista kiosco en vivo",
+    "liveSlideshow": {
+      "title": "Presentación en vivo",
       "desc": "Check-in autoservicio"
     },
     "seatingCharts": {
@@ -353,7 +353,7 @@
     "floorPlan": "Plano del venue",
     "dietary": "Requisitos dietéticos",
     "seatingChart": "Plano completo de asientos",
-    "kiosk": "Vista kiosco en vivo",
+    "liveSlideshow": "Presentación en vivo",
     "djmc": "Cuestionario DJ-MC",
     "runningSheet": "Hoja de ruta"
   },
@@ -418,10 +418,10 @@
       "seo2Heading": "Información Digital de Asientos",
       "seo2Text": "Los invitados escanean y ven su mesa del <0>plano de asientos</0>.",
       "seo3Heading": "Simplifica la Experiencia del Invitado",
-      "seo3Text": "Combina el código QR con un <0>kiosco en vivo</0> en la entrada.",
+      "seo3Text": "Combina el código QR con una <0>presentación en vivo</0> en la entrada.",
       "related1": "Gestor de Lista de Invitados",
       "related2": "Planificador de Asientos",
-      "related3": "Kiosco de Check-In"
+      "related3": "Presentación en vivo"
     },
     "invitations": {
       "title": "Invitaciones Digitales de Boda y Gestión RSVP",
@@ -528,13 +528,13 @@
       "related2": "Gestor de Lista de Invitados",
       "related3": "Planificador de Asientos"
     },
-    "kiosk": {
-      "title": "Kiosco de Check-In para Bodas",
-      "description": "Crea una experiencia profesional con pantalla de kiosco.",
-      "pageTitle": "Kiosco de Check-In | Sistema de Búsqueda de Invitados",
-      "metaDesc": "Configura un kiosco de check-in para invitados.",
+    "liveSlideshow": {
+      "title": "Presentación en vivo",
+      "description": "Crea una experiencia profesional con pantalla de Presentación en vivo.",
+      "pageTitle": "Presentación en vivo | Wedding Waitress",
+      "metaDesc": "Configura un Presentación en vivo de check-in para invitados.",
       "seo1Heading": "Activa el Auto Check-In",
-      "seo1Text": "Configura un kiosco digital con tu <0>sistema de código QR</0>.",
+      "seo1Text": "Configura un Presentación en vivo digital con tu <0>sistema de código QR</0>.",
       "seo2Heading": "Búsqueda Instantánea de Mesa",
       "seo2Text": "Los invitados buscan su nombre y ven la mesa de la <0>lista de invitados</0>.",
       "seo3Heading": "Mejora la Experiencia de Llegada",
@@ -571,7 +571,7 @@
       "seo3Text": "Ve cómo encajan las mesas en el espacio.",
       "related1": "Planificador de Asientos",
       "related2": "Plano Completo",
-      "related3": "Kiosco de Check-In"
+      "related3": "Presentación en vivo"
     }
   },
   "heroMain": {
@@ -626,8 +626,8 @@
         "heading": "Plano de mesa completo",
         "text": "Genera un plano maestro completo listo para imprimir."
       },
-      "kioskLiveView": {
-        "heading": "Vista en vivo del kiosco",
+      "liveSlideshow": {
+        "heading": "Presentación en vivo",
         "text": "Permite a los invitados encontrar su asiento al instante en el lugar."
       },
       "djMc": {
@@ -917,8 +917,8 @@
       ],
       "finalCtaLabel": "Empieza a Planificar tu Evento"
     },
-    "kioskLiveView": {
-      "pageTitle": "Kiosk de asientos para bodas | Vista de invitados en vivo",
+    "liveSlideshow": {
+      "pageTitle": "Presentación en vivo | Wedding Waitress",
       "h": [
         [
           "Muestra los asientos en una pantalla en vivo",
@@ -939,9 +939,9 @@
       ],
       "primaryCta": "Comienza a planificar tu evento",
       "lead": "Muestra tu plano de asientos en una pantalla en tu lugar de celebración. Permite que los invitados encuentren rápidamente su mesa de una manera moderna e interactiva.",
-      "metaDescription": "Muestra tu plano de asientos de boda en una pantalla o quiosco. Tus invitados pueden encontrar fácilmente su mesa en tiempo real en tu evento.",
+      "metaDescription": "Muestra tu plano de asientos de boda en una pantalla o Presentación en vivo. Tus invitados pueden encontrar fácilmente su mesa en tiempo real en tu evento.",
       "finalCtaLabel": "Comienza a planificar tu evento",
-      "h1": "Vista de asientos en vivo en Kiosk para tu evento"
+      "h1": "Presentación en vivo"
     },
     "djMc": {
       "h": [

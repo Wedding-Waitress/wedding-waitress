@@ -25,7 +25,7 @@ describe('public Wedding Waitress brand colour system', () => {
     expect(landing).toContain('if (index === 0) return');
     expect(landing).toContain('alt="Bride and groom celebrating their wedding"');
     expect(landing).toContain('className="relative aspect-[3/2] w-full"');
-    expect(landing).toContain('className="h-full w-full object-fill"');
+    expect(landing).toContain('className="h-full w-full object-cover"');
     expect(landing).toContain('className="absolute inset-x-0 bottom-0 flex h-9 items-center bg-white/50 px-6 backdrop-blur-sm"');
     expect(landing).toContain('<h3 className="text-xl font-semibold">{eventType.name}</h3>');
     expect(landing).toContain('className="ww-card ww-focus group overflow-hidden md:col-span-2 lg:col-span-1 ring-2 ring-[#a88558]/30"');
@@ -36,7 +36,7 @@ describe('public Wedding Waitress brand colour system', () => {
     expect(landing).toContain("import engagementsCardImage from '@/assets/homepage-engagements-card.jpg';");
     expect(landing).toContain('if (index === 1) return');
     expect(landing).toContain('alt="Engaged couple celebrating their proposal"');
-    expect(landing).toContain('<img src={engagementsCardImage} alt="Engaged couple celebrating their proposal" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
+    expect(landing).toContain('<img src={engagementsCardImage} alt="Engaged couple celebrating their proposal" loading="lazy" width="1400" height="933" className="h-full w-full object-cover" />');
     expect(engagementsCardImage.size).toBeLessThan(300_000);
   });
 
@@ -44,7 +44,7 @@ describe('public Wedding Waitress brand colour system', () => {
     expect(landing).toContain("import birthdaysCardImage from '@/assets/homepage-birthdays-card.jpg';");
     expect(landing).toContain('if (index === 2) return');
     expect(landing).toContain('alt="Children celebrating a birthday with cake and balloons"');
-    expect(landing).toContain('<img src={birthdaysCardImage} alt="Children celebrating a birthday with cake and balloons" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
+    expect(landing).toContain('<img src={birthdaysCardImage} alt="Children celebrating a birthday with cake and balloons" loading="lazy" width="1400" height="933" className="h-full w-full object-cover" />');
     expect(birthdaysCardImage.size).toBeLessThan(300_000);
   });
 
@@ -52,7 +52,7 @@ describe('public Wedding Waitress brand colour system', () => {
     expect(landing).toContain("import corporateEventsCardImage from '@/assets/homepage-corporate-events-card.jpg';");
     expect(landing).toContain('if (index === 3) return');
     expect(landing).toContain('alt="Corporate event with champagne service"');
-    expect(landing).toContain('<img src={corporateEventsCardImage} alt="Corporate event with champagne service" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
+    expect(landing).toContain('<img src={corporateEventsCardImage} alt="Corporate event with champagne service" loading="lazy" width="1400" height="933" className="h-full w-full object-cover" />');
     expect(corporateEventsCardImage.size).toBeLessThan(300_000);
   });
 
@@ -60,15 +60,15 @@ describe('public Wedding Waitress brand colour system', () => {
     expect(landing).toContain("import christmasPartiesCardImage from '@/assets/homepage-christmas-parties-card.jpg';");
     expect(landing).toContain('if (index === 4) return');
     expect(landing).toContain('alt="Colleagues celebrating a Christmas party with gifts"');
-    expect(landing).toContain('<img src={christmasPartiesCardImage} alt="Colleagues celebrating a Christmas party with gifts" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
+    expect(landing).toContain('<img src={christmasPartiesCardImage} alt="Colleagues celebrating a Christmas party with gifts" loading="lazy" width="1400" height="933" className="h-full w-full object-cover" />');
     expect(landing).toContain('<h3 className="text-xl font-semibold">Christmas Parties</h3>');
     expect(christmasPartiesCardImage.size).toBeLessThan(300_000);
   });
 
   it('matches the approved design and homepage-only title on Celebrations of Life', () => {
-    const eventSection = landing.slice(landing.indexOf('One platform for every kind of gathering'), landing.indexOf('const highlights'));
+    const eventSection = landing.slice(landing.indexOf('One platform for every kind of gathering'), landing.indexOf('const faqs'));
     expect(landing).toContain("import celebrationsOfLifeCardImage from '@/assets/homepage-celebrations-of-life-card.jpg';");
-    expect(landing).toContain('<img src={celebrationsOfLifeCardImage} alt="Friends raising champagne together at a celebration" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
+    expect(landing).toContain('<img src={celebrationsOfLifeCardImage} alt="Friends raising champagne together at a celebration" loading="lazy" width="1400" height="933" className="h-full w-full object-cover" />');
     expect(landing).toContain('<h3 className="text-xl font-semibold">Memorials & Celebrations of Life</h3>');
     expect(landing).toContain('to={eventType.path}');
     expect(eventSection.match(/h-9 items-center bg-white\/50/g)).toHaveLength(6);
@@ -80,7 +80,7 @@ describe('public Wedding Waitress brand colour system', () => {
   it('uses the approved image treatment on the first homepage workflow card', () => {
     expect(landing).toContain("import workflowMyEventsImage from '@/assets/homepage-workflow-my-events.jpg';");
     expect(landing).toContain('alt="Bride and groom ready to plan their wedding event"');
-    expect(landing).toContain('<img src={workflowMyEventsImage} alt="Bride and groom ready to plan their wedding event" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
+    expect(landing).toContain('<img src={workflowMyEventsImage} alt="Bride and groom ready to plan their wedding event" loading="lazy" width="1400" height="933" className="h-full w-full object-cover" />');
     expect(landing).toContain('className="ww-public-link absolute right-3 top-3 rounded-full bg-white/80 px-2 py-1 text-sm font-bold backdrop-blur-sm">01</span>');
     expect(landing).toContain('steps.map(([,title,text], index) => { if (index === 0) return');
     expect(workflowMyEventsImage.size).toBeLessThan(300_000);
@@ -89,7 +89,7 @@ describe('public Wedding Waitress brand colour system', () => {
   it('uses the approved image treatment and homepage-only title on the budget workflow card', () => {
     expect(landing).toContain("import workflowBudgetPlannerImage from '@/assets/homepage-workflow-budget-planner.jpg';");
     expect(landing).toContain('alt="Couple meeting with a wedding planner to organise their budget"');
-    expect(landing).toContain('<img src={workflowBudgetPlannerImage} alt="Couple meeting with a wedding planner to organise their budget" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
+    expect(landing).toContain('<img src={workflowBudgetPlannerImage} alt="Couple meeting with a wedding planner to organise their budget" loading="lazy" width="1400" height="933" className="h-full w-full object-cover" />');
     expect(landing).toContain('className="ww-public-link absolute right-3 top-3 rounded-full bg-white/80 px-2 py-1 text-sm font-bold backdrop-blur-sm">02</span>');
     expect(landing).toContain('<h3 className="text-xl font-semibold">Budget Planner</h3>');
     expect(workflowBudgetPlannerImage.size).toBeLessThan(300_000);
@@ -99,7 +99,7 @@ describe('public Wedding Waitress brand colour system', () => {
     const workflowSection = landing.slice(landing.indexOf('From first event detail to final song'), landing.indexOf('homepage-products-title'));
     expect(landing).toContain("import workflowGuestListImage from '@/assets/homepage-workflow-guest-list.jpg';");
     expect(landing).toContain('alt="Guest list planning on a computer"');
-    expect(landing).toContain('<img src={workflowGuestListImage} alt="Guest list planning on a computer" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
+    expect(landing).toContain('<img src={workflowGuestListImage} alt="Guest list planning on a computer" loading="lazy" width="1400" height="933" className="h-full w-full object-cover" />');
     expect(landing).toContain('className="ww-public-link absolute right-3 top-3 rounded-full bg-white/80 px-2 py-1 text-sm font-bold backdrop-blur-sm">04</span>');
     expect(workflowSection).not.toContain('text-2xl font-semibold');
     expect(workflowSection.match(/text-xl font-semibold/g)).toHaveLength(5);
@@ -108,7 +108,7 @@ describe('public Wedding Waitress brand colour system', () => {
 
   it('uses the approved image treatment on Tables without changing its heading size', () => {
     expect(landing).toContain("import workflowTablesImage from '@/assets/homepage-workflow-tables.jpg';");
-    expect(landing).toContain('<img src={workflowTablesImage} alt="Wedding reception tables arranged for guests" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
+    expect(landing).toContain('<img src={workflowTablesImage} alt="Wedding reception tables arranged for guests" loading="lazy" width="1400" height="933" className="h-full w-full object-cover" />');
     expect(landing).toContain('className="ww-public-link absolute right-3 top-3 rounded-full bg-white/80 px-2 py-1 text-sm font-bold backdrop-blur-sm">03</span>');
     expect(landing).toContain('<h3 className="text-xl font-semibold">{title}</h3>');
     expect(workflowTablesImage.size).toBeLessThan(300_000);
@@ -116,7 +116,7 @@ describe('public Wedding Waitress brand colour system', () => {
 
   it('uses the approved image treatment on Share, Celebrate & Enjoy without changing its font size', () => {
     expect(landing).toContain("import workflowCelebrationImage from '@/assets/homepage-workflow-celebration.jpg';");
-    expect(landing).toContain('<img src={workflowCelebrationImage} alt="Bride celebrating with friends and champagne" loading="lazy" width="1400" height="933" className="h-full w-full object-fill" />');
+    expect(landing).toContain('<img src={workflowCelebrationImage} alt="Bride celebrating with friends and champagne" loading="lazy" width="1400" height="933" className="h-full w-full object-cover" />');
     expect(landing).toContain('className="ww-public-link absolute right-3 top-3 rounded-full bg-white/80 px-2 py-1 text-sm font-bold backdrop-blur-sm">05</span>');
     expect(landing).toContain('<h3 className="text-xl font-semibold leading-none">{title}</h3>');
     expect(workflowCelebrationImage.size).toBeLessThan(300_000);

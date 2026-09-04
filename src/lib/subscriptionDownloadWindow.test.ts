@@ -3,7 +3,7 @@ import fs from 'node:fs';
 import path from 'node:path';
 
 const root = process.cwd();
-const migration = fs.readFileSync(path.join(root, 'supabase/migrations/20260822153000_subscription_download_only_window.sql'), 'utf8');
+const migration = fs.readFileSync(path.join(root, 'supabase/migrations/20260903120801_subscription_download_only_window.sql'), 'utf8');
 const payment = fs.readFileSync(path.join(root, 'supabase/functions/verify-payment/index.ts'), 'utf8');
 
 describe('subscription download-only lifecycle contract', () => {
@@ -21,6 +21,24 @@ describe('subscription download-only lifecycle contract', () => {
     expect(migration).toContain('BEFORE INSERT OR UPDATE OR DELETE');
     expect(migration).not.toContain('BEFORE SELECT');
     expect(migration).toContain('Paid planning access has ended. This account is download-only.');
+  });
+
+  it('exposes lifecycle actions only to authenticated users', () => {
+    expect(migration).toContain(
+      'REVOKE ALL ON FUNCTION public.refresh_my_subscription_lifecycle() FROM public, anon;',
+    );
+    expect(migration).toContain(
+      'GRANT EXECUTE ON FUNCTION public.refresh_my_subscription_lifecycle() TO authenticated;',
+    );
+    expect(migration).toContain(
+      'REVOKE ALL ON FUNCTION public.extend_starter_trial_once() FROM public, anon;',
+    );
+    expect(migration).toContain(
+      'REVOKE ALL ON FUNCTION public.subscription_allows_event_edit(uuid) FROM public, anon, authenticated;',
+    );
+    expect(migration).toContain(
+      'REVOKE ALL ON FUNCTION public.guard_expired_event_mutation() FROM public, anon, authenticated;',
+    );
   });
 
   it('sets the download end date for purchases and extensions', () => {

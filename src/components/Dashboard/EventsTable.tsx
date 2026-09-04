@@ -20,7 +20,7 @@ import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Badge } from "@/components/ui/badge";
 import { Table, TableBody, TableCell, TableHead, TableHeader, TableRow } from "@/components/ui/table";
-import { Pencil, Trash2, Plus, CalendarDays, CalendarCheck2, CircleDot, ChevronDown, ChevronUp } from "lucide-react";
+import { Pencil, Trash2, Plus, CalendarDays, CalendarCheck2, CircleDot, ChevronDown, ChevronUp, Sparkles } from "lucide-react";
 import { RadioGroup, RadioGroupItem } from "@/components/ui/radio-group";
 import {
   Tooltip,
@@ -34,6 +34,8 @@ import { useNavigate } from 'react-router-dom';
 import { useIsMobile } from '@/hooks/use-mobile';
 import type { EventLimitsState } from '@/hooks/useEventLimits';
 import { useToast } from '@/hooks/use-toast';
+import { formatEventAllowanceLabel } from '@/lib/eventAllowanceLabel';
+import type { EventImageValue } from '@/lib/eventImage';
 
 const DeleteConfirmationModal = lazy(() => import('./DeleteConfirmationModal').then(m => ({ default: m.DeleteConfirmationModal })));
 const EventEditModal = lazy(() => import('./EventEditModal').then(m => ({ default: m.EventEditModal })));
@@ -43,6 +45,7 @@ const AdditionalEventModal = lazy(() => import('./AdditionalEventModal').then(m 
 // Define Event type locally
 interface Event {
   id: string;
+  user_id?: string;
   name: string;
   date: string | null;
   venue: string | null;
@@ -61,6 +64,11 @@ interface Event {
   rsvp_deadline: string | null;
   event_type?: 'seated' | 'cocktail';
   event_id?: string | null;
+  event_image_path?: string | null;
+  event_image_fit?: 'cover' | 'contain';
+  event_image_position_x?: number;
+  event_image_position_y?: number;
+  event_image_zoom?: number;
 }
 
 // Format event date as DAY{ordinal}, Month YYYY (e.g., "20th, September 2025")
@@ -252,6 +260,27 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   const isAtCapacity = (event: any) => {
     return event.guests_count >= event.guest_limit;
   };
+  const handleImageChange = async (id: string, value: EventImageValue | null) => {
+    const imageFields = {
+      event_image_path: value?.path ?? null,
+      event_image_fit: value?.fit ?? 'cover',
+      event_image_position_x: value?.positionX ?? 50,
+      event_image_position_y: value?.positionY ?? 50,
+      event_image_zoom: value?.zoom ?? 100,
+    };
+    await updateEvent(id, imageFields);
+    setEditModal((current) => current.event?.id === id
+      ? { ...current, event: { ...current.event, ...imageFields } }
+      : current);
+  };
+  const eventAllowanceLabel = eventLimits.loading
+    ? `Events: ${events.length} created \u00b7 Checking allowance`
+    : eventLimits.eventsError || eventLimits.additionalEventsError
+      ? `Events: ${events.length} created \u00b7 Allowance unavailable`
+      : formatEventAllowanceLabel({
+          created: eventLimits.currentEvents,
+          allowance: eventLimits.totalAllowed,
+        });
   if (loading) {
     return <Card className="ww-box ww-events-table-panel p-8 text-center">
         <div>Loading events...</div>
@@ -267,13 +296,17 @@ export const EventsTable: React.FC<EventsTableProps> = ({
             </h3>
 
             <div className="ml-auto flex shrink-0 items-center gap-2 max-lg:ml-0 max-lg:basis-full max-lg:flex-wrap max-lg:justify-center">
-              <Badge variant="outline" className="ww-events-badge bg-white border-primary text-primary rounded-full text-sm">
+              <Badge variant="outline" className="ww-events-badge max-w-full whitespace-normal text-center bg-white border-primary text-primary rounded-full text-sm">
                 <CalendarCheck2 size={16} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
-                {events.length} Event{events.length !== 1 ? 's' : ''} Created
+                {eventAllowanceLabel}
               </Badge>
               <Button variant="default" size="sm" className="ww-events-button lv-premium-shade rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white touch-target sm:max-lg:w-48 max-lg:h-9 max-lg:justify-center" onClick={handleCreateClick}>
                 <Plus size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                 {isMobile ? "Create" : "Create Event"}
+              </Button>
+              <Button variant="outline" size="sm" className="ww-events-button rounded-full flex items-center gap-2 border-primary bg-white text-primary touch-target sm:max-lg:w-48 max-lg:h-9 max-lg:justify-center" onClick={() => navigate('/onboarding/event-setup?mode=additional&new=1')}>
+                <Sparkles size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+                {isMobile ? 'Guided' : 'Guided Setup'}
               </Button>
             </div>
           </div>
@@ -508,7 +541,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       </TableCell>
                     </TableRow>;
                   })}
-                  {/* Purple footer row - matching header background */}
+                  {/* Solid footer row matching the high-contrast table header. */}
                   <TableRow className="ww-events-footer bg-primary hover:bg-primary border-t-0">
                     <TableCell colSpan={12} className="h-12">
                       {/* Empty footer row with same height as data rows */}
@@ -527,6 +560,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
           onClose={() => setEditModal({ isOpen: false, event: null })}
           event={editModal.event}
           onSave={handleSaveEdit}
+          onImageChange={handleImageChange}
         />}
         {createModal && <EventCreateModal
           isOpen

@@ -17,6 +17,8 @@ export interface EventBudgetSettings {
   user_id: string;
   anticipated_budget: number;
   currency: CurrencyCode;
+  planned_budget_kind: 'exact' | 'range' | 'undecided';
+  planned_budget_range: string | null;
   created_at: string;
   updated_at: string;
 }

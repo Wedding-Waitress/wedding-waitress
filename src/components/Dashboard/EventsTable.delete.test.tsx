@@ -94,7 +94,7 @@ describe('EventsTable verified deletion flow', () => {
     await waitFor(() => expect(screen.queryByText('Jack & Jill')).not.toBeInTheDocument());
     expect(mutation).toHaveBeenCalledTimes(1);
     expect(mutation).toHaveBeenCalledWith('victim-uuid');
-    expect(screen.getByText('1 Event Created')).toBeInTheDocument();
+    expect(screen.getByText('Events: 1 of 1 created')).toBeInTheDocument();
     expect(screen.getByText('My Events - Andy & Cathy')).toBeInTheDocument();
   });
 
@@ -107,7 +107,7 @@ describe('EventsTable verified deletion flow', () => {
 
     expect(await screen.findByRole('button', { name: 'Delete Event' })).toBeEnabled();
     expect(screen.getByText('Jack & Jill')).toBeInTheDocument();
-    expect(screen.getByText('2 Events Created')).toBeInTheDocument();
+    expect(screen.getByText('Events: 2 of 1 created')).toBeInTheDocument();
     expect(screen.getByRole('dialog')).toBeInTheDocument();
   });
 

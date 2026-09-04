@@ -9,31 +9,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, FileText } from 'lucide-react';
 import { SeoHead } from '@/components/SEO/SeoHead';
+import { Header } from '@/components/Layout/Header';
+import { PublicFooter } from '@/components/Layout/PublicFooter';
+import { PublicPageHero } from '@/components/Layout/PublicPageHero';
+import { publicHeroForRoute } from '@/config/publicHeroManifest';
+import '@/styles/PublicSite.css';
 
 export const TermsOfService = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="ww-public min-h-screen bg-gradient-subtle">
       <SeoHead
         title="Terms of Service | Wedding Waitress"
         description="Read the Terms of Service for Wedding Waitress, the all-in-one wedding planning app for managing guests, seating, and RSVPs."
       />
-      {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="w-full px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2">
-            <FileText className="w-6 h-6 text-primary" />
-            <span className="font-bold text-xl">Wedding Waitress</span>
-          </Link>
-          <Link to="/">
-            <Button variant="outline">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Button>
-          </Link>
-        </div>
-      </header>
+      <Header />
+      <PublicPageHero compact asset={publicHeroForRoute('/terms')} eyebrow="Terms" title="Terms of Service" description="The terms that apply when you use Wedding Waitress products and services." />
 
       {/* Main Content */}
       <main className="w-full px-4 py-12">
@@ -100,7 +92,7 @@ export const TermsOfService = () => {
                 <li>Place cards, signage, and printable materials</li>
                 <li>Floor plan designer</li>
                 <li>Kitchen dietary requirements chart</li>
-                <li>Live View kiosk mode for guests</li>
+                <li>Live Slideshow guest lookup</li>
                 <li>Event coordination tools</li>
               </ul>
               <p className="text-muted-foreground leading-relaxed mt-4">
@@ -555,21 +547,7 @@ export const TermsOfService = () => {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t bg-background/95">
-        <div className="w-full px-4 py-8">
-          <div className="text-center text-sm text-muted-foreground">
-            <p>© {currentYear} Wedding Waitress. All rights reserved.</p>
-            <div className="flex items-center justify-center gap-4 mt-4">
-              <Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
-              <span>•</span>
-              <Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
-              <span>•</span>
-              <Link to="/contact" className="hover:text-primary transition-colors">Contact</Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <PublicFooter />
     </div>
   );
 };

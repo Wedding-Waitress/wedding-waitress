@@ -3,7 +3,7 @@ import { CircleCheck } from 'lucide-react';
 import { estimatedSeparateToolValueAud, pricingComparisonRows } from '@/content/pricingComparison';
 import { useCurrencyContext } from '@/contexts/CurrencyContext';
 import { useLiveExchangeRates } from '@/hooks/useLiveExchangeRates';
-import { convertAudPrice, formatLivePrice } from '@/lib/liveCurrencyPricing';
+import { convertAudPrice, formatPublicPricingPrice } from '@/lib/liveCurrencyPricing';
 import { PACKAGE_PRICES_AUD } from '@/lib/packagePricing';
 
 const aud = (value: number) =>
@@ -13,7 +13,7 @@ export const PricingValueComparison: React.FC = () => {
   const { currency } = useCurrencyContext();
   const { rates, loading, error } = useLiveExchangeRates();
   const effectiveCurrency = loading || error ? 'AUD' : currency;
-  const weddingWaitressPrice = formatLivePrice(
+  const weddingWaitressPrice = formatPublicPricingPrice(
     effectiveCurrency,
     convertAudPrice(PACKAGE_PRICES_AUD.essential, effectiveCurrency, rates),
   );
@@ -147,7 +147,7 @@ export const PricingValueComparison: React.FC = () => {
               subfeatures are not counted again.
             </p>
           </div>
-          <div className="ww-public-dashboard-background p-7 text-[#fff8ee] md:p-9">
+          <div data-pricing-dark-surface="wedding-waitress-value" data-solid-text-surface="dark" className="ww-public-dashboard-background p-7 text-[#fff8ee] md:p-9">
             <h3 className="text-2xl font-semibold !text-[#fff8ee]">
               Wedding Waitress from {weddingWaitressPrice}
             </h3>

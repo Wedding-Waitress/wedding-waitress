@@ -16,7 +16,7 @@ import featurePlacecards from '@/assets/feature-placecards.jpg';
 import featureTablecharts from '@/assets/feature-tablecharts.jpg';
 import featureDietary from '@/assets/feature-dietary.jpg';
 import featureSeatingchart from '@/assets/feature-seatingchart.jpg';
-import featureKiosk from '@/assets/feature-kiosk.jpg';
+import liveSlideshow from '@/assets/feature-live-slideshow.jpg';
 import featureDjmc from '@/assets/feature-djmc.jpg';
 import featureFloorplan from '@/assets/feature-floorplan.jpg';
 
@@ -35,7 +35,7 @@ export const Features: React.FC = () => {
     tableCharts: 'Individual wedding table seating charts',
     dietary: 'Wedding guest dietary requirements tracker',
     seatingChart: 'Full wedding seating chart overview',
-    kiosk: 'Wedding venue self-service check-in kiosk',
+    liveSlideshow: 'Wedding venue Live Slideshow guest lookup',
     djmc: 'Wedding DJ and MC music questionnaire',
   };
 
@@ -51,7 +51,7 @@ export const Features: React.FC = () => {
     { key: 'tableCharts', img: featureTablecharts, icon: Grid3X3, route: '/individual-table-charts' },
     { key: 'dietary', img: featureDietary, icon: UtensilsCrossed, route: '/dietary-requirements' },
     { key: 'seatingChart', img: featureSeatingchart, icon: FileText, route: '/full-seating-chart' },
-    { key: 'kiosk', img: featureKiosk, icon: Monitor, route: '/kiosk-live-view' },
+    { key: 'liveSlideshow', img: liveSlideshow, icon: Monitor, route: '/live-slideshow' },
     { key: 'djmc', img: featureDjmc, icon: Mic, route: '/dj-mc-questionnaire' },
   ];
 
@@ -59,7 +59,7 @@ export const Features: React.FC = () => {
     <div className="min-h-screen bg-[#FAFAFA]">
       <SeoHead
         title="All Wedding Planning Features | Wedding Waitress"
-        description="Explore all 13 features of Wedding Waitress: guest list, seating chart, QR code, invitations, place cards, dietary requirements, kiosk, DJ-MC questionnaire and more."
+        description="Explore all 13 features of Wedding Waitress: guest list, seating chart, QR code, invitations, place cards, dietary requirements, Live Slideshow, DJ-MC questionnaire and more."
       />
       <Header />
       <section className="py-20 md:py-28 px-4">

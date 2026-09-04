@@ -23,9 +23,12 @@ import { LocationDetailsPopover } from './LocationDetailsPopover';
 import { EventNameCombobox } from './EventNameCombobox';
 import { format } from 'date-fns';
 import styles from './EventCreateModal.module.css';
+import { EventImageEditor } from '@/components/EventImage/EventImageEditor';
+import type { EventImageValue } from '@/lib/eventImage';
 
 interface Event {
   id: string;
+  user_id?: string;
   name: string;
   date: string | null;
   venue: string | null;
@@ -58,6 +61,11 @@ interface Event {
   ceremony_finish_time?: string | null;
   ceremony_rsvp_deadline?: string | null;
   reception_enabled?: boolean;
+  event_image_path?: string | null;
+  event_image_fit?: 'cover' | 'contain';
+  event_image_position_x?: number;
+  event_image_position_y?: number;
+  event_image_zoom?: number;
 }
 
 interface EventEditModalProps {
@@ -65,13 +73,15 @@ interface EventEditModalProps {
   onClose: () => void;
   event: Event | null;
   onSave: (id: string, eventData: any) => Promise<void>;
+  onImageChange: (id: string, value: EventImageValue | null) => Promise<void>;
 }
 
 export const EventEditModal: React.FC<EventEditModalProps> = ({
   isOpen,
   onClose,
   event,
-  onSave
+  onSave,
+  onImageChange,
 }) => {
   const [formData, setFormData] = useState({
     // Top-level event name
@@ -351,6 +361,18 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
           Please enable at least one section (Ceremony or Reception) to save.
         </div>
       )}
+      <EventImageEditor
+        heading="Event photo or logo"
+        context={{ kind: 'event', ownerId: event.user_id || '', eventId: event.id }}
+        value={event.event_image_path ? {
+          path: event.event_image_path,
+          fit: event.event_image_fit === 'contain' ? 'contain' : 'cover',
+          positionX: event.event_image_position_x ?? 50,
+          positionY: event.event_image_position_y ?? 50,
+          zoom: event.event_image_zoom ?? 100,
+        } : null}
+        onChange={(value) => onImageChange(event.id, value)}
+      />
       {/* CEREMONY */}
       <div className={`border-2 border-border rounded-xl overflow-hidden ${styles.section}`}>
         <div className={`flex items-center justify-between px-4 py-3 bg-muted/50 ${styles.sectionHeader}`}>

@@ -6,14 +6,14 @@ import { PLAN_PRICING, VENDOR_PRICING } from './currencyPricing';
 
 describe('package pricing catalogue', () => {
   it('uses the approved ex-GST AUD prices and single GST calculation', () => {
-    expect(PACKAGE_PRICES_AUD).toEqual({ essential: 150, premium: 200, unlimited: 300, vendor_pro: 300 });
-    expect(Object.values(PACKAGE_PRICES_AUD).map(gstInclusiveAud)).toEqual([165, 220, 330, 330]);
+    expect(PACKAGE_PRICES_AUD).toEqual({ essential: 199, premium: 249, unlimited: 299, vendor_pro: 300 });
+    expect(Object.values(PACKAGE_PRICES_AUD).map(gstInclusiveAud)).toEqual([218.9, 273.9, 328.9, 330]);
   });
 
   it('recalculates all supported display currencies from the new AUD bases', () => {
-    expect(PLAN_PRICING.USD).toMatchObject({ essential: { price: 99 }, premium: { price: 132 }, unlimited: { price: 198 } });
-    expect(PLAN_PRICING.GBP).toMatchObject({ essential: { price: 77 }, premium: { price: 102 }, unlimited: { price: 153 } });
-    expect(PLAN_PRICING.EUR).toMatchObject({ essential: { price: 90 }, premium: { price: 120 }, unlimited: { price: 180 } });
+    expect(PLAN_PRICING.USD).toMatchObject({ essential: { price: 131 }, premium: { price: 164 }, unlimited: { price: 197 } });
+    expect(PLAN_PRICING.GBP).toMatchObject({ essential: { price: 101 }, premium: { price: 127 }, unlimited: { price: 152 } });
+    expect(PLAN_PRICING.EUR).toMatchObject({ essential: { price: 119 }, premium: { price: 149 }, unlimited: { price: 179 } });
     expect(VENDOR_PRICING).toMatchObject({ AUD: { price: 300 }, USD: { price: 198 }, GBP: { price: 153 }, EUR: { price: 180 } });
   });
 

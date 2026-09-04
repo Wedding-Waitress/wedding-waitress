@@ -27,7 +27,7 @@ export const FeatureFloorPlan = () => {
       relatedFeatures={[
         { label: t('fp.floorPlan.related1'), href: "/qr-code-seating-chart" },
         { label: t('fp.floorPlan.related2'), href: "/full-seating-chart" },
-        { label: t('fp.floorPlan.related3'), href: "/kiosk-live-view" },
+        { label: t('fp.floorPlan.related3'), href: "/live-slideshow" },
       ]}
     />
   );

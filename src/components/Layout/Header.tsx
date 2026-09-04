@@ -16,22 +16,23 @@ import { productsByGroup } from '@/content/publicProducts';
 import { publicEventTypes, type PublicEventTypeId } from '@/content/publicEventTypes';
 import { readSignInRedirectState } from '@/lib/authNavigation';
 import { getActivePublicNavigation, isCurrentPublicPath } from '@/lib/publicNavigation';
+import { PublicHomeLogoLink } from '@/components/Layout/PublicHomeLogoLink';
 import '@/styles/PublicSite.css';
 
 const headerLanguages = [
-  { code: 'en', name: 'English', flag: '🇺🇸' },
-  { code: 'it', name: 'Italiano', flag: '🇮🇹' },
-  { code: 'ar', name: 'العربية', flag: '🇸🇦' },
-  { code: 'zh', name: '中文', flag: '🇨🇳' },
-  { code: 'vi', name: 'Tiếng Việt', flag: '🇻🇳' },
-  { code: 'hi', name: 'हिन्दी', flag: '🇮🇳' },
-  { code: 'tr', name: 'Türkçe', flag: '🇹🇷' },
-  { code: 'de', name: 'Deutsch', flag: '🇩🇪' },
-  { code: 'es', name: 'Español', flag: '🇪🇸' },
-  { code: 'fr', name: 'Français', flag: '🇫🇷' },
-  { code: 'nl', name: 'Nederlands', flag: '🇳🇱' },
-  { code: 'ja', name: '日本語', flag: '🇯🇵' },
-  { code: 'el', name: 'Ελληνικά', flag: '🇬🇷' },
+  { code: 'en', name: 'English', flagSrc: '/flags/us.svg' },
+  { code: 'it', name: 'Italiano', flagSrc: '/flags/it.svg' },
+  { code: 'ar', name: 'العربية', flagSrc: '/flags/sa.svg' },
+  { code: 'zh', name: '中文', flagSrc: '/flags/cn.svg' },
+  { code: 'vi', name: 'Tiếng Việt', flagSrc: '/flags/vn.svg' },
+  { code: 'hi', name: 'हिन्दी', flagSrc: '/flags/in.svg' },
+  { code: 'tr', name: 'Türkçe', flagSrc: '/flags/tr.svg' },
+  { code: 'de', name: 'Deutsch', flagSrc: '/flags/de.svg' },
+  { code: 'es', name: 'Español', flagSrc: '/flags/es.svg' },
+  { code: 'fr', name: 'Français', flagSrc: '/flags/fr.svg' },
+  { code: 'nl', name: 'Nederlands', flagSrc: '/flags/nl.svg' },
+  { code: 'ja', name: '日本語', flagSrc: '/flags/jp.svg' },
+  { code: 'el', name: 'Ελληνικά', flagSrc: '/flags/gr.svg' },
 ];
 
 const eventNavigationIconById: Record<PublicEventTypeId, LucideIcon> = {
@@ -144,28 +145,9 @@ export const Header: React.FC<HeaderProps> = ({
           }`}
         >
           {/* Logo — always left. Click: scroll to top, no reload if already on / */}
-          <Link
-            to="/"
-            onClick={(e) => {
-              // Always close any open mobile menu
-              setMobileMenuOpen(false);
-              if (location.pathname === '/') {
-                e.preventDefault();
-                window.scrollTo({ top: 0, behavior: 'smooth' });
-                return;
-              }
-              // Navigate to "/" then force scroll to top after route mounts.
-              // Use multiple scroll attempts to handle iOS Safari + Android Chrome
-              // where the new route paints asynchronously.
-              const scrollTop = () => window.scrollTo({ top: 0, left: 0, behavior: 'auto' });
-              requestAnimationFrame(scrollTop);
-              setTimeout(scrollTop, 0);
-              setTimeout(scrollTop, 150);
-              setTimeout(() => window.scrollTo({ top: 0, behavior: 'smooth' }), 300);
-            }}
-            role="link"
-            aria-label="Go to homepage"
-            className={`flex items-center flex-shrink-0 cursor-pointer touch-manipulation ${
+          <PublicHomeLogoLink
+            onNavigate={() => setMobileMenuOpen(false)}
+            className={`ww-public-header-home-logo flex items-center flex-shrink-0 cursor-pointer touch-manipulation ${
               !user ? 'min-[1320px]:-translate-x-2 min-[1320px]:pr-3' : ''
             }`}
           >
@@ -176,14 +158,14 @@ export const Header: React.FC<HeaderProps> = ({
               height="464"
               className="h-12 lg:h-14 w-auto hover:opacity-80 transition-opacity"
             />
-          </Link>
+          </PublicHomeLogoLink>
 
           {!user && (
             <>
               {/* Desktop Nav — right side (lg+ only) */}
               <div className="hidden min-[1320px]:flex items-center gap-1 lg:gap-2">
                 <nav className="flex items-center space-x-1 lg:space-x-2">
-                  <Link to="/how-it-works" aria-current={location.pathname === '/how-it-works' ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-public-nav-link whitespace-nowrap text-[15px] font-medium transition-colors px-3 py-2 rounded-lg">
+                  <Link to="/how-it-works" aria-current={activeNavigation === 'how-it-works' ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-public-nav-link whitespace-nowrap text-[15px] font-medium transition-colors px-3 py-2 rounded-lg">
                     {t('nav.howItWorks')}
                   </Link>
                   <DropdownMenu open={productsMenuOpen} onOpenChange={setProductsMenuOpen}>
@@ -191,7 +173,7 @@ export const Header: React.FC<HeaderProps> = ({
                       <Link
                         to="/products"
                         onClick={() => window.scrollTo(0, 0)}
-                        aria-current={location.pathname === '/products' ? 'page' : undefined}
+                        aria-current={activeNavigation === 'products' ? 'page' : undefined}
                         className="ww-public-nav-link text-[15px] font-medium transition-colors px-3 py-2 rounded-lg"
                       >
                         {t('nav.products')}
@@ -220,7 +202,7 @@ export const Header: React.FC<HeaderProps> = ({
                           <p className="ww-products-menu-heading">{group.name}</p>
                           {group.products.map((product) => {
                             const ProductIcon = product.navigationIcon;
-                            return <DropdownMenuItem key={product.path} asChild><Link to={product.path} aria-current={location.pathname === product.path ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-products-menu-link ww-product-menu-item cursor-pointer rounded-xl px-3 py-2 text-[13px] font-medium"><ProductIcon size={18} strokeWidth={1.8} aria-hidden="true" className="ww-product-menu-icon" /><span className="min-w-0">{product.name}</span></Link></DropdownMenuItem>;
+                            return <DropdownMenuItem key={product.path} asChild><Link to={product.path} aria-current={isCurrentPath(product.path) ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-products-menu-link ww-product-menu-item cursor-pointer rounded-xl px-3 py-2 text-[13px] font-medium"><ProductIcon size={18} strokeWidth={1.8} aria-hidden="true" className="ww-product-menu-icon" /><span className="min-w-0">{product.name}</span></Link></DropdownMenuItem>;
                           })}
                         </div>)}
                       </div>
@@ -232,7 +214,7 @@ export const Header: React.FC<HeaderProps> = ({
                       <Link
                         to="/events"
                         onClick={() => window.scrollTo(0, 0)}
-                        aria-current={location.pathname === '/events' ? 'page' : undefined}
+                        aria-current={activeNavigation === 'events' ? 'page' : undefined}
                         className="ww-public-nav-link text-[15px] font-medium transition-colors px-3 py-2 rounded-lg"
                       >
                         Events
@@ -248,22 +230,22 @@ export const Header: React.FC<HeaderProps> = ({
                       <div className="ww-events-menu-grid">
                         {publicEventTypes.map((eventType) => {
                           const EventIcon = eventNavigationIconById[eventType.id];
-                          return <DropdownMenuItem key={eventType.path} asChild><Link to={eventType.path} aria-current={location.pathname === eventType.path ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-products-menu-link ww-product-menu-item cursor-pointer rounded-xl px-3 py-2 text-[13px] font-medium"><EventIcon size={18} strokeWidth={1.8} aria-hidden="true" className="ww-product-menu-icon" /><span className="min-w-0">{eventType.name}</span></Link></DropdownMenuItem>;
+                          return <DropdownMenuItem key={eventType.path} asChild><Link to={eventType.path} aria-current={isCurrentPath(eventType.path) ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-products-menu-link ww-product-menu-item cursor-pointer rounded-xl px-3 py-2 text-[13px] font-medium"><EventIcon size={18} strokeWidth={1.8} aria-hidden="true" className="ww-product-menu-icon" /><span className="min-w-0">{eventType.name}</span></Link></DropdownMenuItem>;
                         })}
                       </div>
                       <Link to="/events" className="ww-products-menu-cta ww-button-espresso ww-focus px-5 py-2.5 text-sm">Explore all event types →</Link>
                     </DropdownMenuContent>
                   </DropdownMenu>
-                  <Link to="/pricing" aria-current={location.pathname === '/pricing' ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-public-nav-link text-[15px] font-medium transition-colors px-3 py-2 rounded-lg">
+                  <Link to="/pricing" aria-current={activeNavigation === 'pricing' ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-public-nav-link text-[15px] font-medium transition-colors px-3 py-2 rounded-lg">
                     {t('nav.pricing')}
                   </Link>
-                  <Link to="/blog" aria-current={location.pathname.startsWith('/blog') ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-public-nav-link text-[15px] font-medium transition-colors px-3 py-2 rounded-lg">
+                  <Link to="/blog" aria-current={activeNavigation === 'blog' ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-public-nav-link text-[15px] font-medium transition-colors px-3 py-2 rounded-lg">
                     {t('nav.blog')}
                   </Link>
-                  <Link to="/faq" aria-current={location.pathname === '/faq' ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-public-nav-link text-[15px] font-medium transition-colors px-3 py-2 rounded-lg">
+                  <Link to="/faq" aria-current={activeNavigation === 'faq' ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-public-nav-link text-[15px] font-medium transition-colors px-3 py-2 rounded-lg">
                     {t('nav.faq')}
                   </Link>
-                  <Link to="/contact" aria-current={location.pathname === '/contact' ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-public-nav-link text-[15px] font-medium transition-colors px-3 py-2 rounded-lg">
+                  <Link to="/contact" aria-current={activeNavigation === 'contact' ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-public-nav-link text-[15px] font-medium transition-colors px-3 py-2 rounded-lg">
                     {t('nav.contact')}
                   </Link>
                 </nav>
@@ -291,7 +273,8 @@ export const Header: React.FC<HeaderProps> = ({
                       <DropdownMenuContent align="end" collisionPadding={16} className="ww-selector-menu bg-white border shadow-[0_12px_40px_rgba(43,23,17,0.14)] rounded-2xl p-2 z-50 max-h-[60vh] overflow-y-auto">
                         {headerLanguages.map((lang) => (
                           <DropdownMenuItem key={lang.code} onClick={() => handleLanguageChange(lang.code)} data-selected={i18n.language === lang.code} dir={lang.code === 'ar' ? 'rtl' : 'ltr'} className="ww-selector-item cursor-pointer rounded-xl">
-                            {lang.flag} {lang.name}
+                            <img className="ww-language-flag" src={lang.flagSrc} alt="" aria-hidden="true" width="18" height="14" />
+                            <span>{lang.name}</span>
                           </DropdownMenuItem>
                         ))}
                       </DropdownMenuContent>
@@ -348,6 +331,7 @@ export const Header: React.FC<HeaderProps> = ({
                     {/* Main nav — uniform padding */}
                     <Link
                       to="/how-it-works"
+                      aria-current={activeNavigation === 'how-it-works' ? 'page' : undefined}
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
                       className="ww-public-nav-link block w-full text-left px-3 rounded-xl"
                       style={itemStyle}
@@ -360,6 +344,7 @@ export const Header: React.FC<HeaderProps> = ({
                       type="button"
                       onClick={() => setMobileProductsOpen(v => !v)}
                       aria-expanded={mobileProductsOpen}
+                      aria-current={activeNavigation === 'products' ? 'page' : undefined}
                       className={`ww-public-nav-link w-full flex items-center justify-between px-3 rounded-xl ${mobileProductsOpen ? 'font-semibold' : ''}`}
                       style={itemStyle}
                     >
@@ -374,7 +359,7 @@ export const Header: React.FC<HeaderProps> = ({
                           <p className="ww-products-menu-heading">{group.name}</p>
                           {group.products.map((product) => {
                             const ProductIcon = product.navigationIcon;
-                            return <Link key={product.path} to={product.path} aria-current={location.pathname === product.path ? 'page' : undefined} onClick={() => { setMobileMenuOpen(false); setMobileProductsOpen(false); window.scrollTo(0, 0); }} className="ww-products-menu-link ww-product-menu-item ww-product-menu-item-mobile w-full rounded-xl px-3"><ProductIcon size={20} strokeWidth={1.8} aria-hidden="true" className="ww-product-menu-icon" /><span className="min-w-0">{product.name}</span></Link>;
+                            return <Link key={product.path} to={product.path} aria-current={isCurrentPath(product.path) ? 'page' : undefined} onClick={() => { setMobileMenuOpen(false); setMobileProductsOpen(false); window.scrollTo(0, 0); }} className="ww-products-menu-link ww-product-menu-item ww-product-menu-item-mobile w-full rounded-xl px-3"><ProductIcon size={20} strokeWidth={1.8} aria-hidden="true" className="ww-product-menu-icon" /><span className="min-w-0">{product.name}</span></Link>;
                           })}
                         </div>)}
                         <Link to="/products" onClick={() => { setMobileMenuOpen(false); setMobileProductsOpen(false); window.scrollTo(0, 0); }} className="ww-button-espresso ww-focus col-span-full mt-1 flex min-h-[44px] items-center justify-center rounded-xl px-4 text-sm font-semibold">Explore all products →</Link>
@@ -385,6 +370,7 @@ export const Header: React.FC<HeaderProps> = ({
                       type="button"
                       onClick={() => setMobileEventsOpen(v => !v)}
                       aria-expanded={mobileEventsOpen}
+                      aria-current={activeNavigation === 'events' ? 'page' : undefined}
                       className={`ww-public-nav-link w-full flex items-center justify-between px-3 rounded-xl ${mobileEventsOpen ? 'font-semibold' : ''}`}
                       style={eventItemStyle}
                     >
@@ -397,7 +383,7 @@ export const Header: React.FC<HeaderProps> = ({
                       <div className="my-2 grid grid-cols-1 gap-1 sm:grid-cols-2">
                         {publicEventTypes.map((eventType) => {
                           const EventIcon = eventNavigationIconById[eventType.id];
-                          return <Link key={eventType.path} to={eventType.path} aria-current={location.pathname === eventType.path ? 'page' : undefined} onClick={() => { setMobileMenuOpen(false); setMobileEventsOpen(false); window.scrollTo(0, 0); }} className="ww-products-menu-link ww-product-menu-item w-full rounded-xl px-3" style={eventLinkStyle}><EventIcon size={18} strokeWidth={1.8} aria-hidden="true" className="ww-product-menu-icon" /><span className="min-w-0">{eventType.name}</span></Link>;
+                          return <Link key={eventType.path} to={eventType.path} aria-current={isCurrentPath(eventType.path) ? 'page' : undefined} onClick={() => { setMobileMenuOpen(false); setMobileEventsOpen(false); window.scrollTo(0, 0); }} className="ww-products-menu-link ww-product-menu-item w-full rounded-xl px-3" style={eventLinkStyle}><EventIcon size={18} strokeWidth={1.8} aria-hidden="true" className="ww-product-menu-icon" /><span className="min-w-0">{eventType.name}</span></Link>;
                         })}
                         <Link to="/events" onClick={() => { setMobileMenuOpen(false); setMobileEventsOpen(false); window.scrollTo(0, 0); }} className="ww-button-espresso ww-focus col-span-full mt-1 flex min-h-[44px] items-center justify-center rounded-xl px-4 text-sm font-semibold">Explore all event types →</Link>
                       </div>
@@ -405,6 +391,7 @@ export const Header: React.FC<HeaderProps> = ({
 
                     <Link
                       to="/pricing"
+                      aria-current={activeNavigation === 'pricing' ? 'page' : undefined}
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
                       className={`ww-public-nav-link block w-full text-left px-3 rounded-xl${mobileProductsOpen || mobileEventsOpen ? ' mt-2 pt-2 border-t border-[#E8E1D6]' : ''}`}
                       style={itemStyle}
@@ -413,6 +400,7 @@ export const Header: React.FC<HeaderProps> = ({
                     </Link>
                     <Link
                       to="/blog"
+                      aria-current={activeNavigation === 'blog' ? 'page' : undefined}
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
                       className="ww-public-nav-link block w-full text-left px-3 rounded-xl"
                       style={itemStyle}
@@ -421,6 +409,7 @@ export const Header: React.FC<HeaderProps> = ({
                     </Link>
                     <Link
                       to="/faq"
+                      aria-current={activeNavigation === 'faq' ? 'page' : undefined}
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
                       className="ww-public-nav-link block w-full text-left px-3 rounded-xl"
                       style={itemStyle}
@@ -429,6 +418,7 @@ export const Header: React.FC<HeaderProps> = ({
                     </Link>
                     <Link
                       to="/contact"
+                      aria-current={activeNavigation === 'contact' ? 'page' : undefined}
                       onClick={() => { setMobileMenuOpen(false); window.scrollTo(0, 0); }}
                       className="ww-public-nav-link block w-full text-left px-3 rounded-xl"
                       style={itemStyle}

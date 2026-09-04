@@ -19,6 +19,7 @@ import { useToast } from '@/hooks/use-toast';
 import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { PDF_DEFAULT_OPTIONS, savePdfAsync, yieldToBrowser } from '@/lib/pdfExportUtils';
+import { weddingFontFamilyStack } from '@/lib/localWeddingFonts';
 
 interface PlaceCardExporterProps {
   settings: PlaceCardSettings | null;
@@ -100,7 +101,7 @@ export const PlaceCardExporter: React.FC<PlaceCardExporterProps> = ({
         width: 100mm;
         height: 60mm;
         background-color: ${currentSettings.background_color};
-        font-family: ${currentSettings.font_family};
+        font-family: ${weddingFontFamilyStack(currentSettings.font_family)};
         color: ${currentSettings.font_color};
         border: 1px solid #ddd;
         border-radius: 8px;

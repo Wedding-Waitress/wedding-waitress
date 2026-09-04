@@ -70,8 +70,8 @@
       "title": "Volledig zitschema",
       "desc": "Genereer een compleet printklaar hoofd-zitschema."
     },
-    "kiosk": {
-      "title": "Kiosk live weergave",
+    "liveSlideshow": {
+      "title": "Live-diavoorstelling",
       "desc": "Gasten vinden direct hun plaats op locatie."
     },
     "djmc": {
@@ -120,9 +120,9 @@
       "title": "Volledig zitschema",
       "desc": "Maak een compleet, printklaar zitschema met elke gast en tafel. Exporteer naar PDF met aangepaste styling en je evenement-branding."
     },
-    "kiosk": {
-      "title": "Kiosk live weergave",
-      "desc": "Stel zelfbediening check-in kiosken op bij de ingang van je locatie. Gasten zoeken hun naam en zien direct hun tafeltoewijzing."
+    "liveSlideshow": {
+      "title": "Live-diavoorstelling",
+      "desc": "Stel zelfbediening check-in Live-diavoorstellingen op bij de ingang van je locatie. Gasten zoeken hun naam en zien direct hun tafeltoewijzing."
     },
     "djmc": {
       "title": "DJ & MC vragenlijst",
@@ -148,8 +148,8 @@
       "title": "Plaatskaarten",
       "desc": "Mooie gedrukte naamkaarten"
     },
-    "kiosk": {
-      "title": "Live kiosk weergave",
+    "liveSlideshow": {
+      "title": "Live-diavoorstelling",
       "desc": "Zelfbediening gasten check-in"
     },
     "seatingCharts": {
@@ -353,7 +353,7 @@
     "floorPlan": "Plattegrond",
     "dietary": "Dieetwensen",
     "seatingChart": "Volledig zitschema",
-    "kiosk": "Kiosk live weergave",
+    "liveSlideshow": "Live-diavoorstelling",
     "djmc": "DJ-MC vragenlijst",
     "runningSheet": "Draaiboek"
   },
@@ -418,10 +418,10 @@
       "seo2Heading": "Digitale Zitplaatsinformatie",
       "seo2Text": "Gasten scannen en zien hun tafel uit de <0>tafelschikking</0>.",
       "seo3Heading": "Vereenvoudig de Gastervaring",
-      "seo3Text": "Combineer QR-code met een <0>kiosk</0> bij de ingang.",
+      "seo3Text": "Combineer QR-code met een <0>Live-diavoorstelling</0> bij de ingang.",
       "related1": "Gastenlijst Manager",
       "related2": "Tafelplanner",
-      "related3": "Kiosk Check-In"
+      "related3": "Live-diavoorstelling Check-In"
     },
     "invitations": {
       "title": "Digitale Uitnodigingen & RSVP Beheer",
@@ -528,13 +528,13 @@
       "related2": "Gastenlijst Manager",
       "related3": "Tafelplanner"
     },
-    "kiosk": {
-      "title": "Bruiloft Check-In Kiosk",
-      "description": "Maak een professionele ervaring met een live kiosk.",
-      "pageTitle": "Bruiloft Check-In Kiosk",
-      "metaDesc": "Stel een live gastkiosk in.",
+    "liveSlideshow": {
+      "title": "Live-diavoorstelling",
+      "description": "Maak een professionele ervaring met een live Live-diavoorstelling.",
+      "pageTitle": "Live-diavoorstelling | Wedding Waitress",
+      "metaDesc": "Stel een live gastLive-diavoorstelling in.",
       "seo1Heading": "Activeer Zelf Check-In",
-      "seo1Text": "Stel een digitale kiosk in met je <0>QR-code systeem</0>.",
+      "seo1Text": "Stel een digitale Live-diavoorstelling in met je <0>QR-code systeem</0>.",
       "seo2Heading": "Direct Tafel Zoeken",
       "seo2Text": "Gasten zoeken hun naam en zien hun tafel uit de <0>gastenlijst</0>.",
       "seo3Heading": "Verbeter de Aankomstervaring",
@@ -571,7 +571,7 @@
       "seo3Text": "Zie hoe tafels in de ruimte passen.",
       "related1": "Tafelplanner",
       "related2": "Volledig Schema",
-      "related3": "Kiosk Check-In"
+      "related3": "Live-diavoorstelling Check-In"
     }
   },
   "heroMain": {
@@ -626,8 +626,8 @@
         "heading": "Volledige tafelschikking",
         "text": "Genereer een complete printbare hoofdschikking."
       },
-      "kioskLiveView": {
-        "heading": "Kiosk live-weergave",
+      "liveSlideshow": {
+        "heading": "Live-diavoorstelling",
         "text": "Laat gasten direct hun plek vinden op locatie."
       },
       "djMc": {
@@ -917,10 +917,10 @@
       "lead": "Ontwerp en organiseer je complete plattegrond met gemak. Beheer gasten, tafels en zitplaatsen allemaal in één eenvoudig overzicht.",
       "finalCtaLabel": "Begin met het plannen van je evenement"
     },
-    "kioskLiveView": {
+    "liveSlideshow": {
       "finalCtaLabel": "Begin met het plannen van je evenement",
       "lead": "Toon je plattegrond op een scherm op je locatie. Laat gasten snel en op een moderne, interactieve manier hun tafel vinden.",
-      "h1": "Kiosk Live Seating View voor je evenement",
+      "h1": "Live-diavoorstelling",
       "h": [
         [
           "Toon de zitplaatsen op een live scherm",
@@ -940,8 +940,8 @@
         ]
       ],
       "primaryCta": "Begin met het plannen van je evenement",
-      "metaDescription": "Toon de plattegrond van je bruiloft op een scherm of Kiosk. Gasten kunnen eenvoudig en real-time hun tafel vinden op je evenement.",
-      "pageTitle": "Wedding Seating Kiosk Display | Live Gastenoverzicht"
+      "metaDescription": "Toon de plattegrond van je bruiloft op een scherm of Live-diavoorstelling. Gasten kunnen eenvoudig en real-time hun tafel vinden op je evenement.",
+      "pageTitle": "Live-diavoorstelling | Wedding Waitress"
     },
     "djMc": {
       "primaryCta": "Begin met het plannen van uw evenement",

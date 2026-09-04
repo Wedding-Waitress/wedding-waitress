@@ -141,7 +141,7 @@ describe('DashboardLoadingScreen', () => {
     'floor-plan',
     'dietary-chart',
     'full-seating-chart',
-    'kiosk-live-view',
+    'live-slideshow',
     'dj-mc-questionnaire',
     'running-sheet',
   ])('maps the %s tab to the core loading theme', (tab) => {

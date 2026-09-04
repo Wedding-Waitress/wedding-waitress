@@ -8,6 +8,7 @@ import type { TextZone } from '@/hooks/useInvitationTemplates';
 import { waitForFonts } from '@/lib/googleFonts';
 import type { QrConfig } from '@/lib/invitationQR';
 import { PDF_DEFAULT_OPTIONS, savePdfAsync, yieldToBrowser } from '@/lib/pdfExportUtils';
+import { weddingFontFamilyStack } from '@/lib/localWeddingFonts';
 
 // Card sizes in mm
 const A6_W_MM = 105;
@@ -89,7 +90,7 @@ export function buildInvitationElement(opts: ExportOptions, guestName?: string, 
       left: ${zone.x_percent - zone.width_percent / 2}%;
       top: ${zone.y_percent - 3}%;
       width: ${zone.width_percent}%;
-      font-family: ${overrides.font_family || zone.font_family}, sans-serif;
+      font-family: ${weddingFontFamilyStack(overrides.font_family || zone.font_family)};
       font-size: ${scaledFontSize}px;
       font-weight: ${(zone as any).font_style === 'bold' ? '700' : (overrides.font_weight || zone.font_weight)};
       font-style: ${(zone as any).font_style === 'italic' ? 'italic' : 'normal'};

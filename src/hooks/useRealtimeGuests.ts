@@ -8,7 +8,7 @@
  * - Changes could break real-time synchronization
  * - Changes could break optimistic updates
  * - Changes could break debounced refetch
- * - Changes could break cross-view updates (dashboard/kiosk/guest lookup)
+ * - Changes could break cross-view updates (dashboard/Live Slideshow/guest lookup)
  * - Changes could break guest move validation
  * 
  * See: MY_EVENTS_TABLES_GUESTLIST_SPECS.md for full specifications
@@ -646,7 +646,7 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
       return;
     }
 
-    // Create new channel for this event - using same channel name as GuestLookup and KioskView
+    // Create a channel for this event using the shared legacy channel name.
     const channel = supabase
       .channel(`kiosk-guests:event:${eventId}`)
       .on(

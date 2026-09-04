@@ -2,20 +2,21 @@ import React from 'react';
 import { fireEvent, render, screen } from '@testing-library/react';
 import { describe, expect, it, vi } from 'vitest';
 import { PricingCurrencyPanel } from './PricingCurrencyPanel';
-import { AUD_BASE_PRICES, convertAudPrice, formatLivePrice } from '@/lib/liveCurrencyPricing';
+import { AUD_BASE_PRICES, convertAudPrice, formatLivePrice, formatPublicPricingPrice } from '@/lib/liveCurrencyPricing';
 
 const rates = { AUD: 1, USD: 0.66, GBP: 0.51, EUR: 0.60 } as const;
 
 describe('public pricing currency selection', () => {
   it('converts every plan from the authoritative AUD base and keeps Vendor Pro monthly', () => {
-    expect(Object.values(AUD_BASE_PRICES).map((value) => convertAudPrice(value, 'AUD', rates))).toEqual([150, 200, 300, 300]);
-    expect(Object.values(AUD_BASE_PRICES).map((value) => convertAudPrice(value, 'USD', rates))).toEqual([99, 132, 198, 198]);
-    expect(Object.values(AUD_BASE_PRICES).map((value) => convertAudPrice(value, 'GBP', rates))).toEqual([77, 102, 153, 153]);
-    expect(Object.values(AUD_BASE_PRICES).map((value) => convertAudPrice(value, 'EUR', rates))).toEqual([90, 120, 180, 180]);
-    expect(formatLivePrice('AUD', 150)).toMatch(/A\$150/);
-    expect(formatLivePrice('USD', 99)).toMatch(/US\$99/);
-    expect(formatLivePrice('GBP', 77)).toMatch(/£77/);
-    expect(formatLivePrice('EUR', 90)).toMatch(/€90/);
+    expect(Object.values(AUD_BASE_PRICES).map((value) => convertAudPrice(value, 'AUD', rates))).toEqual([199, 249, 299, 300]);
+    expect(Object.values(AUD_BASE_PRICES).map((value) => convertAudPrice(value, 'USD', rates))).toEqual([131, 164, 197, 198]);
+    expect(Object.values(AUD_BASE_PRICES).map((value) => convertAudPrice(value, 'GBP', rates))).toEqual([101, 127, 152, 153]);
+    expect(Object.values(AUD_BASE_PRICES).map((value) => convertAudPrice(value, 'EUR', rates))).toEqual([119, 149, 179, 180]);
+    expect(formatPublicPricingPrice('AUD', 199)).toBe('AUD $199');
+    expect(formatPublicPricingPrice('USD', 131)).toBe('US$131');
+    expect(formatPublicPricingPrice('GBP', 101)).toBe('£101');
+    expect(formatPublicPricingPrice('EUR', 119)).toBe('€119');
+    expect(formatLivePrice('AUD', 300)).toBe('A$300');
     expect(AUD_BASE_PRICES.vendor_pro).toBe(300);
   });
 

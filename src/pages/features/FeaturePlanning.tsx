@@ -22,12 +22,12 @@ export const FeaturePlanning = () => {
       seoSections={[
         { heading: t('fp.planning.seo1Heading'), text: <Trans i18nKey="fp.planning.seo1Text" ns="landing" components={[<Link to="/tables" className={linkClass} />]} /> },
         { heading: t('fp.planning.seo2Heading'), text: <Trans i18nKey="fp.planning.seo2Text" ns="landing" components={[<Link to="/qr-code-seating-chart" className={linkClass} />]} /> },
-        { heading: t('fp.planning.seo3Heading'), text: <Trans i18nKey="fp.planning.seo3Text" ns="landing" components={[<Link to="/kiosk-live-view" className={linkClass} />]} /> },
+        { heading: t('fp.planning.seo3Heading'), text: <Trans i18nKey="fp.planning.seo3Text" ns="landing" components={[<Link to="/live-slideshow" className={linkClass} />]} /> },
       ]}
       relatedFeatures={[
         { label: t('fp.planning.related1'), href: "/tables" },
         { label: t('fp.planning.related2'), href: "/qr-code-seating-chart" },
-        { label: t('fp.planning.related3'), href: "/kiosk-live-view" },
+        { label: t('fp.planning.related3'), href: "/live-slideshow" },
       ]}
     />
   );

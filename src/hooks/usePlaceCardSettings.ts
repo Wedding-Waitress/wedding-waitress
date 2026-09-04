@@ -19,6 +19,7 @@ import React, { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
+import { resolveWeddingFontFamily } from '@/lib/localWeddingFonts';
 
 export interface PlaceCardSettings {
   id?: string;
@@ -101,7 +102,7 @@ export const normalizePlaceCardSettings = (
   ...data,
   event_id: data.event_id ?? eventId,
   user_id: data.user_id ?? userId,
-  font_family: data.font_family ?? 'Inter',
+  font_family: resolveWeddingFontFamily(data.font_family ?? 'Inter'),
   font_color: data.font_color ?? '#000000',
   background_color: data.background_color ?? '#ffffff',
   background_image_type: data.background_image_type ?? 'none',
@@ -114,8 +115,8 @@ export const normalizePlaceCardSettings = (
     data.individual_messages && typeof data.individual_messages === 'object' && !Array.isArray(data.individual_messages)
       ? data.individual_messages
       : {},
-  guest_font_family: data.guest_font_family ?? 'Great Vibes',
-  info_font_family: data.info_font_family ?? 'Beauty Mountains',
+  guest_font_family: resolveWeddingFontFamily(data.guest_font_family ?? 'Great Vibes'),
+  info_font_family: resolveWeddingFontFamily(data.info_font_family ?? 'Alex Brush'),
   guest_name_bold: data.guest_name_bold ?? false,
   guest_name_italic: data.guest_name_italic ?? false,
   guest_name_underline: data.guest_name_underline ?? false,

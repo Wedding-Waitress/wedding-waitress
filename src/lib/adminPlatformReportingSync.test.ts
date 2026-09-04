@@ -61,7 +61,7 @@ describe('authoritative Admin platform reporting', () => {
       'Dashboard', 'My Events', 'Tables', 'Guest List', 'QR Code Seating Chart',
       'Seating Chart Signs', 'Invitations & Cards', 'Name Place Cards',
       'Individual Table Charts', 'Floor Plan', 'Dietary Requirements',
-      'Full Seating Chart', 'Kiosk Live View', 'DJ & MC Questionnaire',
+      'Full Seating Chart', 'Live Slideshow', 'DJ & MC Questionnaire',
       'Run Sheet', 'Photo & Video Sharing', 'Digital Guestbook',
       'Digital Photo Booth', 'Live Slideshow', 'Account Centre',
     ]) expect(audit, feature).toContain(feature);

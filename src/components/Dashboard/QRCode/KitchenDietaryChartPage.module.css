@@ -142,7 +142,7 @@
 }
 
 .paginationButton:disabled {
-  color: rgba(234, 219, 201, 0.46) !important;
+  color: #ffffff !important;
   border-color: rgba(239, 220, 196, 0.24) !important;
   opacity: 1 !important;
 }

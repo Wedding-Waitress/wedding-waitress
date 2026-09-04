@@ -520,7 +520,7 @@ export const GuestLookup: React.FC = () => {
     }
   };
 
-  // Set up realtime subscription for instant RSVP sync - using same channel name as KioskView
+  // Set up realtime subscription for instant RSVP sync - using the shared legacy channel name.
   useEffect(() => {
     if (!event?.id) return;
 

@@ -27,10 +27,11 @@ describe('public pricing package-card copy and typography', () => {
     expect(source).toContain('firstLine="Download your photos, videos" secondLine="and platform exports."');
   });
 
-  it('keeps the explicit A$ prefix in the public pricing-card display', () => {
-    expect(source).toContain('formatLivePrice(currency, amount)');
-    expect(source).not.toContain("formattedPrice.replace(/^A\\$/, '$')");
+  it('uses the public AUD formatter for couple plans while preserving Vendor Pro formatting', () => {
     expect(source).toContain('formatPublicPricingPrice(effectiveCurrency, convertAudPrice(amount, effectiveCurrency, rates))');
+    expect(source).toContain('formatLivePrice(effectiveCurrency, convertAudPrice(amount, effectiveCurrency, rates))');
+    expect(source).toContain('displayCouplePrice(AUD_BASE_PRICES[key])');
+    expect(source).toContain('displayVendorPrice(AUD_BASE_PRICES.vendor_pro)');
   });
 
   it('promotes plan names to the former price size and steps prices down twice', () => {

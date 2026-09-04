@@ -24,19 +24,19 @@ describe('dashboard sidebar navigation control', () => {
     document.cookie = 'sidebar:state=true; path=/';
   });
 
-  it.each([1280, 768, 390])('uses the approved workflow order at %ipx', async (width) => {
+  it.each([1280, 1023, 768, 390])('uses the approved workflow order at %ipx', async (width) => {
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
 
     render(
       <SidebarProvider>
-        <SidebarTrigger aria-label="Open menu" />
+        <SidebarTrigger aria-label="Expand sidebar" />
         <AppSidebar activeTab="dashboard" onTabChange={vi.fn()} onSignOut={vi.fn()} />
       </SidebarProvider>,
     );
 
-    if (width <= 768) {
-      fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
-      await screen.findByRole('button', { name: 'Collapse Menu' });
+    if (width < 1024) {
+      fireEvent.click(screen.getByRole('button', { name: 'Expand sidebar' }));
+      await screen.findByRole('button', { name: 'Collapse sidebar' });
     }
 
     const navigationNames = screen.getAllByRole('button').map((button) => button.textContent?.replace(/\s+/g, ' ').trim());
@@ -51,6 +51,7 @@ describe('dashboard sidebar navigation control', () => {
       'Guest ListAdd4',
       'QR Code Seating Chart',
     ]);
+    expect(screen.getByRole('button', { name: 'Live Slideshow' })).toBeInTheDocument();
 
     expect(screen.getByText('2', { selector: 'span' })).toHaveClass('ml-auto');
     for (const number of ['1', '3', '4']) {
@@ -86,31 +87,57 @@ describe('dashboard sidebar navigation control', () => {
       </SidebarProvider>,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Collapse Menu' }));
-    expect(await screen.findByRole('button', { name: 'Expand Menu' })).toBeInTheDocument();
+    const collapseControl = screen.getByRole('button', { name: 'Collapse sidebar' });
+    expect(collapseControl.closest('[data-sidebar="header"]')).toBeInTheDocument();
+    fireEvent.click(collapseControl);
+    expect(await screen.findByRole('button', { name: 'Expand sidebar' })).toBeInTheDocument();
     await waitFor(() => expect(document.cookie).toContain('sidebar:state=false'));
 
     fireEvent.click(screen.getByRole('button', { name: 'Photo & Video Sharing' }));
     expect(onTabChange).toHaveBeenCalledWith('photo-video-gallery');
 
-    fireEvent.click(screen.getByRole('button', { name: 'Expand Menu' }));
-    expect(await screen.findByRole('button', { name: 'Collapse Menu' })).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Expand sidebar' }));
+    expect(await screen.findByRole('button', { name: 'Collapse sidebar' })).toBeInTheDocument();
     await waitFor(() => expect(document.cookie).toContain('sidebar:state=true'));
   });
 
-  it.each([768, 390])('opens and closes the off-screen menu at %ipx', async (width) => {
+  it('restores the collapsed desktop preference after remounting', async () => {
+    document.cookie = 'sidebar:state=false; path=/';
+
+    const { unmount } = render(
+      <SidebarProvider>
+        <AppSidebar activeTab="guest-list" onTabChange={vi.fn()} onSignOut={vi.fn()} />
+      </SidebarProvider>,
+    );
+
+    expect(await screen.findByRole('button', { name: 'Expand sidebar' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Guest List/ })).toHaveAttribute('aria-current', 'page');
+
+    unmount();
+
+    render(
+      <SidebarProvider>
+        <AppSidebar activeTab="guest-list" onTabChange={vi.fn()} onSignOut={vi.fn()} />
+      </SidebarProvider>,
+    );
+
+    expect(await screen.findByRole('button', { name: 'Expand sidebar' })).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: /^Guest List/ })).toHaveAttribute('aria-current', 'page');
+  });
+
+  it.each([1023, 768, 390])('opens and closes the off-screen menu at %ipx', async (width) => {
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
 
     render(
       <SidebarProvider>
-        <SidebarTrigger aria-label="Open menu" />
+        <SidebarTrigger aria-label="Expand sidebar" />
         <AppSidebar activeTab="dashboard" onTabChange={vi.fn()} onSignOut={vi.fn()} />
       </SidebarProvider>,
     );
 
-    fireEvent.click(screen.getByRole('button', { name: 'Open menu' }));
-    const closeControl = await screen.findByRole('button', { name: 'Collapse Menu' });
+    fireEvent.click(screen.getByRole('button', { name: 'Expand sidebar' }));
+    const closeControl = await screen.findByRole('button', { name: 'Collapse sidebar' });
     fireEvent.click(closeControl);
-    await waitFor(() => expect(screen.queryByRole('button', { name: 'Collapse Menu' })).not.toBeInTheDocument());
+    await waitFor(() => expect(screen.queryByRole('button', { name: 'Collapse sidebar' })).not.toBeInTheDocument());
   });
 });

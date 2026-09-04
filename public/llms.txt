@@ -1,6 +1,6 @@
 # Wedding Waitress
 
-> Wedding Waitress is an event management platform for couples and vendors: guest lists, table planning, QR code seating charts, place cards, dietary requirements, running sheets, DJ/MC questionnaires, invitations, and a kiosk live view for guests at the venue.
+> Wedding Waitress is an event management platform for couples and vendors: guest lists, table planning, QR code seating charts, place cards, dietary requirements, running sheets, DJ/MC questionnaires, invitations, and a Live Slideshow guest lookup at the venue.
 
 ## Pages
 
@@ -26,7 +26,7 @@
 - [Invitations & Cards](https://weddingwaitress.com.au/invitations-cards): Designer invitation cards with delivery.
 - [Dietary Requirements](https://weddingwaitress.com.au/dietary-requirements): Kitchen-ready dietary chart.
 - [Floor Plan](https://weddingwaitress.com.au/floor-plan): Ceremony and reception floor plans.
-- [Kiosk Live View](https://weddingwaitress.com.au/kiosk-live-view): Self-service venue check-in kiosk.
+- [Live Slideshow](https://weddingwaitress.com.au/live-slideshow): Self-service venue guest lookup slideshow.
 - [Running Sheet](https://weddingwaitress.com.au/running-sheet): Event run sheet for vendors.
 - [DJ/MC Questionnaire](https://weddingwaitress.com.au/dj-mc-questionnaire): DJ/MC briefing form.
 

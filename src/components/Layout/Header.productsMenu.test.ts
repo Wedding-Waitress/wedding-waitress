@@ -14,7 +14,7 @@ describe('shared public Products menu link feedback', () => {
   });
 
   it('marks only the matching desktop and mobile product links as current', () => {
-    expect(header.match(/aria-current=\{location\.pathname === product\.path \? 'page' : undefined\}/g)).toHaveLength(2);
+    expect(header.match(/aria-current=\{isCurrentPath\(product\.path\) \? 'page' : undefined\}/g)).toHaveLength(2);
   });
 
   it('renders the shared product icon beside every desktop and mobile link', () => {

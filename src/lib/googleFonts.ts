@@ -1,3 +1,8 @@
+import {
+  isLocalWeddingFont,
+  resolveWeddingFontFamily,
+} from '@/lib/localWeddingFonts';
+
 /**
  * Google Fonts dynamic loader
  * Injects <link> tags for Google Fonts on demand, tracking what's already loaded.
@@ -13,12 +18,13 @@ function toGoogleUrl(fontName: string): string {
 
 /** Load a single Google Font by injecting a <link> tag */
 export function loadGoogleFont(fontName: string): void {
-  if (loadedFonts.has(fontName)) return;
-  loadedFonts.add(fontName);
+  const resolved = resolveWeddingFontFamily(fontName);
+  if (!resolved || isLocalWeddingFont(resolved) || loadedFonts.has(resolved)) return;
+  loadedFonts.add(resolved);
 
   const link = document.createElement('link');
   link.rel = 'stylesheet';
-  link.href = toGoogleUrl(fontName);
+  link.href = toGoogleUrl(resolved);
   document.head.appendChild(link);
 }
 
@@ -64,6 +70,7 @@ export const WEDDING_FONTS: FontEntry[] = [
   { name: 'Crimson Text', category: 'serif' },
   { name: 'Spectral', category: 'serif' },
   { name: 'DM Serif Display', category: 'serif' },
+  { name: 'Bodoni Moda', category: 'serif' },
 
   // Sans-Serif
   { name: 'Montserrat', category: 'sans-serif' },

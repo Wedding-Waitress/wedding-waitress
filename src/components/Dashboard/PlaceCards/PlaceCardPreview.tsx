@@ -26,6 +26,7 @@ import { ChevronLeft, ChevronRight, Info, FoldHorizontal, ArrowRight } from 'luc
 import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
 import { InteractiveQROverlay } from '@/components/ui/InteractiveQROverlay';
 import { useToast } from '@/hooks/use-toast';
+import { weddingFontFamilyStack } from '@/lib/localWeddingFonts';
 
 // Monotonic counter for re-keying interactive overlays after commit
 let _overlayKeyCounter = 0;
@@ -123,7 +124,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     mass_message: '',
     individual_messages: {},
     guest_font_family: 'Great Vibes',
-    info_font_family: 'Beauty Mountains',
+    info_font_family: 'Alex Brush',
     guest_name_bold: false,
     guest_name_italic: false,
     guest_name_underline: false,
@@ -414,14 +415,14 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
     // --- Shared base styles ---
     const guestNameBaseStyle: React.CSSProperties = {
-      fontFamily: currentSettings.guest_font_family,
+      fontFamily: weddingFontFamilyStack(currentSettings.guest_font_family),
       fontWeight: currentSettings.guest_name_bold ? '700' : '400',
       fontStyle: currentSettings.guest_name_italic ? 'italic' : 'normal',
       textDecoration: currentSettings.guest_name_underline ? 'underline' : 'none',
     };
 
     const tableInfoBaseStyle: React.CSSProperties = {
-      fontFamily: currentSettings.info_font_family,
+      fontFamily: weddingFontFamilyStack(currentSettings.info_font_family),
       fontWeight: currentSettings.info_bold ? '700' : undefined,
       fontStyle: currentSettings.info_italic ? 'italic' : undefined,
       textDecoration: currentSettings.info_underline ? 'underline' : undefined,
@@ -547,7 +548,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             <div
               className="text-center"
               style={{
-                fontFamily: currentSettings.info_font_family,
+                fontFamily: weddingFontFamilyStack(currentSettings.info_font_family),
                 fontSize: `${currentSettings.info_font_size}pt`,
                 fontStyle: 'italic',
                 color: currentSettings.font_color,
@@ -687,10 +688,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             >
               {/* Left - Table info stacked */}
               <div style={{ textAlign: 'center', minWidth: '18mm', transform: `translate(${currentSettings.table_offset_x ?? 0}mm, ${currentSettings.table_offset_y ?? 0}mm) rotate(${(currentSettings as any).table_seat_rotation ?? 0}deg)`, transformOrigin: 'center center' }}>
-                <div style={{ fontFamily: currentSettings.info_font_family, fontSize: `${currentSettings.info_font_size}pt`, color: currentSettings.info_font_color || currentSettings.font_color, fontWeight: currentSettings.info_bold ? '700' : undefined, fontStyle: currentSettings.info_italic ? 'italic' : undefined, textDecoration: currentSettings.info_underline ? 'underline' : undefined }}>
+                <div style={{ fontFamily: weddingFontFamilyStack(currentSettings.info_font_family), fontSize: `${currentSettings.info_font_size}pt`, color: currentSettings.info_font_color || currentSettings.font_color, fontWeight: currentSettings.info_bold ? '700' : undefined, fontStyle: currentSettings.info_italic ? 'italic' : undefined, textDecoration: currentSettings.info_underline ? 'underline' : undefined }}>
                   Table
                 </div>
-                <div style={{ fontFamily: currentSettings.info_font_family, fontSize: `${(currentSettings.info_font_size || 10) + 2}pt`, fontWeight: currentSettings.info_bold ? '700' : '600', color: currentSettings.info_font_color || currentSettings.font_color, fontStyle: currentSettings.info_italic ? 'italic' : undefined, textDecoration: currentSettings.info_underline ? 'underline' : undefined }}>
+                <div style={{ fontFamily: weddingFontFamilyStack(currentSettings.info_font_family), fontSize: `${(currentSettings.info_font_size || 10) + 2}pt`, fontWeight: currentSettings.info_bold ? '700' : '600', color: currentSettings.info_font_color || currentSettings.font_color, fontStyle: currentSettings.info_italic ? 'italic' : undefined, textDecoration: currentSettings.info_underline ? 'underline' : undefined }}>
                   {tableDisplay}
                 </div>
               </div>
@@ -700,10 +701,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
               {/* Right - Seat info stacked */}
               <div style={{ textAlign: 'center', minWidth: '18mm', transform: `translate(${currentSettings.seat_offset_x ?? 0}mm, ${currentSettings.seat_offset_y ?? 0}mm) rotate(${(currentSettings as any).table_seat_rotation ?? 0}deg)`, transformOrigin: 'center center' }}>
-                <div style={{ fontFamily: currentSettings.info_font_family, fontSize: `${currentSettings.info_font_size}pt`, color: currentSettings.info_font_color || currentSettings.font_color, fontWeight: currentSettings.info_bold ? '700' : undefined, fontStyle: currentSettings.info_italic ? 'italic' : undefined, textDecoration: currentSettings.info_underline ? 'underline' : undefined }}>
+                <div style={{ fontFamily: weddingFontFamilyStack(currentSettings.info_font_family), fontSize: `${currentSettings.info_font_size}pt`, color: currentSettings.info_font_color || currentSettings.font_color, fontWeight: currentSettings.info_bold ? '700' : undefined, fontStyle: currentSettings.info_italic ? 'italic' : undefined, textDecoration: currentSettings.info_underline ? 'underline' : undefined }}>
                   Seat
                 </div>
-                <div style={{ fontFamily: currentSettings.info_font_family, fontSize: `${(currentSettings.info_font_size || 10) + 2}pt`, fontWeight: currentSettings.info_bold ? '700' : '600', color: currentSettings.info_font_color || currentSettings.font_color, fontStyle: currentSettings.info_italic ? 'italic' : undefined, textDecoration: currentSettings.info_underline ? 'underline' : undefined }}>
+                <div style={{ fontFamily: weddingFontFamilyStack(currentSettings.info_font_family), fontSize: `${(currentSettings.info_font_size || 10) + 2}pt`, fontWeight: currentSettings.info_bold ? '700' : '600', color: currentSettings.info_font_color || currentSettings.font_color, fontStyle: currentSettings.info_italic ? 'italic' : undefined, textDecoration: currentSettings.info_underline ? 'underline' : undefined }}>
                   {guest.seat_no || '—'}
                 </div>
               </div>

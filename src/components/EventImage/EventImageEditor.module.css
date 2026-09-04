@@ -1,0 +1,58 @@
+.editor {
+  grid-column: 1 / -1;
+  display: grid;
+  gap: 10px;
+  margin-top: 2px;
+  padding: 14px;
+  border: 1px solid #a88976;
+  border-radius: 10px;
+  background: #fffaf4;
+  color: #412419;
+}
+
+.copy h3 { margin: 0; font-size: 15px; font-weight: 750; line-height: 1.35; }
+.copy p { margin: 4px 0 0; font-size: 12px; font-weight: 500; line-height: 1.45; }
+.fileInput { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0, 0, 0, 0); }
+.workspace { display: flex; align-items: stretch; gap: 12px; min-width: 0; }
+.dropzone { min-height: 92px; flex: 1; display: flex; align-items: center; justify-content: center; flex-wrap: wrap; gap: 7px; padding: 10px; border: 1px dashed #8f7162; border-radius: 8px; background: #fff; text-align: center; font-size: 12px; }
+.dropzone[data-dragging="true"] { border-color: #257a4d; background: #effaf3; }
+.dropzone > svg { width: 20px; color: #806344; }
+.dropzone button, .controls button { min-height: 34px; display: inline-flex; align-items: center; justify-content: center; gap: 6px; padding: 6px 10px; border: 1px solid #8f7162; border-radius: 7px; background: #fff; color: #412419; font-size: 12px; font-weight: 750; }
+.dropzone button:disabled, .controls button:disabled { cursor: not-allowed; opacity: .55; }
+.dropzone small { flex-basis: 100%; font-size: 11px; font-weight: 600; }
+.preview { flex: 0 0 156px; height: 108px; overflow: hidden; border: 1px solid #a88976; border-radius: 8px; background: #f2e8dc; user-select: none; }
+.preview[data-repositionable="true"] { cursor: grab; touch-action: none; }
+.preview[data-repositioning="true"] { cursor: grabbing; }
+.preview:focus-visible { outline: 2px solid #257a4d; outline-offset: 2px; }
+.preview img { width: 100%; height: 100%; display: block; background: #fff; transform-origin: center; pointer-events: none; user-select: none; }
+.controls { flex: 1; min-width: 0; display: grid; align-content: center; gap: 8px; }
+.fitControls, .actions { display: flex; align-items: center; flex-wrap: wrap; gap: 7px; }
+.fitControls > span { font-size: 12px; font-weight: 750; }
+.fitControls button[aria-pressed="true"] { border-color: #257a4d; background: #effaf3; box-shadow: inset 0 0 0 1px #257a4d; }
+.controls button svg { width: 15px; height: 15px; }
+.cropControls { display: grid; gap: 5px; }
+.cropControls p, .fitMessage { margin: 0; font-size: 11px; font-weight: 600; line-height: 1.35; }
+.zoomRow { display: grid; grid-template-columns: auto minmax(90px, 1fr) 42px auto; align-items: center; gap: 7px; }
+.zoomRow label, .zoomRow output { font-size: 11px; font-weight: 750; }
+.zoomRow input { width: 100%; accent-color: #257a4d; }
+.zoomRow output { text-align: right; font-variant-numeric: tabular-nums; }
+.controls .resetButton { min-height: 28px; padding: 4px 7px; font-size: 11px; }
+.status, .error { display: flex; align-items: center; gap: 6px; margin: 0; font-size: 12px; font-weight: 650; line-height: 1.4; }
+.error { color: #b42318 !important; }
+.spin { width: 15px; animation: spin 1s linear infinite; }
+.reviewFrame { width: 132px; height: 88px; overflow: hidden; margin-top: 8px; border: 1px solid #a88976; border-radius: 8px; background: #fff; }
+.reviewImage { width: 100%; height: 100%; display: block; background: #fff; transform-origin: center; }
+.reviewLoading { width: 132px; height: 88px; margin-top: 8px; border-radius: 8px; background: #f2e8dc; }
+.reviewUnavailable { margin-top: 7px !important; font-size: 12px; }
+
+@keyframes spin { to { transform: rotate(360deg); } }
+
+@media (max-width: 600px) {
+  .editor { padding: 12px; }
+  .workspace { flex-direction: column; }
+  .preview { flex-basis: auto; width: 100%; height: 132px; }
+  .zoomRow { grid-template-columns: auto minmax(80px, 1fr) 38px; }
+  .zoomRow .resetButton { grid-column: 1 / -1; justify-self: start; }
+}
+
+@media (prefers-reduced-motion: reduce) { .spin { animation: none; } }

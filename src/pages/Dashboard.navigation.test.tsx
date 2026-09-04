@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { createMemoryRouter, RouterProvider } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import photoVideoManagementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
@@ -33,6 +33,7 @@ vi.mock('@/components/Dashboard/GuestListTable', () => ({
   ),
 }));
 vi.mock('@/components/Dashboard/QRCode/QRCodeSeatingChart', () => ({ QRCodeSeatingChart: () => <h1>QR content</h1> }));
+vi.mock('@/components/Dashboard/LiveSlideshow/LiveSlideshowSetup', () => ({ LiveSlideshowSetup: () => <h1>Live Slideshow setup</h1> }));
 vi.mock('@/components/Dashboard/Signage/SignagePage', () => ({
   SignagePage: () => {
     if (delayed.pending && delayed.promise) throw delayed.promise;
@@ -122,6 +123,18 @@ describe('persistent Dashboard navigation shell', () => {
     expect(screen.getByTestId('active-tab')).toHaveTextContent('photo-video-gallery');
     expect(screen.getByTestId('dashboard-sidebar')).toBeInTheDocument();
     expect(document.querySelector('[data-dashboard-content]')).toHaveClass(photoVideoManagementStyles.photoVideoWorkspaceMain);
+  });
+
+  it('canonicalises the legacy dashboard tab without dropping other location state', async () => {
+    const router = renderDashboard('/dashboard?tab=kiosk-live-view&event=event-1&mode=display#controls');
+
+    expect(await screen.findByText('Live Slideshow setup')).toBeInTheDocument();
+    await waitFor(() => {
+      expect(router.state.location.pathname).toBe('/dashboard');
+      expect(router.state.location.search).toBe('?tab=live-slideshow&event=event-1&mode=display');
+      expect(router.state.location.hash).toBe('#controls');
+    });
+    expect(screen.getByTestId('active-tab')).toHaveTextContent('live-slideshow');
   });
 
   it('keeps Guest List on the dashboard-selected event and routes the no-table action to Tables', async () => {

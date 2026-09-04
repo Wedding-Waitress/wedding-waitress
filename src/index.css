@@ -1,3 +1,5 @@
+@import './styles/localWeddingFonts.css';
+
 @tailwind base;
 @tailwind components;
 @tailwind utilities;
@@ -116,60 +118,16 @@ html {
   transform: scale(0.98);
 }
 
-/* Custom Place Card Fonts */
-@font-face {
-  font-family: 'Beauty Mountains';
-  src: url('/fonts/BeautyMountains.ttf') format('truetype');
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Valentine Baby';
-  src: url('/fonts/ValentineBaby.otf') format('opentype');
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Amsterdam';
-  src: url('/fonts/Amsterdam.ttf') format('truetype');
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Back to Black Demo';
-  src: url('/fonts/BackToBlackDemo.ttf') format('truetype');
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Flagfies';
-  src: url('/fonts/Flagfies.ttf') format('truetype');
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Sphere Memory';
-  src: url('/fonts/SphereMemory.ttf') format('truetype');
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'ET Emilia Grace Demo';
-  src: url('/fonts/ETEmiliaGrace.ttf') format('truetype');
-  font-style: normal;
-}
-
-@font-face {
-  font-family: 'Grained';
-  src: url('/fonts/Grained.ttf') format('truetype');
-  
-  font-style: normal;
-}
-
 /* Wedding Waitress Design System - Luxury Brown Theme */
 
 @layer base {
   :root {
+    /* Universal solid-text system. Surfaces may switch between these two
+       authoritative colours, while semantic status colours remain separate. */
+    --ww-text-on-light: #412419;
+    --ww-text-on-dark: #ffffff;
+    --ww-text-on-light-hsl: 16.5 44.4% 17.6%;
+    --ww-text-on-dark-hsl: 0 0% 100%;
     /* Shared authenticated-shell geometry (approved Dashboard dimensions). */
     --ww-sidebar-width: 16rem;
     --ww-sidebar-width-mobile: 17.5rem;
@@ -195,7 +153,7 @@ html {
 
     /* Brand Colors - Brown Theme */
     --primary: 30 25% 47%;
-    --primary-foreground: 30 20% 98%;
+    --primary-foreground: var(--ww-text-on-dark-hsl);
     --primary-hover: 30 25% 52%;
     --primary-glow: 30 25% 57%;
     
@@ -203,7 +161,7 @@ html {
     --background: 30 10% 95%;
     --background-subtle: 30 15% 94%;
     --background-muted: 30 12% 92%;
-    --foreground: 240 3% 12%;
+    --foreground: var(--ww-text-on-light-hsl);
     /* Universal application canvas: deep espresso at both edges with one
        restrained, continuous coffee-brown lift through the centre. */
     --ww-application-background-color: #120806;
@@ -227,17 +185,17 @@ html {
     
     /* Card System */
     --card: 30 10% 95%;
-    --card-foreground: 240 3% 12%;
+    --card-foreground: var(--ww-text-on-light-hsl);
     --card-border: 30 20% 90%;
     --card-shadow: 30 25% 47%;
     
     /* Interactive Elements */
     --accent: 30 20% 95%;
-    --accent-foreground: 30 25% 35%;
+    --accent-foreground: var(--ww-text-on-light-hsl);
     --secondary: 30 15% 91%;
-    --secondary-foreground: 240 3% 12%;
+    --secondary-foreground: var(--ww-text-on-light-hsl);
     --muted: 30 12% 89%;
-    --muted-foreground: 240 2% 44%;
+    --muted-foreground: var(--ww-text-on-light-hsl);
 
     /* Status Colors */
     --success: 142.1 70.5% 45.3%;
@@ -255,7 +213,7 @@ html {
     
     /* Popover */
     --popover: 30 10% 95%;
-    --popover-foreground: 240 3% 12%;
+    --popover-foreground: var(--ww-text-on-light-hsl);
     
     /* Gradients */
     --gradient-primary: linear-gradient(135deg, hsl(30 25% 47%), hsl(25 30% 40%));
@@ -1041,9 +999,10 @@ html {
   animation: boundary-pulse 2s ease-in-out infinite;
 }
 
-/* Global placeholder styling (Apple muted gray #6E6E73) */
+/* Global placeholders use the same fully opaque colour as other supporting text. */
 input::placeholder, textarea::placeholder, [data-placeholder] {
   color: hsl(var(--muted-foreground)) !important;
+  opacity: 1 !important;
 }
 
 /* Premium Apple-style buttons — Live View only */
@@ -1462,7 +1421,7 @@ img { content-visibility: auto; }
   ):not(
     [data-disabled] *
   ) {
-  color: #000000 !important;
+  color: var(--ww-text-on-light) !important;
   opacity: 1 !important;
 }
 
@@ -1967,11 +1926,11 @@ img { content-visibility: auto; }
 
 
 /* ============================================================
-   Kiosk Live View page — dark brown (#472c1d) theme.
-   Scoped via .ww-kiosk-brown (see Dashboard.tsx). Green buttons,
+   Live Slideshow page — dark brown (#472c1d) theme.
+   Scoped via .ww-live-slideshow-brown (see Dashboard.tsx). Green buttons,
    green toggles and status colours are untouched.
    ============================================================ */
-.ww-kiosk-brown .ww-kiosk-main-heading {
+.ww-live-slideshow-brown .ww-live-slideshow-main-heading {
   font-size: 24px !important;
   line-height: 1.25 !important;
   font-weight: 700 !important;
@@ -1979,49 +1938,165 @@ img { content-visibility: auto; }
 }
 
 /* Headings, feature titles, labels, icons and brown accents */
-.ww-kiosk-brown :is(h1, h2, h3, h4, label, strong, code),
-.ww-kiosk-brown [class*="text-[#856A4C]"],
-.ww-kiosk-brown [class*="text-[#967A59]"],
-.ww-kiosk-brown [class*="text-primary"]:not([class*="text-primary-foreground"]):not([class*="bg-"]) {
+.ww-live-slideshow-brown :is(h1, h2, h3, h4, label, strong, code),
+.ww-live-slideshow-brown [class*="text-[#856A4C]"],
+.ww-live-slideshow-brown [class*="text-[#967A59]"],
+.ww-live-slideshow-brown [class*="text-primary"]:not([class*="text-primary-foreground"]):not([class*="bg-"]) {
   color: #472c1d !important;
 }
-.ww-kiosk-brown :is([class*="text-[#856A4C]"], [class*="text-[#967A59]"], [class*="text-primary"]:not([class*="bg-"])) svg,
-.ww-kiosk-brown :is(h1, h2, h3, h4, label) svg {
+.ww-live-slideshow-brown :is([class*="text-[#856A4C]"], [class*="text-[#967A59]"], [class*="text-primary"]:not([class*="bg-"])) svg,
+.ww-live-slideshow-brown :is(h1, h2, h3, h4, label) svg {
   color: #472c1d !important;
 }
 
 /* Neutral / light-brown borders → 1px solid #472c1d */
-.ww-kiosk-brown [class*="border-primary"],
-.ww-kiosk-brown [class*="border-[#856A4C]"],
-.ww-kiosk-brown [class*="border-[#967A59]"]:not([role="switch"]):not([data-state]),
-.ww-kiosk-brown [class*="border-border"],
-.ww-kiosk-brown [class*="border-muted"] {
+.ww-live-slideshow-brown [class*="border-primary"],
+.ww-live-slideshow-brown [class*="border-[#856A4C]"],
+.ww-live-slideshow-brown [class*="border-[#967A59]"]:not([role="switch"]):not([data-state]),
+.ww-live-slideshow-brown [class*="border-border"],
+.ww-live-slideshow-brown [class*="border-muted"] {
   border-color: #472c1d !important;
   border-width: 1px !important;
   border-style: solid !important;
 }
-.ww-kiosk-brown [class*="border-dashed"] {
+.ww-live-slideshow-brown [class*="border-dashed"] {
   border-style: dashed !important;
 }
 /* Keep green-outlined and green/red status controls exactly as-is */
-.ww-kiosk-brown [class*="border-green"],
-.ww-kiosk-brown [class*="bg-green"],
-.ww-kiosk-brown [role="switch"],
-.ww-kiosk-brown [role="switch"] * {
+.ww-live-slideshow-brown [class*="border-green"],
+.ww-live-slideshow-brown [class*="bg-green"],
+.ww-live-slideshow-brown [role="switch"],
+.ww-live-slideshow-brown [role="switch"] * {
   border-color: initial;
 }
-.ww-kiosk-brown [class*="border-green"] {
+.ww-live-slideshow-brown [class*="border-green"] {
   border-color: rgb(34 197 94) !important;
   border-width: 2px !important;
 }
-.ww-kiosk-brown :is([class*="text-green"], [class*="text-red"], [class*="text-white"]),
-.ww-kiosk-brown :is([class*="text-green"], [class*="text-red"], [class*="text-white"]) svg,
-.ww-kiosk-brown [class*="bg-green"] :is(svg, span),
-.ww-kiosk-brown [class*="bg-[#472c1d]"] :is(svg, span, strong) {
+.ww-live-slideshow-brown :is([class*="text-green"], [class*="text-red"], [class*="text-white"]),
+.ww-live-slideshow-brown :is([class*="text-green"], [class*="text-red"], [class*="text-white"]) svg,
+.ww-live-slideshow-brown [class*="bg-green"] :is(svg, span),
+.ww-live-slideshow-brown [class*="bg-[#472c1d]"] :is(svg, span, strong) {
   color: inherit !important;
 }
-.ww-kiosk-brown [class*="text-green-500"] { color: rgb(34 197 94) !important; }
-.ww-kiosk-brown [class*="text-green-600"] { color: rgb(22 163 74) !important; }
-.ww-kiosk-brown [class*="text-red-500"] { color: rgb(239 68 68) !important; }
-.ww-kiosk-brown [class*="text-white"], .ww-kiosk-brown [class*="text-white"] svg { color: #ffffff !important; }
-.ww-kiosk-brown .bg-\[\#472c1d\] { color: #ffffff !important; }
+.ww-live-slideshow-brown [class*="text-green-500"] { color: rgb(34 197 94) !important; }
+.ww-live-slideshow-brown [class*="text-green-600"] { color: rgb(22 163 74) !important; }
+.ww-live-slideshow-brown [class*="text-red-500"] { color: rgb(239 68 68) !important; }
+.ww-live-slideshow-brown [class*="text-white"], .ww-live-slideshow-brown [class*="text-white"] svg { color: #ffffff !important; }
+.ww-live-slideshow-brown .bg-\[\#472c1d\] { color: #ffffff !important; }
+
+/* ============================================================
+   Universal solid interface text
+
+   This final cascade normalises legacy utility colours without changing
+   typography, spacing, surfaces, borders, document renderers or stateful
+   reveal/disabled opacity. Printable preview DOM is deliberately excluded so
+   protected preview/print/PDF geometry and artwork remain authoritative.
+   ============================================================ */
+:where(
+  p, span, strong, em, small, label, legend, li, dt, dd, th, td,
+  summary, figcaption, caption, a, button, input, textarea, select, option,
+  h1, h2, h3, h4, h5, h6
+):is(
+  .text-muted-foreground,
+  .text-foreground,
+  .text-primary,
+  .text-black,
+  .text-gray-400, .text-gray-500, .text-gray-600, .text-gray-700, .text-gray-800, .text-gray-900,
+  .text-slate-400, .text-slate-500, .text-slate-600, .text-slate-700, .text-slate-800, .text-slate-900,
+  .text-neutral-400, .text-neutral-500, .text-neutral-600, .text-neutral-700, .text-neutral-800, .text-neutral-900
+):not([class*="text-green"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-rose"]):not([class*="text-orange"]):not([class*="text-amber"]):not([class*="text-yellow"]):not([class*="text-destructive"]):not([class*="preview" i]):not([class*="preview" i] *):not(.ww-itc-preview *):not(.dietary-a4-preview *):not([data-print-mirror-document] *) {
+  color: var(--ww-text-on-light) !important;
+  -webkit-text-fill-color: var(--ww-text-on-light) !important;
+  --tw-text-opacity: 1 !important;
+}
+
+:where(
+  p, span, strong, em, small, label, legend, li, dt, dd, th, td,
+  summary, figcaption, caption, a, button, input, textarea, select, option,
+  h1, h2, h3, h4, h5, h6
+):is([class*="text-[#6f625b]"], [class*="text-[#6F625B]"], [class*="text-[#6E6E73]"], [class*="text-[#1D1D1F]"], [class*="text-[#1a1a1a]"]):not([class*="preview" i]):not([class*="preview" i] *):not(.ww-itc-preview *):not(.dietary-a4-preview *):not([data-print-mirror-document] *) {
+  color: var(--ww-text-on-light) !important;
+  -webkit-text-fill-color: var(--ww-text-on-light) !important;
+  --tw-text-opacity: 1 !important;
+}
+
+/* Tailwind fractional white utilities are presentation alpha, not distinct
+   semantic colours. On an identified dark surface they resolve to solid white. */
+#root :where([data-solid-text-surface="light"])
+  :where(p, span, strong, em, small, label, legend, li, dt, dd, th, td, summary, figcaption, caption, a, button, input, textarea, select, option, h1, h2, h3, h4, h5, h6)
+  :not([class*="text-green"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-rose"]):not([class*="text-orange"]):not([class*="text-amber"]):not([class*="text-yellow"]):not([class*="text-destructive"]):not([class*="text-[#FF5F1F]"]):not([class*="text-[#ff5f1f]"]):not([class*="success" i]):not([class*="error" i]):not([class*="warning" i]):not([class*="danger" i]):not([data-tone]):not([data-tone] *):not([data-status]):not([data-status] *):not([data-state="saved"]):not([data-state="error"]):not([class*="preview" i]):not([class*="preview" i] *):not([data-print-mirror-document] *) {
+  color: var(--ww-text-on-light) !important;
+  -webkit-text-fill-color: var(--ww-text-on-light) !important;
+  --tw-text-opacity: 1 !important;
+}
+
+#root :where(.ww-section-espresso, .ww-dark-surface, [data-appearance="espresso-glass"], [data-solid-text-surface="dark"])
+  :where(p, span, strong, em, small, label, legend, li, dt, dd, th, td, summary, figcaption, caption, a, button, input, textarea, select, option, h1, h2, h3, h4, h5, h6)
+  :not([class*="text-green"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-rose"]):not([class*="text-orange"]):not([class*="text-amber"]):not([class*="text-yellow"]):not([class*="text-destructive"]):not([data-tone]):not([data-tone] *):not([data-status]):not([data-status] *):not([data-state="saved"]):not([data-state="error"]):not([class*="preview" i]):not([class*="preview" i] *):not(.ww-itc-preview *):not(.dietary-a4-preview *):not([data-print-mirror-document] *) {
+  color: var(--ww-text-on-dark) !important;
+  -webkit-text-fill-color: var(--ww-text-on-dark) !important;
+  --tw-text-opacity: 1 !important;
+}
+
+#root :where([data-solid-text-surface="light"])
+  :where(.ww-button-primary, .ww-button-espresso, .bg-primary, [class*="bg-[#412419]"], [class*="bg-[#472c1d]"], .bg-green-500, .bg-green-600, .bg-green-700, .bg-emerald-500, .bg-emerald-600, .bg-emerald-700, .bg-red-500, .bg-red-600, .bg-red-700, .bg-rose-500, .bg-rose-600, .bg-rose-700),
+#root :where([data-solid-text-surface="light"])
+  :where(.ww-button-primary, .ww-button-espresso, .bg-primary, [class*="bg-[#412419]"], [class*="bg-[#472c1d]"], .bg-green-500, .bg-green-600, .bg-green-700, .bg-emerald-500, .bg-emerald-600, .bg-emerald-700, .bg-red-500, .bg-red-600, .bg-red-700, .bg-rose-500, .bg-rose-600, .bg-rose-700)
+  :where(p, span, strong, em, small, label, a, button, h1, h2, h3, h4, h5, h6) {
+  color: var(--ww-text-on-dark) !important;
+  -webkit-text-fill-color: var(--ww-text-on-dark) !important;
+  --tw-text-opacity: 1 !important;
+}
+
+/* Shared dark action styles also appear in the header, cookie banner and portal
+   roots, outside a page-level surface marker. The root ID makes this win over
+   the deliberately strong light-surface normaliser above. */
+#root :where(.ww-button-primary, .ww-button-espresso, .bg-primary, .bg-gradient-primary, .bg-gradient-hero),
+#root :where(.ww-button-primary, .ww-button-espresso, .bg-primary, .bg-gradient-primary, .bg-gradient-hero)
+  :where(p, span, strong, em, small, label, a, button) {
+  color: var(--ww-text-on-dark) !important;
+  -webkit-text-fill-color: var(--ww-text-on-dark) !important;
+  --tw-text-opacity: 1 !important;
+}
+
+#root :where(.ww-section-espresso, .ww-dark-surface, [data-appearance="espresso-glass"], [data-solid-text-surface="dark"])
+  :where(input, textarea)::placeholder {
+  color: var(--ww-text-on-dark) !important;
+  opacity: 1 !important;
+}
+
+:where(p, span, strong, em, small, label, legend, li, dt, dd, th, td, summary, figcaption, caption, a, button, input, textarea, select, option, h1, h2, h3, h4, h5, h6)[class*="text-white/"]:not([class*="preview" i]):not([class*="preview" i] *) {
+  color: var(--ww-text-on-dark) !important;
+  -webkit-text-fill-color: var(--ww-text-on-dark) !important;
+  --tw-text-opacity: 1 !important;
+}
+
+:where(p, span, strong, em, small, label, legend, li, dt, dd, th, td, summary, figcaption, caption, a, button, input, textarea, select, option, h1, h2, h3, h4, h5, h6)[class*="text-muted-foreground/"]:not([class*="preview" i]):not([class*="preview" i] *) {
+  color: var(--ww-text-on-light) !important;
+  -webkit-text-fill-color: var(--ww-text-on-light) !important;
+  --tw-text-opacity: 1 !important;
+}
+
+input[class*="placeholder:text-white/"]::placeholder,
+textarea[class*="placeholder:text-white/"]::placeholder {
+  color: var(--ww-text-on-dark) !important;
+  opacity: 1 !important;
+}
+
+/* Preserve fully opaque, meaningful status communication. */
+:where([class*="text-green"], [class*="text-emerald"]) { --tw-text-opacity: 1 !important; }
+:where([class*="text-red"], [class*="text-rose"], .text-destructive) { --tw-text-opacity: 1 !important; }
+:where([class*="text-orange"], [class*="text-amber"], [class*="text-yellow"]) { --tw-text-opacity: 1 !important; }
+
+/* Gradient lettering previously made the glyph fill transparent. Preserve the
+   existing decoration while rendering the text itself with an opaque token. */
+.gradient-text {
+  color: var(--ww-text-on-light) !important;
+  -webkit-text-fill-color: var(--ww-text-on-light) !important;
+}
+
+/* Applied only after the computed typography tuple is verified at runtime. */
+[data-ww-manrope-14-medium] {
+  font-weight: 500 !important;
+}

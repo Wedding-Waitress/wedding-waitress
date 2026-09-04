@@ -71,8 +71,8 @@
       "title": "Full Seating Chart",
       "desc": "Generate a complete printable master seating chart."
     },
-    "kiosk": {
-      "title": "Kiosk Live View",
+    "liveSlideshow": {
+      "title": "Live Slideshow",
       "desc": "Let guests find their seat instantly at the venue."
     },
     "djmc": {
@@ -137,9 +137,9 @@
       "title": "Full Seating Chart",
       "desc": "Create a complete, print-ready seating chart showing every guest and table. Export to PDF with custom styling and your event branding."
     },
-    "kiosk": {
-      "title": "Kiosk Live View",
-      "desc": "Set up self-service check-in kiosks at your venue entrance. Guests search their name and instantly see their table assignment on screen."
+    "liveSlideshow": {
+      "title": "Live Slideshow",
+      "desc": "Present a self-service Live Slideshow at your venue entrance so guests can search their name and instantly see their table assignment."
     },
     "djmc": {
       "title": "DJ & MC Questionnaire",
@@ -167,8 +167,8 @@
       "title": "Place Cards",
       "desc": "Beautiful printed name cards"
     },
-    "kiosk": {
-      "title": "Live Kiosk View",
+    "liveSlideshow": {
+      "title": "Live Slideshow",
       "desc": "Self-service guest check-in"
     },
     "seatingCharts": {
@@ -406,7 +406,7 @@
     "floorPlan": "Floor Plan",
     "dietary": "Dietary Requirements",
     "seatingChart": "Full Seating Chart",
-    "kiosk": "Kiosk Live View",
+    "liveSlideshow": "Live Slideshow",
     "djmc": "DJ-MC Questionnaire",
     "runningSheet": "Running Sheet"
   },
@@ -455,10 +455,10 @@
       "seo2Heading": "Provide Digital Seating Information",
       "seo2Text": "Guests scan and instantly see their table from your <0>seating chart</0>, seat assignment, and event details. No more printed charts or confusion at the door.",
       "seo3Heading": "Simplify Guest Experience at Your Event",
-      "seo3Text": "Create a modern, tech-forward guest experience. Pair your QR code with a <0>kiosk live view</0> at your venue entrance for even smoother guest flow.",
+      "seo3Text": "Create a modern, tech-forward guest experience. Pair your QR code with a <0>Live Slideshow</0> at your venue entrance for even smoother guest flow.",
       "related1": "Guest List Manager",
       "related2": "Seating Chart Planner",
-      "related3": "Kiosk Check-In"
+      "related3": "Live Slideshow Check-In"
     },
     "invitations": {
       "title": "Digital Wedding Invitations & RSVP Management",
@@ -565,13 +565,13 @@
       "related2": "Guest List Manager",
       "related3": "Seating Chart Planner"
     },
-    "kiosk": {
-      "title": "Wedding Guest Check-In Kiosk & Live Lookup System",
-      "description": "Create a professional and interactive guest experience with a live kiosk display. Allow guests to quickly search their name and find their table, seat, or event details on a digital screen.",
-      "pageTitle": "Wedding Check-In Kiosk | Guest Lookup & Entry System",
-      "metaDesc": "Set up a live guest check-in kiosk. Let guests search their name and find their table instantly at your event entrance.",
+    "liveSlideshow": {
+      "title": "Live Slideshow",
+      "description": "Create a professional, interactive Live Slideshow where guests can search their name and find their table, seat or event details on screen.",
+      "pageTitle": "Live Slideshow | Wedding Waitress",
+      "metaDesc": "Set up a Live Slideshow that lets guests search their name and find their table instantly at your event entrance.",
       "seo1Heading": "Enable Guest Self Check-In",
-      "seo1Text": "Set up a digital kiosk at your venue entrance powered by your <0>QR code system</0>. It's fast, professional, and reduces queues on arrival.",
+      "seo1Text": "Present a Live Slideshow at your venue entrance powered by your <0>QR code system</0>. It is fast, professional and reduces queues on arrival.",
       "seo2Heading": "Instant Table Lookup",
       "seo2Text": "Guests simply search their name and instantly see their table number and seat from your <0>guest list</0> — no staff assistance needed.",
       "seo3Heading": "Improve Event Entry Experience",
@@ -608,7 +608,7 @@
       "seo3Text": "See how your tables and seating fit within your venue space. Adjust layouts in real time to ensure everything works perfectly on the day.",
       "related1": "Seating Chart Planner",
       "related2": "Full Seating Chart",
-      "related3": "Kiosk Check-In"
+      "related3": "Live Slideshow Check-In"
     }
   },
   "heroMain": {
@@ -664,8 +664,8 @@
         "heading": "Full Seating Chart",
         "text": "Generate a complete printable master seating chart."
       },
-      "kioskLiveView": {
-        "heading": "Kiosk Live View",
+      "liveSlideshow": {
+        "heading": "Live Slideshow",
         "text": "Let guests find their seat instantly at the venue."
       },
       "djMc": {
@@ -955,10 +955,10 @@
       ],
       "finalCtaLabel": "Start Planning Your Event"
     },
-    "kioskLiveView": {
-      "pageTitle": "Wedding Seating Kiosk Display | Live Guest View",
-      "metaDescription": "Display your wedding seating chart on a screen or kiosk. Guests can easily find their table in real-time at your event.",
-      "h1": "Kiosk Live Seating View for Your Event",
+    "liveSlideshow": {
+      "pageTitle": "Live Slideshow | Wedding Waitress",
+      "metaDescription": "Display your wedding seating lookup as a Live Slideshow so guests can find their table in real time at your event.",
+      "h1": "Live Slideshow",
       "lead": "Display your seating chart on a screen at your venue. Let guests quickly find their table in a modern and interactive way.",
       "primaryCta": "Start Planning Your Event",
       "h": [

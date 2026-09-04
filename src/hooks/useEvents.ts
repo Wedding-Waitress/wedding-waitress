@@ -25,6 +25,7 @@ import {
   getEventCreationBlockMessage,
   notifyEventAllowanceChanged,
 } from '@/lib/eventAllowance';
+import { isEventImageBackendUnavailable, isEventImageZoomBackendUnavailable, removeEventImageIfUnreferenced } from '@/lib/eventImage';
 
 export interface Event {
   id: string;
@@ -33,6 +34,9 @@ export interface Event {
   date: string | null;
   venue_address?: string | null;
   venue: string | null;
+  venue_phone?: string | null;
+  venue_contact?: string | null;
+  venue_contact_email?: string | null;
   start_time: string | null;
   finish_time: string | null;
   guest_limit: number;
@@ -50,12 +54,20 @@ export interface Event {
   relation_allow_single_partner: boolean | null;
   relation_mode?: 'two' | 'single' | 'off' | null;
   event_type?: 'seated' | 'cocktail';
+  event_image_path?: string | null;
+  event_image_fit?: 'cover' | 'contain';
+  event_image_position_x?: number;
+  event_image_position_y?: number;
+  event_image_zoom?: number;
   // Ceremony fields
   ceremony_enabled?: boolean;
   ceremony_name?: string | null;
   ceremony_date?: string | null;
   ceremony_venue?: string | null;
   ceremony_venue_address?: string | null;
+  ceremony_venue_phone?: string | null;
+  ceremony_venue_contact?: string | null;
+  ceremony_venue_contact_email?: string | null;
   ceremony_guest_limit?: number | null;
   ceremony_start_time?: string | null;
   ceremony_finish_time?: string | null;
@@ -95,18 +107,48 @@ export const useEvents = () => {
       if (!eventsCache) setLoading(true);
       
       // Fetch events with guest count AND additional fields in parallel
-      const [{ data, error }, { data: fullEvents, error: fullErr }] = await Promise.all([
+      const additionalFields = `
+        id, user_id, relation_mode,
+        ceremony_enabled, ceremony_name, ceremony_date, ceremony_venue,
+        ceremony_venue_address, ceremony_venue_phone, ceremony_venue_contact, ceremony_venue_contact_email,
+        ceremony_guest_limit, ceremony_start_time,
+        ceremony_finish_time, ceremony_rsvp_deadline, reception_enabled,
+        venue_address, venue_phone, venue_contact, venue_contact_email, allow_guest_plus_ones,
+        collect_guest_addresses
+      `;
+      const eventImageFieldsWithoutZoom = `
+        id, user_id, relation_mode, event_image_path, event_image_fit, event_image_position_x, event_image_position_y,
+        ceremony_enabled, ceremony_name, ceremony_date, ceremony_venue,
+        ceremony_venue_address, ceremony_venue_phone, ceremony_venue_contact, ceremony_venue_contact_email,
+        ceremony_guest_limit, ceremony_start_time,
+        ceremony_finish_time, ceremony_rsvp_deadline, reception_enabled,
+        venue_address, venue_phone, venue_contact, venue_contact_email, allow_guest_plus_ones,
+        collect_guest_addresses
+      `;
+      const [{ data, error }, imageFieldsResult] = await Promise.all([
         supabase.rpc('get_events_with_guest_count'),
         supabase.from('events').select(`
-          id, relation_mode, 
+          id, user_id, relation_mode, event_image_path, event_image_fit, event_image_position_x, event_image_position_y, event_image_zoom,
           ceremony_enabled, ceremony_name, ceremony_date, ceremony_venue, 
-          ceremony_venue_address, ceremony_venue_phone, ceremony_venue_contact,
+          ceremony_venue_address, ceremony_venue_phone, ceremony_venue_contact, ceremony_venue_contact_email,
           ceremony_guest_limit, ceremony_start_time, 
           ceremony_finish_time, ceremony_rsvp_deadline, reception_enabled,
-          venue_address, venue_phone, venue_contact, allow_guest_plus_ones,
+          venue_address, venue_phone, venue_contact, venue_contact_email, allow_guest_plus_ones,
           collect_guest_addresses
         `),
       ]);
+      let fullEvents = imageFieldsResult.data;
+      let fullErr = imageFieldsResult.error;
+      if (fullErr && isEventImageZoomBackendUnavailable(fullErr)) {
+        const currentImageFieldsResult = await supabase.from('events').select(eventImageFieldsWithoutZoom);
+        fullEvents = currentImageFieldsResult.data as typeof fullEvents;
+        fullErr = currentImageFieldsResult.error;
+      }
+      if (fullErr && isEventImageBackendUnavailable(fullErr)) {
+        const legacyFieldsResult = await supabase.from('events').select(additionalFields);
+        fullEvents = legacyFieldsResult.data as typeof fullEvents;
+        fullErr = legacyFieldsResult.error;
+      }
       
       if (error || fullErr) {
         console.error('Error fetching events:', error || fullErr);
@@ -129,6 +171,12 @@ export const useEvents = () => {
           partner2_name: event.partner2_name || null,
           rsvp_deadline: event.rsvp_deadline || null,
           relation_mode: extraData.relation_mode ?? event.relation_mode ?? null,
+          user_id: extraData.user_id ?? event.user_id,
+          event_image_path: extraData.event_image_path ?? null,
+          event_image_fit: extraData.event_image_fit === 'contain' ? 'contain' : 'cover',
+          event_image_position_x: extraData.event_image_position_x ?? 50,
+          event_image_position_y: extraData.event_image_position_y ?? 50,
+          event_image_zoom: extraData.event_image_zoom ?? 100,
           ceremony_enabled: extraData.ceremony_enabled ?? false,
           ceremony_name: extraData.ceremony_name ?? null,
           ceremony_date: extraData.ceremony_date ?? null,
@@ -136,6 +184,7 @@ export const useEvents = () => {
           ceremony_venue_address: extraData.ceremony_venue_address ?? null,
           ceremony_venue_phone: extraData.ceremony_venue_phone ?? null,
           ceremony_venue_contact: extraData.ceremony_venue_contact ?? null,
+          ceremony_venue_contact_email: extraData.ceremony_venue_contact_email ?? null,
           ceremony_guest_limit: extraData.ceremony_guest_limit ?? null,
           ceremony_start_time: extraData.ceremony_start_time ?? null,
           ceremony_finish_time: extraData.ceremony_finish_time ?? null,
@@ -144,6 +193,7 @@ export const useEvents = () => {
           venue_address: extraData.venue_address ?? null,
           venue_phone: extraData.venue_phone ?? null,
           venue_contact: extraData.venue_contact ?? null,
+          venue_contact_email: extraData.venue_contact_email ?? null,
           allow_guest_plus_ones: extraData.allow_guest_plus_ones ?? false,
           collect_guest_addresses: extraData.collect_guest_addresses ?? false,
         };
@@ -249,6 +299,7 @@ export const useEvents = () => {
           ceremony_venue_address: (eventData as any).ceremony_venue_address || null,
           ceremony_venue_phone: (eventData as any).ceremony_venue_phone || null,
           ceremony_venue_contact: (eventData as any).ceremony_venue_contact || null,
+          ceremony_venue_contact_email: (eventData as any).ceremony_venue_contact_email || null,
           ceremony_guest_limit: (eventData as any).ceremony_guest_limit || null,
           ceremony_start_time: (eventData as any).ceremony_start_time || null,
           ceremony_finish_time: (eventData as any).ceremony_finish_time || null,
@@ -258,6 +309,7 @@ export const useEvents = () => {
           venue_address: (eventData as any).venue_address || null,
           venue_phone: (eventData as any).venue_phone || null,
           venue_contact: (eventData as any).venue_contact || null,
+          venue_contact_email: (eventData as any).venue_contact_email || null,
         }])
         .select()
         .single();
@@ -338,6 +390,7 @@ export const useEvents = () => {
 
   const deleteEvent = async (id: string) => {
     try {
+      const eventImagePath = events.find((event) => event.id === id)?.event_image_path ?? null;
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (!authUser) {
         throw new EventDeletionError('not-authenticated', 'User not authenticated.');
@@ -355,6 +408,7 @@ export const useEvents = () => {
       }
 
       const deleted = await deleteOwnedEventRow(id, authUser.id);
+      if (eventImagePath) void removeEventImageIfUnreferenced(eventImagePath);
       const remainingEvents = events.filter((event) => event.id !== deleted.id);
       eventsCache = remainingEvents;
       setEvents(remainingEvents);

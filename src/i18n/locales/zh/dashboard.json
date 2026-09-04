@@ -10,7 +10,7 @@
     "seatingChart": "座位图",
     "dietaryChart": "饮食要求",
     "fullSeatingChart": "完整座位图",
-    "kioskLiveView": "自助终端实时视图",
+    "liveSlideshow": "实时幻灯片",
     "adminPanel": "管理面板",
     "logout": "退出"
   }

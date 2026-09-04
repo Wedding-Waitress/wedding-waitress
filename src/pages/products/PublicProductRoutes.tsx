@@ -12,7 +12,7 @@ export const ProductIndividualTableCharts = () => <ProductPageLayout productId="
 export const ProductFloorPlan = () => <ProductPageLayout productId="floor-plan" />;
 export const ProductDietaryRequirements = () => <ProductPageLayout productId="dietary-requirements" />;
 export const ProductFullSeatingChart = () => <ProductPageLayout productId="full-seating-chart" />;
-export const ProductKioskLiveView = () => <ProductPageLayout productId="kiosk-live-view" />;
+export const ProductLiveSlideshow = () => <ProductPageLayout productId="live-slideshow" />;
 export const ProductDjMcQuestionnaire = () => <ProductPageLayout productId="dj-mc-questionnaire" />;
 export const ProductRunningSheet = () => <ProductPageLayout productId="running-sheet" />;
 export const ProductPhotoVideoSharing = () => <ProductPageLayout productId="photo-video-sharing" />;

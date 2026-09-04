@@ -1,0 +1,269 @@
+.page {
+  --live-slideshow-workspace: #f2e9dc;
+  --live-slideshow-porcelain: #fffdf8;
+  --live-slideshow-ivory: #fffaf2;
+  --live-slideshow-cream: #f7edde;
+  --live-slideshow-border: #d8c19d;
+  --live-slideshow-border-strong: #c8aa7d;
+  --live-slideshow-espresso: #2f1b14;
+  --live-slideshow-secondary: #6f5142;
+  --live-slideshow-gold: #9a7448;
+  --live-slideshow-red: #d53d36;
+  min-width: 0;
+  color: var(--live-slideshow-espresso);
+}
+
+:global(main.ww-live-slideshow-brown) {
+  background-color: #f2e9dc !important;
+  background-image: linear-gradient(180deg, #f7f0e6 0%, #f2e9dc 52%, #eee2d3 100%) !important;
+  background-position: center top !important;
+  background-repeat: no-repeat !important;
+  background-size: 100% 100% !important;
+}
+
+/* Typography is scoped to the organiser-facing Live Slideshow setup. */
+:global(#root) .page .mainHeading,
+:global(#root) .page .configurationHeading {
+  color: var(--live-slideshow-espresso) !important;
+  font-size: 24px !important;
+  font-weight: 700 !important;
+  line-height: 1.25 !important;
+  overflow-wrap: anywhere;
+}
+
+:global(#root) .page .mainDescription,
+:global(#root) .page .configurationDescription,
+:global(#root) .page :is(p, li, code):not(.compactStatus) {
+  color: var(--live-slideshow-secondary) !important;
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+:global(#root) .page :is(h3, h4) {
+  color: var(--live-slideshow-espresso) !important;
+  font-size: 20px !important;
+  font-weight: 700 !important;
+  line-height: 1.3 !important;
+}
+
+:global(#root) .page :is(label, strong),
+:global(#root) .page .emphasizedInstruction {
+  color: var(--live-slideshow-espresso) !important;
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 18px !important;
+}
+
+:global(#root) .page :is(button, [role="button"]):not([role="switch"]),
+.portalSurface [role="option"],
+.portalSurface [role="menuitem"] {
+  font-size: 13px !important;
+  font-weight: 600 !important;
+  line-height: 18px !important;
+}
+
+:global(#root) .page :is(input, textarea),
+:global(#root) .page :is(input, textarea)::placeholder {
+  font-size: 13px !important;
+  font-weight: 400 !important;
+  line-height: 18px !important;
+}
+
+.primaryPanel {
+  color: var(--live-slideshow-espresso) !important;
+  border-color: var(--live-slideshow-border) !important;
+  background: linear-gradient(145deg, var(--live-slideshow-porcelain), #fbf4e9) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .92), 0 13px 30px rgba(84, 54, 34, .12) !important;
+  backdrop-filter: none;
+  -webkit-backdrop-filter: none;
+}
+
+.innerPanel,
+.tile {
+  color: var(--live-slideshow-espresso) !important;
+  border-color: var(--live-slideshow-border) !important;
+  background: linear-gradient(155deg, var(--live-slideshow-ivory), var(--live-slideshow-cream)) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .9), 0 8px 18px rgba(93, 61, 38, .09) !important;
+}
+
+.innerSurface,
+.urlField,
+.uploadArea {
+  color: var(--live-slideshow-espresso) !important;
+  border-color: var(--live-slideshow-border) !important;
+  background: var(--live-slideshow-porcelain) !important;
+  box-shadow: inset 0 1px 2px rgba(90, 58, 36, .06) !important;
+}
+
+:global(#root) .page .urlField {
+  color: var(--live-slideshow-espresso) !important;
+  overflow-wrap: anywhere;
+}
+
+.control {
+  color: var(--live-slideshow-espresso) !important;
+  border-color: var(--live-slideshow-border-strong) !important;
+  background: linear-gradient(180deg, #fffefb, #f6ead8) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .92), 0 3px 8px rgba(85, 54, 32, .08) !important;
+}
+
+.control:hover,
+.uploadArea:hover {
+  border-color: var(--live-slideshow-gold) !important;
+  background: linear-gradient(180deg, #fff, #f2e3ce) !important;
+}
+
+.control:active,
+.replaceButton:active,
+.actionGreen:active { filter: brightness(.96); }
+
+.control:focus-visible,
+.uploadArea:focus-visible,
+.replaceButton:focus-visible,
+.removeButton:focus-visible,
+.actionGreen:focus-visible {
+  outline: 3px solid rgba(154, 116, 72, .28) !important;
+  outline-offset: 2px;
+}
+
+:global(#root) .page .control span { color: inherit !important; }
+
+.portalSurface {
+  color: var(--live-slideshow-espresso) !important;
+  border-color: var(--live-slideshow-border-strong) !important;
+  background: var(--live-slideshow-porcelain) !important;
+  box-shadow: 0 18px 42px rgba(62, 40, 25, .18) !important;
+}
+
+.portalItem,
+.portalSurface [role="option"],
+.portalSurface [role="menuitem"] { color: var(--live-slideshow-espresso) !important; }
+
+.portalItem:is(:hover, :focus, [data-highlighted]),
+.portalSurface [role="option"]:is(:hover, :focus, [data-highlighted]),
+.portalSurface [role="menuitem"]:is(:hover, :focus, [data-highlighted]) {
+  color: var(--live-slideshow-espresso) !important;
+  background: var(--live-slideshow-cream) !important;
+}
+
+.divider { border-color: var(--live-slideshow-border) !important; }
+
+.numberBadge {
+  color: var(--live-slideshow-espresso) !important;
+  border-color: var(--live-slideshow-border-strong) !important;
+  background: var(--live-slideshow-ivory) !important;
+}
+
+.actionGreen {
+  color: #fff !important;
+  border-color: #0e9e46 !important;
+  background: linear-gradient(180deg, #43d778 0%, #18ad53 52%, #087b35 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.42), inset 0 -2px 0 rgba(5,91,36,.28), 0 7px 15px rgba(17,139,62,.22) !important;
+}
+
+:global(#root) .page .actionGreen,
+:global(#root) .page .actionGreen :is(span, svg) { color: #fff !important; }
+.page .actionGreen[class*="text-green"],
+.page .actionGreen[class*="text-white"],
+.page .actionGreen[class*="text-green"] svg,
+.page .actionGreen[class*="text-white"] svg {
+  color: #fff !important;
+  stroke: currentColor !important;
+}
+.actionGreen:hover:not(:disabled) { color: #fff !important; filter: saturate(1.06) brightness(1.03); }
+
+.replaceButton {
+  color: #fff !important;
+  border-color: #3f241b !important;
+  background: linear-gradient(180deg, #6d4432, #321b14) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), 0 5px 12px rgba(47,27,20,.2) !important;
+}
+
+.removeButton {
+  color: #fff !important;
+  border-color: #c8312c !important;
+  background: linear-gradient(180deg, #f05a52, #c52f2a) !important;
+  box-shadow: 0 5px 12px rgba(180,41,36,.18) !important;
+}
+
+.qrCode {
+  border-color: var(--live-slideshow-border-strong) !important;
+  background: #fff !important;
+  box-shadow: 0 8px 20px rgba(68,43,26,.12);
+}
+
+.mediaFrame {
+  border-color: var(--live-slideshow-border) !important;
+  background: var(--live-slideshow-cream) !important;
+}
+
+.page [role="switch"] {
+  border: 1px solid var(--live-slideshow-border-strong) !important;
+  background: #e8dccb !important;
+  box-shadow: inset 0 1px 3px rgba(79,51,32,.13);
+}
+
+.page [role="switch"] span {
+  background: #fff !important;
+  box-shadow: 0 1px 3px rgba(47,27,20,.25) !important;
+}
+
+.page [role="switch"][data-state="checked"] {
+  border-color: #109b45 !important;
+  background: linear-gradient(180deg, #3dd171, #129d47) !important;
+}
+
+:global(#root) .page :is(h1, h2, h3, h4, label, strong),
+:global(#root) .page [class*="text-foreground"] { color: var(--live-slideshow-espresso) !important; }
+
+:global(#root) .page :is(p, li):not([class*="text-red"]):not([class*="text-green"]),
+:global(#root) .page [class*="text-muted-foreground"] {
+  color: var(--live-slideshow-secondary) !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .page svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]),
+:global(#root) .page [class*="text-primary"] svg {
+  color: var(--live-slideshow-gold) !important;
+  stroke: currentColor !important;
+}
+
+:global(#root) .page [class*="text-green-500"] { color: #16a34a !important; }
+:global(#root) .page [class*="text-green-600"] { color: #11813b !important; }
+:global(#root) .page [class*="text-red-500"] { color: var(--live-slideshow-red) !important; }
+
+.actionGreen svg,
+.replaceButton svg,
+.removeButton svg { color: #fff !important; }
+
+:global(#root) .page .primaryPanel,
+:global(#root) .page .tile { border-color: var(--live-slideshow-border) !important; }
+
+@media (max-width: 767px) {
+  :global(#root) .page .mainHeading,
+  :global(#root) .page .configurationHeading { font-size: 21px !important; }
+  :global(#root) .page :is(h3, h4) { font-size: 18px !important; }
+  .primaryPanel, .innerPanel, .tile { border-radius: 12px !important; }
+  .innerPanel, .tile { padding: 14px !important; }
+  .control { min-height: 44px; }
+  .page :is(button, [role="button"]):not([role="switch"]) { min-height: 44px; }
+}
+
+@media (max-width: 420px) {
+  .page { margin-inline: -2px; }
+  .innerPanel, .tile { padding: 12px !important; }
+  .qrCode {
+    width: min(180px, 72vw) !important;
+    height: min(180px, 72vw) !important;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .page *, .page *::before, .page *::after, .portalSurface * {
+    scroll-behavior: auto !important;
+    transition-duration: .01ms !important;
+    animation-duration: .01ms !important;
+    animation-iteration-count: 1 !important;
+  }
+}

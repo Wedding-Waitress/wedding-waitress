@@ -95,16 +95,33 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   // Mobile labels match desktop sidebar exactly (no abbreviations)
   const getMobileLabel = (_id: string, label: string) => label;
 
+  const sidebarToggleLabel = isSidebarExpanded ? 'Collapse sidebar' : 'Expand sidebar';
+
 
   return (
     <Sidebar collapsible="icon" className={`dashboard-sidebar ${styles.sidebarRoot}`}>
       <SidebarHeader className={`${styles.header} ${isMobile ? 'pt-6 pb-4' : 'pt-6 pb-12'}`}>
-        <div className="flex items-center justify-center px-4">
-          <img 
-            src={logoImage} 
-            alt="Wedding Waitress" 
-            className={`${styles.logo} h-12 sm:h-10 md:h-14 w-auto group-data-[collapsible=icon]:!h-auto group-data-[collapsible=icon]:!w-9`}
-          />
+        <div className={styles.brandRow}>
+          <button
+            type="button"
+            onClick={toggleSidebar}
+            aria-label={sidebarToggleLabel}
+            title={sidebarToggleLabel}
+            className={styles.sidebarToggle}
+          >
+            {isSidebarExpanded ? (
+              <PanelLeftClose size={20} strokeWidth={1.8} aria-hidden="true" />
+            ) : (
+              <PanelLeftOpen size={20} strokeWidth={1.8} aria-hidden="true" />
+            )}
+          </button>
+          <div className={styles.logoWrap}>
+            <img
+              src={logoImage}
+              alt="Wedding Waitress"
+              className={`${styles.logo} h-12 sm:h-10 md:h-14 w-auto group-data-[collapsible=icon]:!h-auto group-data-[collapsible=icon]:!w-9`}
+            />
+          </div>
         </div>
       </SidebarHeader>
       <SidebarContent className={`${styles.content} pt-2`}>
@@ -159,28 +176,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 </SidebarMenuItem>
                 );
               })}
-
-              <SidebarMenuItem aria-hidden="true" className="px-2 py-1">
-                <div className={`${styles.divider} h-px w-full`} />
-              </SidebarMenuItem>
-              <SidebarMenuItem>
-                <SidebarMenuButton
-                  onClick={toggleSidebar}
-                  tooltip={isSidebarExpanded ? 'Collapse Menu' : 'Expand Menu'}
-                  aria-label={isSidebarExpanded ? 'Collapse Menu' : 'Expand Menu'}
-                  className={`${styles.navButton} ${styles.collapseButton} flex items-center gap-2 ${isMobile ? 'py-4' : 'py-3'}`}
-                >
-                  {isSidebarExpanded ? (
-                    <PanelLeftClose size={18} strokeWidth={1.8} className="!h-[18px] !w-[18px] shrink-0" />
-                  ) : (
-                    <PanelLeftOpen size={18} strokeWidth={1.8} className="!h-[18px] !w-[18px] shrink-0" />
-                  )}
-                  <span className="text-base font-normal">
-                    {isSidebarExpanded ? 'Collapse Menu' : 'Expand Menu'}
-                  </span>
-                </SidebarMenuButton>
-              </SidebarMenuItem>
-              
               {/* Admin Panel moved to user dropdown; logout lives in dropdown only */}
             </SidebarMenu>
           </SidebarGroupContent>

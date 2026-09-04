@@ -6,19 +6,19 @@
 .cameraBadge svg { width: 15px; height: 15px; }
 .editorBody { min-width: 0; }
 .editorBody h3 { margin: 0; color: #fffaf3; font-size: 1rem; font-weight: 650; }
-.editorBody > p { margin: 5px 0 0; color: rgba(250, 233, 212, .7); font-size: .8rem; line-height: 1.5; }
+.editorBody > p { margin: 5px 0 0; color: #ffffff; font-size: .8rem; line-height: 1.5; }
 .fileInput { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; clip-path: inset(50%); }
 .actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 15px; }
 .actions button { min-height: var(--ww-compact-button-height); height: var(--ww-compact-button-height); gap: 7px; padding-inline: var(--ww-compact-button-padding-inline); border-radius: var(--ww-compact-button-radius) !important; color: #fff8ef !important; font-family: var(--ww-auth-nav-font-family); font-size: var(--ww-auth-nav-font-size); font-weight: var(--ww-compact-button-font-weight); }
 .actions button svg { width: 16px; height: 16px; }
 .positionControls { margin-top: 16px; padding: 14px; border: 1px solid rgba(224, 177, 117, .2); border-radius: 14px; background: rgba(21, 10, 7, .3); }
 .fitControls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.fitControls > span { margin-right: 2px; color: rgba(250, 233, 212, .7); font-size: .75rem; font-weight: 600; }
+.fitControls > span { margin-right: 2px; color: #ffffff; font-size: .75rem; font-weight: 600; }
 .fitControls button { display: inline-flex; min-height: var(--ww-compact-button-height); align-items: center; gap: 6px; padding: 0 var(--ww-compact-button-padding-inline); border: 1px solid rgba(225, 180, 122, .26); border-radius: var(--ww-compact-button-radius); color: #f4dfc2; background: rgba(74, 38, 27, .5); font-family: var(--ww-auth-nav-font-family); font-size: var(--ww-auth-nav-font-size); font-weight: var(--ww-auth-nav-font-weight); }
 .fitControls button[aria-pressed="true"] { border-color: rgba(241, 210, 166, .72); color: #fff; background: rgba(151, 94, 61, .58); box-shadow: inset 0 1px rgba(255,255,255,.1); }
 .fitControls svg { width: 14px; height: 14px; }
 .sliders { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 13px; }
-.sliders label { color: rgba(250, 233, 212, .74); font-size: .72rem; }
+.sliders label { color: #ffffff; font-size: .72rem; }
 .sliders input { display: block; width: 100%; margin-top: 7px; accent-color: #d3a767; }
 .spinner { animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }

@@ -317,25 +317,36 @@
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-table-panel) thead tr {
-  border-color: var(--my-events-border) !important;
-  background: #eadbc8 !important;
+  color: #ffffff !important;
+  border-color: #472c1d !important;
+  background: #472c1d !important;
+  background-image: none !important;
+  opacity: 1 !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-table-panel) thead th {
-  color: var(--my-events-text) !important;
+  color: #ffffff !important;
   font-size: 13px !important;
   font-weight: 600 !important;
   line-height: 18px !important;
+  background: #472c1d !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-table-panel) thead :is(svg, button, span) {
+  color: #ffffff !important;
+  stroke: currentColor !important;
+  opacity: 1 !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-row) {
   color: var(--my-events-text) !important;
-  border-color: rgba(161, 135, 100, 0.3) !important;
-  background: rgba(251, 248, 242, 0.78) !important;
+  border-color: #d8c7b2 !important;
+  background: #fbf8f2 !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-row):nth-child(even) {
-  background: rgba(245, 235, 221, 0.76) !important;
+  background: #f5ebdd !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-row):hover {
@@ -366,8 +377,17 @@
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-footer) {
-  border-color: var(--my-events-border) !important;
-  background: var(--my-events-card-deep) !important;
+  color: #ffffff !important;
+  border-color: #472c1d !important;
+  background: #472c1d !important;
+  background-image: none !important;
+  opacity: 1 !important;
+}
+
+:global(#root) .mainSurface .page :global(.ww-events-footer) :is(td, span, button, svg) {
+  color: #ffffff !important;
+  stroke: currentColor !important;
+  opacity: 1 !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-events-mobile-card) {

@@ -9,6 +9,8 @@ import { CookieBanner } from '@/components/ui/CookieBanner';
 import { eventTypeById, publicEventTypes, PublicEventType, PublicEventTypeId } from '@/content/publicEventTypes';
 import { publicProducts } from '@/content/publicProducts';
 import '@/styles/PublicSite.css';
+import { PublicPageHero } from '@/components/Layout/PublicPageHero';
+import { publicHeroForRoute } from '@/config/publicHeroManifest';
 
 const SITE_URL = 'https://weddingwaitress.com.au';
 const iconByKey = { rings: HeartHandshake, sparkles: Sparkles, cake: CakeSlice, building: Building2, tree: TreePine, heart: Heart };
@@ -49,12 +51,7 @@ export const EventsIndex: React.FC = () => {
     <SeoHead title="Event Planning Tools for Every Celebration | Wedding Waitress" description="Explore connected planning tools for weddings, engagements, parties, corporate events, seasonal celebrations and memorials." canonicalPath="/events" jsonLd={jsonLd} />
     <Header />
     <main>
-      <section className="ww-section overflow-hidden bg-[radial-gradient(circle_at_78%_18%,rgba(168,133,88,.22),transparent_36%)]">
-        <div className="ww-container grid gap-12 lg:grid-cols-[.92fr_1.08fr] lg:items-center">
-          <div><nav aria-label="Breadcrumb" className="mb-8 flex items-center gap-2 text-sm text-[#6f625b]"><Link to="/" className="ww-focus hover:text-[#6d4735]">Home</Link><ChevronRight size={15} aria-hidden="true" /><span>Event Types</span></nav><p className="ww-eyebrow mb-4">Event types</p><h1 className="ww-display">Thoughtful tools for every kind of gathering</h1><p className="ww-lead mt-7">Wedding Waitress adapts its connected guest, venue, stationery and event-day tools to the celebration you are organising.</p></div>
-          <EventTypeCard eventType={wedding} featured />
-        </div>
-      </section>
+      <PublicPageHero asset={publicHeroForRoute('/events')} eyebrow="Event types" title="Thoughtful tools for every kind of gathering" description="Wedding Waitress adapts its connected guest, venue, stationery and event-day tools to the celebration you are organising." breadcrumbs={<nav aria-label="Breadcrumb" className="ww-public-hero-breadcrumb mb-8 flex items-center gap-2 text-sm"><Link to="/" className="ww-focus">Home</Link><ChevronRight size={15} aria-hidden="true" /><span>Event Types</span></nav>} />
       <section className="ww-section ww-section-cream"><div className="ww-container"><div className="max-w-3xl"><p className="ww-eyebrow mb-3">Choose your occasion</p><h2 className="ww-title">Start with the gathering in front of you</h2><p className="ww-lead mt-5">Each guide connects practical products to the people, place and pace of that event.</p></div><div className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-3">{publicEventTypes.map((eventType) => <EventTypeCard key={eventType.id} eventType={eventType} />)}</div></div></section>
       <section className="ww-section"><div className="ww-container grid gap-10 lg:grid-cols-[.82fr_1.18fr] lg:items-start"><div><p className="ww-eyebrow mb-3">One flexible platform</p><h2 className="ww-title">The workflow changes with the occasion</h2></div><div className="grid gap-5 sm:grid-cols-2">{[
         ['Use only what is useful','A small gathering may need invitations and a guest list. A formal event may also need seating, venue documents, schedules and guest lookup.'],
@@ -83,7 +80,14 @@ const EventTypePage: React.FC<{ eventTypeId: PublicEventTypeId }> = ({ eventType
     <SeoHead title={eventType.seoTitle} description={eventType.metaDescription} canonicalPath={eventType.path} jsonLd={jsonLd} />
     <Header />
     <main>
-      <section className="ww-section overflow-hidden bg-[radial-gradient(circle_at_82%_22%,rgba(168,133,88,.23),transparent_36%)]"><div className="ww-container grid gap-12 lg:grid-cols-[.95fr_1.05fr] lg:items-center"><div><nav aria-label="Breadcrumb" className="mb-8 flex flex-wrap items-center gap-2 text-sm text-[#6f625b]"><Link to="/" className="ww-focus hover:text-[#6d4735]">Home</Link><ChevronRight size={15} aria-hidden="true" /><Link to="/events" className="ww-focus hover:text-[#6d4735]">Event Types</Link><ChevronRight size={15} aria-hidden="true" /><span>{eventType.name}</span></nav><p className="ww-eyebrow mb-4">{eventType.eyebrow}</p><h1 className="ww-display">{eventType.h1}</h1><p className="ww-lead mt-7">{eventType.lead}</p><div className="mt-8 flex flex-wrap gap-3"><AuthGatedCtaLink to="/dashboard" alwaysSignUp className="ww-button-primary ww-focus">Start Planning Free <ArrowRight size={18} aria-hidden="true" /></AuthGatedCtaLink><a href="#event-products" className="ww-button-secondary ww-focus">See useful products</a></div></div><div className="ww-event-hero-mark" aria-hidden="true"><span className="ww-icon-orb"><Icon /></span><p>{eventType.name}</p></div></div></section>
+      <PublicPageHero
+        asset={publicHeroForRoute(eventType.path)}
+        eyebrow={eventType.eyebrow}
+        title={eventType.h1}
+        description={eventType.lead}
+        breadcrumbs={<nav aria-label="Breadcrumb" className="ww-public-hero-breadcrumb mb-8 flex flex-wrap items-center gap-2 text-sm"><Link to="/" className="ww-focus">Home</Link><ChevronRight size={15} aria-hidden="true" /><Link to="/events" className="ww-focus">Event Types</Link><ChevronRight size={15} aria-hidden="true" /><span>{eventType.name}</span></nav>}
+        actions={<><AuthGatedCtaLink to="/dashboard" alwaysSignUp className="ww-button-primary ww-focus">Start Planning Free <ArrowRight size={18} aria-hidden="true" /></AuthGatedCtaLink><a href="#event-products" className="ww-button-hero-secondary ww-focus">See useful products</a></>}
+      />
       <section className="ww-section ww-section-cream"><div className="ww-container"><p className="ww-eyebrow mb-3">What needs attention</p><h2 className="ww-title max-w-3xl">Plan around the realities of {eventType.shortName.toLowerCase()}</h2><div className="mt-10 grid gap-5 md:grid-cols-3">{eventType.challenges.map((challenge) => <article key={challenge.title} className="ww-card p-7"><h3 className="text-xl font-semibold">{challenge.title}</h3><p className="mt-3 leading-7 text-[#6f625b]">{challenge.text}</p></article>)}</div></div></section>
       <section id="event-products" className="ww-section scroll-mt-24"><div className="ww-container"><div className="max-w-3xl"><p className="ww-eyebrow mb-3">Connected products</p><h2 className="ww-title">A practical toolkit for this event</h2><p className="ww-lead mt-5">Choose the products that match your format. They work from the same event information.</p></div><div className="mt-10 grid gap-5 sm:grid-cols-2 lg:grid-cols-3">{products.map((product) => <Link key={product.id} to={product.path} className="ww-card ww-focus group p-6"><span className="ww-icon-orb mb-5"><product.icon size={22} aria-hidden="true" /></span><h3 className="text-xl font-semibold">{product.shortName}</h3><p className="mt-3 text-sm leading-6 text-[#6f625b]">{product.demonstration}</p><span className="ww-public-link mt-5 inline-flex items-center gap-2 font-semibold">View product <ArrowRight size={16} aria-hidden="true" /></span></Link>)}</div></div></section>
       <section className="ww-section ww-section-espresso"><div className="ww-container"><p className="ww-eyebrow mb-3">How it works</p><h2 className="ww-title max-w-3xl">From first details to a ready event</h2><ol className="mt-10 grid gap-5 md:grid-cols-2 lg:grid-cols-4">{eventType.howItWorks.map((step,index) => <li key={step.title} className="ww-dark-surface rounded-3xl border border-white/15 p-6"><span className="text-sm font-bold text-[#d7b985]">0{index + 1}</span><h3 className="mt-4 text-xl font-semibold">{step.title}</h3><p className="mt-3 text-sm leading-6 text-white/70">{step.text}</p></li>)}</ol></div></section>

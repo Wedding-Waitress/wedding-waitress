@@ -560,7 +560,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                   z.id === zoneId ? {
                     ...z,
                     text: defaultText,
-                    font_family: style?.font_family || 'ET Emilia Grace Demo',
+                    font_family: style?.font_family || 'Lora',
                     font_size: style?.font_size || 20,
                     font_color: '#000000',
                     font_weight: 'normal' as const,

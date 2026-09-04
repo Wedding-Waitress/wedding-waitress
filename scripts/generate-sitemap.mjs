@@ -28,7 +28,7 @@ const entries = [
   { path: '/floor-plan', changefreq: 'monthly', priority: '0.9' },
   { path: '/dietary-requirements', changefreq: 'monthly', priority: '0.9' },
   { path: '/full-seating-chart', changefreq: 'monthly', priority: '0.9' },
-  { path: '/kiosk-live-view', changefreq: 'monthly', priority: '0.9' },
+  { path: '/live-slideshow', changefreq: 'monthly', priority: '0.9' },
   { path: '/dj-mc-questionnaire', changefreq: 'monthly', priority: '0.9' },
   { path: '/running-sheet', changefreq: 'monthly', priority: '0.9' },
   { path: '/photo-video-sharing', changefreq: 'monthly', priority: '0.9' },

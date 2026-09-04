@@ -12,8 +12,8 @@
 .row { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:11px 12px; border:1px solid rgba(230,184,124,.23); border-radius:12px; background:rgba(255,250,243,.055); }
 .identity { min-width:0; }
 .identity strong { display:block; overflow:hidden; text-overflow:ellipsis; color:#fffaf3; font-size:13px; }
-.identity span { color:rgba(250,233,212,.66); font-size:12px; }
+.identity span { color:#fff; font-size:12px; }
 .badge { display:inline-flex; align-items:center; gap:5px; padding:4px 8px; border-radius:999px; background:rgba(216,174,117,.16); color:#f3d19f; font-size:11px; font-weight:650; }
 .error { padding:10px 12px; border:1px solid rgba(255,157,152,.48); border-radius:10px; background:rgba(126,25,30,.35); color:#ffd6d3; font-size:13px; }
-.empty { color:rgba(250,233,212,.66); font-size:13px; }
+.empty { color:#fff; font-size:13px; }
 @media (max-width: 639px) { .inviteForm { grid-template-columns:1fr; } .row { align-items:flex-start; } }

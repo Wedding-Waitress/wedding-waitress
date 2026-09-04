@@ -15,6 +15,7 @@ import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
 import { InteractiveQROverlay } from '@/components/ui/InteractiveQROverlay';
 import { ZoomIn, ZoomOut } from 'lucide-react';
 import { Slider } from '@/components/ui/slider';
+import { weddingFontFamilyStack } from '@/lib/localWeddingFonts';
 
 interface InvitationCardPreviewProps {
   settings: InvitationCardSettings | null;
@@ -272,7 +273,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                 const isInteractive = !!onZoneUpdate;
 
                 const textStyle: React.CSSProperties = {
-                  fontFamily: zone.font_family,
+                  fontFamily: weddingFontFamilyStack(zone.font_family),
                   fontSize: `${zone.font_size}px`,
                   color: zone.font_color,
                   fontWeight: zone.font_style === 'bold' ? '700' : (zone.font_weight === 'bold' ? '700' : '400'),

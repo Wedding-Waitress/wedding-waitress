@@ -15,7 +15,7 @@ export const VenueReferralCard: React.FC<VenueReferralCardProps> = ({ event, onD
 
   return (
     <>
-      <div className={`relative overflow-hidden p-5 ${styles.panel}`}>
+      <div data-solid-text-surface="dark" className={`relative overflow-hidden p-5 ${styles.panel}`}>
         <button
           type="button"
           aria-label="Dismiss"

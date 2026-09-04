@@ -40,11 +40,11 @@ export function buildGuestLookupUrl(eventSlug: string): string {
 }
 
 /**
- * Builds a kiosk URL for the given event slug
+ * Builds a Live Slideshow URL for the given event slug
  */
-export function buildKioskUrl(eventSlug: string): string {
+export function buildLiveSlideshowUrl(eventSlug: string): string {
   const baseUrl = getPublicBaseUrl();
-  return `${baseUrl}/kiosk/${eventSlug}`;
+  return `${baseUrl}/live-slideshow/${encodeURIComponent(eventSlug)}`;
 }
 
 /**

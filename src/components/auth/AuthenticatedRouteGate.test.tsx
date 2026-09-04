@@ -16,6 +16,10 @@ const mocks = vi.hoisted(() => ({
 vi.mock('@/contexts/AuthenticatedSessionContext', () => ({
   useAuthenticatedSession: () => mocks.state,
 }));
+vi.mock('@/components/Onboarding/FirstEventSetupGate', async () => {
+  const { Outlet } = await import('react-router-dom');
+  return { FirstEventSetupGate: () => <Outlet /> };
+});
 
 import { AuthenticatedRouteGate } from './AuthenticatedRouteGate';
 

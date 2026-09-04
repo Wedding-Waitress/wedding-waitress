@@ -227,7 +227,7 @@
 
 .page input::placeholder,
 .page textarea::placeholder {
-  color: rgba(237, 220, 199, 0.68) !important;
+  color: #ffffff !important;
 }
 
 .page input:focus-visible,
@@ -406,7 +406,7 @@
 
 :global(.ww-public-live-dialog) input::placeholder,
 :global(.ww-public-live-dialog) textarea::placeholder {
-  color: rgba(237, 220, 199, 0.65) !important;
+  color: #ffffff !important;
 }
 
 :global(.ww-public-live-dialog) button[aria-label="Close"],

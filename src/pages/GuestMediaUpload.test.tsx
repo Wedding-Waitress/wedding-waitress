@@ -298,7 +298,7 @@ describe('guest-facing Photo & Video Sharing Upload experience', () => {
     expect(css).toMatch(/\.progressFill[\s\S]*background-color:\s*#22c55e\s*!important/);
     expect(css).toMatch(/\.heroUploadAction\.heroUploadAction[\s\S]*color:\s*#fff\s*!important[\s\S]*linear-gradient\(180deg, rgba\(77, 43, 31, 0\.92\)/);
     expect(css).toMatch(/\.navigationTabActive[\s\S]*color:\s*#fff[\s\S]*linear-gradient\(180deg, rgba\(105, 59, 42, 0\.94\)/);
-    expect(css).toMatch(/\.navigationTabInactive[\s\S]*color:\s*rgba\(255, 255, 255, 0\.88\)/);
+    expect(css).toMatch(/\.navigationTabInactive[\s\S]*color:\s*#ffffff/);
     expect(css).toMatch(/\.primaryAction:disabled[\s\S]*background-color:\s*#22c55e\s*!important/);
     expect(css).toMatch(/@media \(hover: hover\) and \(pointer: fine\)[\s\S]*\.secondaryAction:hover[\s\S]*\.primaryAction:hover/);
     expect(css).toMatch(/@media \(hover: none\), \(pointer: coarse\)[\s\S]*\.navigationTab:active/);

@@ -43,13 +43,25 @@ describe('public product catalogue', () => {
     expect(photoVideoSectionIds).toEqual(['sharing', 'gallery', 'guestbook', 'photo-booth', 'live-slideshow']);
   });
 
+  it('keeps guest lookup Live Slideshow distinct from the Photo & Video Sharing slideshow', () => {
+    expect(publicProducts.find((product) => product.id === 'live-slideshow')).toMatchObject({
+      name: 'Live Slideshow',
+      path: '/live-slideshow',
+      group: 'Guest Experience',
+    });
+    expect(photoVideoSectionIds).toContain('live-slideshow');
+    expect(readFileSync('src/pages/GalleryLiveView.tsx', 'utf8')).toContain(
+      "'/dashboard/photo-video-gallery/live-slideshow'",
+    );
+  });
+
   it('uses the approved Australian public pricing and Ultimate capacity', () => {
     expect(PUBLIC_COUPLE_PLAN_DETAILS).toEqual({
-      essential: { name: 'Essential', guests: 100, priceAud: 150 },
-      premium: { name: 'Premium', guests: 200, priceAud: 200 },
-      unlimited: { name: 'Ultimate', guests: 500, priceAud: 300 },
+      essential: { name: 'Essential', guests: 100, priceAud: 199 },
+      premium: { name: 'Premium', guests: 200, priceAud: 249 },
+      unlimited: { name: 'Ultimate', guests: 500, priceAud: 299 },
     });
-    expect(PLAN_PRICING.AUD.unlimited.price).toBe(300);
+    expect(PLAN_PRICING.AUD.unlimited.price).toBe(299);
     expect(VENDOR_PRICING.AUD.price).toBe(300);
   });
 

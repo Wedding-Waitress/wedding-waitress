@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
+import { resolveWeddingFontZones } from '@/lib/localWeddingFonts';
 
 export interface TextZone {
   id: string;
@@ -67,7 +68,7 @@ export interface InvitationCardSettings {
 const parseRow = (d: any): InvitationCardSettings => ({
   ...d,
   background_image_type: d.background_image_type as 'none' | 'full',
-  text_zones: (d.text_zones || []) as TextZone[],
+  text_zones: resolveWeddingFontZones((d.text_zones || []) as TextZone[]),
   card_type: (d.card_type || 'invitation') as CardType,
   name: d.name || 'Untitled',
   qr_config: (d.qr_config || { ...DEFAULT_QR_CONFIG }) as QrConfig,

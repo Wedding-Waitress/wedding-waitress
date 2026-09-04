@@ -103,7 +103,7 @@ h1{color:#967A59;font-size:1.5rem}p{color:#666;line-height:1.6}</style></head>
 
     let redirectPath: string;
     if (destination_type === "kiosk") {
-      redirectPath = `/kiosk/${event_slug}`;
+      redirectPath = `/live-slideshow/${event_slug}`;
     } else {
       redirectPath = `/s/${event_slug}`;
     }

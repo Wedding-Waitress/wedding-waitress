@@ -6,6 +6,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { beginGuidedSetup, GUIDED_SETUP_ROUTE } from '@/lib/guidedEventSetup';
 import { getSafeAuthenticatedReturnTo } from '@/lib/authNavigation';
 import { AuthError, AuthLegal, AuthModalHeader, VerificationCodeForm, authModalStyles as styles } from './AuthModalParts';
 import { SignInModal } from './SignInModal';
@@ -44,6 +45,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
   const [signInOpen, setSignInOpen] = useState(false);
   const firstNameRef = useRef<HTMLInputElement>(null);
   const requestInFlightRef = useRef(false);
+  const signupRequestStartedAtRef = useRef<number | null>(null);
   const idPrefix = useId();
   const { toast } = useToast();
   const navigate = useNavigate();
@@ -87,10 +89,11 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
     }
 
     requestInFlightRef.current = true;
+    signupRequestStartedAtRef.current = Date.now();
     setLoading(true);
     try {
       const requestError = await requestCode();
-      if (requestError) { setError(requestError.message); return; }
+      if (requestError) { signupRequestStartedAtRef.current = null; setError(requestError.message); return; }
       if (selectedPlan) {
         sessionStorage.setItem('ww_intended_plan', selectedPlan.key);
         sessionStorage.setItem('ww_intended_currency', selectedPlan.currency || 'AUD');
@@ -124,9 +127,15 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
         mobile: formData.mobile.trim(),
       });
       if (profileError) console.error('Profile creation error:', profileError);
+      const createdAt = Date.parse(data.user.created_at || '');
+      const isGenuinelyNew = signupRequestStartedAtRef.current !== null && Number.isFinite(createdAt) && createdAt >= signupRequestStartedAtRef.current - 60_000;
+      if (isGenuinelyNew) await beginGuidedSetup(data.user.id, 'first_event', {
+          customerFirstName: formData.first_name.trim(), customerSurname: formData.last_name.trim(),
+          organiserName: formData.first_name.trim(), country: 'Australia',
+        });
       setOpen(false);
       toast({ title: 'Welcome to Wedding Waitress', description: 'Your account has been created successfully!' });
-      navigate(getSafeAuthenticatedReturnTo(redirectTo));
+      navigate(isGenuinelyNew ? `${GUIDED_SETUP_ROUTE}?mode=first&new=1` : getSafeAuthenticatedReturnTo(redirectTo));
     } catch {
       setError('Verification failed. Please try again.');
     } finally {
@@ -151,7 +160,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
   };
 
   const reset = () => {
-    setStep('form'); setFormData(emptyForm()); setVerificationCode(emptyCode()); setError(''); setResendTimer(0);
+    setStep('form'); setFormData(emptyForm()); setVerificationCode(emptyCode()); setError(''); setResendTimer(0); signupRequestStartedAtRef.current = null;
   };
   const handleOpenChange = (nextOpen: boolean) => {
     if (!nextOpen && (requestInFlightRef.current || loading)) return;

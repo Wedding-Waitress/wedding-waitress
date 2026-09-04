@@ -1,1 +1,0 @@
-export { KioskSetup } from './KioskSetup';

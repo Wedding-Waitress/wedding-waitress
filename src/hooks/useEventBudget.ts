@@ -40,10 +40,12 @@ export const useEventBudget = (eventId: string | null) => {
   };
 
   const saveBudget = useMutation({
-    mutationFn: async ({ anticipatedBudget, currency }: { anticipatedBudget: number; currency: CurrencyCode }) => {
+    mutationFn: async ({ anticipatedBudget, currency, plannedBudgetKind = 'exact', plannedBudgetRange = null }: { anticipatedBudget: number; currency: CurrencyCode; plannedBudgetKind?: EventBudgetSettings['planned_budget_kind']; plannedBudgetRange?: string | null }) => {
       if (!eventId) throw new Error('Select an event before saving a budget.');
       const { data, error } = await supabase.from('event_budget_settings').upsert({
         event_id: eventId, anticipated_budget: anticipatedBudget, currency,
+        planned_budget_kind: plannedBudgetKind,
+        planned_budget_range: plannedBudgetKind === 'range' ? plannedBudgetRange : null,
       }, { onConflict: 'event_id' }).select().single();
       if (error || !data) throw error ?? new Error('The budget save did not affect a row.');
       return data as EventBudgetSettings;

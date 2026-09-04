@@ -81,7 +81,7 @@ JSON locale files are locked via this registry only (JSON has no comments).
 - `src/pages/features/FeatureSeating.tsx`
 - `src/pages/features/FeatureTableCharts.tsx`
 - `src/pages/features/FeatureDjMc.tsx`
-- `src/pages/features/FeatureKiosk.tsx`
+- `src/pages/features/FeatureLiveSlideshow.tsx`
 
 ### Product pages (13)
 - `src/pages/products/ProductTables.tsx`
@@ -95,7 +95,7 @@ JSON locale files are locked via this registry only (JSON has no comments).
 - `src/pages/products/ProductFullSeatingChart.tsx`
 - `src/pages/products/ProductRunningSheet.tsx`
 - `src/pages/products/ProductIndividualTableCharts.tsx`
-- `src/pages/products/ProductKioskLiveView.tsx`
+- `src/pages/products/PublicProductRoutes.tsx` (`ProductLiveSlideshow`)
 - `src/pages/products/ProductInvitationsCards.tsx`
 
 ### Layout & shared components
@@ -124,7 +124,7 @@ JSON locale files are locked via this registry only (JSON has no comments).
 - All `/products/*` routes
 
 **Out of scope** (not locked by this section): authenticated dashboard,
-admin, kiosk, guest-lookup, Supabase edge functions.
+admin, Live Slideshow, guest-lookup, Supabase edge functions.
 
 ---
 
@@ -204,7 +204,7 @@ All email sends are fire-and-forget — failures must NEVER break signup or paym
 
 ## 2026-04-19 — Homepage "Explore the Platform" removal + featureCards copy upgrade
 - `src/pages/Landing.tsx` — entire "Explore the Platform" `<section>` (heading, subtitle, 13 icon link cards) DELETED. Lower image-card section "The wedding platform your guests will love." preserved exactly (heading, subtitle, images, links, order).
-- `src/i18n/locales/{en,ar,de,el,es,fr,hi,it,ja,nl,tr,vi,zh}/landing.json` → `featureCards.{myEvents,guestList,tables,qr,invitations,placeCards,tableCharts,floorPlan,dietary,seatingChart,kiosk,djmc,runningSheet}.{title,desc}` updated with owner-approved upgraded copy across all 13 locales. `featureCards.sectionTitle` and `featureCards.sectionSubtitle` UNCHANGED.
+- `src/i18n/locales/{en,ar,de,el,es,fr,hi,it,ja,nl,tr,vi,zh}/landing.json` → `featureCards.{myEvents,guestList,tables,qr,invitations,placeCards,tableCharts,floorPlan,dietary,seatingChart,liveSlideshow,djmc,runningSheet}.{title,desc}` updated with owner-approved upgraded copy across all 13 locales. `featureCards.sectionTitle` and `featureCards.sectionSubtitle` UNCHANGED.
 - LOCKED. Any future change requires explicit owner approval.
 
 ## 2026-04-19 — Landing Footer (LOCKED)

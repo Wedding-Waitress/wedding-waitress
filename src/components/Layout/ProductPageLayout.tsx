@@ -8,6 +8,8 @@ import { eventTypeById, relevantEventIdsByProduct } from '@/content/publicEventT
 import { Header } from './Header';
 import { PublicFooter } from './PublicFooter';
 import { SeoHead } from '@/components/SEO/SeoHead';
+import { PublicPageHero } from './PublicPageHero';
+import { publicHeroForRoute } from '@/config/publicHeroManifest';
 import '@/styles/PublicSite.css';
 
 export interface ProductPageLayoutProps { productId: string }
@@ -31,17 +33,15 @@ export const ProductPageLayout: React.FC<ProductPageLayoutProps> = ({ productId 
     <SeoHead title={product.seoTitle} description={product.metaDescription} canonicalPath={product.path} image={product.image} jsonLd={jsonLd} />
     <Header />
     <main>
-      <section className="ww-section overflow-hidden bg-[radial-gradient(circle_at_85%_20%,rgba(168,133,88,.20),transparent_35%)]">
-        <div className="ww-container grid items-center gap-12 lg:grid-cols-[.9fr_1.1fr]">
-          <div>
-            <nav aria-label="Breadcrumb" className="mb-8 flex items-center gap-2 text-sm text-[#6f625b]"><Link className="ww-focus hover:text-[#6d4735]" to="/products">Products</Link><ChevronRight size={15} aria-hidden="true" /><span>{product.name}</span></nav>
-            <p className="ww-eyebrow mb-4">{product.group}</p><h1 className="ww-display max-w-3xl">{product.h1}</h1><p className="ww-lead mt-7 max-w-2xl">{product.lead}</p>
-            <div className="mt-8 flex flex-wrap gap-3"><AuthGatedCtaLink to="/dashboard" alwaysSignUp className="ww-button-primary ww-focus">Start Planning Free <ArrowRight size={18} aria-hidden="true" /></AuthGatedCtaLink><a href="#product-demo" className="ww-button-secondary ww-focus">See it in action</a></div>
-            <p className="mt-4 text-sm text-[#6f625b]">7-day free trial · Up to 20 guests · No credit card required</p>
-          </div>
-          <div className="ww-image-frame" data-ww-parallax><img src={product.image} alt={product.imageAlt} width="1200" height="750" /></div>
-        </div>
-      </section>
+      <PublicPageHero
+        asset={publicHeroForRoute(product.path)}
+        eyebrow={product.group}
+        title={product.h1}
+        description={product.lead}
+        breadcrumbs={<nav aria-label="Breadcrumb" className="ww-public-hero-breadcrumb mb-8 flex items-center gap-2 text-sm"><Link className="ww-focus" to="/products">Products</Link><ChevronRight size={15} aria-hidden="true" /><span>{product.name}</span></nav>}
+        actions={<><AuthGatedCtaLink to="/dashboard" alwaysSignUp className="ww-button-primary ww-focus">Start Planning Free <ArrowRight size={18} aria-hidden="true" /></AuthGatedCtaLink><a href="#product-demo" className="ww-button-hero-secondary ww-focus">See it in action</a></>}
+        note="7-day free trial · Up to 20 guests · No credit card required"
+      />
       <section id="product-demo" className="ww-section ww-section-cream scroll-mt-24"><div className="ww-container grid gap-10 lg:grid-cols-[1.05fr_.95fr] lg:items-center"><div className="ww-media-card" data-ww-parallax><img src={product.image} alt={`${product.imageAlt} product demonstration`} loading="lazy" className="aspect-[16/10] w-full object-cover" /></div><div><p className="ww-eyebrow mb-3">What you can do</p><h2 className="ww-title">Make this part of planning feel simpler</h2><p className="ww-lead mt-5">{product.demonstration}</p></div></div></section>
       <section className="ww-section"><div className="ww-container"><div className="max-w-2xl"><p className="ww-eyebrow mb-3">Why it helps</p><h2 className="ww-title">Practical tools for a real wedding workflow</h2></div><div className="mt-10 grid gap-5 md:grid-cols-3">{product.benefits.map((benefit) => <article key={benefit.title} className="ww-card p-7"><div className="ww-icon-orb mb-5"><Check size={22} aria-hidden="true" /></div><h3 className="text-xl font-semibold">{benefit.title}</h3><p className="mt-3 leading-7 text-[#6f625b]">{benefit.text}</p></article>)}</div></div></section>
       {product.id === 'photo-video-sharing' && <section className="ww-section ww-section-cream"><div className="ww-container"><p className="ww-eyebrow mb-3">Five connected experiences</p><h2 className="ww-title max-w-3xl">Let guests contribute, interact and enjoy the moments together</h2><nav aria-label="Photo and video features" className="mt-7 flex flex-wrap gap-2">{photoVideoSectionIds.map((id, index) => <a key={id} href={`#${id}`} className="ww-public-link ww-brand-border ww-focus rounded-full border bg-white px-4 py-2 text-sm font-semibold">{['Sharing','Gallery','Guestbook','Photo Booth','Live Slideshow'][index]}</a>)}</nav><div className="mt-10 grid gap-5 md:grid-cols-2">{[

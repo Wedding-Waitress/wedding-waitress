@@ -2,6 +2,7 @@ import { useState, useEffect, useCallback, useMemo, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
+import { resolveWeddingFontZones } from '@/lib/localWeddingFonts';
 import type { TextZone, QrConfig, InvitationCardSettings } from '@/hooks/useInvitationCardSettings';
 import { previewUrlFor } from '@/lib/imagePipeline';
 
@@ -95,7 +96,7 @@ export const useSignageSettings = (eventId: string | null) => {
           ...data,
           orientation: (data.orientation || 'portrait') as 'portrait' | 'landscape',
           background_image_type: (data.background_image_type || 'none') as 'none' | 'full',
-          text_zones: (data.text_zones || []) as TextZone[],
+          text_zones: resolveWeddingFontZones((data.text_zones || []) as TextZone[]),
           qr_config: (data.qr_config || DEFAULT_PORTRAIT_QR) as QrConfig,
         };
         if (parsed.background_image_url && !parsed.background_image_print_url) {

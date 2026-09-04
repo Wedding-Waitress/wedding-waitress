@@ -20,7 +20,7 @@ export const CORE_DASHBOARD_LOADING_TABS = new Set([
   'floor-plan',
   'dietary-chart',
   'full-seating-chart',
-  'kiosk-live-view',
+  'live-slideshow',
   'dj-mc-questionnaire',
   'running-sheet',
 ]);

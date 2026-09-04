@@ -524,7 +524,7 @@
 .categoryInput::placeholder,
 .searchInput::placeholder,
 .portal input::placeholder {
-  color: rgba(237, 220, 199, 0.64) !important;
+  color: #ffffff !important;
 }
 
 .templateCard,

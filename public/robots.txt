@@ -21,5 +21,6 @@ Disallow: /gallery-guestbook/
 Disallow: /gallery-photobooth/
 Disallow: /s/
 Disallow: /kiosk/
+Disallow: /live-slideshow/
 
 Sitemap: https://weddingwaitress.com.au/sitemap.xml

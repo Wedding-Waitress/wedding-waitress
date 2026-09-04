@@ -18,18 +18,15 @@ import {
   GOOGLE_FONT_CATEGORY_LABELS,
   type GoogleFontEntry,
 } from '@/lib/googleFontsFullList';
+import {
+  isLocalWeddingFont,
+  LOCAL_WEDDING_FONTS,
+  resolveWeddingFontFamily,
+  weddingFontFamilyStack,
+} from '@/lib/localWeddingFonts';
 
-// Premium fonts that ship with the app (custom, not from Google Fonts)
-const PREMIUM_FONTS = [
-  'Beauty Mountains',
-  'Valentine Baby',
-  'Amsterdam',
-  'Back to Black Demo',
-  'Flagfies',
-  'Sphere Memory',
-  'ET Emilia Grace Demo',
-  'Grained',
-];
+const PREMIUM_FONTS = LOCAL_WEDDING_FONTS;
+const PREMIUM_FONT_NAMES = new Set<string>(PREMIUM_FONTS);
 
 interface PlaceCardFontPickerProps {
   value: string;
@@ -42,7 +39,9 @@ interface PlaceCardFontPickerProps {
 const groupedGoogleFonts = GOOGLE_FONT_CATEGORIES.map((cat) => ({
   category: cat,
   label: GOOGLE_FONT_CATEGORY_LABELS[cat],
-  fonts: GOOGLE_FONTS_DEDUPED.filter((f) => f.category === cat),
+  fonts: GOOGLE_FONTS_DEDUPED.filter(
+    (f) => f.category === cat && !PREMIUM_FONT_NAMES.has(f.name),
+  ),
 }));
 
 // Track loaded preview fonts so we only inject CSS once
@@ -87,7 +86,7 @@ const FontItem: React.FC<{
           selected ? 'opacity-100' : 'opacity-0'
         )}
       />
-      <span style={{ fontFamily: name }} className="text-sm">
+      <span style={{ fontFamily: weddingFontFamilyStack(name) }} className="text-sm">
         {name}
         {isPremium ? ' 💎' : ''}
       </span>
@@ -102,23 +101,24 @@ export const PlaceCardFontPicker: React.FC<PlaceCardFontPickerProps> = ({
 }) => {
   const [open, setOpen] = useState(false);
   const [search, setSearch] = useState('');
+  const resolvedValue = resolveWeddingFontFamily(value);
 
-  // Load the currently-selected font so the trigger renders correctly
+  // Locally curated fonts never create a remote runtime request.
   useEffect(() => {
-    if (value && !PREMIUM_FONTS.includes(value)) {
-      loadPreviewFont(value);
+    if (resolvedValue && !isLocalWeddingFont(resolvedValue)) {
+      loadPreviewFont(resolvedValue);
     }
-  }, [value]);
+  }, [resolvedValue]);
 
   const handleSelect = (fontName: string) => {
-    if (!PREMIUM_FONTS.includes(fontName)) {
+    if (!isLocalWeddingFont(fontName)) {
       loadPreviewFont(fontName);
     }
     onValueChange(fontName);
     setOpen(false);
   };
 
-  const isPremium = PREMIUM_FONTS.includes(value);
+  const isPremium = isLocalWeddingFont(resolvedValue);
 
   return (
     <Popover open={open} onOpenChange={setOpen}>
@@ -130,10 +130,10 @@ export const PlaceCardFontPicker: React.FC<PlaceCardFontPickerProps> = ({
           className="h-9 w-full justify-between text-sm font-normal"
         >
           <span
-            style={{ fontFamily: value }}
+            style={{ fontFamily: weddingFontFamilyStack(resolvedValue) }}
             className="truncate"
           >
-            {value || 'Select font…'}
+            {resolvedValue || 'Select font…'}
             {isPremium ? ' 💎' : ''}
           </span>
           <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
@@ -156,7 +156,7 @@ export const PlaceCardFontPicker: React.FC<PlaceCardFontPickerProps> = ({
                 <FontItem
                   key={`premium-${name}`}
                   name={name}
-                  selected={value === name}
+                  selected={resolvedValue === name}
                   onSelect={() => handleSelect(name)}
                   isPremium
                 />
@@ -170,7 +170,7 @@ export const PlaceCardFontPicker: React.FC<PlaceCardFontPickerProps> = ({
                   <FontItem
                     key={`${group.category}-${font.name}`}
                     name={font.name}
-                    selected={value === font.name}
+                    selected={resolvedValue === font.name}
                     onSelect={() => handleSelect(font.name)}
                   />
                 ))}

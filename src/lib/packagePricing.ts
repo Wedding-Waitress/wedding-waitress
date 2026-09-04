@@ -1,7 +1,7 @@
 export const PACKAGE_PRICES_AUD = {
-  essential: 150,
-  premium: 200,
-  unlimited: 300,
+  essential: 199,
+  premium: 249,
+  unlimited: 299,
   vendor_pro: 300,
 } as const;
 

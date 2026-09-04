@@ -3,7 +3,7 @@
  * Part of the approved public homepage surface (locked 2026-04-18).
  * Any change requires explicit owner approval. See LOCKED_TRANSLATION_KEYS.md.
  */
-import React, { useState } from 'react';
+import React, { useRef, useState } from 'react';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
@@ -13,6 +13,7 @@ import { CheckCircle2, LoaderCircle, Mail, Phone, Send, UserPlus, UserRound } fr
 import { useTranslation } from 'react-i18next';
 import { SignInModal } from './SignInModal';
 import { AuthError, AuthLegal, VerificationCodeForm, authModalStyles as styles } from './AuthModalParts';
+import { beginGuidedSetup, GUIDED_SETUP_ROUTE } from '@/lib/guidedEventSetup';
 
 interface FormData {
   first_name: string;
@@ -37,6 +38,7 @@ export const EmbeddedSignUpForm: React.FC = () => {
   const [resendTimer, setResendTimer] = useState(0);
   const { toast } = useToast();
   const navigate = useNavigate();
+  const signupRequestStartedAtRef = useRef<number | null>(null);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,6 +53,7 @@ export const EmbeddedSignUpForm: React.FC = () => {
       return;
     }
     setLoading(true);
+    signupRequestStartedAtRef.current = Date.now();
     try {
       const { error } = await supabase.auth.signInWithOtp({
         email: formData.email,
@@ -64,6 +67,7 @@ export const EmbeddedSignUpForm: React.FC = () => {
         }
       });
       if (error) {
+        signupRequestStartedAtRef.current = null;
         setError(error.message);
       } else {
         setStep('verify');
@@ -100,6 +104,12 @@ export const EmbeddedSignUpForm: React.FC = () => {
           email: formData.email,
           mobile: formData.mobile || null
         });
+        const createdAt = Date.parse(data.user.created_at || '');
+        const isGenuinelyNew = signupRequestStartedAtRef.current !== null && Number.isFinite(createdAt) && createdAt >= signupRequestStartedAtRef.current - 60_000;
+        if (isGenuinelyNew) await beginGuidedSetup(data.user.id, 'first_event', {
+            customerFirstName: formData.first_name.trim(), customerSurname: formData.last_name.trim(),
+            organiserName: formData.first_name.trim(), country: 'Australia',
+          });
 
         // Fire-and-forget welcome + admin-signup emails. Failures must NOT block signup.
         const userId = data.user.id;
@@ -135,7 +145,7 @@ export const EmbeddedSignUpForm: React.FC = () => {
           title: t('form.welcomeTitle'),
           description: t('form.welcomeDesc')
         });
-        navigate('/dashboard');
+        navigate(isGenuinelyNew ? `${GUIDED_SETUP_ROUTE}?mode=first&new=1` : '/dashboard');
       }
     } catch {
       setError(t('form.verificationFailed'));

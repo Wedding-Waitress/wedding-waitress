@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { resolveWeddingFontStyleMap, resolveWeddingFontZones } from '@/lib/localWeddingFonts';
 
 export interface TextZone {
   id: string;
@@ -61,8 +62,8 @@ export const useInvitationTemplates = (cardType?: CardType) => {
       if (error) throw error;
       setTemplates((data as any[] || []).map(t => ({
         ...t,
-        text_zones: (t.text_zones || []) as TextZone[],
-        default_styles: (t.default_styles || {}) as Record<string, any>,
+        text_zones: resolveWeddingFontZones((t.text_zones || []) as TextZone[]),
+        default_styles: resolveWeddingFontStyleMap((t.default_styles || {}) as Record<string, any>),
       })));
     } catch (err: any) {
       console.error('Error fetching templates:', err);

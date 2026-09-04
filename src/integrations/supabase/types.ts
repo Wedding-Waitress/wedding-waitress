@@ -1,4 +1,4 @@
-﻿export type Json =
+export type Json =
   | string
   | number
   | boolean
@@ -10,32 +10,7 @@ export type Database = {
   // Allows to automatically instantiate createClient with right options
   // instead of createClient<Database, { PostgrestVersion: 'XX' }>(URL, KEY)
   __InternalSupabase: {
-    PostgrestVersion: "14.4"
-  }
-  graphql_public: {
-    Tables: {
-      [_ in never]: never
-    }
-    Views: {
-      [_ in never]: never
-    }
-    Functions: {
-      graphql: {
-        Args: {
-          extensions?: Json
-          operationName?: string
-          query?: string
-          variables?: Json
-        }
-        Returns: Json
-      }
-    }
-    Enums: {
-      [_ in never]: never
-    }
-    CompositeTypes: {
-      [_ in never]: never
-    }
+    PostgrestVersion: "14.5"
   }
   public: {
     Tables: {
@@ -49,8 +24,7 @@ export type Database = {
           id: string
           role: string
           status: string
-          token: string | null
-          token_hash: string | null
+          token: string
         }
         Insert: {
           accepted_user_id?: string | null
@@ -61,8 +35,7 @@ export type Database = {
           id?: string
           role?: string
           status?: string
-          token?: string | null
-          token_hash?: string | null
+          token?: string
         }
         Update: {
           accepted_user_id?: string | null
@@ -73,8 +46,7 @@ export type Database = {
           id?: string
           role?: string
           status?: string
-          token?: string | null
-          token_hash?: string | null
+          token?: string
         }
         Relationships: []
       }
@@ -155,7 +127,6 @@ export type Database = {
           created_at: string
           id: string
           invited_at: string
-          member_email: string | null
           member_user_id: string
           role: string
         }
@@ -166,7 +137,6 @@ export type Database = {
           created_at?: string
           id?: string
           invited_at?: string
-          member_email?: string | null
           member_user_id: string
           role?: string
         }
@@ -177,7 +147,6 @@ export type Database = {
           created_at?: string
           id?: string
           invited_at?: string
-          member_email?: string | null
           member_user_id?: string
           role?: string
         }
@@ -678,7 +647,6 @@ export type Database = {
           music_url: string | null
           order_index: number
           pronunciation_audio_url: string | null
-          pronunciation_audio_path: string | null
           row_label: string
           section_id: string
           song_title_artist: string | null
@@ -697,7 +665,6 @@ export type Database = {
           music_url?: string | null
           order_index?: number
           pronunciation_audio_url?: string | null
-          pronunciation_audio_path?: string | null
           row_label: string
           section_id: string
           song_title_artist?: string | null
@@ -716,7 +683,6 @@ export type Database = {
           music_url?: string | null
           order_index?: number
           pronunciation_audio_url?: string | null
-          pronunciation_audio_path?: string | null
           row_label?: string
           section_id?: string
           song_title_artist?: string | null
@@ -975,6 +941,8 @@ export type Database = {
           currency: string
           event_id: string
           id: string
+          planned_budget_kind: string
+          planned_budget_range: string | null
           updated_at: string
           user_id: string
         }
@@ -984,6 +952,8 @@ export type Database = {
           currency?: string
           event_id: string
           id?: string
+          planned_budget_kind?: string
+          planned_budget_range?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -993,6 +963,8 @@ export type Database = {
           currency?: string
           event_id?: string
           id?: string
+          planned_budget_kind?: string
+          planned_budget_range?: string | null
           updated_at?: string
           user_id?: string
         }
@@ -1648,6 +1620,11 @@ export type Database = {
           event_date_override: string | null
           event_display_name: string | null
           event_id: string
+          event_image_fit: string
+          event_image_path: string | null
+          event_image_position_x: number
+          event_image_position_y: number
+          event_image_zoom: number
           event_planner_email: string | null
           event_timezone: string | null
           event_type: string
@@ -1660,6 +1637,7 @@ export type Database = {
           media_total_size_mb: number | null
           media_videos_count: number | null
           name: string
+          onboarding_draft_id: string | null
           partner1_name: string | null
           partner2_name: string | null
           public_show_date: boolean
@@ -1674,6 +1652,7 @@ export type Database = {
           relation_required: boolean | null
           rsvp_deadline: string | null
           setup_completed: boolean | null
+          setup_details: Json
           slug: string | null
           start_time: string | null
           user_id: string
@@ -1710,6 +1689,11 @@ export type Database = {
           event_date_override?: string | null
           event_display_name?: string | null
           event_id?: string
+          event_image_fit?: string
+          event_image_path?: string | null
+          event_image_position_x?: number
+          event_image_position_y?: number
+          event_image_zoom?: number
           event_planner_email?: string | null
           event_timezone?: string | null
           event_type?: string
@@ -1722,6 +1706,7 @@ export type Database = {
           media_total_size_mb?: number | null
           media_videos_count?: number | null
           name: string
+          onboarding_draft_id?: string | null
           partner1_name?: string | null
           partner2_name?: string | null
           public_show_date?: boolean
@@ -1736,6 +1721,7 @@ export type Database = {
           relation_required?: boolean | null
           rsvp_deadline?: string | null
           setup_completed?: boolean | null
+          setup_details?: Json
           slug?: string | null
           start_time?: string | null
           user_id: string
@@ -1772,6 +1758,11 @@ export type Database = {
           event_date_override?: string | null
           event_display_name?: string | null
           event_id?: string
+          event_image_fit?: string
+          event_image_path?: string | null
+          event_image_position_x?: number
+          event_image_position_y?: number
+          event_image_zoom?: number
           event_planner_email?: string | null
           event_timezone?: string | null
           event_type?: string
@@ -1784,6 +1775,7 @@ export type Database = {
           media_total_size_mb?: number | null
           media_videos_count?: number | null
           name?: string
+          onboarding_draft_id?: string | null
           partner1_name?: string | null
           partner2_name?: string | null
           public_show_date?: boolean
@@ -1798,6 +1790,7 @@ export type Database = {
           relation_required?: boolean | null
           rsvp_deadline?: string | null
           setup_completed?: boolean | null
+          setup_details?: Json
           slug?: string | null
           start_time?: string | null
           user_id?: string
@@ -1811,7 +1804,15 @@ export type Database = {
           venue_phone?: string | null
           venue_place_id?: string | null
         }
-        Relationships: []
+        Relationships: [
+          {
+            foreignKeyName: "events_onboarding_draft_owner_fkey"
+            columns: ["onboarding_draft_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "onboarding_drafts"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
       }
       family_group_members: {
         Row: {
@@ -2345,6 +2346,7 @@ export type Database = {
           event_id: string
           family_group: string | null
           first_name: string
+          guided_setup_origin: string | null
           id: string
           last_name: string | null
           mailing_address: string | null
@@ -2379,6 +2381,7 @@ export type Database = {
           event_id: string
           family_group?: string | null
           first_name: string
+          guided_setup_origin?: string | null
           id?: string
           last_name?: string | null
           mailing_address?: string | null
@@ -2413,6 +2416,7 @@ export type Database = {
           event_id?: string
           family_group?: string | null
           first_name?: string
+          guided_setup_origin?: string | null
           id?: string
           last_name?: string | null
           mailing_address?: string | null
@@ -2444,11 +2448,11 @@ export type Database = {
             referencedColumns: ["id"]
           },
           {
-            foreignKeyName: "guests_event_id_fkey"
-            columns: ["event_id"]
+            foreignKeyName: "guests_event_owner_fkey"
+            columns: ["event_id", "user_id"]
             isOneToOne: false
             referencedRelation: "events"
-            referencedColumns: ["id"]
+            referencedColumns: ["id", "user_id"]
           },
           {
             foreignKeyName: "guests_table_id_fkey"
@@ -2999,6 +3003,53 @@ export type Database = {
           user_id?: string
         }
         Relationships: []
+      }
+      onboarding_drafts: {
+        Row: {
+          answers: Json
+          completed_at: string | null
+          created_at: string
+          created_event_id: string | null
+          creation_started_at: string | null
+          current_step: number
+          id: string
+          mode: string
+          updated_at: string
+          user_id: string
+        }
+        Insert: {
+          answers?: Json
+          completed_at?: string | null
+          created_at?: string
+          created_event_id?: string | null
+          creation_started_at?: string | null
+          current_step?: number
+          id?: string
+          mode?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Update: {
+          answers?: Json
+          completed_at?: string | null
+          created_at?: string
+          created_event_id?: string | null
+          creation_started_at?: string | null
+          current_step?: number
+          id?: string
+          mode?: string
+          updated_at?: string
+          user_id?: string
+        }
+        Relationships: [
+          {
+            foreignKeyName: "onboarding_drafts_created_event_owner_fkey"
+            columns: ["created_event_id", "user_id"]
+            isOneToOne: false
+            referencedRelation: "events"
+            referencedColumns: ["id", "user_id"]
+          },
+        ]
       }
       photo_booth_background_templates: {
         Row: {
@@ -4373,6 +4424,7 @@ export type Database = {
         Row: {
           created_at: string
           event_id: string
+          head_seating_order: Json
           id: string
           limit_seats: number
           name: string
@@ -4380,13 +4432,13 @@ export type Database = {
           table_no: number | null
           table_purpose: string
           table_type: string | null
-          head_seating_order: Json
           updated_at: string
           user_id: string
         }
         Insert: {
           created_at?: string
           event_id: string
+          head_seating_order?: Json
           id?: string
           limit_seats: number
           name: string
@@ -4394,13 +4446,13 @@ export type Database = {
           table_no?: number | null
           table_purpose?: string
           table_type?: string | null
-          head_seating_order?: Json
           updated_at?: string
           user_id: string
         }
         Update: {
           created_at?: string
           event_id?: string
+          head_seating_order?: Json
           id?: string
           limit_seats?: number
           name?: string
@@ -4408,7 +4460,6 @@ export type Database = {
           table_no?: number | null
           table_purpose?: string
           table_type?: string | null
-          head_seating_order?: Json
           updated_at?: string
           user_id?: string
         }
@@ -4489,9 +4540,9 @@ export type Database = {
       user_subscriptions: {
         Row: {
           created_at: string
+          download_only_ends_at: string | null
           expires_at: string
           grace_period_ends_at: string | null
-          download_only_ends_at: string | null
           id: string
           is_read_only: boolean
           plan_id: string
@@ -4503,9 +4554,9 @@ export type Database = {
         }
         Insert: {
           created_at?: string
+          download_only_ends_at?: string | null
           expires_at: string
           grace_period_ends_at?: string | null
-          download_only_ends_at?: string | null
           id?: string
           is_read_only?: boolean
           plan_id: string
@@ -4517,9 +4568,9 @@ export type Database = {
         }
         Update: {
           created_at?: string
+          download_only_ends_at?: string | null
           expires_at?: string
           grace_period_ends_at?: string | null
-          download_only_ends_at?: string | null
           id?: string
           is_read_only?: boolean
           plan_id?: string
@@ -4737,20 +4788,6 @@ export type Database = {
         Args: { _event_id: string; _user_id: string }
         Returns: boolean
       }
-      get_my_event_allowance: {
-        Args: never
-        Returns: {
-          active_events: number
-          at_cap: boolean
-          can_create: boolean
-          can_purchase_additional_events: boolean
-          included_events: number
-          paid_additional_events: number
-          plan_key: string
-          remaining: number
-          total_allowed: number
-        }[]
-      }
       add_dj_mc_item_by_token: {
         Args: {
           at_order_index?: number
@@ -4881,6 +4918,13 @@ export type Database = {
           storage_path: string
         }[]
       }
+      delete_owned_event_secure: {
+        Args: { p_event_id: string }
+        Returns: {
+          id: string
+          user_id: string
+        }[]
+      }
       delete_running_sheet_item_by_token: {
         Args: { item_id: string; share_token: string }
         Returns: boolean
@@ -4901,6 +4945,7 @@ export type Database = {
         Args: { _event_id: string }
         Returns: string
       }
+      extend_starter_trial_once: { Args: never; Returns: string }
       fail_event_media_upload: {
         Args: { _item_id: string; _upload_token: string }
         Returns: boolean
@@ -5258,6 +5303,20 @@ export type Database = {
         }[]
       }
       get_my_credits_balance: { Args: never; Returns: number }
+      get_my_event_allowance: {
+        Args: never
+        Returns: {
+          active_events: number
+          at_cap: boolean
+          can_create: boolean
+          can_purchase_additional_events: boolean
+          included_events: number
+          paid_additional_events: number
+          plan_key: string
+          remaining: number
+          total_allowed: number
+        }[]
+      }
       get_my_referral_stats: {
         Args: never
         Returns: {
@@ -5442,16 +5501,6 @@ export type Database = {
           team_members: number
         }[]
       }
-      extend_starter_trial_once: { Args: never; Returns: string }
-      refresh_my_subscription_lifecycle: {
-        Args: never
-        Returns: {
-          download_only_ends_at: string
-          expires_at: string
-          is_read_only: boolean
-          status: string
-        }[]
-      }
       has_role: {
         Args: {
           _role: Database["public"]["Enums"]["app_role"]
@@ -5512,6 +5561,15 @@ export type Database = {
         Returns: number
       }
       record_referral_signup: { Args: { p_code: string }; Returns: undefined }
+      refresh_my_subscription_lifecycle: {
+        Args: never
+        Returns: {
+          download_only_ends_at: string
+          expires_at: string
+          is_read_only: boolean
+          status: string
+        }[]
+      }
       register_event_guestbook_upload: {
         Args: {
           _byte_size: number
@@ -5648,6 +5706,10 @@ export type Database = {
       }
       submit_guest_song_requests: {
         Args: { _event_id: string; _guest_id: string; _requests: Json }
+        Returns: boolean
+      }
+      subscription_allows_event_edit: {
+        Args: { owner_id: string }
         Returns: boolean
       }
       sync_relation_display_for_event: {
@@ -5932,12 +5994,12 @@ export type Tables<
   DefaultSchemaTableNameOrOptions extends
     | keyof (DefaultSchema["Tables"] & DefaultSchema["Views"])
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof (DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"] &
         DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Views"])
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -5961,11 +6023,11 @@ export type TablesInsert<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -5986,11 +6048,11 @@ export type TablesUpdate<
   DefaultSchemaTableNameOrOptions extends
     | keyof DefaultSchema["Tables"]
     | { schema: keyof DatabaseWithoutInternals },
-  TableName extends DefaultSchemaTableNameOrOptions extends {
+  TableName extends (DefaultSchemaTableNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaTableNameOrOptions["schema"]]["Tables"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaTableNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -6011,11 +6073,11 @@ export type Enums<
   DefaultSchemaEnumNameOrOptions extends
     | keyof DefaultSchema["Enums"]
     | { schema: keyof DatabaseWithoutInternals },
-  EnumName extends DefaultSchemaEnumNameOrOptions extends {
+  EnumName extends (DefaultSchemaEnumNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[DefaultSchemaEnumNameOrOptions["schema"]]["Enums"]
-    : never = never,
+    : never) = never,
 > = DefaultSchemaEnumNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -6028,11 +6090,11 @@ export type CompositeTypes<
   PublicCompositeTypeNameOrOptions extends
     | keyof DefaultSchema["CompositeTypes"]
     | { schema: keyof DatabaseWithoutInternals },
-  CompositeTypeName extends PublicCompositeTypeNameOrOptions extends {
+  CompositeTypeName extends (PublicCompositeTypeNameOrOptions extends {
     schema: keyof DatabaseWithoutInternals
   }
     ? keyof DatabaseWithoutInternals[PublicCompositeTypeNameOrOptions["schema"]]["CompositeTypes"]
-    : never = never,
+    : never) = never,
 > = PublicCompositeTypeNameOrOptions extends {
   schema: keyof DatabaseWithoutInternals
 }
@@ -6042,9 +6104,6 @@ export type CompositeTypes<
     : never
 
 export const Constants = {
-  graphql_public: {
-    Enums: {},
-  },
   public: {
     Enums: {
       app_role: [

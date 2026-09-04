@@ -36,7 +36,7 @@ import featurePlacecards from "@/assets/feature-placecards.jpg";
 import featureTablecharts from "@/assets/feature-tablecharts.jpg";
 import featureDietary from "@/assets/feature-dietary.jpg";
 import featureSeatingchart from "@/assets/feature-seatingchart.jpg";
-import featureKiosk from "@/assets/feature-kiosk.jpg";
+import liveSlideshow from "@/assets/feature-live-slideshow.jpg";
 import featureDjmc from "@/assets/feature-djmc.jpg";
 import featureFloorplan from "@/assets/feature-floorplan.jpg";
 
@@ -177,7 +177,7 @@ export const Landing = () => {
     tableCharts: "Individual wedding table seating charts",
     dietary: "Wedding guest dietary requirements tracker",
     seatingChart: "Full wedding seating chart overview",
-    kiosk: "Wedding venue self-service check-in kiosk",
+    liveSlideshow: "Wedding venue Live Slideshow guest lookup",
     djmc: "Wedding DJ and MC music questionnaire",
   };
 
@@ -193,7 +193,7 @@ export const Landing = () => {
     { key: "tableCharts", img: featureTablecharts, icon: Grid3X3 },
     { key: "dietary", img: featureDietary, icon: UtensilsCrossed },
     { key: "seatingChart", img: featureSeatingchart, icon: FileText },
-    { key: "kiosk", img: featureKiosk, icon: Monitor },
+    { key: "liveSlideshow", img: liveSlideshow, icon: Monitor },
     { key: "djmc", img: featureDjmc, icon: Mic },
   ];
 
@@ -208,7 +208,7 @@ export const Landing = () => {
     tableCharts: '/features/table-charts',
     dietary: '/features/dietary',
     seatingChart: '/features/full-seating',
-    kiosk: '/features/kiosk',
+    liveSlideshow: '/live-slideshow',
     djmc: '/features/dj-mc',
     floorPlan: '/features/floor-plan',
   };
@@ -224,7 +224,7 @@ export const Landing = () => {
     { id: "table-charts", key: "tableCharts", img: featureTablecharts },
     { id: "dietary", key: "dietary", img: featureDietary },
     { id: "seating-chart", key: "seatingChart", img: featureSeatingchart },
-    { id: "kiosk", key: "kiosk", img: featureKiosk },
+    { id: "live-slideshow", key: "liveSlideshow", img: liveSlideshow },
     { id: "dj-mc", key: "djmc", img: featureDjmc },
     { id: "floor-plan", key: "floorPlan", img: featureFloorplan },
   ];
@@ -233,7 +233,7 @@ export const Landing = () => {
     { icon: Music, key: "djmc" },
     { icon: UtensilsCrossed, key: "dietary" },
     { icon: CreditCard, key: "placeCards" },
-    { icon: Monitor, key: "kiosk" },
+    { icon: Monitor, key: "liveSlideshow" },
     { icon: BarChart3, key: "seatingCharts" },
     { icon: ClipboardList, key: "myEvents" },
     { icon: MapPin, key: "tables" },

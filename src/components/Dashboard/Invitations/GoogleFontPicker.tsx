@@ -5,6 +5,7 @@ import { Popover, PopoverContent, PopoverTrigger } from '@/components/ui/popover
 import { Command, CommandEmpty, CommandGroup, CommandInput, CommandItem, CommandList } from '@/components/ui/command';
 import { cn } from '@/lib/utils';
 import { WEDDING_FONTS, CATEGORY_LABELS, loadGoogleFont, type FontEntry } from '@/lib/googleFonts';
+import { resolveWeddingFontFamily, weddingFontFamilyStack } from '@/lib/localWeddingFonts';
 
 interface Props {
   value: string;
@@ -28,6 +29,7 @@ function preloadPickerFonts() {
 
 export const GoogleFontPicker: React.FC<Props> = ({ value, onValueChange }) => {
   const [open, setOpen] = useState(false);
+  const resolvedValue = resolveWeddingFontFamily(value);
 
   // Preload all fonts when the picker first opens
   useEffect(() => {
@@ -43,8 +45,8 @@ export const GoogleFontPicker: React.FC<Props> = ({ value, onValueChange }) => {
           aria-expanded={open}
           className="h-8 w-full justify-between text-sm font-normal"
         >
-          <span style={{ fontFamily: value }} className="truncate">
-            {value || 'Select font…'}
+          <span style={{ fontFamily: weddingFontFamilyStack(resolvedValue) }} className="truncate">
+            {resolvedValue || 'Select font…'}
           </span>
           <ChevronsUpDown className="ml-2 h-3.5 w-3.5 shrink-0 opacity-50" />
         </Button>
@@ -69,10 +71,10 @@ export const GoogleFontPicker: React.FC<Props> = ({ value, onValueChange }) => {
                     <Check
                       className={cn(
                         'mr-2 h-3.5 w-3.5',
-                        value === font.name ? 'opacity-100' : 'opacity-0'
+                        resolvedValue === font.name ? 'opacity-100' : 'opacity-0'
                       )}
                     />
-                    <span style={{ fontFamily: font.name }} className="text-sm">
+                    <span style={{ fontFamily: weddingFontFamilyStack(font.name) }} className="text-sm">
                       {font.name}
                     </span>
                   </CommandItem>

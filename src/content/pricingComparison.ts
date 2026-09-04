@@ -25,7 +25,7 @@ export const pricingComparisonRows: PricingComparisonRow[] = [
   { category: 'Planning and organisation', product: 'Plan your ceremony floor layout', replaces: 'Floor-plan design software', cost: standaloneEstimate() },
   { category: 'Planning and organisation', product: 'Plan your reception floor layout', replaces: 'Floor-plan design software', cost: { display: 'Included in A$147 Floor Plan estimate' } },
   { category: 'Guest experience', product: 'Generate a QR code seating chart', replaces: 'QR guest lookup tool', cost: standaloneEstimate() },
-  { category: 'Guest experience', product: 'Run a guest lookup kiosk at the venue', replaces: 'Self-service check-in or lookup kiosk', cost: standaloneEstimate() },
+  { category: 'Guest experience', product: 'Run a guest lookup Live Slideshow at the venue', replaces: 'Self-service check-in or Live Slideshow lookup', cost: standaloneEstimate() },
   { category: 'Guest experience', product: 'Create invitations, Save the Dates and Thank You cards', replaces: 'Digital stationery design tool', cost: standaloneEstimate() },
   { category: 'Guest experience', product: 'Send and manage digital invitations', replaces: 'Invitation delivery and RSVP tool', cost: { display: 'Included in A$147 Invitations & Cards estimate' } },
   { category: 'Print and export', product: 'Design print-ready seating chart signs', replaces: 'Signage design software', cost: standaloneEstimate() },

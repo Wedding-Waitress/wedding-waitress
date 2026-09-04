@@ -1,5 +1,7 @@
 import { publicEventTypes } from '@/content/publicEventTypes';
 import { productsByGroup } from '@/content/publicProducts';
+import { publicHeroByRoute } from '@/config/publicHeroManifest';
+import { matchPath } from 'react-router-dom';
 
 export type PublicPrimaryNavigationId =
   | 'how-it-works'
@@ -18,15 +20,31 @@ export const normalizePublicPath = (pathname: string): string => {
   return collapsedPath.length > 1 ? collapsedPath.replace(/\/+$/, '') : collapsedPath;
 };
 
-const productNavigationPaths = new Set(
-  ['/products', ...productsByGroup.flatMap((group) => group.products.map((product) => product.path))].map(
-    normalizePublicPath,
-  ),
-);
+const heroNavigationPaths = (navigationParent: 'products' | 'events') =>
+  Object.entries(publicHeroByRoute)
+    .filter(([, hero]) => hero.navigationParent === navigationParent)
+    .map(([path]) => path);
 
-const eventNavigationPaths = new Set(
-  ['/events', ...publicEventTypes.map((eventType) => eventType.path)].map(normalizePublicPath),
-);
+const productNavigationPaths = [
+  '/products',
+  ...productsByGroup.flatMap((group) => group.products.map((product) => product.path)),
+  ...heroNavigationPaths('products'),
+].map(normalizePublicPath);
+
+const eventNavigationPaths = [
+  '/events',
+  ...publicEventTypes.map((eventType) => eventType.path),
+  ...heroNavigationPaths('events'),
+].map(normalizePublicPath);
+
+export const matchesPublicRoutePattern = (pathname: string, routePattern: string): boolean =>
+  matchPath(
+    { path: normalizePublicPath(routePattern), caseSensitive: true, end: true },
+    normalizePublicPath(pathname),
+  ) !== null;
+
+const matchesNavigationFamily = (pathname: string, routePatterns: string[]) =>
+  routePatterns.some((routePattern) => matchesPublicRoutePattern(pathname, routePattern));
 
 export const isCurrentPublicPath = (pathname: string, targetPath: string): boolean =>
   normalizePublicPath(pathname) === normalizePublicPath(targetPath);
@@ -34,8 +52,8 @@ export const isCurrentPublicPath = (pathname: string, targetPath: string): boole
 export const getActivePublicNavigation = (pathname: string): PublicPrimaryNavigationId | null => {
   const normalizedPath = normalizePublicPath(pathname);
 
-  if (productNavigationPaths.has(normalizedPath)) return 'products';
-  if (eventNavigationPaths.has(normalizedPath)) return 'events';
+  if (matchesNavigationFamily(normalizedPath, productNavigationPaths)) return 'products';
+  if (matchesNavigationFamily(normalizedPath, eventNavigationPaths)) return 'events';
   if (normalizedPath === '/blog' || normalizedPath.startsWith('/blog/')) return 'blog';
 
   switch (normalizedPath) {

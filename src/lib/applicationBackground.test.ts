@@ -39,7 +39,7 @@ describe('shared Wedding Waitress application background', () => {
   it('covers every authenticated dashboard tab through the shared shell and main canvas', () => {
     const dashboard = read('src/pages/Dashboard.tsx');
     expect(dashboard).toContain('data-dashboard-shell className={`dashboard-shell ww-application-background');
-    expect(dashboard).toContain('<main data-dashboard-content className={`ww-application-background');
+    expect(dashboard).toContain("<main data-dashboard-content data-solid-text-surface={isPhotoVideoWorkspace ? 'dark' : 'light'} className={`ww-application-background");
 
     const legacyDashboardSurfaces = [
       'src/components/Dashboard/DashboardOverview.module.css',
@@ -49,7 +49,7 @@ describe('shared Wedding Waitress application background', () => {
       'src/components/Dashboard/QRCode/QRCodeSeatingChart.module.css',
       'src/components/Dashboard/Signage/SignagePage.module.css',
       'src/components/Dashboard/FullSeatingChart/FullSeatingChartPage.module.css',
-      'src/components/Dashboard/Kiosk/KioskSetup.module.css',
+      'src/components/Dashboard/LiveSlideshow/LiveSlideshowSetup.module.css',
       'src/components/Dashboard/FloorPlan/FloorPlanPage.module.css',
       'src/components/Dashboard/FloorPlan/ReceptionFloorPlan/ReceptionFloorPlanTheme.module.css',
       'src/components/Dashboard/RunningSheet/RunningSheetTheme.module.css',
@@ -68,7 +68,7 @@ describe('shared Wedding Waitress application background', () => {
       ['src/pages/RunningSheetPublicView.tsx', 'ww-application-background'],
       ['src/pages/DJMCPublicView.tsx', 'ww-application-background'],
       ['src/pages/GuestLookup.tsx', 'ww-application-background'],
-      ['src/pages/KioskView.tsx', 'ww-application-background'],
+      ['src/pages/LiveSlideshowView.tsx', 'ww-application-background'],
       ['src/pages/SeatingChartPublicView.tsx', 'ww-application-background'],
       ['src/pages/ReceptionFloorPlanShareView.tsx', 'ww-application-background'],
     ] as const;

@@ -22,6 +22,7 @@ import type { TextZone } from '@/hooks/useInvitationTemplates';
 import type { QrConfig } from '@/lib/invitationQR';
 import { waitForFonts } from '@/lib/googleFonts';
 import { PDF_DEFAULT_OPTIONS, savePdfAsync, yieldToBrowser } from '@/lib/pdfExportUtils';
+import { weddingFontFamilyStack } from '@/lib/localWeddingFonts';
 
 export interface SignagePdfOptions {
   backgroundUrl: string;
@@ -87,7 +88,7 @@ function buildOverlayElement(opts: SignagePdfOptions, basePx: { w: number; h: nu
       left: ${zone.x_percent - zone.width_percent / 2}%;
       top: ${zone.y_percent - 3}%;
       width: ${zone.width_percent}%;
-      font-family: ${overrides.font_family || zone.font_family}, sans-serif;
+      font-family: ${weddingFontFamilyStack(overrides.font_family || zone.font_family)};
       font-size: ${fontSize}px;
       font-weight: ${zone.font_style === 'bold' ? '700' : (overrides.font_weight || zone.font_weight || 400)};
       font-style: ${zone.font_style === 'italic' ? 'italic' : 'normal'};

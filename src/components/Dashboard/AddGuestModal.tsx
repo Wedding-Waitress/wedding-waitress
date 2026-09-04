@@ -57,6 +57,7 @@ import { computeRelationDisplay, RelationPartner, RelationRole } from "@/lib/rel
 import { cn } from "@/lib/utils";
 import { normalizeRsvp } from "@/lib/rsvp";
 import { useEvents } from "@/hooks/useEvents";
+import { getGuestEventOwnerId } from "@/lib/guestEventOwner";
 import { RelationSelector } from "./RelationSelector";
 import categoryStyles from "./AddGuestModal.module.css";
 
@@ -678,6 +679,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       }
 
       // Prepare guest data
+      const eventOwnerId = getGuestEventOwnerId(selectedEvent, eventId);
       const hasAnyAddress = !!(
         (data as any).mailing_address?.trim() ||
         (data as any).mailing_suburb?.trim() ||
@@ -687,7 +689,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
       const guestData = {
         event_id: eventId,
-        user_id: (await supabase.auth.getUser()).data.user?.id!,
+        user_id: eventOwnerId,
         first_name: data.first_name,
         last_name: data.last_name,
         table_id: data.table_id || null,
@@ -859,8 +861,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
         // Save party members if any
         if (resolvedMembers.length > 0 && autoFamilyGroup) {
-          const { data: authData } = await supabase.auth.getUser();
-
           // Fetch taken seats for the selected table to avoid collisions
           let takenSeatNumbers: number[] = [];
           let tableSeatLimit = 0;
@@ -923,7 +923,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
             return {
               event_id: eventId,
-              user_id: authData.user?.id!,
+              user_id: eventOwnerId,
               first_name: member.first_name,
               last_name: member.last_name,
               mobile: member.mobile || null,

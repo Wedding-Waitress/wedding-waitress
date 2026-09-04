@@ -18,7 +18,7 @@ import tableCharts from '@/assets/feature-tablecharts.jpg';
 import floorPlan from '@/assets/feature-floorplan.jpg';
 import dietary from '@/assets/feature-dietary.jpg';
 import fullSeating from '@/assets/feature-seatingchart.jpg';
-import kiosk from '@/assets/feature-kiosk.jpg';
+import liveSlideshow from '@/assets/feature-live-slideshow.jpg';
 import djMc from '@/assets/feature-djmc.jpg';
 import runSheet from '@/assets/feature-timeline.jpg';
 import photoSharing from '@/assets/Wedding-Waitress-Upload-Hero-Default.png';
@@ -125,20 +125,20 @@ export const publicProducts: PublicProduct[] = [
       { title: 'Flexible display', text: 'Place the QR on signage or stationery, or present it on a digital screen.' },
       { title: 'Changes stay connected', text: 'Supported updates to guest and table assignments flow through to the lookup experience.' },
     ],
-    connects: 'QR Seating reads from Guest List and Tables, and pairs naturally with Seating Chart Signs and Kiosk Live View.', related: ['seating-chart-signs', 'tables', 'kiosk-live-view'],
+    connects: 'QR Seating reads from Guest List and Tables, and pairs naturally with Seating Chart Signs and Live Slideshow.', related: ['seating-chart-signs', 'tables', 'live-slideshow'],
   },
   {
-    id: 'kiosk-live-view', name: 'Kiosk Live View', shortName: 'Kiosk Live View', path: '/kiosk-live-view', group: 'Guest Experience', icon: MonitorSmartphone, navigationIcon: productIconById['kiosk-live-view'],
-    image: kiosk, imageAlt: 'Wedding venue kiosk guest lookup screen', seoTitle: 'Wedding Kiosk Guest & Seating Lookup | Wedding Waitress',
-    metaDescription: 'Let wedding guests search for their table or seat on a venue touchscreen, tablet, laptop, desktop kiosk or entrance display.',
-    h1: 'A welcoming guest lookup for the venue entrance', lead: 'Open Wedding Waitress on a large touchscreen, tablet, laptop or desktop kiosk so arriving guests can search their name and find their table or seat.',
-    demonstration: 'Use the kiosk URL and QR setup, copy or open the link, enter fullscreen mode and configure the guest information and supported Live View modules shown at the venue.',
+    id: 'live-slideshow', name: 'Live Slideshow', shortName: 'Live Slideshow', path: '/live-slideshow', group: 'Guest Experience', icon: MonitorSmartphone, navigationIcon: productIconById['live-slideshow'],
+    image: liveSlideshow, imageAlt: 'Wedding venue Live Slideshow guest lookup screen', seoTitle: 'Wedding Live Slideshow Guest & Seating Lookup | Wedding Waitress',
+    metaDescription: 'Let wedding guests search for their table or seat through a Live Slideshow on a venue touchscreen, tablet, laptop, desktop computer or entrance display.',
+    h1: 'A welcoming guest lookup for the venue entrance', lead: 'Open the Live Slideshow on a large touchscreen, tablet, laptop or desktop computer so arriving guests can search their name and find their table or seat.',
+    demonstration: 'Use the Live Slideshow URL and QR setup, copy or open the link, enter fullscreen mode and configure the guest information and supported modules shown at the venue.',
     benefits: [
       { title: 'Designed for arrivals', text: 'Give guests a clear self-service lookup at the entrance or another convenient venue location.' },
-      { title: 'Use the screen you have', text: 'Run the view on a touchscreen, tablet, laptop or desktop kiosk.' },
+      { title: 'Use the screen you have', text: 'Run the Live Slideshow on a touchscreen, tablet, laptop or desktop computer.' },
       { title: 'Useful beyond weddings', text: 'The same organised lookup can support engagements, corporate events, workshops and seminars.' },
     ],
-    connects: 'Kiosk Live View uses the event’s Guest List and Tables, and complements QR Seating for guests using their own phones.', related: ['qr-code-seating-chart', 'guest-list', 'tables'],
+    connects: 'Live Slideshow uses the event’s Guest List and Tables, and complements QR Seating for guests using their own phones.', related: ['qr-code-seating-chart', 'guest-list', 'tables'],
   },
   {
     id: 'invitations-cards', name: 'Invitations, Save the Dates & Thank You Cards', shortName: 'Invitations & Cards', path: '/invitations-cards', group: 'Guest Experience', icon: Mail, navigationIcon: productIconById['invitations-cards'],

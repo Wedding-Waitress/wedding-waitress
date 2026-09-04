@@ -70,8 +70,8 @@
       "title": "Tam Oturma Şeması",
       "desc": "Komple yazdırılabilir ana oturma şeması oluşturun."
     },
-    "kiosk": {
-      "title": "Kiosk Canlı Görünüm",
+    "liveSlideshow": {
+      "title": "Canlı Slayt Gösterisi",
       "desc": "Konuklar mekanda anında yerlerini bulsun."
     },
     "djmc": {
@@ -120,9 +120,9 @@
       "title": "Tam Oturma Planı",
       "desc": "Her konuğu ve masayı gösteren tam, baskıya hazır bir oturma planı oluşturun. Özel stil ve etkinlik markanızla PDF'ye aktarın."
     },
-    "kiosk": {
-      "title": "Kiosk Canlı Görünüm",
-      "desc": "Mekan girişinde self-servis check-in kioskları kurun. Konuklar isimlerini arar ve masa atamalarını anında görür."
+    "liveSlideshow": {
+      "title": "Canlı Slayt Gösterisi",
+      "desc": "Mekan girişinde self-servis check-in Canlı Slayt Gösterisiları kurun. Konuklar isimlerini arar ve masa atamalarını anında görür."
     },
     "djmc": {
       "title": "DJ ve MC Anketi",
@@ -148,8 +148,8 @@
       "title": "Masa Kartları",
       "desc": "Güzel basılı isim kartları"
     },
-    "kiosk": {
-      "title": "Canlı Kiosk Görünümü",
+    "liveSlideshow": {
+      "title": "Canlı Slayt Gösterisi",
       "desc": "Self-servis konuk check-in"
     },
     "seatingCharts": {
@@ -353,7 +353,7 @@
     "floorPlan": "Zemin Planı",
     "dietary": "Diyet Gereksinimleri",
     "seatingChart": "Tam Oturma Planı",
-    "kiosk": "Kiosk Canlı Görünüm",
+    "liveSlideshow": "Canlı Slayt Gösterisi",
     "djmc": "DJ-MC Anketi",
     "runningSheet": "İşleyiş Planı"
   },
@@ -418,10 +418,10 @@
       "seo2Heading": "Dijital Oturma Bilgileri",
       "seo2Text": "Tarayın ve <0>oturma düzeninden</0> masanızı görün.",
       "seo3Heading": "Misafir Deneyimini Basitleştirin",
-      "seo3Text": "QR kodu girişte bir <0>kiosk</0> ile birleştirin.",
+      "seo3Text": "QR kodu girişte bir <0>Canlı Slayt Gösterisi</0> ile birleştirin.",
       "related1": "Misafir Listesi Yöneticisi",
       "related2": "Oturma Planlayıcı",
-      "related3": "Kiosk Check-In"
+      "related3": "Canlı Slayt Gösterisi Check-In"
     },
     "invitations": {
       "title": "Dijital Düğün Davetiyeleri ve RSVP Yönetimi",
@@ -528,13 +528,13 @@
       "related2": "Misafir Listesi Yöneticisi",
       "related3": "Oturma Planlayıcı"
     },
-    "kiosk": {
-      "title": "Düğün Misafir Check-In Kiosk",
-      "description": "Canlı kiosk ile profesyonel deneyim yaratın.",
-      "pageTitle": "Düğün Check-In Kiosk",
-      "metaDesc": "Canlı misafir check-in kiosk kurun.",
+    "liveSlideshow": {
+      "title": "Canlı Slayt Gösterisi",
+      "description": "Canlı Canlı Slayt Gösterisi ile profesyonel deneyim yaratın.",
+      "pageTitle": "Canlı Slayt Gösterisi | Wedding Waitress",
+      "metaDesc": "Canlı misafir check-in Canlı Slayt Gösterisi kurun.",
       "seo1Heading": "Self Check-In Etkinleştirin",
-      "seo1Text": "<0>QR kod sisteminiz</0> ile dijital kiosk kurun.",
+      "seo1Text": "<0>QR kod sisteminiz</0> ile dijital Canlı Slayt Gösterisi kurun.",
       "seo2Heading": "Anında Masa Arama",
       "seo2Text": "Misafirler isimlerini arayıp <0>misafir listesinden</0> masalarını görsün.",
       "seo3Heading": "Varış Deneyimini İyileştirin",
@@ -571,7 +571,7 @@
       "seo3Text": "Masaların alana nasıl sığdığını görün.",
       "related1": "Oturma Planlayıcı",
       "related2": "Tam Çizelge",
-      "related3": "Kiosk Check-In"
+      "related3": "Canlı Slayt Gösterisi Check-In"
     }
   },
   "heroMain": {
@@ -626,8 +626,8 @@
         "heading": "Tam oturma planı",
         "text": "Yazdırılabilir tam ana oturma planı oluşturun."
       },
-      "kioskLiveView": {
-        "heading": "Kiosk canlı görünüm",
+      "liveSlideshow": {
+        "heading": "Canlı Slayt Gösterisi",
         "text": "Misafirlerin mekanda anında koltuklarını bulmasına izin verin."
       },
       "djMc": {
@@ -917,13 +917,13 @@
       "pageTitle": "Düğün Oturma Planı Hazırlayıcı | Online Oturma Planı",
       "finalCtaLabel": "Etkinliğinizi Planlamaya Başlayın"
     },
-    "kioskLiveView": {
+    "liveSlideshow": {
       "lead": "Oturma düzeninizi mekanınızdaki bir ekranda sergileyin. Misafirler masalarını modern ve etkileşimli bir şekilde hızlıca bulsun.",
       "primaryCta": "Etkinliğinizi Planlamaya Başlayın",
-      "h1": "Etkinliğiniz İçin Kiosk Canlı Oturma Görüntüsü",
+      "h1": "Canlı Slayt Gösterisi",
       "finalCtaLabel": "Etkinliğinizi Planlamaya Başlayın",
-      "metaDescription": "Düğün oturma düzeninizi bir ekranda veya kioskunuzda sergileyin. Misafirleriniz etkinliğinizde masalarını gerçek zamanlı olarak kolayca bulabilir.",
-      "pageTitle": "Düğün Oturma Kiosk Ekranı | Canlı Misafir Görüntüsü",
+      "metaDescription": "Düğün oturma düzeninizi bir ekranda veya Canlı Slayt Gösterisiunuzda sergileyin. Misafirleriniz etkinliğinizde masalarını gerçek zamanlı olarak kolayca bulabilir.",
+      "pageTitle": "Canlı Slayt Gösterisi | Wedding Waitress",
       "h": [
         [
           "Canlı bir ekranda oturma düzenini görüntüleyin",

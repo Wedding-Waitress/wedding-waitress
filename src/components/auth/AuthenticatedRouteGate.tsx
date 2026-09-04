@@ -8,6 +8,7 @@ import {
 } from '@/components/Dashboard/DashboardLoadingScreen';
 import { useAuthenticatedSession } from '@/contexts/AuthenticatedSessionContext';
 import { createSignInRedirectState } from '@/lib/authNavigation';
+import { FirstEventSetupGate } from '@/components/Onboarding/FirstEventSetupGate';
 
 export const AuthenticatedRouteGate: React.FC = () => {
   const location = useLocation();
@@ -50,5 +51,5 @@ export const AuthenticatedRouteGate: React.FC = () => {
     );
   }
 
-  return <Outlet />;
+  return <FirstEventSetupGate userId={session.user.id} />;
 };

@@ -62,7 +62,7 @@ export default function Unsubscribe() {
   return (
     <main className="min-h-screen flex items-center justify-center bg-[#FAF7F2] px-4">
       <div className="bg-white rounded-2xl shadow-[0_8px_40px_rgba(0,0,0,0.08)] p-8 w-full max-w-md text-center">
-        <h1 className="text-2xl font-semibold mb-3" style={{ color: '#3D2E1E' }}>
+        <h1 className="text-2xl font-semibold mb-3" style={{ color: '#412419' }}>
           Unsubscribe
         </h1>
 

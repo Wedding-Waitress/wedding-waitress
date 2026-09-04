@@ -8,6 +8,7 @@ import { Slider } from '@/components/ui/slider';
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group';
 import { ArrowLeft, Plus, Trash2, Move, ChevronUp, ChevronDown, ZoomIn, ZoomOut } from 'lucide-react';
 import type { InvitationTemplate, TextZone } from '@/hooks/useInvitationTemplates';
+import { LOCAL_WEDDING_FONTS, weddingFontFamilyStack } from '@/lib/localWeddingFonts';
 
 interface Props {
   template: InvitationTemplate;
@@ -16,9 +17,9 @@ interface Props {
 }
 
 const FONT_OPTIONS = [
-  'Playfair Display', 'Great Vibes', 'Cormorant Garamond', 'Lora', 'Libre Baskerville',
+  ...LOCAL_WEDDING_FONTS, 'Great Vibes', 'Libre Baskerville',
   'Dancing Script', 'Montserrat', 'Raleway', 'Inter', 'Georgia', 'Times New Roman',
-  'Alex Brush', 'Cinzel', 'Italiana', 'Josefin Sans',
+  'Italiana', 'Josefin Sans',
 ];
 
 const AUTO_FIELDS = [
@@ -177,7 +178,7 @@ export const TemplateTextZoneEditor: React.FC<Props> = ({ template, onSave, onCa
                         top: `${zone.y_percent - 3}%`,
                         width: `${zone.width_percent}%`,
                         textAlign: zone.text_align as any,
-                        fontFamily: zone.font_family,
+                        fontFamily: weddingFontFamilyStack(zone.font_family),
                         fontSize: `${zone.font_size * 0.5}px`,
                         fontWeight: zone.font_weight,
                         color: zone.font_color,
@@ -301,7 +302,7 @@ export const TemplateTextZoneEditor: React.FC<Props> = ({ template, onSave, onCa
                   <Select value={selectedZone.font_family} onValueChange={v => updateZone(selectedZone.id, { font_family: v })}>
                     <SelectTrigger className="h-8 text-sm"><SelectValue /></SelectTrigger>
                     <SelectContent>
-                      {FONT_OPTIONS.map(f => <SelectItem key={f} value={f} style={{ fontFamily: f }}>{f}</SelectItem>)}
+                      {FONT_OPTIONS.map(f => <SelectItem key={f} value={f} style={{ fontFamily: weddingFontFamilyStack(f) }}>{f}</SelectItem>)}
                     </SelectContent>
                   </Select>
                 </div>

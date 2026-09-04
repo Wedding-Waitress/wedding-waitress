@@ -32,3 +32,6 @@ export const formatLivePrice = (currency: CurrencyCode, amount: number): string 
   }).format(amount).replace(currency, '').trim();
   return `${CURRENCY_PREFIX[currency]}${formatted}`;
 };
+
+export const formatPublicPricingPrice = (currency: CurrencyCode, amount: number): string =>
+  currency === 'AUD' ? formatLivePrice(currency, amount).replace(/^A\$/, 'AUD $') : formatLivePrice(currency, amount);

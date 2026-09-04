@@ -63,9 +63,9 @@ export default function Index() {
     },
     {
       icon: Monitor,
-      title: 'Kiosk Mode',
+      title: 'Live Slideshow',
       description: 'Full-screen slideshow or upload station at your event.',
-      link: '#kiosk',
+      link: '#live-slideshow',
     },
     {
       icon: Shield,

@@ -7,6 +7,8 @@ import { SeoHead } from '@/components/SEO/SeoHead';
 import { CookieBanner } from '@/components/ui/CookieBanner';
 import '@/styles/PublicSite.css';
 import { PLANNING_WORKFLOW_STEPS, type PlanningWorkflowTabId } from '@/config/planningWorkflow';
+import { PublicPageHero } from '@/components/Layout/PublicPageHero';
+import { publicHeroForRoute } from '@/config/publicHeroManifest';
 
 const publicWorkflowPaths: Record<PlanningWorkflowTabId, string> = {
   'my-events': '/my-events',
@@ -31,13 +33,7 @@ export const HowItWorks = () => (
     <SeoHead title="How Wedding Waitress Works | One Connected Wedding Plan" description="See how to create your event, plan its budget, create tables, add guests, prepare every detail and run the wedding day in six connected stages." canonicalPath="/how-it-works" />
     <Header />
     <main>
-      <section className="ww-section ww-section-cream text-center">
-        <div className="ww-container max-w-4xl">
-          <p className="ww-eyebrow mb-3">How it works</p>
-          <h1 className="ww-display">Six stages from first plan to wedding day</h1>
-          <p className="ww-lead mx-auto mt-6 max-w-3xl">Wedding Waitress keeps the information you add connected, so each step supports the stationery, seating, supplier and guest experiences that follow.</p>
-        </div>
-      </section>
+      <PublicPageHero asset={publicHeroForRoute('/how-it-works')} eyebrow="How it works" title="Six stages from first plan to wedding day" description="Wedding Waitress keeps the information you add connected, so each step supports the stationery, seating, supplier and guest experiences that follow." actions={<AuthGatedCtaLink to="/dashboard" alwaysSignUp className="ww-button-primary ww-focus">Start Planning Free <ArrowRight size={18} aria-hidden="true" /></AuthGatedCtaLink>} />
       <section className="ww-section ww-how-process" data-ww-process>
         <div className="ww-container space-y-8">
           {stages.map((stage,index) => (

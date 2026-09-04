@@ -1,5 +1,6 @@
 .dialog {
   width: min(540px, calc(100vw - 32px));
+  min-width: 0;
   max-height: min(760px, calc(100dvh - 32px));
   gap: 0;
   overflow-y: auto;
@@ -69,6 +70,7 @@
 }
 
 .header {
+  min-width: 0;
   padding: 0 42px;
   text-align: center;
 }
@@ -99,10 +101,10 @@
 
 .description {
   margin-top: 8px;
-  color: #6f625b;
+  color: #412419;
   font-size: 14px;
   line-height: 20px;
-  white-space: nowrap;
+  overflow-wrap: anywhere;
 }
 
 .reassurance {
@@ -124,7 +126,7 @@
 
 .trial {
   margin-top: 8px;
-  color: #6f625b;
+  color: #412419;
   font-size: 13px;
   font-weight: 500;
   line-height: 18px;
@@ -141,6 +143,7 @@
 }
 
 .body {
+  min-width: 0;
   margin-top: 22px;
 }
 
@@ -182,7 +185,7 @@
 }
 
 .input::placeholder {
-  color: #84756e;
+  color: #412419;
   opacity: 1;
 }
 
@@ -224,31 +227,36 @@
   justify-content: center;
   gap: 8px;
   margin-top: 18px;
-  border: 1px solid rgba(234, 213, 183, 0.8) !important;
+  border: 0 !important;
   border-radius: 12px;
-  background:
-    linear-gradient(180deg, rgba(255, 244, 225, 0.18), transparent 38%),
-    linear-gradient(180deg, #70452f 0%, #4a2a20 55%, #2b1712 100%) !important;
-  color: #fffdf9 !important;
+  background-color: #2e9e5b !important;
+  background-image: linear-gradient(to bottom, rgba(255, 255, 255, 0.22), rgba(255, 255, 255, 0.04) 45%, rgba(0, 0, 0, 0.06)) !important;
+  color: #fff !important;
   font-size: 14px;
   font-weight: 700;
   box-shadow:
-    inset 0 1px rgba(255, 244, 225, 0.28),
-    inset 0 -2px rgba(12, 4, 2, 0.4),
-    0 7px 16px rgba(13, 5, 3, 0.24);
+    inset 0 1px 0 rgba(255, 255, 255, 0.45),
+    0 4px 0 #1e6b3e,
+    0 6px 12px rgba(30, 107, 62, 0.22);
+  transition: transform 150ms ease, box-shadow 150ms ease, background-color 150ms ease;
 }
 
 .primaryButton:hover:not(:disabled) {
-  background:
-    linear-gradient(180deg, rgba(255, 244, 225, 0.22), transparent 38%),
-    linear-gradient(180deg, #7b4d35, #543025 56%, #321b15) !important;
+  background-color: #34ac64 !important;
   transform: translateY(-1px);
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.5),
+    0 5px 0 #1e6b3e,
+    0 8px 16px rgba(30, 107, 62, 0.26);
 }
 
 .primaryButton:active:not(:disabled) {
-  background: linear-gradient(180deg, #2d1813, #4b2b21) !important;
-  box-shadow: inset 0 3px 7px rgba(10, 3, 2, 0.5) !important;
-  transform: translateY(0);
+  background-color: #2e9e5b !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.3),
+    0 1px 0 #1e6b3e,
+    0 2px 6px rgba(30, 107, 62, 0.2) !important;
+  transform: translateY(2px);
 }
 
 .primaryButton:focus-visible,
@@ -258,14 +266,17 @@
 }
 
 .primaryButton:disabled {
-  opacity: 0.48;
+  opacity: 1;
   cursor: not-allowed;
-  filter: saturate(0.45);
+  filter: none;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 255, 255, 0.25),
+    0 2px 0 #1e6b3e;
 }
 
 .legal {
   margin-top: 13px;
-  color: #6f625b;
+  color: #412419;
   font-size: 12px;
   line-height: 18px;
   text-align: center;
@@ -295,7 +306,7 @@
 
 .switchLine {
   margin-top: 13px;
-  color: #6f625b;
+  color: #412419;
   font-size: 13px;
   line-height: 19px;
   text-align: center;
@@ -303,14 +314,17 @@
 
 .codeGrid {
   display: grid;
-  grid-template-columns: repeat(6, minmax(0, 1fr));
-  gap: 8px;
+  width: min(100%, 344px);
+  grid-template-columns: repeat(6, minmax(0, 44px));
+  justify-content: center;
+  gap: clamp(4px, 1.6vw, 10px);
+  margin-inline: auto;
 }
 
 .codeInput {
   width: 100%;
   min-width: 0;
-  height: 50px;
+  height: 44px;
   border: 1px solid rgba(65, 36, 25, 0.48);
   border-radius: 10px;
   background: #fff;
@@ -335,6 +349,13 @@
   margin-top: 13px;
 }
 
+.otpActions .linkButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+}
+
 .linkButton {
   min-height: 44px;
   padding: 7px 3px;
@@ -348,7 +369,7 @@
 
 .status {
   margin-top: 11px;
-  color: #6f625b;
+  color: #412419;
   font-size: 12px;
   line-height: 18px;
   text-align: center;
@@ -405,12 +426,6 @@
   }
 }
 
-@media (max-width: 480px) {
-  .description {
-    white-space: normal;
-  }
-}
-
 @media (max-width: 380px) {
   .dialog {
     padding-inline: 14px !important;
@@ -421,11 +436,11 @@
   }
 
   .codeGrid {
-    gap: 5px;
+    gap: 4px;
   }
 
   .codeInput {
-    height: 46px;
+    height: 42px;
     font-size: 18px;
   }
 }

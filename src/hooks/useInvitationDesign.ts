@@ -1,6 +1,7 @@
 import { useState, useEffect, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { resolveWeddingFontStyleMap } from '@/lib/localWeddingFonts';
 
 export interface InvitationDesign {
   id: string;
@@ -37,7 +38,10 @@ export const useInvitationDesign = (eventId: string | null) => {
         .maybeSingle();
 
       if (error) throw error;
-      setDesign(data as any);
+      setDesign(data ? {
+        ...(data as any),
+        custom_styles: resolveWeddingFontStyleMap((data as any).custom_styles || {}),
+      } : null);
     } catch (err: any) {
       console.error('Error fetching design:', err);
     } finally {

@@ -70,8 +70,8 @@
       "title": "Gesamter Sitzplan",
       "desc": "Erstelle einen vollständigen druckfertigen Master-Sitzplan."
     },
-    "kiosk": {
-      "title": "Kiosk Live-Ansicht",
+    "liveSlideshow": {
+      "title": "Live-Diashow",
       "desc": "Gäste finden sofort ihren Platz am Veranstaltungsort."
     },
     "djmc": {
@@ -120,9 +120,9 @@
       "title": "Gesamter Sitzplan",
       "desc": "Erstelle einen vollständigen, druckfertigen Sitzplan mit allen Gästen und Tischen. Exportiere als PDF mit individuellem Styling und deinem Event-Branding."
     },
-    "kiosk": {
-      "title": "Kiosk Live-Ansicht",
-      "desc": "Richte Self-Service-Check-in-Kioske am Eingang deines Veranstaltungsortes ein. Gäste suchen ihren Namen und sehen sofort ihre Tischzuweisung."
+    "liveSlideshow": {
+      "title": "Live-Diashow",
+      "desc": "Richte Self-Service-Check-in-Live-Diashow am Eingang deines Veranstaltungsortes ein. Gäste suchen ihren Namen und sehen sofort ihre Tischzuweisung."
     },
     "djmc": {
       "title": "DJ & MC Fragebogen",
@@ -148,8 +148,8 @@
       "title": "Tischkarten",
       "desc": "Wunderschöne gedruckte Namenskarten"
     },
-    "kiosk": {
-      "title": "Live Kiosk-Ansicht",
+    "liveSlideshow": {
+      "title": "Live-Diashow",
       "desc": "Self-Service Gäste-Check-in"
     },
     "seatingCharts": {
@@ -353,7 +353,7 @@
     "floorPlan": "Raumplan",
     "dietary": "Ernährungsanforderungen",
     "seatingChart": "Gesamter Sitzplan",
-    "kiosk": "Kiosk Live-Ansicht",
+    "liveSlideshow": "Live-Diashow",
     "djmc": "DJ-MC Fragebogen",
     "runningSheet": "Ablaufplan"
   },
@@ -418,10 +418,10 @@
       "seo2Heading": "Digitale Sitzinformationen",
       "seo2Text": "Gäste scannen und sehen sofort ihren Tisch aus dem <0>Sitzplan</0>.",
       "seo3Heading": "Vereinfache das Gästeerlebnis",
-      "seo3Text": "Kombiniere den QR-Code mit einer <0>Kiosk-Anzeige</0> am Eingang.",
+      "seo3Text": "Kombiniere den QR-Code mit einer <0>Live-Diashow-Anzeige</0> am Eingang.",
       "related1": "Gästelisten-Manager",
       "related2": "Sitzplan-Planer",
-      "related3": "Kiosk-Check-In"
+      "related3": "Live-Diashow-Check-In"
     },
     "invitations": {
       "title": "Digitale Hochzeitseinladungen & RSVP-Verwaltung",
@@ -528,13 +528,13 @@
       "related2": "Gästelisten-Manager",
       "related3": "Sitzplan-Planer"
     },
-    "kiosk": {
-      "title": "Hochzeits-Check-In Kiosk",
-      "description": "Erstelle ein professionelles Erlebnis mit einem Live-Kiosk.",
-      "pageTitle": "Hochzeits-Check-In Kiosk | Gäste-Suchsystem",
-      "metaDesc": "Richte einen Live-Gäste-Check-In-Kiosk ein.",
+    "liveSlideshow": {
+      "title": "Live-Diashow",
+      "description": "Erstelle ein professionelles Erlebnis mit einem Live-Live-Diashow.",
+      "pageTitle": "Live-Diashow | Wedding Waitress",
+      "metaDesc": "Richte einen Live-Gäste-Check-In-Live-Diashow ein.",
       "seo1Heading": "Aktiviere Self-Check-In",
-      "seo1Text": "Richte einen digitalen Kiosk ein mit deinem <0>QR-Code-System</0>.",
+      "seo1Text": "Richte einen digitalen Live-Diashow ein mit deinem <0>QR-Code-System</0>.",
       "seo2Heading": "Sofortige Tischsuche",
       "seo2Text": "Gäste suchen ihren Namen und sehen den Tisch aus der <0>Gästeliste</0>.",
       "seo3Heading": "Verbessere das Ankunftserlebnis",
@@ -571,7 +571,7 @@
       "seo3Text": "Sieh wie Tische und Stühle in den Raum passen.",
       "related1": "Sitzplan-Planer",
       "related2": "Gesamt-Sitzplan",
-      "related3": "Kiosk-Check-In"
+      "related3": "Live-Diashow-Check-In"
     }
   },
   "heroMain": {
@@ -626,8 +626,8 @@
         "heading": "Vollstaendiger Sitzplan",
         "text": "Erstelle einen kompletten druckbaren Master-Sitzplan."
       },
-      "kioskLiveView": {
-        "heading": "Kiosk-Live-Ansicht",
+      "liveSlideshow": {
+        "heading": "Live-Diashow",
         "text": "Lass Gaeste am Veranstaltungsort sofort ihren Platz finden."
       },
       "djMc": {
@@ -917,11 +917,11 @@
       "pageTitle": "Hochzeits-Sitzplan-Ersteller | Vollständiger Sitzplan online",
       "metaDescription": "Erstellen Sie online einen vollständigen Hochzeits-Sitzplan. Organisieren Sie Gäste, Tische und Sitzordnungen einfach an einem Ort."
     },
-    "kioskLiveView": {
+    "liveSlideshow": {
       "lead": "Zeigen Sie Ihren Sitzplan auf einem Bildschirm in Ihrem Veranstaltungsort an. Lassen Sie die Gäste ihren Tisch schnell auf moderne und interaktive Weise finden.",
-      "pageTitle": "Hochzeits-Sitzplan Kiosk Anzeige | Live Gastansicht",
-      "metaDescription": "Zeigen Sie Ihren Hochzeits-Sitzplan auf einem Bildschirm oder Kiosk an. Gäste können ihren Tisch bei Ihrer Veranstaltung in Echtzeit leicht finden.",
-      "h1": "Kiosk Live Sitzansicht für Ihr Event",
+      "pageTitle": "Live-Diashow | Wedding Waitress",
+      "metaDescription": "Zeigen Sie Ihren Hochzeits-Sitzplan auf einem Bildschirm oder Live-Diashow an. Gäste können ihren Tisch bei Ihrer Veranstaltung in Echtzeit leicht finden.",
+      "h1": "Live-Diashow",
       "finalCtaLabel": "Beginnen Sie mit der Planung Ihres Events",
       "h": [
         [

@@ -7,6 +7,7 @@ describe('public dashboard background reuse', () => {
   it('uses the authenticated application background variables for shared dark public surfaces', () => {
     const publicStyles = read('src/styles/PublicSite.css');
     const footer = read('src/components/Layout/PublicFooter.tsx');
+    const landing = read('src/pages/Landing.tsx');
 
     expect(publicStyles).toContain('.ww-public-dashboard-background,\n.ww-section-espresso');
     expect(publicStyles).toContain('background-color: var(--ww-application-background-color);');
@@ -15,6 +16,8 @@ describe('public dashboard background reuse', () => {
     expect(publicStyles).toContain('background-repeat: var(--ww-application-background-repeat);');
     expect(publicStyles).toContain('background-size: var(--ww-application-background-size);');
     expect(footer).toContain('className="ww-public-dashboard-background px-4 py-14 text-white"');
+    expect(landing).toContain('className="ww-section ww-section-espresso ww-home-experience"');
+    expect(publicStyles).not.toMatch(/\.ww-home-experience\s*\{[^}]*background(?:-image)?\s*:/);
     expect(footer).not.toContain('bg-[#171f2d]');
   });
 

@@ -49,7 +49,7 @@ const SignagePage = lazy(() => import('@/components/Dashboard/Signage/SignagePag
 const PlaceCardsPage = lazy(() => import('@/components/Dashboard/PlaceCards/PlaceCardsPage').then(m => ({ default: m.PlaceCardsPage })));
 const FullSeatingChartPage = lazy(() => import('@/components/Dashboard/FullSeatingChart/FullSeatingChartPage').then(m => ({ default: m.FullSeatingChartPage })));
 const IndividualTableSeatingChartPage = lazy(() => import('@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage').then(m => ({ default: m.IndividualTableSeatingChartPage })));
-const KioskSetup = lazy(() => import('@/components/Dashboard/Kiosk/KioskSetup').then(m => ({ default: m.KioskSetup })));
+const LiveSlideshowSetup = lazy(() => import('@/components/Dashboard/LiveSlideshow/LiveSlideshowSetup').then(m => ({ default: m.LiveSlideshowSetup })));
 const FloorPlanPage = lazy(() => import('@/components/Dashboard/FloorPlan').then(m => ({ default: m.FloorPlanPage })));
 const RunningSheetPage = lazy(() => import('@/components/Dashboard/RunningSheet').then(m => ({ default: m.RunningSheetPage })));
 const DJMCQuestionnairePage = lazy(() => import('@/components/Dashboard/DJMCQuestionnaire').then(m => ({ default: m.DJMCQuestionnairePage })));
@@ -71,6 +71,7 @@ import { ExpiryWarningBanner } from '@/components/Dashboard/ExpiryWarningBanner'
 import { useDashboardSession } from '@/hooks/useDashboardSession';
 import { scheduleIdleWork, loadAccountRoute } from '@/lib/authenticatedRoutePreload';
 import { preloadDashboardPage, preloadFrequentDashboardPages } from '@/lib/dashboardPagePreload';
+import { calculateDashboardSeatStats } from '@/lib/dashboardSeatStats';
 
 /* Organiser pages that use the standardised 1px #472c1d neutral border pass.
    Photo & Video Sharing and its workspaces are intentionally excluded. */
@@ -87,7 +88,7 @@ const BROWN_OUTLINE_TABS = new Set([
   'floor-plan',
   'dietary-chart',
   'full-seating-chart',
-  'kiosk-live-view',
+  'live-slideshow',
   'dj-mc-questionnaire',
   'running-sheet',
 ]);
@@ -124,7 +125,8 @@ export const Dashboard = () => {
   const location = useLocation();
   const navigate = useNavigate();
   const isPhotoVideoWorkspace = location.pathname.startsWith('/dashboard/photo-video-gallery/');
-  const urlTab = isPhotoVideoWorkspace ? 'photo-video-gallery' : searchParams.get('tab') || 'dashboard';
+  const requestedTab = isPhotoVideoWorkspace ? 'photo-video-gallery' : searchParams.get('tab') || 'dashboard';
+  const urlTab = requestedTab === 'kiosk-live-view' ? 'live-slideshow' : requestedTab;
   const [activeTab, setActiveTabState] = useState(urlTab);
   // Keep the previous page visible while a cold lazy chunk resolves. Sidebar
   // selection still updates synchronously, so navigation feedback is immediate.
@@ -142,6 +144,14 @@ export const Dashboard = () => {
   useEffect(() => {
     if (urlTab !== activeTab) setActiveTabState(urlTab);
   }, [urlTab, activeTab]);
+
+  // Canonicalise saved dashboard links without dropping event or other safe query parameters.
+  useEffect(() => {
+    if (isPhotoVideoWorkspace || requestedTab !== 'kiosk-live-view') return;
+    const nextParams = new URLSearchParams(searchParams);
+    nextParams.set('tab', 'live-slideshow');
+    navigate({ pathname: location.pathname, search: nextParams.toString(), hash: location.hash }, { replace: true });
+  }, [isPhotoVideoWorkspace, location.hash, location.pathname, navigate, requestedTab, searchParams]);
 
 
   
@@ -314,10 +324,8 @@ export const Dashboard = () => {
     // Always use selectedEvent to ensure both Tables and Guest List pages show the same stats
     const currentEvent = selectedEvent;
     const tablesCreated = tables.length;
-    const seatsCreated = tables.reduce((sum, table) => sum + table.limit_seats, 0);
-    const seatsFilled = guests.length;
+    const { seatsCreated, seatsFilled, seatsRemaining } = calculateDashboardSeatStats(tables, guests);
     const eventGuestLimit = currentEvent?.guest_limit || 0;
-    const seatsRemaining = Math.max(0, eventGuestLimit - seatsFilled);
     const tablesAtCapacity = tables.filter(table =>
       (table.table_purpose === 'head' ? table.head_seating_order.length : table.guest_count) >= table.limit_seats
     ).length;
@@ -756,8 +764,8 @@ export const Dashboard = () => {
             <QRCodeSeatingChart selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} onNavigateToTab={handleTabChange} events={events} eventsLoading={eventsLoading} />
           </>
         );
-      case 'kiosk-live-view':
-        return <KioskSetup selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} />;
+      case 'live-slideshow':
+        return <LiveSlideshowSetup selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} />;
       case 'dietary-chart':
         return <KitchenDietaryChart eventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} />;
       case 'full-seating-chart':
@@ -858,8 +866,8 @@ export const Dashboard = () => {
       {/* The sidebar is an off-screen sheet below the desktop breakpoint. */}
       <SidebarTrigger
         className="fixed bottom-4 left-4 z-40 h-11 w-11 rounded-full border border-[#967A59]/45 bg-card shadow-lg lg:hidden print:hidden"
-        aria-label="Open menu"
-        title="Open menu"
+        aria-label="Expand sidebar"
+        title="Expand sidebar"
       />
       
       {/* Sidebar and Main Content */}
@@ -870,10 +878,10 @@ export const Dashboard = () => {
         </div>
         
         {/* Main Content - Mobile optimized padding */}
-        <main data-dashboard-content className={`ww-application-background flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 min-w-0 overflow-x-hidden${BROWN_OUTLINE_TABS.has(activeTab) ? ` ${pageSpacingStyles.corePageBottomSpacing}` : ''}${activeTab === 'dashboard' ? ` ${dashboardOverviewStyles.mainSurface}` : ''}${ESPRESSO_FULL_PAGE_TABS.has(activeTab) ? ` ${signagePageStyles.fullPageSurface}` : ''}${activeTab === 'signage' ? ` ${signagePageStyles.signageWorkspaceSurface}` : ''}${activeTab === 'invitations' ? ` ${invitationsPageStyles.invitationsWorkspaceSurface}` : ''}${activeTab === 'place-cards' ? ` ${placeCardsPageStyles.placeCardsWorkspaceSurface}` : ''}${activeTab === 'individual-table-chart' ? ` ${individualTableChartStyles.workspaceSurface}` : ''}${activeTab === 'dietary-chart' ? ` ${kitchenDietaryStyles.dietaryWorkspaceSurface}` : ''}${activeTab === 'full-seating-chart' ? ` ${fullSeatingChartStyles.fullSeatingWorkspaceSurface}` : ''}${isPhotoVideoWorkspace || activeTab === 'photo-video-gallery' ? ` ${photoVideoManagementStyles.photoVideoWorkspaceMain}` : ''}${activeTab === 'my-events' ? ` ${myEventsStyles.mainSurface}` : ''}${activeTab === 'table-list' ? ` ${tablesPageStyles.mainSurface}` : ''}${activeTab === 'guest-list' ? ` ${guestListStyles.mainSurface}` : ''}${activeTab === 'qr-code' ? ` ${qrCodePageStyles.mainSurface}` : ''}${BROWN_OUTLINE_TABS.has(activeTab) ? ' ww-brown-outline-core' : ''}${BROWN_OUTLINE_TABS.has(activeTab) && activeTab !== 'running-sheet' ? ' ww-heading-system' : ''}${BROWN_OUTLINE_TABS.has(activeTab) || activeTab === 'photo-video-gallery' ? ' ww-solid-text' : ''}${activeTab === 'floor-plan' ? ' ww-floorplan-brown' : ''}${activeTab === 'kiosk-live-view' ? ' ww-kiosk-brown' : ''}${activeTab === 'running-sheet' ? ' ww-running-sheet-main' : ''}${activeTab === 'dj-mc-questionnaire' ? ' ww-djmc-main' : ''}`}>
+        <main data-dashboard-content data-solid-text-surface={isPhotoVideoWorkspace ? 'dark' : 'light'} className={`ww-application-background flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 min-w-0 overflow-x-hidden${BROWN_OUTLINE_TABS.has(activeTab) ? ` ${pageSpacingStyles.corePageBottomSpacing}` : ''}${activeTab === 'dashboard' ? ` ${dashboardOverviewStyles.mainSurface}` : ''}${ESPRESSO_FULL_PAGE_TABS.has(activeTab) ? ` ${signagePageStyles.fullPageSurface}` : ''}${activeTab === 'signage' ? ` ${signagePageStyles.signageWorkspaceSurface}` : ''}${activeTab === 'invitations' ? ` ${invitationsPageStyles.invitationsWorkspaceSurface}` : ''}${activeTab === 'place-cards' ? ` ${placeCardsPageStyles.placeCardsWorkspaceSurface}` : ''}${activeTab === 'individual-table-chart' ? ` ${individualTableChartStyles.workspaceSurface}` : ''}${activeTab === 'dietary-chart' ? ` ${kitchenDietaryStyles.dietaryWorkspaceSurface}` : ''}${activeTab === 'full-seating-chart' ? ` ${fullSeatingChartStyles.fullSeatingWorkspaceSurface}` : ''}${isPhotoVideoWorkspace || activeTab === 'photo-video-gallery' ? ` ${photoVideoManagementStyles.photoVideoWorkspaceMain}` : ''}${activeTab === 'my-events' ? ` ${myEventsStyles.mainSurface}` : ''}${activeTab === 'table-list' ? ` ${tablesPageStyles.mainSurface}` : ''}${activeTab === 'guest-list' ? ` ${guestListStyles.mainSurface}` : ''}${activeTab === 'qr-code' ? ` ${qrCodePageStyles.mainSurface}` : ''}${BROWN_OUTLINE_TABS.has(activeTab) ? ' ww-brown-outline-core' : ''}${BROWN_OUTLINE_TABS.has(activeTab) && activeTab !== 'running-sheet' ? ' ww-heading-system' : ''}${BROWN_OUTLINE_TABS.has(activeTab) || activeTab === 'photo-video-gallery' ? ' ww-solid-text' : ''}${activeTab === 'floor-plan' ? ' ww-floorplan-brown' : ''}${activeTab === 'live-slideshow' ? ' ww-live-slideshow-brown' : ''}${activeTab === 'running-sheet' ? ' ww-running-sheet-main' : ''}${activeTab === 'dj-mc-questionnaire' ? ' ww-djmc-main' : ''}`}>
           <div className="w-full max-w-none">
-            {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Kiosk Live View, Printables, Place Cards, Dietary Requirements, Full Seating Chart, DJ & MC Questionnaire, Running Sheet, AI Features */}
-            {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'kiosk-live-view' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'dj-mc-questionnaire' && activeTab !== 'running-sheet' && activeTab !== 'invitations' && activeTab !== 'signage' && activeTab !== 'account' && activeTab !== 'photo-video-gallery' && <div className={`print:hidden${activeTab === 'table-list' || activeTab === 'guest-list' ? ' ww-tables-stats' : ''}${activeTab === 'table-list' ? ` ${tablesPageStyles.stats}` : ''}${activeTab === 'guest-list' ? ` ${guestListStyles.stats}` : ''}`}>
+            {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Live Slideshow, Printables, Place Cards, Dietary Requirements, Full Seating Chart, DJ & MC Questionnaire, Running Sheet, AI Features */}
+            {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'live-slideshow' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'dj-mc-questionnaire' && activeTab !== 'running-sheet' && activeTab !== 'invitations' && activeTab !== 'signage' && activeTab !== 'account' && activeTab !== 'photo-video-gallery' && <div className={`print:hidden${activeTab === 'table-list' || activeTab === 'guest-list' ? ' ww-tables-stats' : ''}${activeTab === 'table-list' ? ` ${tablesPageStyles.stats}` : ''}${activeTab === 'guest-list' ? ` ${guestListStyles.stats}` : ''}`}>
               {(activeTab === 'table-list' || activeTab === 'guest-list') ? (
                   <StatsBar stats={statsData} />
               ) : (

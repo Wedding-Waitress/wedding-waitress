@@ -70,8 +70,8 @@
       "title": "Plan de table complet",
       "desc": "Générez un plan de table maître complet et imprimable."
     },
-    "kiosk": {
-      "title": "Vue kiosque en direct",
+    "liveSlideshow": {
+      "title": "Diaporama en direct",
       "desc": "Les invités trouvent leur place instantanément sur place."
     },
     "djmc": {
@@ -120,9 +120,9 @@
       "title": "Plan de table complet",
       "desc": "Créez un plan de table complet prêt à imprimer montrant chaque invité et table."
     },
-    "kiosk": {
-      "title": "Vue kiosque",
-      "desc": "Installez des kiosques d'enregistrement en libre-service à l'entrée de votre lieu."
+    "liveSlideshow": {
+      "title": "Diaporama en direct",
+      "desc": "Installez des Diaporama en direct d'enregistrement en libre-service à l'entrée de votre lieu."
     },
     "djmc": {
       "title": "Questionnaire DJ et MC",
@@ -148,8 +148,8 @@
       "title": "Cartons de table",
       "desc": "De beaux cartons imprimés"
     },
-    "kiosk": {
-      "title": "Kiosque en direct",
+    "liveSlideshow": {
+      "title": "Diaporama en direct",
       "desc": "Enregistrement en libre-service"
     },
     "seatingCharts": {
@@ -403,10 +403,10 @@
       "seo2Heading": "Informations de Placement Digitales",
       "seo2Text": "Les invités scannent et voient leur table du <0>plan de table</0>.",
       "seo3Heading": "Simplifiez l'Expérience Invité",
-      "seo3Text": "Combinez le QR code avec un <0>kiosque</0> à l'entrée.",
+      "seo3Text": "Combinez le QR code avec un <0>diaporama en direct</0> à l'entrée.",
       "related1": "Gestionnaire de Liste",
       "related2": "Planificateur de Table",
-      "related3": "Kiosque d'Accueil"
+      "related3": "Diaporama en direct"
     },
     "invitations": {
       "title": "Invitations Digitales de Mariage et Gestion RSVP",
@@ -513,13 +513,13 @@
       "related2": "Gestionnaire de Liste",
       "related3": "Planificateur de Table"
     },
-    "kiosk": {
-      "title": "Kiosque d'Accueil pour Mariage",
-      "description": "Créez une expérience professionnelle avec un écran kiosque.",
-      "pageTitle": "Kiosque d'Accueil | Système de Recherche d'Invités",
-      "metaDesc": "Installez un kiosque d'accueil pour les invités.",
+    "liveSlideshow": {
+      "title": "Diaporama en direct",
+      "description": "Créez une expérience professionnelle avec un écran Diaporama en direct.",
+      "pageTitle": "Diaporama en direct | Wedding Waitress",
+      "metaDesc": "Installez un Diaporama en direct d'accueil pour les invités.",
       "seo1Heading": "Activez l'Auto Check-In",
-      "seo1Text": "Installez un kiosque digital avec votre <0>système QR code</0>.",
+      "seo1Text": "Installez un Diaporama en direct digital avec votre <0>système QR code</0>.",
       "seo2Heading": "Recherche Instantanée de Table",
       "seo2Text": "Les invités cherchent leur nom et voient la table de la <0>liste d'invités</0>.",
       "seo3Heading": "Améliorez l'Expérience d'Arrivée",
@@ -556,7 +556,7 @@
       "seo3Text": "Voyez comment les tables s'intègrent dans l'espace.",
       "related1": "Planificateur de Table",
       "related2": "Plan Complet",
-      "related3": "Kiosque d'Accueil"
+      "related3": "Diaporama en direct"
     }
   },
   "heroMain": {
@@ -611,8 +611,8 @@
         "heading": "Plan de table complet",
         "text": "Generez un plan maitre complet a imprimer."
       },
-      "kioskLiveView": {
-        "heading": "Vue kiosque en direct",
+      "liveSlideshow": {
+        "heading": "Diaporama en direct",
         "text": "Laissez les invites trouver leur place instantanement sur place."
       },
       "djMc": {
@@ -902,10 +902,10 @@
       "lead": "Concevez et organisez l'intégralité de votre plan de salle en toute simplicité. Gérez les invités, les tables et les sièges en une seule vue simple.",
       "primaryCta": "Commencez à planifier votre événement"
     },
-    "kioskLiveView": {
+    "liveSlideshow": {
       "primaryCta": "Commencer à planifier votre événement",
-      "pageTitle": "Affichage Kiosk Live de la disposition des places de mariage | Vue en direct des invités",
-      "h1": "Vue Kiosk Live des places assises pour votre événement",
+      "pageTitle": "Diaporama en direct | Wedding Waitress",
+      "h1": "Diaporama en direct",
       "h": [
         [
           "Afficher les places assises sur un écran Live",
@@ -926,7 +926,7 @@
       ],
       "finalCtaLabel": "Commencer à planifier votre événement",
       "lead": "Affichez votre plan de table sur un écran sur le lieu de votre événement. Permettez aux invités de trouver rapidement leur table de manière moderne et interactive.",
-      "metaDescription": "Affichez votre plan de table de mariage sur un écran ou un Kiosk. Les invités peuvent facilement trouver leur table en temps réel lors de votre événement."
+      "metaDescription": "Affichez votre plan de table de mariage sur un écran ou un Diaporama en direct. Les invités peuvent facilement trouver leur table en temps réel lors de votre événement."
     },
     "djMc": {
       "primaryCta": "Commencez à planifier votre événement",

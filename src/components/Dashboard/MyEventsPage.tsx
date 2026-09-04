@@ -18,7 +18,6 @@
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card } from "@/components/ui/card";
 import { EventsTable } from './EventsTable';
-import { EventUsagePill } from './EventUsagePill';
 import { Event } from '@/hooks/useEvents';
 import type { EventLimitsState } from '@/hooks/useEventLimits';
 import { useEventLimits } from '@/hooks/useEventLimits';
@@ -489,9 +488,6 @@ export const MyEventsPage: React.FC<MyEventsPageProps> = ({
       </Card>
 
       {/* Events Table with controlled radios */}
-        <div className="flex justify-end px-1 mb-2">
-          <EventUsagePill eventLimits={eventLimits} />
-        </div>
         <div className="overflow-x-auto">
           <EventsTable 
             events={events} 

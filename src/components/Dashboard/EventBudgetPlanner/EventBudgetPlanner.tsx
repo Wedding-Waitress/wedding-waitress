@@ -22,6 +22,7 @@ import { exportEventBudgetPdf } from '@/lib/eventBudgetPdfExporter';
 import { ExpenseDrawer } from './ExpenseDrawer';
 import { EventBudgetPrintDocument } from './EventBudgetPrintDocument';
 import styles from './EventBudgetPlanner.module.css';
+import { BUDGET_LABELS, type BudgetChoice } from '@/lib/guidedEventSetup';
 
 interface BudgetPlannerEvent { id: string; name: string; date?: string | null }
 type SortKey = 'category' | 'expense' | 'estimated' | 'actual' | 'paid' | 'outstanding' | 'due';
@@ -61,7 +62,7 @@ export const EventBudgetPlanner: React.FC<{ event: BudgetPlannerEvent }> = ({ ev
   React.useEffect(() => {
     const resolvedCurrency = resolveEventBudgetCurrency(data.settings?.currency, typeof window === 'undefined' ? null : window.localStorage.getItem('ww_currency'));
     setCurrency(resolvedCurrency);
-    setBudgetInput(data.settings ? formatBudgetInput(resolvedCurrency, Number(data.settings.anticipated_budget)) : '');
+    setBudgetInput(data.settings?.planned_budget_kind === 'exact' ? formatBudgetInput(resolvedCurrency, Number(data.settings.anticipated_budget)) : '');
     setBudgetState('idle'); setBudgetError('');
   }, [data.settings, event.id]);
 
@@ -115,7 +116,14 @@ export const EventBudgetPlanner: React.FC<{ event: BudgetPlannerEvent }> = ({ ev
     const currentBudget = Number(data.settings?.anticipated_budget ?? parseCurrencyInput(budgetInput) ?? 0);
     setBudgetError(''); setBudgetState('idle');
     try {
-      await saveBudget.mutateAsync({ anticipatedBudget: currentBudget, currency: nextCurrency });
+      await saveBudget.mutateAsync({
+        anticipatedBudget: currentBudget,
+        currency: nextCurrency,
+        ...(data.settings?.planned_budget_kind && data.settings.planned_budget_kind !== 'exact' ? {
+          plannedBudgetKind: data.settings.planned_budget_kind,
+          plannedBudgetRange: data.settings.planned_budget_range,
+        } : {}),
+      });
       setCurrency(nextCurrency);
       setBudgetInput(currentBudget > 0 ? formatBudgetInput(nextCurrency, currentBudget) : '');
       setPendingCurrency(null); setBudgetState('saved');
@@ -172,6 +180,8 @@ export const EventBudgetPlanner: React.FC<{ event: BudgetPlannerEvent }> = ({ ev
 
     <div className={styles.budgetPanel}>
       <div><label htmlFor="anticipated-event-budget">Total Anticipated Event Budget</label><p>{currency} · saved only for {event.name}</p></div>
+      {data.settings?.planned_budget_kind === 'range' && <p role="status">Guided setup estimate: {BUDGET_LABELS[data.settings.planned_budget_range as BudgetChoice] || data.settings.planned_budget_range}. Enter an exact amount whenever you are ready.</p>}
+      {data.settings?.planned_budget_kind === 'undecided' && <p role="status">Your planned budget is not decided yet. Enter an exact amount whenever you are ready.</p>}
       <div className={styles.budgetEntry}>
         <div className={styles.amountControl}><span aria-hidden="true">{CURRENCY_PREFIX[currency]}</span><input id="anticipated-event-budget" inputMode="decimal" value={budgetInput} onChange={event => { setBudgetInput(event.target.value); setBudgetState('idle'); setBudgetError(''); }} onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); void saveAnticipatedBudget(); } }} aria-invalid={budgetState === 'error'} /></div>
         <label className="sr-only" htmlFor="event-budget-currency">Event budget currency</label>

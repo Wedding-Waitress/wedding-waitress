@@ -6,6 +6,8 @@ import { PricingSection } from '@/components/Pricing/PricingSection';
 import { PricingValueComparison } from '@/components/Pricing/PricingValueComparison';
 import '@/styles/PublicSite.css';
 import { PACKAGE_PRICES_AUD } from '@/lib/packagePricing';
+import { PublicPageHero } from '@/components/Layout/PublicPageHero';
+import { publicHeroForRoute } from '@/config/publicHeroManifest';
 
 export const Pricing: React.FC = () => {
   const pricingSchema = {
@@ -22,13 +24,13 @@ export const Pricing: React.FC = () => {
     <div className="ww-public ww-pricing-page min-h-screen bg-[#fffdf9]">
       <SeoHead
         title="Pricing Plans | Wedding Waitress"
-        description="Wedding Waitress couple plans start at A$150 one-time for one event, 12 months and complete platform access. Advertised prices exclude GST."
+        description="Wedding Waitress couple plans start at AUD $199 one-time for one event, 12 months and complete platform access. Advertised prices exclude GST."
         canonicalPath="/pricing"
         jsonLd={pricingSchema}
       />
       <Header />
-      <main className="pt-8">
-        <div className="mx-auto max-w-3xl px-4 pt-12 text-center"><p className="ww-eyebrow mb-3">Pricing</p><h1 className="ww-title">Choose by guest capacity, not by features</h1><p className="ww-lead mt-5">Every couple plan includes the complete platform for one event with 12 months of access. Choose a supported currency below to view current converted prices.</p></div>
+      <main>
+        <PublicPageHero compact asset={publicHeroForRoute('/pricing')} eyebrow="Pricing" title="Choose by guest capacity, not by features" description="Every couple plan includes the complete platform for one event with 12 months of access. Choose a supported currency below to view current converted prices." />
         <PricingSection />
         <PricingValueComparison />
         <section className="ww-section ww-section-cream"><div className="ww-container max-w-5xl"><h2 className="ww-title text-center">Plan details, without surprises</h2><div className="mt-9 grid gap-5 md:grid-cols-3"><article className="ww-card p-6"><h3 className="text-lg font-semibold">Guest capacity</h3><p className="mt-3 leading-7 text-[#6f625b]">The capacity is the maximum number of guests for your event. If your list grows beyond it, choose an available higher-capacity plan before continuing.</p></article><article className="ww-card p-6"><h3 className="text-lg font-semibold">Upgrades</h3><p className="mt-3 leading-7 text-[#6f625b]">Available upgrade options are shown in your account. Contact Wedding Waitress if you need help selecting the right capacity.</p></article><article className="ww-card p-6"><h3 className="text-lg font-semibold">After 12 months</h3><p className="mt-3 leading-7 text-[#6f625b]">After your 12 months of plan access, Wedding Waitress provides an additional 30-day download window so you can save your photos, videos and available exports. This is a download-only period, not an additional month of active planning access.</p></article></div></div></section>

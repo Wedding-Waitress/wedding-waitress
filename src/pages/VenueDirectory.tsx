@@ -2,6 +2,9 @@ import { Helmet } from 'react-helmet-async';
 import { Link } from 'react-router-dom';
 import { useMemo, useState } from 'react';
 import { Header } from '@/components/Layout/Header';
+import { PublicFooter } from '@/components/Layout/PublicFooter';
+import { PublicPageHero } from '@/components/Layout/PublicPageHero';
+import { publicHeroForRoute } from '@/config/publicHeroManifest';
 import { Input } from '@/components/ui/input';
 import { Badge } from '@/components/ui/badge';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -71,17 +74,16 @@ export const VenueDirectory = () => {
 
       <div className="ww-public min-h-screen bg-background">
         <Header />
-        <main className="max-w-6xl mx-auto px-4 py-10">
-          <h1 className="text-3xl md:text-4xl font-bold text-foreground tracking-tight">
-            Wedding & Event Venue Floor Plans
-          </h1>
-          <p className="mt-3 text-muted-foreground max-w-2xl">
-            A growing public directory of approved reception layouts. Find the room that matches
-            your venue — then load its exact shape, fixtures and background into Wedding Waitress
-            with one click.
-          </p>
-
-          <div className="mt-6 flex flex-wrap items-center gap-3 max-lg:flex-col max-lg:items-stretch">
+        <main>
+          <PublicPageHero
+            asset={publicHeroForRoute('/venues')}
+            eyebrow="Venue directory"
+            title="Wedding & Event Venue Floor Plans"
+            description="A growing public directory of approved reception layouts. Find the room that matches your venue — then load its exact shape, fixtures and background into Wedding Waitress with one click."
+            compact
+          />
+          <div className="ww-container py-10">
+          <div className="flex flex-wrap items-center gap-3 max-lg:flex-col max-lg:items-stretch">
             <div className="relative flex-1 min-w-[220px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
@@ -164,7 +166,9 @@ export const VenueDirectory = () => {
               </div>
             )}
           </div>
+          </div>
         </main>
+        <PublicFooter />
       </div>
     </>
   );

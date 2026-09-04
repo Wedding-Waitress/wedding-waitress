@@ -19,8 +19,10 @@
   --ww-cream: #f6efe5;
   --ww-ivory: #fffdf9;
   --ww-ink: #221b18;
-  --ww-muted: #6f625b;
+  --ww-muted: var(--ww-text-on-light, #412419);
   --ww-line: #e7d8c7;
+  --ww-public-header-height: 4.5rem;
+  --ww-public-hero-gutter: clamp(1.25rem, 6vw, 1.5rem);
   background: var(--ww-ivory);
   color: var(--ww-ink);
   overflow-x: clip;
@@ -46,6 +48,73 @@ body:has(.ww-pricing-page),
 .ww-container { width: min(1180px, calc(100% - 2rem)); margin-inline: auto; }
 .ww-container > * { min-width: 0; }
 .ww-section { padding: clamp(4rem, 8vw, 7rem) 0; }
+.ww-public-photo-hero,
+.ww-home-cinematic-hero {
+  position: relative;
+  isolation: isolate;
+  display: grid;
+  box-sizing: border-box;
+  width: 100%;
+  max-width: none;
+  min-height: calc(100vh - var(--ww-public-header-height));
+  min-height: calc(100svh - var(--ww-public-header-height));
+  min-height: calc(100dvh - var(--ww-public-header-height));
+  margin: 0;
+  overflow: hidden;
+  align-items: center;
+  background: #21120d;
+}
+.ww-public-hero-picture,
+.ww-public-hero-picture img,
+.ww-home-hero-video,
+.ww-public-hero-shade { position: absolute; inset: 0; width: 100%; height: 100%; }
+.ww-public-hero-picture img,
+.ww-home-hero-video { object-fit: cover; object-position: var(--ww-hero-position, center); }
+.ww-public-hero-picture img {
+  animation: ww-public-hero-zoom 28s ease-in-out infinite alternate;
+  transform-origin: var(--ww-hero-position, center);
+  will-change: transform;
+}
+@keyframes ww-public-hero-zoom {
+  from { transform: scale(1); }
+  to { transform: scale(1.05); }
+}
+.ww-home-cinematic-hero.ww-home-video-is-ready .ww-public-hero-picture img {
+  animation: none;
+  transform: scale(1);
+  will-change: auto;
+}
+.ww-home-hero-video { z-index: 1; opacity: 0; transition: opacity 500ms ease; }
+.ww-home-hero-video.is-ready { opacity: 1; }
+.ww-public-hero-shade {
+  z-index: 2;
+  background: linear-gradient(90deg, rgba(25,12,8,.9) 0%, rgba(35,18,12,.72) 36%, rgba(35,18,12,.2) 70%, rgba(20,10,7,.08) 100%), linear-gradient(0deg, rgba(18,8,5,.32), transparent 48%);
+}
+.ww-public-hero-content,
+.ww-home-hero-content {
+  position: relative;
+  z-index: 3;
+  box-sizing: border-box;
+  width: 100%;
+  padding-block: clamp(5rem, 10vw, 8rem);
+  padding-inline: var(--ww-public-hero-gutter);
+  text-align: left;
+}
+.ww-public-photo-hero :where(h1, p, a, span),
+.ww-home-cinematic-hero :where(h1, p, a, span) { color: #fff !important; -webkit-text-fill-color: #fff !important; }
+.ww-public-photo-hero .ww-eyebrow,
+.ww-home-cinematic-hero .ww-eyebrow { color: #ead5b7 !important; -webkit-text-fill-color: #ead5b7 !important; }
+.ww-public-hero-lead { color: #fff; font-size: clamp(1rem, 2vw, 1.22rem); line-height: 1.7; text-shadow: 0 2px 16px rgba(0,0,0,.38); }
+.ww-public-hero-note { color: #fff; font-size: .875rem; }
+.ww-public-hero-breadcrumb { color: #fff; }
+.ww-public-hero-breadcrumb a { text-decoration: underline; text-underline-offset: 3px; }
+.ww-button-hero-secondary {
+  display: inline-flex; min-height: 48px; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,.72); border-radius: 999px; padding: .75rem 1.35rem; color: #fff; background: rgba(34,17,12,.34); font-weight: 700; backdrop-filter: blur(8px); transition: .2s ease;
+}
+.ww-button-hero-secondary:hover { border-color: #fff; background: rgba(34,17,12,.58); }
+.ww-home-video-toggle {
+  position: absolute; z-index: 4; right: clamp(1rem, 3vw, 2.5rem); bottom: clamp(1rem, 3vw, 2rem); display: inline-flex; min-height: 44px; align-items: center; gap: .5rem; border: 1px solid rgba(255,255,255,.7); border-radius: 999px; padding: .65rem 1rem; color: #fff; background: rgba(27,13,9,.56); backdrop-filter: blur(10px);
+}
 .ww-section-cream { background: var(--ww-cream); }
 .ww-public-dashboard-background,
 .ww-section-espresso {
@@ -56,6 +125,67 @@ body:has(.ww-pricing-page),
   background-size: var(--ww-application-background-size);
 }
 .ww-section-espresso { color: white; }
+.ww-home-experience-grid {
+  display: grid;
+  grid-template-columns: minmax(0, 1.45fr) minmax(20rem, 1fr);
+  gap: clamp(2.75rem, 5vw, 5rem);
+  align-items: center;
+}
+.ww-home-experience-media {
+  min-height: 34rem;
+  aspect-ratio: 6 / 5;
+  overflow: hidden;
+  border: 1px solid rgba(234, 213, 183, .58);
+  border-radius: 28px;
+  background: #1e100c;
+}
+.ww-home-experience-media picture,
+.ww-home-experience-media img {
+  display: block;
+  width: 100%;
+  height: 100%;
+}
+.ww-home-experience-media img {
+  object-fit: cover;
+  object-position: 50% 50%;
+}
+.ww-home-experience-copy { min-width: 0; }
+.ww-home-experience-prose {
+  margin-top: 1.5rem;
+  display: grid;
+  gap: 1rem;
+}
+.ww-home-experience-prose p {
+  margin: 0;
+  color: #fff;
+  font-size: 1rem;
+  line-height: 1.75;
+  opacity: 1;
+}
+.ww-home-experience-trust {
+  margin: 1.75rem 0 0;
+  display: grid;
+  gap: .9rem;
+  padding: 0;
+  list-style: none;
+}
+.ww-home-experience-trust li {
+  display: grid;
+  grid-template-columns: 1.35rem minmax(0, 1fr);
+  gap: .75rem;
+  align-items: start;
+  color: #fff;
+  font-weight: 650;
+  line-height: 1.55;
+}
+.ww-home-experience-trust svg {
+  width: 1.2rem;
+  height: 1.2rem;
+  margin-top: .12rem;
+  color: var(--ww-champagne);
+  stroke-width: 2;
+}
+.ww-home-experience-cta { margin-top: 2rem; }
 .ww-public .ww-section-espresso :where(h1, h2, h3),
 .ww-public .ww-dark-surface :where(h1, h2, h3),
 .ww-public footer :where(h1, h2, h3) { color: #fff; }
@@ -63,9 +193,9 @@ body:has(.ww-pricing-page),
 .ww-public .ww-section-espresso .ww-eyebrow,
 .ww-public .ww-dark-surface .ww-eyebrow,
 .ww-public footer .ww-eyebrow { color: var(--ww-champagne); }
-.ww-display { font-size: clamp(2.45rem, 6vw, 5.4rem); line-height: .98; font-weight: 650; }
+.ww-display { font-size: clamp(2.45rem, 6vw, 4.6875rem); line-height: .98; font-weight: 650; }
 .ww-title { font-size: clamp(2rem, 4vw, 3.6rem); line-height: 1.08; font-weight: 650; }
-.ww-lead { color: var(--ww-muted); font-size: clamp(1rem, 2vw, 1.22rem); line-height: 1.7; }
+.ww-lead { color: var(--ww-muted); font-size: clamp(1rem, 2vw, 1.22rem); line-height: 1.7; opacity: 1; }
 .ww-button-primary, .ww-button-secondary {
   display: inline-flex; min-height: 48px; align-items: center; justify-content: center; gap: .55rem;
   border-radius: 999px; padding: .75rem 1.35rem; font-weight: 700; transition: .2s ease;
@@ -98,7 +228,7 @@ body:has(.ww-pricing-page),
 .ww-button-primary[aria-disabled="true"],
 .ww-button-espresso:disabled,
 .ww-button-espresso[aria-disabled="true"] {
-  opacity: .48;
+  opacity: 1;
   cursor: not-allowed;
   filter: saturate(.45);
   box-shadow: inset 0 1px rgba(255,255,255,.12) !important;
@@ -149,6 +279,32 @@ body:has(.ww-pricing-page),
 .ww-public .ww-section-espresso :where(a, button):focus-visible,
 .ww-public .ww-dark-surface :where(a, button):focus-visible,
 .ww-public footer :where(a, button):focus-visible { outline-color: var(--ww-champagne); }
+
+.ww-public-home-logo,
+.ww-public-home-logo:hover,
+.ww-public-home-logo:focus,
+.ww-public-home-logo:focus-visible,
+.ww-public-home-logo:active {
+  animation: none !important;
+  transform: none !important;
+  transition: none !important;
+}
+.ww-public-home-logo img,
+.ww-public-home-logo:hover img,
+.ww-public-home-logo:focus img,
+.ww-public-home-logo:focus-visible img,
+.ww-public-home-logo:active img {
+  animation: none !important;
+  transform: none !important;
+  transition: opacity 180ms ease !important;
+}
+@media (min-width: 1320px) {
+  .ww-public-header-home-logo,
+  .ww-public-header-home-logo:hover,
+  .ww-public-header-home-logo:focus,
+  .ww-public-header-home-logo:focus-visible,
+  .ww-public-header-home-logo:active { transform: translateX(-0.5rem) !important; }
+}
 
 .ww-public-link,
 .ww-product-link,
@@ -203,7 +359,7 @@ body:has(.ww-pricing-page),
   width: 18px;
   height: 18px;
   margin-top: .02em;
-  color: rgba(65, 36, 25, .76);
+  color: var(--ww-text-on-light, #412419);
   transition: color .14s ease;
 }
 .ww-products-menu-link:hover .ww-product-menu-icon,
@@ -262,8 +418,17 @@ body:has(.ww-pricing-page),
 .ww-selector-trigger { border-color: var(--ww-dark-brown) !important; color: var(--ww-dark-brown) !important; }
 .ww-selector-trigger :where(span, svg) { color: var(--ww-dark-brown) !important; }
 .ww-selector-menu { border-color: var(--ww-dark-brown) !important; }
-.ww-selector-item { color: var(--ww-dark-brown) !important; }
+.ww-selector-item { gap: .5rem; color: var(--ww-dark-brown) !important; }
 .ww-selector-item :where(span, svg) { color: var(--ww-dark-brown) !important; }
+.ww-language-flag {
+  display: block;
+  width: 18px;
+  height: 14px;
+  flex: 0 0 18px;
+  border: 1px solid rgba(43, 23, 17, .14);
+  border-radius: 2px;
+  object-fit: cover;
+}
 .ww-selector-item:hover,
 .ww-selector-item:focus,
 .ww-selector-item[data-highlighted],
@@ -274,6 +439,11 @@ body:has(.ww-pricing-page),
 .ww-product-icon-grid .ww-product-icon-title { color: var(--ww-dark-brown); }
 
 .ww-home-products-title { text-wrap: balance; }
+.ww-home-journey > li > div:last-child > p {
+  font-size: 14px;
+  font-weight: 500;
+  line-height: 24px;
+}
 .ww-home-product-item {
   gap: .85rem;
   color: var(--ww-dark-brown);
@@ -482,7 +652,53 @@ body:has(.ww-pricing-page),
   .ww-product-menu-item-mobile .ww-product-menu-icon { width: 20px; height: 20px; }
 }
 
+@media (min-width: 640px) and (max-width: 1023px) {
+  .ww-public { --ww-public-hero-gutter: 2.5rem; }
+}
+
+@media (min-width: 1024px) {
+  .ww-public {
+    --ww-public-header-height: 5rem;
+    --ww-public-hero-gutter: clamp(3rem, 7vw, 8.75rem);
+  }
+}
+
+@media (max-width: 1023px) {
+  .ww-home-experience-grid { grid-template-columns: minmax(0, 1fr); }
+  .ww-home-experience-media {
+    min-height: 0;
+    aspect-ratio: 16 / 10;
+  }
+}
+
 @media (max-width: 639px) {
+  .ww-home-experience-grid { gap: 2rem; }
+  .ww-home-experience-media {
+    aspect-ratio: 4 / 3;
+    border-radius: 20px;
+  }
+  .ww-home-experience-prose { margin-top: 1.25rem; }
+  .ww-home-experience-prose p { line-height: 1.7; }
+  .ww-home-experience-cta { width: 100%; }
+  .ww-home-journey {
+    display: grid;
+    grid-auto-flow: column;
+    grid-auto-columns: minmax(82%, 20rem);
+    overflow-x: auto;
+    overscroll-behavior-inline: contain;
+    scroll-snap-type: inline mandatory;
+    scrollbar-width: thin;
+    padding-bottom: 0.75rem;
+  }
+  .ww-home-journey > li { scroll-snap-align: start; }
+  .ww-public-photo-hero,
+  .ww-home-cinematic-hero { align-items: end; }
+  .ww-public-hero-picture img,
+  .ww-home-hero-video { object-position: var(--ww-hero-mobile-position, center); }
+  .ww-public-hero-picture img { transform-origin: var(--ww-hero-mobile-position, center); }
+  .ww-public-hero-shade { background: linear-gradient(0deg, rgba(25,12,8,.94) 0%, rgba(31,15,10,.72) 55%, rgba(24,11,8,.18) 100%); }
+  .ww-public-hero-content,
+  .ww-home-hero-content { padding-block: 5rem 6.5rem; }
   .ww-events-menu-grid { grid-template-columns: 1fr; }
   .ww-event-hero-mark { min-height: 15rem; }
   .ww-mobile-product-grid { grid-template-columns: 1fr; }
@@ -495,6 +711,11 @@ body:has(.ww-pricing-page),
 
 @media (prefers-reduced-motion: reduce) {
   .ww-public *, .ww-button-primary, .ww-button-secondary, .ww-button-espresso { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+  .ww-public .ww-public-hero-picture img {
+    animation: none !important;
+    transform: scale(1) !important;
+    will-change: auto;
+  }
   .ww-public .group:is(a, button):hover .ww-icon-orb,
   .ww-public .group:is(a, button):active .ww-icon-orb { transform: none; }
   .ww-public .ww-home-product-item:hover,
@@ -511,4 +732,65 @@ body:has(.ww-pricing-page),
     transition: none !important;
   }
   .ww-how-process .ww-container::after { display: none; }
+}
+
+/* Public website solid-text contract. The first rule establishes espresso on
+   every light/default public surface; the later rule switches identified dark
+   surfaces and embossed controls to solid white. Semantic statuses retain their
+   dedicated opaque colours. */
+.ww-public :where(
+  p, span, strong, em, small, label, legend, li, dt, dd, th, td,
+  summary, figcaption, caption, a, button, input, textarea, select, option,
+  h1, h2, h3, h4, h5, h6
+):not([class*="success" i]):not([class*="error" i]):not([class*="warning" i]):not([class*="danger" i]):not([class*="text-green"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-rose"]):not([class*="text-orange"]):not([class*="text-amber"]):not([class*="text-yellow"]):not([class*="text-destructive"]):not(.ww-itc-preview *):not(.dietary-a4-preview *):not([data-print-mirror-document] *) {
+  color: var(--ww-text-on-light, #412419) !important;
+  -webkit-text-fill-color: var(--ww-text-on-light, #412419) !important;
+  --tw-text-opacity: 1 !important;
+}
+
+.ww-public :where(.ww-button-primary, .ww-button-espresso),
+.ww-public :where(.ww-button-primary, .ww-button-espresso) :where(p, span, strong, em, small, a, button) {
+  color: var(--ww-text-on-dark, #ffffff) !important;
+  -webkit-text-fill-color: var(--ww-text-on-dark, #ffffff) !important;
+  --tw-text-opacity: 1 !important;
+}
+
+.ww-public :where(
+  .ww-section-espresso,
+  .ww-dark-surface,
+  footer,
+  .ww-button-primary,
+  .ww-button-espresso,
+  [data-solid-text-surface="dark"]
+) :where(
+  p, span, strong, em, small, label, legend, li, dt, dd, th, td,
+  summary, figcaption, caption, a, button, input, textarea, select, option,
+  h1, h2, h3, h4, h5, h6
+):not([class*="success" i]):not([class*="error" i]):not([class*="warning" i]):not([class*="danger" i]):not([class*="text-green"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-rose"]):not([class*="text-orange"]):not([class*="text-amber"]):not([class*="text-yellow"]):not([class*="text-destructive"]):not(.ww-itc-preview *):not(.dietary-a4-preview *):not([data-print-mirror-document] *) {
+  color: var(--ww-text-on-dark, #ffffff) !important;
+  -webkit-text-fill-color: var(--ww-text-on-dark, #ffffff) !important;
+  --tw-text-opacity: 1 !important;
+}
+
+.ww-public :where(.ww-section-espresso, .ww-dark-surface, footer, [data-solid-text-surface="dark"])
+  :where(input, textarea)::placeholder {
+  color: var(--ww-text-on-dark, #ffffff) !important;
+  opacity: 1 !important;
+}
+
+/* Pricing-only dark surfaces must remain solid white after the public text contract. */
+.ww-pricing-page
+  :where(
+    [data-pricing-dark-surface="vendor-pro"],
+    [data-pricing-dark-surface="wedding-waitress-value"]
+  )
+  :where(h1, h2, h3, h4, h5, h6, p, span, li, small, strong, label, a, button, svg) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  opacity: 1 !important;
+}
+
+.ww-pricing-page #vendor-plan-badge[data-pricing-vendor-badge] {
+  color: #412419 !important;
+  -webkit-text-fill-color: #412419 !important;
 }

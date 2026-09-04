@@ -78,6 +78,6 @@ describe('Guest List and Tables statistics overview', () => {
     expect(globalCss).toContain('.ww-tables-stats :is(.ww-stat-label, .ww-stat-value, .ww-stat-icon, .text-primary)');
     expect(globalCss).toContain('.ww-stats-overview *');
     expect(moduleCss).toContain('color: #d9b77f;');
-    expect(moduleCss).toContain('color: rgba(255, 255, 255, 0.8);');
+    expect(moduleCss).toContain('color: #412419;');
   });
 });

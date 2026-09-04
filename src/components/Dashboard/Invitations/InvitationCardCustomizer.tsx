@@ -174,7 +174,7 @@ const createDefaultZone = (type: 'preset' | 'custom', label: string, presetField
   type,
   preset_field: presetField,
   text: '',
-  font_family: 'ET Emilia Grace Demo',
+  font_family: 'Lora',
   font_size: 20,
   font_color: '#000000',
   font_weight: 'normal',
@@ -198,7 +198,7 @@ export const PRESET_Y_POSITIONS: Record<string, number> = {
 };
 
 export const PRESET_STYLES: Record<string, { font_family: string; font_size: number }> = {
-  you_are_invited: { font_family: 'ET Emilia Grace Demo', font_size: 24 },
+  you_are_invited: { font_family: 'Lora', font_size: 24 },
   event_name: { font_family: 'Great Vibes', font_size: 56 },
 };
 

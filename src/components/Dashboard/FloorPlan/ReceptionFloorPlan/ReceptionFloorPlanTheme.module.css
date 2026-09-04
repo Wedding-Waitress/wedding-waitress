@@ -500,7 +500,7 @@
 
 .fixturePaletteCard[aria-disabled="true"] {
   cursor: not-allowed;
-  opacity: .48;
+  opacity: 1;
 }
 
 @media (min-width: 1280px) {

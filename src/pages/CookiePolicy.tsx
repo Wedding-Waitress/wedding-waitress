@@ -9,31 +9,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Cookie } from 'lucide-react';
 import { SeoHead } from '@/components/SEO/SeoHead';
+import { Header } from '@/components/Layout/Header';
+import { PublicFooter } from '@/components/Layout/PublicFooter';
+import { PublicPageHero } from '@/components/Layout/PublicPageHero';
+import { publicHeroForRoute } from '@/config/publicHeroManifest';
+import '@/styles/PublicSite.css';
 
 export const CookiePolicy = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="ww-public min-h-screen bg-gradient-subtle">
       <SeoHead
         title="Cookie Policy | Wedding Waitress"
         description="Understand how Wedding Waitress uses cookies and similar technologies to improve your wedding planning experience."
       />
-      {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="w-full px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2">
-            <Cookie className="w-6 h-6 text-primary" />
-            <span className="font-bold text-xl">Wedding Waitress</span>
-          </Link>
-          <Link to="/">
-            <Button variant="outline">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Button>
-          </Link>
-        </div>
-      </header>
+      <Header />
+      <PublicPageHero compact asset={publicHeroForRoute('/cookies')} eyebrow="Cookies" title="Cookie Policy" description="How Wedding Waitress uses cookies and similar technologies across the public website and platform." />
 
       {/* Main Content */}
       <main className="w-full px-4 py-12">
@@ -169,17 +161,7 @@ export const CookiePolicy = () => {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t bg-background py-8">
-        <div className="w-full px-4 text-center text-muted-foreground text-sm">
-          <p>© {currentYear} Wedding Waitress. All rights reserved.</p>
-          <div className="flex justify-center gap-4 mt-2">
-            <Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
-            <Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
-            <Link to="/cookies" className="hover:text-primary transition-colors">Cookie Policy</Link>
-          </div>
-        </div>
-      </footer>
+      <PublicFooter />
     </div>
   );
 };

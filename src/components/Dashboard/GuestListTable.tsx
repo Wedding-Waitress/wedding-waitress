@@ -118,6 +118,8 @@ import {
   ImportError 
 } from '@/lib/relationValidation';
 import { getGuestCreationPrerequisite } from '@/lib/guestListPrerequisites';
+import { getGuestEventOwnerId } from '@/lib/guestEventOwner';
+import { getGuidedSetupGuestDesignation } from '@/lib/guidedSetupGuests';
 
 const AddGuestModal = lazy(() => import('./AddGuestModal').then(module => ({ default: module.AddGuestModal })));
 const GuestDeleteConfirmationModal = lazy(() => import('./GuestDeleteConfirmationModal').then(module => ({ default: module.GuestDeleteConfirmationModal })));
@@ -1412,16 +1414,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           
           if (confirm(confirmMsg)) {
             try {
-              // Bulk insert guests with relation_display computed
-              const { data: user } = await supabase.auth.getUser();
-              if (!user.user) {
-                toast({ 
-                  title: "Import failed", 
-                  description: "You must be logged in to import guests",
-                  variant: "destructive"
-                });
-                return;
-              }
+              // The composite database constraint requires collaborator-created
+              // guests to retain the selected event's real owner.
+              const eventOwnerId = getGuestEventOwnerId(selectedEvent, selectedEventId);
 
               // Compute relation_display for each row
               const rowsWithDisplay = validRows.map(row => {
@@ -1435,7 +1430,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 return {
                   ...row,
                   relation_display: relationDisplay,
-                  user_id: user.user.id
+                  user_id: eventOwnerId
                 };
               });
 
@@ -2454,6 +2449,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   )}
                   {group.members.map((guest) => {
                     const typeLabel = getGuestTypeLabel(guest);
+                    const guidedDesignation = getGuidedSetupGuestDesignation(guest.guided_setup_origin);
                     const typeColor =
                       typeLabel === 'Couple'
                         ? 'bg-[#FF5F1F] text-white'
@@ -2513,6 +2509,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           <span className="font-bold text-base text-[#1D1D1F] truncate">
                             {guest.first_name} {guest.last_name}
                           </span>
+                          {guidedDesignation && <span className={styles.guidedGuestBadge}>{guidedDesignation}</span>}
                           {hasPlusOneAlert && (
                             <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold bg-[#FEF3C7] border border-[#967A59] text-[#1D1D1F]">
                               +1 Added
@@ -2792,6 +2789,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     {/* Render each member */}
                     {group.members.map((guest, memberIndex) => {
                       const isLastMember = memberIndex === group.members.length - 1;
+                      const guidedDesignation = getGuidedSetupGuestDesignation(guest.guided_setup_origin);
                       return (
                         <TableRow 
                           key={guest.id}
@@ -2811,7 +2809,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             />
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle font-medium">
-                            {guest.first_name}
+                            <span className="inline-flex flex-wrap items-center justify-center gap-1.5">
+                              <span>{guest.first_name}</span>
+                              {guidedDesignation && <span className={styles.guidedGuestBadge}>{guidedDesignation}</span>}
+                            </span>
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle font-medium">{guest.last_name}</TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>

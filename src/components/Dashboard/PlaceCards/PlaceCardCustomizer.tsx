@@ -120,7 +120,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   const handleResetDesignDefaults = async () => {
     const designDefaults = {
       guest_font_family: "Great Vibes",
-      info_font_family: "Beauty Mountains",
+      info_font_family: "Alex Brush",
       guest_name_bold: false,
       guest_name_italic: false,
       guest_name_underline: false,
@@ -377,7 +377,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     <div>
                       <Label className="text-xs text-muted-foreground mb-1 block">Font</Label>
                       <PlaceCardFontPicker
-                        value={currentSettings.info_font_family || "Beauty Mountains"}
+                        value={currentSettings.info_font_family || "Alex Brush"}
                         onValueChange={(value) => handleSettingChange("info_font_family", value)}
                       />
                     </div>

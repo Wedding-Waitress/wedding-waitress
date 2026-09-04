@@ -2,6 +2,7 @@ import React, { useEffect, useRef, useCallback, useState } from 'react';
 import type { TextZone } from '@/hooks/useInvitationTemplates';
 import { loadGoogleFont } from '@/lib/googleFonts';
 import type { QrConfig } from '@/lib/invitationQR';
+import { weddingFontFamilyStack } from '@/lib/localWeddingFonts';
 
 interface Props {
   backgroundUrl: string;
@@ -85,7 +86,7 @@ export const InvitationPreview: React.FC<Props> = ({
     const overrides = customStyles[zone.id] || {};
     const textCase = overrides.text_case || zone.text_case || 'default';
     return {
-      fontFamily: overrides.font_family || zone.font_family,
+      fontFamily: weddingFontFamilyStack(overrides.font_family || zone.font_family),
       fontSize: `${(overrides.font_size || zone.font_size) * scale}px`,
       fontWeight: overrides.font_weight || zone.font_weight,
       color: overrides.font_color || zone.font_color,

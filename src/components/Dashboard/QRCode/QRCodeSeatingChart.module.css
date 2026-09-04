@@ -130,7 +130,7 @@
 
 .page input::placeholder,
 .page textarea::placeholder {
-  color: rgba(243, 231, 216, 0.62) !important;
+  color: #ffffff !important;
 }
 
 .selectTrigger:hover,

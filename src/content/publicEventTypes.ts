@@ -43,7 +43,7 @@ export const publicEventTypes: PublicEventType[] = [
       { title: 'Set the wedding foundation', text: 'Add the ceremony, reception, venues, timings and guest capacity once.' },
       { title: 'Organise people and places', text: 'Collect RSVPs, record dietary needs and relationships, then assign tables and seats.' },
       { title: 'Prepare every useful output', text: 'Create invitations, signage, charts, place cards, supplier briefs and the day’s run sheet.' },
-      { title: 'Welcome and involve guests', text: 'Support seating lookup, kiosk access and shared photos, videos and messages.' },
+      { title: 'Welcome and involve guests', text: 'Support seating lookup, Live Slideshow access and shared photos, videos and messages.' },
     ],
     benefits: [
       { title: 'One source of truth', text: 'Use consistent event and guest information throughout the planning workflow.' },
@@ -121,20 +121,20 @@ export const publicEventTypes: PublicEventType[] = [
   {
     id: 'corporate-events', name: 'Corporate Events', shortName: 'Corporate Events', path: '/events/corporate-events', eyebrow: 'Corporate events', icon: 'building',
     seoTitle: 'Corporate Event Guest & Venue Planning | Wedding Waitress',
-    metaDescription: 'Coordinate corporate event attendees, tables, dietary requirements, venue references, schedules, signage and kiosk lookup.',
+    metaDescription: 'Coordinate corporate event attendees, tables, dietary requirements, venue references, schedules, signage and Live Slideshow lookup.',
     h1: 'Keep attendees, suppliers and the venue working from one plan',
     lead: 'Coordinate registrations, seating, service details and event-day responsibilities for dinners, awards, launches, conferences and team events.',
     challenges: [
       { title: 'Attendee data serves many teams', text: 'Keep names, organisations, dietary needs and seating details organised for hosts and venue staff.' },
       { title: 'Timing has operational consequences', text: 'Give speakers, production, catering and MCs a clear sequence of responsibilities.' },
-      { title: 'Arrival must feel efficient', text: 'Help attendees find their assigned place through QR or kiosk lookup where seating is used.' },
+      { title: 'Arrival must feel efficient', text: 'Help attendees find their assigned place through QR or Live Slideshow lookup where seating is used.' },
     ],
-    productIds: ['guest-list', 'tables', 'dietary-requirements', 'full-seating-chart', 'kiosk-live-view', 'running-sheet'],
+    productIds: ['guest-list', 'tables', 'dietary-requirements', 'full-seating-chart', 'live-slideshow', 'running-sheet'],
     howItWorks: [
       { title: 'Define the event', text: 'Record the venue, schedule boundaries and attendee capacity.' },
       { title: 'Prepare the attendee list', text: 'Maintain responses, contact details, dietary needs and relevant relationships or groups.' },
       { title: 'Coordinate the room and team', text: 'Assign tables and seats, prepare staff references and build the operational run sheet.' },
-      { title: 'Support arrival', text: 'Offer QR or kiosk lookup for events using assigned seating.' },
+      { title: 'Support arrival', text: 'Offer QR or Live Slideshow lookup for events using assigned seating.' },
     ],
     benefits: [
       { title: 'Useful operational clarity', text: 'Give hosts and suppliers current information without maintaining parallel spreadsheets.' },
@@ -144,7 +144,7 @@ export const publicEventTypes: PublicEventType[] = [
     example: { title: 'An awards dinner', text: 'Maintain the attendee list, assign sponsored tables, prepare dietary and check-in references, then coordinate arrivals, presentations and service in the run sheet.' },
     faqs: [
       { question: 'Can this support conferences as well as dinners?', answer: 'Yes. Guest-list, schedule and lookup tools can support different corporate formats; seating products are available when the event uses assigned places.' },
-      { question: 'Can attendees find their table at a kiosk?', answer: 'Yes. Kiosk Live View can run on a supported touchscreen, tablet, laptop or desktop so attendees can search for their assignment.' },
+      { question: 'Can attendees find their table in the Live Slideshow?', answer: 'Yes. Live Slideshow can run on a supported touchscreen, tablet, laptop or desktop so attendees can search for their assignment.' },
       { question: 'Can we prepare dietary information for caterers?', answer: 'Yes. The Dietary Requirements product creates a practical reference using recorded attendee, table and seat details.' },
       { question: 'Is there a plan for venues and event professionals?', answer: 'Wedding Waitress lists a Vendor Pro option for venues and event professionals on the Pricing page.' },
     ], relatedEventIds: ['christmas-seasonal-events', 'birthdays-parties'],
@@ -227,7 +227,7 @@ export const relevantEventIdsByProduct: Record<string, PublicEventTypeId[]> = {
   'floor-plan': ['weddings', 'corporate-events'],
   'dietary-requirements': ['weddings', 'christmas-seasonal-events', 'corporate-events'],
   'full-seating-chart': ['weddings', 'corporate-events', 'memorials-celebrations-of-life'],
-  'kiosk-live-view': ['weddings', 'corporate-events'],
+  'live-slideshow': ['weddings', 'corporate-events'],
   'dj-mc-questionnaire': ['weddings', 'birthdays-parties'],
   'running-sheet': ['weddings', 'corporate-events', 'memorials-celebrations-of-life'],
   'photo-video-sharing': ['weddings', 'engagements', 'birthdays-parties'],

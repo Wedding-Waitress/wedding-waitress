@@ -70,8 +70,8 @@
       "title": "Piano posti completo",
       "desc": "Genera un piano posti master completo e stampabile."
     },
-    "kiosk": {
-      "title": "Vista kiosk dal vivo",
+    "liveSlideshow": {
+      "title": "Presentazione live",
       "desc": "Gli ospiti trovano il loro posto istantaneamente al locale."
     },
     "djmc": {
@@ -120,9 +120,9 @@
       "title": "Piano posti completo",
       "desc": "Crea un piano posti completo e pronto per la stampa che mostra ogni ospite e tavolo. Esporta in PDF con stile personalizzato e il branding del tuo evento."
     },
-    "kiosk": {
-      "title": "Vista kiosk dal vivo",
-      "desc": "Installa kiosk di check-in self-service all'ingresso del tuo locale. Gli ospiti cercano il loro nome e vedono istantaneamente la loro assegnazione tavolo."
+    "liveSlideshow": {
+      "title": "Presentazione live",
+      "desc": "Installa Presentazione live di check-in self-service all'ingresso del tuo locale. Gli ospiti cercano il loro nome e vedono istantaneamente la loro assegnazione tavolo."
     },
     "djmc": {
       "title": "Questionario DJ e MC",
@@ -148,8 +148,8 @@
       "title": "Segnaposto",
       "desc": "Bellissimi cartellini stampati"
     },
-    "kiosk": {
-      "title": "Vista kiosk dal vivo",
+    "liveSlideshow": {
+      "title": "Presentazione live",
       "desc": "Check-in self-service ospiti"
     },
     "seatingCharts": {
@@ -353,7 +353,7 @@
     "floorPlan": "Planimetria",
     "dietary": "Requisiti dietetici",
     "seatingChart": "Piano posti completo",
-    "kiosk": "Vista kiosk dal vivo",
+    "liveSlideshow": "Presentazione live",
     "djmc": "Questionario DJ-MC",
     "runningSheet": "Scaletta"
   },
@@ -418,10 +418,10 @@
       "seo2Heading": "Informazioni Digitali sui Posti",
       "seo2Text": "Gli ospiti scansionano e vedono istantaneamente il loro tavolo dal <0>piano tavoli</0>. Niente più confusione all'ingresso.",
       "seo3Heading": "Semplifica l'Esperienza degli Ospiti",
-      "seo3Text": "Crea un'esperienza moderna. Abbina il codice QR con una <0>vista kiosk dal vivo</0> all'ingresso del locale.",
+      "seo3Text": "Crea un'esperienza moderna. Abbina il codice QR con una <0>vista Presentazione live dal vivo</0> all'ingresso del locale.",
       "related1": "Gestore Lista Invitati",
       "related2": "Pianificatore Posti",
-      "related3": "Check-In Kiosk"
+      "related3": "Check-In Presentazione live"
     },
     "invitations": {
       "title": "Inviti Digitali Matrimonio e Gestione RSVP",
@@ -528,13 +528,13 @@
       "related2": "Gestore Lista Invitati",
       "related3": "Pianificatore Posti"
     },
-    "kiosk": {
-      "title": "Kiosk Check-In Ospiti Matrimonio e Sistema Ricerca",
-      "description": "Crea un'esperienza professionale con un display kiosk dal vivo. Gli ospiti cercano il nome e trovano il tavolo su schermo.",
-      "pageTitle": "Kiosk Check-In Matrimonio | Sistema Ricerca e Ingresso Ospiti",
-      "metaDesc": "Installa un kiosk check-in ospiti dal vivo. Gli ospiti cercano il nome e trovano il tavolo istantaneamente.",
+    "liveSlideshow": {
+      "title": "Presentazione live",
+      "description": "Crea un'esperienza professionale con un Presentazione live. Gli ospiti cercano il nome e trovano il tavolo su schermo.",
+      "pageTitle": "Presentazione live | Wedding Waitress",
+      "metaDesc": "Installa Presentazione live check-in ospiti dal vivo. Gli ospiti cercano il nome e trovano il tavolo istantaneamente.",
       "seo1Heading": "Abilita il Self Check-In Ospiti",
-      "seo1Text": "Installa un kiosk digitale all'ingresso alimentato dal tuo <0>sistema codice QR</0>. Veloce, professionale e riduce le code.",
+      "seo1Text": "Installa Presentazione live digitale all'ingresso alimentato dal tuo <0>sistema codice QR</0>. Veloce, professionale e riduce le code.",
       "seo2Heading": "Ricerca Tavolo Istantanea",
       "seo2Text": "Gli ospiti cercano il nome e vedono istantaneamente il numero tavolo dalla <0>lista invitati</0>.",
       "seo3Heading": "Migliora l'Esperienza di Ingresso",
@@ -571,7 +571,7 @@
       "seo3Text": "Vedi come tavoli e posti si adattano allo spazio del locale. Regola i layout in tempo reale.",
       "related1": "Pianificatore Posti",
       "related2": "Piano Tavoli Completo",
-      "related3": "Check-In Kiosk"
+      "related3": "Check-In Presentazione live"
     }
   },
   "heroMain": {
@@ -626,8 +626,8 @@
         "heading": "Tableau completo",
         "text": "Genera un tableau master completo da stampare."
       },
-      "kioskLiveView": {
-        "heading": "Vista kiosk live",
+      "liveSlideshow": {
+        "heading": "Presentazione live",
         "text": "Permetti agli ospiti di trovare il loro posto all'istante in loco."
       },
       "djMc": {
@@ -917,11 +917,11 @@
       "pageTitle": "Creatore di piani di posti a sedere per matrimoni | Piano di posti a sedere completo online",
       "lead": "Progetta e organizza il tuo intero piano di posti a sedere con facilità. Gestisci invitati, tavoli e posti a sedere tutto in una semplice visualizzazione."
     },
-    "kioskLiveView": {
+    "liveSlideshow": {
       "primaryCta": "Inizia a Pianificare il Tuo Evento",
       "lead": "Visualizza la disposizione dei posti su uno schermo presso la tua location. Permetti agli ospiti di trovare rapidamente il loro tavolo in modo moderno e interattivo.",
-      "metaDescription": "Visualizza la disposizione dei posti del tuo matrimonio su uno schermo o un Kiosk. Gli ospiti possono trovare facilmente il loro tavolo in tempo reale al tuo evento.",
-      "h1": "Kiosk Live Seating View per il Tuo Evento",
+      "metaDescription": "Visualizza la disposizione dei posti del tuo matrimonio su uno schermo o Presentazione live. Gli ospiti possono trovare facilmente il loro tavolo in tempo reale al tuo evento.",
+      "h1": "Presentazione live",
       "h": [
         [
           "Visualizza i posti a sedere su uno schermo live",
@@ -940,7 +940,7 @@
           "Esperienza completamente connessa."
         ]
       ],
-      "pageTitle": "Display Kiosk per Posti a Sedere Matrimonio | Vista Ospiti in Tempo Reale",
+      "pageTitle": "Presentazione live | Wedding Waitress",
       "finalCtaLabel": "Inizia a Pianificare il Tuo Evento"
     },
     "djMc": {

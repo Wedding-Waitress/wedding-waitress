@@ -7,6 +7,8 @@ import { Link, useParams } from 'react-router-dom';
 import { useTranslation } from 'react-i18next';
 import { Header } from '@/components/Layout/Header';
 import { PublicFooter } from '@/components/Layout/PublicFooter';
+import { PublicPageHero } from '@/components/Layout/PublicPageHero';
+import { publicHeroForRoute } from '@/config/publicHeroManifest';
 import { CookieBanner } from '@/components/ui/CookieBanner';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { SignUpModal } from '@/components/auth/SignUpModal';
@@ -99,21 +101,20 @@ export const BlogPost = () => {
       <Header />
 
       <main className="flex-1">
-        <article className="w-full max-w-3xl mx-auto px-6 pt-16 md:pt-24 pb-16">
-          <nav className="text-sm text-[#6E6E73] mb-6" aria-label="Breadcrumb">
-            <Link to="/" className="ww-public-link">{t('blog.breadcrumbHome')}</Link>
+        <PublicPageHero
+          compact
+          asset={publicHeroForRoute('/blog/:slug')}
+          eyebrow="Planning journal"
+          title={post.title}
+          description={post.intro}
+          breadcrumbs={<nav className="ww-public-hero-breadcrumb mb-8 text-sm" aria-label="Breadcrumb">
+            <Link to="/" className="ww-focus">{t('blog.breadcrumbHome')}</Link>
             <span className="mx-2">/</span>
-            <Link to="/blog" className="ww-public-link">{t('blog.backToBlog')}</Link>
-          </nav>
-
-          <div className="ww-public-link text-xs uppercase tracking-wider font-semibold mb-3">
-            {post.date} · {post.readingTime}
-          </div>
-          <h1 className="text-3xl sm:text-4xl md:text-5xl font-bold text-[#1D1D1F] leading-tight">
-            {post.title}
-          </h1>
-          <p className="mt-6 text-lg text-[#6E6E73] leading-relaxed">{post.intro}</p>
-
+            <Link to="/blog" className="ww-focus">{t('blog.backToBlog')}</Link>
+          </nav>}
+          note={<span>{post.date} · {post.readingTime}</span>}
+        />
+        <article className="w-full max-w-3xl mx-auto px-6 py-16">
           <div className="mt-10 space-y-10">
             {post.sections.map((section, i) => (
               <section key={i}>

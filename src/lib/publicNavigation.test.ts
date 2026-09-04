@@ -2,9 +2,11 @@ import { describe, expect, it } from 'vitest';
 
 import { publicEventTypes } from '@/content/publicEventTypes';
 import { productsByGroup } from '@/content/publicProducts';
+import { publicHeroByRoute } from '@/config/publicHeroManifest';
 import {
   getActivePublicNavigation,
   isCurrentPublicPath,
+  matchesPublicRoutePattern,
   normalizePublicPath,
 } from '@/lib/publicNavigation';
 
@@ -38,6 +40,13 @@ describe('public navigation route matching', () => {
     });
   });
 
+  it('groups every navigation-tagged hero route under its declared parent', () => {
+    Object.entries(publicHeroByRoute).forEach(([path, hero]) => {
+      if (!hero.navigationParent) return;
+      expect(getActivePublicNavigation(path)).toBe(hero.navigationParent);
+    });
+  });
+
   it('normalizes trailing slashes, query strings and hashes', () => {
     expect(normalizePublicPath('/pricing/?currency=AUD#plans')).toBe('/pricing');
     expect(getActivePublicNavigation('/pricing/?currency=AUD#plans')).toBe('pricing');
@@ -50,6 +59,12 @@ describe('public navigation route matching', () => {
       expect(getActivePublicNavigation(path)).toBeNull();
     },
   );
+
+  it('matches parameterized manifest routes by complete route segments', () => {
+    expect(matchesPublicRoutePattern('/products/example', '/products/:slug')).toBe(true);
+    expect(matchesPublicRoutePattern('/products/example/details', '/products/:slug')).toBe(false);
+    expect(matchesPublicRoutePattern('/products-old/example', '/products/:slug')).toBe(false);
+  });
 
   it('marks only the exact destination as the current page', () => {
     expect(isCurrentPublicPath('/blog', '/blog')).toBe(true);

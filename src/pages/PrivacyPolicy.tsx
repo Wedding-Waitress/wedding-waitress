@@ -9,31 +9,23 @@ import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { ArrowLeft, Shield } from 'lucide-react';
 import { SeoHead } from '@/components/SEO/SeoHead';
+import { Header } from '@/components/Layout/Header';
+import { PublicFooter } from '@/components/Layout/PublicFooter';
+import { PublicPageHero } from '@/components/Layout/PublicPageHero';
+import { publicHeroForRoute } from '@/config/publicHeroManifest';
+import '@/styles/PublicSite.css';
 
 export const PrivacyPolicy = () => {
   const currentYear = new Date().getFullYear();
 
   return (
-    <div className="min-h-screen bg-gradient-subtle">
+    <div className="ww-public min-h-screen bg-gradient-subtle">
       <SeoHead
         title="Privacy Policy | Wedding Waitress"
         description="Learn how Wedding Waitress collects, uses, and protects your personal information when you use our wedding planning platform."
       />
-      {/* Header */}
-      <header className="border-b bg-background/95 backdrop-blur supports-[backdrop-filter]:bg-background/60">
-        <div className="w-full px-4 py-4 flex items-center justify-between">
-          <Link to="/" className="flex items-center space-x-2">
-            <Shield className="w-6 h-6 text-primary" />
-            <span className="font-bold text-xl">Wedding Waitress</span>
-          </Link>
-          <Link to="/">
-            <Button variant="outline">
-              <ArrowLeft className="w-4 h-4 mr-2" />
-              Back to Home
-            </Button>
-          </Link>
-        </div>
-      </header>
+      <Header />
+      <PublicPageHero compact asset={publicHeroForRoute('/privacy')} eyebrow="Privacy" title="Privacy Policy" description="How Wedding Waitress collects, uses and protects your personal information." />
 
       {/* Main Content */}
       <main className="w-full px-4 py-12">
@@ -281,21 +273,7 @@ export const PrivacyPolicy = () => {
         </div>
       </main>
 
-      {/* Footer */}
-      <footer className="border-t bg-background/95">
-        <div className="w-full px-4 py-8">
-          <div className="text-center text-sm text-muted-foreground">
-            <p>© {currentYear} Wedding Waitress. All rights reserved.</p>
-            <div className="flex items-center justify-center gap-4 mt-4">
-              <Link to="/privacy" className="hover:text-primary transition-colors">Privacy Policy</Link>
-              <span>•</span>
-              <Link to="/terms" className="hover:text-primary transition-colors">Terms of Service</Link>
-              <span>•</span>
-              <Link to="/contact" className="hover:text-primary transition-colors">Contact</Link>
-            </div>
-          </div>
-        </div>
-      </footer>
+      <PublicFooter />
     </div>
   );
 };

@@ -37,7 +37,7 @@ describe('global Wedding Waitress interface font', () => {
     expect(read('src/components/Dashboard/IndividualTableChart/IndividualTableChartPrintPage.tsx')).toContain("fontFamily: 'Arial, Helvetica, sans-serif'");
     expect(read('src/components/Dashboard/FloorPlan/CeremonyFloorPlan/CeremonyFloorPlanA4.module.css')).toContain('font-family: Arial, Helvetica, sans-serif');
     expect(read('src/components/Dashboard/FloorPlan/ReceptionFloorPlan/ReceptionFloorPlanA4.module.css')).toContain('font-family: Arial, Helvetica, sans-serif');
-    expect(read('src/components/Dashboard/Invitations/InvitationCardPreview.tsx')).toContain('fontFamily: zone.font_family');
-    expect(read('src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx')).toContain('fontFamily: currentSettings.guest_font_family');
+    expect(read('src/components/Dashboard/Invitations/InvitationCardPreview.tsx')).toContain('fontFamily: weddingFontFamilyStack(zone.font_family)');
+    expect(read('src/components/Dashboard/PlaceCards/PlaceCardPreview.tsx')).toContain('fontFamily: weddingFontFamilyStack(currentSettings.guest_font_family)');
   });
 });

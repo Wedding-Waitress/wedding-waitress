@@ -21,6 +21,8 @@ import blogSeatingEtiquette from '@/assets/blog-seating-etiquette.jpg';
 import blogSeatingTemplates from '@/assets/blog-seating-templates.jpg';
 import blogSeatingMistakes from '@/assets/blog-seating-mistakes.jpg';
 import '@/styles/PublicSite.css';
+import { PublicPageHero } from '@/components/Layout/PublicPageHero';
+import { publicHeroForRoute } from '@/config/publicHeroManifest';
 
 const BLOG_COVER_IMAGES: Record<string, string> = {
   'blog-qr-scanning': blogQrScanning,
@@ -60,17 +62,7 @@ export const Blog = () => {
       <Header />
 
       <main className="flex-1">
-        {/* Hero */}
-        <section className="w-full bg-[#f3efe9] pt-24 pb-14 md:pt-32 md:pb-20">
-          <div className="max-w-4xl mx-auto px-6 text-center">
-            <h1 className="text-3xl sm:text-4xl md:text-5xl lg:text-6xl font-bold text-[#1D1D1F] leading-tight whitespace-nowrap">
-              {t('blog.title')}
-            </h1>
-            <p className="mt-6 text-lg md:text-xl text-[#6E6E73] leading-relaxed max-w-2xl mx-auto">
-              {t('blog.subtitleLong')}
-            </p>
-          </div>
-        </section>
+        <PublicPageHero compact asset={publicHeroForRoute('/blog')} eyebrow="Planning journal" title={t('blog.title')} description={t('blog.subtitleLong')} />
 
         {/* Posts grid */}
         <section className="w-full max-w-6xl mx-auto px-6 py-16 md:py-20">

@@ -27,7 +27,7 @@ const menuItems = [
   { id: "dietary-chart", label: "Dietary Requirements", icon: ChefHat },
   { id: "signage", label: "Signage", icon: FileImage },
   { id: "full-seating-chart", label: "Full Seating Chart", icon: FileText },
-  { id: "kiosk-live-view", label: "Kiosk Live View", icon: Monitor },
+  { id: "live-slideshow", label: "Live Slideshow", icon: Monitor },
 ];
 
 const SidebarMenuContent = ({ activeTab, onTabChange, onSignOut }: { activeTab: string; onTabChange: (tabId: string) => void; onSignOut: () => void }) => {

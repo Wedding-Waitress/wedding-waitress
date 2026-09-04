@@ -167,7 +167,7 @@
 }
 
 .libraryDialog input::placeholder {
-  color: rgba(237, 220, 199, 0.62) !important;
+  color: #ffffff !important;
 }
 
 .templateCard {
