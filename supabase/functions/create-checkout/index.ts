@@ -11,6 +11,21 @@ const PUBLIC_PLAN_CATALOG = {
 
 const GUEST_CAPACITY_TOPUP_FALLBACK_PRICE_ID = "price_1TT0o05GzTmqOxGKUIiEXxj6";
 const GUEST_CAPACITY_TOPUP_PRODUCT_ID = "prod_URud0pt0K8Sl9i";
+const COMMUNICATION_CREDIT_PACKS = {
+  credits_10: {
+    credits: 10,
+    unitAmount: 1000,
+    priceSecret: 'STRIPE_COMMUNICATION_TOPUP_10_PRICE_ID',
+    productSecret: 'STRIPE_COMMUNICATION_TOPUP_10_PRODUCT_ID',
+  },
+  credits_100: {
+    credits: 100,
+    unitAmount: 4900,
+    priceSecret: 'STRIPE_COMMUNICATION_TOPUP_PRICE_ID',
+    productSecret: 'STRIPE_COMMUNICATION_TOPUP_PRODUCT_ID',
+  },
+} as const;
+type CommunicationCreditPackKey = keyof typeof COMMUNICATION_CREDIT_PACKS;
 const PAID_WEDDING_PLAN_IDS = new Set([
   "78cdab0d-d81d-4757-b7cc-f210b8b30f47",
   "1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8",
@@ -96,6 +111,7 @@ serve(async (req) => {
       ui_mode,
       quantity,
       purchase_type,
+      communication_topup_pack,
       guest_count_at_purchase,
       idempotency_key,
       delivery_method,
@@ -109,10 +125,19 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Vendor Pro is not currently available' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
     if (plan_type === 'rsvp' || purchase_type === 'rsvp_overage') {
-      return new Response(JSON.stringify({ error: 'Legacy RSVP bundles are no longer available; use your included Email & SMS credits or the 100-credit top-up.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      return new Response(JSON.stringify({ error: 'Legacy RSVP bundles are no longer available; use your included Email & SMS credits or an approved 10- or 100-credit top-up.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    const communicationPackKey = typeof communication_topup_pack === 'string'
+      ? communication_topup_pack as CommunicationCreditPackKey
+      : '';
+    const communicationPack = isCommunicationTopup && communicationPackKey in COMMUNICATION_CREDIT_PACKS
+      ? COMMUNICATION_CREDIT_PACKS[communicationPackKey]
+      : null;
+    if (isCommunicationTopup && !communicationPack) {
+      return new Response(JSON.stringify({ error: 'Select an approved communication credit pack.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
     const price_id = isCommunicationTopup
-      ? (Deno.env.get('STRIPE_COMMUNICATION_TOPUP_PRICE_ID') || '')
+      ? (Deno.env.get(communicationPack!.priceSecret) || '')
       : isGuestCapacityTopup
         ? (Deno.env.get('STRIPE_GUEST_CAPACITY_PRICE_ID') || GUEST_CAPACITY_TOPUP_FALLBACK_PRICE_ID)
         : requested_price_id;
@@ -122,11 +147,14 @@ serve(async (req) => {
     if (publicPlan && !isPricingCurrency(pricing_currency)) {
       return new Response(JSON.stringify({ error: "Unsupported pricing currency" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
-    if (!price_id && !publicPlan) throw new Error(isCommunicationTopup ? 'Communication top-up price is not configured' : 'price_id is required');
+    if (!price_id && !publicPlan) throw new Error(isCommunicationTopup ? 'Selected communication top-up price is not configured' : 'price_id is required');
 
     const checkoutMode = publicPlan ? publicPlan.mode : mode === "subscription" ? "subscription" : "payment";
     const isEmbedded = ui_mode === "embedded";
     const lineQuantity = Number.isFinite(quantity) && quantity > 0 ? Math.floor(quantity) : 1;
+    if (isCommunicationTopup && lineQuantity !== 1) {
+      return new Response(JSON.stringify({ error: 'Communication credit packs must be purchased one at a time.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
     if (isAdditionalEvent && (lineQuantity !== 1 || !price_id || !ADDITIONAL_EVENT_PRICES[price_id])) {
       return new Response(JSON.stringify({ error: 'Invalid additional-event price.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
@@ -143,6 +171,19 @@ serve(async (req) => {
       if (!subscription || !PAID_WEDDING_PLAN_IDS.has(subscription.plan_id) || !['active', 'trialing', 'grace_period'].includes(subscription.status)) {
         return new Response(JSON.stringify({ error: 'Guest capacity add-ons require an active Essential, Premium or Ultimate plan.' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
       }
+    }
+    if (isCommunicationTopup) {
+      if (!event_id) return new Response(JSON.stringify({ error: 'An event is required for communication credits.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      const [{ data: ownedEvent }, { data: subscription }] = await Promise.all([
+        supabaseClient.from('events').select('id').eq('id', event_id).eq('user_id', user.id).maybeSingle(),
+        supabaseClient.from('user_subscriptions').select('plan_id, status, expires_at, is_read_only').eq('user_id', user.id).in('status', ['active', 'trialing', 'grace_period']).order('created_at', { ascending: false }).limit(1).maybeSingle(),
+      ]);
+      const isCurrent = subscription
+        && PAID_WEDDING_PLAN_IDS.has(subscription.plan_id)
+        && subscription.is_read_only !== true
+        && (!subscription.expires_at || new Date(subscription.expires_at).getTime() >= Date.now());
+      if (!ownedEvent) return new Response(JSON.stringify({ error: 'Only the event owner can purchase communication credits.' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      if (!isCurrent) return new Response(JSON.stringify({ error: 'Communication credit top-ups require an active Essential, Premium or Ultimate plan.' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
     if (isAdditionalEvent) {
       const { data: subscription } = await supabaseClient
@@ -175,6 +216,7 @@ serve(async (req) => {
       isEmbedded,
       quantity: lineQuantity,
       purchase_type: purchaseTypeMeta,
+      communication_topup_pack: isCommunicationTopup ? communicationPackKey : '',
       upgrade_from_plan: upgrade_from_plan || "",
     });
 
@@ -334,8 +376,16 @@ serve(async (req) => {
       resolvedProductId = typeof resolvedPrice.product === "string" ? resolvedPrice.product : resolvedPrice.product?.id || "";
       resolvedCurrency = resolvedPrice.currency;
       originalAmountCents = (resolvedPrice.unit_amount || 0) * lineQuantity;
-      if (isCommunicationTopup && (resolvedPrice.currency !== 'aud' || resolvedPrice.unit_amount !== 4900 || lineQuantity !== 1)) {
-        throw new Error('Communication top-up must be exactly 100 credits for $49 AUD');
+      if (isCommunicationTopup) {
+        const configuredProductId = Deno.env.get(communicationPack!.productSecret) || '';
+        if (!configuredProductId
+          || resolvedPrice.id !== price_id
+          || resolvedProductId !== configuredProductId
+          || resolvedPrice.currency !== 'aud'
+          || resolvedPrice.unit_amount !== communicationPack!.unitAmount
+          || lineQuantity !== 1) {
+          throw new Error(`Communication top-up does not match the approved ${communicationPack!.credits}-credit catalogue item`);
+        }
       }
       if (isGuestCapacityTopup && (
         resolvedPrice.id !== price_id ||
@@ -380,6 +430,7 @@ serve(async (req) => {
         plan_type: plan_type || "",
         event_id: event_id || "",
         purchase_type: purchaseTypeMeta,
+        communication_topup_pack: isCommunicationTopup ? communicationPackKey : "",
         overage_blocks:
           purchaseTypeMeta === "rsvp_overage" || purchaseTypeMeta === "guest_capacity_topup" ? String(lineQuantity) : "",
         guest_count_at_purchase:
@@ -405,7 +456,9 @@ serve(async (req) => {
       sessionParams.return_url = `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`;
     } else {
       sessionParams.success_url = `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`;
-      sessionParams.cancel_url = `${origin}/dashboard`;
+      sessionParams.cancel_url = isCommunicationTopup
+        ? `${origin}/dashboard?tab=guest-list&payment=cancelled&ptype=communication_topup`
+        : `${origin}/dashboard`;
     }
 
     const requestOptions =

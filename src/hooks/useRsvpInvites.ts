@@ -38,7 +38,7 @@ export const useRsvpInvites = () => {
 
       if (!response.ok) {
         const noCredits = result?.code === 'NO_CREDITS' || response.status === 402;
-        toast({ title: noCredits ? 'No Email & SMS credits remaining' : 'Error', description: noCredits ? 'Add 100 credits for $49 AUD to continue sending.' : (result.error || 'Failed to send emails'), variant: "destructive" });
+        toast({ title: noCredits ? 'No Email & SMS credits remaining' : 'Error', description: noCredits ? 'Add 10 credits for A$10 or 100 credits for A$49 to continue sending.' : (result.error || 'Failed to send emails'), variant: "destructive" });
         return null;
       }
 
@@ -99,7 +99,7 @@ export const useRsvpInvites = () => {
         toast({
           title: isNoCredits ? 'No Email & SMS credits remaining' : 'Error',
           description: isNoCredits
-            ? 'Add 100 credits for $49 AUD to continue sending.'
+            ? 'Add 10 credits for A$10 or 100 credits for A$49 to continue sending.'
             : (result.error || 'Failed to send SMS'),
           variant: 'destructive',
         });

@@ -46,7 +46,23 @@ const ADDITIONAL_EVENT_PRICES: Record<string, { currency: string; unitAmount: nu
 const SMS_TOPUP_PRODUCT_ID = "prod_UTh041rdR91og1";
 const SMS_TOPUP_CREDITS = 250;
 const SMS_INCLUDED_CREDITS = 400;
-const COMMUNICATION_TOPUP_CREDITS = 100;
+const COMMUNICATION_CREDIT_PACKS = {
+  credits_10: {
+    credits: 10,
+    unitAmount: 1000,
+    amountAud: 10,
+    priceSecret: 'STRIPE_COMMUNICATION_TOPUP_10_PRICE_ID',
+    productSecret: 'STRIPE_COMMUNICATION_TOPUP_10_PRODUCT_ID',
+  },
+  credits_100: {
+    credits: 100,
+    unitAmount: 4900,
+    amountAud: 49,
+    priceSecret: 'STRIPE_COMMUNICATION_TOPUP_PRICE_ID',
+    productSecret: 'STRIPE_COMMUNICATION_TOPUP_PRODUCT_ID',
+  },
+} as const;
+type CommunicationCreditPackKey = keyof typeof COMMUNICATION_CREDIT_PACKS;
 
 // Map RSVP tier product IDs -> guest limit unlocked by that tier
 const RSVP_TIER_LIMITS: Record<string, number> = {
@@ -391,29 +407,48 @@ serve(async (req) => {
     }
 
 
-    // ── Plan communication-credit top-up: 100 shared Email & SMS credits ──
-    const communicationTopupPriceId = Deno.env.get('STRIPE_COMMUNICATION_TOPUP_PRICE_ID') || '';
+    // ── Plan communication-credit top-ups: exact pooled Email & SMS packs ──
     if (metadata.purchase_type === 'communication_topup') {
-      if (!communicationTopupPriceId || lineItem?.price?.id !== communicationTopupPriceId || lineItem?.price?.currency !== 'aud' || lineItem?.price?.unit_amount !== 4900) {
-        throw new Error('Communication top-up payment does not match the configured $49 AUD price');
-      }
       if (!eventId) throw new Error('event_id is required for communication top-up');
-      const amountPaid = (session.amount_total || 0) / 100;
-      const { data: existing } = await supabase.from('rsvp_invite_purchases').select('id').eq('stripe_session_id', session_id).maybeSingle();
-      if (!existing) {
-        await supabase.from('rsvp_invite_purchases').insert({
-          user_id: userId, event_id: eventId, amount_paid: amountPaid,
-          guest_tier_label: `Email & SMS Top-up +${COMMUNICATION_TOPUP_CREDITS} credits`,
-          stripe_session_id: session_id, stripe_payment_id: session.payment_intent as string,
-          status: 'completed', purchase_type: 'communication_topup', purchased_limit: null,
-          overage_blocks: 0, guest_count_at_purchase: null,
-        });
-        const { error: creditError } = await supabase.rpc('add_sms_credits', {
-          _user_id: userId, _event_id: eventId, _amount: COMMUNICATION_TOPUP_CREDITS, _source: 'communication_topup',
-        });
-        if (creditError) throw creditError;
+      // Sessions created before two-pack support did not include a pack key and
+      // are safely interpreted as the original 100-credit SKU only.
+      const packKey = (metadata.communication_topup_pack || 'credits_100') as CommunicationCreditPackKey;
+      const pack = packKey in COMMUNICATION_CREDIT_PACKS ? COMMUNICATION_CREDIT_PACKS[packKey] : null;
+      if (!pack) throw new Error('Communication top-up pack is not approved');
+      const configuredPriceId = Deno.env.get(pack.priceSecret) || '';
+      const configuredProductId = Deno.env.get(pack.productSecret) || '';
+      if (!configuredPriceId
+        || !configuredProductId
+        || lineItem?.price?.id !== configuredPriceId
+        || productId !== configuredProductId
+        || lineItem?.price?.currency !== 'aud'
+        || lineItem?.price?.unit_amount !== pack.unitAmount
+        || lineItem?.quantity !== 1
+        || session.currency !== 'aud'
+        || session.amount_subtotal !== pack.unitAmount
+        || session.amount_total !== pack.unitAmount) {
+        throw new Error(`Communication top-up payment does not match the approved ${pack.credits}-credit sandbox catalogue item`);
       }
-      return new Response(JSON.stringify({ type: 'communication_topup', status: 'completed', amount_paid: amountPaid, credits_added: COMMUNICATION_TOPUP_CREDITS }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 });
+      const { data: fulfilment, error: fulfilmentError } = await supabase.rpc('fulfill_communication_credit_topup', {
+        _user_id: userId,
+        _event_id: eventId,
+        _stripe_session_id: session_id,
+        _stripe_payment_id: typeof session.payment_intent === 'string' ? session.payment_intent : null,
+        _stripe_price_id: configuredPriceId,
+        _amount_paid: pack.amountAud,
+        _pack_key: packKey,
+        _credits: pack.credits,
+      });
+      if (fulfilmentError) throw fulfilmentError;
+      logStep('Communication credits fulfilled', { eventId, packKey, credits: pack.credits, fulfilment });
+      return new Response(JSON.stringify({
+        type: 'communication_topup',
+        status: 'completed',
+        amount_paid: pack.amountAud,
+        credits_added: pack.credits,
+        pack: packKey,
+        fulfilment,
+      }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 });
     }
 
     // ── Legacy SMS top-up (verification kept only for completed old sessions) ──

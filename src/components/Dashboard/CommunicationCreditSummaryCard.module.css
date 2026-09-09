@@ -1,0 +1,140 @@
+.card {
+  width: min(100%, 360px);
+  border: 1px solid #d8bd91;
+  border-radius: 14px;
+  background: linear-gradient(180deg, #fffdf8 0%, #f8efdf 100%);
+  box-shadow: 0 4px 16px rgba(65, 36, 25, 0.1);
+  padding: 12px 14px;
+  color: #412419;
+  font-family: Manrope, ui-sans-serif, system-ui, sans-serif;
+}
+
+.headingRow {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr) auto;
+  align-items: center;
+  gap: 8px;
+}
+
+.icon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 30px;
+  height: 30px;
+  border: 1px solid #d8bd91;
+  border-radius: 9px;
+  background: #fffaf1;
+  color: #806344;
+}
+
+.heading { font-size: 13px; font-weight: 700; line-height: 18px; }
+
+.plan {
+  border: 1px solid #9ecf8d;
+  border-radius: 999px;
+  background: #f1faed;
+  padding: 3px 8px;
+  color: #365b2d;
+  font-size: 10px;
+  font-weight: 700;
+  white-space: nowrap;
+}
+
+.balanceLine {
+  display: flex;
+  align-items: baseline;
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.balanceLine strong { color: #3f7d35; font-size: 24px; line-height: 1; }
+.balanceLine span { font-size: 12px; font-weight: 600; }
+
+.metrics {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 6px;
+  margin-top: 10px;
+}
+
+.metrics > span {
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  gap: 4px;
+  min-width: 0;
+  border: 1px solid rgba(128, 99, 68, 0.25);
+  border-radius: 8px;
+  background: rgba(255, 255, 255, 0.72);
+  padding: 6px 7px;
+}
+
+.metrics small { color: #765f53; font-size: 9px; font-weight: 600; }
+.metrics strong { color: #412419; font-size: 12px; }
+.note, .status, .error { margin-top: 8px; font-size: 10px; line-height: 15px; }
+.note, .status { color: #765f53; }
+.error { color: #b42318; }
+
+.channelCard {
+  display: grid;
+  grid-template-columns: auto minmax(0, 1fr);
+  align-items: center;
+  gap: 10px;
+  min-width: 0;
+  min-height: 64px;
+  padding: 8px 12px;
+  color: #2f1b14;
+  border: 2px solid #bda98b;
+  border-radius: 11px;
+  background: linear-gradient(145deg, #f8efe1 0%, #f4e8d7 100%);
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, .92), 0 8px 18px rgba(96, 67, 39, .09);
+  font-family: Manrope, ui-sans-serif, system-ui, sans-serif;
+}
+
+.channelHealthy { border-color: #62b861; }
+.channelLow { border-color: #d49a22; }
+.channelDepleted { border-color: #d84b43; }
+.channelUnknown { border-color: #bda98b; }
+
+.channelIcon {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  color: #806344;
+  border: 1px solid #d4bd99;
+  border-radius: 9px;
+  background: rgba(255, 253, 248, .72);
+}
+
+.channelCopy { display: flex; min-width: 0; flex-direction: column; gap: 3px; }
+.channelTitle { font-size: 14px; font-weight: 600; line-height: 1.25; }
+.channelDescription { color: #604b3e; font-size: 11px; line-height: 1.35; }
+.channelTopup { color: #46683d; font-size: 10px; font-weight: 600; line-height: 1.3; }
+.channelError { color: #b42318; font-size: 10px; line-height: 1.35; }
+
+.channelWarning,
+.channelDepletedMessage {
+  align-self: flex-start;
+  border-radius: 5px;
+  padding: 2px 6px;
+  color: #3d281d;
+  font-size: 10px;
+  font-weight: 700;
+  line-height: 1.35;
+}
+
+.channelWarning { background: #f4cf68; }
+.channelDepletedMessage { background: #f5b2ad; }
+.channelPackOptions { margin-top: 2px; }
+
+@media (max-width: 639px) {
+  .card { width: 100%; padding: 10px 11px; }
+  .headingRow { grid-template-columns: auto minmax(0, 1fr); }
+  .plan { grid-column: 2; justify-self: start; }
+  .balanceLine strong { font-size: 21px; }
+  .metrics > span { align-items: flex-start; flex-direction: column; }
+  .channelCard { width: 100%; padding: 8px 10px; }
+}

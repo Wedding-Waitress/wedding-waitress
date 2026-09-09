@@ -94,6 +94,10 @@ describe('guest-added organiser notification contract', () => {
     expect(guestList).toMatch(/className=\{styles\.guestAdditionChannelIcon\}[^>]*>SMS<\/span>/);
     expect(guestList).not.toContain('<Smartphone');
     expect(guestList).toContain('styles.guestAdditionChannelCopy');
+    expect(guestList).toContain('<CommunicationCreditSummaryCard');
+    expect(guestList).toContain('variant="channel"');
+    expect(guestList).toContain('planIncludedCredits={planCommunicationCredits}');
+    expect(guestListCss).toContain('grid-template-columns: repeat(3, minmax(0, 1fr));');
     expect(guestList).toContain('className={styles.guestAdditionSwitch} checked={guestAdditionState.smsEnabled}');
     expect(guestList).toContain('Verification is required when you turn this on.');
     expect(guestList).toContain('setShowSmsVerification(true)');

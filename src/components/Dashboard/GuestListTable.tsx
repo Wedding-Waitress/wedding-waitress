@@ -135,6 +135,7 @@ import {
   inferGuestGroupType,
 } from '@/lib/guestGroupClassification';
 import { useGuestAdditionNotifications } from '@/hooks/useGuestAdditionNotifications';
+import { CommunicationCreditSummaryCard, normalizeCommunicationCredits } from './CommunicationCreditSummaryCard';
 
 const AddGuestModal = lazy(() => import('./AddGuestModal').then(module => ({ default: module.AddGuestModal })));
 const GuestDeleteConfirmationModal = lazy(() => import('./GuestDeleteConfirmationModal').then(module => ({ default: module.GuestDeleteConfirmationModal })));
@@ -353,16 +354,17 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const utilityTileRef = useRef<HTMLButtonElement | null>(null);
   const [sendChannel, setSendChannel] = useState<'email' | 'sms'>('email');
   const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
-  const { credits: smsCredits } = useSmsCredits(selectedEventId);
-  const smsHealth = getCreditHealth(smsCredits.remaining, smsCredits.total);
-  const smsEmpty = smsHealth.state === 'empty';
-  const smsLowCredit = smsHealth.state === 'critical' || smsHealth.state === 'empty';
+  const { credits: smsCredits, loading: smsCreditsLoading, error: smsCreditsError } = useSmsCredits(selectedEventId);
   const { hasPurchased: hasRsvpPurchase, purchase: rsvpPurchase, loading: rsvpPurchaseLoading, overageGuests: purchasedGuestCapacity, refetch: refetchRsvpPurchase } = useRsvpPurchase(selectedEventId);
   const { plan, hasPlatformOwnerAccess } = useUserPlan();
   const canBuyGuestCapacity = !hasPlatformOwnerAccess && /^(essential|premium|ultimate|unlimited)$/i.test(plan?.plan_name || '');
   const planBaseGuestCapacity = canBuyGuestCapacity && plan?.guest_limit != null ? plan.guest_limit : null;
   const totalGuestCapacity = planBaseGuestCapacity == null ? null : planBaseGuestCapacity + purchasedGuestCapacity;
   const planCommunicationCredits = hasPlatformOwnerAccess ? 450 : getPlanCommunicationCredits(plan?.plan_name);
+  const communicationBalance = normalizeCommunicationCredits(smsCredits, planCommunicationCredits);
+  const smsHealth = getCreditHealth(communicationBalance.remaining, communicationBalance.total);
+  const smsEmpty = smsHealth.state === 'empty';
+  const smsLowCredit = smsHealth.state === 'critical' || smsHealth.state === 'empty';
   const guestAdditionState = useGuestAdditionNotifications(selectedEventId);
   const guestAdditionByGuestId = useMemo(
     () => new Map(guestAdditionState.notifications.map((item) => [item.guest_id, item])),
@@ -430,9 +432,18 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     guestCount: number;
     tierLabel: string;
     amount: number;
-    ptype: 'rsvp' | 'rsvp_overage' | 'guest_capacity_topup';
+    ptype: 'rsvp' | 'rsvp_overage' | 'guest_capacity_topup' | 'communication_topup';
   } | null>(null);
   useEffect(() => {
+    if (searchParams.get('payment') === 'cancelled' && searchParams.get('ptype') === 'communication_topup') {
+      sonnerToast.info('Credit purchase cancelled', { description: 'No charge was completed and no credits were added.' });
+      const cancelledParams = new URLSearchParams();
+      const cancelledTab = searchParams.get('tab');
+      if (cancelledTab) cancelledParams.set('tab', cancelledTab);
+      setSearchParams(cancelledParams, { replace: true });
+      try { sessionStorage.removeItem('ww:returnTab'); } catch {}
+      return;
+    }
     if (searchParams.get('payment') !== 'success') return;
     setBulkModalOpen(false);
     setSelectedGuestIds(new Set());
@@ -441,26 +452,36 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     try { storedCount = Number(sessionStorage.getItem('ww:rsvpSelectedCount') || '0'); } catch {}
     const tierLabel = searchParams.get('tier') || '';
     const amount = Number(searchParams.get('amount') || '0');
-    const ptype = (searchParams.get('ptype') as 'rsvp' | 'rsvp_overage' | 'guest_capacity_topup') || 'rsvp';
+    const ptype = (searchParams.get('ptype') as 'rsvp' | 'rsvp_overage' | 'guest_capacity_topup' | 'communication_topup') || 'rsvp';
+    const creditsAdded = Number(searchParams.get('credits') || '0');
 
-    const summary = ptype === 'rsvp_overage' || ptype === 'guest_capacity_topup'
+    const summary = ptype === 'communication_topup'
+      ? `${creditsAdded} shared Email & SMS credits added • $${amount.toFixed(2)} AUD`
+      : ptype === 'rsvp_overage' || ptype === 'guest_capacity_topup'
       ? `${storedCount} additional guest spaces • Capacity add-on • $${amount.toFixed(2)} AUD`
       : `${storedCount} ${storedCount === 1 ? 'guest' : 'guests'} invited${tierLabel ? ` • ${tierLabel}` : ''} • $${amount.toFixed(2)} AUD`;
 
-    sonnerToast.success(ptype === 'guest_capacity_topup' ? 'Guest capacity added successfully' : 'RSVP invitations sent successfully', {
+    sonnerToast.success(
+      ptype === 'communication_topup'
+        ? 'Email & SMS credits added successfully'
+        : ptype === 'guest_capacity_topup'
+        ? 'Guest capacity added successfully'
+        : 'RSVP invitations sent successfully', {
       description: summary,
       duration: 6000,
-      action: {
+      ...(ptype === 'communication_topup' ? {} : { action: {
         label: 'View Responses',
         onClick: () => {
           try {
             document.getElementById('guest-list-table-anchor')?.scrollIntoView({ behavior: 'smooth', block: 'start' });
           } catch {}
         },
-      },
+      } }),
     });
 
-    setRsvpSuccessBanner({ guestCount: storedCount, tierLabel, amount, ptype });
+    if (ptype !== 'communication_topup') {
+      setRsvpSuccessBanner({ guestCount: storedCount, tierLabel, amount, ptype });
+    }
     // Auto-hide inline banner after ~8s.
     const t = window.setTimeout(() => setRsvpSuccessBanner(null), 8000);
 
@@ -2319,6 +2340,18 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         }} aria-label="SMS alerts for guest additions" />
                       </span>
                     </label>
+
+                    <CommunicationCreditSummaryCard
+                      planName={hasPlatformOwnerAccess ? 'Ultimate' : plan?.plan_name}
+                      planIncludedCredits={planCommunicationCredits}
+                      credits={smsCredits}
+                      loading={smsCreditsLoading}
+                      error={smsCreditsError}
+                      variant="channel"
+                      ariaLabel="Plan and shared Email and SMS credit summary"
+                      eventId={selectedEventId}
+                      canPurchaseCredits={!hasPlatformOwnerAccess && /^(essential|premium|ultimate|unlimited)$/i.test(plan?.plan_name || '')}
+                    />
                   </div>
 
                   <div className={styles.guestAdditionReviewSection}>
@@ -3410,10 +3443,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             eventId={selectedEventId}
             planName={hasPlatformOwnerAccess ? 'Ultimate' : (plan?.plan_name || 'No active')}
             included={planCommunicationCredits}
-            used={smsCredits.used}
-            remaining={smsCredits.remaining}
+            used={communicationBalance.used}
+            remaining={communicationBalance.remaining}
             selectedCount={selectedGuestIds.size}
             channel={sendChannel}
+            canPurchaseCredits={!hasPlatformOwnerAccess && /^(essential|premium|ultimate|unlimited)$/i.test(plan?.plan_name || '')}
           />
         )}
 

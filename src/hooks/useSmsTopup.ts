@@ -1,7 +1,7 @@
 import { useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { SMS_TOPUP } from '@/lib/stripePrices';
+import type { CommunicationCreditPackKey } from '@/lib/stripePrices';
 import { usePaymentProcessing } from '@/contexts/PaymentProcessingContext';
 
 /**
@@ -13,11 +13,12 @@ import { usePaymentProcessing } from '@/contexts/PaymentProcessingContext';
  */
 export const useSmsTopup = () => {
   const [loading, setLoading] = useState(false);
+  const [activePack, setActivePack] = useState<CommunicationCreditPackKey | null>(null);
   const inFlightRef = useRef(false);
   const { toast } = useToast();
   const { startProcessing, stopProcessing } = usePaymentProcessing();
 
-  const startTopup = async (eventId: string) => {
+  const startTopup = async (eventId: string, pack: CommunicationCreditPackKey = 'credits_100') => {
     if (inFlightRef.current) return;
     if (!eventId) {
       toast({ title: 'Error', description: 'Select an event first.', variant: 'destructive' });
@@ -25,11 +26,12 @@ export const useSmsTopup = () => {
     }
     inFlightRef.current = true;
     setLoading(true);
+    setActivePack(pack);
     startProcessing();
 
     const idempotencyKey =
       (globalThis.crypto?.randomUUID?.() as string | undefined) ??
-      `sms-topup-${eventId}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
+      `communication-topup-${pack}-${eventId}-${Date.now()}-${Math.random().toString(36).slice(2)}`;
 
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout', {
@@ -37,6 +39,7 @@ export const useSmsTopup = () => {
           mode: 'payment',
           event_id: eventId,
           purchase_type: 'communication_topup',
+          communication_topup_pack: pack,
           idempotency_key: idempotencyKey,
         },
       });
@@ -55,6 +58,7 @@ export const useSmsTopup = () => {
       }
       const url = (data as { url?: string } | null)?.url;
       if (!url) throw new Error('No checkout URL returned');
+      try { sessionStorage.setItem('ww:returnTab', 'guest-list'); } catch { /* storage may be unavailable */ }
       // Keep overlay on through redirect — do NOT stopProcessing on success.
       window.location.href = url;
     } catch (err: unknown) {
@@ -62,6 +66,7 @@ export const useSmsTopup = () => {
       stopProcessing();
       inFlightRef.current = false;
       setLoading(false);
+      setActivePack(null);
       toast({
         title: 'Could not start top-up',
         description: err instanceof Error ? err.message : 'Please try again.',
@@ -70,5 +75,5 @@ export const useSmsTopup = () => {
     }
   };
 
-  return { startTopup, loading };
+  return { startTopup, loading, activePack };
 };

@@ -17,11 +17,10 @@ describe('launch RSVP purchase contract', () => {
     expect(planModal).toContain('Left</p>');
   });
 
-  it('uses the approved A$49 top-up for 100 shared credits', () => {
-    expect(prices).toMatch(/SMS_TOPUP[\s\S]*price_aud:\s*49[\s\S]*credits:\s*100/);
+  it('retains the approved A$49 top-up for 100 shared credits', () => {
+    expect(prices).toMatch(/credits_100:[\s\S]*price_aud:\s*49[\s\S]*credits:\s*100/);
     expect(checkout).toContain("STRIPE_COMMUNICATION_TOPUP_PRICE_ID");
-    expect(verification).toContain('const COMMUNICATION_TOPUP_CREDITS = 100');
-    expect(verification).toContain("unit_amount !== 4900");
+    expect(verification).toMatch(/credits_100:[\s\S]*credits:\s*100[\s\S]*unitAmount:\s*4900/);
     expect(checkout).toContain("plan_type === 'rsvp' || purchase_type === 'rsvp_overage'");
   });
 

@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest';
-import { COMMUNICATION_TOPUP, getPlanCommunicationCredits, PLAN_COMMUNICATION_CREDITS } from './communicationCredits';
+import { COMMUNICATION_TOPUP, COMMUNICATION_TOPUP_PACKS, getPlanCommunicationCredits, PLAN_COMMUNICATION_CREDITS } from './communicationCredits';
 
 describe('plan communication credits', () => {
   it('maps the three paid wedding plans to their shared allowances', () => {
@@ -15,7 +15,9 @@ describe('plan communication credits', () => {
     expect(getPlanCommunicationCredits('Starter')).toBe(0);
   });
 
-  it('defines the approved top-up', () => {
+  it('defines both approved pooled top-ups', () => {
+    expect(COMMUNICATION_TOPUP_PACKS.credits_10).toMatchObject({ credits: 10, price_aud: 10 });
+    expect(COMMUNICATION_TOPUP_PACKS.credits_100).toMatchObject({ credits: 100, price_aud: 49 });
     expect(COMMUNICATION_TOPUP).toMatchObject({ credits: 100, price_aud: 49 });
   });
 });

@@ -16,6 +16,7 @@ export const PaymentSuccess = () => {
     type?: string;
     plan_name?: string;
     amount_paid?: number;
+    credits_added?: number;
     expires_at?: string;
     requires_approval?: boolean;
   }>({});
@@ -60,7 +61,7 @@ export const PaymentSuccess = () => {
   }, [sessionId, stopProcessing]);
 
   // Determine where to send the user back to (preserve originating dashboard tab).
-  const isRsvp = details.type === 'rsvp' || details.type === 'rsvp_overage' || details.type === 'guest_capacity_topup';
+  const isRsvp = details.type === 'rsvp' || details.type === 'rsvp_overage' || details.type === 'guest_capacity_topup' || details.type === 'communication_topup';
   const returnTab = (() => {
     try {
       return sessionStorage.getItem('ww:returnTab') || (isRsvp ? 'guest-list' : 'account');
@@ -80,6 +81,7 @@ export const PaymentSuccess = () => {
       if (sessionId) params.set('session_id', sessionId);
       if (details.plan_name) params.set('tier', details.plan_name);
       if (details.amount_paid != null) params.set('amount', String(details.amount_paid));
+      if (details.credits_added != null) params.set('credits', String(details.credits_added));
       params.set('ptype', details.type as string);
     } else {
       params.set('success', 'true');
@@ -117,6 +119,8 @@ export const PaymentSuccess = () => {
             <p className="text-muted-foreground">
               {details.type === "guest_capacity_topup"
                 ? 'Your additional guest capacity is now available.'
+                : details.type === "communication_topup"
+                ? `${details.credits_added ?? ''} shared Email & SMS credits are now available.`
                 : details.type === "rsvp"
                 ? `Your RSVP Invite Bundle (${details.plan_name}) has been activated.`
                 : `Your ${details.plan_name} plan is now active.`}

@@ -16,16 +16,18 @@ const ZERO: SmsCredits = { total: 0, used: 0, remaining: 0 };
 export const useSmsCredits = (eventId: string | null | undefined) => {
   const [credits, setCredits] = useState<SmsCredits>(ZERO);
   const [loading, setLoading] = useState<boolean>(false);
+  const [error, setError] = useState<string | null>(null);
   const [userId, setUserId] = useState<string | null>(null);
 
   const fetchCredits = useCallback(async () => {
-    if (!eventId) { setCredits(ZERO); return; }
+    if (!eventId) { setCredits(ZERO); setError(null); return; }
     setLoading(true);
+    setError(null);
     try {
       const { data: auth } = await supabase.auth.getUser();
       const uid = auth.user?.id ?? null;
       setUserId(uid);
-      if (!uid) { setCredits(ZERO); return; }
+      if (!uid) { setCredits(ZERO); setError('Sign in to view Email & SMS credits.'); return; }
 
       const { data, error } = await supabase.rpc('get_sms_credits', {
         _user_id: uid,
@@ -41,6 +43,7 @@ export const useSmsCredits = (eventId: string | null | undefined) => {
     } catch (err) {
       console.error('[useSmsCredits] fetch failed', err);
       setCredits(ZERO);
+      setError('Email & SMS credit balance is temporarily unavailable.');
     } finally {
       setLoading(false);
     }
@@ -66,5 +69,5 @@ export const useSmsCredits = (eventId: string | null | undefined) => {
   const isEmpty = credits.total > 0 && credits.remaining <= 0;
   const isUnactivated = credits.total === 0;
 
-  return { credits, loading, isLow, isEmpty, isUnactivated, refetch: fetchCredits };
+  return { credits, loading, error, isLow, isEmpty, isUnactivated, refetch: fetchCredits };
 };

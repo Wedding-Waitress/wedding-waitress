@@ -72,16 +72,28 @@ export const getRsvpTier = (guestCount: number) => {
   return RSVP_TIERS.find(t => guestCount >= t.min && guestCount <= t.max) ?? RSVP_TIERS[RSVP_TIERS.length - 1];
 };
 
-// ── RSVP email & SMS shared-credit top-up ──────────────────────────
-// Stripe resolves the authoritative price from its Edge secret. No price ID is
-// shipped to the browser, preventing a stale or client-substituted charge.
-export const SMS_TOPUP = {
-  product_id: '',
-  price_id: '',
-  name: 'Email & SMS Credits Top-up (100 credits)',
-  price_aud: 49,
-  credits: 100,
+// ── RSVP email & SMS shared-credit top-ups ─────────────────────────
+// Stripe resolves each authoritative product/price from Edge secrets. No IDs
+// are shipped to the browser, preventing stale or client-substituted charges.
+export const COMMUNICATION_CREDIT_PACKS = {
+  credits_10: {
+    key: 'credits_10',
+    name: 'Email & SMS Credits Top-up (10 credits)',
+    price_aud: 10,
+    credits: 10,
+  },
+  credits_100: {
+    key: 'credits_100',
+    name: 'Email & SMS Credits Top-up (100 credits)',
+    price_aud: 49,
+    credits: 100,
+  },
 } as const;
+
+export type CommunicationCreditPackKey = keyof typeof COMMUNICATION_CREDIT_PACKS;
+
+/** Legacy name retained for existing 100-credit analytics/value displays. */
+export const SMS_TOPUP = COMMUNICATION_CREDIT_PACKS.credits_100;
 
 // ── Plan guest-capacity add-on (one-time, $10 AUD per 10 spaces) ───
 export const GUEST_CAPACITY_TOPUP = {
