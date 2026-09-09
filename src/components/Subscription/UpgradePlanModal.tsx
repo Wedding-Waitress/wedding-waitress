@@ -19,7 +19,6 @@ import { supabase } from '@/integrations/supabase/client';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { useEventLimits } from '@/hooks/useEventLimits';
 import { useAccountSeats } from '@/hooks/useAccountSeats';
-import { useCurrencyContext } from '@/contexts/CurrencyContext';
 import {
   PLAN_REGISTRY,
   getPlanByName,
@@ -45,7 +44,6 @@ const TIER_RANK: Record<PlanKey, number> = {
 export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
   const navigate = useNavigate();
   const { plan } = useUserPlan();
-  const { currency } = useCurrencyContext();
   const { includedEvents, additionalPurchased, currentEvents } = useEventLimits();
   const { usedSeats, maxSeats } = useAccountSeats();
 
@@ -104,7 +102,7 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
   }, [currentRank]);
 
   const currentPlanPriceAud = currentKey
-    ? PLAN_REGISTRY[currentKey].prices[currency]?.price ?? PLAN_REGISTRY[currentKey].prices.AUD.price
+    ? PLAN_REGISTRY[currentKey].prices.AUD.price
     : 0;
 
   const handleSelect = (targetKey: PlanKey) => {
@@ -249,7 +247,7 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
             ) : (
               <section className="space-y-3">
                 {upgradeOptions.map((p) => {
-                  const cur = p.prices[currency] ?? p.prices.AUD;
+                  const cur = p.prices.AUD;
                   const isSubscription = p.mode === 'subscription';
                   const fullPrice = cur.price;
                   const isOneTimeUpgrade =
@@ -291,16 +289,16 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
                                 You pay only
                               </div>
                               <div className="text-xl font-semibold text-foreground leading-tight">
-                                {formatPrice(currency, diff)}
+                                {formatPrice('AUD', diff)}
                               </div>
                               <div className="text-[11px] text-muted-foreground line-through">
-                                {formatPrice(currency, fullPrice)}
+                                {formatPrice('AUD', fullPrice)}
                               </div>
                             </>
                           ) : (
                             <>
                               <div className="text-xl font-semibold text-foreground leading-tight">
-                                {formatPrice(currency, fullPrice)}
+                                {formatPrice('AUD', fullPrice)}
                                 {isSubscription && (
                                   <span className="text-xs text-muted-foreground font-normal">
                                     {' '}/mo
@@ -309,7 +307,7 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
                               </div>
                               {cur.originalPrice && (
                                 <div className="text-[11px] text-muted-foreground line-through">
-                                  {formatPrice(currency, cur.originalPrice)}
+                                  {formatPrice('AUD', cur.originalPrice)}
                                 </div>
                               )}
                             </>

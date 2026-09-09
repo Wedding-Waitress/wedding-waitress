@@ -9,7 +9,8 @@ describe('Team access availability contract', () => {
   it('requires an explicit frontend enablement and otherwise hides mutation controls', () => {
     expect(availability).toContain("VITE_TEAM_ACCESS_ENABLED === 'true'");
     expect(accountCard).toContain('TEAM_ACCESS_ENABLED && isMaster');
-    expect(accountCard).toContain('Team access is coming soon');
+    expect(accountCard).toContain('TEAM_ACCESS_ENABLED ? team.members : profile');
+    expect(accountCard).not.toContain('Team access is coming soon');
   });
 
   it('does not attempt invitation acceptance while unavailable', () => {

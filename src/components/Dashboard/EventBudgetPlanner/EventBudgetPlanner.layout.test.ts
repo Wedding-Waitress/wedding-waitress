@@ -23,19 +23,21 @@ describe('Event Budget Planner layout contract', () => {
     expect(component).toContain("['Amount Outstanding', summary.amountOutstanding");
     expect(component).toContain("summary.budgetRemaining < 0 ? 'Over Budget' : 'Budget Remaining'");
     expect(component.indexOf('className={styles.summaryGrid}')).toBeGreaterThan(component.indexOf('data-budget-panel'));
-    expect(component.indexOf('className={styles.summaryGrid}')).toBeLessThan(component.indexOf('className={styles.budgetControls}'));
+    expect(component).toContain('className={styles.summaryBudgetInput}');
+    expect(component).not.toContain('className={styles.budgetControls}');
     expect(css).toMatch(/\.budgetPanel \{[^}]*height: 7rem;[^}]*grid-template-columns: minmax\(11rem,.7fr\) minmax\(25\.5rem,1\.3fr\) auto/);
     expect(css).toMatch(/\.budgetPanel \{[^}]*border: 0;[^}]*border-radius: 0;[^}]*outline: 0;[^}]*background: transparent;[^}]*box-shadow: none/);
     expect(css).toMatch(/\.expensePanel \{[^}]*border: 1px solid var\(--dashboard-border\);[^}]*background: var\(--dashboard-panel\)/);
     expect(css).toMatch(/\.summaryGrid \{[^}]*grid-template-columns: repeat\(3,minmax\(0,1fr\)\);[^}]*grid-template-rows: repeat\(2,minmax\(0,1fr\)\)/);
   });
 
-  it('uses a parent section card, green heading actions, compact separate budget controls and toolbar Add action', () => {
+  it('uses a parent section card, edits within Total Budget and keeps the toolbar Add action', () => {
     expect(css).toMatch(/\.planner \{[^}]*padding: 1rem;[^}]*border: 1px solid var\(--dashboard-border\);[^}]*background: var\(--dashboard-panel\)/);
     expect(component).toContain('className={`${styles.successButton} ${styles.exportAction}`} onClick={() => requestPrintAction(\'print\')}');
     expect(component).toContain('className={`${styles.successButton} ${styles.exportAction}`} onClick={() => requestPrintAction(\'download\')}');
-    expect(css).toMatch(/\.amountControl \{[^}]*grid-column:5;[^}]*grid-row:1;[^}]*width:100%;[^}]*height:100%/);
-    expect(component.indexOf('id="event-budget-currency"')).toBeGreaterThan(component.indexOf('id="anticipated-event-budget"'));
+    expect(css).toMatch(/\.summaryBudgetInput \{[^}]*display:grid;[^}]*grid-template-columns:auto minmax\(0,1fr\)/);
+    expect(component).not.toContain('id="event-budget-currency"');
+    expect(component).toContain('id="anticipated-event-budget"');
     expect(component.indexOf('ref={addButtonRef}')).toBeGreaterThan(component.indexOf('Sort expenses'));
   });
 

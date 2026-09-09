@@ -9,7 +9,7 @@ import { useToast } from '@/hooks/use-toast';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { PLAN_DETAILS, type PlanKey } from '@/lib/upgradePlans';
 import { usePaymentProcessing } from '@/contexts/PaymentProcessingContext';
-import { formatLivePrice, isCurrencyCode } from '@/lib/liveCurrencyPricing';
+import { formatLivePrice } from '@/lib/liveCurrencyPricing';
 import { gstInclusiveAud, PACKAGE_CHECKOUT_AVAILABLE, PACKAGE_CHECKOUT_NOTICE } from '@/lib/packagePricing';
 
 let stripePromise: Promise<Stripe | null> | null = null;
@@ -25,8 +25,7 @@ export const UpgradeCheckout: React.FC = () => {
   const planKey = (params.get('plan') as PlanKey) || 'premium';
   const fromKey = (params.get('from') as PlanKey | null) || null;
   const plan = PLAN_DETAILS[planKey];
-  const requestedCurrencyRaw = params.get('currency') || sessionStorage.getItem('ww_intended_currency') || localStorage.getItem('ww_currency') || 'AUD';
-  const requestedCurrency = isCurrencyCode(requestedCurrencyRaw) ? requestedCurrencyRaw : 'AUD';
+  const requestedCurrency = 'AUD';
   const fromPlan = fromKey ? PLAN_DETAILS[fromKey] : null;
   // Difference-only pricing applies between two one-time wedding plans.
   const isDiffUpgrade =
@@ -106,7 +105,10 @@ export const UpgradeCheckout: React.FC = () => {
         }
         setClientSecret(data.client_secret);
         setPublishableKey(pk);
-        if (data.checkout_quote) setCheckoutQuote(data.checkout_quote);
+        if (data.checkout_quote) {
+          if (String(data.checkout_quote.currency).toUpperCase() !== 'AUD') throw new Error('Checkout returned a non-AUD price. No payment was started.');
+          setCheckoutQuote(data.checkout_quote);
+        }
       } catch (error: unknown) {
         const msg = error instanceof Error ? error.message : 'Failed to start checkout';
         setError(msg);

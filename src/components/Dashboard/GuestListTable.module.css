@@ -1648,7 +1648,7 @@
 
 /* Step 1 event-type selectors: shared selected-state action treatment. */
 :global(#root#root) .setupGrid :global(.ww-event-type-option) {
- min-height:40px!important;height:auto!important;padding:10px 16px!important;border-radius:9999px!important;gap:8px;
+ min-height:40px!important;height:auto!important;padding:10px 16px!important;border-radius:10px!important;gap:8px;
  font:600 14px Manrope,sans-serif!important;
 }
 :global(#root#root) .setupGrid :global(.ww-event-type-option)[aria-pressed="false"],
@@ -1668,8 +1668,14 @@
 }
 
 :global(#root#root) .setupGrid :is(:global(.ww-relationship-option),:global(.ww-setup-green-action)) {
- min-height:40px!important;height:auto!important;padding:10px 16px!important;border-radius:9999px!important;
+ min-height:40px!important;height:auto!important;padding:10px 16px!important;
  font:600 14px Manrope,sans-serif!important;
+}
+:global(#root#root) .setupGrid :global(.ww-relationship-option) {
+ border-radius:10px!important;
+}
+:global(#root#root) .setupGrid :global(.ww-setup-green-action) {
+ border-radius:9999px!important;
 }
 :global(#root#root) .setupGrid :global(.ww-relationship-option)[data-active="false"] {
  color:#2f1b14!important;-webkit-text-fill-color:#2f1b14!important;text-shadow:none;

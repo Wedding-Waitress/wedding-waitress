@@ -27,7 +27,10 @@ export const SectionCard: React.FC<SectionCardProps> = ({
       )}
     >
       <header className="flex items-start gap-3 mb-5">
-        <div className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-[#C9A87A]/25 to-[#967A59]/15 text-[#7d6649] ring-1 ring-[#967A59]/15 flex-shrink-0">
+        <div
+          data-account-section-icon
+          className="flex items-center justify-center w-10 h-10 rounded-xl bg-gradient-to-br from-[#4a2a20] to-[#2b1712] text-[#dfbd88] ring-1 ring-[#dfbd88]/35 flex-shrink-0 [&>svg]:!text-[#dfbd88] [&>svg]:!stroke-[#dfbd88]"
+        >
           <Icon className="w-5 h-5" />
         </div>
         <div className="flex-1 min-w-0">

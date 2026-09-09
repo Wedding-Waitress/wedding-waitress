@@ -3,12 +3,9 @@ import { ArrowRight, Camera, CircleCheck, Gem, Heart, Zap } from 'lucide-react';
 import { AuthGatedCtaLink } from '@/components/auth/AuthGatedCtaLink';
 import type { SignUpPlanContext } from '@/components/auth/SignUpModal';
 import { Button } from '@/components/ui/enhanced-button';
-import { useCurrencyContext } from '@/contexts/CurrencyContext';
 import type { CurrencyCode } from '@/lib/currencyPricing';
-import { useLiveExchangeRates } from '@/hooks/useLiveExchangeRates';
-import { AUD_BASE_PRICES, convertAudPrice, formatPublicPricingPrice } from '@/lib/liveCurrencyPricing';
+import { AUD_BASE_PRICES, formatPublicPricingPrice } from '@/lib/liveCurrencyPricing';
 import { PUBLIC_COUPLE_PLAN_DETAILS, type PlanKey } from './pricingPlans';
-import { PricingCurrencyPanel } from './PricingCurrencyPanel';
 
 type PlatformFeature = {
   label: string;
@@ -115,11 +112,8 @@ const Cta: React.FC<{ plan: PlanKey; name: SignUpPlanContext['name']; currency: 
 );
 
 export const PublicPricingSection: React.FC = () => {
-  const { currency, setCurrency } = useCurrencyContext();
-  const { rates, loading, error } = useLiveExchangeRates();
-  const effectiveCurrency: CurrencyCode = error || loading ? 'AUD' : currency;
-  const displayCouplePrice = (amount: number) =>
-    formatPublicPricingPrice(effectiveCurrency, convertAudPrice(amount, effectiveCurrency, rates));
+  const effectiveCurrency: CurrencyCode = 'AUD';
+  const displayCouplePrice = (amount: number) => formatPublicPricingPrice('AUD', amount);
 
   return (
     <section id="pricing" className="overflow-x-clip px-4 py-14 md:py-16" aria-labelledby="public-pricing-heading">
@@ -128,8 +122,9 @@ export const PublicPricingSection: React.FC = () => {
         <p className="mx-auto mt-4 max-w-2xl text-center text-lg leading-7 text-[#6f625b]">Couple plans are one-time payments for one event and 12 months of complete platform access.</p>
         <p className="mx-auto mt-2 max-w-2xl text-center text-sm text-[#6f625b]">Advertised prices exclude GST. Australian GST is added once at checkout where applicable.</p>
         <p className="mt-4 text-center text-base font-medium text-[#412419]">7-day free trial · Up to 20 guests · No credit card required</p>
-        <PricingCurrencyPanel currency={effectiveCurrency} onChange={setCurrency} loading={loading} error={error} />
-        <p className="sr-only" aria-live="polite">Prices are shown in {effectiveCurrency}.</p>
+        <div className="mx-auto mt-7 max-w-2xl rounded-xl border border-[#d7b985]/65 bg-[#f6efe5] px-5 py-4 text-center text-sm leading-6 text-[#412419]">
+          <strong>All prices are in Australian dollars (AUD).</strong> Wedding Waitress is available worldwide. Your card provider may convert an AUD charge and may apply its own exchange rate or fees.
+        </div>
         <div className="mt-12 grid grid-cols-1 items-stretch gap-6 md:grid-cols-2 xl:grid-cols-3">
           {couplePlans.map(({ key, icon: Icon, popular }) => {
             const details = PUBLIC_COUPLE_PLAN_DETAILS[key];
@@ -138,7 +133,8 @@ export const PublicPricingSection: React.FC = () => {
               <article key={key} aria-labelledby={`${key}-plan-title`} className={`relative flex h-full flex-col rounded-[20px] bg-white p-7 shadow-[0_6px_30px_rgba(43,23,17,.10)] ${popular ? 'border-2 border-[#70452f]' : 'border border-[#e7d8c7]'}`}>
                 {popular && <div className="absolute -top-4 left-1/2 -translate-x-1/2"><span className="ww-button-espresso inline-flex items-center gap-1.5 rounded-full px-4 py-1.5 text-xs font-semibold text-white"><Gem size={14} strokeWidth={1.8} aria-hidden="true" />Most Popular</span></div>}
                 <div className={`flex items-center gap-2 ${popular ? 'mt-2' : ''}`}><Icon size={22} strokeWidth={1.8} aria-hidden="true" className="text-[#5b3425]" /><h3 id={`${key}-plan-title`} className="text-4xl font-bold text-[#412419]">{details.name}</h3></div>
-                <p className="mt-5 min-h-[40px] text-2xl font-bold text-[#221b18]" aria-label={`${details.name}, ${price} one-time`}>{price}</p>
+                <p className="mt-5 text-2xl font-bold text-[#221b18]" aria-label={`${details.name}, ${price} Australian dollars one-time`}>{price}</p>
+                <p className="mt-1 min-h-[20px] text-xs font-semibold uppercase tracking-wide text-[#6f625b]">AUD</p>
                 <div className="mt-3 leading-6">
                   <p className="font-semibold text-[#412419]">Up to {details.guests} guests</p>
                   <p className="text-sm text-[#6f625b]">One event for 12 months</p>

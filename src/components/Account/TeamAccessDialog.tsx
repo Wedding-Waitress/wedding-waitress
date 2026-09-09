@@ -13,7 +13,7 @@ interface Props { open: boolean; onOpenChange: (open: boolean) => void; mode?: '
 export const TeamAccessDialog: React.FC<Props> = ({ open, onOpenChange, mode = 'manage', onChanged }) => {
   const team = useTeamAccess(open);
   const { toast } = useToast();
-  const [email, setEmail] = useState('');
+  const [invitee, setInvitee] = useState({ firstName: '', lastName: '', email: '', mobile: '' });
   const [busyId, setBusyId] = useState<string | null>(null);
 
   const run = async (id: string, task: () => Promise<unknown>, success: string) => {
@@ -31,9 +31,8 @@ export const TeamAccessDialog: React.FC<Props> = ({ open, onOpenChange, mode = '
 
   const submitInvite = async (event: FormEvent) => {
     event.preventDefault();
-    if (!email.trim()) return;
-    const sent = await run('invite', () => team.invite(email), 'Invitation sent');
-    if (sent) setEmail('');
+    const sent = await run('invite', () => team.invite(invitee), 'Invitation sent');
+    if (sent) setInvitee({ firstName: '', lastName: '', email: '', mobile: '' });
   };
 
   return (
@@ -52,20 +51,34 @@ export const TeamAccessDialog: React.FC<Props> = ({ open, onOpenChange, mode = '
         {team.error && <div className={styles.error} role="alert">{team.error}</div>}
 
         <form className={styles.inviteForm} onSubmit={submitInvite}>
-          <div className={styles.field}><label htmlFor="team-invite-email">Email address</label><input id="team-invite-email" type="email" required autoComplete="email" value={email} onChange={(event) => setEmail(event.target.value)} placeholder="team.member@example.com" disabled={team.seats.remaining === 0 || busyId !== null} /></div>
-          <Button type="submit" className={controlStyles.primaryButton} disabled={team.seats.remaining === 0 || busyId !== null || !email.trim()}><MailPlus />{busyId === 'invite' ? 'Sending…' : 'Send Invite'}</Button>
+          <div className={styles.fields}>
+            <div className={styles.field}><label htmlFor="team-invite-first-name">First name</label><input id="team-invite-first-name" required autoComplete="given-name" maxLength={80} value={invitee.firstName} onChange={(event) => setInvitee((value) => ({ ...value, firstName: event.target.value }))} disabled={team.seats.remaining === 0 || busyId !== null} /></div>
+            <div className={styles.field}><label htmlFor="team-invite-last-name">Last name</label><input id="team-invite-last-name" required autoComplete="family-name" maxLength={80} value={invitee.lastName} onChange={(event) => setInvitee((value) => ({ ...value, lastName: event.target.value }))} disabled={team.seats.remaining === 0 || busyId !== null} /></div>
+            <div className={styles.field}><label htmlFor="team-invite-email">Email address</label><input id="team-invite-email" type="email" required autoComplete="email" value={invitee.email} onChange={(event) => setInvitee((value) => ({ ...value, email: event.target.value }))} placeholder="team.member@example.com" disabled={team.seats.remaining === 0 || busyId !== null} /></div>
+            <div className={styles.field}><label htmlFor="team-invite-mobile">Phone number</label><input id="team-invite-mobile" type="tel" required autoComplete="tel" maxLength={30} value={invitee.mobile} onChange={(event) => setInvitee((value) => ({ ...value, mobile: event.target.value }))} placeholder="04XX XXX XXX or +61…" disabled={team.seats.remaining === 0 || busyId !== null} /></div>
+          </div>
+          <Button type="submit" className={controlStyles.primaryButton} disabled={team.seats.remaining === 0 || busyId !== null || Object.values(invitee).some((value) => !value.trim())}><MailPlus />{busyId === 'invite' ? 'Sending…' : 'Send Invite'}</Button>
         </form>
 
         <section className={styles.section} aria-labelledby="active-team-heading"><h3 id="active-team-heading">People with access</h3>
-          <div className={styles.list}>{team.members.map((member) => <div className={styles.row} key={member.id}>
-            <div className={styles.identity}><strong>{member.member_email}</strong><span>{member.role === 'master' ? 'Account holder' : 'Team member'}</span></div>
-            {member.role === 'master' ? <span className={styles.badge}><Crown /> Master</span> : <Button type="button" className={controlStyles.destructiveButton} disabled={busyId !== null} onClick={() => { if (window.confirm(`Remove account access for ${member.member_email}?`)) void run(member.id, () => team.removeMember(member.id), 'Team member access removed'); }} aria-label={`Remove ${member.member_email}`}><UserRoundMinus />Remove</Button>}
-          </div>)}</div>
+          <div className={styles.peopleTable} role="table" aria-label="People with account access">
+            <div data-team-roster-header className={styles.tableHeader} role="row"><span data-team-roster-label role="columnheader">Full Name</span><span data-team-roster-label role="columnheader">Email</span><span data-team-roster-label role="columnheader">Phone Number</span><span data-team-roster-label role="columnheader">Account Role</span></div>
+            <div className={styles.list}>{team.members.map((member) => {
+              const fullName = [member.first_name, member.last_name].filter(Boolean).join(' ') || 'Name not provided';
+              return <div className={styles.personRow} role="row" key={member.id}>
+                <div role="cell" data-label="Full Name"><strong>{fullName}</strong></div>
+                <div role="cell" data-label="Email"><span>{member.member_email}</span></div>
+                <div role="cell" data-label="Phone Number"><span>{member.mobile || '—'}</span></div>
+                <div className={styles.roleCell} role="cell" data-label="Account Role">{member.role === 'master' ? <span className={styles.badge}><Crown /> Master Account Holder</span> : <span className={styles.memberBadge}>Team Member</span>}</div>
+                {member.role !== 'master' && <div className={styles.rowActions}><Button type="button" className={controlStyles.destructiveButton} disabled={busyId !== null} onClick={() => { if (window.confirm(`Remove account access for ${member.member_email}?`)) void run(member.id, () => team.removeMember(member.id), 'Team member access removed'); }} aria-label={`Remove ${member.member_email}`}><UserRoundMinus />Remove</Button></div>}
+              </div>;
+            })}</div>
+          </div>
         </section>
 
         <section className={styles.section} aria-labelledby="pending-team-heading"><h3 id="pending-team-heading">Pending invitations</h3>
           {team.invitations.length === 0 ? <p className={styles.empty}>No pending invitations.</p> : <div className={styles.list}>{team.invitations.map((invitation) => <div className={styles.row} key={invitation.id}>
-            <div className={styles.identity}><strong>{invitation.email}</strong><span><Clock3 className="inline h-3 w-3" /> Expires {new Date(invitation.expires_at).toLocaleDateString('en-AU')}</span></div>
+            <div className={styles.identity}><strong>{invitation.first_name} {invitation.last_name}</strong><span>{invitation.email} · {invitation.mobile}</span><span><Clock3 className="inline h-3 w-3" /> Expires {new Date(invitation.expires_at).toLocaleDateString('en-AU')}</span></div>
             <Button type="button" className={controlStyles.destructiveButton} disabled={busyId !== null} onClick={() => { if (window.confirm(`Revoke the invitation for ${invitation.email}?`)) void run(invitation.id, () => team.revokeInvitation(invitation.id), 'Invitation revoked'); }} aria-label={`Revoke invitation for ${invitation.email}`}><Trash2 />Revoke</Button>
           </div>)}</div>}
         </section>

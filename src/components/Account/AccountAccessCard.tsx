@@ -1,13 +1,14 @@
-import React, { useEffect, useState } from 'react';
+import React, { useState } from 'react';
 import { LucideIcon, Crown, UserCog, UserPlus } from 'lucide-react';
 import { SectionCard } from './SectionCard';
 import { Button } from '@/components/ui/button';
 import { useAccountRole } from '@/hooks/useAccountRole';
-import { useAccountSeats } from '@/hooks/useAccountSeats';
-import { supabase } from '@/integrations/supabase/client';
 import { TeamAccessDialog } from './TeamAccessDialog';
+import { useTeamAccess } from '@/hooks/useTeamAccess';
+import { useProfile } from '@/hooks/useProfile';
 import controlStyles from './AccountControls.module.css';
-import { TEAM_ACCESS_ENABLED, TEAM_ACCESS_UNAVAILABLE_MESSAGE } from '@/lib/teamAccessAvailability';
+import { TEAM_ACCESS_ENABLED } from '@/lib/teamAccessAvailability';
+import teamStyles from './TeamAccessDialog.module.css';
 
 interface Props {
   icon: LucideIcon;
@@ -15,50 +16,42 @@ interface Props {
 
 export const AccountAccessCard: React.FC<Props> = ({ icon }) => {
   const { isMaster } = useAccountRole();
-  const { usedSeats, maxSeats, remainingSeats, refresh: refreshSeats } = useAccountSeats();
-  const [email, setEmail] = useState<string>('—');
+  const team = useTeamAccess(TEAM_ACCESS_ENABLED);
+  const { profile } = useProfile();
   const [dialog, setDialog] = useState<'invite' | 'manage' | null>(null);
-
-  useEffect(() => {
-    (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      setEmail(user?.email ?? '—');
-    })();
-  }, []);
+  const visibleMembers = TEAM_ACCESS_ENABLED ? team.members : profile ? [{
+    id: profile.id,
+    member_user_id: profile.id,
+    member_email: profile.email || '—',
+    first_name: profile.first_name,
+    last_name: profile.last_name,
+    mobile: profile.mobile,
+    // Before the reviewed Team backend is enabled this card represents the
+    // signed-in user's own account, so the existing holder must not disappear
+    // or be mislabeled merely because membership RPCs are deliberately gated.
+    role: 'master' as const,
+    invited_at: '',
+    accepted_at: '',
+  }] : [];
 
   return (
     <>
       <SectionCard icon={icon} title="Team & Access" description="Account holders, team members and permissions">
-        {/* Holder row */}
-        <div className="flex flex-col sm:flex-row sm:items-center sm:justify-between gap-3 pb-4 mb-4 border-b border-border/50">
-          <div className="min-w-0">
-            <div className="text-base font-semibold text-foreground truncate">{email}</div>
-            <div className="text-xs text-muted-foreground mt-0.5">Account holder</div>
-          </div>
-          {isMaster ? (
-            <span className={`${controlStyles.statusBadge} self-start sm:self-auto`}>
-              <Crown className="w-3.5 h-3.5" />
-              Master Account Holder
-            </span>
-          ) : (
-            <span className="inline-flex items-center gap-1.5 self-start sm:self-auto px-3 py-1.5 rounded-full text-xs font-semibold text-[#7d6649] bg-[#F5EFE4] border border-[#E8E1D6]">
-              Standard User
-            </span>
-          )}
+        <div className={teamStyles.peopleTable} role="table" aria-label="People with account access">
+          <div data-team-roster-header className={teamStyles.tableHeader} role="row"><span data-team-roster-label role="columnheader">Full Name</span><span data-team-roster-label role="columnheader">Email</span><span data-team-roster-label role="columnheader">Phone Number</span><span data-team-roster-label role="columnheader">Account Role</span></div>
+          <div className={teamStyles.list}>{visibleMembers.map((member) => <div className={teamStyles.personRow} role="row" key={member.id}>
+            <div role="cell" data-label="Full Name"><strong>{[member.first_name,member.last_name].filter(Boolean).join(' ') || 'Name not provided'}</strong></div>
+            <div role="cell" data-label="Email"><span>{member.member_email}</span></div>
+            <div role="cell" data-label="Phone Number"><span>{member.mobile || '—'}</span></div>
+            <div className={teamStyles.roleCell} role="cell" data-label="Account Role">{member.role === 'master' ? <span data-master-account-badge className={teamStyles.badge}><Crown /> Master Account Holder</span> : <span className={teamStyles.memberBadge}>Team Member</span>}</div>
+          </div>)}{visibleMembers.length === 0 && <div className={teamStyles.emptyRoster}>Loading account holder…</div>}</div>
         </div>
-
-        {!TEAM_ACCESS_ENABLED && (
-          <div className="rounded-xl border border-amber-300/70 bg-amber-50 px-4 py-3 text-sm text-amber-950" role="status">
-            <strong className="block">Team access is coming soon</strong>
-            <span>{TEAM_ACCESS_UNAVAILABLE_MESSAGE}</span>
-          </div>
-        )}
 
         {/* Stat grid */}
         {TEAM_ACCESS_ENABLED && (
         <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-          <Stat label="Seats used" value={`${usedSeats} / ${maxSeats}`} sub="People with account access" />
-          <Stat label="Seats available" value={`${remainingSeats}`} sub="Available team invitations" />
+          <Stat label="Seats used" value={`${team.seats.used} / ${team.seats.maximum}`} sub="People with account access" />
+          <Stat label="Seats available" value={`${team.seats.remaining}`} sub="Available team invitations" />
         </div>
         )}
 
@@ -84,7 +77,7 @@ export const AccountAccessCard: React.FC<Props> = ({ icon }) => {
           </div>
         )}
       </SectionCard>
-      {TEAM_ACCESS_ENABLED && <TeamAccessDialog open={dialog !== null} onOpenChange={(open) => { if (!open) setDialog(null); }} mode={dialog ?? 'manage'} onChanged={refreshSeats} />}
+      {TEAM_ACCESS_ENABLED && <TeamAccessDialog open={dialog !== null} onOpenChange={(open) => { if (!open) setDialog(null); }} mode={dialog ?? 'manage'} onChanged={team.refresh} />}
     </>
   );
 };

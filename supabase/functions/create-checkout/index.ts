@@ -1,12 +1,16 @@
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
-import { convertedAmountCents, getAudExchangeRates, isPricingCurrency } from "../_shared/exchangeRates.ts";
 
 const PUBLIC_PLAN_CATALOG = {
   essential: { product: "prod_UOQhHcOhFdrhOs", baseAud: 199, mode: "payment" },
   premium: { product: "prod_UOQhTWnFzXV1FK", baseAud: 249, mode: "payment" },
   unlimited: { product: "prod_UOQhLIYTxQAd7U", baseAud: 299, mode: "payment" },
+} as const;
+const AUD_PLAN_PRICE_IDS = {
+  essential: "price_1UDdle5GzTmqOxGKj3yu56jP",
+  premium: "price_1UDeO75GzTmqOxGK2JYrvH7I",
+  unlimited: "price_1UDeO95GzTmqOxGKZmJq53Ee",
 } as const;
 
 const GUEST_CAPACITY_TOPUP_FALLBACK_PRICE_ID = "price_1TT0o05GzTmqOxGKUIiEXxj6";
@@ -33,9 +37,6 @@ const PAID_WEDDING_PLAN_IDS = new Set([
 ]);
 const ADDITIONAL_EVENT_PRICES: Record<string, { currency: string; unitAmount: number }> = {
   price_1TUoZ15GzTmqOxGKDRmvofDh: { currency: 'aud', unitAmount: 9900 },
-  price_1TUoZT5GzTmqOxGK92kQqFuO: { currency: 'usd', unitAmount: 7499 },
-  price_1TUobn5GzTmqOxGKQSvVqcFY: { currency: 'gbp', unitAmount: 6499 },
-  price_1TUocE5GzTmqOxGK9qKIXoHT: { currency: 'eur', unitAmount: 6999 },
 };
 const ADDITIONAL_EVENT_PRODUCT_ID = 'prod_UTm7byFGV7E127';
 
@@ -144,8 +145,8 @@ serve(async (req) => {
     const publicPlan = !upgrade_from_plan && typeof plan_type === "string" && plan_type in PUBLIC_PLAN_CATALOG
       ? PUBLIC_PLAN_CATALOG[plan_type as keyof typeof PUBLIC_PLAN_CATALOG]
       : null;
-    if (publicPlan && !isPricingCurrency(pricing_currency)) {
-      return new Response(JSON.stringify({ error: "Unsupported pricing currency" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    if (publicPlan && pricing_currency !== 'AUD') {
+      return new Response(JSON.stringify({ error: "Wedding Waitress checkout is available in Australian dollars (AUD) only" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
     if (!price_id && !publicPlan) throw new Error(isCommunicationTopup ? 'Selected communication top-up price is not configured' : 'price_id is required');
 
@@ -306,13 +307,19 @@ serve(async (req) => {
         });
       }
 
+      if (price_id !== AUD_PLAN_PRICE_IDS[toKey as keyof typeof AUD_PLAN_PRICE_IDS]) {
+        return new Response(JSON.stringify({ error: "Upgrade price must use the approved AUD catalogue item" }), {
+          status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
+        });
+      }
+
       // Retrieve target price + product + currency.
       const targetPrice = await stripe.prices.retrieve(price_id);
       const targetCurrency = targetPrice.currency;
       const targetProductId = typeof targetPrice.product === "string"
         ? targetPrice.product
         : targetPrice.product?.id;
-      if (!targetProductId || !targetPrice.unit_amount) {
+      if (!targetProductId || !targetPrice.unit_amount || targetCurrency !== 'aud') {
         throw new Error("Target price is missing product or amount");
       }
       resolvedProductId = targetProductId;
@@ -359,17 +366,16 @@ serve(async (req) => {
     }
 
     if (publicPlan) {
-      const quote = await getAudExchangeRates(true);
       resolvedProductId = publicPlan.product;
-      resolvedCurrency = pricing_currency.toLowerCase();
-      originalAmountCents = convertedAmountCents(publicPlan.baseAud, pricing_currency, quote.rates);
+      resolvedCurrency = 'aud';
+      originalAmountCents = publicPlan.baseAud * 100;
       checkoutQuote = {
-        currency: pricing_currency,
+        currency: 'AUD',
         amount: originalAmountCents,
         base_aud: publicPlan.baseAud * 100,
-        rate: quote.rates[pricing_currency],
-        updated_at: quote.updatedAt,
-        source: quote.source,
+        rate: 1,
+        updated_at: new Date().toISOString(),
+        source: 'Wedding Waitress AUD catalogue',
       };
     } else if (!resolvedProductId) {
       const resolvedPrice = await stripe.prices.retrieve(price_id);

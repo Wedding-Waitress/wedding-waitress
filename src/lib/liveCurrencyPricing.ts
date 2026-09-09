@@ -1,7 +1,8 @@
 import type { CurrencyCode } from './currencyPricing';
 import { PACKAGE_PRICES_AUD } from './packagePricing';
 
-export const SUPPORTED_PRICING_CURRENCIES: CurrencyCode[] = ['AUD', 'USD', 'GBP', 'EUR'];
+/** The only currency offered for new prices and purchases. */
+export const SUPPORTED_PRICING_CURRENCIES: CurrencyCode[] = ['AUD'];
 
 export const AUD_BASE_PRICES = PACKAGE_PRICES_AUD;
 
@@ -10,7 +11,7 @@ export type LiveCurrencyRates = Record<CurrencyCode, number>;
 export const AUD_RATES: LiveCurrencyRates = { AUD: 1, USD: 1, GBP: 1, EUR: 1 };
 
 export const isCurrencyCode = (value: unknown): value is CurrencyCode =>
-  typeof value === 'string' && SUPPORTED_PRICING_CURRENCIES.includes(value as CurrencyCode);
+  typeof value === 'string' && ['AUD', 'USD', 'GBP', 'EUR'].includes(value);
 
 export const convertAudPrice = (audAmount: number, currency: CurrencyCode, rates: LiveCurrencyRates): number => {
   if (currency === 'AUD') return audAmount;
@@ -34,4 +35,4 @@ export const formatLivePrice = (currency: CurrencyCode, amount: number): string 
 };
 
 export const formatPublicPricingPrice = (currency: CurrencyCode, amount: number): string =>
-  currency === 'AUD' ? formatLivePrice(currency, amount).replace(/^A\$/, 'AUD $') : formatLivePrice(currency, amount);
+  currency === 'AUD' ? formatLivePrice(currency, amount).replace(/^A\$/, '$') : formatLivePrice(currency, amount);

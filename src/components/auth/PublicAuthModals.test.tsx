@@ -70,7 +70,7 @@ describe('shared public authentication modals', () => {
       email: 'alex@example.com',
       options: {
         shouldCreateUser: true,
-        data: expect.objectContaining({ mobile: '0412 345 678', intended_plan: 'premium', intended_currency: 'USD' }),
+        data: expect.objectContaining({ mobile: '0412 345 678', intended_plan: 'premium', intended_currency: 'AUD' }),
       },
     }));
     expect(await screen.findByRole('heading', { name: 'Check your email' })).toBeInTheDocument();
@@ -78,7 +78,7 @@ describe('shared public authentication modals', () => {
     expect(screen.getByRole('button', { name: /Resend available in/ })).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Correct email' })).toBeInTheDocument();
     expect(sessionStorage.getItem('ww_intended_plan')).toBe('premium');
-    expect(sessionStorage.getItem('ww_intended_currency')).toBe('USD');
+    expect(sessionStorage.getItem('ww_intended_currency')).toBe('AUD');
   });
 
   it('uses the approved sign-in wording and can return to sign-up', async () => {

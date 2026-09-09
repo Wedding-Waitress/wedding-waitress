@@ -9,11 +9,11 @@ vi.mock('@/hooks/use-toast', () => ({ useToast: () => ({ toast: mocks.toast }) }
 vi.mock('@/hooks/useTeamAccess', () => ({
   useTeamAccess: () => ({
     members: [
-      { id: 'master-1', member_user_id: 'master-1', member_email: 'owner@example.com', role: 'master', invited_at: '', accepted_at: '' },
-      { id: 'member-1', member_user_id: 'member-1', member_email: 'helper@example.com', role: 'standard', invited_at: '', accepted_at: '' },
+      { id: 'master-1', member_user_id: 'master-1', member_email: 'owner@example.com', first_name: 'Wendy', last_name: 'Owner', mobile: '0400 000 000', role: 'master', invited_at: '', accepted_at: '' },
+      { id: 'member-1', member_user_id: 'member-1', member_email: 'helper@example.com', first_name: 'Alex', last_name: 'Helper', mobile: '0400 000 001', role: 'standard', invited_at: '', accepted_at: '' },
     ],
-    invitations: [{ id: 'invite-1', email: 'pending@example.com', created_at: '', expires_at: '2026-09-13T00:00:00Z', status: 'pending' }],
-    seats: { used: 3, maximum: 3, remaining: 0 }, loading: false, error: null,
+    invitations: [{ id: 'invite-1', email: 'pending@example.com', first_name: 'Pat', last_name: 'Pending', mobile: '0400 000 002', created_at: '', expires_at: '2026-09-13T00:00:00Z', status: 'pending' }],
+    seats: { used: 5, maximum: 5, remaining: 0 }, loading: false, error: null,
     invite: mocks.invite, revokeInvitation: mocks.revoke, removeMember: mocks.remove,
   }),
 }));
@@ -25,8 +25,8 @@ describe('TeamAccessDialog', () => {
     render(<TeamAccessDialog open onOpenChange={vi.fn()} />);
     expect(screen.getByText('owner@example.com')).toBeInTheDocument();
     expect(screen.getByText('helper@example.com')).toBeInTheDocument();
-    expect(screen.getByText('pending@example.com')).toBeInTheDocument();
-    expect(screen.getByText('3 / 3')).toBeInTheDocument();
+    expect(screen.getByText(/pending@example\.com/)).toBeInTheDocument();
+    expect(screen.getByText('5 / 5')).toBeInTheDocument();
     expect(screen.queryByText(/promote/i)).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Send Invite' })).toBeDisabled();
   });

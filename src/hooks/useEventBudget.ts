@@ -1,7 +1,6 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { EventBudgetExpense, EventBudgetExpenseInput, EventBudgetSettings } from '@/lib/eventBudget';
-import { fetchBudgetExchangeQuote } from '@/lib/eventBudgetExchange';
 import type { CurrencyCode } from '@/lib/currencyPricing';
 
 export const eventBudgetKeys = {
@@ -41,10 +40,11 @@ export const useEventBudget = (eventId: string | null) => {
   };
 
   const saveBudget = useMutation({
-    mutationFn: async ({ anticipatedBudget, currency, plannedBudgetKind = 'exact', plannedBudgetRange = null }: { anticipatedBudget: number; currency: CurrencyCode; plannedBudgetKind?: EventBudgetSettings['planned_budget_kind']; plannedBudgetRange?: string | null }) => {
+    mutationFn: async ({ anticipatedBudget, currency = 'AUD', plannedBudgetKind = 'exact', plannedBudgetRange = null }: { anticipatedBudget: number; currency?: CurrencyCode; plannedBudgetKind?: EventBudgetSettings['planned_budget_kind']; plannedBudgetRange?: string | null }) => {
       if (!eventId) throw new Error('Select an event before saving a budget.');
+      if (currency !== 'AUD') throw new Error('New and updated event budgets must use Australian dollars (AUD).');
       const { data, error } = await supabase.from('event_budget_settings').upsert({
-        event_id: eventId, anticipated_budget: anticipatedBudget, currency,
+        event_id: eventId, anticipated_budget: anticipatedBudget, currency: 'AUD',
         planned_budget_kind: plannedBudgetKind,
         planned_budget_range: plannedBudgetKind === 'range' ? plannedBudgetRange : null,
       }, { onConflict: 'event_id' }).select().single();
@@ -52,24 +52,6 @@ export const useEventBudget = (eventId: string | null) => {
       return data as EventBudgetSettings;
     },
     onSuccess: (settings) => updateCached({ settings, expenses: query.data?.expenses ?? [] }),
-  });
-
-  const convertCurrency = useMutation({
-    mutationFn: async ({ from, to, budget }: { from: CurrencyCode; to: CurrencyCode; budget: number | null }) => {
-      if (!eventId) throw new Error('Select an event first.');
-      const current = query.data;
-      if (!current) throw new Error('Wait for the budget to load.');
-      const quote = await fetchBudgetExchangeQuote(from, to);
-      const { data, error } = await supabase.rpc('convert_event_budget_currency', {
-        p_event_id: eventId, p_from: from, p_to: to, p_rate: quote.rate, p_rate_date: quote.date,
-        p_expected_updated_at: current.settings?.updated_at ?? null,
-        p_expense_versions: current.expenses.map(({ id, updated_at }) => ({ id, updated_at })), p_budget: budget,
-      });
-      if (error || !data) throw error ?? new Error('The conversion could not be saved.');
-      return { budget: data as unknown as EventBudgetData, quote };
-    },
-    onSuccess: ({ budget }) => updateCached(budget),
-    onError: () => { if (eventId) void queryClient.invalidateQueries({ queryKey: eventBudgetKeys.event(eventId) }); },
   });
 
   const saveExpense = useMutation({
@@ -105,5 +87,5 @@ export const useEventBudget = (eventId: string | null) => {
     },
   });
 
-  return { query, saveBudget, saveExpense, deleteExpense, convertCurrency };
+  return { query, saveBudget, saveExpense, deleteExpense };
 };

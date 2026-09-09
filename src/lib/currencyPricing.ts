@@ -1,7 +1,7 @@
 /**
- * Multi-currency pricing configuration.
- * Fixed predefined prices per currency (NOT live conversion).
- * Each currency has its own Stripe price ID.
+ * Pricing configuration. AUD is the only active currency for new prices and
+ * purchases. Historical currency definitions remain available solely so an
+ * existing legacy record can be rendered truthfully without relabelling it.
  */
 
 import { PACKAGE_PRICES_AUD } from './packagePricing';

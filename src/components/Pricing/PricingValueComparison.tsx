@@ -1,22 +1,14 @@
 import React from 'react';
 import { CircleCheck } from 'lucide-react';
 import { estimatedSeparateToolValueAud, pricingComparisonRows } from '@/content/pricingComparison';
-import { useCurrencyContext } from '@/contexts/CurrencyContext';
-import { useLiveExchangeRates } from '@/hooks/useLiveExchangeRates';
-import { convertAudPrice, formatPublicPricingPrice } from '@/lib/liveCurrencyPricing';
+import { formatPublicPricingPrice } from '@/lib/liveCurrencyPricing';
 import { PACKAGE_PRICES_AUD } from '@/lib/packagePricing';
 
 const aud = (value: number) =>
   `A$${new Intl.NumberFormat('en-AU', { maximumFractionDigits: 0 }).format(value)}`;
 
 export const PricingValueComparison: React.FC = () => {
-  const { currency } = useCurrencyContext();
-  const { rates, loading, error } = useLiveExchangeRates();
-  const effectiveCurrency = loading || error ? 'AUD' : currency;
-  const weddingWaitressPrice = formatPublicPricingPrice(
-    effectiveCurrency,
-    convertAudPrice(PACKAGE_PRICES_AUD.essential, effectiveCurrency, rates),
-  );
+  const weddingWaitressPrice = formatPublicPricingPrice('AUD', PACKAGE_PRICES_AUD.essential);
   let lastCategory = '';
 
   return (

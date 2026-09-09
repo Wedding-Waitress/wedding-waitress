@@ -9,6 +9,9 @@ export interface AccountMemberSummary {
   role: 'master' | 'standard';
   invited_at: string;
   accepted_at: string | null;
+  first_name: string | null;
+  last_name: string | null;
+  mobile: string | null;
 }
 
 export interface AccountInvitationSummary {
@@ -17,6 +20,9 @@ export interface AccountInvitationSummary {
   created_at: string;
   expires_at: string;
   status: 'pending';
+  first_name: string;
+  last_name: string;
+  mobile: string;
 }
 
 interface TeamSeats { used: number; maximum: number; remaining: number }
@@ -26,9 +32,10 @@ interface TeamAccessResponse {
   seats?: TeamSeats;
   success?: boolean;
   membership?: { account_owner_id: string; role: 'standard' };
+  invitation?: AccountInvitationSummary & { account_holder_name?: string; account_holder_email?: string };
 }
 
-const emptySeats: TeamSeats = { used: 1, maximum: 3, remaining: 2 };
+const emptySeats: TeamSeats = { used: 1, maximum: 5, remaining: 4 };
 
 const invoke = async (body: Record<string, unknown>) => {
   const { data, error } = await supabase.functions.invoke('manage-account-members', { body });
@@ -74,7 +81,7 @@ export const useTeamAccess = (enabled = true) => {
 
   return {
     available: TEAM_ACCESS_ENABLED, members, invitations, seats, loading, error, refresh,
-    invite: (email: string) => mutate({ action: 'invite', email }),
+    invite: (input: { firstName: string; lastName: string; email: string; mobile: string }) => mutate({ action: 'invite', ...input }),
     revokeInvitation: (invitationId: string) => mutate({ action: 'revoke-invitation', invitationId }),
     removeMember: (memberId: string) => mutate({ action: 'remove-member', memberId }),
   };
@@ -83,4 +90,11 @@ export const useTeamAccess = (enabled = true) => {
 export const acceptTeamInvitation = async () => {
   if (!TEAM_ACCESS_ENABLED) throw new Error('Team access is not available in this environment');
   return invoke({ action: 'accept' });
+};
+
+export const previewTeamInvitation = async () => {
+  if (!TEAM_ACCESS_ENABLED) throw new Error('Team access is not available in this environment');
+  const result = await invoke({ action: 'preview' });
+  if (!result.invitation) throw new Error('This invitation is invalid, expired, revoked, or has already been used');
+  return result.invitation;
 };

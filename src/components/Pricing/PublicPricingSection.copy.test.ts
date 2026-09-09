@@ -28,13 +28,16 @@ describe('public pricing package-card copy and typography', () => {
   });
 
   it('uses the public AUD formatter for all active couple plans', () => {
-    expect(source).toContain('formatPublicPricingPrice(effectiveCurrency, convertAudPrice(amount, effectiveCurrency, rates))');
+    expect(source).toContain("formatPublicPricingPrice('AUD', amount)");
     expect(source).toContain('displayCouplePrice(AUD_BASE_PRICES[key])');
+    expect(source).not.toContain('useLiveExchangeRates');
+    expect(source).not.toContain('<PricingCurrencyPanel');
     expect(source).not.toContain('Vendor Pro');
   });
 
   it('promotes plan names to the former price size and steps prices down twice', () => {
     expect(source).toContain('className="text-4xl font-bold text-[#412419]"');
-    expect(source).toContain('min-h-[40px] text-2xl font-bold text-[#221b18]');
+    expect(source).toContain('mt-5 text-2xl font-bold text-[#221b18]');
+    expect(source).toContain('>AUD</p>');
   });
 });

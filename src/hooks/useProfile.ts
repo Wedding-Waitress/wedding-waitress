@@ -52,7 +52,20 @@ const requestProfile = () => {
     const { data: profileData, error: profileError } = await supabase
       .from('profiles').select('*').eq('id', user.id).single();
     if (profileError) throw profileError;
-    const hydrated = await withSignedProfileImage(profileData as Omit<UserProfile, 'profile_image_url'>);
+    const activeAuthEmail = user.email?.trim() || null;
+    let authoritativeProfile = profileData;
+    if (activeAuthEmail && profileData.email !== activeAuthEmail) {
+      // Auth is authoritative for login identity. Mirror only an already-active,
+      // confirmed Auth email; never use this profile field to bypass Auth's
+      // email-change verification flow.
+      const { error: emailSyncError } = await supabase
+        .from('profiles')
+        .update({ email: activeAuthEmail })
+        .eq('id', user.id);
+      if (emailSyncError) console.warn('Unable to mirror the active Auth email to the profile record:', emailSyncError.message);
+      authoritativeProfile = { ...profileData, email: activeAuthEmail };
+    }
+    const hydrated = await withSignedProfileImage(authoritativeProfile as Omit<UserProfile, 'profile_image_url'>);
     if (generation !== getCacheGeneration()) throw new Error('Profile request superseded by an account change.');
     broadcastProfile(hydrated);
     return hydrated;

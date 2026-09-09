@@ -5,10 +5,16 @@
 -- minimum SELECT access needed by existing account-role/event-access hooks.
 
 ALTER TABLE public.account_members
-  ADD COLUMN IF NOT EXISTS member_email text;
+  ADD COLUMN IF NOT EXISTS member_email text,
+  ADD COLUMN IF NOT EXISTS first_name text,
+  ADD COLUMN IF NOT EXISTS last_name text,
+  ADD COLUMN IF NOT EXISTS mobile text;
 
 ALTER TABLE public.account_invitations
-  ADD COLUMN IF NOT EXISTS token_hash text;
+  ADD COLUMN IF NOT EXISTS token_hash text,
+  ADD COLUMN IF NOT EXISTS first_name text,
+  ADD COLUMN IF NOT EXISTS last_name text,
+  ADD COLUMN IF NOT EXISTS mobile text;
 
 -- Acceptance is bound to the verified Supabase Auth email, so legacy account
 -- bearer tokens are no longer needed and must not remain readable at rest.
@@ -52,6 +58,29 @@ CREATE INDEX IF NOT EXISTS idx_account_members_owner_active
   ON public.account_members(account_owner_id, access_disabled_at)
   WHERE accepted_at IS NOT NULL;
 
+-- There is one immutable master identity per account and one active account per
+-- Auth identity. Stop instead of silently repairing contradictory legacy rows.
+DO $$
+BEGIN
+  IF EXISTS (
+    SELECT 1 FROM public.account_members
+    WHERE role = 'master' AND account_owner_id <> member_user_id
+  ) OR EXISTS (
+    SELECT account_owner_id FROM public.account_members
+    WHERE role = 'master' GROUP BY account_owner_id HAVING count(*) > 1
+  ) OR EXISTS (
+    SELECT member_user_id FROM public.account_members
+    WHERE access_disabled_at IS NULL GROUP BY member_user_id HAVING count(*) > 1
+  ) THEN
+    RAISE EXCEPTION 'Existing account membership data violates the one-master/one-active-account contract';
+  END IF;
+END $$;
+
+CREATE UNIQUE INDEX IF NOT EXISTS idx_account_members_one_master
+  ON public.account_members(account_owner_id) WHERE role = 'master';
+CREATE UNIQUE INDEX IF NOT EXISTS idx_account_members_one_active_account
+  ON public.account_members(member_user_id) WHERE access_disabled_at IS NULL;
+
 -- A browser must never create its own membership, promote a member, bypass the
 -- seat limit, or read invitation secrets.
 REVOKE ALL ON public.account_invitations FROM anon, authenticated;
@@ -93,7 +122,9 @@ CREATE OR REPLACE FUNCTION public.internal_create_account_invitation(
   p_owner_id uuid,
   p_owner_email text,
   p_email text,
-  p_seat_limit integer
+  p_first_name text,
+  p_last_name text,
+  p_mobile text
 )
 RETURNS jsonb
 LANGUAGE plpgsql
@@ -103,6 +134,9 @@ AS $$
 DECLARE
   normalized_email text := lower(trim(p_email));
   normalized_owner_email text := lower(trim(p_owner_email));
+  normalized_first_name text := regexp_replace(trim(coalesce(p_first_name, '')), '\s+', ' ', 'g');
+  normalized_last_name text := regexp_replace(trim(coalesce(p_last_name, '')), '\s+', ' ', 'g');
+  normalized_mobile text := regexp_replace(trim(coalesce(p_mobile, '')), '\s+', ' ', 'g');
   invitation public.account_invitations;
   occupied_seats integer;
 BEGIN
@@ -110,8 +144,15 @@ BEGIN
     RAISE EXCEPTION 'A valid email address is required' USING ERRCODE = '22023';
   END IF;
 
-  IF p_seat_limit NOT IN (3, 10) THEN
-    RAISE EXCEPTION 'Invalid account seat limit' USING ERRCODE = '22023';
+  IF normalized_first_name = '' OR length(normalized_first_name) > 80 THEN
+    RAISE EXCEPTION 'First name is required' USING ERRCODE = '22023';
+  END IF;
+  IF normalized_last_name = '' OR length(normalized_last_name) > 80 THEN
+    RAISE EXCEPTION 'Last name is required' USING ERRCODE = '22023';
+  END IF;
+  IF normalized_mobile !~ '^[+()0-9. -]{7,30}$'
+     OR length(regexp_replace(normalized_mobile, '[^0-9]', '', 'g')) NOT BETWEEN 7 AND 15 THEN
+    RAISE EXCEPTION 'A valid mobile number is required' USING ERRCODE = '22023';
   END IF;
 
   IF normalized_email = normalized_owner_email THEN
@@ -163,14 +204,16 @@ BEGIN
         AND expires_at > now())
   INTO occupied_seats;
 
-  IF occupied_seats >= p_seat_limit THEN
+  IF occupied_seats >= 5 THEN
     RAISE EXCEPTION 'All account seats are currently occupied or reserved' USING ERRCODE = 'P0001';
   END IF;
 
   INSERT INTO public.account_invitations (
-    account_owner_id, email, role, token, token_hash, expires_at, status
+    account_owner_id, email, first_name, last_name, mobile,
+    role, token, token_hash, expires_at, status
   ) VALUES (
-    p_owner_id, normalized_email, 'standard', NULL,
+    p_owner_id, normalized_email, normalized_first_name, normalized_last_name,
+    normalized_mobile, 'standard', NULL,
     NULL, now() + interval '14 days', 'pending'
   )
   RETURNING * INTO invitation;
@@ -178,7 +221,67 @@ BEGIN
   RETURN jsonb_build_object(
     'id', invitation.id,
     'email', invitation.email,
+    'first_name', invitation.first_name,
+    'last_name', invitation.last_name,
+    'mobile', invitation.mobile,
     'expires_at', invitation.expires_at
+  );
+END;
+$$;
+
+-- Return only the pending invitation bound to the caller's verified Auth email.
+-- This supports an explicit review screen without granting access early.
+CREATE OR REPLACE FUNCTION public.internal_preview_account_invitation(
+  p_user_id uuid,
+  p_user_email text
+)
+RETURNS jsonb
+LANGUAGE plpgsql
+SECURITY DEFINER
+SET search_path = public, pg_temp
+AS $$
+DECLARE
+  normalized_email text := lower(trim(p_user_email));
+  invitation public.account_invitations;
+  holder_name text;
+  holder_email text;
+BEGIN
+  IF p_user_id IS NULL OR normalized_email = '' THEN
+    RAISE EXCEPTION 'Invalid invitation' USING ERRCODE = '22023';
+  END IF;
+
+  SELECT * INTO invitation
+  FROM public.account_invitations
+  WHERE lower(email) = normalized_email
+    AND status = 'pending'
+    AND expires_at > now();
+
+  IF invitation.id IS NULL THEN
+    RAISE EXCEPTION 'This invitation is invalid, expired, or has already been used' USING ERRCODE = '22023';
+  END IF;
+
+  IF invitation.account_owner_id = p_user_id OR EXISTS (
+    SELECT 1 FROM public.account_members
+    WHERE member_user_id = p_user_id AND role = 'master' AND access_disabled_at IS NULL
+  ) THEN
+    RAISE EXCEPTION 'A master account holder cannot join another account' USING ERRCODE = '42501';
+  END IF;
+
+  SELECT nullif(trim(concat_ws(' ', p.first_name, p.last_name)), ''), p.email
+    INTO holder_name, holder_email
+  FROM public.profiles p WHERE p.id = invitation.account_owner_id;
+
+  RETURN jsonb_build_object(
+    'id', invitation.id,
+    'email', invitation.email,
+    'first_name', invitation.first_name,
+    'last_name', invitation.last_name,
+    'mobile', invitation.mobile,
+    'created_at', invitation.created_at,
+    'expires_at', invitation.expires_at,
+    'status', invitation.status,
+    'account_holder_name', holder_name,
+    'account_holder_email', holder_email
   );
 END;
 $$;
@@ -199,6 +302,7 @@ DECLARE
   normalized_email text := lower(trim(p_user_email));
   invitation public.account_invitations;
   existing_membership public.account_members;
+  occupied_seats integer;
 BEGIN
   IF p_user_id IS NULL OR normalized_email = '' THEN
     RAISE EXCEPTION 'Invalid invitation' USING ERRCODE = '22023';
@@ -216,6 +320,19 @@ BEGIN
 
   PERFORM pg_advisory_xact_lock(hashtextextended(invitation.account_owner_id::text, 0));
   PERFORM pg_advisory_xact_lock(hashtextextended(p_user_id::text, 1));
+
+  SELECT
+    (SELECT count(*) FROM public.account_members
+      WHERE account_owner_id = invitation.account_owner_id
+        AND accepted_at IS NOT NULL AND access_disabled_at IS NULL)
+    +
+    (SELECT count(*) FROM public.account_invitations
+      WHERE account_owner_id = invitation.account_owner_id
+        AND status = 'pending' AND expires_at > now())
+  INTO occupied_seats;
+  IF occupied_seats > 5 THEN
+    RAISE EXCEPTION 'All account seats are currently occupied or reserved' USING ERRCODE = 'P0001';
+  END IF;
 
   IF invitation.account_owner_id = p_user_id OR EXISTS (
     SELECT 1 FROM public.account_members
@@ -243,15 +360,19 @@ BEGIN
 
   IF existing_membership.id IS NULL THEN
     INSERT INTO public.account_members (
-      account_owner_id, member_user_id, member_email, role, invited_at,
+      account_owner_id, member_user_id, member_email, first_name, last_name, mobile, role, invited_at,
       accepted_at, access_disabled_at
     ) VALUES (
-      invitation.account_owner_id, p_user_id, normalized_email, 'standard',
+      invitation.account_owner_id, p_user_id, normalized_email,
+      invitation.first_name, invitation.last_name, invitation.mobile, 'standard',
       invitation.created_at, now(), NULL
     );
   ELSIF existing_membership.role = 'standard' THEN
     UPDATE public.account_members
     SET member_email = normalized_email,
+        first_name = invitation.first_name,
+        last_name = invitation.last_name,
+        mobile = invitation.mobile,
         invited_at = invitation.created_at,
         accepted_at = now(),
         access_disabled_at = NULL
@@ -322,12 +443,14 @@ BEGIN
 END;
 $$;
 
-REVOKE ALL ON FUNCTION public.internal_create_account_invitation(uuid, text, text, integer) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.internal_create_account_invitation(uuid, text, text, text, text, text) FROM PUBLIC, anon, authenticated;
+REVOKE ALL ON FUNCTION public.internal_preview_account_invitation(uuid, text) FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION public.internal_accept_account_invitation(uuid, text) FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION public.internal_revoke_account_invitation(uuid, uuid) FROM PUBLIC, anon, authenticated;
 REVOKE ALL ON FUNCTION public.internal_remove_account_member(uuid, uuid) FROM PUBLIC, anon, authenticated;
 
-GRANT EXECUTE ON FUNCTION public.internal_create_account_invitation(uuid, text, text, integer) TO service_role;
+GRANT EXECUTE ON FUNCTION public.internal_create_account_invitation(uuid, text, text, text, text, text) TO service_role;
+GRANT EXECUTE ON FUNCTION public.internal_preview_account_invitation(uuid, text) TO service_role;
 GRANT EXECUTE ON FUNCTION public.internal_accept_account_invitation(uuid, text) TO service_role;
 GRANT EXECUTE ON FUNCTION public.internal_revoke_account_invitation(uuid, uuid) TO service_role;
 GRANT EXECUTE ON FUNCTION public.internal_remove_account_member(uuid, uuid) TO service_role;

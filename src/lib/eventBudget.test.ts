@@ -62,14 +62,14 @@ describe('event budget calculations', () => {
     expect(parseCurrencyInput('abc')).toBeNull();
   });
 
-  it('reuses the supported pricing currencies for formatting and default priority', () => {
+  it('preserves a saved legacy currency but defaults every new budget to AUD', () => {
     expect(formatBudgetCurrency('AUD', 20000)).toBe('A$20,000.00');
     expect(formatBudgetCurrency('USD', 20000)).toBe('US$20,000.00');
     expect(formatBudgetCurrency('GBP', 20000)).toBe('£20,000.00');
     expect(formatBudgetCurrency('EUR', 20000)).toBe('€20,000.00');
     expect(resolveEventBudgetCurrency('GBP', 'USD', 'EUR')).toBe('GBP');
-    expect(resolveEventBudgetCurrency(null, 'USD', 'EUR')).toBe('USD');
-    expect(resolveEventBudgetCurrency(null, null, 'EUR')).toBe('EUR');
+    expect(resolveEventBudgetCurrency(null, 'USD', 'EUR')).toBe('AUD');
+    expect(resolveEventBudgetCurrency(null, null, 'EUR')).toBe('AUD');
     expect(resolveEventBudgetCurrency(null, null, 'AUD')).toBe('AUD');
   });
 });

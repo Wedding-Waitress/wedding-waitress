@@ -83,8 +83,9 @@ describe('EventBudgetPlanner interface', () => {
     rerender(<EventBudgetPlanner event={event} />);
 
     const summary = screen.getByLabelText('Event budget summary');
-    ['A$7,000.00', 'A$1,200.00', 'A$1,300.00', 'A$300.00', 'A$1,000.00', 'A$5,700.00']
+    ['$1,200.00', '$1,300.00', '$300.00', '$1,000.00', '$5,700.00']
       .forEach(value => expect(within(summary).getByText(value)).toBeInTheDocument());
+    expect(within(summary).getByLabelText('Total Anticipated Event Budget')).toHaveValue('7,000.00');
   });
 
   it('groups Print and PDF in Export Controls and places Add Expense after Sort', () => {
@@ -99,43 +100,33 @@ describe('EventBudgetPlanner interface', () => {
     expect(sort.compareDocumentPosition(add) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
   });
 
-  it('uses the saved event currency before the Pricing preference and formats every monetary surface', async () => {
+  it('preserves a saved legacy currency without silently relabelling or enabling edits', async () => {
     localStorage.setItem('ww_currency', 'EUR');
     mocks.useEventBudget.mockReturnValue({ ...hookValue(), query: { ...hookValue().query, data: { ...hookValue().query.data, settings: { ...hookValue().query.data.settings, currency: 'USD' } } } });
     render(<EventBudgetPlanner event={{ id: 'event-a', name: 'Community Gala' }} />);
-    await waitFor(() => expect(screen.getByLabelText('Event budget currency')).toHaveValue('USD'));
-    expect(screen.getAllByText('US$5,000.00').length).toBeGreaterThan(0);
+    await waitFor(() => expect(screen.getByText(/Historical USD budget preserved unchanged/)).toBeInTheDocument());
+    expect(screen.getByLabelText('Total Anticipated Event Budget')).toHaveValue('5,000.00');
     expect(screen.getAllByText('US$300.00').length).toBeGreaterThan(0);
+    expect(screen.getByLabelText('Total Anticipated Event Budget')).toBeDisabled();
   });
 
-  it('uses the Pricing preference before first save and lists the approved currency catalogue', async () => {
+  it('ignores a legacy Pricing preference and creates a new AUD-only budget', async () => {
     localStorage.setItem('ww_currency', 'GBP');
     const empty = hookValue([]);
     mocks.useEventBudget.mockReturnValue({ ...empty, query: { ...empty.query, data: { settings: null, expenses: [] } } });
     render(<EventBudgetPlanner event={{ id: 'event-a', name: 'Community Gala' }} />);
-    const selector = await screen.findByLabelText('Event budget currency');
-    expect(selector).toHaveValue('GBP');
-    expect(within(selector).getAllByRole('option').map(option => option.textContent)).toEqual(['AUD A$', 'USD US$', 'GBP £', 'EUR €']);
+    expect(await screen.findByLabelText('Total Anticipated Event Budget')).toBeEnabled();
+    expect(screen.queryByLabelText('Event budget currency')).not.toBeInTheDocument();
+    expect(screen.queryByRole('option', { name: /USD|GBP|EUR/ })).not.toBeInTheDocument();
   });
 
-  it('converts immediately and displays the rate date after saving', async () => {
-    const budget=hookValue().query.data;
-    mocks.convertCurrency.mockResolvedValue({budget:{...budget,settings:{...budget.settings,currency:'USD',anticipated_budget:3300}},quote:{from:'AUD',to:'USD',rate:.66,date:'2026-09-07'}});
+  it('keeps budget editing inside the Total Budget card and saves only AUD',async()=>{
     render(<EventBudgetPlanner event={{id:'event-a',name:'Community Gala'}} />);
-    fireEvent.change(screen.getByLabelText('Event budget currency'),{target:{value:'USD'}});
-    await waitFor(()=>expect(mocks.convertCurrency).toHaveBeenCalledWith({from:'AUD',to:'USD',budget:5000}));
-    await waitFor(()=>expect(screen.getByLabelText('Event budget currency')).toHaveValue('USD'));
-    expect(screen.getByLabelText('Total Anticipated Event Budget')).toHaveValue('3,300.00');
-    expect(screen.getByText(/Rate published 2026-09-07/)).toBeInTheDocument();
-    expect(mocks.saveBudget).not.toHaveBeenCalled();
-  });
-  it('keeps the original currency and typed amount if conversion fails',async()=>{
-    mocks.convertCurrency.mockRejectedValue(new Error('Rate unavailable'));
-    render(<EventBudgetPlanner event={{id:'event-a',name:'Community Gala'}} />);
-    fireEvent.change(screen.getByLabelText('Event budget currency'),{target:{value:'EUR'}});
-    await screen.findByText('Rate unavailable');
-    expect(screen.getByLabelText('Event budget currency')).toHaveValue('AUD');
-    expect(screen.getByLabelText('Total Anticipated Event Budget')).toHaveValue('5,000.00');
+    const input = screen.getByLabelText('Total Anticipated Event Budget');
+    fireEvent.change(input,{target:{value:'6200'}});
+    fireEvent.click(screen.getByRole('button',{name:'Update Budget'}));
+    await waitFor(()=>expect(mocks.saveBudget).toHaveBeenCalledWith({anticipatedBudget:6200,currency:'AUD'}));
+    expect(screen.queryByLabelText('Event budget currency')).not.toBeInTheDocument();
   });
   it('places export actions in the supplied page-header target',()=>{
     const target=document.createElement('div'); document.body.append(target);
@@ -154,7 +145,7 @@ describe('EventBudgetPlanner interface', () => {
     expect(await screen.findByRole('heading', { name: 'Add Expense' })).toBeInTheDocument();
     expect(screen.queryByLabelText('Expense or Item Name')).not.toBeInTheDocument();
     expect(screen.getByLabelText('Business Name')).toHaveValue('');
-    expect(screen.getByLabelText('Budgeted Cost (AUD A$)')).toBeInTheDocument();
+    expect(screen.getByLabelText('Budgeted Cost (AUD $)')).toBeInTheDocument();
   });
 
   it('saves a category-only allocation without writing a new expense name or changing the anticipated budget', async () => {
@@ -168,7 +159,7 @@ describe('EventBudgetPlanner interface', () => {
     expect(savedInput).toMatchObject({ event_id: 'event-a', category: 'Venue', vendor_name: null });
     expect(savedInput).not.toHaveProperty('expense_name');
     expect(mocks.saveBudget).not.toHaveBeenCalled();
-    expect(screen.getAllByText('A$5,000.00').length).toBeGreaterThan(0);
+    expect(screen.getByLabelText('Total Anticipated Event Budget')).toHaveValue('5,000.00');
   });
 
   it('closes a pristine drawer with Escape and restores focus to its opening control', async () => {

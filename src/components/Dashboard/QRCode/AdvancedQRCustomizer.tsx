@@ -53,7 +53,7 @@ export const AdvancedQRCustomizer: React.FC<AdvancedQRCustomizerProps> = ({
       }
 
       const fileExt = file.name.split('.').pop();
-      const fileName = `${user.id}/${type}_${Date.now()}.${fileExt}`;
+      const fileName = `${user.id}/${eventId}/${type}_${Date.now()}.${fileExt}`;
 
       const { error: uploadError } = await supabase.storage
         .from('qr-assets')

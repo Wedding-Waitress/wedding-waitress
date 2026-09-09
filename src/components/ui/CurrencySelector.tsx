@@ -8,7 +8,7 @@ import { Button } from '@/components/ui/button';
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from '@/components/ui/dropdown-menu';
 import { CURRENCIES, CurrencyCode } from '@/lib/currencyPricing';
 
-const currencyList: CurrencyCode[] = ['AUD', 'USD', 'GBP', 'EUR'];
+const currencyList: CurrencyCode[] = ['AUD'];
 
 interface CurrencySelectorProps {
   currency: CurrencyCode;

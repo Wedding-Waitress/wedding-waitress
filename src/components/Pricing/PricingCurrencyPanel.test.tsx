@@ -12,7 +12,7 @@ describe('public pricing currency selection', () => {
     expect(Object.values(AUD_BASE_PRICES).map((value) => convertAudPrice(value, 'USD', rates))).toEqual([131, 164, 197, 198]);
     expect(Object.values(AUD_BASE_PRICES).map((value) => convertAudPrice(value, 'GBP', rates))).toEqual([101, 127, 152, 153]);
     expect(Object.values(AUD_BASE_PRICES).map((value) => convertAudPrice(value, 'EUR', rates))).toEqual([119, 149, 179, 180]);
-    expect(formatPublicPricingPrice('AUD', 199)).toBe('AUD $199');
+    expect(formatPublicPricingPrice('AUD', 199)).toBe('$199');
     expect(formatPublicPricingPrice('USD', 131)).toBe('US$131');
     expect(formatPublicPricingPrice('GBP', 101)).toBe('£101');
     expect(formatPublicPricingPrice('EUR', 119)).toBe('€119');

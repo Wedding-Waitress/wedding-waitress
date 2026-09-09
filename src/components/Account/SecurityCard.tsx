@@ -9,6 +9,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import controlStyles from './AccountControls.module.css';
 import { DeleteAccountDialog } from './DeleteAccountDialog';
+import { MasterOnly } from '@/components/permissions/MasterOnly';
 
 interface Props {
   icon: LucideIcon;
@@ -88,7 +89,7 @@ export const SecurityCard: React.FC<Props> = ({ icon }) => {
         <span className="text-xs font-bold uppercase tracking-widest text-red-300">Danger Zone</span>
         <h3 className="mt-2 text-lg font-semibold text-white">Delete Account</h3>
         <p className="mt-2 max-w-2xl text-sm leading-6 text-red-100/80">Close your Wedding Waitress account and end access to your current plan. Your eligible account and event information will be retained securely for 12 months in case you change your mind.</p>
-        <Button className={`${controlStyles.destructiveButton} mt-4`} onClick={() => setDeleteOpen(true)}>Delete Account</Button>
+        <MasterOnly fallback="hide"><Button className={`${controlStyles.destructiveButton} mt-4`} onClick={() => setDeleteOpen(true)}>Delete Account</Button></MasterOnly>
       </div>
       <DeleteAccountDialog open={deleteOpen} onOpenChange={setDeleteOpen} email={email} />
     </SectionCard>

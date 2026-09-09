@@ -69,7 +69,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
           first_name: formData.first_name.trim(),
           last_name: formData.last_name.trim(),
           mobile: formData.mobile.trim(),
-          ...(selectedPlan ? { intended_plan: selectedPlan.key, intended_currency: selectedPlan.currency || 'AUD' } : {}),
+          ...(selectedPlan ? { intended_plan: selectedPlan.key, intended_currency: 'AUD' } : {}),
         },
       },
     });
@@ -96,7 +96,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
       if (requestError) { signupRequestStartedAtRef.current = null; setError(requestError.message); return; }
       if (selectedPlan) {
         sessionStorage.setItem('ww_intended_plan', selectedPlan.key);
-        sessionStorage.setItem('ww_intended_currency', selectedPlan.currency || 'AUD');
+        sessionStorage.setItem('ww_intended_currency', 'AUD');
       }
       setStep('verify');
       setResendTimer(30);

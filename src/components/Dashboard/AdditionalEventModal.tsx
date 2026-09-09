@@ -4,7 +4,6 @@ import { Button } from "@/components/ui/button";
 import { Calendar, Plus, X } from "lucide-react";
 import { useToast } from "@/hooks/use-toast";
 import { supabase } from "@/integrations/supabase/client";
-import { useCurrencyContext } from "@/contexts/CurrencyContext";
 import { ADDITIONAL_EVENT } from "@/lib/planRegistry";
 import { CURRENCIES, formatPrice } from "@/lib/currencyPricing";
 import styles from './MyEventsPage.module.css';
@@ -27,11 +26,10 @@ export const AdditionalEventModal: React.FC<Props> = ({
   currentEvents,
 }) => {
   const { toast } = useToast();
-  const { currency } = useCurrencyContext();
   const [busy, setBusy] = useState(false);
 
-  const sku = ADDITIONAL_EVENT.prices[currency];
-  const priceLabel = formatPrice(currency, sku.price);
+  const sku = ADDITIONAL_EVENT.prices.AUD;
+  const priceLabel = formatPrice('AUD', sku.price);
 
   const handleAdd = async () => {
     setBusy(true);
@@ -97,7 +95,7 @@ export const AdditionalEventModal: React.FC<Props> = ({
               </div>
               <div className="text-right">
                 <p className="text-[20px] font-semibold text-[#1D1D1F] leading-none">{priceLabel}</p>
-                <p className="text-[10.5px] text-[#6E6E73] mt-1">{CURRENCIES[currency].label}</p>
+                <p className="text-[10.5px] text-[#6E6E73] mt-1">{CURRENCIES.AUD.label}</p>
               </div>
             </div>
 

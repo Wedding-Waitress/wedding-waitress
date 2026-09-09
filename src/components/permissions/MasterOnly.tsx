@@ -16,7 +16,7 @@ interface Props {
  */
 export const MasterOnly: React.FC<Props> = ({ children, fallback = 'disable', reason }) => {
   const { isMaster, loading } = useAccountRole();
-  if (loading) return children;
+  if (loading && fallback === 'hide') return null;
   if (isMaster) return children;
   if (fallback === 'hide') return null;
 

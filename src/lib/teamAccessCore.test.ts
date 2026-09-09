@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest';
 import {
-  isTeamAction, isValidEmail, normalizeEmail, publicErrorMessage, resolveSeatLimit, safeRedirectOrigin,
+  isTeamAction, isValidEmail, isValidMobile, isValidPersonName, normalizeEmail, publicErrorMessage, resolveSeatLimit, safeRedirectOrigin,
 } from '../../supabase/functions/manage-account-members/core';
 
 describe('manage-account-members validation', () => {
@@ -10,8 +10,16 @@ describe('manage-account-members validation', () => {
     expect(isValidEmail('not-an-email')).toBe(false);
   });
 
+  it('validates the required invitee identity fields', () => {
+    expect(isValidPersonName('Alex')).toBe(true);
+    expect(isValidPersonName('  ')).toBe(false);
+    expect(isValidMobile('+61 412 345 678')).toBe(true);
+    expect(isValidMobile('123')).toBe(false);
+  });
+
   it('accepts only the supported action allowlist', () => {
     expect(isTeamAction('invite')).toBe(true);
+    expect(isTeamAction('preview')).toBe(true);
     expect(isTeamAction('accept')).toBe(true);
     expect(isTeamAction('promote-to-master')).toBe(false);
   });
@@ -25,10 +33,10 @@ describe('manage-account-members validation', () => {
   });
 
   it('derives account seats from the product plan', () => {
-    expect(resolveSeatLimit({ name: 'Essential', max_users: 99 })).toBe(3);
-    expect(resolveSeatLimit({ name: 'Premium', max_users: 99 })).toBe(3);
-    expect(resolveSeatLimit({ name: 'Unlimited', max_users: 99 })).toBe(3);
-    expect(resolveSeatLimit({ name: 'Vendor Pro', max_users: 3 })).toBe(10);
-    expect(resolveSeatLimit(null)).toBe(3);
+    expect(resolveSeatLimit({ name: 'Essential', max_users: 99 })).toBe(5);
+    expect(resolveSeatLimit({ name: 'Premium', max_users: 99 })).toBe(5);
+    expect(resolveSeatLimit({ name: 'Unlimited', max_users: 99 })).toBe(5);
+    expect(resolveSeatLimit({ name: 'Vendor Pro', max_users: 10 })).toBe(5);
+    expect(resolveSeatLimit(null)).toBe(5);
   });
 });

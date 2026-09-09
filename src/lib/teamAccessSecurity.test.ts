@@ -12,10 +12,9 @@ describe('Team & Access security contract', () => {
     expect(migration).toContain('token = NULL, token_hash = NULL');
   });
 
-  it('atomically reserves no more than the plan-driven total seats', () => {
+  it('atomically reserves no more than five total identities', () => {
     expect(migration).toContain('pg_advisory_xact_lock');
-    expect(migration).toContain('IF occupied_seats >= p_seat_limit THEN');
-    expect(migration).toContain('IF p_seat_limit NOT IN (3, 10) THEN');
+    expect(migration).toContain('IF occupied_seats >= 5 THEN');
     expect(migration).toContain("status = 'pending'");
     expect(migration).toContain("accepted_at IS NOT NULL");
   });
@@ -47,6 +46,16 @@ describe('Team & Access security contract', () => {
     expect(edgeFunction).toContain('The authenticated email address is the claim credential');
     expect(edgeFunction).not.toContain('accept-team-invitation?token=');
     expect(edgeFunction).not.toContain('invitation.token');
+  });
+
+  it('requires explicit preview then acceptance and stores the complete invitee identity', () => {
+    expect(migration).toContain('internal_preview_account_invitation');
+    expect(migration).toContain('first_name');
+    expect(migration).toContain('last_name');
+    expect(migration).toContain('mobile');
+    expect(edgeFunction).toContain("body.action === 'preview'");
+    expect(edgeFunction).toContain("body.action === 'accept'");
+    expect(edgeFunction).toContain('caller.email_confirmed_at');
   });
 
   it('releases the reserved seat when transactional delivery is suppressed', () => {

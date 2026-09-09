@@ -37,9 +37,6 @@ const GUEST_CAPACITY_TOPUP_FALLBACK_PRICE_ID = "price_1TT0o05GzTmqOxGKUIiEXxj6";
 const ADDITIONAL_EVENT_PRODUCT_ID = 'prod_UTm7byFGV7E127';
 const ADDITIONAL_EVENT_PRICES: Record<string, { currency: string; unitAmount: number }> = {
   price_1TUoZ15GzTmqOxGKDRmvofDh: { currency: 'aud', unitAmount: 9900 },
-  price_1TUoZT5GzTmqOxGK92kQqFuO: { currency: 'usd', unitAmount: 7499 },
-  price_1TUobn5GzTmqOxGKQSvVqcFY: { currency: 'gbp', unitAmount: 6499 },
-  price_1TUocE5GzTmqOxGK9qKIXoHT: { currency: 'eur', unitAmount: 6999 },
 };
 
 // Smart RSVP & Messaging — SMS top-up product ($99 AUD = 250 credits)
@@ -560,6 +557,9 @@ serve(async (req) => {
 
     const planInfo = PRODUCT_TO_PLAN[productId];
     if (!planInfo) throw new Error(`Unknown product: ${productId}`);
+    if (metadata.pricing_currency && metadata.pricing_currency.toUpperCase() !== 'AUD') {
+      throw new Error('New Wedding Waitress plan purchases must be paid in Australian dollars (AUD)');
+    }
 
     const now = new Date();
     let expiresAt: Date;

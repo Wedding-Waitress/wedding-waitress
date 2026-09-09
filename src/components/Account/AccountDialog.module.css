@@ -20,6 +20,17 @@
 .field input { min-height: 46px; border: 1px solid rgba(224, 177, 117, .35) !important; color: #fffaf3 !important; background: linear-gradient(180deg, rgba(25, 11, 8, .78), rgba(46, 23, 17, .72)) !important; box-shadow: inset 0 2px 8px rgba(5,2,1,.3) !important; }
 .field input::placeholder { color: #fff; opacity: 1; }
 .field input:focus, .field input:focus-visible { border-color: rgba(244, 208, 158, .82) !important; outline: none !important; box-shadow: 0 0 0 3px rgba(218, 169, 108, .16), inset 0 2px 8px rgba(5,2,1,.25) !important; }
+.fieldHint { margin: 0; color: #ead7be; font-size: .75rem; line-height: 1.45; }
+.reviewList { display: grid; gap: 10px; margin: 0; }
+.reviewItem { display: grid; gap: 6px; padding: 12px 14px; border: 1px solid rgba(224, 177, 117, .32); border-radius: 12px; background: rgba(25, 11, 8, .5); }
+.reviewItem dt { color: #f4dfc2; font-size: .8rem; font-weight: 700; }
+.reviewItem dd { display: grid; gap: 10px; margin: 0; color: #ead7be; font-size: .82rem; min-width: 0; }
+.reviewItem dd strong { color: #fffaf3; }
+.reviewValue { display: grid; gap: 3px; min-width: 0; padding: 2px 0; overflow-wrap: anywhere; word-break: break-word; }
+.reviewValueNew { padding-top: 10px; border-top: 1px solid rgba(224, 177, 117, .22); }
+.reviewValueLabel { color: #dcb98a; font-size: .69rem; font-weight: 750; letter-spacing: .05em; line-height: 1.2; text-transform: uppercase; }
+.notice { margin: 0; padding: 11px 13px; border: 1px solid rgba(239, 201, 146, .32); border-radius: 11px; color: #fff4e6; background: rgba(139, 91, 52, .2); font-size: .79rem; line-height: 1.5; }
+.errorMessage { margin: 0; padding: 10px 12px; border: 1px solid rgba(255, 151, 145, .55); border-radius: 10px; color: #ffe4e1; background: rgba(130, 23, 25, .4); font-size: .8rem; }
 .actions { display: flex; justify-content: flex-end; gap: 9px; padding-top: 8px; }
 .actions button { min-height: 44px; border-radius: 999px; }
 .secondary { border: 1px solid rgba(226, 183, 126, .28) !important; color: #f5dfc2 !important; background: rgba(57, 28, 20, .38) !important; }
@@ -30,4 +41,5 @@
 .iconWrap svg { width: 23px; height: 23px; }
 @media (max-width: 767px) { .dialog { max-height: 100dvh; border-radius: 0 !important; padding: 24px 18px !important; } .actions { margin-top: auto; padding-top: 20px; } }
 @media (max-width: 479px) { .actions { flex-direction: column-reverse; } .actions button { width: 100%; } }
+@media (max-width: 479px) { .confirmActions { flex-direction: column; } }
 @media (prefers-reduced-motion: reduce) { .dialog, .dialog * { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }

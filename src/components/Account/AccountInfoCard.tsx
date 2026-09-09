@@ -16,14 +16,21 @@ interface Props {
 
 export const AccountInfoCard: React.FC<Props> = ({ icon }) => {
   const { profile } = useProfile();
-  const { isMaster } = useAccountRole();
+  const { role } = useAccountRole();
   const [open, setOpen] = useState(false);
-  const [authDetails, setAuthDetails] = useState<{ verified: boolean; createdAt: string | null } | null>(null);
+  const [authDetails, setAuthDetails] = useState<{ verified: boolean; createdAt: string | null; email: string | null; pendingEmail: string | null } | null>(null);
 
   useEffect(() => {
-    void supabase.auth.getUser().then(({ data }) => {
-      if (data.user) setAuthDetails({ verified: !!data.user.email_confirmed_at, createdAt: data.user.created_at || null });
-    });
+    const loadAuthDetails = () => {
+      void supabase.auth.getUser().then(({ data }) => {
+        if (!data.user) return;
+        const pendingEmail = (data.user as typeof data.user & { new_email?: string | null }).new_email || null;
+        setAuthDetails({ verified: !!data.user.email_confirmed_at, createdAt: data.user.created_at || null, email: data.user.email || null, pendingEmail });
+      });
+    };
+    loadAuthDetails();
+    window.addEventListener('account-auth-updated', loadAuthDetails);
+    return () => window.removeEventListener('account-auth-updated', loadAuthDetails);
   }, []);
 
   const fullName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || '—';
@@ -34,9 +41,10 @@ export const AccountInfoCard: React.FC<Props> = ({ icon }) => {
       <dl className="space-y-3 text-sm">
         <Row label="Account ID" value={profile?.account_id || '—'} />
         <Row label="Name" value={fullName} />
-        <Row label="Email" value={profile?.email || '—'} />
+        <Row label="Login email" value={authDetails?.email || profile?.email || '—'} />
+        {authDetails?.pendingEmail && <Row label="Pending login email" value={`${authDetails.pendingEmail} — awaiting verification`} />}
         <Row label="Phone" value={profile?.mobile || '—'} />
-        <Row label="Account role" value={isMaster ? 'Account Holder' : 'Team Member'} />
+        <Row label="Account role" value={role === 'master' ? 'Account Holder' : role === 'standard' ? 'Team Member' : 'Unavailable'} />
         <Row label="Email verification" value={authDetails?.verified ? 'Verified' : 'Not verified'} />
         {authDetails?.createdAt && <Row label="Member since" value={new Date(authDetails.createdAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })} />}
       </dl>

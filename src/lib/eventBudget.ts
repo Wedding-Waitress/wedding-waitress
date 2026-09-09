@@ -1,5 +1,4 @@
 import type { CurrencyCode } from './currencyPricing';
-import { detectCurrency } from './currencyPricing';
 import { CURRENCY_LOCALE, CURRENCY_PREFIX, isCurrencyCode } from './liveCurrencyPricing';
 
 export const EVENT_BUDGET_CATEGORIES = [
@@ -123,12 +122,11 @@ export const formatBudgetInput = (currency: CurrencyCode, value: number): string
 
 export const resolveEventBudgetCurrency = (
   savedEventCurrency?: unknown,
-  pricingPreference?: unknown,
-  detectedCurrency?: CurrencyCode,
+  _pricingPreference?: unknown,
+  _detectedCurrency?: CurrencyCode,
 ): CurrencyCode => {
   if (isCurrencyCode(savedEventCurrency)) return savedEventCurrency;
-  if (isCurrencyCode(pricingPreference)) return pricingPreference;
-  return detectedCurrency ?? detectCurrency();
+  return 'AUD';
 };
 
 export const formatAustralianDate = (value: string | null): string => {

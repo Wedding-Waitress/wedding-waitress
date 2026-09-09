@@ -11,9 +11,10 @@ describe('saved pricing currency', () => {
     expect(result.current.currency).toBe('AUD');
   });
 
-  it('persists a supported selection', () => {
+  it('normalises attempted non-AUD selections to AUD', () => {
     const { result } = renderHook(() => useCurrency());
     act(() => result.current.setCurrency('EUR'));
-    expect(localStorage.getItem('ww_currency')).toBe('EUR');
+    expect(result.current.currency).toBe('AUD');
+    expect(localStorage.getItem('ww_currency')).toBe('AUD');
   });
 });

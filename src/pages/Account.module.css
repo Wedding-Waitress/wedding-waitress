@@ -162,3 +162,9 @@
   --tw-text-opacity: 1 !important;
 }
 .accountCentre :where(input, textarea)::placeholder { color: #ffffff !important; opacity: 1 !important; }
+
+/* The roster heading is an espresso surface within the Account Centre. */
+.accountCentre :global([data-team-roster-header] > span) {
+  color: #fffaf3 !important;
+  -webkit-text-fill-color: #fffaf3 !important;
+}

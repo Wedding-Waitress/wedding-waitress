@@ -22,14 +22,15 @@ export const useAccountRole = () => {
         .from("account_members" as any)
         .select("role")
         .eq("member_user_id", user.id)
+        .is("access_disabled_at", null)
+        .not("accepted_at", "is", null)
         .order("invited_at", { ascending: true })
         .limit(1)
         .maybeSingle();
 
       if (cancelled) return;
       const r = (data as any)?.role;
-      // Default any signed-in user to master of their own account.
-      setRole(r === "standard" ? "standard" : "master");
+      setRole(r === "master" || r === "standard" ? r : null);
       setLoading(false);
     })();
     return () => { cancelled = true; };

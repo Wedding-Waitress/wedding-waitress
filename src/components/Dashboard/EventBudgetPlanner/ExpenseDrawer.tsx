@@ -158,8 +158,8 @@ export const ExpenseDrawer: React.FC<ExpenseDrawerProps> = ({
             {field('contactPerson', 'Contact Person')}{field('phone', 'Contact Phone Number', 'tel')}
             {field('email', 'Email Address', 'email', true)}
             <label className={`${styles.formField} ${styles.fullField}`} htmlFor="budget-address"><span>Address</span><textarea id="budget-address" value={form.address} onChange={update('address')} rows={2} /></label>
-            {field('estimatedCost', `Budgeted Cost (${currency} ${CURRENCY_PREFIX[currency]})`, 'number')}{field('actualCost', `Actual Cost (${currency} ${CURRENCY_PREFIX[currency]})`, 'number')}
-            {field('amountPaid', `Amount Paid or Deposit (${currency} ${CURRENCY_PREFIX[currency]})`, 'number')}{field('paymentDate', 'Payment Date', 'date')}
+            {field('estimatedCost', `Budgeted Cost (${currency} ${currency === 'AUD' ? '$' : CURRENCY_PREFIX[currency]})`, 'number')}{field('actualCost', `Actual Cost (${currency} ${currency === 'AUD' ? '$' : CURRENCY_PREFIX[currency]})`, 'number')}
+            {field('amountPaid', `Amount Paid or Deposit (${currency} ${currency === 'AUD' ? '$' : CURRENCY_PREFIX[currency]})`, 'number')}{field('paymentDate', 'Payment Date', 'date')}
             {field('balanceDueDate', 'Balance Due Date', 'date')}
             <label className={`${styles.formField} ${styles.fullField}`} htmlFor="budget-notes"><span>Notes</span><textarea id="budget-notes" value={form.notes} onChange={update('notes')} rows={4} /></label>
           </div>

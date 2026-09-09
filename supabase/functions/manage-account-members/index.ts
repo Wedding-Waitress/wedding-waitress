@@ -1,6 +1,7 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import {
-  DEFAULT_ACCOUNT_SEATS, isTeamAction, isValidEmail, normalizeEmail, resolveSeatLimit,
+  DEFAULT_ACCOUNT_SEATS, isTeamAction, isValidEmail, normalizeEmail,
+  isValidMobile, isValidPersonName, normalizeMobile, normalizePersonName,
   publicErrorMessage, safeRedirectOrigin,
 } from './core.ts'
 
@@ -35,6 +36,7 @@ Deno.serve(async (request) => {
   const { data: userResult, error: userError } = await callerClient.auth.getUser()
   const caller = userResult?.user
   if (userError || !caller?.id || !caller.email) return json({ error: 'Authentication required' }, 401)
+  if (!caller.email_confirmed_at) return json({ error: 'A verified email address is required' }, 403)
 
   let body: Record<string, unknown>
   try {
@@ -54,6 +56,15 @@ Deno.serve(async (request) => {
   }
 
   try {
+    if (body.action === 'preview') {
+      const { data, error } = await admin.rpc('internal_preview_account_invitation', {
+        p_user_id: caller.id,
+        p_user_email: caller.email,
+      })
+      if (error) return json({ error: publicErrorMessage(error.message) }, error.code === '42501' ? 403 : 400)
+      return json({ invitation: data })
+    }
+
     if (body.action === 'accept') {
       const { data, error } = await admin.rpc('internal_accept_account_invitation', {
         p_user_id: caller.id,
@@ -61,6 +72,39 @@ Deno.serve(async (request) => {
       })
       if (error) return json({ error: publicErrorMessage(error.message) }, error.code === '42501' ? 403 : 400)
       return json({ success: true, membership: data })
+    }
+
+    if (body.action === 'list') {
+      const { data: callerMembership, error: membershipError } = await admin.from('account_members')
+        .select('account_owner_id,role').eq('member_user_id', caller.id)
+        .not('accepted_at', 'is', null).is('access_disabled_at', null).maybeSingle()
+      if (membershipError || !callerMembership) return json({ error: 'Account membership is unavailable' }, 403)
+      const ownerId = callerMembership.account_owner_id
+      if (callerMembership.role === 'master') {
+        await admin.from('account_invitations').update({ status: 'expired', token: null, token_hash: null })
+          .eq('account_owner_id', ownerId).eq('status', 'pending').lte('expires_at', new Date().toISOString())
+      }
+      const [{ data: members, error: membersError }, invitationResult] = await Promise.all([
+        admin.from('account_members').select('id,member_user_id,member_email,first_name,last_name,mobile,role,invited_at,accepted_at')
+          .eq('account_owner_id', ownerId).is('access_disabled_at', null).not('accepted_at', 'is', null).order('invited_at'),
+        callerMembership.role === 'master'
+          ? admin.from('account_invitations').select('id,email,first_name,last_name,mobile,created_at,expires_at,status')
+              .eq('account_owner_id', ownerId).eq('status', 'pending').gt('expires_at', new Date().toISOString()).order('created_at')
+          : Promise.resolve({ data: [], error: null }),
+      ])
+      if (membersError || invitationResult.error) throw membersError ?? invitationResult.error
+      const hydratedMembers = await Promise.all((members ?? []).map(async (member) => {
+        const { data: profile } = await admin.from('profiles').select('first_name,last_name,mobile').eq('id', member.member_user_id).maybeSingle()
+        let memberEmail = member.member_email
+        if (!memberEmail) {
+          const { data } = await admin.auth.admin.getUserById(member.member_user_id)
+          memberEmail = data.user?.email ?? 'Account user'
+        }
+        return { ...member, member_email: memberEmail, first_name: member.first_name || profile?.first_name || null, last_name: member.last_name || profile?.last_name || null, mobile: member.mobile || profile?.mobile || null }
+      }))
+      const invitations = invitationResult.data ?? []
+      const usedSeats = hydratedMembers.length + (callerMembership.role === 'master' ? invitations.length : 0)
+      return json({ members: hydratedMembers, invitations, seats: { used: usedSeats, maximum: DEFAULT_ACCOUNT_SEATS, remaining: Math.max(0, DEFAULT_ACCOUNT_SEATS-usedSeats) } })
     }
 
     const { data: master, error: masterError } = await admin
@@ -74,55 +118,22 @@ Deno.serve(async (request) => {
       .maybeSingle()
     if (masterError || !master) return json({ error: 'Only the master account holder can manage users' }, 403)
 
-    const { data: subscription } = await admin
-      .from('user_subscriptions')
-      .select('plan_id, subscription_plans(name,max_users)')
-      .eq('user_id', caller.id)
-      .order('updated_at', { ascending: false })
-      .limit(1)
-      .maybeSingle()
-    const joinedPlan = Array.isArray(subscription?.subscription_plans)
-      ? subscription?.subscription_plans[0]
-      : subscription?.subscription_plans
-    const seatLimit = resolveSeatLimit(joinedPlan ?? null) || DEFAULT_ACCOUNT_SEATS
-
-    if (body.action === 'list') {
-      await admin.from('account_invitations')
-        .update({ status: 'expired', token: null, token_hash: null })
-        .eq('account_owner_id', caller.id).eq('status', 'pending').lte('expires_at', new Date().toISOString())
-
-      const [{ data: members, error: membersError }, { data: invitations, error: invitationsError }] = await Promise.all([
-        admin.from('account_members')
-          .select('id,member_user_id,member_email,role,invited_at,accepted_at')
-          .eq('account_owner_id', caller.id).is('access_disabled_at', null).order('invited_at'),
-        admin.from('account_invitations')
-          .select('id,email,created_at,expires_at,status')
-          .eq('account_owner_id', caller.id).eq('status', 'pending').gt('expires_at', new Date().toISOString()).order('created_at'),
-      ])
-      if (membersError || invitationsError) throw membersError ?? invitationsError
-
-      const hydratedMembers = await Promise.all((members ?? []).map(async (member) => {
-        if (member.member_email) return member
-        if (member.member_user_id === caller.id) return { ...member, member_email: caller.email }
-        const { data } = await admin.auth.admin.getUserById(member.member_user_id)
-        return { ...member, member_email: data.user?.email ?? 'Account user' }
-      }))
-      const usedSeats = hydratedMembers.length + (invitations?.length ?? 0)
-      return json({
-        members: hydratedMembers,
-        invitations: invitations ?? [],
-        seats: { used: usedSeats, maximum: seatLimit, remaining: Math.max(0, seatLimit - usedSeats) },
-      })
-    }
-
     if (body.action === 'invite') {
       if (!isValidEmail(body.email)) return json({ error: 'A valid email address is required' }, 400)
+      if (!isValidPersonName(body.firstName)) return json({ error: 'First name is required' }, 400)
+      if (!isValidPersonName(body.lastName)) return json({ error: 'Last name is required' }, 400)
+      if (!isValidMobile(body.mobile)) return json({ error: 'A valid mobile number is required' }, 400)
       const email = normalizeEmail(body.email)
+      const firstName = normalizePersonName(body.firstName)
+      const lastName = normalizePersonName(body.lastName)
+      const mobile = normalizeMobile(body.mobile)
       const { data: invitation, error: invitationError } = await admin.rpc('internal_create_account_invitation', {
         p_owner_id: caller.id,
         p_owner_email: caller.email,
         p_email: email,
-        p_seat_limit: seatLimit,
+        p_first_name: firstName,
+        p_last_name: lastName,
+        p_mobile: mobile,
       })
       if (invitationError) return json({ error: publicErrorMessage(invitationError.message) }, invitationError.code === '42501' ? 403 : 400)
 
@@ -147,14 +158,14 @@ Deno.serve(async (request) => {
           templateName: 'account-team-invitation',
           recipientEmail: email,
           idempotencyKey: `account-team-invite-${invitation.id}`,
-          templateData: { accountHolderEmail: caller.email, acceptUrl: authLink.properties.action_link, expiresAt: invitation.expires_at },
+          templateData: { inviteeFirstName: firstName, accountHolderEmail: caller.email, acceptUrl: authLink.properties.action_link, expiresAt: invitation.expires_at },
         },
       })
       if (emailError || emailResult?.success !== true) {
         await admin.rpc('internal_revoke_account_invitation', { p_owner_id: caller.id, p_invitation_id: invitation.id })
         return json({ error: 'The invitation email could not be sent' }, 502)
       }
-      return json({ success: true, invitation: { id: invitation.id, email, expires_at: invitation.expires_at } }, 201)
+      return json({ success: true, invitation: { id: invitation.id, first_name: firstName, last_name: lastName, email, mobile, expires_at: invitation.expires_at } }, 201)
     }
 
     if (body.action === 'revoke-invitation') {

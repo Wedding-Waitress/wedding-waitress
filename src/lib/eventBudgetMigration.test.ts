@@ -4,6 +4,7 @@ import { describe, expect, it } from 'vitest';
 
 const migration = fs.readFileSync(path.resolve(process.cwd(), 'supabase/migrations/20260824093431_event_budget_planner.sql'), 'utf8');
 const currencyMigration = fs.readFileSync(path.resolve(process.cwd(), 'supabase/migrations/20260824104241_expand_event_budget_currencies.sql'), 'utf8');
+const audOnlyMigration = fs.readFileSync(path.resolve(process.cwd(), 'supabase/migrations/20260909173043_aud_only_new_financial_activity.sql'), 'utf8');
 const categoryOnlyMigration = fs.readFileSync(path.resolve(process.cwd(), 'supabase/migrations/20260824110219_allow_category_only_budget_expenses.sql'), 'utf8');
 
 describe('event budget persistence migration', () => {
@@ -32,6 +33,14 @@ describe('event budget persistence migration', () => {
     expect(currencyMigration).toContain("currency IN ('AUD', 'USD', 'GBP', 'EUR')");
     expect(currencyMigration).toContain('VALIDATE CONSTRAINT event_budget_settings_currency_check');
     expect(currencyMigration).not.toMatch(/CREATE TABLE|DROP TABLE|CREATE POLICY|DROP POLICY|REVOKE|GRANT/);
+  });
+
+  it('fails closed on historical non-AUD records and enforces AUD for future financial writes', () => {
+    expect(audOnlyMigration).toContain("upper(currency) <> 'AUD'");
+    expect(audOnlyMigration).toContain("CHECK (currency = 'AUD')");
+    expect(audOnlyMigration).toContain("CHECK (upper(currency) = 'AUD')");
+    expect(audOnlyMigration).toContain("_stripe_price_id IS DISTINCT FROM 'price_1TUoZ15GzTmqOxGKDRmvofDh'");
+    expect(audOnlyMigration).not.toMatch(/UPDATE\s+public\.(event_budget_settings|additional_event_purchases)/i);
   });
 
   it('allows category-only expenses without removing legacy data or changing security objects', () => {
