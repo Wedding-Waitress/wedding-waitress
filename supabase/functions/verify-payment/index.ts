@@ -33,11 +33,20 @@ const RSVP_PRODUCT_IDS = new Set([
 
 // RSVP overage product ID ($10 AUD per 10 extra guests)
 const RSVP_OVERAGE_PRODUCT_ID = "prod_URud0pt0K8Sl9i";
+const GUEST_CAPACITY_TOPUP_FALLBACK_PRICE_ID = "price_1TT0o05GzTmqOxGKUIiEXxj6";
+const ADDITIONAL_EVENT_PRODUCT_ID = 'prod_UTm7byFGV7E127';
+const ADDITIONAL_EVENT_PRICES: Record<string, { currency: string; unitAmount: number }> = {
+  price_1TUoZ15GzTmqOxGKDRmvofDh: { currency: 'aud', unitAmount: 9900 },
+  price_1TUoZT5GzTmqOxGK92kQqFuO: { currency: 'usd', unitAmount: 7499 },
+  price_1TUobn5GzTmqOxGKQSvVqcFY: { currency: 'gbp', unitAmount: 6499 },
+  price_1TUocE5GzTmqOxGK9qKIXoHT: { currency: 'eur', unitAmount: 6999 },
+};
 
 // Smart RSVP & Messaging — SMS top-up product ($99 AUD = 250 credits)
 const SMS_TOPUP_PRODUCT_ID = "prod_UTh041rdR91og1";
 const SMS_TOPUP_CREDITS = 250;
 const SMS_INCLUDED_CREDITS = 400;
+const COMMUNICATION_TOPUP_CREDITS = 100;
 
 // Map RSVP tier product IDs -> guest limit unlocked by that tier
 const RSVP_TIER_LIMITS: Record<string, number> = {
@@ -128,30 +137,29 @@ serve(async (req) => {
 
     logStep("Product identified", { productId, eventId, userId });
 
-    // ── Additional Event Purchase (one-time, A$99 SKU) ──
+    // ── Additional Event Purchase (one-time, existing paid-plan owners only) ──
     const purchaseTypeMeta = (metadata.purchase_type || "").toString();
-    if (purchaseTypeMeta === "additional_event" || productId === "prod_UTm7byFGV7E127") {
+    if (purchaseTypeMeta === "additional_event" || productId === ADDITIONAL_EVENT_PRODUCT_ID) {
+      if (purchaseTypeMeta !== 'additional_event' || productId !== ADDITIONAL_EVENT_PRODUCT_ID || !lineItem?.price?.id) {
+        throw new Error('Additional-event checkout metadata is invalid');
+      }
       const amountCents = session.amount_total || 0;
       const currency = (session.currency || "AUD").toUpperCase();
-      const { data: existingAddl } = await supabase
-        .from("additional_event_purchases")
-        .select("id")
-        .eq("stripe_session_id", session_id)
-        .maybeSingle();
-      if (!existingAddl) {
-        await supabase.from("additional_event_purchases").insert({
-          user_id: userId,
-          event_id: eventId || null,
-          stripe_session_id: session_id,
-          stripe_price_id: price?.id || null,
-          amount: amountCents,
-          currency,
-          status: "paid",
-        });
-        logStep("Additional event slot recorded", { userId, amountCents, currency });
+      const allowed = ADDITIONAL_EVENT_PRICES[lineItem.price.id];
+      if (!allowed || lineItem.quantity !== 1 || lineItem.price.currency !== allowed.currency || lineItem.price.unit_amount !== allowed.unitAmount || currency !== allowed.currency.toUpperCase() || amountCents < allowed.unitAmount) {
+        throw new Error('Additional-event payment does not match the approved catalogue');
       }
+      const { data: fulfilment, error: fulfilmentError } = await supabase.rpc('fulfill_additional_event_purchase', {
+        _user_id: userId,
+        _stripe_session_id: session_id,
+        _stripe_price_id: lineItem.price.id,
+        _amount: allowed.unitAmount,
+        _currency: allowed.currency,
+      });
+      if (fulfilmentError) throw fulfilmentError;
+      logStep("Additional event slot recorded", { userId, amountCents, currency, fulfilment });
       return new Response(
-        JSON.stringify({ success: true, type: "additional_event" }),
+        JSON.stringify({ success: true, type: "additional_event", fulfilment }),
         { status: 200, headers: { ...corsHeaders, "Content-Type": "application/json" } },
       );
     }
@@ -256,7 +264,55 @@ serve(async (req) => {
       });
     }
 
-    // ── RSVP Overage Purchase ($10 AUD per 10 extra guests) ──
+    // ── Plan guest-capacity add-on ($10 AUD per block of 10 spaces) ──
+    if (purchaseTypeMeta === "guest_capacity_topup") {
+      if (!eventId) throw new Error("event_id is required for guest capacity");
+      const configuredPriceId = Deno.env.get('STRIPE_GUEST_CAPACITY_PRICE_ID') || GUEST_CAPACITY_TOPUP_FALLBACK_PRICE_ID;
+      const overageBlocks = parseInt(metadata.overage_blocks || "0", 10);
+      const lineQuantity = lineItem?.quantity || 0;
+      if (
+        productId !== RSVP_OVERAGE_PRODUCT_ID ||
+        lineItem?.price?.id !== configuredPriceId ||
+        lineItem?.price?.currency !== 'aud' ||
+        lineItem?.price?.unit_amount !== 1000 ||
+        !Number.isInteger(overageBlocks) ||
+        overageBlocks < 1 ||
+        overageBlocks > 100 ||
+        lineQuantity !== overageBlocks ||
+        session.currency !== 'aud' ||
+        session.amount_subtotal !== overageBlocks * 1000
+      ) {
+        throw new Error('Guest capacity payment does not match the configured $10 AUD blocks');
+      }
+
+      const amountPaid = (session.amount_total || 0) / 100;
+      const guestCountAtPurchase = parseInt(metadata.guest_count_at_purchase || "0", 10) || null;
+      const { data: fulfilment, error: fulfilmentError } = await supabase.rpc('fulfill_guest_capacity_topup', {
+        _user_id: userId,
+        _event_id: eventId,
+        _stripe_session_id: session_id,
+        _stripe_payment_id: typeof session.payment_intent === 'string' ? session.payment_intent : null,
+        _amount_paid: amountPaid,
+        _blocks: overageBlocks,
+        _guest_count_at_purchase: guestCountAtPurchase,
+      });
+      if (fulfilmentError) throw fulfilmentError;
+
+      logStep('Guest capacity fulfilled', { eventId, overageBlocks, fulfilment });
+      return new Response(JSON.stringify({
+        type: 'guest_capacity_topup',
+        status: 'completed',
+        amount_paid: amountPaid,
+        overage_blocks: overageBlocks,
+        extra_guests: overageBlocks * 10,
+        fulfilment,
+      }), {
+        headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+        status: 200,
+      });
+    }
+
+    // ── Legacy RSVP Overage Purchase ($10 AUD per 10 extra guests) ──
     if (productId === RSVP_OVERAGE_PRODUCT_ID) {
       if (!eventId) throw new Error("event_id is required for RSVP overage");
 
@@ -335,7 +391,32 @@ serve(async (req) => {
     }
 
 
-    // ── Smart RSVP & Messaging — SMS Top-up ──
+    // ── Plan communication-credit top-up: 100 shared Email & SMS credits ──
+    const communicationTopupPriceId = Deno.env.get('STRIPE_COMMUNICATION_TOPUP_PRICE_ID') || '';
+    if (metadata.purchase_type === 'communication_topup') {
+      if (!communicationTopupPriceId || lineItem?.price?.id !== communicationTopupPriceId || lineItem?.price?.currency !== 'aud' || lineItem?.price?.unit_amount !== 4900) {
+        throw new Error('Communication top-up payment does not match the configured $49 AUD price');
+      }
+      if (!eventId) throw new Error('event_id is required for communication top-up');
+      const amountPaid = (session.amount_total || 0) / 100;
+      const { data: existing } = await supabase.from('rsvp_invite_purchases').select('id').eq('stripe_session_id', session_id).maybeSingle();
+      if (!existing) {
+        await supabase.from('rsvp_invite_purchases').insert({
+          user_id: userId, event_id: eventId, amount_paid: amountPaid,
+          guest_tier_label: `Email & SMS Top-up +${COMMUNICATION_TOPUP_CREDITS} credits`,
+          stripe_session_id: session_id, stripe_payment_id: session.payment_intent as string,
+          status: 'completed', purchase_type: 'communication_topup', purchased_limit: null,
+          overage_blocks: 0, guest_count_at_purchase: null,
+        });
+        const { error: creditError } = await supabase.rpc('add_sms_credits', {
+          _user_id: userId, _event_id: eventId, _amount: COMMUNICATION_TOPUP_CREDITS, _source: 'communication_topup',
+        });
+        if (creditError) throw creditError;
+      }
+      return new Response(JSON.stringify({ type: 'communication_topup', status: 'completed', amount_paid: amountPaid, credits_added: COMMUNICATION_TOPUP_CREDITS }), { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 });
+    }
+
+    // ── Legacy SMS top-up (verification kept only for completed old sessions) ──
     if (productId === SMS_TOPUP_PRODUCT_ID) {
       if (!eventId) throw new Error("event_id is required for SMS top-up");
 

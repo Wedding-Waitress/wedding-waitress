@@ -74,7 +74,8 @@ import {
   Pencil,
   FileUp,
   FileDown,
-  MapPin
+  MapPin,
+  BellRing
 } from "lucide-react";
 import {
   Tooltip,
@@ -106,7 +107,9 @@ import { useSearchParams } from 'react-router-dom';
 import { toast as sonnerToast } from 'sonner';
 import { CheckCircle2, PartyPopper } from 'lucide-react';
 import { useRsvpInvites } from '@/hooks/useRsvpInvites';
-import { useRsvpPurchase, getTierMaxFromLabel } from '@/hooks/useRsvpPurchase';
+import { useRsvpPurchase } from '@/hooks/useRsvpPurchase';
+import { useUserPlan } from '@/hooks/useUserPlan';
+import { getPlanCommunicationCredits } from '@/lib/communicationCredits';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import styles from './GuestListTable.module.css';
@@ -140,7 +143,6 @@ const GuestLimitDialog = lazy(() => import('./GuestLimitDialog').then(module => 
 const BulkTableAssignmentModal = lazy(() => import('./BulkTableAssignmentModal').then(module => ({ default: module.BulkTableAssignmentModal })));
 const BulkRsvpUpdateModal = lazy(() => import('./BulkRsvpUpdateModal').then(module => ({ default: module.BulkRsvpUpdateModal })));
 const SendRsvpConfirmModal = lazy(() => import('./SendRsvpConfirmModal').then(module => ({ default: module.SendRsvpConfirmModal })));
-const RsvpActivationModal = lazy(() => import('./RsvpActivationModal').then(module => ({ default: module.RsvpActivationModal })));
 const RsvpAlreadyPaidModal = lazy(() => import('./RsvpAlreadyPaidModal').then(module => ({ default: module.RsvpAlreadyPaidModal })));
 const RsvpOverageModal = lazy(() => import('./RsvpOverageModal').then(module => ({ default: module.RsvpOverageModal })));
 const ResendSmartRsvpModal = lazy(() => import('./ResendSmartRsvpModal').then(module => ({ default: module.ResendSmartRsvpModal })));
@@ -193,6 +195,33 @@ const DIETARY_OPTIONS = [
 ];
 
 const RSVP_OPTIONS = ['Pending', 'Attending', 'Not Attending'];
+
+const getOrdinalSuffix = (day: number): string => {
+  if (day >= 11 && day <= 13) return 'th';
+  if (day % 10 === 1) return 'st';
+  if (day % 10 === 2) return 'nd';
+  if (day % 10 === 3) return 'rd';
+  return 'th';
+};
+
+const formatGuestAdditionDateTime = (value: string): string => {
+  const date = new Date(value);
+  if (Number.isNaN(date.getTime())) return value;
+
+  const parts = new Intl.DateTimeFormat('en-AU', {
+    day: 'numeric',
+    month: 'long',
+    year: 'numeric',
+    hour: 'numeric',
+    minute: '2-digit',
+    hour12: true,
+  }).formatToParts(date);
+  const part = (type: Intl.DateTimeFormatPartTypes) => parts.find((item) => item.type === type)?.value ?? '';
+  const day = Number(part('day'));
+  const time = `${part('hour')}:${part('minute')}${part('dayPeriod').toLowerCase()}`;
+
+  return `${day}${getOrdinalSuffix(day)} ${part('month')} ${part('year')}. ${time}.`;
+};
 
 interface GuestListTableProps {
   selectedEventId?: string | null;
@@ -318,9 +347,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [showBulkDeleteModal, setShowBulkDeleteModal] = useState(false);
   const [bulkDeleteConfirmText, setBulkDeleteConfirmText] = useState('');
   const [showSendModal, setShowSendModal] = useState(false);
-  const [showActivationModal, setShowActivationModal] = useState(false);
   const [showAlreadyPaidModal, setShowAlreadyPaidModal] = useState(false);
-  const [showOverageModal, setShowOverageModal] = useState(false);
   const [showSmsVerification, setShowSmsVerification] = useState(false);
   const [activeCentre, setActiveCentre] = useState<GuestListCentre>(null);
   const utilityTileRef = useRef<HTMLButtonElement | null>(null);
@@ -330,7 +357,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const smsHealth = getCreditHealth(smsCredits.remaining, smsCredits.total);
   const smsEmpty = smsHealth.state === 'empty';
   const smsLowCredit = smsHealth.state === 'critical' || smsHealth.state === 'empty';
-  const { hasPurchased: hasRsvpPurchase, purchase: rsvpPurchase, loading: rsvpPurchaseLoading, totalCapacity: rsvpTotalCapacity, refetch: refetchRsvpPurchase } = useRsvpPurchase(selectedEventId);
+  const { hasPurchased: hasRsvpPurchase, purchase: rsvpPurchase, loading: rsvpPurchaseLoading, overageGuests: purchasedGuestCapacity, refetch: refetchRsvpPurchase } = useRsvpPurchase(selectedEventId);
+  const { plan, hasPlatformOwnerAccess } = useUserPlan();
+  const canBuyGuestCapacity = !hasPlatformOwnerAccess && /^(essential|premium|ultimate|unlimited)$/i.test(plan?.plan_name || '');
+  const planBaseGuestCapacity = canBuyGuestCapacity && plan?.guest_limit != null ? plan.guest_limit : null;
+  const totalGuestCapacity = planBaseGuestCapacity == null ? null : planBaseGuestCapacity + purchasedGuestCapacity;
+  const planCommunicationCredits = hasPlatformOwnerAccess ? 450 : getPlanCommunicationCredits(plan?.plan_name);
   const guestAdditionState = useGuestAdditionNotifications(selectedEventId);
   const guestAdditionByGuestId = useMemo(
     () => new Map(guestAdditionState.notifications.map((item) => [item.guest_id, item])),
@@ -398,7 +430,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     guestCount: number;
     tierLabel: string;
     amount: number;
-    ptype: 'rsvp' | 'rsvp_overage';
+    ptype: 'rsvp' | 'rsvp_overage' | 'guest_capacity_topup';
   } | null>(null);
   useEffect(() => {
     if (searchParams.get('payment') !== 'success') return;
@@ -409,13 +441,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     try { storedCount = Number(sessionStorage.getItem('ww:rsvpSelectedCount') || '0'); } catch {}
     const tierLabel = searchParams.get('tier') || '';
     const amount = Number(searchParams.get('amount') || '0');
-    const ptype = (searchParams.get('ptype') as 'rsvp' | 'rsvp_overage') || 'rsvp';
+    const ptype = (searchParams.get('ptype') as 'rsvp' | 'rsvp_overage' | 'guest_capacity_topup') || 'rsvp';
 
-    const summary = ptype === 'rsvp_overage'
-      ? `${storedCount} extra guests • Add-on • $${amount.toFixed(2)} AUD`
+    const summary = ptype === 'rsvp_overage' || ptype === 'guest_capacity_topup'
+      ? `${storedCount} additional guest spaces • Capacity add-on • $${amount.toFixed(2)} AUD`
       : `${storedCount} ${storedCount === 1 ? 'guest' : 'guests'} invited${tierLabel ? ` • ${tierLabel}` : ''} • $${amount.toFixed(2)} AUD`;
 
-    sonnerToast.success('RSVP invitations sent successfully', {
+    sonnerToast.success(ptype === 'guest_capacity_topup' ? 'Guest capacity added successfully' : 'RSVP invitations sent successfully', {
       description: summary,
       duration: 6000,
       action: {
@@ -451,6 +483,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   // Guest limit dialog state
   const [showGuestLimitDialog, setShowGuestLimitDialog] = useState(false);
+  const [showGuestCapacityTopup, setShowGuestCapacityTopup] = useState(false);
   const [guestLimitDialogVariant, setGuestLimitDialogVariant] = useState<'congratulations' | 'exceeded'>('exceeded');
   const guestLimitCongratulationsShownRef = React.useRef(false);
   // Selection handlers
@@ -759,7 +792,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     }
 
     // Check if we just reached the guest limit (show congratulations once)
-    const eventGuestLimit = selectedEvent?.guest_limit || 0;
+    const eventGuestLimit = totalGuestCapacity ?? selectedEvent?.guest_limit ?? 0;
     if (eventGuestLimit > 0 && !guestLimitCongratulationsShownRef.current) {
       // We need to re-check after refetch. Use a small delay to let state update.
       setTimeout(() => {
@@ -1639,7 +1672,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     }
 
     // Guest limit check - block if already at or over limit
-    const eventGuestLimit = selectedEvent?.guest_limit || 0;
+    const eventGuestLimit = totalGuestCapacity ?? selectedEvent?.guest_limit ?? 0;
     if (eventGuestLimit > 0 && guestCount >= eventGuestLimit) {
       setGuestLimitDialogVariant('exceeded');
       setShowGuestLimitDialog(true);
@@ -1798,17 +1831,18 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <p className="text-sm text-muted-foreground">
                   Manage your event guests, track RSVPs, assign tables, and organize seating arrangements
                 </p>
-                {hasRsvpPurchase && rsvpTotalCapacity > 0 && (
+                {totalGuestCapacity != null && (
                   <span
                     className={`ml-auto inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold whitespace-nowrap ${
-                      guests.length > rsvpTotalCapacity
+                      guests.length >= totalGuestCapacity
                         ? 'border-red-300 bg-red-50 text-red-700'
                         : 'border-primary/30 bg-primary/5 text-primary'
                     }`}
-                    title="RSVP invite allowance for this event"
+                    title="Guest capacity for this event"
                   >
-                    RSVP Allowance: {guests.length} of {rsvpTotalCapacity} guests
-                    {guests.length > rsvpTotalCapacity && ' • Additional guests required'}
+                    Guest Capacity: {guests.length} of {totalGuestCapacity}
+                    {purchasedGuestCapacity > 0 && ` • +${purchasedGuestCapacity} purchased`}
+                    <button type="button" className="ml-1 underline underline-offset-2" onClick={() => setShowGuestCapacityTopup(true)}>Add capacity</button>
                   </span>
                 )}
               </div>
@@ -2228,7 +2262,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           <div id="smart-rsvp-command-centre" className="flex items-center justify-between gap-2 flex-wrap mb-4 sm:mb-6 mt-4">
 
             {/* LEFT SIDE: Plus-guest notification banner */}
-            <div className="flex flex-col gap-1">
+            <div className={cn("flex flex-col gap-1", guestAdditionState.available && styles.guestAdditionColumn)}>
               {alertGuests.length > 0 && (
                 <div
                   className="animate-flash inline-flex flex-col gap-1 rounded-2xl border-4 border-red-500 bg-[#FFFF00] px-4 py-2 text-xs font-semibold text-gray-900"
@@ -2238,23 +2272,43 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   ))}
                 </div>
               )}
-              {guestAdditionState.available && guestAdditionState.notifications.length > 0 && (
-                <section className="rounded-2xl border-2 border-[#967A59] bg-[#fff8e8] px-4 py-3 text-sm text-[#2f1b14]" aria-label="Guest additions awaiting review">
-                  <div className="mb-3">
-                    <strong>New guests added by invited guests</strong>
-                    <div className="mt-2 flex min-w-0 flex-col gap-2">
-                      <label className="flex w-full min-w-0 items-center gap-2 text-xs font-medium">
-                        <Mail size={15} strokeWidth={1.8} className="shrink-0 text-[#806344]" aria-hidden="true" />
-                        <span className="min-w-0 flex-1">Receive free new guest added email alerts</span>
-                        <Switch className="shrink-0" checked={guestAdditionState.emailEnabled} disabled={guestAdditionState.saving} onCheckedChange={(checked) => void guestAdditionState.setEmailPreference(checked)} aria-label="Email alerts for guest additions" />
-                      </label>
-                      <label className="flex w-full min-w-0 items-center gap-2 text-xs font-medium" title={guestAdditionState.smsEligible ? 'Send guest-addition alerts to the event owner verified mobile' : 'A verified event-owner mobile is required'}>
-                        <span className="w-[15px] shrink-0 text-[9px] font-bold leading-none text-[#806344]" aria-hidden="true">SMS</span>
-                        <span className="min-w-0 flex-1">
-                          <span className="block">Receive free new guest added SMS alerts</span>
-                          {!guestAdditionState.smsEligible && <span className="block font-normal text-[#6e5a43]">Verification is required when you turn this on.</span>}
-                        </span>
-                        <Switch className="shrink-0" checked={guestAdditionState.smsEnabled} disabled={guestAdditionState.saving} onCheckedChange={(checked) => {
+              {guestAdditionState.available && (
+                <section className={styles.guestAdditionPanel} aria-labelledby="guest-addition-panel-title">
+                  <header className={styles.guestAdditionHeader}>
+                    <span className={styles.guestAdditionHeaderIcon} aria-hidden="true">
+                      <BellRing size={22} strokeWidth={1.7} />
+                    </span>
+                    <span>
+                      <h3 id="guest-addition-panel-title" className={styles.guestAdditionTitle}>New guests added by invited guests</h3>
+                      <p className={styles.guestAdditionSubtitle}>Choose how Wedding Waitress lets you know when an invited guest adds a +1.</p>
+                    </span>
+                  </header>
+
+                  <div className={styles.guestAdditionChannels}>
+                    <label className={cn(styles.guestAdditionChannel, guestAdditionState.emailEnabled ? styles.guestAdditionChannelOn : styles.guestAdditionChannelOff)}>
+                      <span className={styles.guestAdditionChannelIcon} aria-hidden="true">
+                        <Mail size={19} strokeWidth={1.8} />
+                      </span>
+                      <span className={styles.guestAdditionChannelCopy}>
+                        <span className={styles.guestAdditionChannelTitle}>Email</span>
+                        <span className={styles.guestAdditionChannelDescription}>Send me a free email when a new &quot;+1 Guest&quot; has been added.</span>
+                      </span>
+                      <span className={styles.guestAdditionToggleWrap}>
+                        <span aria-hidden="true">{guestAdditionState.emailEnabled ? 'On' : 'Off'}</span>
+                        <Switch className={styles.guestAdditionSwitch} checked={guestAdditionState.emailEnabled} disabled={guestAdditionState.saving} onCheckedChange={(checked) => void guestAdditionState.setEmailPreference(checked)} aria-label="Email alerts for guest additions" />
+                      </span>
+                    </label>
+
+                    <label className={cn(styles.guestAdditionChannel, guestAdditionState.smsEnabled ? styles.guestAdditionChannelOn : styles.guestAdditionChannelOff)} title={guestAdditionState.smsEligible ? 'Send guest-addition alerts to the event owner verified mobile' : 'A verified event-owner mobile is required'}>
+                      <span className={styles.guestAdditionChannelIcon} aria-hidden="true">SMS</span>
+                      <span className={styles.guestAdditionChannelCopy}>
+                        <span className={styles.guestAdditionChannelTitle}>SMS</span>
+                        <span className={styles.guestAdditionChannelDescription}>Send me a free SMS when a new &quot;+1 Guest&quot; has been added.</span>
+                        {!guestAdditionState.smsEligible && <span className={styles.guestAdditionVerification}>Verification is required when you turn this on.</span>}
+                      </span>
+                      <span className={styles.guestAdditionToggleWrap}>
+                        <span aria-hidden="true">{guestAdditionState.smsEnabled ? 'On' : 'Off'}</span>
+                        <Switch className={styles.guestAdditionSwitch} checked={guestAdditionState.smsEnabled} disabled={guestAdditionState.saving} onCheckedChange={(checked) => {
                           if (checked && !guestAdditionState.smsEligible) {
                             setShowSmsVerification(true);
                             return;
@@ -2263,20 +2317,43 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             if (!saved) toast({ title: 'SMS alert preference was not saved', variant: 'destructive' });
                           });
                         }} aria-label="SMS alerts for guest additions" />
-                      </label>
-                    </div>
+                      </span>
+                    </label>
                   </div>
-                  <div className="space-y-2">
+
+                  <div className={styles.guestAdditionReviewSection}>
+                    <div className={styles.guestAdditionReviewColumnHeader} aria-hidden="true">
+                      <span>New +1 Guest Added</span>
+                      <span>Added by</span>
+                      <span className={styles.guestAdditionDateHeading}>Added Date &amp; Time</span>
+                      <span className={styles.guestAdditionReviewHeaderCount}>
+                        Awaiting review <span className={styles.guestAdditionCount}>{guestAdditionState.notifications.length}</span>
+                      </span>
+                    </div>
+                    {guestAdditionState.notifications.length === 0 && (
+                      <div className={styles.guestAdditionEmptyReview}>No new +1 guests are awaiting review.</div>
+                    )}
                     {guestAdditionState.notifications.map((item) => (
-                      <div key={item.id} className="flex flex-wrap items-center gap-2">
-                        <button type="button" className="text-left underline underline-offset-2" onClick={() => revealGuestAddition(item.guest_id, item.added_guest_name)}>
-                          {item.added_by_name} added {item.added_guest_name} as {item.group_choice === 'group' ? 'part of their group' : 'a separate guest'}
+                      <div key={item.id} className={styles.guestAdditionReviewRow}>
+                        <button
+                          type="button"
+                          className={styles.guestAdditionReviewField}
+                          onClick={() => revealGuestAddition(item.guest_id, item.added_guest_name)}
+                          aria-label={`View ${item.added_guest_name}, added by ${item.added_by_name}`}
+                          title={item.group_choice === 'group' ? 'part of their group' : 'a separate guest'}
+                        >
+                          <span className={styles.guestAdditionReviewLabel}>New +1 Guest Added</span>
+                          <span className={styles.guestAdditionReviewValue}>{item.added_guest_name}</span>
                         </button>
-                        <span className="text-xs text-[#6e5a43]">{new Date(item.created_at).toLocaleString()}</span>
+                        <div className={styles.guestAdditionReviewField}>
+                          <span className={styles.guestAdditionReviewLabel}>Added by</span>
+                          <span className={styles.guestAdditionReviewValue}>{item.added_by_name}</span>
+                        </div>
+                        <span className={styles.guestAdditionTimestamp}>{formatGuestAdditionDateTime(item.created_at)}</span>
                         <Button type="button" size="sm" disabled={guestAdditionState.saving} onClick={async () => {
                           const reviewed = await guestAdditionState.markReviewed(item.guest_id);
                           toast(reviewed ? { title: 'Guest addition marked reviewed' } : { title: 'Review was not saved', variant: 'destructive' });
-                        }} className="rounded-full bg-green-600 text-white hover:bg-green-700">Mark reviewed</Button>
+                        }} className={styles.guestAdditionReviewButton}>Mark reviewed</Button>
                       </div>
                     ))}
                   </div>
@@ -3186,16 +3263,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                return;
              }
              setSendChannel('email');
-            if (hasRsvpPurchase && rsvpPurchase) {
-              if (rsvpTotalCapacity > 0 && guests.length <= rsvpTotalCapacity) {
-                setShowAlreadyPaidModal(true);
-              } else {
-                // Tier already paid but guest count now exceeds total capacity → buy overage
-                setShowOverageModal(true);
-              }
-            } else {
-              setShowActivationModal(true);
-            }
+            setShowAlreadyPaidModal(true);
           }}
           onSendSms={() => {
              if (selectedGuestIds.size === 0) {
@@ -3207,25 +3275,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                });
                return;
              }
-             if (smsEmpty) {
-               toast({
-                 title: "SMS credits required",
-                 description: "SMS credits required to continue Smart RSVP messaging. Top up to keep sending invites.",
-                 variant: "destructive",
-                 className: "[&_*]:text-white",
-               });
-               return;
-             }
              setSendChannel('sms');
-            if (hasRsvpPurchase && rsvpPurchase) {
-              if (rsvpTotalCapacity > 0 && guests.length <= rsvpTotalCapacity) {
-                setShowAlreadyPaidModal(true);
-              } else {
-                setShowOverageModal(true);
-              }
-            } else {
-              setShowActivationModal(true);
-            }
+            setShowAlreadyPaidModal(true);
           }}
           onMarkManualInvite={async (method: string) => {
             try {
@@ -3348,23 +3399,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           }}
         />}
 
-        {/* RSVP Activation Modal (payment gate) */}
-        {showActivationModal && <RsvpActivationModal
-          isOpen={showActivationModal}
-          onClose={() => setShowActivationModal(false)}
-          totalGuestCount={guests.length}
-          eventId={selectedEventId}
-          onPayNow={() => {
-            setShowActivationModal(false);
-            toast({
-              title: "Stripe Not Connected",
-              description: "Payment processing will be available once Stripe is connected. Contact support for assistance.",
-            });
-          }}
-        />}
-
-        {/* RSVP Already Paid Modal (within tier) */}
-        {rsvpPurchase && showAlreadyPaidModal && (
+        {showAlreadyPaidModal && selectedEventId && (
           <RsvpAlreadyPaidModal
             isOpen={showAlreadyPaidModal}
             onClose={() => setShowAlreadyPaidModal(false)}
@@ -3372,23 +3407,15 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               setShowAlreadyPaidModal(false);
               setShowSendModal(true);
             }}
-            tierLabel={rsvpPurchase.guest_tier_label || ''}
-            amountPaid={Number(rsvpPurchase.amount_paid) || 0}
-            paidAt={rsvpPurchase.created_at}
-            currentGuestCount={guests.length}
-            tierMax={getTierMaxFromLabel(rsvpPurchase.guest_tier_label)}
+            eventId={selectedEventId}
+            planName={hasPlatformOwnerAccess ? 'Ultimate' : (plan?.plan_name || 'No active')}
+            included={planCommunicationCredits}
+            used={smsCredits.used}
+            remaining={smsCredits.remaining}
+            selectedCount={selectedGuestIds.size}
+            channel={sendChannel}
           />
         )}
-
-        {/* RSVP Overage Modal (tier paid, but guest count exceeded total capacity) */}
-        {showOverageModal && <RsvpOverageModal
-          isOpen={showOverageModal}
-          onClose={() => setShowOverageModal(false)}
-          eventId={selectedEventId}
-          currentGuestCount={guests.length}
-          totalCapacity={rsvpTotalCapacity}
-          tierLabel={rsvpPurchase?.guest_tier_label || ''}
-        />}
 
         {/* Resend Smart RSVP — precision re-targeting */}
         {activeCentre === 'delivery' && <ResendSmartRsvpModal
@@ -3445,7 +3472,20 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           isOpen={showGuestLimitDialog}
           onClose={() => setShowGuestLimitDialog(false)}
           variant={guestLimitDialogVariant}
-          guestLimit={selectedEvent?.guest_limit || 0}
+          guestLimit={totalGuestCapacity ?? selectedEvent?.guest_limit ?? 0}
+          onBuyCapacity={canBuyGuestCapacity && totalGuestCapacity != null ? () => {
+            setShowGuestLimitDialog(false);
+            setShowGuestCapacityTopup(true);
+          } : undefined}
+        />}
+
+        {selectedEventId && totalGuestCapacity != null && <RsvpOverageModal
+          isOpen={showGuestCapacityTopup}
+          onClose={() => setShowGuestCapacityTopup(false)}
+          eventId={selectedEventId}
+          currentGuestCount={guests.length}
+          totalCapacity={totalGuestCapacity}
+          tierLabel={plan?.plan_name || 'Plan'}
         />}
       </Suspense>
     </div>

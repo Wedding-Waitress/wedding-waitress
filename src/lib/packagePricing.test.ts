@@ -17,10 +17,10 @@ describe('package pricing catalogue', () => {
     expect(VENDOR_PRICING).toMatchObject({ AUD: { price: 300 }, USD: { price: 198 }, GBP: { price: 153 }, EUR: { price: 180 } });
   });
 
-  it('keeps every existing Stripe reference unchanged', () => {
-    expect(PLAN_PRICES.essential.price_id).toBe('price_1TPdpf5GzTmqOxGKTiE9x3RG');
-    expect(PLAN_PRICES.premium.price_id).toBe('price_1TPdq05GzTmqOxGKEPamRNNq');
-    expect(PLAN_PRICES.unlimited.price_id).toBe('price_1TPdqZ5GzTmqOxGKRUn5rKbD');
+  it('uses the reviewed Stripe sandbox catalogue references', () => {
+    expect(PLAN_PRICES.essential.price_id).toBe('price_1UDdle5GzTmqOxGKj3yu56jP');
+    expect(PLAN_PRICES.premium.price_id).toBe('price_1UDeO75GzTmqOxGK2JYrvH7I');
+    expect(PLAN_PRICES.unlimited.price_id).toBe('price_1UDeO95GzTmqOxGKZmJq53Ee');
     expect(VENDOR_PRO.price_id).toBe('price_1TUoUX5GzTmqOxGK4eswrMPQ');
   });
 
@@ -35,9 +35,9 @@ describe('package pricing catalogue', () => {
     const pricingPage = readFileSync('src/pages/Pricing.tsx', 'utf8');
     const cards = readFileSync('src/components/Pricing/PublicPricingSection.tsx', 'utf8');
     expect(pricingPage).toContain("price: String(PACKAGE_PRICES_AUD.essential)");
-    expect(pricingPage).toContain("unitText: 'MONTH'");
-    expect(cards).toContain('md:grid-cols-2 2xl:grid-cols-4');
+    expect(pricingPage).not.toContain("unitText: 'MONTH'");
+    expect(cards).toContain('md:grid-cols-2 xl:grid-cols-3');
     expect(cards).toContain('one-time');
-    expect(cards).toContain('/month');
+    expect(cards).not.toContain('Vendor Pro');
   });
 });

@@ -56,6 +56,11 @@ describe('guest-added organiser notification contract', () => {
     expect(guestList).toContain('New — added by guest');
     expect(guestList).toContain('data-guest-id={guest.id}');
     expect(guestList).toContain('revealGuestAddition(item.guest_id, item.added_guest_name)');
+    expect(guestList).toContain('Added Date &amp; Time');
+    expect(guestList).toContain('formatGuestAdditionDateTime(item.created_at)');
+    expect(guestList).toContain('Awaiting review');
+    expect(guestList).toContain('guestAdditionState.available && (');
+    expect(guestList).toContain('No new +1 guests are awaiting review.');
     expect(guestList).toContain("searchParams.get('guest')");
   });
 
@@ -80,14 +85,16 @@ describe('guest-added organiser notification contract', () => {
   });
 
   it('keeps organiser SMS separate, verified-owner-only, platform-paid and atomically claimed', () => {
-    expect(guestList).toContain('Receive free new guest added email alerts');
-    expect(guestList).toContain('Receive free new guest added SMS alerts');
-    expect(guestList).toContain('mt-2 flex min-w-0 flex-col gap-2');
-    expect(guestList).toContain('<Mail size={15} strokeWidth={1.8}');
-    expect(guestList).toContain('aria-hidden="true">SMS</span>');
+    expect(guestList).toContain('Send me a free email when a new &quot;+1 Guest&quot; has been added.');
+    expect(guestList).toContain('Send me a free SMS when a new &quot;+1 Guest&quot; has been added.');
+    expect(guestList).toContain('styles.guestAdditionChannels');
+    expect(guestList).toContain('guestAdditionState.emailEnabled ? styles.guestAdditionChannelOn : styles.guestAdditionChannelOff');
+    expect(guestList).toContain('guestAdditionState.smsEnabled ? styles.guestAdditionChannelOn : styles.guestAdditionChannelOff');
+    expect(guestList).toContain('<Mail size={19} strokeWidth={1.8}');
+    expect(guestList).toMatch(/className=\{styles\.guestAdditionChannelIcon\}[^>]*>SMS<\/span>/);
     expect(guestList).not.toContain('<Smartphone');
-    expect(guestList).toContain('className="min-w-0 flex-1"');
-    expect(guestList).toContain('className="shrink-0" checked={guestAdditionState.smsEnabled}');
+    expect(guestList).toContain('styles.guestAdditionChannelCopy');
+    expect(guestList).toContain('className={styles.guestAdditionSwitch} checked={guestAdditionState.smsEnabled}');
     expect(guestList).toContain('Verification is required when you turn this on.');
     expect(guestList).toContain('setShowSmsVerification(true)');
     expect(guestList).toContain('guestAdditionState.smsEligible');

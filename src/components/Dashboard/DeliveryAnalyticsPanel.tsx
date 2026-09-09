@@ -50,7 +50,7 @@ export const DeliveryAnalyticsPanel = ({ eventId }: Props) => {
           accent="bg-blue-500/10 text-blue-600" />
         <Kpi icon={<MessageSquare className="w-4 h-4" />} label="SMS sent" value={data.smsSent}
           accent="bg-emerald-500/10 text-emerald-600" />
-        <Kpi icon={<Coins className="w-4 h-4" />} label="SMS credits left"
+        <Kpi icon={<Coins className="w-4 h-4" />} label="Email & SMS credits left"
           value={data.smsCreditsRemaining}
           hint={`${data.smsCreditsUsed}/${data.smsCreditsTotal} used`}
           accent="bg-amber-500/10 text-amber-600" />

@@ -146,7 +146,6 @@ export const publicEventTypes: PublicEventType[] = [
       { question: 'Can this support conferences as well as dinners?', answer: 'Yes. Guest-list, schedule and lookup tools can support different corporate formats; seating products are available when the event uses assigned places.' },
       { question: 'Can attendees find their table in the Live Slideshow?', answer: 'Yes. Live Slideshow can run on a supported touchscreen, tablet, laptop or desktop so attendees can search for their assignment.' },
       { question: 'Can we prepare dietary information for caterers?', answer: 'Yes. The Dietary Requirements product creates a practical reference using recorded attendee, table and seat details.' },
-      { question: 'Is there a plan for venues and event professionals?', answer: 'Wedding Waitress lists a Vendor Pro option for venues and event professionals on the Pricing page.' },
     ], relatedEventIds: ['christmas-seasonal-events', 'birthdays-parties'],
   },
   {

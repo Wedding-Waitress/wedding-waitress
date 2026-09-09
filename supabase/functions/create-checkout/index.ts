@@ -4,11 +4,25 @@ import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import { convertedAmountCents, getAudExchangeRates, isPricingCurrency } from "../_shared/exchangeRates.ts";
 
 const PUBLIC_PLAN_CATALOG = {
-  essential: { product: "prod_UOQhHcOhFdrhOs", baseAud: 99, mode: "payment" },
-  premium: { product: "prod_UOQhTWnFzXV1FK", baseAud: 149, mode: "payment" },
-  unlimited: { product: "prod_UOQhLIYTxQAd7U", baseAud: 249, mode: "payment" },
-  vendor_pro: { product: "prod_UTm2XBA5rX9dGN", baseAud: 299, mode: "subscription" },
+  essential: { product: "prod_UOQhHcOhFdrhOs", baseAud: 199, mode: "payment" },
+  premium: { product: "prod_UOQhTWnFzXV1FK", baseAud: 249, mode: "payment" },
+  unlimited: { product: "prod_UOQhLIYTxQAd7U", baseAud: 299, mode: "payment" },
 } as const;
+
+const GUEST_CAPACITY_TOPUP_FALLBACK_PRICE_ID = "price_1TT0o05GzTmqOxGKUIiEXxj6";
+const GUEST_CAPACITY_TOPUP_PRODUCT_ID = "prod_URud0pt0K8Sl9i";
+const PAID_WEDDING_PLAN_IDS = new Set([
+  "78cdab0d-d81d-4757-b7cc-f210b8b30f47",
+  "1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8",
+  "cd10f207-2109-4546-a635-0baa68ba8213",
+]);
+const ADDITIONAL_EVENT_PRICES: Record<string, { currency: string; unitAmount: number }> = {
+  price_1TUoZ15GzTmqOxGKDRmvofDh: { currency: 'aud', unitAmount: 9900 },
+  price_1TUoZT5GzTmqOxGK92kQqFuO: { currency: 'usd', unitAmount: 7499 },
+  price_1TUobn5GzTmqOxGKQSvVqcFY: { currency: 'gbp', unitAmount: 6499 },
+  price_1TUocE5GzTmqOxGK9qKIXoHT: { currency: 'eur', unitAmount: 6999 },
+};
+const ADDITIONAL_EVENT_PRODUCT_ID = 'prod_UTm7byFGV7E127';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -75,7 +89,7 @@ serve(async (req) => {
     }
 
     const {
-      price_id,
+      price_id: requested_price_id,
       mode,
       event_id,
       plan_type,
@@ -88,20 +102,69 @@ serve(async (req) => {
       upgrade_from_plan,
       pricing_currency,
     } = await req.json();
+    const isCommunicationTopup = purchase_type === 'communication_topup';
+    const isGuestCapacityTopup = purchase_type === 'guest_capacity_topup';
+    const isAdditionalEvent = purchase_type === 'additional_event';
+    if (plan_type === 'vendor_pro') {
+      return new Response(JSON.stringify({ error: 'Vendor Pro is not currently available' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (plan_type === 'rsvp' || purchase_type === 'rsvp_overage') {
+      return new Response(JSON.stringify({ error: 'Legacy RSVP bundles are no longer available; use your included Email & SMS credits or the 100-credit top-up.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    const price_id = isCommunicationTopup
+      ? (Deno.env.get('STRIPE_COMMUNICATION_TOPUP_PRICE_ID') || '')
+      : isGuestCapacityTopup
+        ? (Deno.env.get('STRIPE_GUEST_CAPACITY_PRICE_ID') || GUEST_CAPACITY_TOPUP_FALLBACK_PRICE_ID)
+        : requested_price_id;
     const publicPlan = !upgrade_from_plan && typeof plan_type === "string" && plan_type in PUBLIC_PLAN_CATALOG
       ? PUBLIC_PLAN_CATALOG[plan_type as keyof typeof PUBLIC_PLAN_CATALOG]
       : null;
     if (publicPlan && !isPricingCurrency(pricing_currency)) {
       return new Response(JSON.stringify({ error: "Unsupported pricing currency" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
-    if (!price_id && !publicPlan) throw new Error("price_id is required");
+    if (!price_id && !publicPlan) throw new Error(isCommunicationTopup ? 'Communication top-up price is not configured' : 'price_id is required');
 
     const checkoutMode = publicPlan ? publicPlan.mode : mode === "subscription" ? "subscription" : "payment";
     const isEmbedded = ui_mode === "embedded";
     const lineQuantity = Number.isFinite(quantity) && quantity > 0 ? Math.floor(quantity) : 1;
+    if (isAdditionalEvent && (lineQuantity !== 1 || !price_id || !ADDITIONAL_EVENT_PRICES[price_id])) {
+      return new Response(JSON.stringify({ error: 'Invalid additional-event price.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (isGuestCapacityTopup && (!Number.isInteger(quantity) || lineQuantity < 1 || lineQuantity > 100)) {
+      return new Response(JSON.stringify({ error: 'Guest capacity must be purchased in 1 to 100 whole blocks of 10.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+    if (isGuestCapacityTopup) {
+      if (!event_id) return new Response(JSON.stringify({ error: 'An event is required for guest capacity.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      const [{ data: ownedEvent }, { data: subscription }] = await Promise.all([
+        supabaseClient.from('events').select('id').eq('id', event_id).eq('user_id', user.id).maybeSingle(),
+        supabaseClient.from('user_subscriptions').select('plan_id, status').eq('user_id', user.id).in('status', ['active', 'trialing', 'grace_period']).order('created_at', { ascending: false }).limit(1).maybeSingle(),
+      ]);
+      if (!ownedEvent) return new Response(JSON.stringify({ error: 'Only the event owner can purchase guest capacity.' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      if (!subscription || !PAID_WEDDING_PLAN_IDS.has(subscription.plan_id) || !['active', 'trialing', 'grace_period'].includes(subscription.status)) {
+        return new Response(JSON.stringify({ error: 'Guest capacity add-ons require an active Essential, Premium or Ultimate plan.' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+    }
+    if (isAdditionalEvent) {
+      const { data: subscription } = await supabaseClient
+        .from('user_subscriptions')
+        .select('plan_id, status, expires_at, is_read_only')
+        .eq('user_id', user.id)
+        .in('status', ['active', 'trialing', 'grace_period'])
+        .order('created_at', { ascending: false })
+        .limit(1)
+        .maybeSingle();
+      const isCurrent = subscription &&
+        PAID_WEDDING_PLAN_IDS.has(subscription.plan_id) &&
+        subscription.is_read_only !== true &&
+        (!subscription.expires_at || new Date(subscription.expires_at).getTime() >= Date.now());
+      if (!isCurrent) {
+        return new Response(JSON.stringify({ error: 'An existing current Essential, Premium or Ultimate plan is required before adding an event.' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+    }
     const purchaseTypeMeta =
       upgrade_from_plan ? "plan_upgrade" :
       purchase_type === "rsvp_overage" ? "rsvp_overage" :
+      purchase_type === "guest_capacity_topup" ? "guest_capacity_topup" :
       purchase_type === "additional_event" ? "additional_event" :
       (purchase_type || "");
     logStep("Checkout params", {
@@ -166,6 +229,10 @@ serve(async (req) => {
       // All known price_ids for the source plan across currencies.
       const SOURCE_PRICE_IDS: Record<string, string[]> = {
         essential: [
+          "price_1UDdle5GzTmqOxGKj3yu56jP",
+          "price_1UDdle5GzTmqOxGKuDmLmMN9",
+          "price_1UDdle5GzTmqOxGKizBfLKQj",
+          "price_1UDdlf5GzTmqOxGK2nP9Y3vP",
           "price_1T0vD35GzTmqOxGK3k6EQZee",
           "price_1TMhcx5GzTmqOxGKxMjCfQkz",
           "price_1TMheB5GzTmqOxGK2RUVqDvC",
@@ -173,6 +240,10 @@ serve(async (req) => {
           "price_1TPdpf5GzTmqOxGKTiE9x3RG",
         ],
         premium: [
+          "price_1UDeO75GzTmqOxGK2JYrvH7I",
+          "price_1UDeO85GzTmqOxGKpE4I9I3x",
+          "price_1UDeO85GzTmqOxGKPHstNiGn",
+          "price_1UDeO85GzTmqOxGKjs1pGVUi",
           "price_1T0vDN5GzTmqOxGKf3kyvjxs",
           "price_1TMhhr5GzTmqOxGKolZGjdWK",
           "price_1TMhlz5GzTmqOxGK1t1zUOCw",
@@ -263,6 +334,23 @@ serve(async (req) => {
       resolvedProductId = typeof resolvedPrice.product === "string" ? resolvedPrice.product : resolvedPrice.product?.id || "";
       resolvedCurrency = resolvedPrice.currency;
       originalAmountCents = (resolvedPrice.unit_amount || 0) * lineQuantity;
+      if (isCommunicationTopup && (resolvedPrice.currency !== 'aud' || resolvedPrice.unit_amount !== 4900 || lineQuantity !== 1)) {
+        throw new Error('Communication top-up must be exactly 100 credits for $49 AUD');
+      }
+      if (isGuestCapacityTopup && (
+        resolvedPrice.id !== price_id ||
+        resolvedProductId !== GUEST_CAPACITY_TOPUP_PRODUCT_ID ||
+        resolvedPrice.currency !== 'aud' ||
+        resolvedPrice.unit_amount !== 1000
+      )) {
+        throw new Error('Guest capacity must be exactly $10 AUD per block of 10 spaces');
+      }
+      if (isAdditionalEvent) {
+        const allowed = ADDITIONAL_EVENT_PRICES[price_id];
+        if (resolvedProductId !== ADDITIONAL_EVENT_PRODUCT_ID || resolvedPrice.currency !== allowed.currency || resolvedPrice.unit_amount !== allowed.unitAmount) {
+          throw new Error('Additional-event price does not match the approved catalogue');
+        }
+      }
     }
     if (!resolvedProductId || !resolvedCurrency || originalAmountCents <= 0) throw new Error("Purchase price is not configured");
 
@@ -293,7 +381,7 @@ serve(async (req) => {
         event_id: event_id || "",
         purchase_type: purchaseTypeMeta,
         overage_blocks:
-          purchaseTypeMeta === "rsvp_overage" ? String(lineQuantity) : "",
+          purchaseTypeMeta === "rsvp_overage" || purchaseTypeMeta === "guest_capacity_topup" ? String(lineQuantity) : "",
         guest_count_at_purchase:
           guest_count_at_purchase != null ? String(guest_count_at_purchase) : "",
         delivery_method:

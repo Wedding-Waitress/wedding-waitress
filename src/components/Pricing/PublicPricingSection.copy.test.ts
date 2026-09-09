@@ -8,7 +8,7 @@ describe('public pricing package-card copy and typography', () => {
     expect(source).toContain('One event for 12 months');
     expect(source).toContain('+ 30 days free for downloads');
     expect(source).toContain('30-day downloads after expiry');
-    expect(source).toContain('30-day downloads after subscription ends');
+    expect(source).toContain('Email & SMS credits included');
     expect(source).not.toContain('30-day download window after access ends');
     expect(source).not.toContain('30-day download window after the subscription ends');
   });
@@ -27,18 +27,14 @@ describe('public pricing package-card copy and typography', () => {
     expect(source).toContain('firstLine="Download your photos, videos" secondLine="and platform exports."');
   });
 
-  it('uses the public AUD formatter for couple plans while preserving Vendor Pro formatting', () => {
+  it('uses the public AUD formatter for all active couple plans', () => {
     expect(source).toContain('formatPublicPricingPrice(effectiveCurrency, convertAudPrice(amount, effectiveCurrency, rates))');
-    expect(source).toContain('formatLivePrice(effectiveCurrency, convertAudPrice(amount, effectiveCurrency, rates))');
     expect(source).toContain('displayCouplePrice(AUD_BASE_PRICES[key])');
-    expect(source).toContain('displayVendorPrice(AUD_BASE_PRICES.vendor_pro)');
+    expect(source).not.toContain('Vendor Pro');
   });
 
   it('promotes plan names to the former price size and steps prices down twice', () => {
     expect(source).toContain('className="text-4xl font-bold text-[#412419]"');
-    expect(source).toContain('className="text-4xl font-bold !text-[#fff8ee]"');
     expect(source).toContain('min-h-[40px] text-2xl font-bold text-[#221b18]');
-    expect(source).toContain('<span className="text-2xl font-bold">');
-    expect(source).toContain('<span className="text-base text-[#ead5b7]">/month</span>');
   });
 });

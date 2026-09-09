@@ -2,10 +2,10 @@
  * Single source of truth for the upgrade flow plan summaries.
  * Keeps the left-side checkout summary in sync with the Stripe line item.
  */
-import { PLAN_PRICES, VENDOR_PRO } from "@/lib/stripePrices";
+import { PLAN_PRICES } from "@/lib/stripePrices";
 import { PACKAGE_PRICES_AUD } from "@/lib/packagePricing";
 
-export type PlanKey = "essential" | "premium" | "unlimited" | "vendor_pro";
+export type PlanKey = "essential" | "premium" | "unlimited";
 
 export interface PlanDetail {
   key: PlanKey;
@@ -56,29 +56,12 @@ export const PLAN_DETAILS: Record<PlanKey, PlanDetail> = {
     price_aud: PACKAGE_PRICES_AUD.unlimited,
     price_id: PLAN_PRICES.unlimited.price_id,
     mode: "payment",
-    description: "Unlimited guests · 1 event included · 3 account users",
+    description: "Up to 400 guests · 1 event included · 3 account users",
     features: [
       "1 event included",
       "Up to 3 account users",
-      "Unlimited guests",
+      "Up to 400 guests",
       "Full platform access",
-    ],
-  },
-  vendor_pro: {
-    key: "vendor_pro",
-    name: VENDOR_PRO.name,
-    price_aud: PACKAGE_PRICES_AUD.vendor_pro,
-    price_id: VENDOR_PRO.price_id,
-    mode: "subscription",
-    recurring: "month",
-    description: "100 events included · Up to 10 account users · Unlimited guests",
-    features: [
-      "100 events included",
-      "Add extra events for A$99 each",
-      "Up to 10 account users",
-      "Unlimited guests",
-      "Team collaboration access",
-      "For venues, planners, DJs & MCs",
     ],
   },
 };

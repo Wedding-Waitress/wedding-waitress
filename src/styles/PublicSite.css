@@ -780,17 +780,9 @@ body:has(.ww-pricing-page),
 
 /* Pricing-only dark surfaces must remain solid white after the public text contract. */
 .ww-pricing-page
-  :where(
-    [data-pricing-dark-surface="vendor-pro"],
-    [data-pricing-dark-surface="wedding-waitress-value"]
-  )
+  [data-pricing-dark-surface="wedding-waitress-value"]
   :where(h1, h2, h3, h4, h5, h6, p, span, li, small, strong, label, a, button, svg) {
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
   opacity: 1 !important;
-}
-
-.ww-pricing-page #vendor-plan-badge[data-pricing-vendor-badge] {
-  color: #412419 !important;
-  -webkit-text-fill-color: #412419 !important;
 }

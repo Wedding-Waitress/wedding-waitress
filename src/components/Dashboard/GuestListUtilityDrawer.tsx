@@ -38,7 +38,7 @@ export const GuestListUtilityDrawer: React.FC<GuestListUtilityDrawerProps> = ({
       {kind === 'sms' ? (
         <>
           <SheetHeader>
-            <SheetTitle>SMS Credits</SheetTitle>
+            <SheetTitle>Email &amp; SMS Credits</SheetTitle>
             <SheetDescription>
               View your current balance, messaging status and top-up options for this event.
             </SheetDescription>

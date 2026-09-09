@@ -37,7 +37,8 @@ export const useRsvpInvites = () => {
       const result = await response.json();
 
       if (!response.ok) {
-        toast({ title: "Error", description: result.error || "Failed to send emails", variant: "destructive" });
+        const noCredits = result?.code === 'NO_CREDITS' || response.status === 402;
+        toast({ title: noCredits ? 'No Email & SMS credits remaining' : 'Error', description: noCredits ? 'Add 100 credits for $49 AUD to continue sending.' : (result.error || 'Failed to send emails'), variant: "destructive" });
         return null;
       }
 
@@ -96,9 +97,9 @@ export const useRsvpInvites = () => {
       if (!response.ok) {
         const isNoCredits = result?.code === 'NO_CREDITS' || response.status === 402;
         toast({
-          title: isNoCredits ? 'No SMS credits remaining' : 'Error',
+          title: isNoCredits ? 'No Email & SMS credits remaining' : 'Error',
           description: isNoCredits
-            ? 'Top up your Smart RSVP & Messaging credits to continue sending SMS.'
+            ? 'Add 100 credits for $49 AUD to continue sending.'
             : (result.error || 'Failed to send SMS'),
           variant: 'destructive',
         });

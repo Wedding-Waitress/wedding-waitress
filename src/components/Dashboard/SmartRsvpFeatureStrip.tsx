@@ -79,7 +79,7 @@ export const SmartRsvpFeatureStrip: React.FC<Props> = ({
       />
       <Pill
         icon={<MessageSquareText size={20} strokeWidth={1.8} aria-hidden="true" />}
-        title="SMS Credits"
+        title="Email & SMS Credits"
         subtitle="Balance & top-ups"
         onClick={onSmsCredits}
       />

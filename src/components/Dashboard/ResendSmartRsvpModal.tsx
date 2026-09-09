@@ -141,10 +141,10 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
   );
 
   const handleSend = async () => {
-    if (channel === 'sms' && smsEmpty) {
+    if (smsEmpty) {
       toast({
-        title: 'SMS credits required',
-        description: 'SMS credits required to continue Smart RSVP messaging. Top up to keep sending invites.',
+        title: 'Email & SMS credits required',
+        description: 'Add 100 Email & SMS credits for $49 AUD to continue sending invites.',
         variant: 'destructive',
       });
       return;
@@ -221,9 +221,7 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
               </button>
               <button
                 type="button"
-                onClick={() => { if (!smsEmpty) setChannel('sms'); }}
-                disabled={smsEmpty}
-                title={smsEmpty ? 'SMS credits required to continue Smart RSVP messaging.' : undefined}
+                onClick={() => setChannel('sms')}
                 className={`rounded-lg border-2 p-3 flex items-center justify-center gap-2 text-sm lv-premium-shade disabled:opacity-50 disabled:cursor-not-allowed ${
                   channel === 'sms' ? 'border-primary bg-primary/5' : 'border-border hover:border-primary/40'
                 }`}
@@ -247,10 +245,10 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
             </div>
           )}
 
-          {channel === 'sms' && smsEmpty && (
+          {smsEmpty && (
             <div className="flex items-start gap-2 text-xs text-red-700 bg-red-50 border border-red-200 rounded-md p-2">
               <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-              <span>SMS credits required to continue Smart RSVP messaging. Top up to keep sending invites.</span>
+              <span>Email &amp; SMS credits required. Add 100 credits for $49 AUD to continue sending invites.</span>
             </div>
           )}
         </div>
@@ -258,8 +256,8 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
         <DialogFooter className={`gap-2 pb-4 ${styles.footer}`}>
           <Button
             onClick={handleSend}
-            disabled={sending || loading || reachable.length === 0 || (channel === 'sms' && smsEmpty)}
-            title={channel === 'sms' && smsEmpty ? 'SMS credits required to continue Smart RSVP messaging.' : undefined}
+            disabled={sending || loading || reachable.length === 0 || smsEmpty}
+            title={smsEmpty ? 'Email & SMS credits required to continue Smart RSVP messaging.' : undefined}
             className="rounded-full bg-green-500 hover:bg-green-600 text-white lv-premium-shade disabled:opacity-60"
           >
             {sending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}

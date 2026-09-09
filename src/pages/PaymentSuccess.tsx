@@ -60,7 +60,7 @@ export const PaymentSuccess = () => {
   }, [sessionId, stopProcessing]);
 
   // Determine where to send the user back to (preserve originating dashboard tab).
-  const isRsvp = details.type === 'rsvp' || details.type === 'rsvp_overage';
+  const isRsvp = details.type === 'rsvp' || details.type === 'rsvp_overage' || details.type === 'guest_capacity_topup';
   const returnTab = (() => {
     try {
       return sessionStorage.getItem('ww:returnTab') || (isRsvp ? 'guest-list' : 'account');
@@ -115,7 +115,9 @@ export const PaymentSuccess = () => {
             </div>
             <h1 className="text-2xl font-bold">Payment Successful! 🎉</h1>
             <p className="text-muted-foreground">
-              {details.type === "rsvp"
+              {details.type === "guest_capacity_topup"
+                ? 'Your additional guest capacity is now available.'
+                : details.type === "rsvp"
                 ? `Your RSVP Invite Bundle (${details.plan_name}) has been activated.`
                 : `Your ${details.plan_name} plan is now active.`}
             </p>

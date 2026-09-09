@@ -16,8 +16,7 @@ export const Pricing: React.FC = () => {
     offers: [
       { '@type': 'Offer', name: 'Essential', price: String(PACKAGE_PRICES_AUD.essential), priceCurrency: 'AUD', description: 'One-time payment for one event, 12 months, up to 100 guests; price excludes GST.' },
       { '@type': 'Offer', name: 'Premium', price: String(PACKAGE_PRICES_AUD.premium), priceCurrency: 'AUD', description: 'One-time payment for one event, 12 months, up to 200 guests; price excludes GST.' },
-      { '@type': 'Offer', name: 'Ultimate', price: String(PACKAGE_PRICES_AUD.unlimited), priceCurrency: 'AUD', description: 'One-time payment for one event, 12 months, up to 500 guests; price excludes GST.' },
-      { '@type': 'Offer', name: 'Vendor Pro', price: String(PACKAGE_PRICES_AUD.vendor_pro), priceCurrency: 'AUD', priceSpecification: { '@type': 'UnitPriceSpecification', price: String(PACKAGE_PRICES_AUD.vendor_pro), priceCurrency: 'AUD', unitText: 'MONTH' }, description: 'Monthly subscription for approved event professionals; price excludes GST.' },
+      { '@type': 'Offer', name: 'Ultimate', price: String(PACKAGE_PRICES_AUD.unlimited), priceCurrency: 'AUD', description: 'One-time payment for one event, 12 months, up to 400 guests, with 450 Email & SMS credits; price excludes GST.' },
     ],
   };
   return (

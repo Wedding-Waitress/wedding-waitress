@@ -2,6 +2,7 @@ export const PACKAGE_PRICES_AUD = {
   essential: 199,
   premium: 249,
   unlimited: 299,
+  /** Legacy billing reference only; Vendor Pro is not an active offering. */
   vendor_pro: 300,
 } as const;
 

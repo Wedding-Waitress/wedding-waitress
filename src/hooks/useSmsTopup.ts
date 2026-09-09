@@ -34,14 +34,25 @@ export const useSmsTopup = () => {
     try {
       const { data, error } = await supabase.functions.invoke('create-checkout', {
         body: {
-          price_id: SMS_TOPUP.price_id,
           mode: 'payment',
           event_id: eventId,
-          purchase_type: 'sms_topup',
+          purchase_type: 'communication_topup',
           idempotency_key: idempotencyKey,
         },
       });
-      if (error) throw error;
+      if (error) {
+        let message = error.message;
+        const context = (error as { context?: Response }).context;
+        if (context) {
+          try {
+            const payload = await context.clone().json() as { error?: string };
+            if (payload.error) message = payload.error;
+          } catch {
+            // Keep the standard Functions error when the response is not JSON.
+          }
+        }
+        throw new Error(message);
+      }
       const url = (data as { url?: string } | null)?.url;
       if (!url) throw new Error('No checkout URL returned');
       // Keep overlay on through redirect — do NOT stopProcessing on success.

@@ -2,34 +2,35 @@
  * Stripe Price & Product ID mappings for Wedding Waitress.
  * Single source of truth for all Stripe references.
  */
+import { PACKAGE_PRICES_AUD } from './packagePricing';
 
 // ── Wedding Plans (one-time payments) ──────────────────────────────
 export const PLAN_PRICES = {
   essential: {
     product_id: 'prod_UOQhHcOhFdrhOs',
-    price_id: 'price_1TPdpf5GzTmqOxGKTiE9x3RG',
+    price_id: 'price_1UDdle5GzTmqOxGKj3yu56jP',
     name: 'Essential Plan',
-    price_aud: 99,
+    price_aud: PACKAGE_PRICES_AUD.essential,
     original_price_aud: 199, // strikethrough marketing price
     guest_limit: 100,
     plan_db_id: '78cdab0d-d81d-4757-b7cc-f210b8b30f47',
   },
   premium: {
     product_id: 'prod_UOQhTWnFzXV1FK',
-    price_id: 'price_1TPdq05GzTmqOxGKEPamRNNq',
+    price_id: 'price_1UDeO75GzTmqOxGK2JYrvH7I',
     name: 'Premium Plan',
-    price_aud: 149,
+    price_aud: PACKAGE_PRICES_AUD.premium,
     original_price_aud: 299,
     guest_limit: 200,
     plan_db_id: '1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8',
   },
   unlimited: {
     product_id: 'prod_UOQhLIYTxQAd7U',
-    price_id: 'price_1TPdqZ5GzTmqOxGKRUn5rKbD',
-    name: 'Unlimited Plan',
-    price_aud: 249,
+    price_id: 'price_1UDeO95GzTmqOxGKZmJq53Ee',
+    name: 'Ultimate Plan',
+    price_aud: PACKAGE_PRICES_AUD.unlimited,
     original_price_aud: 499,
-    guest_limit: null,
+    guest_limit: 400,
     plan_db_id: 'cd10f207-2109-4546-a635-0baa68ba8213',
   },
 } as const;
@@ -71,28 +72,32 @@ export const getRsvpTier = (guestCount: number) => {
   return RSVP_TIERS.find(t => guestCount >= t.min && guestCount <= t.max) ?? RSVP_TIERS[RSVP_TIERS.length - 1];
 };
 
-// ── Smart RSVP & Messaging — SMS Top-up (one-time, 250 credits) ────
+// ── RSVP email & SMS shared-credit top-up ──────────────────────────
+// Stripe resolves the authoritative price from its Edge secret. No price ID is
+// shipped to the browser, preventing a stale or client-substituted charge.
 export const SMS_TOPUP = {
-  product_id: 'prod_UTh041rdR91og1',
-  price_id: 'price_1TUjcr5GzTmqOxGKFoK9ZKrZ',
-  name: 'Smart RSVP & Messaging — SMS Top-up (250 credits)',
-  price_aud: 99,
-  credits: 250,
+  product_id: '',
+  price_id: '',
+  name: 'Email & SMS Credits Top-up (100 credits)',
+  price_aud: 49,
+  credits: 100,
 } as const;
 
-// ── RSVP Invite Overage (one-time, $10 AUD per 10 extra guests) ────
-export const RSVP_OVERAGE = {
+// ── Plan guest-capacity add-on (one-time, $10 AUD per 10 spaces) ───
+export const GUEST_CAPACITY_TOPUP = {
   product_id: 'prod_URud0pt0K8Sl9i',
   price_id: 'price_1TT0o05GzTmqOxGKUIiEXxj6',
-  name: 'RSVP Invite Overage — 10 Guests',
+  name: 'Guest Capacity Add-on — 10 Spaces',
   price_aud: 10,
   guests_per_block: 10,
 } as const;
+
+/** Legacy export retained for historical RSVP purchase readers. */
+export const RSVP_OVERAGE = GUEST_CAPACITY_TOPUP;
 
 /** Map Stripe product IDs back to plan DB IDs */
 export const PRODUCT_TO_PLAN: Record<string, { plan_db_id: string; name: string }> = {
   [PLAN_PRICES.essential.product_id]: { plan_db_id: PLAN_PRICES.essential.plan_db_id, name: 'Essential' },
   [PLAN_PRICES.premium.product_id]: { plan_db_id: PLAN_PRICES.premium.plan_db_id, name: 'Premium' },
   [PLAN_PRICES.unlimited.product_id]: { plan_db_id: PLAN_PRICES.unlimited.plan_db_id, name: 'Unlimited' },
-  [VENDOR_PRO.product_id]: { plan_db_id: VENDOR_PRO.plan_db_id, name: 'Vendor Pro' },
 };

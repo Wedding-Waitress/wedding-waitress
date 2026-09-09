@@ -66,24 +66,18 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
 
-      const [{ count: guests }, { data: overageRows }, { data: latestEvent }] = await Promise.all([
-        supabase
-          .from('guests')
-          .select('id', { count: 'exact', head: true })
-          .eq('user_id', user.id),
-        supabase
-          .from('rsvp_invite_purchases')
-          .select('overage_blocks')
-          .eq('user_id', user.id)
-          .eq('purchase_type', 'rsvp_overage')
-          .eq('status', 'completed'),
-        supabase
+      const { data: latestEvent } = await supabase
           .from('events')
           .select('id')
           .eq('user_id', user.id)
           .order('created_at', { ascending: false })
           .limit(1)
-          .maybeSingle(),
+          .maybeSingle();
+      const eventId = (latestEvent as { id?: string } | null)?.id ?? null;
+      if (!eventId) return;
+      const [{ count: guests }, { data: overageRows }] = await Promise.all([
+        supabase.from('guests').select('id', { count: 'exact', head: true }).eq('event_id', eventId),
+        supabase.from('rsvp_invite_purchases').select('overage_blocks').eq('event_id', eventId).in('purchase_type', ['rsvp_overage', 'guest_capacity_topup']).eq('status', 'completed'),
       ]);
       if (cancelled) return;
       setGuestCount(guests ?? 0);
@@ -92,7 +86,7 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
         0,
       );
       setOveragePackGuests(totalBlocks * 10);
-      setOverageEventId((latestEvent as any)?.id ?? null);
+      setOverageEventId(eventId);
     })();
     return () => { cancelled = true; };
   }, [open]);
@@ -105,7 +99,7 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
   // Build the upgrade option list — strictly higher tiers only.
   const upgradeOptions = useMemo(() => {
     return (Object.values(PLAN_REGISTRY) as Array<typeof PLAN_REGISTRY[PlanKey]>).filter(
-      (p) => TIER_RANK[p.key] > currentRank,
+      (p) => p.key !== 'vendor_pro' && TIER_RANK[p.key] > currentRank,
     );
   }, [currentRank]);
 

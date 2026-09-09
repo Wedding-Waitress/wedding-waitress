@@ -39,15 +39,17 @@ export const PlansUpgradesSection = () => {
     void (async () => {
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) return;
-      const [{ count: guests }, { data: overageRows }, { data: latestEvent }] = await Promise.all([
-        supabase.from('guests').select('id', { count: 'exact', head: true }).eq('user_id', user.id),
-        supabase.from('rsvp_invite_purchases').select('overage_blocks').eq('user_id', user.id).eq('purchase_type', 'rsvp_overage').eq('status', 'completed'),
-        supabase.from('events').select('id').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle(),
+      const { data: latestEvent } = await supabase.from('events').select('id').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
+      const eventId = latestEvent?.id ?? null;
+      if (!eventId) return;
+      const [{ count: guests }, { data: overageRows }] = await Promise.all([
+        supabase.from('guests').select('id', { count: 'exact', head: true }).eq('event_id', eventId),
+        supabase.from('rsvp_invite_purchases').select('overage_blocks').eq('event_id', eventId).in('purchase_type', ['rsvp_overage', 'guest_capacity_topup']).eq('status', 'completed'),
       ]);
       if (cancelled) return;
       setGuestCount(guests ?? 0);
       setOveragePackGuests((overageRows ?? []).reduce((sum, row) => sum + (row.overage_blocks ?? 0), 0) * 10);
-      setOverageEventId(latestEvent?.id ?? null);
+      setOverageEventId(eventId);
     })();
     return () => { cancelled = true; };
   }, []);
@@ -62,8 +64,8 @@ export const PlansUpgradesSection = () => {
   return <div className={styles.destination} data-account-section>
     <div className={styles.currentPlan}>
       <div><span>Your current plan</span><strong>{name}</strong></div><span className={styles.goldBadge}>Active</span>
-      {overagePackGuests > 0 && <p className={styles.positiveNote}>+{overagePackGuests} extra guests added via guest packs</p>}
-      {approachingCap && overageEventId && <div className={styles.capacityNotice}><div><strong>Approaching your guest cap</strong><p>You can add a guest pack or move up a plan.</p></div><Button onClick={() => setOverageOpen(true)} className={controlStyles.secondaryButton}>Add a guest pack</Button></div>}
+      {overagePackGuests > 0 && <p className={styles.positiveNote}>+{overagePackGuests} guest spaces added through capacity add-ons</p>}
+      {overageEventId && current && current.key !== 'vendor_pro' && <div className={styles.capacityNotice}><div><strong>{approachingCap ? 'Approaching your guest capacity' : 'Need more guest spaces?'}</strong><p>Add whole blocks of 10 guest spaces for A$10 per block.</p></div><Button onClick={() => setOverageOpen(true)} className={controlStyles.secondaryButton}>Add guest capacity</Button></div>}
     </div>
     <div className={styles.pricing}><PricingSection onPlanSelect={selectPlan} /></div>
     {overageEventId && <RsvpOverageModal isOpen={overageOpen} onClose={() => setOverageOpen(false)} eventId={overageEventId} currentGuestCount={guestCount} totalCapacity={totalGuestCapacity ?? guestCount} tierLabel={name} />}

@@ -62,7 +62,7 @@ export const getCreditHealth = (
       state: 'empty',
       remaining,
       total,
-      message: "You've used all included SMS credits.",
+      message: "You've used all included Email & SMS credits.",
       toneClasses: 'border-red-200 bg-red-50/60',
       iconColor: 'text-red-600',
     };
@@ -72,7 +72,7 @@ export const getCreditHealth = (
       state: 'critical',
       remaining,
       total,
-      message: `Only ${remaining} SMS credit${remaining === 1 ? '' : 's'} remaining.`,
+      message: `Only ${remaining} Email & SMS credit${remaining === 1 ? '' : 's'} remaining.`,
       toneClasses: 'border-red-200 bg-red-50/40',
       iconColor: 'text-red-600',
     };
@@ -82,7 +82,7 @@ export const getCreditHealth = (
       state: 'low',
       remaining,
       total,
-      message: "You're running low on SMS credits.",
+      message: "You're running low on Email & SMS credits.",
       toneClasses: 'border-amber-200 bg-amber-50/50',
       iconColor: 'text-amber-600',
     };
@@ -106,7 +106,7 @@ export const projectSends = (
   remaining: number,
   recipientCount?: number,
 ): { invites: string; campaigns?: string } => {
-  const invites = `Approx. ${remaining} more SMS invitation${remaining === 1 ? '' : 's'}`;
+  const invites = `Approx. ${remaining} more email or SMS invitation${remaining === 1 ? '' : 's'}`;
   if (!recipientCount || recipientCount <= 0) return { invites };
   const campaigns = Math.floor(remaining / Math.max(1, recipientCount));
   return {
@@ -189,7 +189,7 @@ export const SmartSmsCreditStatus: React.FC<Props> = ({
         <MessageSquareText size={20} strokeWidth={1.8} className={cn('shrink-0', health.iconColor)} aria-hidden="true" />
         <div className="flex-1 min-w-0">
           <div className="text-sm font-semibold text-foreground">
-            {loading ? 'Loading…' : `${credits.remaining} SMS Credits Remaining`}
+            {loading ? 'Loading…' : `${credits.remaining} Email & SMS Credits Remaining`}
           </div>
           <div className="text-[11px] text-muted-foreground truncate">
             {health.state === 'healthy' || health.state === 'low'
@@ -229,7 +229,7 @@ export const SmartSmsCreditStatus: React.FC<Props> = ({
           <div className="min-w-0">
             <div className="flex items-center gap-2 flex-wrap">
               <span className="text-base font-semibold text-foreground">
-                {loading ? 'Loading credits…' : `${credits.remaining} SMS Credits Remaining`}
+                {loading ? 'Loading credits…' : `${credits.remaining} Email & SMS Credits Remaining`}
               </span>
               <Badge variant="outline" className={cn('ww-sms-credit-status text-[10px] font-semibold', stateBadgeClasses[health.state])}>
                 {stateBadgeLabel[health.state]}

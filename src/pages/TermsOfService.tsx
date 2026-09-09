@@ -148,7 +148,7 @@ export const TermsOfService = () => {
                   <h4 className="font-bold text-foreground mb-2">4. Ultimate Plan</h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground">
                     <li>One-time payment</li>
-                    <li>Up to 500 guests</li>
+                    <li>Up to 400 guests</li>
                     <li>Access valid for 12 months</li>
                     <li>Includes full access to all wedding & event planning tools</li>
                     <li>Limited to 1 event</li>
@@ -166,36 +166,17 @@ export const TermsOfService = () => {
                 </div>
               </div>
 
-              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">B. For Wedding Vendors & Event Professionals (Subscription)</h3>
-              
-              <div className="bg-muted/50 rounded-lg p-6 space-y-4 not-prose">
-                <div>
-                  <h4 className="font-bold text-foreground mb-2">Vendor Pro Plan</h4>
-                  <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground">
-                    <li>Monthly recurring subscription</li>
-                    <li>Designed for venues, wedding planners, and event professionals</li>
-                    <li>Includes:
-                      <ul className="list-disc pl-6 space-y-1 mt-1">
-                        <li>Up to 100 included events</li>
-                        <li>Unlimited guests</li>
-                        <li>Full platform access</li>
-                      </ul>
-                    </li>
-                    <li>Subscription remains active until cancelled</li>
-                  </ul>
-                </div>
-              </div>
-
-              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">C. RSVP Invite Bundles (One-Time Add-On)</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">B. RSVP Email &amp; SMS Credits</h3>
               <p className="text-muted-foreground leading-relaxed mb-2">
-                RSVP bundles are optional add-ons purchased per event and based on guest count.
+                Paid wedding plans include a shared allowance for RSVP email and SMS delivery.
               </p>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                <li>Pricing varies depending on the number of guests selected</li>
-                <li>Once purchased and used, RSVP bundles are non-refundable</li>
+                <li>Essential includes 150 credits, Premium includes 250 credits, and Ultimate includes 450 credits</li>
+                <li>Each successfully delivered RSVP email or SMS uses one credit</li>
+                <li>Additional packs of 100 Email &amp; SMS credits may be purchased for A$49</li>
               </ul>
 
-              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">D. Plan Extensions (Optional Add-On)</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">C. Plan Extensions (Optional Add-On)</h3>
               <p className="text-muted-foreground leading-relaxed mb-2">
                 Users may purchase extensions to extend their plan duration.
               </p>
@@ -289,20 +270,11 @@ export const TermsOfService = () => {
               <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">7.2 Plan Access</h3>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
                 <li>Essential (A$150), Premium (A$200) and Ultimate (A$300) are one-time purchases providing 12 months of access and do not auto-renew</li>
-                <li>Vendor Pro is A$300 per month and is a recurring monthly subscription</li>
                 <li>Advertised Australian prices exclude GST; Australian GST is added once at checkout where applicable</li>
                 <li>Access to features is granted instantly upon successful payment</li>
               </ul>
 
-              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">7.3 Monthly Subscriptions (Vendor Plans)</h3>
-              <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                <li>Subscriptions are billed in advance on a monthly basis</li>
-                <li>Your subscription automatically renews each month</li>
-                <li>You will be charged on the same day each month</li>
-                <li>You can cancel at any time (see Cancellation Policy)</li>
-              </ul>
-
-              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">7.4 Failed Payments</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">7.3 Failed Payments</h3>
               <p className="text-muted-foreground leading-relaxed">
                 If a payment fails:
               </p>
@@ -312,14 +284,12 @@ export const TermsOfService = () => {
                 <li>You will receive email notifications about payment issues</li>
               </ul>
 
-              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">7.5 Price Changes</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">7.4 Price Changes</h3>
               <p className="text-muted-foreground leading-relaxed">
                 We reserve the right to change our pricing at any time. For existing customers:
               </p>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground mt-2">
                 <li>One-time purchases are honored at the original price</li>
-                <li>Monthly subscriptions: 30 days' notice before price changes</li>
-                <li>You may cancel before the new price takes effect</li>
               </ul>
             </section>
 

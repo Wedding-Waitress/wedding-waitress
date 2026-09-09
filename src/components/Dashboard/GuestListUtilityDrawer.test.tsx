@@ -9,7 +9,7 @@ vi.mock('./SmartSmsCreditStatus', () => ({
 }));
 
 describe('GuestListUtilityDrawer', () => {
-  it('shows the selected event SMS details and closes through the shared sheet control', () => {
+  it('shows the selected event Email & SMS credit details and closes through the shared sheet control', () => {
     const onOpenChange = vi.fn();
     render(
       <GuestListUtilityDrawer
@@ -22,7 +22,7 @@ describe('GuestListUtilityDrawer', () => {
       />,
     );
 
-    expect(screen.getByRole('dialog', { name: 'SMS Credits' })).toBeInTheDocument();
+    expect(screen.getByRole('dialog', { name: 'Email & SMS Credits' })).toBeInTheDocument();
     expect(screen.getByText('Credit details for event-42; recipients 3')).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     expect(onOpenChange).toHaveBeenCalledWith(false);

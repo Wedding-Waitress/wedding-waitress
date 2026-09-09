@@ -98,7 +98,7 @@ export const GuestDeliveryBadges: React.FC<Props> = ({
         </span>
       )}
       {showLowCreditsPill && (
-        <span className={cn(PILL, styles.lowCredits)} title="Low SMS credits — top up to keep sending">
+        <span className={cn(PILL, styles.lowCredits)} title="Low Email & SMS credits — top up to keep sending">
           Low Credits
         </span>
       )}

@@ -57,9 +57,9 @@ describe('public product catalogue', () => {
 
   it('uses the approved Australian public pricing and Ultimate capacity', () => {
     expect(PUBLIC_COUPLE_PLAN_DETAILS).toEqual({
-      essential: { name: 'Essential', guests: 100, priceAud: 199 },
-      premium: { name: 'Premium', guests: 200, priceAud: 249 },
-      unlimited: { name: 'Ultimate', guests: 500, priceAud: 299 },
+      essential: { name: 'Essential', guests: 100, communicationCredits: 150, priceAud: 199 },
+      premium: { name: 'Premium', guests: 200, communicationCredits: 250, priceAud: 249 },
+      unlimited: { name: 'Ultimate', guests: 400, communicationCredits: 450, priceAud: 299 },
     });
     expect(PLAN_PRICING.AUD.unlimited.price).toBe(299);
     expect(VENDOR_PRICING.AUD.price).toBe(300);

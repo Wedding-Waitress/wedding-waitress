@@ -54,6 +54,15 @@ Deno.serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Event not found or unauthorized' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
 
+    const { data: balanceRows, error: balanceError } = await adminClient.rpc('get_sms_credits', {
+      _user_id: userId, _event_id: event_id,
+    });
+    if (balanceError) throw balanceError;
+    const balance = Array.isArray(balanceRows) ? balanceRows[0] : balanceRows;
+    if (Number(balance?.remaining || 0) <= 0) {
+      return new Response(JSON.stringify({ error: 'No Email & SMS credits remaining. Please purchase a top-up to continue.', code: 'NO_CREDITS', remaining: 0 }), { status: 402, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
+
     // Fetch guests
     const { data: guests, error: guestsError } = await adminClient
       .from('guests')
@@ -114,7 +123,15 @@ Deno.serve(async (req) => {
 </body>
 </html>`;
 
+      let creditReserved = false;
       try {
+        const deliveryId = crypto.randomUUID();
+        const { data: reserved, error: reserveError } = await adminClient.rpc('consume_communication_credit', {
+          _user_id: userId, _event_id: event_id, _guest_id: guest.id, _channel: 'email', _delivery_id: deliveryId,
+        });
+        if (reserveError) throw reserveError;
+        if (reserved !== true) { skipped++; continue; }
+        creditReserved = true;
         const emailRes = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
@@ -151,6 +168,8 @@ Deno.serve(async (req) => {
 
           sent++;
         } else {
+          await adminClient.rpc('restore_communication_credit', { _user_id: userId, _event_id: event_id });
+          creditReserved = false;
           await adminClient.from('rsvp_invite_logs').insert({
             event_id,
             guest_id: guest.id,
@@ -162,6 +181,7 @@ Deno.serve(async (req) => {
           failed++;
         }
       } catch (err) {
+        if (creditReserved) await adminClient.rpc('restore_communication_credit', { _user_id: userId, _event_id: event_id });
         await adminClient.from('rsvp_invite_logs').insert({
           event_id,
           guest_id: guest.id,

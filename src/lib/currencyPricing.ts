@@ -44,24 +44,24 @@ export const PLAN_PRICING: Record<CurrencyCode, {
   unlimited: PlanPricing;
 }> = {
   AUD: {
-    essential: { price: PACKAGE_PRICES_AUD.essential, price_id: 'price_1T0vD35GzTmqOxGK3k6EQZee' },
-    premium:   { price: PACKAGE_PRICES_AUD.premium, price_id: 'price_1T0vDN5GzTmqOxGKf3kyvjxs' },
-    unlimited: { price: PACKAGE_PRICES_AUD.unlimited, price_id: 'price_1T0vDj5GzTmqOxGKxVXhCfub' },
+    essential: { price: PACKAGE_PRICES_AUD.essential, price_id: 'price_1UDdle5GzTmqOxGKj3yu56jP' },
+    premium:   { price: PACKAGE_PRICES_AUD.premium, price_id: 'price_1UDeO75GzTmqOxGK2JYrvH7I' },
+    unlimited: { price: PACKAGE_PRICES_AUD.unlimited, price_id: 'price_1UDeO95GzTmqOxGKZmJq53Ee' },
   },
   USD: {
-    essential: { price: converted(PACKAGE_PRICES_AUD.essential, 'USD'), price_id: 'price_1TMhcx5GzTmqOxGKxMjCfQkz' },
-    premium:   { price: converted(PACKAGE_PRICES_AUD.premium, 'USD'), price_id: 'price_1TMhhr5GzTmqOxGKolZGjdWK' },
-    unlimited: { price: converted(PACKAGE_PRICES_AUD.unlimited, 'USD'), price_id: 'price_1TMhnV5GzTmqOxGKsEJGLnZs' },
+    essential: { price: converted(PACKAGE_PRICES_AUD.essential, 'USD'), price_id: 'price_1UDdle5GzTmqOxGKuDmLmMN9' },
+    premium:   { price: converted(PACKAGE_PRICES_AUD.premium, 'USD'), price_id: 'price_1UDeO85GzTmqOxGKpE4I9I3x' },
+    unlimited: { price: converted(PACKAGE_PRICES_AUD.unlimited, 'USD'), price_id: 'price_1UDeO95GzTmqOxGK0VhHhcl0' },
   },
   GBP: {
-    essential: { price: converted(PACKAGE_PRICES_AUD.essential, 'GBP'), price_id: 'price_1TMheB5GzTmqOxGK2RUVqDvC' },
-    premium:   { price: converted(PACKAGE_PRICES_AUD.premium, 'GBP'), price_id: 'price_1TMhlz5GzTmqOxGK1t1zUOCw' },
-    unlimited: { price: converted(PACKAGE_PRICES_AUD.unlimited, 'GBP'), price_id: 'price_1TMho75GzTmqOxGKtbNat2qU' },
+    essential: { price: converted(PACKAGE_PRICES_AUD.essential, 'GBP'), price_id: 'price_1UDdle5GzTmqOxGKizBfLKQj' },
+    premium:   { price: converted(PACKAGE_PRICES_AUD.premium, 'GBP'), price_id: 'price_1UDeO85GzTmqOxGKPHstNiGn' },
+    unlimited: { price: converted(PACKAGE_PRICES_AUD.unlimited, 'GBP'), price_id: 'price_1UDeOA5GzTmqOxGKVTSZdYxI' },
   },
   EUR: {
-    essential: { price: converted(PACKAGE_PRICES_AUD.essential, 'EUR'), price_id: 'price_1TMher5GzTmqOxGKTI0fTE07' },
-    premium:   { price: converted(PACKAGE_PRICES_AUD.premium, 'EUR'), price_id: 'price_1TMhmL5GzTmqOxGKAW9J3JMC' },
-    unlimited: { price: converted(PACKAGE_PRICES_AUD.unlimited, 'EUR'), price_id: 'price_1TMhoO5GzTmqOxGKVxyufvNR' },
+    essential: { price: converted(PACKAGE_PRICES_AUD.essential, 'EUR'), price_id: 'price_1UDdlf5GzTmqOxGK2nP9Y3vP' },
+    premium:   { price: converted(PACKAGE_PRICES_AUD.premium, 'EUR'), price_id: 'price_1UDeO85GzTmqOxGKjs1pGVUi' },
+    unlimited: { price: converted(PACKAGE_PRICES_AUD.unlimited, 'EUR'), price_id: 'price_1UDeOA5GzTmqOxGK6Jc6RQ86' },
   },
 };
 

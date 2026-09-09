@@ -59,7 +59,9 @@ export const useRsvpPurchase = (eventId: string | null) => {
       const rows = (data || []) as RsvpPurchaseRecord[];
       // Tier purchase = purchase_type 'rsvp_tier' OR null/undefined (legacy)
       const tierRow = rows.find(r => !r.purchase_type || r.purchase_type === 'rsvp_tier') || null;
-      const overageRows = rows.filter(r => r.purchase_type === 'rsvp_overage');
+      const overageRows = rows.filter(r =>
+        r.purchase_type === 'rsvp_overage' || r.purchase_type === 'guest_capacity_topup'
+      );
 
       setPurchase(tierRow);
       setHasPurchased(!!tierRow);

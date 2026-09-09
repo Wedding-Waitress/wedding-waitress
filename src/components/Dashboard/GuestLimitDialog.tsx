@@ -7,13 +7,14 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/enhanced-button";
-import { PartyPopper, AlertTriangle } from 'lucide-react';
+import { PartyPopper, AlertTriangle, Plus } from 'lucide-react';
 
 interface GuestLimitDialogProps {
   isOpen: boolean;
   onClose: () => void;
   variant: 'congratulations' | 'exceeded';
   guestLimit: number;
+  onBuyCapacity?: () => void;
 }
 
 // Simple confetti particle component
@@ -36,6 +37,7 @@ export const GuestLimitDialog: React.FC<GuestLimitDialogProps> = ({
   onClose,
   variant,
   guestLimit,
+  onBuyCapacity,
 }) => {
   const [showConfetti, setShowConfetti] = useState(false);
 
@@ -78,10 +80,15 @@ export const GuestLimitDialog: React.FC<GuestLimitDialogProps> = ({
                 You have reached your guest limit of {guestLimit}!
               </p>
               <p className="text-sm text-green-600">
-                If you want to add more guests, please change your guest limit in <span className="font-semibold">My Events</span>.
+                {onBuyCapacity
+                  ? 'You can add more space in whole blocks of 10 guests for A$10 per block.'
+                  : <>If you want to add more guests, please change your guest limit in <span className="font-semibold">My Events</span>.</>}
               </p>
             </div>
-            <DialogFooter className="mt-4">
+            <DialogFooter className="mt-4 gap-2">
+              {onBuyCapacity && <Button onClick={onBuyCapacity} className="bg-green-500 hover:bg-green-600 text-white rounded-full">
+                <Plus className="mr-2 h-4 w-4" /> Add Guest Capacity
+              </Button>}
               <Button onClick={onClose} className="w-full bg-green-500 hover:bg-green-600 text-white rounded-full">
                 Got it!
               </Button>
@@ -109,11 +116,16 @@ export const GuestLimitDialog: React.FC<GuestLimitDialogProps> = ({
             You have reached your guest limit of {guestLimit}.
           </p>
           <p className="text-sm text-red-500">
-            If you want to add more guests, please change your guest limit in <span className="font-semibold">My Events</span> first.
+            {onBuyCapacity
+              ? 'Add more capacity in whole blocks of 10 guests for A$10 per block.'
+              : <>If you want to add more guests, please change your guest limit in <span className="font-semibold">My Events</span> first.</>}
           </p>
         </div>
-        <DialogFooter className="mt-4">
-          <Button onClick={onClose} className="w-full bg-red-500 hover:bg-red-600 text-white rounded-full">
+        <DialogFooter className="mt-4 gap-2">
+          {onBuyCapacity && <Button onClick={onBuyCapacity} className="bg-green-500 hover:bg-green-600 text-white rounded-full">
+            <Plus className="mr-2 h-4 w-4" /> Add Guest Capacity
+          </Button>}
+          <Button onClick={onClose} className="bg-red-500 hover:bg-red-600 text-white rounded-full">
             Understood
           </Button>
         </DialogFooter>

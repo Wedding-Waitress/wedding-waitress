@@ -72,7 +72,7 @@ export const PLAN_REGISTRY: Record<PlanKey, PlanRegistryEntry> = {
     product_id: "prod_UOQhLIYTxQAd7U",
     plan_db_id: "cd10f207-2109-4546-a635-0baa68ba8213",
     mode: "payment",
-    limits: { guests: null, includedEvents: 1, additionalEventPrice: 99, maxUsers: 3 },
+    limits: { guests: 400, includedEvents: 1, additionalEventPrice: 99, maxUsers: 3 },
     prices: couplePrices("unlimited"),
   },
   vendor_pro: {

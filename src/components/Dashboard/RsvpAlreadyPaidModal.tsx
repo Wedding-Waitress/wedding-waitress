@@ -1,105 +1,38 @@
 import React from 'react';
-import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { CheckCircle2, Mail, Phone } from "lucide-react";
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import { CreditCard, Mail, MessageSquareText, Send } from 'lucide-react';
+import { SMS_TOPUP } from '@/lib/stripePrices';
+import { useSmsTopup } from '@/hooks/useSmsTopup';
 
-interface RsvpAlreadyPaidModalProps {
-  isOpen: boolean;
-  onClose: () => void;
-  onContinue: () => void;
-  tierLabel: string;
-  amountPaid: number;
-  paidAt: string;
-  currentGuestCount: number;
-  tierMax: number;
+interface Props {
+  isOpen: boolean; onClose: () => void; onContinue: () => void; eventId: string;
+  planName: string; included: number; used: number; remaining: number;
+  selectedCount: number; channel: 'email' | 'sms';
 }
 
-export const RsvpAlreadyPaidModal: React.FC<RsvpAlreadyPaidModalProps> = ({
-  isOpen,
-  onClose,
-  onContinue,
-  tierLabel,
-  amountPaid,
-  paidAt,
-  currentGuestCount,
-  tierMax,
+export const RsvpAlreadyPaidModal: React.FC<Props> = ({
+  isOpen, onClose, onContinue, eventId, planName, included, used, remaining, selectedCount, channel,
 }) => {
-  const remaining = Math.max(tierMax - currentGuestCount, 0);
-  const formattedDate = paidAt
-    ? new Date(paidAt).toLocaleDateString(undefined, {
-        day: '2-digit', month: 'short', year: 'numeric',
-      })
-    : '';
-
+  const { startTopup, loading } = useSmsTopup();
+  const enough = remaining >= selectedCount;
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="ww-guest-list-typography max-w-md">
-        <DialogHeader>
-          <DialogTitle className="flex items-center justify-center gap-2 text-lg mt-8 text-left">
-            <CheckCircle2 className="w-5 h-5 text-green-600" />
-            You're already activated
-          </DialogTitle>
-        </DialogHeader>
-
+        <DialogHeader><DialogTitle className="mt-8 flex items-center justify-center gap-2 text-lg"><Send className="h-5 w-5 text-primary" />Send RSVP &amp; Invite</DialogTitle></DialogHeader>
         <div className="space-y-4 py-2 max-lg:px-3">
-          {/* What's covered */}
-          <div className="bg-muted/50 rounded-lg p-4 space-y-3">
-            <p className="text-sm font-medium">Your RSVP Invite Bundle covers:</p>
-            <ul className="space-y-2">
-              <li className="flex items-center gap-2 text-sm">
-                <Mail className="w-4 h-4 text-blue-500" />
-                Unlimited Email Invitations
-              </li>
-              <li className="flex items-center gap-2 text-sm">
-                <Phone className="w-4 h-4 text-green-500" />
-                Unlimited SMS Invitations
-              </li>
-            </ul>
+          <div className="rounded-xl border border-primary/30 bg-primary/5 p-4"><p className="font-semibold text-foreground">{planName} Plan</p><p className="mt-1 text-sm text-muted-foreground">{included} Email &amp; SMS credits included with your plan.</p></div>
+          <div className="grid grid-cols-3 gap-2 text-center">
+            <div className="rounded-lg border p-3"><p className="text-xl font-bold">{included}</p><p className="text-xs text-muted-foreground">Included</p></div>
+            <div className="rounded-lg border p-3"><p className="text-xl font-bold">{used}</p><p className="text-xs text-muted-foreground">Used</p></div>
+            <div className={`rounded-lg border p-3 ${enough ? 'border-green-300 bg-green-50' : 'border-red-300 bg-red-50'}`}><p className="text-xl font-bold">{remaining}</p><p className="text-xs text-muted-foreground">Left</p></div>
           </div>
-
-          {/* Paid summary */}
-          <div className="border-2 border-green-600 rounded-lg p-4 space-y-1 text-center">
-            <p className="text-sm text-muted-foreground">
-              You paid <span className="font-semibold text-foreground">${Number(amountPaid).toFixed(0)} AUD</span> for the {tierLabel} tier
-            </p>
-            {formattedDate && (
-              <p className="text-xs text-muted-foreground">Activated on {formattedDate}</p>
-            )}
-          </div>
-
-          {/* Usage */}
-          <div className="rounded-lg p-4 bg-green-50 border border-green-200 text-center">
-            <p className="text-sm text-foreground">
-              You have <span className="font-semibold">{currentGuestCount}</span> of <span className="font-semibold">{tierMax}</span> guests in your list.
-            </p>
-            <p className="text-sm text-green-700 font-semibold mt-1">
-              {remaining} guests remaining at no extra cost.
-            </p>
-            <p className="text-xs text-muted-foreground mt-2">
-              Keep sending Email & SMS invites for this event at no additional charge as long as your guest count stays within this tier.
-            </p>
-          </div>
+          <p className="flex items-center justify-center gap-2 text-sm">{channel === 'email' ? <Mail className="h-4 w-4" /> : <MessageSquareText className="h-4 w-4" />}Sending to {selectedCount} selected guest{selectedCount === 1 ? '' : 's'} will use {selectedCount} credit{selectedCount === 1 ? '' : 's'}.</p>
+          {!enough && <div className="rounded-xl border border-amber-300 bg-amber-50 p-4 text-center"><p className="text-sm font-semibold">You need more Email &amp; SMS credits.</p><p className="mt-1 text-xs text-muted-foreground">Add {SMS_TOPUP.credits} credits for ${SMS_TOPUP.price_aud} AUD.</p></div>}
         </div>
-
         <DialogFooter className="gap-2 pb-6 max-lg:px-3 max-lg:flex-row">
-          <Button
-            onClick={onContinue}
-            className="rounded-full bg-green-500 hover:bg-green-600 text-white h-11 max-lg:flex-1"
-          >
-            Continue to Send Invites
-          </Button>
-          <Button
-            onClick={onClose}
-            className="rounded-full bg-red-500 hover:bg-red-600 text-white h-11 max-lg:flex-1"
-          >
-            Cancel
-          </Button>
+          {enough ? <Button onClick={onContinue} className="rounded-full bg-green-500 text-white hover:bg-green-600">Continue to Send Invites</Button> : <Button onClick={() => startTopup(eventId)} disabled={loading} className="rounded-full bg-green-500 text-white hover:bg-green-600"><CreditCard className="mr-2 h-4 w-4" />Buy {SMS_TOPUP.credits} Credits — ${SMS_TOPUP.price_aud}</Button>}
+          <Button onClick={onClose} className="rounded-full bg-red-500 text-white hover:bg-red-600">Cancel</Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

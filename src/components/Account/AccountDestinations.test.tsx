@@ -15,7 +15,7 @@ vi.mock('@/hooks/useEventLimits', () => ({ useEventLimits: () => ({ includedEven
 vi.mock('@/hooks/useAccountSeats', () => ({ useAccountSeats: () => ({ usedSeats: 1, maxSeats: 3 }) }));
 vi.mock('@/hooks/useProfile', () => ({ useProfile: () => ({ profile: { first_name: 'Nader', last_name: 'Elalfy', email: 'nader@example.com' } }) }));
 const query = {
-  select: vi.fn(() => query), eq: vi.fn(() => query), order: vi.fn(() => query), limit: vi.fn(() => query),
+  select: vi.fn(() => query), eq: vi.fn(() => query), in: vi.fn(() => query), order: vi.fn(() => query), limit: vi.fn(() => query),
   maybeSingle: vi.fn(async () => ({ data: { id: 'event-1' } })),
   then: (resolve: (value: unknown) => unknown) => Promise.resolve({ data: [], count: 0 }).then(resolve),
 };

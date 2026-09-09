@@ -109,7 +109,7 @@ export const PrivacyPolicy = () => {
                 <li><strong>Account Management:</strong> To create and manage your account, authenticate your identity</li>
                 <li><strong>Event Management:</strong> To help you organize guests, seating charts, QR codes, and event materials</li>
                 <li><strong>Communication:</strong> To send you service updates, technical notices, support messages</li>
-                <li><strong>Payment Processing:</strong> We process payments securely via Stripe. Wedding Waitress does not store credit card details. Wedding plans are one-time purchases, while Vendor Pro is a recurring subscription billed monthly. Stripe processes payments on our behalf in accordance with their privacy policy.</li>
+                <li><strong>Payment Processing:</strong> We process payments securely via Stripe. Wedding Waitress does not store credit card details. Wedding plans are one-time purchases. Stripe processes payments on our behalf in accordance with their privacy policy.</li>
                 <li><strong>Analytics:</strong> To understand how our services are used and improve user experience</li>
                 <li><strong>Marketing:</strong> To send promotional emails and updates about Wedding Waitress. You may opt out of marketing communications at any time by clicking "unsubscribe" or contacting us directly.</li>
                 <li><strong>Legal Compliance:</strong> To comply with legal obligations and enforce our terms</li>

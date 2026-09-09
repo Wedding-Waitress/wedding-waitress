@@ -1,12 +1,12 @@
 import React from 'react';
-import { ArrowRight, Building2, Camera, CircleCheck, Gem, Heart, Zap } from 'lucide-react';
+import { ArrowRight, Camera, CircleCheck, Gem, Heart, Zap } from 'lucide-react';
 import { AuthGatedCtaLink } from '@/components/auth/AuthGatedCtaLink';
 import type { SignUpPlanContext } from '@/components/auth/SignUpModal';
 import { Button } from '@/components/ui/enhanced-button';
 import { useCurrencyContext } from '@/contexts/CurrencyContext';
 import type { CurrencyCode } from '@/lib/currencyPricing';
 import { useLiveExchangeRates } from '@/hooks/useLiveExchangeRates';
-import { AUD_BASE_PRICES, convertAudPrice, formatLivePrice, formatPublicPricingPrice } from '@/lib/liveCurrencyPricing';
+import { AUD_BASE_PRICES, convertAudPrice, formatPublicPricingPrice } from '@/lib/liveCurrencyPricing';
 import { PUBLIC_COUPLE_PLAN_DETAILS, type PlanKey } from './pricingPlans';
 import { PricingCurrencyPanel } from './PricingCurrencyPanel';
 
@@ -47,7 +47,7 @@ const sharingFeatures = [
   'Display guest uploads in a live slideshow',
 ] as const;
 
-type CoupleKey = Exclude<PlanKey, 'vendor_pro'>;
+type CoupleKey = PlanKey;
 
 const couplePlans: Array<{ key: CoupleKey; icon: typeof Zap; popular?: boolean }> = [
   { key: 'essential', icon: Zap },
@@ -120,8 +120,6 @@ export const PublicPricingSection: React.FC = () => {
   const effectiveCurrency: CurrencyCode = error || loading ? 'AUD' : currency;
   const displayCouplePrice = (amount: number) =>
     formatPublicPricingPrice(effectiveCurrency, convertAudPrice(amount, effectiveCurrency, rates));
-  const displayVendorPrice = (amount: number) =>
-    formatLivePrice(effectiveCurrency, convertAudPrice(amount, effectiveCurrency, rates));
 
   return (
     <section id="pricing" className="overflow-x-clip px-4 py-14 md:py-16" aria-labelledby="public-pricing-heading">
@@ -132,7 +130,7 @@ export const PublicPricingSection: React.FC = () => {
         <p className="mt-4 text-center text-base font-medium text-[#412419]">7-day free trial · Up to 20 guests · No credit card required</p>
         <PricingCurrencyPanel currency={effectiveCurrency} onChange={setCurrency} loading={loading} error={error} />
         <p className="sr-only" aria-live="polite">Prices are shown in {effectiveCurrency}.</p>
-        <div className="mt-12 grid grid-cols-1 items-stretch gap-6 md:grid-cols-2 2xl:grid-cols-4">
+        <div className="mt-12 grid grid-cols-1 items-stretch gap-6 md:grid-cols-2 xl:grid-cols-3">
           {couplePlans.map(({ key, icon: Icon, popular }) => {
             const details = PUBLIC_COUPLE_PLAN_DETAILS[key];
             const price = displayCouplePrice(AUD_BASE_PRICES[key]);
@@ -147,7 +145,7 @@ export const PublicPricingSection: React.FC = () => {
                   <p className="text-xs leading-[17px] text-[#8d7c72]">+ 30 days free for downloads</p>
                 </div>
                 <ul className="mt-6 space-y-2 border-t border-[#e7d8c7] pt-5">
-                  {['One event', 'Complete platform access', '12 months of access', '30-day downloads after expiry'].map((benefit) => <li key={benefit} className="flex gap-2 text-[13px] leading-[18px] text-[#412419]"><CircleCheck size={14} strokeWidth={1.8} aria-hidden="true" className="mt-0.5 shrink-0 text-[#5b3425]" />{benefit}</li>)}
+                  {[`${details.communicationCredits} Email & SMS credits included`, 'One event', 'Complete platform access', '12 months of access', '30-day downloads after expiry'].map((benefit) => <li key={benefit} className="flex gap-2 text-[13px] leading-[18px] text-[#412419]"><CircleCheck size={14} strokeWidth={1.8} aria-hidden="true" className="mt-0.5 shrink-0 text-[#5b3425]" />{benefit}</li>)}
                 </ul>
                 <p className="mt-2 pl-[22px] text-xs leading-[17px] text-[#6f625b]"><ResponsiveTwoLineText firstLine="Download your photos, videos" secondLine="and platform exports." /></p>
                 <PlanFeatureList />
@@ -156,18 +154,6 @@ export const PublicPricingSection: React.FC = () => {
             );
           })}
 
-          <article data-pricing-dark-surface="vendor-pro" data-solid-text-surface="dark" aria-labelledby="vendor-plan-title" className="ww-public-dashboard-background relative flex h-full flex-col rounded-[20px] border border-[#d7b985]/65 p-7 text-[#fff8ee] shadow-[0_8px_35px_rgba(20,8,4,.28)]">
-            <div className="absolute -top-4 left-1/2 -translate-x-1/2"><span id="vendor-plan-badge" data-pricing-vendor-badge className="rounded-full border border-[#d7b985]/70 bg-[#f6efe5] px-4 py-1.5 text-xs font-semibold whitespace-nowrap text-[#412419] shadow-md">For Venues &amp; Vendors</span></div>
-            <div className="mt-2 flex items-center gap-2"><Building2 size={22} strokeWidth={1.8} aria-hidden="true" className="text-[#ead5b7]" /><h3 id="vendor-plan-title" className="text-4xl font-bold !text-[#fff8ee]">Vendor Pro</h3></div>
-            <p className="mt-5 flex min-h-[40px] items-baseline gap-2 text-[#fff8ee]" aria-label={`Vendor Pro, ${displayVendorPrice(AUD_BASE_PRICES.vendor_pro)} per month`}><span className="text-2xl font-bold">{displayVendorPrice(AUD_BASE_PRICES.vendor_pro)}</span><span className="text-base text-[#ead5b7]">/month</span></p>
-            <div className="mt-3 leading-6"><p className="font-semibold text-[#fff8ee]">For venues, vendors and event professionals</p><p className="text-sm text-[#ead5b7]">Monthly subscription · Approval required</p></div>
-            <ul className="mt-6 space-y-2 border-t border-[#d7b985]/45 pt-5">
-              {['For venues and event professionals', 'For wedding planners', 'For DJs and MCs', 'Up to 100 active events', 'Complete platform access', 'Monthly subscription', 'Approval required', '30-day downloads after subscription ends'].map((benefit) => <li key={benefit} className="flex gap-2 text-[13px] leading-[18px] text-[#fff8ee]"><CircleCheck size={14} strokeWidth={1.8} aria-hidden="true" className="mt-0.5 shrink-0 text-[#ead5b7]" />{benefit}</li>)}
-            </ul>
-            <p className="mt-2 pl-[22px] text-xs leading-[17px] text-[#ead5b7]/80"><ResponsiveTwoLineText firstLine="Download your photos, videos" secondLine="and platform exports." /></p>
-            <PlanFeatureList dark />
-            <div className="mt-auto pt-7"><Cta plan="vendor_pro" name="Vendor Pro" currency={effectiveCurrency} prominent /><p className="mt-3 text-center text-xs font-medium text-[#ead5b7]">Approval required</p></div>
-          </article>
         </div>
         <p className="mt-10 text-center text-base font-medium text-[#412419]">Start with the free trial, then choose the capacity your event needs.</p>
       </div>

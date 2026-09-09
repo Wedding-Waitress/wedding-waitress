@@ -16,12 +16,13 @@ describe('public pricing and checkout currency contract', () => {
     expect(checkout).toContain('isPricingCurrency(pricing_currency)');
     expect(checkout).not.toMatch(/client_amount|submitted_amount|unit_amount\s*:\s*amount/);
     expect(checkout).toContain('convertedAmountCents(publicPlan.baseAud');
+    expect(checkout).toContain('baseAud: 199');
+    expect(checkout).toContain('baseAud: 249');
+    expect(checkout).toContain('baseAud: 299');
   });
 
-  it('keeps couple plans one-time and Vendor Pro recurring monthly', () => {
-    // These are intentionally the untouched Stripe-side amounts until the later handover.
-    expect(checkout).toContain('vendor_pro: { product: "prod_UTm2XBA5rX9dGN", baseAud: 299, mode: "subscription" }');
+  it('keeps only the three active couple plans in public checkout', () => {
+    expect(checkout).not.toContain('vendor_pro:');
     expect(checkout.match(/mode: "payment"/g)).toHaveLength(3);
-    expect(checkout).toContain('recurring: { interval: "month" as const }');
   });
 });

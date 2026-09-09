@@ -22,7 +22,7 @@ describe('SmartRsvpFeatureStrip', () => {
       'Communications CentreEmail & SMS history',
       'Delivery CentreTracking & resend',
       'Guest Intelligence CentreSmart RSVP analytics',
-      'SMS CreditsBalance & top-ups',
+      'Email & SMS CreditsBalance & top-ups',
       'Guest Live ViewPrivacy & visibility',
     ]);
 

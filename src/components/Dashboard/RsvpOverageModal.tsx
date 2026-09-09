@@ -1,4 +1,4 @@
-import React, { useState, useMemo } from 'react';
+import React, { useEffect, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -8,7 +8,12 @@ import {
 } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import { CreditCard, Loader2, Users, Plus } from 'lucide-react';
-import { RSVP_OVERAGE } from '@/lib/stripePrices';
+import {
+  blocksForGuestShortfall,
+  GUEST_CAPACITY_BLOCK,
+  guestCapacityQuote,
+  normalizeGuestCapacityBlocks,
+} from '@/lib/guestCapacity';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -17,7 +22,7 @@ interface RsvpOverageModalProps {
   onClose: () => void;
   eventId: string | null;
   currentGuestCount: number;
-  totalCapacity: number; // tier + already-purchased overage
+  totalCapacity: number; // plan allowance + already-purchased capacity
   tierLabel: string;
 }
 
@@ -30,31 +35,28 @@ export const RsvpOverageModal: React.FC<RsvpOverageModalProps> = ({
   tierLabel,
 }) => {
   const [loading, setLoading] = useState(false);
+  const [selectedBlocks, setSelectedBlocks] = useState(1);
   const { toast } = useToast();
 
-  const { shortfall, blocksNeeded, extraGuests, totalCost } = useMemo(() => {
-    const sf = Math.max(0, currentGuestCount - totalCapacity);
-    const blocks = Math.ceil(sf / RSVP_OVERAGE.guests_per_block);
-    return {
-      shortfall: sf,
-      blocksNeeded: blocks,
-      extraGuests: blocks * RSVP_OVERAGE.guests_per_block,
-      totalCost: blocks * RSVP_OVERAGE.price_aud,
-    };
-  }, [currentGuestCount, totalCapacity]);
+  const shortfall = Math.max(0, currentGuestCount - totalCapacity);
+  const suggestedBlocks = blocksForGuestShortfall(currentGuestCount, totalCapacity);
+  const { blocks, additionalGuests, totalAud } = guestCapacityQuote(selectedBlocks);
+
+  useEffect(() => {
+    if (isOpen) setSelectedBlocks(suggestedBlocks);
+  }, [isOpen, suggestedBlocks]);
 
   const handlePayNow = async () => {
-    if (!eventId || blocksNeeded < 1) return;
+    if (!eventId || blocks < 1) return;
     setLoading(true);
     try {
       const body = {
-        price_id: RSVP_OVERAGE.price_id,
         mode: 'payment',
         event_id: eventId,
-        plan_type: 'rsvp',
-        purchase_type: 'rsvp_overage',
-        quantity: blocksNeeded,
+        purchase_type: 'guest_capacity_topup',
+        quantity: blocks,
         guest_count_at_purchase: currentGuestCount,
+        idempotency_key: `guest-capacity-${eventId}-${crypto.randomUUID()}`,
       };
 
       const invokeAttempt = async () => {
@@ -76,7 +78,7 @@ export const RsvpOverageModal: React.FC<RsvpOverageModalProps> = ({
         try {
           sessionStorage.setItem('ww:returnTab', 'guest-list');
           // For overage, store the additional guest capacity being purchased.
-          sessionStorage.setItem('ww:rsvpSelectedCount', String(extraGuests ?? 0));
+          sessionStorage.setItem('ww:rsvpSelectedCount', String(additionalGuests));
         } catch { /* popup navigation is a best-effort fallback */ }
         onClose();
         // Stripe Checkout sets X-Frame-Options: DENY and cannot render inside
@@ -112,7 +114,7 @@ export const RsvpOverageModal: React.FC<RsvpOverageModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center justify-center gap-2 text-lg mt-8 text-left">
             <Plus className="w-5 h-5 text-primary" />
-            Add Extra RSVP Invites
+            Add Guest Capacity
           </DialogTitle>
         </DialogHeader>
 
@@ -125,42 +127,57 @@ export const RsvpOverageModal: React.FC<RsvpOverageModalProps> = ({
               <span className="font-semibold">{currentGuestCount}</span>
             </div>
             <div className="flex items-center justify-between">
-              <span className="text-muted-foreground">Your current allowance ({tierLabel || 'tier'} + add-ons)</span>
+              <span className="text-muted-foreground">Your current capacity ({tierLabel || 'plan'} + add-ons)</span>
               <span className="font-semibold">{totalCapacity}</span>
             </div>
-            <div className="flex items-center justify-between text-destructive">
-              <span>Over allowance by</span>
+            {shortfall > 0 && <div className="flex items-center justify-between text-destructive">
+              <span>Capacity needed now</span>
               <span className="font-semibold">{shortfall} guests</span>
-            </div>
+            </div>}
           </div>
 
           <div className="border-2 border-primary rounded-lg p-4 space-y-1 text-center">
+            <label htmlFor="guest-capacity-blocks" className="block text-sm font-semibold text-foreground">
+              How many blocks of 10 guest spaces would you like to add?
+            </label>
+            <select
+              id="guest-capacity-blocks"
+              value={blocks}
+              onChange={(event) => setSelectedBlocks(normalizeGuestCapacityBlocks(Number(event.target.value)))}
+              className="mx-auto mt-2 h-10 min-w-32 rounded-lg border border-input bg-background px-3 text-center text-sm"
+              disabled={loading}
+            >
+              {Array.from({ length: GUEST_CAPACITY_BLOCK.maximumBlocksPerCheckout }, (_, index) => index + 1).map((value) => (
+                <option key={value} value={value}>{value} block{value === 1 ? '' : 's'}</option>
+              ))}
+            </select>
             <p className="text-sm text-muted-foreground">
-              Add {blocksNeeded} × {RSVP_OVERAGE.guests_per_block}-guest block{blocksNeeded === 1 ? '' : 's'}{' '}
-              (+{extraGuests} guests)
+              Add {blocks} × {GUEST_CAPACITY_BLOCK.guests}-guest block{blocks === 1 ? '' : 's'}{' '}
+              (+{additionalGuests} guest spaces)
             </p>
-            <p className="text-3xl font-bold text-primary">${totalCost} AUD</p>
+            <p className="text-3xl font-bold text-primary">${totalAud} AUD</p>
             <p className="text-xs text-muted-foreground">
-              ${RSVP_OVERAGE.price_aud} AUD per {RSVP_OVERAGE.guests_per_block} extra guests • One-time
+              ${GUEST_CAPACITY_BLOCK.priceAud} AUD per block of {GUEST_CAPACITY_BLOCK.guests} • One-time
             </p>
           </div>
 
           <p className="text-xs text-center text-muted-foreground">
-            New allowance after purchase: <span className="font-semibold">{totalCapacity + extraGuests}</span> guests
+            Resulting guest capacity: <span className="font-semibold">{totalCapacity + additionalGuests}</span>
+            {' '}({totalCapacity} + {additionalGuests})
           </p>
         </div>
 
         <DialogFooter className="gap-2 pb-6">
-          <Button onClick={onClose} className="rounded-full bg-red-500 hover:bg-red-600 text-white" disabled={loading}>
-            Cancel
-          </Button>
           <Button
             onClick={handlePayNow}
-            disabled={loading || blocksNeeded < 1}
+            disabled={loading || blocks < 1}
             className="rounded-full bg-green-500 hover:bg-green-600 text-white"
           >
             {loading ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <CreditCard className="w-4 h-4 mr-2" />}
-            Pay Now — ${totalCost} AUD
+            Pay Now — ${totalAud} AUD
+          </Button>
+          <Button onClick={onClose} className="rounded-full bg-red-500 hover:bg-red-600 text-white" disabled={loading}>
+            Cancel
           </Button>
         </DialogFooter>
       </DialogContent>
