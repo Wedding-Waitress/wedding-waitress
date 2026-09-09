@@ -14,6 +14,7 @@ import { buildInvitationElement, captureElement } from '@/lib/invitationExporter
 import type { Guest } from '@/hooks/useGuests';
 import type { InvitationTemplate } from '@/hooks/useInvitationTemplates';
 import type { QrConfig } from '@/lib/invitationQR';
+import { hasGuestResponded } from '@/lib/rsvp';
 
 interface Props {
   open: boolean;
@@ -59,6 +60,11 @@ export const InvitationSendModal: React.FC<Props> = ({
     return guests.filter(g => channel === 'email' ? g.email?.trim() : g.mobile?.trim());
   }, [guests, channel]);
 
+  const defaultGuests = useMemo(
+    () => filteredGuests.filter((guest) => !hasGuestResponded(guest.rsvp, guest.rsvp_date)),
+    [filteredGuests],
+  );
+
   const toggleGuest = (id: string) => {
     setSelected(prev => {
       const next = new Set(prev);
@@ -68,10 +74,12 @@ export const InvitationSendModal: React.FC<Props> = ({
   };
 
   const toggleAll = () => {
-    if (selected.size === filteredGuests.length) {
+    const allDefaultSelected = defaultGuests.length > 0
+      && defaultGuests.every((guest) => selected.has(guest.id));
+    if (allDefaultSelected && selected.size === defaultGuests.length) {
       setSelected(new Set());
     } else {
-      setSelected(new Set(filteredGuests.map(g => g.id)));
+      setSelected(new Set(defaultGuests.map(g => g.id)));
     }
   };
 
@@ -178,11 +186,12 @@ export const InvitationSendModal: React.FC<Props> = ({
           <>
             <div className="flex items-center gap-2 px-1">
               <Checkbox
-                checked={selected.size === filteredGuests.length && filteredGuests.length > 0}
+                checked={selected.size === defaultGuests.length && defaultGuests.length > 0
+                  && defaultGuests.every((guest) => selected.has(guest.id))}
                 onCheckedChange={toggleAll}
               />
               <span className="text-sm text-muted-foreground">
-                Select all ({filteredGuests.length} guest{filteredGuests.length !== 1 ? 's' : ''})
+                Select all unanswered ({defaultGuests.length} guest{defaultGuests.length !== 1 ? 's' : ''})
               </span>
             </div>
 

@@ -25,7 +25,7 @@ import { Switch } from "@/components/ui/switch";
 import { Slider } from "@/components/ui/slider";
 import { normalizePlaceCardSettings, PlaceCardSettings } from "@/hooks/usePlaceCardSettings";
 import { Guest } from "@/hooks/useGuests";
-import { Palette, Type, Image, MessageSquare, MessageSquareText, Sparkles, Grid3X3, Trash2, Upload, Images, QrCode, Move, UserRound, Armchair, RotateCcw } from "lucide-react";
+import { Palette, Type, Image, MessageSquare, MessageSquareText, Sparkles, Grid3X3, Trash2, Upload, Images, QrCode, Move, UserRound, Armchair, RotateCcw, Save, Search } from "lucide-react";
 import { PlaceCardGalleryModal } from "./PlaceCardGalleryModal";
 import { PlaceCardFontPicker } from "./PlaceCardFontPicker";
 import { supabase } from "@/integrations/supabase/client";
@@ -41,6 +41,7 @@ import { PlaceCardPhotoVideoQrPanel } from "./PlaceCardPhotoVideoQrPanel";
 import type { PlaceCardPhotoVideoQr } from "@/hooks/usePlaceCardPhotoVideoQr";
 
 interface PlaceCardCustomizerProps {
+  beforeBackgroundUpload?: (file: File) => Promise<boolean>;
   settings: PlaceCardSettings | null;
   onSettingsChange: (settings: Partial<PlaceCardSettings>) => Promise<boolean>;
   guests: Guest[];
@@ -60,6 +61,7 @@ interface ExtendedPlaceCardSettings extends PlaceCardSettings {
 // FONT_OPTIONS removed — replaced by PlaceCardFontPicker with 1,500+ Google Fonts
 
 export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
+  beforeBackgroundUpload,
   settings,
   onSettingsChange,
   guests,
@@ -81,6 +83,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   const [galleryModalOpen, setGalleryModalOpen] = useState(false);
   const { toast } = useToast();
 
+  useEffect(() => { setIndividualMessages(settings?.individual_messages || {}); }, [settings?.id, JSON.stringify(settings?.individual_messages)]);
+
   // Sync local mass message with settings changes
   useEffect(() => {
     setLocalMassMessage(settings?.mass_message || "");
@@ -92,7 +96,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
     settings?.user_id || "",
   );
   const handleSettingChange = async (key: keyof PlaceCardSettings, value: any) => {
-    await onSettingsChange({
+    return onSettingsChange({
       [key]: value,
     });
   };
@@ -110,7 +114,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   };
 
   const saveMassMessage = async () => {
-    await handleSettingChange("mass_message", localMassMessage);
+    if (await handleSettingChange("mass_message", localMassMessage) === false) return;
     toast({
       title: "Success",
       description: "Mass message saved",
@@ -134,7 +138,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       info_font_color: "#000000",
     };
 
-    await onSettingsChange(designDefaults);
+    if (await onSettingsChange(designDefaults) === false) return;
 
     toast({
       title: "Design Settings Reset",
@@ -152,7 +156,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       background_image_opacity: 100,
     };
 
-    await onSettingsChange(backgroundDefaults);
+    if (await onSettingsChange(backgroundDefaults) === false) return;
 
     toast({
       title: "Background Settings Reset",
@@ -166,9 +170,9 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       individual_messages: {},
     };
 
+    if (await onSettingsChange(messagesDefaults) === false) return;
     setIndividualMessages({});
     setLocalMassMessage("");
-    await onSettingsChange(messagesDefaults);
 
     toast({
       title: "Messages Reset",
@@ -216,6 +220,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
     }
     setUploading(true);
     try {
+      if (beforeBackgroundUpload && !await beforeBackgroundUpload(file)) return;
       // Get authenticated user
       const {
         data: { user },
@@ -235,7 +240,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       const {
         data: { publicUrl },
       } = supabase.storage.from("qr-assets").getPublicUrl(filePath);
-      await handleSettingChange("background_image_url", publicUrl);
+      const saved = await onSettingsChange({ background_image_url: publicUrl, background_image_opacity: 100 });
+      if (saved === false) { await supabase.storage.from("qr-assets").remove([filePath]); return; }
       toast({
         title: "Success",
         description: "Image uploaded successfully",
@@ -249,6 +255,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
       });
     } finally {
       setUploading(false);
+      event.target.value = "";
     }
   };
   return (
@@ -257,7 +264,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
         <CardHeader>
           <CardTitle className="flex items-center gap-2 py-[10px] text-2xl font-bold text-foreground">
             <Palette size={22} strokeWidth={1.8} className="text-foreground shrink-0" aria-hidden="true" />
-            Custom Name Place Cards Design
+            Custom Name Place Card Design
           </CardTitle>
         </CardHeader>
         <CardContent>
@@ -346,9 +353,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                                 : "default"
                         }
                         onValueChange={(value) => {
-                          handleSettingChange("guest_name_bold", value === "bold");
-                          handleSettingChange("guest_name_italic", value === "italic");
-                          handleSettingChange("guest_name_underline", value === "underline");
+                          void onSettingsChange({ guest_name_bold: value === "bold", guest_name_italic: value === "italic", guest_name_underline: value === "underline" });
                         }}
                       >
                         <SelectTrigger>
@@ -424,9 +429,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                                 : "default"
                         }
                         onValueChange={(value) => {
-                          handleSettingChange("info_bold", value === "bold");
-                          handleSettingChange("info_italic", value === "italic");
-                          handleSettingChange("info_underline", value === "underline");
+                          void onSettingsChange({ info_bold: value === "bold", info_italic: value === "italic", info_underline: value === "underline" });
                         }}
                       >
                         <SelectTrigger>
@@ -447,7 +450,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <Button
                     onClick={handleResetDesignDefaults}
                     variant="outline"
-                    className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
+                    className="ww-placecards-reset w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
                     <RotateCcw size={16} strokeWidth={1.8} className="mr-2 shrink-0" aria-hidden="true" />
                     Reset to Default
@@ -482,7 +485,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                 <div className="pt-4 border-t">
                   <Button
                     onClick={async () => {
-                      await onSettingsChange({
+                      const saved = await onSettingsChange({
                         guest_name_offset_x: 0,
                         guest_name_offset_y: 0,
                         table_offset_x: 0,
@@ -494,13 +497,14 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         guest_name_font_size: 30,
                         info_font_size: 16,
                       });
+                      if (saved === false) return;
                       toast({
                         title: "Position Reset",
                         description: "All text positions have been reset to default",
                       });
                     }}
                     variant="outline"
-                    className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
+                    className="ww-placecards-reset w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
                     <RotateCcw size={16} strokeWidth={1.8} className="mr-2 shrink-0" aria-hidden="true" />
                     Reset to Default
@@ -600,7 +604,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                           size="sm"
                           onClick={() => document.getElementById("background-image-upload")?.click()}
                           disabled={uploading}
-                          className="w-full rounded-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+                          className="ww-placecards-upload w-full rounded-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
                         >
                           <Upload size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                           {uploading ? "Uploading..." : "Choose File"}
@@ -611,7 +615,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                           type="button"
                           size="sm"
                           onClick={() => setGalleryModalOpen(true)}
-                          className="w-full rounded-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+                          className="ww-placecards-library w-full rounded-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
                         >
                           <Images size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                           Template Library
@@ -653,7 +657,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                             variant="destructive"
                             size="sm"
                             onClick={async () => {
-                              await handleSettingChange("background_image_url", null);
+                              if (await handleSettingChange("background_image_url", null) === false) return;
                               toast({
                                 title: "Image Removed",
                                 description: "Background image has been removed",
@@ -680,7 +684,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     <div className="space-y-2">
                       <Label>Horizontal Position</Label>
                       <Select
-                        value={String(currentSettings.background_image_x_position || 50)}
+                        value={String(currentSettings.background_image_x_position ?? 50)}
                         onValueChange={(value) => handleSettingChange("background_image_x_position", Number(value))}
                       >
                         <SelectTrigger>
@@ -700,7 +704,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     <div className="space-y-2">
                       <Label>Vertical Position</Label>
                       <Select
-                        value={String(currentSettings.background_image_y_position || 50)}
+                        value={String(currentSettings.background_image_y_position ?? 50)}
                         onValueChange={(value) => handleSettingChange("background_image_y_position", Number(value))}
                       >
                         <SelectTrigger>
@@ -720,7 +724,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     <div className="space-y-2">
                       <Label>Image Opacity</Label>
                       <Select
-                        value={String(currentSettings.background_image_opacity || 100)}
+                        value={String(currentSettings.background_image_opacity ?? 100)}
                         onValueChange={(value) => handleSettingChange("background_image_opacity", Number(value))}
                       >
                         <SelectTrigger>
@@ -753,7 +757,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <Button
                     onClick={handleResetBackgroundDefaults}
                     variant="outline"
-                    className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
+                    className="ww-placecards-reset w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
                     <RotateCcw size={16} strokeWidth={1.8} className="mr-2 shrink-0" aria-hidden="true" />
                     Reset to Default
@@ -786,8 +790,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     onChange={(e) => setLocalMassMessage(e.target.value)}
                     rows={3}
                   />
-                  <Button onClick={saveMassMessage} variant="success" className="w-full rounded-full">
-                    Save Mass Message
+                  <Button onClick={saveMassMessage} variant="success" className="ww-placecards-save-message w-full rounded-full">
+                    <Save size={16} strokeWidth={1.8} className="mr-2" aria-hidden="true" />Save Mass Message
                   </Button>
                 </div>
 
@@ -796,8 +800,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     Individual Messages
                   </span>
 
-                  <Button className="w-full rounded-full bg-primary text-white hover:bg-primary/90">
-                    Guest Name Search
+                  <Button className="ww-placecards-guest-search w-full rounded-full bg-primary text-white hover:bg-primary/90">
+                    <Search size={16} strokeWidth={1.8} className="mr-2" aria-hidden="true" />Guest Name Search
                   </Button>
 
                   <Input
@@ -840,8 +844,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     })()}
                   </div>
                   {guests.length > 0 && (
-                    <Button onClick={saveIndividualMessages} variant="success" className="w-full rounded-full">
-                      Save Individual Messages
+                    <Button onClick={saveIndividualMessages} variant="success" className="ww-placecards-save-message w-full rounded-full">
+                      <Save size={16} strokeWidth={1.8} className="mr-2" aria-hidden="true" />Save Individual Messages
                     </Button>
                   )}
                 </div>
@@ -850,7 +854,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                   <Button
                     onClick={handleResetMessagesDefaults}
                     variant="outline"
-                    className="w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
+                    className="ww-placecards-reset w-full rounded-full border-primary text-primary hover:bg-primary/10 hover:text-primary"
                   >
                     <RotateCcw size={16} strokeWidth={1.8} className="mr-2 shrink-0" aria-hidden="true" />
                     Reset to Default
@@ -869,7 +873,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
           onOpenChange={setGalleryModalOpen}
           selectedImageUrl={currentSettings.background_image_url || null}
           onSelectImage={async (imageUrl) => {
-            await handleSettingChange("background_image_url", imageUrl);
+            if (await onSettingsChange({ background_image_url: imageUrl, background_image_opacity: 100 }) === false) return;
             toast({
               title: "Image Selected",
               description: "Gallery image has been applied",

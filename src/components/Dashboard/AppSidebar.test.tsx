@@ -88,7 +88,11 @@ describe('dashboard sidebar navigation control', () => {
     );
 
     const collapseControl = screen.getByRole('button', { name: 'Collapse sidebar' });
-    expect(collapseControl.closest('[data-sidebar="header"]')).toBeInTheDocument();
+    const sidebarHeader = collapseControl.closest('[data-sidebar="header"]');
+    expect(sidebarHeader).toBeInTheDocument();
+    const logo = sidebarHeader?.querySelector('img[alt="Wedding Waitress"]');
+    expect(logo).toBeInTheDocument();
+    expect((logo as HTMLElement).compareDocumentPosition(collapseControl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     fireEvent.click(collapseControl);
     expect(await screen.findByRole('button', { name: 'Expand sidebar' })).toBeInTheDocument();
     await waitFor(() => expect(document.cookie).toContain('sidebar:state=false'));

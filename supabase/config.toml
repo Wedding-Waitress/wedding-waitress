@@ -47,6 +47,12 @@ verify_jwt = false
 [functions.send-transactional-email]
 verify_jwt = true
 
+[functions.process-guest-addition-notifications]
+verify_jwt = true
+
+[functions.guest-addition-sms-enrolment]
+verify_jwt = true
+
 [functions.preview-transactional-email]
 verify_jwt = false
 
@@ -94,4 +100,7 @@ verify_jwt = false
 verify_jwt = true
 
 [functions.djmc-pronunciation-media]
+verify_jwt = false
+
+[functions.venue-floor-plan-request]
 verify_jwt = false

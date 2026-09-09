@@ -267,3 +267,70 @@
     animation-iteration-count: 1 !important;
   }
 }
+
+:global(#root) .page .actionGreen { border:0 !important; min-height:40px; background:linear-gradient(180deg,#7bd880,#55a447) !important; box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30 !important; }
+:global(#root) .page .actionGreen svg { color:white !important; }
+.page .mainDescription { white-space:normal; flex-shrink:1; }
+.page .innerPanel, .page .tile { min-width:0; overflow-wrap:anywhere; }
+:global(#root#root) .page .actionGreen svg { color: #fff !important; stroke: currentColor !important; }
+
+/* Photo and Video Sharing reference for the main heading. */
+:global(#root#root) .page .mainHeading {
+ font-family: var(--ww-interface-font-family) !important;
+ font-size: 24px !important; font-weight: 600 !important; line-height: 31px !important;
+ letter-spacing: normal !important; color: #2f1b14 !important; margin: 0 !important;
+}
+.referenceHeadingRow { display:flex; align-items:flex-start; gap:.55rem; }
+.referenceHeadingIcon { flex-shrink:0; margin-top:.16rem; }
+:global(#root#root) .referenceHeadingIcon svg { width:25px; height:25px; color:#967a59 !important; stroke:#967a59 !important; }
+.referenceHeadingCopy { display:flex; flex-direction:column; min-width:0; gap:0; }
+:global(#root#root) .mainDescription { margin:0 !important; }
+:global(#root#root) .primaryPanel:has(.mainHeading) { padding-top:0 !important; padding-left:0 !important; }
+:global(#root#root) .primaryPanel:has(.mainHeading) > div:first-child { padding-top:16px !important; padding-left:16px !important; padding-bottom:0 !important; }
+:global(#root#root) .primaryPanel:has(.mainHeading) > div:nth-child(2) { padding-top:24px !important; padding-left:16px !important; }
+
+/* Guest Live View Configuration uses the same reference heading geometry. */
+:global(#root#root) .page .configurationHeading {
+ font-family:var(--ww-interface-font-family) !important;
+ font-size:24px !important; font-weight:600 !important; line-height:31px !important;
+ letter-spacing:normal !important; color:#2f1b14 !important; margin:0 !important; gap:.55rem;
+}
+:global(#root#root) .configurationHeading svg { width:25px !important; height:25px !important; color:#967a59 !important; stroke:#967a59 !important; }
+:global(#root#root) :global(#guest-live-view-configuration) { padding-top:0 !important; padding-left:0 !important; }
+:global(#root#root) :global(#guest-live-view-configuration) > div:first-child { padding-top:16px !important; padding-left:16px !important; padding-bottom:0 !important; }
+:global(#root#root) :global(#guest-live-view-configuration) > div:nth-child(2) { padding-left:16px !important; padding-top:0 !important; }
+:global(#root#root) .configurationDescription { margin:0 0 24px calc(25px + .55rem) !important; }
+
+/* More breathing room beneath the event selector. */
+:global(#root#root) .primaryPanel:has(.mainHeading) > div:nth-child(2) > div:nth-child(2) { margin-top:32px !important; }
+
+/* Portalled menus need their own colour tokens outside the page container. */
+.portalSurface {
+ --live-slideshow-espresso: #2f1b14;
+ --live-slideshow-border-strong: #c8aa7d;
+ --live-slideshow-porcelain: #fffdf8;
+ --live-slideshow-cream: #f7edde;
+ background-color: #fffdf8 !important;
+ opacity: 1;
+}
+
+/* Equal space beneath the three control-card headings. */
+:global(#root#root) .innerPanel > div:first-child > h3 + p,
+:global(#root#root) .innerPanel > h3 + div,
+:global(#root#root) .innerPanel > div:first-child > div:first-child:has(> h3) + p { margin-top:24px !important; }
+
+:global(#root#root#root) button:is(.replaceButton,.removeButton) {
+ min-height:40px!important;height:auto!important;padding:10px 16px!important;border:0!important;border-radius:9999px!important;
+ font:600 14px Manrope,sans-serif!important;color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.55);
+}
+:global(#root#root#root) button.replaceButton {background:linear-gradient(180deg,#7bd880,#55a447)!important;box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30!important;}
+:global(#root#root#root) button.removeButton {background:linear-gradient(180deg,#f85b53,#d9342c)!important;box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #78191966,0 4px 10px #b91c1c30!important;}
+:global(#root#root#root) button:is(.replaceButton,.removeButton) :is(svg,svg *) {width:16px;height:16px;color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;}
+
+:global(#root#root#root) .actionGreen {
+ min-height:40px!important;height:auto!important;padding:10px 16px!important;border:0!important;border-radius:9999px!important;
+ font:600 14px Manrope,sans-serif!important;color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.55);
+ background:linear-gradient(180deg,#7bd880,#55a447)!important;
+ box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30!important;
+}
+:global(#root#root#root) .actionGreen :is(svg,svg *) {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;}

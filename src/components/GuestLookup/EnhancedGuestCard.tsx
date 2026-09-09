@@ -2,10 +2,10 @@ import React, { useState, useEffect } from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
-import { 
-  CheckCircle2, 
-  Clock, 
-  X, 
+import {
+  PartyPopper, Hand, Smile, Frown, SquarePen, CheckCircle2,
+  Clock,
+  X,
   XCircle,
   PlusCircle,
   ClipboardCheck,
@@ -222,13 +222,13 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
   };
 
   return (
-    <Card className="card-elevated border-primary/20 bg-gradient-card">
-      <CardContent className="p-4">
+    <Card className="card-elevated border-primary/20 bg-gradient-card p-2 md:p-2">
+      <CardContent className="p-2">
         <div className="flex flex-col space-y-1.5">
           {/* Guest Info - centered */}
-          <div className="text-center">
-            <h3 className="text-center font-bold text-lg md:text-xl text-[#1D1D1F]">
-              {guest.first_name} {guest.last_name}
+          <div className="text-center pb-[11px]">
+            <h3 data-guest-welcome className="flex items-center justify-center gap-2 text-center font-bold text-lg md:text-xl text-[#1D1D1F]">
+              <Hand aria-hidden="true" className="h-5 w-5 shrink-0 text-white" /><span>Welcome, {guest.first_name} {guest.last_name}</span><PartyPopper aria-hidden="true" className="h-5 w-5 shrink-0 text-white" />
             </h3>
             {guest.relation_display && (
               <p className="text-sm text-muted-foreground mt-1">
@@ -319,11 +319,11 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
             <div className="flex-1">
               <div className="flex items-center gap-2">
                 <span data-live-label className="font-semibold text-foreground">RSVP Status:</span>
-                <Badge 
-                  variant="outline" 
+                <Badge
+                  variant="outline"
                   className={`text-xs sm:text-base font-bold px-2 sm:px-3 py-0.5 sm:py-1 rounded-full border-2 whitespace-nowrap ${
-                    localRsvp === "Attending" 
-                      ? "bg-green-100 text-green-700 border-green-500" 
+                    localRsvp === "Attending"
+                      ? "bg-green-100 text-green-700 border-green-500"
                       : localRsvp === "Not Attending"
                       ? "bg-red-100 text-red-700 border-red-500"
                       : "bg-yellow-100 text-yellow-700 border-yellow-500"
@@ -345,11 +345,11 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                     size="sm"
                     onClick={() => updateRsvp('Attending')}
                     disabled={updatingRsvp}
-                    className="lv-premium-btn bg-success text-success-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
+                    className="guest-rsvp-action lv-premium-btn bg-success text-success-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
                   >
                     {updatingRsvp ? (
                       <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                    ) : null}
+                    ) : <Smile aria-hidden="true" className="h-4 w-4 shrink-0 text-white" />}
                     Accept
                   </Button>
                   <Button
@@ -357,11 +357,11 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                     size="sm"
                     onClick={() => updateRsvp('Not Attending')}
                     disabled={updatingRsvp}
-                    className="lv-premium-btn bg-destructive text-destructive-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
+                    className="guest-rsvp-action lv-premium-btn bg-destructive text-destructive-foreground text-sm h-[36px] min-h-0 px-[18px] py-0"
                   >
                     {updatingRsvp ? (
                       <div className="animate-spin w-4 h-4 border-2 border-white border-t-transparent rounded-full mr-2" />
-                    ) : null}
+                    ) : <Frown aria-hidden="true" className="h-4 w-4 shrink-0 text-white" />}
                     Decline
                   </Button>
                 </>
@@ -383,15 +383,16 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
           {/* Divider + Update Your Details (moved from top) */}
           {onEdit && isEditable && showUpdateDetails && (
             <>
-              <div className="my-6 border-t border-border" />
+              <div aria-hidden="true" className="my-6 h-px" />
               <div className="flex justify-center">
                 <Button
                   type="button"
                   onPointerDown={(event) => handleTouchStartAction(event, openEditDetails)}
                   onClick={handleEditDetailsClick}
-                  className="bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
+                  className="guest-rsvp-action bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
                 >
-                  Update Your Details
+                  <SquarePen aria-hidden="true" className="h-5 w-5 shrink-0 text-white" />
+                  Update My Details
                 </Button>
               </div>
             </>

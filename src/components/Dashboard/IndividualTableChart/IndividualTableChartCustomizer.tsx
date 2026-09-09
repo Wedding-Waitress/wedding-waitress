@@ -49,6 +49,7 @@ import type { DietaryAccentColor } from '@/lib/dietaryChartSettings';
 import styles from './IndividualTableChartPage.module.css';
 
 interface IndividualTableChartCustomizerProps {
+  isHeadTable?: boolean;
   settings: IndividualChartSettings;
   onSettingsChange: (settings: Partial<IndividualChartSettings>) => void;
 }
@@ -92,6 +93,7 @@ const ColorSwatches = ({ name, selected, onChange }: {
 
 export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustomizerProps> = ({
   settings,
+  isHeadTable = false,
   onSettingsChange,
 }) => {
   return (
@@ -110,7 +112,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               <TableProperties className="w-[18px] h-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Table Settings
             </h3>
-            <p className="text-xs text-muted-foreground mt-1">Customise how each table with who is on each table and other info.</p>
+            <p className="text-xs text-muted-foreground mt-1">Customise the table layout, guest details and text.</p>
           </div>
           
           <div className="space-y-2">
@@ -124,7 +126,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
                 onSettingsChange({ tableShape: value })
               }
             >
-              <SelectTrigger className={styles.control}>
+              <SelectTrigger aria-label="Table Shape" disabled={isHeadTable} className={styles.control}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className={styles.portalSurface}>
@@ -145,7 +147,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
                 Maximum: 20 guests per SQUARE TABLE
               </p>
             )}
-            {settings.tableShape === 'long' && (
+            {!isHeadTable && settings.tableShape === 'long' && (
               <>
                 <p className={`${styles.warningRow} text-xs text-red-600 font-medium mt-2 flex items-center gap-1.5`}>
                   <TriangleAlert className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
@@ -158,7 +160,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             )}
           </div>
 
-          {settings.tableShape === 'long' && (
+          {!isHeadTable && settings.tableShape === 'long' && (
             <>
               <div className="space-y-4">
                 <h3 className={`${styles.sectionHeading} font-semibold text-sm`}>End Seats</h3>
@@ -181,8 +183,8 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
                   Font sizes automatically scale based on guest count to ensure all content fits on one A4 page.
                 </p>
                 <div className="text-xs text-muted-foreground space-y-1">
-                  <p>• 20-30 guests: Normal font</p>
-                  <p>• 31-42 guests: Smaller font</p>
+                  <p>• Up to 40 guests: Selected font</p>
+                  <p>• 41-42 guests: Smaller font</p>
                 </div>
               </div>
             </>
@@ -192,6 +194,8 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
 
         <Separator className={styles.divider} />
 
+        {isHeadTable && <p className="text-xs text-muted-foreground">Head-table seating follows the order set on the Tables page. Shape, end seats, dietary details and relationships are not shown in this layout.</p>}
+        {!isHeadTable && settings.tableShape !== 'long' && <p className="text-xs text-muted-foreground">Charts with more than 12 guests use compact 8 pt labels around the table to keep details readable. The guest list uses your selected text size.</p>}
         {/* Display Options */}
         <div className="space-y-4">
           <span className={`${styles.sectionLabel} ${styles.sectionHeading} rounded-full px-3 py-0.5 inline-flex items-center gap-1.5 text-sm font-semibold`}>
@@ -229,7 +233,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
             />
           </div>
 
-          <div className={`${styles.displayRow} flex items-center gap-1`}>
+          <fieldset disabled={isHeadTable || settings.tableShape === 'long'} className={`${styles.displayRow} flex items-center gap-1 disabled:opacity-50`}>
             <Label htmlFor="show-guest-list" className="flex flex-1 items-center gap-[7px]">
               <ListOrdered className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Show Guest List
@@ -242,9 +246,10 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
                 onSettingsChange({ includeGuestList: checked })
               }
             />
-          </div>
+          </fieldset>
+          {(isHeadTable || settings.tableShape === 'long') && <p className="text-xs text-muted-foreground">This layout shows guests at their seats without a separate guest list.</p>}
 
-          <div className={`${styles.displayRow} flex items-center gap-1`}>
+          <fieldset disabled={isHeadTable} className={`${styles.displayRow} flex items-center gap-1`}>
             <Label htmlFor="show-dietary" className="flex flex-1 items-center gap-[7px]">
               <UtensilsCrossed className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Show Dietary Requirements
@@ -261,9 +266,9 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
                 onSettingsChange({ includeDietary: checked })
               }
             />
-          </div>
+          </fieldset>
 
-          <div className={`${styles.displayRow} flex items-center gap-1`}>
+          <fieldset disabled={isHeadTable} className={`${styles.displayRow} flex items-center gap-1`}>
             <Label htmlFor="show-relation" className="flex flex-1 items-center gap-[7px]">
               <HeartHandshake className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Show Relationship
@@ -280,7 +285,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
                 onSettingsChange({ includeRelation: checked })
               }
             />
-          </div>
+          </fieldset>
 
 
         </div>
@@ -304,7 +309,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
                 value={settings.guestTextSize || 'standard'}
                 onValueChange={(value: 'small' | 'standard' | 'large') => onSettingsChange({ guestTextSize: value })}
               >
-                <SelectTrigger className={`${styles.control} w-full`}>
+                <SelectTrigger aria-label="Guest Text Size" className={`${styles.control} w-full`}>
                   <SelectValue />
                 </SelectTrigger>
                 <SelectContent className={styles.portalSurface}>

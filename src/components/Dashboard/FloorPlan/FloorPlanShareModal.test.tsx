@@ -1,0 +1,12 @@
+import {render,screen,fireEvent,waitFor} from '@testing-library/react';import {it,expect,vi} from 'vitest';import {FloorPlanShareModal} from './FloorPlanShareModal';
+const mocks=vi.hoisted(()=>({insert:vi.fn(),toast:vi.fn()}));
+vi.mock('@/hooks/use-toast',()=>({useToast:()=>({toast:mocks.toast})}));
+vi.mock('@/integrations/supabase/client',()=>{
+ const chain:any={};chain.select=()=>chain;chain.eq=()=>chain;chain.order=async()=>({data:[],error:null});chain.insert=(payload:any)=>{mocks.insert(payload);return chain};chain.single=async()=>({data:{token:'test-token'},error:null});
+ return {supabase:{auth:{getUser:async()=>({data:{user:{id:'owner'}}})},from:()=>chain}};
+});
+it.each(['ceremony','reception'] as const)('opens %s sharing without changing the plan',async(kind)=>{render(<FloorPlanShareModal open onOpenChange={vi.fn()} eventId="event" kind={kind}/>);expect(screen.getByText('Share '+(kind==='ceremony'?'Ceremony':'Reception')+' Floor Plan')).toBeVisible();expect(screen.getByText('View Only')).toBeVisible();await screen.findByText('Manage (0)');});
+it('creates a view link for the selected event and preserves a copyable fallback',async()=>{render(<FloorPlanShareModal open onOpenChange={vi.fn()} eventId="event" kind="ceremony"/>);fireEvent.change(screen.getByLabelText('Recipient Name (Optional)'),{target:{value:'Venue coordinator'}});fireEvent.click(screen.getByRole('button',{name:'Generate & Copy Link'}));await waitFor(()=>expect(mocks.insert).toHaveBeenCalledWith(expect.objectContaining({event_id:'event',kind:'ceremony',permission:'view_only',recipient_name:'Venue coordinator'})));expect(await screen.findByLabelText('Share link')).toHaveValue(window.location.origin+'/share/ceremony/test-token');});
+
+it('creates an editable Reception draft link only when selected',async()=>{render(<FloorPlanShareModal open onOpenChange={vi.fn()} eventId="reception-event" kind="reception"/>);fireEvent.change(screen.getByLabelText('Permission Level'),{target:{value:'can_edit'}});fireEvent.click(screen.getByRole('button',{name:'Generate & Copy Link'}));await waitFor(()=>expect(mocks.insert).toHaveBeenCalledWith(expect.objectContaining({event_id:'reception-event',kind:'reception',permission:'can_edit'})));});
+it('does not offer editing for Ceremony',()=>{render(<FloorPlanShareModal open onOpenChange={vi.fn()} eventId="event" kind="ceremony"/>);expect(screen.queryByRole('option',{name:'Can Edit'})).toBeNull();});

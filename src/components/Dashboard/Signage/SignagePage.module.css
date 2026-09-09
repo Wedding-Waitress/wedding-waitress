@@ -485,7 +485,7 @@
   box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.14), 0 7px 16px rgba(3, 1, 1, 0.24) !important;
 }
 
-:global(#root) .designerShell :global(.ww-signage-premium-designer) button:not([role="switch"]):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-destructive"]):not(:global(.ww-zone-delete-btn)),
+:global(#root) .designerShell :global(.ww-signage-premium-designer) button:not([role="tab"]):not([role="switch"]):not([class*="bg-green"]):not([class*="bg-emerald"]):not([class*="bg-red"]):not([class*="bg-rose"]):not([class*="bg-destructive"]):not(:global(.ww-zone-delete-btn)),
 :global(#root) .designerShell :global(.ww-signage-premium-designer) [class*="border-border"]:not([class*="border-green"]):not([class*="border-emerald"]):not([class*="border-red"]):not([class*="border-rose"]):not([class*="border-destructive"]) {
   border-color: var(--ww-signage-champagne-border) !important;
   border-width: 1px !important;
@@ -954,8 +954,8 @@
 }
 
 .designerShell :global(.ww-signage-premium-designer) > div:first-child {
-  border-bottom-color: #cdb99e;
-  background: #f5ebdd;
+  border-bottom: 0;
+  background: transparent;
 }
 
 .designerShell :global(.ww-signage-premium-designer) [role="tablist"] {
@@ -1002,13 +1002,18 @@
 
 .designerShell :global(.ww-signage-premium-designer) [role="tab"]:hover {
   color: #2b1711 !important;
-  background: #fbf8f2 !important;
+  background: transparent !important;
+}
+
+.designerShell :global(.ww-signage-premium-designer) [role="tab"][data-state="inactive"] {
+  background: transparent !important;
+  box-shadow: none !important;
 }
 
 .designerShell :global(.ww-signage-premium-designer) [role="tab"][data-state="active"] {
   color: #ffffff !important;
   border-color: #16a34a !important;
-  background: linear-gradient(180deg, #15803d 0%, #166534 100%) !important;
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%) !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.34),
     0 7px 16px rgba(22, 101, 52, 0.22) !important;
@@ -1029,7 +1034,7 @@
     flex-direction: row !important;
     gap: 0.2rem !important;
     padding: 0.45rem 0.15rem !important;
-    font-size: clamp(10px, 3vw, 13px) !important;
+    font-size: clamp(8px, 2.3vw, 11px) !important;
     line-height: 1 !important;
     white-space: nowrap !important;
   }
@@ -1333,4 +1338,124 @@
 :global(.ww-signage-studio-portal) svg {
   color: #a18764 !important;
   stroke: currentColor !important;
+}
+
+/* Signs designer actions: readable cream buttons and the dashboard green reset. */
+:global(#root#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) :is(:global(.ww-signage-add-custom-zone), :global(.ww-signage-template-library)),
+:global(#root#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) :is(:global(.ww-signage-add-custom-zone), :global(.ww-signage-template-library)) :is(span, svg) {
+  color: #2b1711 !important;
+  -webkit-text-fill-color: #2b1711 !important;
+}
+
+:global(#root#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) button:global(.ww-signage-add-custom-zone),
+:global(#root#root) .signageLightSurface .exportButton,
+:global(#root#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) button:global(.ww-signage-reset-action) {
+  border: 0 !important;
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.34), 0 7px 16px rgba(22, 101, 52, 0.22) !important;
+}
+
+:global(#root#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) :global(.ww-zone-delete-btn) svg,
+:global(#root#root) .signageLightSurface .exportButton :is(span, svg, svg *),
+:global(#root#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) :global(.ww-zone-delete-btn) svg *,
+:global(#root#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) [role="tab"][data-state="active"] svg *,
+:global(#root#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) button:global(.ww-signage-reset-action) :is(span, svg, svg *) {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  stroke: currentColor !important;
+}
+
+@media (max-width: 480px) {
+  :global(#root#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) [role="tab"],
+  :global(#root#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) [role="tab"] span {
+    font-size: 9px !important;
+    line-height: 1.2 !important;
+  }
+  :global(#root#root) .signageLightSurface .designerShell :global(.ww-signage-premium-designer) [role="tab"] svg {
+    width: 12px !important;
+    height: 12px !important;
+  }
+}
+
+/* Shared heading reference; interface headers only, never sign artwork. */
+:global(#root#root) .page .pageHeader h1,
+:global(#root#root) .page .printStudio > div:first-child > h3,
+:global(#root#root) .page .designerShell :global(.ww-signage-typography-designer) > div:first-child h3 {
+ font-family:var(--ww-interface-font-family) !important; font-size:24px !important;
+ font-weight:600 !important; line-height:31px !important; letter-spacing:normal !important;
+ color:#2f1b14 !important; margin:0 !important; padding:0 !important; gap:.55rem;
+}
+:global(#root#root) .page .pageHeader h1 svg,
+:global(#root#root) .page .printStudio > div:first-child > h3 svg,
+:global(#root#root) .page .designerShell :global(.ww-signage-typography-designer) > div:first-child h3 svg {
+ width:25px !important; height:25px !important; color:#967a59 !important; stroke:#967a59 !important; flex-shrink:0;
+}
+:global(#root#root) .page .mainStudio > div:first-child,
+:global(#root#root) .page .printStudio { padding-top:16px !important; }
+:global(#root#root) .page .pageHeader { margin-bottom:24px !important; }
+:global(#root#root) .page .pageHeader p,
+:global(#root#root) .page .printStudio > div:first-child > p { margin:0 0 0 calc(25px + .55rem) !important; }
+:global(#root#root) .page .printStudio > div:first-child { gap:0 !important; }
+:global(#root#root) .page .printStudio > div:first-child > p[class*="uppercase"] { display:none; }
+:global(#root#root) .page .designerShell :global(.ww-signage-typography-designer) > div:first-child { padding-top:16px !important; padding-bottom:24px !important; }
+:global(#root#root) .page .printStudio { padding-left: .1rem !important; }
+
+:global(#root#root) .page .guidelinesPanel :global(.ww-signage-guidelines-title),
+:global(#root#root) .page .guidelinesPanel :global(.ww-signage-guidelines-title) span {
+ font-family:var(--ww-interface-font-family) !important; font-size:24px !important;
+ font-weight:600 !important; line-height:31px !important; letter-spacing:normal !important;
+ color:#2f1b14 !important;
+}
+:global(#root#root) .page .guidelinesPanel :global(.ww-signage-guidelines-title) { align-items:flex-start; gap:.55rem; margin:0 0 24px; }
+:global(#root#root) .page .guidelinesPanel :global(.ww-signage-guidelines-title) svg { width:25px; height:25px; margin-top:.16rem; color:#967a59 !important; stroke:#967a59 !important; }
+:global(#root#root) .page .designerShell :global(.ww-signage-typography-designer) > div:first-child h3 { white-space: pre-line; }
+
+/* One reference top inset per heading section. */
+:global(#root#root) .page .mainStudio,
+:global(#root#root) .page .designerShell :global(.ww-signage-typography-designer) { padding-top: 0 !important; }
+:global(#root#root) .page .pageHeader { padding-top: 0 !important; }
+:global(#root#root) .page .mainStudio > div:first-child,
+:global(#root#root) .page .printStudio,
+:global(#root#root) .page .guidelinesPanel,
+:global(#root#root) .page .designerShell :global(.ww-signage-typography-designer) > div:first-child { padding-top: 16px !important; }
+
+/* Match the guidelines heading's left inset to the dashboard reference. */
+:global(#root#root) .page .guidelinesPanel { padding-left: 0 !important; }
+
+:global(#root#root) .exportPanel button.exportButton {
+ min-height:40px!important;height:auto!important;padding:10px 16px!important;border:0!important;border-radius:9999px!important;
+ font:600 14px Manrope,sans-serif!important;color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.55);
+ background:linear-gradient(180deg,#7bd880,#55a447)!important;
+ box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30!important;
+}
+:global(#root#root) .exportPanel button.exportButton svg {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;}
+
+/* Sign designer tabs keep their existing geometry. */
+:global(#root#root) .designerShell [role="tab"] {color:#2f1b14!important;-webkit-text-fill-color:#2f1b14!important;text-shadow:none;}
+:global(#root#root) .designerShell [role="tab"][data-state="active"],
+:global(#root#root) .designerShell :global(.ww-signage-add-custom-zone) {
+ border:0!important;color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.55);
+ background:linear-gradient(180deg,#7bd880,#55a447)!important;
+ box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30!important;
+}
+:global(#root#root) .designerShell :global(.ww-signage-reset-action) {
+ border:0!important;color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.55);
+ background:linear-gradient(180deg,#f85b53,#d9342c)!important;
+ box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #78191966,0 4px 10px #b91c1c30!important;
+}
+:global(#root#root) .designerShell :is(:global(.ww-signage-add-custom-zone),:global(.ww-signage-reset-action)) {min-height:40px;font:600 14px Manrope,sans-serif!important;border-radius:9999px!important;}
+:global(#root#root) .designerShell :is([role="tab"],:global(.ww-signage-add-custom-zone),:global(.ww-signage-reset-action)) svg {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;}
+
+/* Inner SVG shapes have their own inherited white theme rule. */
+:global(#root#root) .exportPanel button.exportButton svg *,
+:global(#root#root) .designerShell :is([role="tab"],:global(.ww-signage-add-custom-zone),:global(.ww-signage-reset-action)) svg * {
+ color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;
+}
+:global(#root#root#root) .designerShell [role="tab"] svg * {color:#2f1b14!important;stroke:#2f1b14!important;}
+
+:global(#root#root#root) .designerShell :global(.ww-signage-reset-action) svg,
+:global(#root#root#root) .designerShell :global(.ww-signage-reset-action) svg * {
+ color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;
 }

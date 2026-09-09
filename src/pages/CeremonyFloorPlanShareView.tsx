@@ -1,0 +1,11 @@
+import {SharedTrialOffer} from '@/components/Dashboard/FloorPlan/ReceptionCollaboratorView';
+import offerStyles from '@/components/Dashboard/FloorPlan/ReceptionCollaboratorView.module.css';
+import styles from './CeremonyFloorPlanShareView.module.css';
+import {useEffect,useRef,useState} from 'react';
+import {useParams} from 'react-router-dom';
+import {supabase} from '@/integrations/supabase/client';
+import {CeremonyFloorPlanA4Preview} from '@/components/Dashboard/FloorPlan/CeremonyFloorPlan/CeremonyFloorPlanA4';
+import {exportCeremonyPreviewToPdf} from '@/lib/ceremonyFloorPlanPdfExporter';
+import {Button} from '@/components/ui/button';
+import {useToast} from '@/hooks/use-toast';
+export default function CeremonyFloorPlanShareView(){const {token}=useParams();const [data,setData]=useState<any>(null),[error,setError]=useState(''),[busy,setBusy]=useState(false);const pageRef=useRef<HTMLDivElement>(null),generated=useRef(new Date());const {toast}=useToast();useEffect(()=>{let active=true;setData(null);setError('');supabase.functions.invoke('floor-plan-share',{body:{token}}).then(({data,error})=>{if(!active)return;if(error||!data||data.kind!=='ceremony')setError('This share link is unavailable, expired or revoked.');else setData(data)});return()=>{active=false}},[token]);async function download(){if(!pageRef.current||!data)return;setBusy(true);try{await exportCeremonyPreviewToPdf({pageElement:pageRef.current,eventName:data.event.name,eventDate:data.event.ceremony_date||data.event.date})}catch{toast({title:'Could not download PDF',variant:'destructive'})}finally{setBusy(false)}}return <div className={styles.page}>{error?<p role="alert">{error}</p>:!data?<p role="status">Loading shared floor plan…</p>:<div className={styles.content}><div className={styles.plan}><CeremonyFloorPlanA4Preview fitViewport pageRef={pageRef} floorPlan={data.plan} event={data.event} generatedAt={generated.current}/></div><aside className={styles.invitation}><Button className={offerStyles.green} disabled={busy} onClick={download}>{busy?'Exporting…':'Download PDF'}</Button><h1 className="text-lg font-semibold">{data.event.name} · Ceremony Floor Plan</h1><SharedTrialOffer token={token!}/><p className="text-sm">Shared read-only view · Wedding Waitress</p></aside></div>}</div>}

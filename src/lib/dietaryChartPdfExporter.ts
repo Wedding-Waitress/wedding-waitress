@@ -62,7 +62,7 @@ const formatFileDate = (dateValue?: string | null): string => {
   return `${String(date.getDate()).padStart(2, '0')}-${String(date.getMonth() + 1).padStart(2, '0')}-${date.getFullYear()}`;
 };
 
-export const exportDietaryPreviewToPdf = async ({
+export const createDietaryPreviewPdf = async ({
   eventName,
   eventDate,
   mode,
@@ -70,7 +70,7 @@ export const exportDietaryPreviewToPdf = async ({
   currentPage,
   renderPage,
   getPageElement,
-}: DietaryPreviewPdfOptions): Promise<void> => {
+}: DietaryPreviewPdfOptions): Promise<jsPDF> => {
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', ...PDF_DEFAULT_OPTIONS });
 
   try {
@@ -85,10 +85,6 @@ export const exportDietaryPreviewToPdf = async ({
         scale: 2,
         useCORS: true,
         logging: false,
-        width: pageElement.scrollWidth,
-        height: pageElement.scrollHeight,
-        windowWidth: pageElement.scrollWidth,
-        windowHeight: pageElement.scrollHeight,
         onclone: alignDietaryPdfTextInClone,
       });
 
@@ -99,6 +95,12 @@ export const exportDietaryPreviewToPdf = async ({
     await renderPage(currentPage);
   }
 
+  return pdf;
+};
+
+export const exportDietaryPreviewToPdf = async (options: DietaryPreviewPdfOptions): Promise<void> => {
+  const pdf = await createDietaryPreviewPdf(options);
+  const {eventName,eventDate,mode}=options;
   const safeName = eventName.replace(/[/:*?"<>|]/g, '');
   const label = mode === 'single' ? 'Single Page' : 'All Pages';
   await savePdfAsync(pdf, `${safeName}-Dietary Requirements-${label}-${formatFileDate(eventDate)}.pdf`);

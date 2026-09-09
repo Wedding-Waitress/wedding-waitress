@@ -20,7 +20,7 @@ interface RelationBadgeProps {
   partner: string;
   role: string;
   partnerName?: string;
-  onClick: () => void;
+  onClick?: () => void;
   isEmpty?: boolean;
 }
 
@@ -36,14 +36,14 @@ export const RelationBadge: React.FC<RelationBadgeProps> = ({
     return (
       <div className="flex items-center gap-2">
         <span className="text-muted-foreground text-sm">—</span>
-        <Button
+        {onClick && <Button
           variant="link"
           size="sm"
           onClick={onClick}
           className="h-auto p-0 text-xs text-primary hover:text-primary/80"
         >
           Set
-        </Button>
+        </Button>}
       </div>
     );
   }
@@ -59,7 +59,7 @@ export const RelationBadge: React.FC<RelationBadgeProps> = ({
 
   return (
     <div 
-      className="flex flex-col cursor-pointer group hover:opacity-80 transition-opacity"
+      className={onClick ? "flex flex-col cursor-pointer group hover:opacity-80 transition-opacity" : "flex flex-col"}
       onClick={onClick}
     >
       <span className="font-bold text-foreground text-sm">{displayPartner}</span>

@@ -17,6 +17,7 @@ import {
 } from '@/lib/authenticatedRoutePreload';
 // Route entry points stay isolated so authenticated users never download the
 // marketing site or guest media uploader before the dashboard can render.
+const CeremonyFloorPlanShareView = lazy(() => import('./pages/CeremonyFloorPlanShareView'));
 const Landing = lazy(() => import("./pages/Landing").then(m => ({ default: m.Landing })));
 const NotFound = lazy(() => import("./pages/NotFound"));
 const GuestMediaUpload = lazy(() => import("./pages/GuestMediaUpload").then(m => ({ default: m.GuestMediaUpload })));
@@ -40,6 +41,7 @@ const DJMCPublicView = lazy(() => import("./pages/DJMCPublicView").then(m => ({ 
 const RunningSheetPublicView = lazy(() => import("./pages/RunningSheetPublicView").then(m => ({ default: m.RunningSheetPublicView })));
 const SeatingChartPublicView = lazy(() => import("./pages/SeatingChartPublicView").then(m => ({ default: m.SeatingChartPublicView })));
 const ReceptionFloorPlanShareView = lazy(() => import("./pages/ReceptionFloorPlanShareView").then(m => ({ default: m.ReceptionFloorPlanShareView })));
+const VenueFloorPlanUpload = lazy(() => import('./pages/VenueFloorPlanUpload'));
 const VenueDirectory = lazy(() => import("./pages/VenueDirectory").then(m => ({ default: m.VenueDirectory })));
 const VenueDetail = lazy(() => import("./pages/VenueDetail").then(m => ({ default: m.VenueDetail })));
 const PaymentSuccess = lazy(() => import("./pages/PaymentSuccess").then(m => ({ default: m.PaymentSuccess })));
@@ -304,8 +306,10 @@ const App = () => {
           {/* Seating chart public view */}
           <Route path="/seating-chart/:token" element={<SeatingChartPublicView />} />
           {/* Reception floor plan read-only share view */}
+          <Route path="/share/ceremony/:token" element={<CeremonyFloorPlanShareView />} />
           <Route path="/share/reception/:token" element={<ReceptionFloorPlanShareView />} />
           {/* Public venue floor plan directory */}
+          <Route path="/venue-floor-plan-upload" element={<VenueFloorPlanUpload />} />
           <Route path="/venues" element={<VenueDirectory />} />
           <Route path="/venues/:id" element={<VenueDetail />} />
           {/* Dynamic QR code redirect */}

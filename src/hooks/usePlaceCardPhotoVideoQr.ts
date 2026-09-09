@@ -35,7 +35,7 @@ export function usePlaceCardPhotoVideoQr(eventId: string | null) {
       if (responseError) throw responseError;
       const row = Array.isArray(response) ? response[0] : response;
       if (!row?.primary_token) {
-        setData(null);
+        if (request === requestSequence.current) setData(null);
         return;
       }
 

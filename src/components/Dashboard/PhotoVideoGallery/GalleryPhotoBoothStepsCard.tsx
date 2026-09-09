@@ -19,7 +19,7 @@ export const GalleryPhotoBoothStepsCard: React.FC<{ appearance?: 'default' | 'es
       <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
         <HelpCircle className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} /> How the Digital Photo Booth Works
       </h2>
-      <p className={cn('text-sm mt-1 break-words', isGlass && managementStyles.gallerySecondaryText)} style={isGlass ? undefined : { color: '#1a1a1a' }}>
+      <p className={cn('text-sm mt-1 break-words', isGlass && [managementStyles.gallerySecondaryText, managementStyles.sharingHeadingDescription])} style={isGlass ? undefined : { color: '#1a1a1a' }}>
         Three simple steps from your guest's phone straight into your event gallery.
       </p>
     </div>

@@ -21,10 +21,7 @@ vi.mock('@/hooks/useProfile', () => ({
     updateDisplayCountdownEvent: mocks.updateDisplayCountdownEvent,
   }),
 }));
-vi.mock('@/lib/eventDeletion', async () => {
-  const actual = await vi.importActual<typeof import('@/lib/eventDeletion')>('@/lib/eventDeletion');
-  return { ...actual, deleteOwnedEventRow: mocks.deleteOwnedEventRow };
-});
+vi.mock('@/lib/eventDeletionWithImage', () => ({ deleteOwnedEventWithImage: mocks.deleteOwnedEventRow }));
 vi.mock('@/integrations/supabase/client', () => {
   const channel = { on: vi.fn(() => channel), subscribe: vi.fn(() => channel) };
   return {

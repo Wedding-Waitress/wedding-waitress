@@ -49,7 +49,7 @@ export const PhotoBoothColorPicker: React.FC<Props> = ({ value, onChange, appear
         <div className="space-y-3">
           {PHOTO_BOOTH_COLOR_FAMILIES.map(fam => (
             <div key={fam.name}>
-              <p className={cn('text-xs font-semibold text-[#1D1D1F] mb-1.5', isGlass && managementStyles.galleryViewHeading)}>{fam.name}</p>
+              <p className={cn('text-xs font-semibold text-[#1D1D1F] mb-1.5', isGlass && [managementStyles.galleryViewHeading, managementStyles.boothPaletteLabel])}>{fam.name}</p>
               <div className="grid grid-cols-8 gap-1.5">
                 {fam.shades.map(hex => (
                   <button
@@ -70,7 +70,7 @@ export const PhotoBoothColorPicker: React.FC<Props> = ({ value, onChange, appear
             </div>
           ))}
           <div className="pt-1 border-t border-border">
-            <label className={cn('text-xs font-semibold text-[#1D1D1F]', isGlass && managementStyles.galleryViewHeading)}>Custom colour</label>
+            <label className={cn('text-xs font-semibold text-[#1D1D1F]', isGlass && [managementStyles.galleryViewHeading, managementStyles.boothPaletteLabel])}>Custom colour</label>
             <input
               type="color"
               value={value}

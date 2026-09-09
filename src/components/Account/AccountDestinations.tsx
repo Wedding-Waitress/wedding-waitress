@@ -19,13 +19,17 @@ const helpSchema = z.object({ category: z.enum(CATEGORIES), fullName: z.string()
 
 export const PlansUpgradesSection = () => {
   const navigate = useNavigate();
-  const { plan } = useUserPlan();
+  const { plan, hasPlatformOwnerAccess } = useUserPlan();
   const [guestCount, setGuestCount] = useState(0);
   const [overagePackGuests, setOveragePackGuests] = useState(0);
   const [overageEventId, setOverageEventId] = useState<string | null>(null);
   const [overageOpen, setOverageOpen] = useState(false);
   const current = getPlanByName(plan?.plan_name);
-  const name = !plan?.plan_name || /^(free|starter)$/i.test(plan.plan_name) ? 'Free Trial' : current?.name ?? plan.plan_name;
+  const name = hasPlatformOwnerAccess
+    ? 'Platform Owner Access'
+    : !plan?.plan_name || /^(free|starter)$/i.test(plan.plan_name)
+      ? 'Free Trial'
+      : current?.name ?? plan.plan_name;
   const guestLimit = current?.limits.guests ?? plan?.guest_limit ?? null;
   const totalGuestCapacity = guestLimit == null ? null : guestLimit + overagePackGuests;
   const approachingCap = totalGuestCapacity != null && guestCount >= Math.max(1, Math.floor(totalGuestCapacity * .8));
@@ -68,14 +72,21 @@ export const PlansUpgradesSection = () => {
 
 export const HelpSupportSection = () => {
   const { profile } = useProfile();
-  const { plan } = useUserPlan();
+  const { plan, hasPlatformOwnerAccess } = useUserPlan();
   const [category, setCategory] = useState<(typeof CATEGORIES)[number] | null>(null);
   const [fullName, setFullName] = useState(() => [profile?.first_name, profile?.last_name].filter(Boolean).join(' '));
   const [email, setEmail] = useState(profile?.email ?? '');
   const [message, setMessage] = useState('');
   const [errors, setErrors] = useState<Record<string, string>>({});
   const [submitting, setSubmitting] = useState(false);
-  const planName = useMemo(() => !plan?.plan_name || /^(free|starter)$/i.test(plan.plan_name) ? 'Free' : plan.plan_name, [plan?.plan_name]);
+  const planName = useMemo(
+    () => hasPlatformOwnerAccess
+      ? 'Platform Owner Access'
+      : !plan?.plan_name || /^(free|starter)$/i.test(plan.plan_name)
+        ? 'Free'
+        : plan.plan_name,
+    [hasPlatformOwnerAccess, plan?.plan_name],
+  );
   useEffect(() => {
     const composed = [profile?.first_name?.trim(), profile?.last_name?.trim()].filter(Boolean).join(' ');
     if (composed) setFullName((value) => value || composed);

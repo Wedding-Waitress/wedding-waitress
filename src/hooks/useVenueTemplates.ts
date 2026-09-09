@@ -6,9 +6,13 @@ export interface VenueTemplate {
   id: string;
   submitted_by: string;
   venue_name: string;
+  venue_email?: string | null;
+  venue_address?: string | null;
+  venue_contact_number?: string | null;
   room_name: string;
   city: string | null;
   country: string | null;
+  state_region?: string | null;
   capacity: number;
   room_shape: string;
   room_width_m: number;
@@ -45,8 +49,12 @@ const rowToTemplate = (row: Record<string, unknown>): VenueTemplate => ({
   id: row.id as string,
   submitted_by: row.submitted_by as string,
   venue_name: row.venue_name as string,
+  venue_email: (row.venue_email as string | null) ?? null,
+  venue_address: (row.venue_address as string | null) ?? null,
+  venue_contact_number: (row.venue_contact_number as string | null) ?? null,
   room_name: row.room_name as string,
   city: (row.city as string | null) ?? null,
+  state_region: (row.state_region as string | null) ?? null,
   country: (row.country as string | null) ?? null,
   capacity: Number(row.capacity ?? 0),
   room_shape: (row.room_shape as string) || 'rect',
@@ -71,7 +79,7 @@ const rowToTemplate = (row: Record<string, unknown>): VenueTemplate => ({
   updated_at: row.updated_at as string,
 });
 
-/** Public-facing list of approved templates (for the Choose Venue lookup). */
+/** Shared worldwide directory; legacy private submissions remain private. */
 export const useApprovedVenueTemplates = () => {
   const [templates, setTemplates] = useState<VenueTemplate[]>([]);
   const [loading, setLoading] = useState(true);
@@ -81,7 +89,7 @@ export const useApprovedVenueTemplates = () => {
     const { data, error } = await (supabase as any)
       .from('venue_floor_plan_templates')
       .select('*')
-      .eq('approved', true)
+      .or('approved.eq.true,auto_shared.eq.true')
       .order('featured', { ascending: false })
       .order('venue_name', { ascending: true });
     if (error) console.error('approved templates', error);
@@ -125,6 +133,7 @@ export const useAllVenueTemplates = () => {
         .from('venue_floor_plan_templates')
         .update({
           approved,
+          ...(approved ? {} : { auto_shared: false }),
           approved_at: approved ? new Date().toISOString() : null,
           approved_by: approved ? userId : null,
         })
@@ -182,15 +191,19 @@ export const useAllVenueTemplates = () => {
   return { templates, loading, refresh, setApproval, setFeatured, updateMeta, remove };
 };
 
-/** Submit current Reception Floor Plan as a new (unapproved) template. */
+/** Save an uploaded venue floor plan to the shared directory. */
 export const submitVenueTemplate = async (params: {
   plan: ReceptionFloorPlan;
   backgroundUrl: string | null;
   meta: {
     venue_name: string;
+    venue_email?: string;
+    venue_address?: string;
+    venue_contact_number?: string;
     room_name: string;
     city?: string;
     country?: string;
+    state_region?: string;
     capacity?: number;
     notes?: string;
   };
@@ -224,11 +237,16 @@ export const submitVenueTemplate = async (params: {
     }
   }
 
+  if (!templateBgPath) return {ok:false,error:'Upload a venue floor plan first, or retry if its image could not be saved.'};
   const insertRow = {
     submitted_by: user.id,
     venue_name: meta.venue_name.trim(),
+    venue_email: meta.venue_email?.trim() || null,
+    venue_address: meta.venue_address?.trim() || null,
+    venue_contact_number: meta.venue_contact_number?.trim() || null,
     room_name: meta.room_name.trim(),
     city: meta.city?.trim() || null,
+    state_region: meta.state_region?.trim() || null,
     country: meta.country?.trim() || null,
     capacity: Math.max(0, Math.floor(meta.capacity ?? 0)),
     room_shape: plan.room_shape,
@@ -236,7 +254,7 @@ export const submitVenueTemplate = async (params: {
     room_length_m: plan.room_length_m,
     grid_size_cm: plan.grid_size_cm,
     room_polygon: plan.room_polygon as unknown,
-    fixtures: plan.fixtures as unknown,
+    fixtures: [],
     table_positions: [], // template carries only the room, not user-specific table assignments
     background_image_path: templateBgPath,
     background_x: plan.background.x,
@@ -246,6 +264,7 @@ export const submitVenueTemplate = async (params: {
     background_rotation: plan.background.rotation,
     background_opacity: plan.background.opacity,
     notes: meta.notes?.trim() || null,
+    auto_shared: true,
     approved: false,
   };
 
@@ -255,7 +274,7 @@ export const submitVenueTemplate = async (params: {
     .select('id')
     .single();
 
-  if (error) return { ok: false, error: error.message };
+  if (error) { await supabase.storage.from(TEMPLATE_BUCKET).remove([templateBgPath]); return { ok: false, error: error.message }; }
   return { ok: true, id: data.id as string };
 };
 
@@ -295,15 +314,14 @@ export const applyVenueTemplateToPlan = async (
     }
   }
 
+  if (template.background_image_path && !newBgPath) throw new Error('Could not load the venue floor plan. Your layout has not been changed.');
   // Decide background to apply:
   // - Template has a background AND copy succeeded → use the copied template bg (and clean up old).
   // - Template has a background but copy failed   → keep user's existing bg untouched.
   // - Template has no background                   → keep user's existing bg untouched.
   let nextBackground = currentPlan.background;
   if (template.background_image_path && newBgPath) {
-    if (currentPlan.background.path && currentPlan.background.path !== newBgPath) {
-      supabase.storage.from(USER_BUCKET).remove([currentPlan.background.path]).catch(() => undefined);
-    }
+    // Retain the previous image so Undo and failed saves can restore it.
     nextBackground = {
       path: newBgPath,
       x: template.background_x,
@@ -317,13 +335,6 @@ export const applyVenueTemplateToPlan = async (
     };
   }
 
-  // Regenerate fixture ids so they don't collide.
-  const fixtures = template.fixtures.map((f) => ({
-    ...f,
-    id: crypto.randomUUID(),
-    locked: false,
-  }));
-
   return {
     ...currentPlan,
     room_shape: template.room_shape,
@@ -331,7 +342,8 @@ export const applyVenueTemplateToPlan = async (
     room_length_m: template.room_length_m,
     grid_size_cm: template.grid_size_cm,
     room_polygon: template.room_polygon,
-    fixtures,
+    fixtures: [],
+    manual_placement: true,
     table_positions: [], // user re-places their own tables
     background: nextBackground,
   };

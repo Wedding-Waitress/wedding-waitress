@@ -1,3 +1,5 @@
+import { Printer as ExportControlsPrinter } from 'lucide-react';
+import { DJMCRowTextSize } from './DJMCRowTextSize';
 /**
  * PRODUCTION-READY -- LOCKED FOR PRODUCTION
  *
@@ -11,7 +13,7 @@
  */
 import React, { lazy, Suspense, useState } from 'react';
 import {
-  Music2, Mic2, Printer, Share2, FileDown, LoaderCircle,
+  Undo2, Music2, Mic2, Printer, Share2, FileDown, LoaderCircle,
   CalendarDays, HeartHandshake, PartyPopper, Clock3, MapPin,
 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -20,6 +22,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { StandardEventSelector } from '../StandardEventSelector';
 import { DJMCQuestionnaireSection } from './DJMCQuestionnaireSection';
 import { GuestSongRequestsSection } from './GuestSongRequestsSection';
+import { useDJMCUndo } from '@/hooks/useDJMCUndo';
 import { useDJMCQuestionnaire } from '@/hooks/useDJMCQuestionnaire';
 import type { Event } from '@/hooks/useEvents';
 import theme from './DJMCQuestionnaireTheme.module.css';
@@ -38,7 +41,7 @@ const formatFullDate = (dateStr: string | null | undefined): string => {
   const day = d.getDate();
   const month = d.toLocaleDateString('en-US', { month: 'long' });
   const year = d.getFullYear();
-  
+
   const getOrdinalSuffix = (day: number) => {
     if (day > 3 && day < 21) return 'th';
     switch (day % 10) {
@@ -48,7 +51,7 @@ const formatFullDate = (dateStr: string | null | undefined): string => {
       default: return 'th';
     }
   };
-  
+
   return `${dayOfWeek}, ${day}${getOrdinalSuffix(day)} ${month} ${year}`;
 };
 
@@ -64,6 +67,7 @@ const formatTimeDisplay = (time: string | null | undefined): string => {
 
 export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }: DJMCQuestionnairePageProps) {
   const { toast } = useToast();
+  const [rowTextSize, setRowTextSize] = useState<"standard"|"larger">("standard");
   const [showShareModal, setShowShareModal] = useState(false);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
 
@@ -85,18 +89,22 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
     deleteShareToken,
     refreshShareTokens,
     calculateProgress,
+    prepareUndo,
+    refetch,
   } = useDJMCQuestionnaire(selectedEventId);
 
+  const undoHistory=useDJMCUndo({questionnaireId:questionnaire?.id,eventId:selectedEventId||undefined,
+    sections:questionnaire?.sections||[],beforeRestore:prepareUndo,refresh:refetch});
   const selectedEvent = events.find(e => e.id === selectedEventId);
   const progress = calculateProgress();
 
   const handleDownloadEntirePDF = async () => {
     if (!questionnaire || !selectedEvent) return;
-    
+
     setDownloadingPDF(true);
     try {
       const { exportEntireQuestionnairePDF } = await import('@/lib/djMCQuestionnairePdfExporter');
-      await exportEntireQuestionnairePDF(questionnaire, selectedEvent);
+      await exportEntireQuestionnairePDF(questionnaire, selectedEvent, rowTextSize);
       toast({
         className: 'ww-djmc-toast',
         title: "PDF Downloaded",
@@ -117,10 +125,10 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
 
   const handleDownloadSectionPDF = async (section: typeof questionnaire.sections[0]) => {
     if (!selectedEvent) return;
-    
+
     try {
       const { exportSectionPDF } = await import('@/lib/djMCQuestionnairePdfExporter');
-      await exportSectionPDF(section, selectedEvent);
+      await exportSectionPDF(section, selectedEvent, rowTextSize);
       toast({
         className: 'ww-djmc-toast',
         title: "Section PDF Downloaded",
@@ -138,11 +146,20 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
   };
 
   return (
-    <div className={`${theme.page} ww-djmc-dashboard-page space-y-6`}>
+    <div data-row-text-size={rowTextSize} className={`${theme.page} ww-djmc-dashboard-page space-y-6`}>
+      {undoHistory.busy && <div role="status" aria-live="polite" className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-lg border border-[#967a59] bg-[#fff4e5] px-5 py-3 text-[#2f1b14] shadow-lg">
+        <LoaderCircle size={20} className="animate-spin" aria-hidden="true"/>
+        {undoHistory.operation === 'restoring' ? 'Restoring questionnaire… Please keep this page open.' : 'Saving changes… Please wait.'}
+      </div>}
+      {/* Event Selector */}
+      <Card className={theme.glassCard}>
+        <CardContent className="py-4">
+          <div className="flex items-center justify-between gap-4 flex-wrap max-lg:flex-col max-lg:items-stretch">
+            <div className="flex flex-col gap-5 min-w-0 max-lg:w-full">
       {/* Header */}
-      <div className="flex items-center justify-between">
-        <div className="flex items-center gap-3">
-          <div className="p-2 bg-primary/10 rounded-lg flex items-center gap-1.5">
+      <div className="flex items-center justify-between gap-4">
+        <div className={theme.referenceHeadingRow}>
+          <div className={theme.referenceHeadingIcon}>
             <Music2 size={25} strokeWidth={1.8} className="text-primary" aria-hidden="true" />
             <Mic2 size={18} strokeWidth={1.8} className="text-primary/70" aria-hidden="true" />
           </div>
@@ -154,6 +171,12 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
           </div>
         </div>
 
+        <DJMCRowTextSize value={rowTextSize} onChange={setRowTextSize}/>
+        <Button variant="ghost" className="gap-1.5 print:hidden" disabled={!undoHistory.canUndo||undoHistory.busy}
+          onClick={undoHistory.undo} title="Restore the previous questionnaire while this page is open">
+          {undoHistory.operation === 'restoring' ? <LoaderCircle size={18} className="animate-spin" aria-hidden="true"/> : <Undo2 size={18} strokeWidth={1.8} aria-hidden="true"/>}
+          {undoHistory.operation === 'restoring' ? 'Restoring…' : 'Undo'}
+        </Button>
         {saving && (
           <div className={`flex items-center gap-2 text-muted-foreground ${theme.bodyText}`}>
             <LoaderCircle size={16} strokeWidth={1.8} className="animate-spin" />
@@ -162,10 +185,6 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
         )}
       </div>
 
-      {/* Event Selector */}
-      <Card className={theme.glassCard}>
-        <CardContent className="py-4">
-          <div className="flex items-center justify-between gap-4 flex-wrap max-lg:flex-col max-lg:items-stretch">
             <div className="flex-shrink-0 max-lg:w-full flex items-center gap-2">
               <CalendarDays size={17} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
               <StandardEventSelector
@@ -175,20 +194,18 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
                 menuClassName="ww-djmc-portal"
               />
             </div>
+            </div>
 
             {selectedEventId && questionnaire && (
-              <div className={`${theme.exportPanel} rounded-xl p-3 flex flex-col gap-3 max-lg:w-full`}>
+              <div data-export-controls-panel className={`${theme.exportPanel} rounded-xl p-3 flex flex-col gap-3 max-lg:w-full`}>
                 <div className="text-sm">
-                  <span className={`${theme.fieldLabel} inline-flex items-center gap-1.5`}>
-                    <Printer size={16} strokeWidth={1.8} aria-hidden="true" />
-                    Export Controls
-                  </span>
-                  <span className={`text-muted-foreground ml-2 ${theme.supportingText}`}>Download your questionnaire and share it with your DJ & MC or any of your vendors.</span>
+                  <span data-export-controls-heading><ExportControlsPrinter size={16} strokeWidth={2} aria-hidden="true" />Export Controls</span>
+
                 </div>
                 <div className="flex items-center gap-3 flex-wrap max-lg:gap-2 max-sm:flex-col max-sm:items-stretch">
                   <button
                     onClick={() => setShowShareModal(true)}
-                    className={`${theme.primaryAction} inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium rounded-full transition-colors max-sm:h-10 max-sm:w-full max-sm:justify-center max-sm:text-sm`}
+                    className={`${theme.primaryAction} ${theme.exportButton} inline-flex items-center gap-1.5 h-10 px-4 text-sm font-semibold rounded-full transition-colors max-sm:h-10 max-sm:w-full max-sm:justify-center max-sm:text-sm`}
                   >
                     <Share2 size={16} strokeWidth={1.8} aria-hidden="true" />
                     Share with DJ/MC
@@ -197,7 +214,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
                     onClick={handleDownloadEntirePDF}
                     disabled={downloadingPDF}
                     aria-busy={downloadingPDF}
-                    className={`${theme.primaryAction} inline-flex items-center gap-1.5 h-7 px-2.5 text-xs font-medium rounded-full transition-colors disabled:opacity-50 disabled:pointer-events-none max-sm:h-10 max-sm:w-full max-sm:justify-center max-sm:text-sm`}
+                    className={`${theme.primaryAction} ${theme.exportButton} inline-flex items-center gap-1.5 h-10 px-4 text-sm font-semibold rounded-full transition-colors disabled:opacity-50 disabled:pointer-events-none max-sm:h-10 max-sm:w-full max-sm:justify-center max-sm:text-sm`}
                   >
                     {downloadingPDF ? (
                       <LoaderCircle size={16} strokeWidth={1.8} className="animate-spin" aria-hidden="true" />
@@ -234,7 +251,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
           {selectedEvent && (
             <div className={`${theme.eventBanner} text-center py-4 space-y-3`}>
               <h2 className="text-xl font-semibold text-primary">{selectedEvent.name}</h2>
-              
+
               {/* Ceremony & Reception Details */}
               <div className={`flex justify-center gap-8 flex-wrap ${
                 selectedEvent.ceremony_enabled && selectedEvent.reception_enabled !== false ? '' : 'max-w-md mx-auto'
@@ -262,7 +279,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
                     )}
                   </div>
                 )}
-                
+
                 {/* Reception Section */}
                 {selectedEvent.reception_enabled !== false && (
                   <div className="text-left min-w-[280px] max-lg:min-w-0 max-lg:w-full max-sm:text-center">
@@ -295,22 +312,27 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
             <DJMCQuestionnaireSection
               key={section.id}
               section={section}
+              disabled={undoHistory.busy}
+              onRunUndoable={undoHistory.run}
               eventId={questionnaire.event_id}
-              onUpdateSection={(updates) => updateSection(section.id, updates)}
-              onUpdateItem={(itemId, updates) => updateItem(itemId, updates)}
-              onAddItem={() => addItem(section.id)}
-              onDeleteItem={(itemId) => deleteItem(itemId)}
-              onDuplicateItem={(item) => duplicateItem(item)}
-              onReorderItems={(items) => reorderItems(section.id, items)}
-              onResetToDefault={() => resetSectionToDefault(section.id)}
-              onDuplicateSection={() => duplicateSection(section.id)}
-              onDeleteSection={() => deleteSection(section.id)}
+              onUpdateSection={(updates) => undoHistory.record(() => updateSection(section.id, updates))}
+              onUpdateItem={(itemId, updates) => undoHistory.record(() => updateItem(itemId, updates))}
+              onAddItem={() => undoHistory.run(() => addItem(section.id))}
+              onDeleteItem={(itemId) => undoHistory.run(() => deleteItem(itemId))}
+              onDuplicateItem={(item) => undoHistory.run(() => duplicateItem(item))}
+              onReorderItems={(items) => undoHistory.run(() => reorderItems(section.id, items))}
+              onResetToDefault={() => undoHistory.run(() => resetSectionToDefault(section.id))}
+              onDuplicateSection={() => undoHistory.run(() => duplicateSection(section.id))}
+              onDeleteSection={() => undoHistory.run(() => deleteSection(section.id))}
               onDownloadSectionPDF={() => handleDownloadSectionPDF(section)}
             />
           ))}
 
           {/* Guest Song Requests (synthetic appended section) */}
           <GuestSongRequestsSection
+            key={`${selectedEventId}:${undoHistory.revision}`}
+            disabled={undoHistory.busy}
+            onRunUndoable={(action,rows)=>undoHistory.run(action,false,rows)}
             eventId={selectedEvent?.id ?? null}
             eventName={selectedEvent?.name ?? null}
             eventDate={selectedEvent?.date ?? null}

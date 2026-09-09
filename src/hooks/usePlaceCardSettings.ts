@@ -150,6 +150,7 @@ export const usePlaceCardSettings = (eventId: string | null) => {
   const [loading, setLoading] = useState(Boolean(eventId && !cached));
   const { toast } = useToast();
   const saveSeqRef = React.useRef(0);
+  const saveQueueRef = React.useRef<Promise<unknown>>(Promise.resolve());
   const fetchSeqRef = React.useRef(0);
   const currentEventIdRef = React.useRef(eventId);
   currentEventIdRef.current = eventId;
@@ -220,8 +221,15 @@ export const usePlaceCardSettings = (eventId: string | null) => {
     }
   }, [eventId, toast]);
 
-  const updateSettings = async (newSettings: Partial<PlaceCardSettings>) => {
+  const persistSettings = async (newSettings: Partial<PlaceCardSettings>) => {
     if (!eventId) return false;
+    const previousSettings = placeCardCache.get(eventId) || settings;
+    const rollback = () => {
+      if (previousSettings) placeCardCache.set(eventId, previousSettings);
+      else placeCardCache.delete(eventId);
+      if (currentEventIdRef.current === eventId) setSettings(previousSettings);
+      try { localStorage.removeItem(qrFallbackKey(eventId)); } catch { /* Optional browser storage. */ }
+    };
     writeQrFallback(eventId, newSettings);
     const qrOnlyUpdate = Object.keys(newSettings).length > 0
       && Object.keys(newSettings).every((key) => QR_KEYS.includes(key as any));
@@ -248,19 +256,20 @@ export const usePlaceCardSettings = (eventId: string | null) => {
 
       // Optimistic local state update — ensures React re-renders immediately
       // so DOM reconciler can override any direct style changes from drag
-      setSettings(prev => {
+      if (currentEventIdRef.current === eventId) setSettings(prev => {
         if (prev) return { ...prev, ...newSettings } as PlaceCardSettings;
         // First-save path: seed a local object so UI renders from shared state immediately
         return normalizePlaceCardSettings(newSettings, eventId, user.id);
       });
 
       let result;
-      if (settings?.id) {
+      const savedId = placeCardCache.get(eventId)?.id || settings?.id;
+      if (savedId) {
         // Update existing settings
         result = await supabase
           .from('place_card_settings')
           .update(settingsData)
-          .eq('id', settings.id)
+          .eq('id', savedId)
           .select()
           .single();
       } else {
@@ -273,13 +282,7 @@ export const usePlaceCardSettings = (eventId: string | null) => {
       }
 
       if (result.error) {
-        const schemaMissingQrColumns = qrOnlyUpdate
-          && /photo_video_qr_|schema cache|column/i.test(result.error.message || '');
-        if (schemaMissingQrColumns) {
-          // Compatibility for a development database that has not received the
-          // companion migration yet. The migration remains authoritative once applied.
-          return true;
-        }
+        rollback();
         console.error('Error updating place card settings:', result.error);
         toast({
           title: "Error",
@@ -288,6 +291,8 @@ export const usePlaceCardSettings = (eventId: string | null) => {
         });
         return false;
       }
+
+      placeCardCache.set(eventId, normalizePlaceCardSettings(result.data, eventId, user.id));
 
       // Only accept this response if it's still the latest request
       if (seq !== saveSeqRef.current) {
@@ -308,6 +313,7 @@ export const usePlaceCardSettings = (eventId: string | null) => {
       return true;
     } catch (error) {
       console.error('Error updating place card settings:', error);
+      rollback();
       toast({
         title: "Error",
         description: "An unexpected error occurred",
@@ -315,6 +321,12 @@ export const usePlaceCardSettings = (eventId: string | null) => {
       });
       return false;
     }
+  };
+
+  const updateSettings = (newSettings: Partial<PlaceCardSettings>) => {
+    const pending = saveQueueRef.current.then(() => persistSettings(newSettings));
+    saveQueueRef.current = pending.catch(() => false);
+    return pending;
   };
 
   useEffect(() => {

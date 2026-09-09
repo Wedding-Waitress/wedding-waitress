@@ -52,7 +52,7 @@ export const GalleryTextGuestbookAccessCard: React.FC<{ meta: GalleryMeta; appea
         <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
           <QrIcon className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} strokeWidth={1.8} /> Digital Guestbook Access
         </h2>
-        <p className={cn('text-sm mt-1 break-words', isGlass && managementStyles.gallerySecondaryText)} style={isGlass ? undefined : { color: '#1a1a1a' }}>
+        <p className={cn('text-sm mt-1 break-words', isGlass && [managementStyles.gallerySecondaryText, managementStyles.sharingHeadingDescription])} style={isGlass ? undefined : { color: '#1a1a1a' }}>
           Share the QR code or link your guests use to write a message in your Digital Guestbook.
         </p>
       </div>
@@ -95,19 +95,14 @@ export const GalleryTextGuestbookAccessCard: React.FC<{ meta: GalleryMeta; appea
               <Button variant="outline" className={cn('lv-premium-shade w-full', isGlass && managementStyles.galleryControl)} onClick={downloadQr} disabled={!qrDataUrl}>
                 <Download className="h-4 w-4 mr-1" strokeWidth={1.8} /> Download QR code
               </Button>
-
-              <p className={cn('mt-auto text-xs text-muted-foreground', isGlass && managementStyles.gallerySecondaryText)}>
-                This uses your existing event gallery link — no separate token or guest page is created.
-              </p>
             </div>
           </div>
         )}
 
-        {!meta.primary_token && (
-          <p className={cn('mt-4 text-xs text-muted-foreground', isGlass && managementStyles.gallerySecondaryText)}>
-            This uses your existing event gallery link — no separate token or guest page is created.
+
+          <p className={cn('mt-9 text-sm text-muted-foreground', isGlass && managementStyles.gallerySecondaryText)}>
+            This uses your existing event gallery link, no separate token or guest page is created.
           </p>
-        )}
       </div>
     </Card>
   );

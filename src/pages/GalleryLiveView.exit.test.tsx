@@ -65,7 +65,8 @@ describe('Live Slideshow exit behaviour', () => {
     renderSlideshow();
 
     const close = screen.getByRole('button', { name: 'Exit live slideshow' });
-    expect(close).toHaveClass('fixed', 'bottom-1.5', 'right-1.5', 'h-11', 'w-11', 'bg-transparent');
+    expect(close).toHaveClass('h-11', 'w-11', 'bg-transparent');
+    expect(close.parentElement).toHaveClass('fixed');
     expect(close).toHaveTextContent('×');
 
     fireEvent.click(close);

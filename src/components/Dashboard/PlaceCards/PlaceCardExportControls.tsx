@@ -1,3 +1,4 @@
+import { Printer as ExportControlsPrinter } from 'lucide-react';
 /**
  * ⚠️ PRODUCTION-READY - DO NOT MODIFY WITHOUT APPROVAL ⚠️
  * 
@@ -30,6 +31,8 @@ interface PlaceCardExportControlsProps {
   totalPages: number;
   onPageFocus: (page: number | null) => void;
   onExportStateChange: (isExporting: boolean) => void;
+  previewDocument: React.RefObject<HTMLDivElement>;
+  showPreviewPage: (page: number) => Promise<void>;
 }
 
 export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = ({
@@ -38,7 +41,9 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
   event,
   totalPages,
   onPageFocus,
-  onExportStateChange
+  onExportStateChange,
+  previewDocument,
+  showPreviewPage
 }) => {
   const [selectedPage, setSelectedPage] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -54,7 +59,7 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
         description: `Creating place cards for page ${selectedPage + 1}...`,
       });
 
-      await exportPlaceCardPageToPdf(settings, guests, event, selectedPage);
+      await exportPlaceCardPageToPdf({ pageElement: () => previewDocument.current, pageIndex: selectedPage, totalPages, eventName: event.name, showPage: showPreviewPage });
 
       toast({
         title: 'PDF Downloaded',
@@ -83,7 +88,7 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
         description: `Creating place cards for all ${totalPages} pages...`,
       });
 
-      await exportAllPlaceCardsToPdf(settings, guests, event, totalPages);
+      await exportAllPlaceCardsToPdf({ pageElement: () => previewDocument.current, pageIndex: selectedPage, totalPages, eventName: event.name, showPage: showPreviewPage });
 
       toast({
         title: 'PDF Downloaded',
@@ -191,8 +196,8 @@ export const PlaceCardExportControls: React.FC<PlaceCardExportControlsProps> = (
         </div>
 
         {/* Export Controls */}
-        <div className="space-y-2">
-          <Label>Export Controls</Label>
+        <div data-export-controls-panel className="space-y-2">
+          <span data-export-controls-heading><ExportControlsPrinter size={16} strokeWidth={2} aria-hidden="true" />Export Controls</span>
           <div className="grid grid-cols-2 gap-2">
             <Button
               variant="outline"

@@ -12,7 +12,6 @@ import { useProfile } from '@/hooks/useProfile';
 import { clearEventCaches, getCacheGeneration, registerCache, registerEventCache } from '@/lib/cacheRegistry';
 import { getSelectedEventId, setSelectedEventId } from '@/hooks/useSelectedEvent';
 import {
-  deleteOwnedEventRow,
   EventDeletionError,
   EVENT_DELETED_EVENT,
   getEventDeletionMessage,
@@ -25,7 +24,9 @@ import {
   getEventCreationBlockMessage,
   notifyEventAllowanceChanged,
 } from '@/lib/eventAllowance';
-import { isEventImageBackendUnavailable, isEventImageZoomBackendUnavailable, removeEventImageIfUnreferenced } from '@/lib/eventImage';
+import { isEventImageBackendUnavailable, isEventImageZoomBackendUnavailable } from '@/lib/eventImage';
+import { deleteOwnedEventWithImage } from '@/lib/eventDeletionWithImage';
+import { syncEventHeroImage } from '@/lib/eventHeroImage';
 
 export interface Event {
   id: string;
@@ -373,6 +374,13 @@ export const useEvents = () => {
       if (error) throw error;
 
       await fetchEvents();
+      if ('event_image_path' in eventData) {
+        try { await syncEventHeroImage(id); }
+        catch {
+          toast({ title: 'Event image saved', description: 'The guest-app image could not be synced. Open QR Code Seating Chart to retry.', variant: 'destructive' });
+          return;
+        }
+      }
       toast({
         title: "Success",
         description: "Event updated successfully",
@@ -390,7 +398,6 @@ export const useEvents = () => {
 
   const deleteEvent = async (id: string) => {
     try {
-      const eventImagePath = events.find((event) => event.id === id)?.event_image_path ?? null;
       const { data: { user: authUser } } = await supabase.auth.getUser();
       if (!authUser) {
         throw new EventDeletionError('not-authenticated', 'User not authenticated.');
@@ -407,8 +414,7 @@ export const useEvents = () => {
         throw new EventDeletionError('not-authorized', 'Only the Master Account Holder can delete events.');
       }
 
-      const deleted = await deleteOwnedEventRow(id, authUser.id);
-      if (eventImagePath) void removeEventImageIfUnreferenced(eventImagePath);
+      const deleted = await deleteOwnedEventWithImage(id, authUser.id);
       const remainingEvents = events.filter((event) => event.id !== deleted.id);
       eventsCache = remainingEvents;
       setEvents(remainingEvents);

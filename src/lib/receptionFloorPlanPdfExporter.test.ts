@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
-  html2canvas: vi.fn(),
+  captureReceptionDocument: vi.fn(),
   pdfConstructor: vi.fn(),
   addImage: vi.fn(),
   addPage: vi.fn(),
   savePdfAsync: vi.fn(),
 }));
 
-vi.mock('html2canvas', () => ({ default: mocks.html2canvas }));
+vi.mock('./receptionDocumentCapture', () => ({ captureReceptionDocument: mocks.captureReceptionDocument }));
 vi.mock('jspdf', () => ({
   default: class MockJsPdf {
     addImage = mocks.addImage;
@@ -29,7 +29,7 @@ import {
 describe('Reception preview PDF exporter', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.html2canvas.mockResolvedValue({
+    mocks.captureReceptionDocument.mockResolvedValue({
       toDataURL: () => 'data:image/png;base64,reception',
     });
     mocks.savePdfAsync.mockResolvedValue(undefined);
@@ -50,10 +50,9 @@ describe('Reception preview PDF exporter', () => {
       eventDate: '2026-12-20',
     });
 
-    expect(mocks.html2canvas).toHaveBeenCalledTimes(1);
-    expect(mocks.html2canvas).toHaveBeenCalledWith(
+    expect(mocks.captureReceptionDocument).toHaveBeenCalledTimes(1);
+    expect(mocks.captureReceptionDocument).toHaveBeenCalledWith(
       page,
-      expect.objectContaining({ width: 1123, height: 794, scale: 3 }),
     );
     expect(mocks.pdfConstructor).toHaveBeenCalledWith(expect.objectContaining({
       orientation: 'landscape',
@@ -95,4 +94,13 @@ describe('Reception preview PDF exporter', () => {
     expect(documentClone.querySelector('[data-reception-a4-room-stage]')?.textContent).toBe('Room');
     expect(documentClone.querySelector('[data-reception-a4-footer]')?.textContent).toBe('Footer');
   });
+  it('exports each visible notes sheet in the same order', async () => {
+    const group = document.createElement('div'); group.dataset.receptionDocumentGroup = 'true';
+    const pages = [0,1,2].map(() => {const page=document.createElement('div');page.dataset.receptionA4Renderer='true';page.dataset.printMirrorDocument='reception-floor-plan';Object.defineProperties(page,{offsetWidth:{value:1123},offsetHeight:{value:794}});group.append(page);return page});
+    await exportReceptionPreviewToPdf({pageElement:pages[0],eventName:'Notes'});
+    expect(mocks.captureReceptionDocument.mock.calls.map(call=>call[0])).toEqual(pages);
+    expect(mocks.addPage).toHaveBeenCalledTimes(2);
+    expect(mocks.addImage).toHaveBeenCalledTimes(3);
+  });
+
 });

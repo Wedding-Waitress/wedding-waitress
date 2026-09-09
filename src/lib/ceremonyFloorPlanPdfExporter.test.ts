@@ -1,14 +1,14 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
-  html2canvas: vi.fn(),
+  captureCeremonyDocument: vi.fn(),
   pdfConstructor: vi.fn(),
   addImage: vi.fn(),
   addPage: vi.fn(),
   savePdfAsync: vi.fn(),
 }));
 
-vi.mock('html2canvas', () => ({ default: mocks.html2canvas }));
+vi.mock('./ceremonyDocumentCapture', () => ({ captureCeremonyDocument: mocks.captureCeremonyDocument }));
 vi.mock('jspdf', () => ({
   default: class MockJsPdf {
     addImage = mocks.addImage;
@@ -23,7 +23,7 @@ import { exportCeremonyPreviewToPdf, prepareCeremonyPdfClone } from './ceremonyF
 describe('Ceremony preview PDF exporter', () => {
   beforeEach(() => {
     vi.clearAllMocks();
-    mocks.html2canvas.mockResolvedValue({ toDataURL: () => 'data:image/png;base64,ceremony' });
+    mocks.captureCeremonyDocument.mockResolvedValue({ toDataURL: () => 'data:image/png;base64,ceremony' });
     mocks.savePdfAsync.mockResolvedValue(undefined);
   });
 
@@ -35,8 +35,8 @@ describe('Ceremony preview PDF exporter', () => {
 
     await exportCeremonyPreviewToPdf({ pageElement: page, eventName: 'Jason & Linda', eventDate: '2026-12-20' });
 
-    expect(mocks.html2canvas).toHaveBeenCalledTimes(1);
-    expect(mocks.html2canvas).toHaveBeenCalledWith(page, expect.objectContaining({ width: 1123, height: 794, scale: 3 }));
+    expect(mocks.captureCeremonyDocument).toHaveBeenCalledTimes(1);
+    expect(mocks.captureCeremonyDocument).toHaveBeenCalledWith(page);
     expect(mocks.pdfConstructor).toHaveBeenCalledWith(expect.objectContaining({ orientation: 'landscape', unit: 'mm', format: 'a4' }));
     expect(mocks.addImage).toHaveBeenCalledWith('data:image/png;base64,ceremony', 'PNG', 0, 0, 297, 210, undefined, 'FAST');
     expect(mocks.addPage).not.toHaveBeenCalled();
@@ -48,7 +48,7 @@ describe('Ceremony preview PDF exporter', () => {
     const exporterSource = await import('node:fs/promises').then(fs => fs.readFile('src/lib/ceremonyFloorPlanPdfExporter.ts', 'utf8'));
     expect(pageSource.match(/<CeremonyFloorPlanA4Preview/g)).toHaveLength(1);
     expect(pageSource).toContain('pageElement: ceremonyA4Ref.current');
-    expect(exporterSource).toContain('await html2canvas(pageElement');
+    expect(exporterSource).toContain('await captureCeremonyDocument(pageElement');
     expect(exporterSource).not.toContain('seat_assignments');
     expect(exporterSource).not.toContain('roundedRect');
   });

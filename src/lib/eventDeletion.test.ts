@@ -7,6 +7,7 @@ const mocks = vi.hoisted(() => {
 vi.mock('@/integrations/supabase/client', () => ({ supabase: { rpc: mocks.rpc } }));
 
 import { deleteOwnedEventRow, EventDeletionError, getEventDeletionMessage } from './eventDeletion';
+import { supabase } from '@/integrations/supabase/client';
 
 describe('verified event deletion', () => {
   beforeEach(() => vi.clearAllMocks());
@@ -16,6 +17,7 @@ describe('verified event deletion', () => {
 
     await expect(deleteOwnedEventRow('event-uuid', 'owner-uuid')).resolves.toEqual({ id: 'event-uuid', user_id: 'owner-uuid' });
     expect(mocks.rpc).toHaveBeenCalledWith('delete_owned_event_secure', { p_event_id: 'event-uuid' });
+    expect(mocks.rpc.mock.contexts[0]).toBe(supabase);
   });
 
   it('treats a zero-row RLS or identifier result as failure', async () => {

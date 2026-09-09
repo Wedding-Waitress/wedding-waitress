@@ -39,7 +39,7 @@ describe('shared Wedding Waitress application background', () => {
   it('covers every authenticated dashboard tab through the shared shell and main canvas', () => {
     const dashboard = read('src/pages/Dashboard.tsx');
     expect(dashboard).toContain('data-dashboard-shell className={`dashboard-shell ww-application-background');
-    expect(dashboard).toContain("<main data-dashboard-content data-solid-text-surface={isPhotoVideoWorkspace ? 'dark' : 'light'} className={`ww-application-background");
+    expect(dashboard).toContain("<main data-dashboard-content data-solid-text-surface={contentTab === 'photo-video-gallery' ? 'dark' : 'light'} className={`ww-application-background");
 
     const legacyDashboardSurfaces = [
       'src/components/Dashboard/DashboardOverview.module.css',

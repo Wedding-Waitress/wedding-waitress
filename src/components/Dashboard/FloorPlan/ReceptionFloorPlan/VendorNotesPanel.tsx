@@ -1,3 +1,4 @@
+import styles from './ReceptionFloorPlanTheme.module.css';
 /**
  * Vendor Setup Notes panel — single rich textarea for setup notes (DJ, bar,
  * cake table, power, fire exits, coordinator notes, etc.). Saves to the
@@ -23,11 +24,11 @@ const MAX_LEN = 4000;
 export const VendorNotesPanel = ({ plan, onChange }: Props) => {
   const value = plan.vendor_notes ?? '';
   return (
-    <div data-reception-panel="true" className="rounded-lg border border-border bg-card p-3 max-lg:p-4 space-y-2">
+    <div data-reception-panel="true" className="h-full min-w-0 rounded-lg border border-border bg-card p-3 max-lg:p-4 space-y-2">
       <div className="flex items-center justify-between gap-2 flex-wrap">
-        <div data-floor-plan-feature-heading="true" className="flex items-center gap-2 text-sm font-semibold text-foreground">
-          <ClipboardList className="w-4 h-4 text-[#967A59]" />
-          Vendor setup notes
+        <div className={styles.setupCardHeading}>
+          <ClipboardList className="h-4 w-4 text-primary" />
+          <h3>Vendor Setup Notes</h3>
         </div>
         <span className="text-[11px] text-muted-foreground">
           {value.length}/{MAX_LEN}
@@ -41,7 +42,7 @@ export const VendorNotesPanel = ({ plan, onChange }: Props) => {
         }}
         placeholder={PLACEHOLDER}
         rows={5}
-        className="min-h-[120px] text-sm leading-relaxed max-lg:text-base"
+        className="resize-y min-h-[120px] text-sm leading-relaxed max-lg:text-base"
       />
       <p className="text-[11px] text-muted-foreground">
         Notes appear on the PDF export and the read-only share view.

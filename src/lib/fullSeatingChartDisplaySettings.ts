@@ -54,8 +54,7 @@ export const getFullSeatingChartGuestDetails = (
 ) => {
   const dietary = showDietary
     && guest.dietary
-    && guest.dietary !== 'NA'
-    && guest.dietary.toLowerCase() !== 'none'
+    && !['na', 'n/a', 'none', ''].includes(guest.dietary.trim().toLowerCase())
       ? compactFullSeatingChartSeparators(capitalizeFullSeatingChartWords(guest.dietary))
       : null;
   const relationshipValue = guest.relation_display || guest.relation_role;

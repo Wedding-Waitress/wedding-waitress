@@ -23,21 +23,8 @@ interface RunningSheetData {
   items: RunningSheetItem[];
 }
 
-const DEFAULT_ROWS: Omit<RunningSheetItem, 'id' | 'sheet_id' | 'created_at' | 'updated_at'>[] = [
-  { order_index: 0, time_text: '3.00 PM', description_rich: { text: 'Guests Arrive' }, responsible: '', is_section_header: false },
-  { order_index: 1, time_text: '3.30 PM', description_rich: { text: 'Ceremony' }, responsible: 'Celebrant', is_section_header: true },
-  { order_index: 2, time_text: '4.00 PM', description_rich: { text: 'Group & Family Photos' }, responsible: 'Photographer', is_section_header: false },
-  { order_index: 3, time_text: '4.30 PM', description_rich: { text: 'Pre-Dinner Drinks & Canapés' }, responsible: 'Venue', is_section_header: false },
-  { order_index: 4, time_text: '6.00 PM', description_rich: { text: 'Reception doors open & Guests Seated' }, responsible: 'Venue', is_section_header: true },
-  { order_index: 5, time_text: '6.30 PM', description_rich: { text: 'Bridal Party Introduction', subText: '(Use the DJ-MC Questionnaire to organise the Bridal Party Introduction. You can sync it here.)' }, responsible: 'DJ / Band & MC\nPhotographer & Video', is_section_header: false },
-  { order_index: 6, time_text: '7.00 PM', description_rich: { text: 'Entrée Served' }, responsible: 'Venue', is_section_header: true },
-  { order_index: 7, time_text: '7.30 PM', description_rich: { text: '', bullets: ['Cake Cutting & Toasting for Photos', 'Bridal Dance', 'Bridal Party Dance with Wedding Couple', 'Dance Floor Open for All Guests'] }, responsible: 'DJ / Band & MC\nPhotographer & Video', is_section_header: false },
-  { order_index: 8, time_text: '8.00 PM', description_rich: { text: 'Main Meals Served' }, responsible: 'Venue', is_section_header: true },
-  { order_index: 9, time_text: '8.30 PM', description_rich: { text: 'Speeches', subText: '(Use the DJ-MC Questionnaire to organise Speeches. You can sync it here.)' }, responsible: 'MC\nPhotographer & Video', is_section_header: false },
-  { order_index: 10, time_text: '9.00 PM', description_rich: { text: 'Games then Dance Bracket', bullets: ['The Shoe Game', 'The Photo Dash', 'Dance Floor opened'] }, responsible: 'DJ / Band & MC\nPhotographer & Video', is_section_header: false },
-  { order_index: 11, time_text: '10.30 PM', description_rich: { text: '', bullets: ['Flower Toss', 'Garter Toss', 'Farewell Circle or Arch!'] }, responsible: 'DJ / Band & MC\nPhotographer & Video', is_section_header: false },
-  { order_index: 12, time_text: '11.00 PM', description_rich: { text: 'Conclusion' }, responsible: '', is_section_header: true },
-];
+import { DEFAULT_RUNNING_SHEET_ROWS as DEFAULT_ROWS } from '@/lib/runningSheetDefaults';
+
 
 // Module-level cache so data persists across tab switches / remounts
 const sheetCache = new Map<string, { sheet: RunningSheetData; sectionLabel: string; sectionNotes: string | null; shareTokens: RunningSheetShareToken[] }>();
@@ -64,26 +51,53 @@ export function useRunningSheet(eventId: string | null) {
 
   // Per-item debounce timers keyed by item id
   const itemSaveTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
+  const pendingItems = useRef(new Map<string, Partial<RunningSheetItem>>());
+  const pendingCallbacks = useRef(new Map<string, () => Promise<void>>());
+  const pendingMeta = useRef(new Map<string, Record<string, unknown>>());
+  const metaTimers = useRef(new Map<string, ReturnType<typeof setTimeout>>());
+  const saveChains = useRef(new Map<string, Promise<void>>());
+  const fetchVersion = useRef(0);
+  const activeEvent = useRef(eventId);
+  activeEvent.current = eventId;
   // Meta (label/notes) debounce timer
-  const metaSaveTimerRef = useRef<NodeJS.Timeout | null>(null);
+
 
   // Keep cache in sync whenever state changes
   useEffect(() => {
-    if (eventId && sheet) {
+    if (eventId && sheet?.event_id === eventId) {
       sheetCache.set(eventId, { sheet, sectionLabel, sectionNotes, shareTokens });
     }
   }, [eventId, sheet, sectionLabel, sectionNotes, shareTokens]);
 
-  // Cleanup per-item timers on unmount
+  // Flush pending saves when navigating away rather than discarding edits.
+  useEffect(() => () => {
+    itemSaveTimers.current.forEach(clearTimeout);
+    metaTimers.current.forEach(clearTimeout);
+    pendingCallbacks.current.forEach(save => { void save(); });
+  }, [eventId]);
+
+  const runSave = useCallback((key: string, write: () => Promise<void>) => {
+    const next = (saveChains.current.get(key) || Promise.resolve()).catch(() => {}).then(write).catch(() => {
+      toast({ title: 'Changes not saved', description: 'Please check your connection and try again.', variant: 'destructive' });
+    });
+    saveChains.current.set(key, next);
+    return next.finally(() => {
+      if (saveChains.current.get(key) === next) saveChains.current.delete(key);
+      setSaving(pendingCallbacks.current.size > 0 || saveChains.current.size > 0);
+    });
+  }, [toast]);
+
   useEffect(() => {
-    return () => {
-      itemSaveTimers.current.forEach(timer => clearTimeout(timer));
-      itemSaveTimers.current.clear();
+    const guard = (event: BeforeUnloadEvent) => {
+      if (pendingCallbacks.current.size || saveChains.current.size) { event.preventDefault(); event.returnValue = ''; }
     };
+    window.addEventListener('beforeunload', guard);
+    return () => window.removeEventListener('beforeunload', guard);
   }, []);
 
   const fetchSheet = useCallback(async () => {
-    if (!eventId) { setSheet(null); return; }
+    const version = ++fetchVersion.current;
+    if (!eventId) { setSheet(null); setShareTokens([]); return; }
     // Only show loading spinner if we have NO cached data
     const hasCached = sheetCache.has(eventId);
     if (!hasCached) setLoading(true);
@@ -111,7 +125,11 @@ export function useRunningSheet(eventId: string | null) {
 
         // Create default rows
         const rowsToInsert = DEFAULT_ROWS.map(r => ({ ...r, sheet_id: sheetId }));
-        await supabase.from('running_sheet_items').insert(rowsToInsert);
+        const { error: defaultsError } = await supabase.from('running_sheet_items').insert(rowsToInsert);
+        if (defaultsError) {
+          await supabase.from('running_sheets').delete().eq('id', sheetId);
+          throw defaultsError;
+        }
       }
 
       // Fetch items
@@ -128,6 +146,7 @@ export function useRunningSheet(eventId: string | null) {
         .eq('id', sheetId)
         .single();
 
+      if (version !== fetchVersion.current || activeEvent.current !== eventId) return;
       setSheet({ id: sheetId, event_id: eventId, user_id: sheetData?.user_id || '', items: items || [] });
       if (sheetData?.section_label != null) {
         const lbl = sheetData.section_label || 'Run Sheet';
@@ -141,16 +160,23 @@ export function useRunningSheet(eventId: string | null) {
         .select('*')
         .eq('sheet_id', sheetId)
         .order('created_at', { ascending: false });
-      setShareTokens((tokens as RunningSheetShareToken[]) || []);
+      if (version === fetchVersion.current && activeEvent.current === eventId) setShareTokens((tokens as RunningSheetShareToken[]) || []);
     } catch (error) {
       console.error('Error fetching running sheet:', error);
       toast({ title: 'Error', description: 'Failed to load running sheet', variant: 'destructive' });
     } finally {
-      setLoading(false);
+      if (version === fetchVersion.current) setLoading(false);
     }
   }, [eventId, toast]);
 
   useEffect(() => { fetchSheet(); }, [fetchSheet]);
+  useEffect(() => {
+    const timer = setInterval(() => {
+      if (document.hidden || document.activeElement?.matches('input, textarea, [contenteditable="true"]')) return;
+      if (!pendingCallbacks.current.size && !saveChains.current.size) void fetchSheet();
+    }, 30000);
+    return () => clearInterval(timer);
+  }, [fetchSheet]);
 
   // Realtime subscription for running_sheet_items changes (e.g. edits from shared links)
   // Uses self-save guard to prevent feedback loop when we edit locally
@@ -194,67 +220,70 @@ export function useRunningSheet(eventId: string | null) {
     return () => { supabase.removeChannel(channel); };
   }, [sheet?.id, fetchSheet]);
 
-  // Debounced save for section meta (label + notes)
-  const saveMetaToDb = useCallback((label: string, notes: string | null) => {
-    if (!sheet) return;
-    if (metaSaveTimerRef.current) clearTimeout(metaSaveTimerRef.current);
-    metaSaveTimerRef.current = setTimeout(async () => {
-      lastSaveRef.current = Date.now();
-      try {
-        await supabase.from('running_sheets').update({
-          section_label: label,
-          section_notes: notes,
-        }).eq('id', sheet.id);
-      } catch (error) {
-        console.error('Error saving section meta:', error);
-      }
-    }, 500);
-  }, [sheet]);
+  const saveMetaToDb = useCallback((updates: Record<string, unknown>) => {
+    if (!sheet || sheet.event_id !== eventId) return;
+    const sheetId = sheet.id;
+    const key = 'meta-' + sheetId;
+    pendingMeta.current.set(sheetId, { ...pendingMeta.current.get(sheetId), ...updates });
+    clearTimeout(metaTimers.current.get(sheetId));
+    setSaving(true);
+    const save = async () => {
+      pendingCallbacks.current.delete(key);
+      metaTimers.current.delete(sheetId);
+      const patch = pendingMeta.current.get(sheetId);
+      pendingMeta.current.delete(sheetId);
+      if (!patch) return;
+      await runSave(key, async () => {
+        lastSaveRef.current = Date.now();
+        const { error } = await supabase.from('running_sheets').update(patch).eq('id', sheetId);
+        if (error) toast({ title: 'Notes or heading not saved', description: 'Please try your change again.', variant: 'destructive' });
+      });
+    };
+    pendingCallbacks.current.set(key, save);
+    metaTimers.current.set(sheetId, setTimeout(save, 500));
+  }, [sheet, eventId, toast, runSave]);
 
   const handleSetSectionLabel = useCallback((label: string) => {
     setSectionLabel(label);
-    saveMetaToDb(label, sectionNotes);
-  }, [saveMetaToDb, sectionNotes]);
-
+    saveMetaToDb({ section_label: label });
+  }, [saveMetaToDb]);
   const handleSetSectionNotes = useCallback((notes: string | null) => {
     setSectionNotes(notes);
-    saveMetaToDb(sectionLabel, notes);
-  }, [saveMetaToDb, sectionLabel]);
+    saveMetaToDb({ section_notes: notes });
+  }, [saveMetaToDb]);
 
-  // Per-item debounced save (300ms, keyed by item id)
   const saveItemToDb = useCallback((itemId: string, updates: Partial<RunningSheetItem>) => {
-    // Clear any existing timer for this item
-    const existing = itemSaveTimers.current.get(itemId);
-    if (existing) clearTimeout(existing);
-
-    const timer = setTimeout(async () => {
+    pendingItems.current.set(itemId, { ...pendingItems.current.get(itemId), ...updates });
+    clearTimeout(itemSaveTimers.current.get(itemId));
+    setSaving(true);
+    const save = async () => {
+      pendingCallbacks.current.delete(itemId);
       itemSaveTimers.current.delete(itemId);
-      lastSaveRef.current = Date.now();
-      setSaving(true);
-      try {
-        const { error } = await supabase.from('running_sheet_items').update(updates).eq('id', itemId);
-        if (error) throw error;
-      } catch (error) {
-        console.error('Error saving item:', error);
-      } finally {
-        setSaving(false);
-      }
-    }, 300);
-
-    itemSaveTimers.current.set(itemId, timer);
-  }, []);
+      const patch = pendingItems.current.get(itemId);
+      pendingItems.current.delete(itemId);
+      if (!patch) return;
+      await runSave(itemId, async () => {
+        lastSaveRef.current = Date.now();
+        const { error } = await supabase.from('running_sheet_items').update(patch).eq('id', itemId);
+        if (error) toast({ title: 'Row not saved', description: 'Please try your change again.', variant: 'destructive' });
+      });
+    };
+    pendingCallbacks.current.set(itemId, save);
+    itemSaveTimers.current.set(itemId, setTimeout(save, 300));
+  }, [toast, runSave]);
 
   const updateItem = useCallback((itemId: string, updates: Partial<RunningSheetItem>) => {
+    if (!sheet || sheet.event_id !== activeEvent.current || !sheet.items.some(item => item.id === itemId)) return;
     setSheet(prev => {
       if (!prev) return prev;
       return { ...prev, items: prev.items.map(i => i.id === itemId ? { ...i, ...updates } : i) };
     });
     saveItemToDb(itemId, updates);
-  }, [saveItemToDb]);
+  }, [sheet, saveItemToDb]);
 
   const addItem = useCallback(async () => {
-    if (!sheet) return;
-    const newOrderIndex = sheet.items.length;
+    if (!sheet || sheet.event_id !== activeEvent.current) return;
+    const newOrderIndex = Math.max(-1, ...sheet.items.map(item => item.order_index)) + 1;
     try {
       lastSaveRef.current = Date.now();
       const { data: newItem, error } = await supabase
@@ -282,66 +311,100 @@ export function useRunningSheet(eventId: string | null) {
     }
   }, [toast]);
 
+  const restoreItems = useCallback(async (rows: RunningSheetItem[]) => {
+    if (!sheet || sheet.event_id !== activeEvent.current || rows.some(row => row.sheet_id !== sheet.id)) return null;
+    const sheetId = sheet.id;
+    try {
+      await Promise.all([...pendingCallbacks.current.values()].map(save => save()));
+      await Promise.all([...saveChains.current.values()]);
+      if (sheet.event_id !== activeEvent.current) return null;
+      lastSaveRef.current = Date.now();
+      const payload = rows.map(({ id, order_index, time_text, description_rich, responsible, is_section_header, is_bold, is_italic, is_underline }) => ({
+        id, sheet_id: sheetId, order_index, time_text, description_rich, responsible, is_section_header,
+        is_bold: !!is_bold, is_italic: !!is_italic, is_underline: !!is_underline,
+      }));
+      const { data: saved, error } = await supabase.from('running_sheet_items').upsert(payload).select();
+      if (error || !saved || saved.length !== rows.length) throw error || new Error('Rows not restored');
+      const restored = rows.map(row => saved.find(item => item.id === row.id) as RunningSheetItem);
+      if (restored.some(row => !row)) throw new Error('Incomplete restore');
+      setSheet(prev => prev?.id === sheetId ? { ...prev, items: [...prev.items.filter(item => !rows.some(row => row.id === item.id)), ...restored].sort((a,b) => a.order_index-b.order_index) } : prev);
+      return restored;
+    } catch {
+      toast({ title: 'Undo not saved', description: 'Please try Undo again.', variant: 'destructive' });
+      return null;
+    }
+  }, [sheet, toast]);
+
   const duplicateItem = useCallback(async (item: RunningSheetItem) => {
-    if (!sheet) return;
+    if (!sheet || sheet.event_id !== activeEvent.current) return;
     try {
       lastSaveRef.current = Date.now();
       const { data: newItem, error } = await supabase
         .from('running_sheet_items')
         .insert({
           sheet_id: sheet.id,
-          order_index: item.order_index + 1,
+          order_index: Math.max(-1, ...sheet.items.map(row => row.order_index)) + 1,
           time_text: item.time_text,
           description_rich: item.description_rich,
           responsible: item.responsible,
-          is_section_header: false,
+          is_section_header: item.is_section_header,
+          is_bold: item.is_bold, is_italic: item.is_italic, is_underline: item.is_underline,
         })
         .select()
         .single();
       if (error) throw error;
 
-      setSheet(prev => {
-        if (!prev) return prev;
-        const idx = prev.items.findIndex(i => i.id === item.id);
-        const newItems = [...prev.items];
-        newItems.splice(idx + 1, 0, newItem as RunningSheetItem);
-        return { ...prev, items: newItems };
-      });
+      const ordered = [...sheet.items];
+      ordered.splice(ordered.findIndex(row => row.id === item.id) + 1, 0, newItem as RunningSheetItem);
+      const results = await Promise.all(ordered.map((row, index) => supabase.from('running_sheet_items').update({ order_index: index }).eq('id', row.id)));
+      if (results.some(result => result.error)) { await fetchSheet(); throw new Error('Duplicate order not saved'); }
+      setSheet(prev => prev?.id === sheet.id ? { ...prev, items: ordered.map((row,index) => ({...row, order_index:index})) } : prev);
     } catch (error) {
       console.error('Error duplicating item:', error);
       toast({ title: 'Error', description: 'Failed to duplicate row', variant: 'destructive' });
     }
-  }, [sheet, toast]);
+  }, [sheet, toast, fetchSheet]);
 
   const reorderItems = useCallback(async (items: RunningSheetItem[]) => {
-    setSheet(prev => prev ? { ...prev, items } : prev);
+    setSheet(prev => prev ? { ...prev, items: items.map((item,index) => ({...item, order_index:index})) } : prev);
     try {
       lastSaveRef.current = Date.now();
-      await Promise.all(items.map((item, index) =>
+      const results = await Promise.all(items.map((item, index) =>
         supabase.from('running_sheet_items').update({ order_index: index }).eq('id', item.id)
       ));
+      if (results.some(result => result.error)) throw new Error('Order update failed');
     } catch (error) {
+      toast({ title: 'Order not saved', description: 'Please try again.', variant: 'destructive' });
       console.error('Error reordering items:', error);
     }
-  }, []);
+  }, [toast]);
 
   const resetToDefault = useCallback(async () => {
-    if (!sheet) return;
+    if (!sheet || sheet.event_id !== activeEvent.current) return;
     try {
       lastSaveRef.current = Date.now();
-      await supabase.from('running_sheet_items').delete().eq('sheet_id', sheet.id);
+      await Promise.all([...pendingCallbacks.current.values()].map(save => save()));
       const rowsToInsert = DEFAULT_ROWS.map(r => ({ ...r, sheet_id: sheet.id }));
       const { data: newItems, error } = await supabase.from('running_sheet_items').insert(rowsToInsert).select();
       if (error) throw error;
+      const oldIds = sheet.items.map(item => item.id);
+      if (oldIds.length) {
+        const { error: deleteError } = await supabase.from('running_sheet_items').delete().in('id', oldIds);
+        if (deleteError) {
+          await supabase.from('running_sheet_items').delete().in('id', newItems.map(item => item.id));
+          throw deleteError;
+        }
+      }
       setSheet(prev => prev ? { ...prev, items: newItems as RunningSheetItem[] } : prev);
       setSectionLabel('Run Sheet');
       setSectionNotes(null);
+      saveMetaToDb({ section_label: 'Run Sheet', section_notes: null });
       toast({ title: 'Reset Complete', description: 'Section has been reset to defaults' });
     } catch (error) {
       console.error('Error resetting:', error);
       toast({ title: 'Error', description: 'Failed to reset section', variant: 'destructive' });
     }
-  }, [sheet, toast]);
+  }, [sheet, toast, saveMetaToDb]);
 
   const generateShareToken = useCallback(async (
     permission: 'view_only' | 'can_edit',
@@ -374,7 +437,8 @@ export function useRunningSheet(eventId: string | null) {
 
   const deleteShareToken = useCallback(async (tokenId: string) => {
     try {
-      await supabase.from('running_sheet_share_tokens').delete().eq('id', tokenId);
+      const { error } = await supabase.from('running_sheet_share_tokens').delete().eq('id', tokenId);
+      if (error) throw error;
       setShareTokens(prev => prev.filter(t => t.id !== tokenId));
       toast({ title: 'Deleted', description: 'Share link removed' });
     } catch (error) {
@@ -384,7 +448,7 @@ export function useRunningSheet(eventId: string | null) {
   }, [toast]);
 
   const refreshShareTokens = useCallback(async () => {
-    if (!sheet) return;
+    if (!sheet || sheet.event_id !== activeEvent.current) return;
     const { data: tokens } = await supabase
       .from('running_sheet_share_tokens')
       .select('*')
@@ -394,7 +458,7 @@ export function useRunningSheet(eventId: string | null) {
   }, [sheet]);
 
   return {
-    sheet,
+    sheet: sheet?.event_id === eventId ? sheet : null,
     loading,
     saving,
     sectionLabel,
@@ -405,6 +469,7 @@ export function useRunningSheet(eventId: string | null) {
     updateItem,
     addItem,
     deleteItem,
+    restoreItems,
     duplicateItem,
     reorderItems,
     resetToDefault,

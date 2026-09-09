@@ -1,4 +1,4 @@
-import html2canvas from 'html2canvas';
+import { captureCeremonyDocument } from './ceremonyDocumentCapture';
 import jsPDF from 'jspdf';
 import { CEREMONY_A4 } from '@/lib/ceremonyFloorPlanA4';
 import { PDF_DEFAULT_OPTIONS, savePdfAsync } from '@/lib/pdfExportUtils';
@@ -42,17 +42,7 @@ export const createCeremonyPreviewPdf = async ({ pageElement }: CeremonyPreviewP
   assertAuthoritativeMirrorDocument(pageElement, CEREMONY_PRINT_MIRROR_CONTRACT);
   await waitForAssets(pageElement);
 
-  const canvas = await html2canvas(pageElement, {
-    backgroundColor: '#ffffff',
-    scale: 3,
-    useCORS: true,
-    logging: false,
-    width: pageElement.offsetWidth,
-    height: pageElement.offsetHeight,
-    windowWidth: pageElement.offsetWidth,
-    windowHeight: pageElement.offsetHeight,
-    onclone: prepareCeremonyPdfClone,
-  });
+  const canvas = await captureCeremonyDocument(pageElement);
 
   const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', ...PDF_DEFAULT_OPTIONS });
   pdf.addImage(

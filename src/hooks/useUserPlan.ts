@@ -20,7 +20,30 @@ export interface UserPlan {
 // Module-level cache for instant loading
 let planCache: UserPlan | null = null;
 let planRequest: Promise<UserPlan | null> | null = null;
-registerCache(() => { planCache = null; planRequest = null; });
+let platformOwnerAccessCache: boolean | null = null;
+let platformOwnerAccessRequest: Promise<boolean> | null = null;
+registerCache(() => {
+  planCache = null;
+  planRequest = null;
+  platformOwnerAccessCache = null;
+  platformOwnerAccessRequest = null;
+});
+
+const requestPlatformOwnerAccess = () => {
+  if (platformOwnerAccessRequest) return platformOwnerAccessRequest;
+  const generation = getCacheGeneration();
+  platformOwnerAccessRequest = (async () => {
+    const { data, error } = await supabase.rpc('has_platform_owner_access');
+    if (error) throw error;
+    const hasAccess = data === true;
+    if (generation !== getCacheGeneration()) {
+      throw new Error('Owner access request superseded by an account change.');
+    }
+    platformOwnerAccessCache = hasAccess;
+    return hasAccess;
+  })().finally(() => { platformOwnerAccessRequest = null; });
+  return platformOwnerAccessRequest;
+};
 
 const requestUserPlan = () => {
   if (planRequest) return planRequest;
@@ -65,6 +88,8 @@ const requestUserPlan = () => {
 export const useUserPlan = () => {
   const [plan, setPlan] = useState<UserPlan | null>(planCache);
   const [loading, setLoading] = useState(!planCache);
+  const [hasPlatformOwnerAccess, setHasPlatformOwnerAccess] = useState(platformOwnerAccessCache === true);
+  const [ownerAccessLoading, setOwnerAccessLoading] = useState(platformOwnerAccessCache === null);
 
   // Keep cache in sync
   useEffect(() => {
@@ -87,15 +112,44 @@ export const useUserPlan = () => {
     fetchPlan();
   }, []);
 
-  const isTrialExpired = plan?.status === 'expired' || 
-    (plan?.expires_at && new Date(plan.expires_at) < new Date());
+  useEffect(() => {
+    const fetchPlatformOwnerAccess = async () => {
+      if (platformOwnerAccessCache !== null) {
+        setHasPlatformOwnerAccess(platformOwnerAccessCache);
+        setOwnerAccessLoading(false);
+        return;
+      }
+      setOwnerAccessLoading(true);
+      try {
+        setHasPlatformOwnerAccess(await requestPlatformOwnerAccess());
+      } catch (err) {
+        console.error('Error loading platform owner access:', err);
+      } finally {
+        setOwnerAccessLoading(false);
+      }
+    };
 
-  const isStarterPlan = plan?.plan_name === 'Starter';
+    fetchPlatformOwnerAccess();
+  }, []);
+
+  const isTrialExpired = !hasPlatformOwnerAccess && (plan?.status === 'expired' ||
+    (plan?.expires_at && new Date(plan.expires_at) < new Date()));
+
+  const isStarterPlan = !hasPlatformOwnerAccess && plan?.plan_name === 'Starter';
 
   const canSendRsvp = plan ? (plan.can_send_email || plan.can_send_sms) : false;
 
   const isDownloadOnly = plan?.status === 'grace_period' && plan.is_read_only;
   const downloadWindowExpired = !!plan?.download_only_ends_at && new Date(plan.download_only_ends_at) < new Date();
 
-  return { plan, loading, isTrialExpired, isStarterPlan, canSendRsvp, isDownloadOnly, downloadWindowExpired };
+  return {
+    plan,
+    loading: loading || ownerAccessLoading,
+    hasPlatformOwnerAccess,
+    isTrialExpired,
+    isStarterPlan,
+    canSendRsvp,
+    isDownloadOnly: hasPlatformOwnerAccess ? false : isDownloadOnly,
+    downloadWindowExpired: hasPlatformOwnerAccess ? false : downloadWindowExpired,
+  };
 };

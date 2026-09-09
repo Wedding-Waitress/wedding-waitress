@@ -23,6 +23,7 @@ export type SectionType =
   | 'do_not_play';
 
 export interface DJMCItem {
+  custom_values?: Record<string,string>;
   id: string;
   section_id: string;
   row_label: string;
@@ -43,6 +44,7 @@ export interface DJMCItem {
 }
 
 export interface DJMCSection {
+  custom_columns?: import("@/lib/djmcCustomColumns").DJMCColumn[] | null;
   id: string;
   questionnaire_id: string;
   section_type: SectionType;

@@ -111,6 +111,7 @@ export const useLiveViewVisibility = (eventId: string | null) => {
   return {
     settings,
     isLoading,
+    isSaving: updateMutation.isPending,
     updateVisibility,
   };
 };

@@ -1,5 +1,6 @@
 // Slideshow Preview — 16:9 preview that mirrors the real Live Slideshow behaviour.
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import slideshowLogo from '@/assets/wedding-waitress-slideshow-logo.png';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Play, Pause, SkipBack, SkipForward, RotateCcw, Maximize, Minimize, Presentation } from 'lucide-react';
@@ -13,12 +14,14 @@ const MAX_VIDEO_MS = 15 * 1000;
 
 interface Props {
   items: GalleryItem[];
+  eventName?: string;
+  onExit?: () => void;
   settings: SlideshowSettings;
   loading?: boolean;
   appearance?: 'default' | 'espresso-glass';
 }
 
-export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, settings, loading, appearance = 'default' }) => {
+export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, eventName, onExit, settings, loading, appearance = 'default' }) => {
   const isGlass = appearance === 'espresso-glass';
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
@@ -81,10 +84,10 @@ export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, settings, 
       <div className="flex flex-wrap items-center justify-between gap-x-4 gap-y-2" data-slideshow-preview-header>
         <div className="flex min-w-0 flex-wrap items-center gap-x-3 gap-y-1">
           <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
-            <Presentation size={22} strokeWidth={1.8} className={cn('text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} /> Slideshow Preview
+            <Presentation size={22} strokeWidth={1.8} className={cn('text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} /> Slideshow Preview <span aria-hidden="true">→</span>
           </h2>
           <p className={cn('text-sm break-words', isGlass && managementStyles.gallerySecondaryText)} style={isGlass ? undefined : { color: '#1a1a1a' }}>
-            Exactly what your guests will see on the big screen.
+            Below is exactly what your guests will see on the big screen.
           </p>
         </div>
         <div className={cn('text-sm text-muted-foreground shrink-0', isGlass && managementStyles.gallerySecondaryText)}>
@@ -141,15 +144,30 @@ export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, settings, 
           />
         )}
 
-        {current && settings.show_caption && (current.caption || current.uploader_name) && (
-          <div className="absolute bottom-0 left-0 right-0 px-5 pb-4 pt-12 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
+        {current && settings.show_caption && current.caption && (
+          <div className="absolute bottom-14 left-0 right-0 px-5 pb-4 pt-12 bg-gradient-to-t from-black/80 to-transparent pointer-events-none">
             {current.caption && <p className="text-white text-base font-light truncate">{current.caption}</p>}
-            {current.uploader_name && (
-              <p className="text-white/75 text-sm">Shared by {current.uploader_name.trim().split(/\s+/)[0]}</p>
-            )}
+
           </div>
         )}
 
+        <div className="absolute bottom-2 left-4 z-10 flex items-center gap-2">
+          <img src={slideshowLogo} alt="Wedding Waitress" className="w-40 h-auto object-contain" />
+          <button type="button" aria-label="Exit slideshow preview" title="Exit slideshow preview"
+            className="flex h-11 w-11 items-center justify-center bg-transparent text-white text-[32px] leading-none"
+            onClick={() => {
+              setPaused(true);
+              if (document.fullscreenElement) document.exitFullscreen().catch(() => {});
+              else onExit?.();
+            }}>
+            <span aria-hidden="true">×</span>
+          </button>
+        </div>
+        {eventName && (
+          <div className={cn('absolute top-3 left-4 right-20 text-xl leading-7 font-bold text-white break-words pointer-events-none', managementStyles.galleryViewHeading)} data-slideshow-preview-event-name>
+            {eventName}
+          </div>
+        )}
         {eligible.length > 0 && (
           <span className="absolute top-3 right-4 text-white/70 text-xs font-medium">
             {Math.min(index + 1, eligible.length)} / {eligible.length}

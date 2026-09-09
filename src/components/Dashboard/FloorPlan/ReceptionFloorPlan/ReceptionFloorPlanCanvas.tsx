@@ -1,7 +1,9 @@
+import {receptionLabelRotation} from '@/lib/receptionLabelOrientation';
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
-import { Lock, Unlock, RotateCw, RotateCcw, Trash2, StickyNote } from 'lucide-react';
+import { Lock, Unlock, RotateCw, RotateCcw, Undo2, Trash2, StickyNote, Move } from 'lucide-react';
 
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
+import { Dialog, DialogContent, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
 import type { ReceptionTable } from '@/hooks/useReceptionTables';
 import type {
@@ -59,36 +61,51 @@ interface Props {
   onSelectedTableChange?: (id: string | null) => void;
   onResetRequest?: () => void;
   resetDisabled?: boolean;
+  onUndo?: () => void;
+  undoDisabled?: boolean;
   readOnly?: boolean;
+  fitViewport?: boolean;
 }
 
 export const ReceptionFloorPlanCanvas = ({
-  plan,
+  plan: savedPlan,
   tables,
   event,
   attendingCount,
   generatedAt,
   a4Ref,
   backgroundUrl,
-  onChange,
+  onChange: onCommit,
   onSelectedTableChange,
   onResetRequest,
   resetDisabled = false,
+  onUndo,
+  undoDisabled = true,
   readOnly = false,
+  fitViewport = false,
 }: Props) => {
-
+  const [dragPreview, setDragPreview] = useState<ReceptionFloorPlan | null>(null);
+  const previewRef = useRef<ReceptionFloorPlan | null>(null);
+  const plan = dragPreview?.id === savedPlan.id ? dragPreview : savedPlan;
   const canvasRef = useRef<HTMLDivElement>(null);
   const [selection, setSelection] = useState<Selection | null>(null);
   const [guides, setGuides] = useState<SnapTarget[]>([]);
   const [draggingFixtureType, setDraggingFixtureType] = useState<FixtureType | null>(null);
+  const [textEditor, setTextEditor] = useState<{id:string; value:string} | null>(null);
   const altDownRef = useRef(false);
   const dragState = useRef<
     | { kind: SelectedKind; id: string; offsetX: number; offsetY: number }
     | null
   >(null);
+  const rotationState = useRef<{kind: SelectedKind; id: string; startX: number; angle: number} | null>(null);
+  const originalTransforms = useRef(new Map<string, ReceptionBackground | Fixture>());
   const resizeState = useRef<
     | {
         kind: 'background';
+        handle: ResizeHandle;
+        rotation: number;
+        centreX: number;
+        centreY: number;
         startClientX: number;
         startClientY: number;
         startW: number;
@@ -111,6 +128,15 @@ export const ReceptionFloorPlanCanvas = ({
       }
     | null
   >(null);
+
+  // Keep pointer motion local so autosave and advisory panels cannot reflow the page mid-drag.
+  const onChange = (mutator: (current: ReceptionFloorPlan) => ReceptionFloorPlan) => {
+    if (dragState.current || resizeState.current || rotationState.current) {
+      const next = mutator(previewRef.current ?? savedPlan);
+      previewRef.current = next;
+      setDragPreview(next);
+    } else onCommit(mutator);
+  };
 
   // Track Alt key globally so snapping can be disabled mid-drag.
   useEffect(() => {
@@ -183,6 +209,10 @@ export const ReceptionFloorPlanCanvas = ({
   };
 
   // ---- palette → canvas drop (tables + fixtures)
+  const addTableToRoomCentre = (tableId: string) => {
+    if (readOnly) return;
+    onChange(p => p.table_positions.some(t => t.table_id === tableId) ? p : ({ ...p, table_positions: [...p.table_positions, { table_id: tableId, x: p.room_width_m / 2, y: p.room_length_m / 2, rotation: 0, locked: false }] }));
+  };
   const handleTableDragStart = (e: React.DragEvent, tableId: string) => {
     e.dataTransfer.setData('text/reception-table-id', tableId);
     e.dataTransfer.effectAllowed = 'copy';
@@ -195,12 +225,15 @@ export const ReceptionFloorPlanCanvas = ({
   const addFixtureToRoomCentre = (type: FixtureType) => {
     if (readOnly) return;
     const spec = FIXTURE_BY_TYPE[type];
+    const id = crypto.randomUUID();
+    setSelection({kind:'fixture',id});
+    if(type === 'text') setTextEditor({id,value:''});
     onChange((p) => ({
       ...p,
       fixtures: [
         ...p.fixtures,
         {
-          id: crypto.randomUUID(),
+          id,
           type,
           x: p.room_width_m / 2,
           y: p.room_length_m / 2,
@@ -257,12 +290,15 @@ export const ReceptionFloorPlanCanvas = ({
     if (fxType && FIXTURE_BY_TYPE[fxType]) {
       e.preventDefault();
       const spec = FIXTURE_BY_TYPE[fxType];
+      const id = crypto.randomUUID();
+      setSelection({kind:'fixture',id});
+      if(fxType === 'text') setTextEditor({id,value:''});
       onChange((p) => ({
         ...p,
         fixtures: [
           ...p.fixtures,
           {
-            id: crypto.randomUUID(),
+            id,
             type: fxType,
             x: clamp(x, -spec.width_m / 2 + 0.15, p.room_width_m + spec.width_m / 2 - 0.15),
             y: clamp(y, -spec.height_m / 2 + 0.15, p.room_length_m + spec.height_m / 2 - 0.15),
@@ -287,6 +323,8 @@ export const ReceptionFloorPlanCanvas = ({
   ) => {
     if (readOnly) return;
     setSelection({ kind, id });
+    const key=savedPlan.id+':'+kind+':'+id;
+    if(!originalTransforms.current.has(key)){const item=kind==='background'?plan.background:plan.fixtures.find(f=>f.id===id);if(item)originalTransforms.current.set(key,{...item});}
     if (locked) return;
     const metrics = getCanvasMetrics();
     if (!metrics) return;
@@ -297,9 +335,11 @@ export const ReceptionFloorPlanCanvas = ({
       offsetX: e.clientX - (metrics.originX + displayPoint.x * PX_PER_M * metrics.scale),
       offsetY: e.clientY - (metrics.originY + displayPoint.y * PX_PER_M * metrics.scale),
     };
-    (e.target as Element).setPointerCapture(e.pointerId);
+    (e.currentTarget as Element).setPointerCapture(e.pointerId);
   };
   const handlePointerMove = (e: React.PointerEvent) => {
+    const turning=rotationState.current;
+    if(turning){const angle=Math.round(turning.angle+(e.clientX-turning.startX)*0.5);const rotation=((angle%360)+360)%360;onChange(p=>turning.kind==='background'?{...p,background:{...p.background,rotation}}:{...p,fixtures:p.fixtures.map(f=>f.id===turning.id?{...f,rotation}:f)});return;}
     if (resizeState.current) {
       const r = resizeState.current;
       const metrics = getCanvasMetrics();
@@ -366,20 +406,15 @@ export const ReceptionFloorPlanCanvas = ({
         }));
         return;
       }
-      const dxPx = (e.clientX - r.startClientX) / metrics.scale;
-      // The landscape presentation swaps the background's displayed axes.
-      const newDisplayWidth = Math.max(40, r.displayWidth + dxPx);
-      const uniformScale = newDisplayWidth / r.displayWidth;
-      const newWPx = r.startW * uniformScale;
-      const newHPx = r.startH * uniformScale;
-      onChange((p) => ({
-        ...p,
-        background: {
-          ...p.background,
-          width: newWPx / PX_PER_M,
-          height: newHPx / PX_PER_M,
-        },
-      }));
+      const dx=(e.clientX-r.startClientX)/metrics.scale, dy=(e.clientY-r.startClientY)/metrics.scale;
+      const radians=r.rotation*Math.PI/180, cos=Math.cos(radians),sin=Math.sin(radians);
+      const lx=dx*cos+dy*sin, ly=-dx*sin+dy*cos;
+      const sx=r.handle.includes('e')?1:-1,sy=r.handle.includes('s')?1:-1;
+      const scale=Math.max(40/Math.min(r.displayWidth,r.displayHeight),1+(sx*lx*r.displayWidth+sy*ly*r.displayHeight)/(r.displayWidth*r.displayWidth+r.displayHeight*r.displayHeight));
+      const shiftX=sx*r.displayWidth*(scale-1)/2,shiftY=sy*r.displayHeight*(scale-1)/2;
+      const centre=clientPointToReceptionRoom(metrics.originX+(r.centreX+shiftX*cos-shiftY*sin)*metrics.scale,metrics.originY+(r.centreY+shiftX*sin+shiftY*cos)*metrics.scale,metrics,PX_PER_M,roomPresentation);
+      const width=r.startW*scale/PX_PER_M,height=r.startH*scale/PX_PER_M;
+      onChange(p=>({...p,background:{...p.background,width,height,x:centre.x-width/2,y:centre.y-height/2}}));
       return;
     }
     const d = dragState.current;
@@ -448,8 +483,25 @@ export const ReceptionFloorPlanCanvas = ({
     }
   };
   const handlePointerUp = () => {
+    const gesture = rotationState.current ?? resizeState.current ?? dragState.current;
+    const preview = previewRef.current;
+    if (gesture && preview && preview.id === savedPlan.id) {
+      onCommit(current => {
+        if (current.id !== preview.id) return current;
+        if (gesture.kind === 'background') return {...current, background: {...current.background, x: preview.background.x, y: preview.background.y, width: preview.background.width, height: preview.background.height,rotation:preview.background.rotation}};
+        if (gesture.kind === 'table') {
+          const moved = preview.table_positions.find(position => position.table_id === gesture.id);
+          return moved ? {...current, table_positions: current.table_positions.map(position => position.table_id === gesture.id ? {...position, x:moved.x, y:moved.y, width_m:moved.width_m, height_m:moved.height_m,rotation:moved.rotation} : position)} : current;
+        }
+        const moved = preview.fixtures.find(fixture => fixture.id === gesture.id);
+        return moved ? {...current, fixtures: current.fixtures.map(fixture => fixture.id === gesture.id ? {...fixture, x:moved.x, y:moved.y, width_m:moved.width_m, height_m:moved.height_m,rotation:moved.rotation} : fixture)} : current;
+      });
+    }
+    previewRef.current = null;
+    setDragPreview(null);
     dragState.current = null;
     resizeState.current = null;
+    rotationState.current = null;
     setGuides([]);
   };
 
@@ -567,13 +619,16 @@ export const ReceptionFloorPlanCanvas = ({
     [onChange]
   );
 
-  const startBackgroundResize = (e: React.PointerEvent) => {
+  const startBackgroundResize = (e: React.PointerEvent, handle: ResizeHandle = 'se') => {
     e.stopPropagation();
     if (plan.background.locked || !plan.background.width || !plan.background.height) return;
     const wPx = plan.background.width * PX_PER_M;
     const hPx = plan.background.height * PX_PER_M;
     resizeState.current = {
       kind: 'background',
+      handle,rotation:plan.background.rotation,
+      centreX:receptionRoomPointToLandscape({x:plan.background.x+plan.background.width/2,y:plan.background.y+plan.background.height/2},roomPresentation).x*PX_PER_M,
+      centreY:receptionRoomPointToLandscape({x:plan.background.x+plan.background.width/2,y:plan.background.y+plan.background.height/2},roomPresentation).y*PX_PER_M,
       startClientX: e.clientX,
       startClientY: e.clientY,
       startW: wPx,
@@ -637,6 +692,34 @@ export const ReceptionFloorPlanCanvas = ({
     (e.currentTarget as Element).setPointerCapture(e.pointerId);
   };
 
+  const selectedFixture=selection?.kind==='fixture'?plan.fixtures.find(f=>f.id===selection.id):null;
+  const selectedObject=selection?.kind==='background'?plan.background:selectedFixture;
+  const transformControls=(!readOnly && selectedObject && selection && selection.kind!=='table')?(()=>{
+    const background=selection.kind==='background', item=selectedObject;
+    const width=background?(plan.background.width??0):(selectedFixture?.width_m??0),height=background?(plan.background.height??0):(selectedFixture?.height_m??0);
+    const centre=background?{x:item.x+width/2,y:item.y+height/2}:{x:item.x,y:item.y};
+    const point=receptionRoomPointToLandscape(centre,roomPresentation);
+    const rad=item.rotation*Math.PI/180;
+    const halfHeight=(Math.abs(Math.sin(rad))*height+Math.abs(Math.cos(rad))*width)*PX_PER_M/2;
+    const x=clamp(point.x*PX_PER_M,80,displayRoomW-80);
+    const top=clamp(point.y*PX_PER_M-halfHeight-56,8,displayRoomH-56);
+    const bottom=clamp(point.y*PX_PER_M+halfHeight+8,64,displayRoomH-52);
+    const reset=()=>{const original=originalTransforms.current.get(savedPlan.id+':'+selection.kind+':'+selection.id);if(!original)return;onChange(p=>background?{...p,background:{...p.background,...original} as ReceptionBackground}:{...p,fixtures:p.fixtures.map(f=>f.id===selection.id?{...f,...original} as Fixture:f)});};
+    const remove=()=>{if(background)onChange(p=>({...p,background:{...p.background,path:null,width:null,height:null,visible:false}}));else removeFixture(selection.id);setSelection(null);};
+    const buttonClass='lv-premium-shade min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded bg-card text-foreground';
+    return <div data-reception-screen-only="true" style={{position:'absolute',inset:0,zIndex:100,pointerEvents:'none'}}>
+      <div style={{position:'absolute',left:x,top,transform:'translateX(-50%)',pointerEvents:'auto'}} className="flex gap-1 bg-card border rounded-md shadow p-1">
+        <button type="button" className={buttonClass} title="Reset to starting position and size" disabled={item.locked} onClick={reset}><RotateCcw className="w-4 h-4"/></button>
+        <button type="button" className={buttonClass} title={item.locked?'Unlock':'Lock'} onClick={()=>background?toggleLockBackground():toggleLockFixture(selection.id)}>{item.locked?<Lock className="w-4 h-4"/>:<Unlock className="w-4 h-4"/>}</button>
+        <button type="button" className={buttonClass} title="Remove" aria-label="Delete selected item" onClick={remove}><Trash2 className="w-4 h-4"/></button>
+      </div>
+      {!item.locked&&<div style={{position:'absolute',left:x,top:bottom,transform:'translateX(-50%)',pointerEvents:'auto'}} className="flex gap-1">
+        <button type="button" className={buttonClass} title="Drag to move" style={{touchAction:'none',cursor:'move'}} onPointerDown={e=>{e.stopPropagation();e.preventDefault();handlePointerDown(e,selection.kind,selection.id,centre.x,centre.y,false)}} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerUp}><Move className="w-4 h-4"/></button>
+        <button type="button" className={buttonClass} title="Drag left or right to rotate" style={{touchAction:'none',cursor:'ew-resize'}} onPointerDown={e=>{e.preventDefault();e.stopPropagation();rotationState.current={kind:selection.kind,id:selection.id,startX:e.clientX,angle:item.rotation};e.currentTarget.setPointerCapture(e.pointerId)}} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerUp}><RotateCw className="w-4 h-4"/></button>
+      </div>}
+    </div>;
+  })():null;
+
   const bg = plan.background;
   const showBackground =
     !!backgroundUrl && bg.visible && bg.width != null && bg.height != null;
@@ -647,6 +730,18 @@ export const ReceptionFloorPlanCanvas = ({
 
   return (
     <div data-reception-workspace="true" className="flex min-w-0 flex-col gap-4">
+      <Dialog open={!!textEditor && !readOnly} onOpenChange={open => {if(!open) setTextEditor(null);}}>
+        <DialogContent>
+          <DialogTitle>Edit Floor Plan Text</DialogTitle>
+          <DialogDescription>Enter your text. Double-click the text on the plan to edit it again.</DialogDescription>
+          <textarea aria-label="Floor plan text" autoFocus maxLength={200} rows={4} className="w-full rounded-md border p-3 text-lg font-semibold text-black" value={textEditor?.value ?? ''} onChange={e => setTextEditor(current => current ? {...current,value:e.target.value} : null)} />
+          <Button disabled={!textEditor?.value.trim()} onClick={() => {
+            if(!textEditor || readOnly) return;
+            onChange(p => ({...p,fixtures:p.fixtures.map(f => f.id===textEditor.id && !f.locked ? {...f,label:textEditor.value.trim()} : f)}));
+            setTextEditor(null);
+          }}>Save Text</Button>
+        </DialogContent>
+      </Dialog>
       {!readOnly && (
         <>
         <section
@@ -668,6 +763,8 @@ export const ReceptionFloorPlanCanvas = ({
                   : `${plan.table_positions.length} of ${tables.length} synced tables placed`}
               </p>
             </div>
+            <div className="flex flex-wrap items-center gap-2">
+            {onUndo && <Button variant="outline" className="lv-premium-shade h-10 shrink-0" onClick={onUndo} disabled={undoDisabled} title="Undo the last layout change"><Undo2 className="mr-1.5 h-4 w-4" aria-hidden="true" />Undo</Button>}
             {onResetRequest && (
               <Button
                 variant="destructive"
@@ -679,6 +776,7 @@ export const ReceptionFloorPlanCanvas = ({
                 Reset layout
               </Button>
             )}
+            </div>
           </div>
           {unplacedTables.length > 0 && (
             <ul
@@ -688,6 +786,11 @@ export const ReceptionFloorPlanCanvas = ({
               {unplacedTables.map((t) => (
                 <li
                   key={t.id}
+                  role="button"
+                  tabIndex={0}
+                  aria-label={`Add or drag ${t.name || 'Table ' + t.table_no} onto the reception floor plan`}
+                  onClick={() => addTableToRoomCentre(t.id)}
+                  onKeyDown={event => { if (event.key === 'Enter' || event.key === ' ') { event.preventDefault(); addTableToRoomCentre(t.id); } }}
                   draggable
                   onDragStart={(e) => handleTableDragStart(e, t.id)}
                   className="cursor-grab active:cursor-grabbing rounded-md border border-border bg-background px-3 py-2 text-sm text-foreground hover:border-primary transition-colors select-none min-h-[44px]"
@@ -703,13 +806,14 @@ export const ReceptionFloorPlanCanvas = ({
           <p className="text-xs text-muted-foreground mb-2">
             Drag onto the room or tap to add. Click a placed fixture to rotate, lock, or remove.
           </p>
-          <ul className={`${workspaceStyles.fixturePaletteGrid} grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7`}>
+          <ul className={`${workspaceStyles.fixturePaletteGrid} grid grid-cols-2 gap-2 sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8`}>
             {FIXTURE_PALETTE_CATALOG.map((spec) => {
               const Icon = spec.icon;
               const needsStrongOverlay = spec.type === 'dance_floor' || spec.type === 'window';
               return (
                 <li
                   key={spec.type}
+                  data-fixture-option={spec.type}
                   draggable
                   tabIndex={0}
                   role="button"
@@ -746,9 +850,11 @@ export const ReceptionFloorPlanCanvas = ({
         <PinchZoomContainer minScale={0.75} maxScale={3} showHint>
           <ReceptionFloorPlanA4Preview
             pageRef={a4Ref}
+            fitViewport={fitViewport}
             event={event}
             plan={plan}
             attendingCount={attendingCount}
+            tables={tables}
             generatedAt={generatedAt}
             roomWidthPx={displayRoomW}
             roomHeightPx={displayRoomH}
@@ -800,11 +906,14 @@ export const ReceptionFloorPlanCanvas = ({
                 />
               )}
 
+              {transformControls}
+
               {/* Fixtures so tables sit above */}
               {plan.fixtures.map((fx) => (
                 <PlacedFixture
                   key={fx.id}
                   fx={fx}
+                  onEditText={() => {if(!readOnly && !fx.locked && fx.type==='text') setTextEditor({id:fx.id,value:fx.label ?? ''});}}
                   linkedTable={fx.linked_table_id ? tableById.get(fx.linked_table_id) ?? null : null}
                   presentation={roomPresentation}
                   selected={selection?.kind === 'fixture' && selection.id === fx.id}
@@ -883,7 +992,7 @@ interface PlacedBackgroundProps {
   onPointerDown: (e: React.PointerEvent) => void;
   onPointerMove: (e: React.PointerEvent) => void;
   onPointerUp: (e: React.PointerEvent) => void;
-  onResizePointerDown: (e: React.PointerEvent) => void;
+  onResizePointerDown: (e: React.PointerEvent, handle: ResizeHandle) => void;
   onRotate: () => void;
   onToggleLock: () => void;
 }
@@ -929,6 +1038,7 @@ const PlacedBackground = ({
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
         style={{
           position: 'absolute',
           left: '50%',
@@ -943,29 +1053,9 @@ const PlacedBackground = ({
       />
       {selected && (
         <>
-          <BackgroundToolbar
-            rotation={bg.rotation}
-            locked={bg.locked}
-            onRotate={onRotate}
-            onToggleLock={onToggleLock}
-          />
+
           {!bg.locked && (
-            <div
-              data-reception-screen-only="true"
-              onPointerDown={onResizePointerDown}
-              onPointerMove={onPointerMove}
-              onPointerUp={onPointerUp}
-              title="Drag to resize (keeps aspect ratio)"
-              style={{
-                position: 'absolute',
-                right: -8,
-                bottom: -8,
-                width: 18,
-                height: 18,
-                touchAction: 'none',
-              }}
-              className="bg-primary border-2 border-white rounded-sm shadow cursor-se-resize"
-            />
+            <FixtureResizeHandles cornersOnly label="floor plan image" onPointerDown={onResizePointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} />
           )}
         </>
       )}
@@ -978,17 +1068,20 @@ const BackgroundToolbar = ({
   locked,
   onRotate,
   onToggleLock,
+  onRemove,
 }: {
   rotation: number;
   locked: boolean;
   onRotate: () => void;
   onToggleLock: () => void;
+  onRemove: () => void;
 }) => (
   <div
     data-reception-screen-only="true"
     style={{
       position: 'absolute',
-      top: -44,
+      top: 8,
+      zIndex: 100,
       left: '50%',
       transform: `translateX(-50%) rotate(${-rotation}deg)`,
     }}
@@ -1010,6 +1103,7 @@ const BackgroundToolbar = ({
     >
       {locked ? <Lock className="w-4 h-4" /> : <Unlock className="w-4 h-4" />}
     </button>
+    <button type="button" onClick={onRemove} title="Delete floor plan image" aria-label="Delete floor plan image" className="lv-premium-shade p-1 rounded hover:bg-muted text-foreground min-w-[44px] min-h-[44px] inline-flex items-center justify-center"><Trash2 className="w-4 h-4" /></button>
   </div>
 );
 
@@ -1102,7 +1196,8 @@ const PlacedTable = ({
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        className={`absolute inset-0 ${tableShape} flex items-center justify-center text-xs font-semibold text-white shadow-md ${
+        onPointerCancel={onPointerUp}
+        className={`absolute inset-0 ${tableShape} flex items-center justify-center text-lg font-semibold text-white shadow-md ${
           pos.locked ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'
         } ${selected ? 'ring-2 ring-primary ring-offset-2' : ''}`}
         style={{ backgroundColor: '#967A59' }}
@@ -1112,8 +1207,8 @@ const PlacedTable = ({
           className="px-1 text-center leading-tight pointer-events-none"
           style={{ transform: `rotate(${-pos.rotation}deg)` }}
         >
-          <span className="block">{table.name || `T${table.table_no}`}</span>
-          <span className="mt-0.5 block text-[9px] font-medium opacity-90">
+          <span className={table.table_purpose === 'head' ? 'block whitespace-nowrap' : 'block'}>{table.name || `T${table.table_no}`}</span>
+          <span className="mt-0.5 block text-lg font-medium opacity-90">
             {occupiedCount}/{table.limit_seats}
           </span>
         </span>
@@ -1145,7 +1240,8 @@ const PlacedTable = ({
             onToggleLock={onToggleLock}
             onRemove={onRemove}
           />
-          {isHeadTable && !pos.locked && <FixtureResizeHandles onPointerDown={onResizePointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp} />}
+          {isHeadTable && !pos.locked && <FixtureResizeHandles onPointerDown={onResizePointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp} />}
         </>
       )}
     </div>
@@ -1155,6 +1251,7 @@ const PlacedTable = ({
 
 // ---------- PlacedFixture ----------
 interface PlacedFixtureProps {
+  onEditText: () => void;
   fx: Fixture;
   linkedTable: ReceptionTable | null;
   selected: boolean;
@@ -1169,6 +1266,7 @@ interface PlacedFixtureProps {
 }
 
 const PlacedFixture = ({
+  onEditText,
   fx,
   linkedTable,
   selected,
@@ -1204,7 +1302,7 @@ const PlacedFixture = ({
         width: w,
         height: h,
         touchAction: 'none',
-        zIndex: 1,
+        zIndex: fx.type === 'text' ? 10 : 1,
       }}
     >
       {linkedChairs.map((chair, index) => {
@@ -1230,32 +1328,36 @@ const PlacedFixture = ({
         );
       })}
       <div
+        onDoubleClick={onEditText}
         onPointerDown={onPointerDown}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        className={`absolute inset-0 ${rounded} flex items-center justify-center text-[10px] font-semibold shadow-sm border border-black/10 ${
+        onPointerCancel={onPointerUp}
+        className={`absolute inset-0 ${rounded} flex items-center justify-center text-base font-semibold shadow-sm border border-black/10 ${
           fx.locked ? 'cursor-not-allowed' : 'cursor-grab active:cursor-grabbing'
         }`}
-        style={{ backgroundColor: spec.color, color: spec.textColor }}
+        style={{ backgroundColor: fx.type==='text' ? 'transparent' : spec.color, color: spec.textColor, ...(fx.type==='block' ? {border:0} : {}), ...(fx.type==='text' ? {border:0,boxShadow:'none',fontSize:18,fontWeight:600} : {}) }}
       >
-        <div
+        {fx.type === 'text' && <span className="px-1 text-center leading-tight whitespace-pre-wrap break-words" style={{color:'#000',width:'100%'}}>{fx.label || 'Your text'}</span>}
+        {!['wall','block','text'].includes(fx.type) && <div
           data-reception-upright-label="fixture"
-          className="flex flex-col items-center gap-0.5 px-1 pointer-events-none text-center leading-tight"
+          className={`flex ${fx.type === 'window' || fx.type === 'door' ? 'flex-row gap-1' : 'flex-col gap-0.5'} items-center justify-center px-1 pointer-events-none text-center leading-tight`}
           style={{
             minWidth: Math.max(56, Math.min(120, w)),
-            transform: `rotate(${-fx.rotation}deg)`,
+            transform: `rotate(${receptionLabelRotation(w,h,fx.rotation)}deg)`,
+            flexShrink: 0,
           }}
         >
           <Icon className="w-3 h-3 shrink-0" />
-          <span className="whitespace-normal break-words">
+          <span className={fx.type === 'window' || fx.type === 'door' ? 'whitespace-nowrap' : 'whitespace-normal break-words'}>
             {linkedTable?.name || fx.label || spec.label}
           </span>
           {linkedTable && (
-            <span className="text-[9px] font-medium opacity-90">
+            <span className="text-base font-medium opacity-90">
               {linkedOccupied}/{linkedCapacity}
             </span>
           )}
-        </div>
+        </div>}
       </div>
 
       {selected && (
@@ -1267,18 +1369,13 @@ const PlacedFixture = ({
 
       {selected && (
         <>
-          <SelectionToolbar
-            rotation={fx.rotation}
-            locked={fx.locked}
-            onRotate={onRotate}
-            onToggleLock={onToggleLock}
-            onRemove={onRemove}
-          />
+
           {!fx.locked && (
-            <FixtureResizeHandles
+            <FixtureResizeHandles cornersOnly
               onPointerDown={onResizePointerDown}
               onPointerMove={onPointerMove}
               onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
             />
           )}
         </>
@@ -1303,25 +1400,29 @@ const RESIZE_HANDLES: Array<{
 ];
 
 const FixtureResizeHandles = ({
+  cornersOnly=false, label="fixture",
   onPointerDown,
   onPointerMove,
   onPointerUp,
 }: {
+  cornersOnly?: boolean;
+  label?: string;
   onPointerDown: (event: React.PointerEvent, handle: ResizeHandle) => void;
   onPointerMove: (event: React.PointerEvent) => void;
   onPointerUp: (event: React.PointerEvent) => void;
 }) => (
   <>
-    {RESIZE_HANDLES.map(({ handle, style, cursor }) => (
+    {RESIZE_HANDLES.filter(h=>!cornersOnly||h.handle.length===2).map(({ handle, style, cursor }) => (
       <button
         key={handle}
         type="button"
         data-reception-screen-only="true"
         data-reception-fixture-resize-handle={handle}
-        aria-label={`Resize fixture ${handle}`}
+        aria-label={`Resize ${label} ${handle}`}
         onPointerDown={(event) => onPointerDown(event, handle)}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
+        onPointerCancel={onPointerUp}
         className="absolute z-[6] h-4 w-4 rounded-sm border-2 border-white bg-primary shadow"
         style={{ ...style, cursor, touchAction: 'none' }}
       />

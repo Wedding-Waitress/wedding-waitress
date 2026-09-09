@@ -91,7 +91,7 @@ export const GallerySlideshowFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSe
               appearance="espresso-glass"
             />
 
-            <GallerySlideshowPreviewCard items={items} settings={effective} loading={loading && items.length === 0} appearance="espresso-glass" />
+            <GallerySlideshowPreviewCard onExit={goBack} eventName={selectedEvent?.name} items={items} settings={effective} loading={loading && items.length === 0} appearance="espresso-glass" />
           </div>
         )}
       </FeatureWorkspaceLayout>

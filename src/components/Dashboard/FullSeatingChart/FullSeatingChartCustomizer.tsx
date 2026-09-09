@@ -207,7 +207,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
               value={settings.fontSize}
               onValueChange={(fontSize: FullSeatingChartSettings['fontSize']) => onSettingsChange({ fontSize })}
             >
-              <SelectTrigger className={`${styles.selectTrigger} w-full border-[#472c1d] focus:ring-[#472c1d]`}>
+              <SelectTrigger aria-label="Guest Text Size" className={`${styles.selectTrigger} w-full border-[#472c1d] focus:ring-[#472c1d]`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className={styles.portalSurface}>
@@ -225,7 +225,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
             </Label>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button 
+                <Button aria-label="Text Style"
                   variant="outline" 
                   className={`${styles.control} w-full justify-between border-[#472c1d] focus:ring-[#472c1d] mt-1`}
                 >

@@ -1,7 +1,7 @@
 import type { ReceptionFloorPlan, TablePosition } from '@/hooks/useReceptionFloorPlan';
 import type { ReceptionTable } from '@/hooks/useReceptionTables';
 import { getHeadTableDimensions } from '@/lib/receptionTableGeometry';
-import { autoArrangeReception } from '@/lib/receptionAutoLayout';
+import {defaultReceptionTablePosition} from '@/lib/receptionDefaultLayout';
 
 const snapshot = (position: TablePosition, table: ReceptionTable): TablePosition => {
   const headDimensions = table.table_purpose === 'head' ? getHeadTableDimensions(table.limit_seats) : null;
@@ -52,18 +52,15 @@ export const reconcileReceptionFloorPlan = (
     }, headTable));
   }
 
-  const arranged = autoArrangeReception(
-    { ...plan, table_positions: kept },
-    authoritativeTables,
-    { preserveExisting: true },
-  );
-  const tablePositions = arranged.positions.map((position) => {
-    const table = tableById.get(position.table_id);
-    return table ? snapshot(position, table) : position;
-  });
   const fixtures = safelyRetireLegacy
     ? plan.fixtures.filter((fixture) => fixture.id !== legacyBridalFixtures[0].id)
-    : plan.fixtures;
+    : [...plan.fixtures];
+  const placedIds = new Set(kept.map(position => position.table_id));
+  for (const fixture of fixtures) if (fixture.linked_table_id) placedIds.add(fixture.linked_table_id);
+  const standardTables = authoritativeTables.filter(table => table.table_purpose !== 'head');
+  const added = (plan.manual_placement ? [] : authoritativeTables).filter(table => !placedIds.has(table.id)).map(table =>
+    snapshot(defaultReceptionTablePosition(table, plan, standardTables.indexOf(table)+1),table));
+  const tablePositions = [...kept,...added];
 
   const next = { ...plan, table_positions: tablePositions, fixtures };
   return JSON.stringify([plan.table_positions, plan.fixtures]) === JSON.stringify([next.table_positions, next.fixtures])

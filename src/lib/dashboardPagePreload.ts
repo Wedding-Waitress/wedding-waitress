@@ -23,11 +23,14 @@ export const preloadDashboardPage = (page: string) => {
   return loader?.();
 };
 
-export const preloadFrequentDashboardPages = () => {
-  void Promise.allSettled([
-    dashboardPageLoaders['my-events'](),
-    dashboardPageLoaders['guest-list'](),
-    dashboardPageLoaders['qr-code'](),
-    dashboardPageLoaders['photo-video-gallery'](),
-  ]);
+let allDashboardPagesPreload: Promise<PromiseSettledResult<unknown>[]> | undefined;
+
+/** Warm every sidebar page after the dashboard has painted so later navigation
+ * can reuse the browser module cache instead of waiting on a cold chunk. */
+export const preloadAllDashboardPages = () => {
+  allDashboardPagesPreload ??= Promise.allSettled(
+    Object.values(dashboardPageLoaders).map((loader) => loader()),
+  );
+
+  return allDashboardPagesPreload;
 };

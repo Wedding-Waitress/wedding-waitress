@@ -62,9 +62,9 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
       <DialogContent className={`sm:max-w-md ${styles.dialogRoot} ${styles.dialogWrap}`}>
         <DialogHeader>
-          <div className="flex items-center space-x-2">
+          <div className="flex items-center space-x-2 max-sm:items-start max-sm:pr-10">
             <AlertTriangle size={18} strokeWidth={1.8} className="text-destructive shrink-0" aria-hidden="true" />
-            <DialogTitle className={styles.dialogTitle}>You are deleting this event</DialogTitle>
+            <DialogTitle className={`min-w-0 max-sm:text-left max-sm:leading-snug ${styles.dialogTitle}`}>You are deleting this event</DialogTitle>
           </div>
           <DialogDescription className="pt-2">
             Event: <span className="font-medium text-foreground">"{eventName}"</span>

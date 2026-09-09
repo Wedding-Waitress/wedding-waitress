@@ -30,6 +30,7 @@ vi.mock('@/components/SEO/SeoHead', () => ({ SeoHead: () => null }));
 vi.mock('qrcode', () => ({ default: { toDataURL: mocks.qrToDataUrl } }));
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
+    rpc: vi.fn(async () => ({ data: false, error: null })),
     auth: {
       getSession: mocks.getSession,
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe: vi.fn() } } }),
@@ -112,7 +113,7 @@ describe('Digital Guestbook premium appearance', () => {
     expect(screen.getByRole('button', { name: 'Export CSV' })).toHaveClass(managementStyles.galleryViewPrimaryAction);
 
     const actions = messagesPanel?.querySelector('[data-guestbook-toolbar="actions"]');
-    expect(actions).toHaveClass('grid-cols-2', 'lg:flex-nowrap');
+    expect(actions).toHaveClass('grid-cols-2', 'sm:justify-end');
     expect(within(actions as HTMLElement).getAllByRole('button')).toEqual([
       screen.getByRole('button', { name: 'Refresh' }),
       screen.getByRole('button', { name: 'Select' }),

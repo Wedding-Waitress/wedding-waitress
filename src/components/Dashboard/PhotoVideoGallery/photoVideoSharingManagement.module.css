@@ -1295,3 +1295,298 @@
     max-height: 100dvh;
   }
 }
+/* Readable text on the existing dark management surfaces. */
+:global(#root#root) .workspaceContent .gallerySecondaryText,
+:global(#root#root) .workspaceContent .gallerySecondaryText strong,
+:global(#root#root) .workspaceContent .upperGlassPill span,
+:global(#root#root) .workspaceContent input.galleryControl,
+:global(#root#root) .workspaceContent textarea.galleryControl {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+:global(#root#root) .workspaceContent input.galleryControl::placeholder,
+:global(#root#root) .workspaceContent textarea.galleryControl::placeholder {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  opacity: 1 !important;
+}
+
+:global(#root#root) .galleryGuestHearts {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  gap: 0.2rem;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  font-size: 0.6875rem;
+  font-weight: 600;
+  white-space: nowrap;
+}
+
+/* Keep uploader names visible alongside guest hearts and album controls. */
+.galleryMediaFooterRow {
+  flex-wrap: wrap;
+}
+.galleryMediaFooterName {
+  min-width: 3rem;
+  white-space: normal;
+  overflow: visible;
+  overflow-wrap: anywhere;
+  text-overflow: clip;
+}
+
+:global(#root#root) .workspaceContent .passwordHeading {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+:global(#root#root) .workspaceContent .gallerySaveAction {
+  min-height: 44px !important;
+  height: 44px !important;
+  padding: 0 16px !important;
+  border: 0 !important;
+  border-radius: 9999px !important;
+  font-size: 14px !important;
+  font-weight: 600 !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  background: linear-gradient(180deg, #7bd880, #55a447) !important;
+  box-shadow: inset 0 1px 0 #ffffff80, inset 0 -2px 0 #37652d66, 0 4px 10px #426a2a30 !important;
+}
+:global(#root#root) .workspaceContent .gallerySaveAction svg {
+  color: #fff !important;
+  stroke: #fff !important;
+}
+:global(#root#root) .workspaceContent .gallerySaveAction:hover:not(:disabled) {
+  filter: brightness(1.04) !important;
+}
+:global(#root#root) .workspaceContent .gallerySaveAction:focus-visible {
+  outline: 2px solid #e5b77c !important;
+  outline-offset: 3px !important;
+}
+
+:global(#root#root) .workspaceContent :global(.gallery-select-visible) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+:global(#root#root) .workspaceContent .guestbookStatePanel p,
+:global(#root#root) .workspaceContent .guestbookStatePanel svg {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+:global(#root#root) .workspaceContent .guestbookStatePanel svg {
+  stroke: #fff !important;
+}
+
+/* White editor labels on espresso; the separate printed preview keeps its colours. */
+:global(#root#root) .workspaceContent .boothEditorSection :is(h3, h4, label, p:not(:global(#footer-custom-notice))),
+:global(#root#root) .workspaceContent .boothEditorSection p:not(:global(#footer-custom-notice)) span,
+:global(#root#root) .workspaceContent .boothEditorSection :global(.text-muted-foreground),
+:global(#root#root) .workspaceContent .boothEditorSection .galleryControl span {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+:global(#root#root) .workspaceContent .boothEditorSection svg {
+  color: #fff !important;
+  stroke: #fff !important;
+}
+
+:global(#root#root) .workspaceContent .boothPreviewDescription {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+:global(#root#root) .workspaceContent .boothEditorSection .boothActiveLabel {
+  color: #7bd880 !important;
+  -webkit-text-fill-color: #7bd880 !important;
+}
+
+:global(#root#root) .workspaceContent .boothEditorSection .boothActiveLabel {
+  font-size: 14px !important;
+  line-height: 20px !important;
+  font-weight: 600 !important;
+}
+
+:global(#root#root) .workspaceContent .boothEditorSection .boothActiveLabel {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  border: 2px solid #7bd880 !important;
+  border-radius: 8px;
+  padding: 3px 10px;
+  flex-shrink: 0;
+}
+
+:global(#root#root) .workspaceContent .boothEditorSection .boothActiveLabel {
+  border-radius: 8px;
+}
+
+:global(#root#root) .workspaceContent .boothFooterDescription {
+  border: 1px solid #fff !important;
+  border-radius: 8px;
+  padding: 3px 10px;
+}
+
+:global(#root#root) .workspaceContent .boothFooterDescription {
+  font-size: 14px !important;
+}
+
+:global(#root#root) .workspaceContent .boothFooterBox {
+  border: 1px solid #fff !important;
+  border-radius: 8px;
+}
+
+:global(#root#root) .workspaceContent .boothFooterHeading {
+  width: fit-content;
+  max-width: 100%;
+  align-self: flex-start;
+  border: 1px solid #fff !important;
+  border-radius: 8px;
+  padding: 3px 10px;
+}
+
+:global(#root#root) .workspaceContent .boothFooterHeading {
+  margin-bottom: 12px !important;
+}
+
+:global(body) .gallerySelectContent .boothPaletteLabel.boothPaletteLabel {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+:global(#root#root) .gallerySelectContent .boothPaletteLabel,
+:global(body:has(#root)) .gallerySelectContent .boothPaletteLabel.boothPaletteLabel {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+:global(#root#root) .workspaceContent .galleryViewInsetPanel:global([data-slideshow-workspace-card]) :is(p, label),
+:global(#root#root) .workspaceContent .galleryViewInsetPanel:global([data-slideshow-workspace-card]) .galleryControl,
+:global(#root#root) .workspaceContent .galleryViewInsetPanel:global([data-slideshow-workspace-card]) .galleryControl span {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+:global(#root#root) .workspaceContent :global([data-slideshow-workspace-card]) h2 + p {
+  margin-top: 16px !important;
+}
+
+/* Match the Digital Photo Booth instructions card across the slideshow's top row. */
+:global(#root#root) .workspaceContent :global([data-slideshow-primary-grid]) > :global([data-slideshow-workspace-card]) {
+  background: linear-gradient(180deg, rgba(101, 57, 40, 0.72) 0%, rgba(42, 23, 17, 0.76) 100%) !important;
+}
+
+:global(#root#root) .workspaceContent :global([data-slideshow-primary-grid]) > :global([data-slideshow-workspace-card]) {
+  border: 1px solid rgba(201, 151, 93, 0.38) !important;
+}
+
+:global(#root#root) .workspaceContent :global([data-slideshow-secondary-grid]) > :global([data-slideshow-workspace-card]) {
+  border: 1px solid rgba(201, 151, 93, 0.38) !important;
+}
+
+:global(#root#root) .slideshowSavedBadge {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  background: linear-gradient(180deg, #7bd880, #55a447) !important;
+  border: 0 !important;
+  box-shadow: inset 0 1px 0 #ffffff80, inset 0 -2px 0 #37652d66, 0 4px 10px #426a2a30 !important;
+}
+
+:global(#root#root) .slideshowSavedBadge {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  color: #7bd880 !important;
+  -webkit-text-fill-color: #7bd880 !important;
+  background: transparent !important;
+  border: 2px solid #7bd880 !important;
+  border-radius: 8px !important;
+  padding: 3px 10px !important;
+  font-size: 14px !important;
+  line-height: 20px !important;
+  font-weight: 600 !important;
+  box-shadow: none !important;
+}
+
+:global(#root#root) .workspaceContent .sharingHeadingDescription {
+  margin-top: 16px !important;
+}
+
+:global(#root#root) .workspaceContent .eventBrandingBorder {
+  width: fit-content;
+  max-width: 100%;
+  border: 1px solid #fff !important;
+  border-radius: 8px;
+  padding: 3px 10px;
+}
+
+:global(#root#root) .saveBrandingContentShadow {
+  text-shadow: 0 1px 2px rgba(20, 55, 16, .65);
+}
+:global(#root#root) .saveBrandingContentShadow svg {
+  filter: drop-shadow(0 1px 2px rgba(20, 55, 16, .65));
+}
+
+:global(#root#root) .workspaceContent :global([data-guestbook-auto-share]) {
+  border: 4px solid hsl(var(--destructive)) !important;
+  border-radius: 8px;
+  outline: none;
+}
+:global(#root#root) .workspaceContent :global([data-guestbook-auto-share]) :is(p,label,span) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+:global(#root#root) .workspaceContent :global([data-guestbook-auto-share][data-auto-share-enabled="true"]) {
+  border-color: #7bd880 !important;
+}
+
+:global(#root#root) .guestbookCsvAction {
+  background: linear-gradient(180deg, #7bd880, #55a447) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  border: 0 !important;
+  box-shadow: inset 0 1px 0 #ffffff80, inset 0 -2px 0 #37652d66 !important;
+  text-shadow: 0 1px 2px rgba(20, 55, 16, .65);
+}
+:global(#root#root) .guestbookCsvAction svg {
+  color: #fff !important;
+  filter: drop-shadow(0 1px 2px rgba(20, 55, 16, .65));
+}
+
+:global(#root#root) .workspaceContent .boothSubtitle {
+  font-size: 12px !important;
+  line-height: 16px !important;
+}
+
+:global(#root#root) .workspaceContent .slideshowSaveAction {
+  opacity: 1 !important;
+  box-shadow: inset 0 1px 0 #ffffff80, inset 0 -2px 0 #37652d66 !important;
+}
+
+:global(body) button.gallerySaveAction.gallerySaveAction,
+:global(body) button.approvedResetAction.approvedResetAction {
+ min-height:40px!important;height:auto!important;padding:10px 16px!important;border:0!important;border-radius:9999px!important;
+ font:600 14px Manrope,sans-serif!important;color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.55);
+}
+:global(body) button.gallerySaveAction.gallerySaveAction {background:linear-gradient(180deg,#7bd880,#55a447)!important;box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30!important;}
+:global(body) button.approvedResetAction.approvedResetAction {background:linear-gradient(180deg,#f85b53,#d9342c)!important;box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #78191966,0 4px 10px #b91c1c30!important;}
+:global(body) button:is(.gallerySaveAction,.approvedResetAction):is(.gallerySaveAction,.approvedResetAction) :is(svg,svg *) {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;}
+
+:global(body) button.guestbookCsvAction.guestbookCsvAction.guestbookCsvAction {
+ min-height:40px!important;height:auto!important;padding:10px 16px!important;border:0!important;border-radius:9999px!important;
+ font:600 14px Manrope,sans-serif!important;color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.55);
+ background:linear-gradient(180deg,#7bd880,#55a447)!important;
+ box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30!important;
+}
+:global(body) button.guestbookCsvAction.guestbookCsvAction.guestbookCsvAction :is(svg,svg *) {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;}
+
+:global(body) button.slideshowSaveAction.slideshowSaveAction.slideshowSaveAction {
+ min-height:40px!important;height:auto!important;padding:10px 16px!important;border:0!important;border-radius:9999px!important;
+ font:600 14px Manrope,sans-serif!important;color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.55);
+ background:linear-gradient(180deg,#7bd880,#55a447)!important;
+ box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30!important;
+}
+:global(body) button.slideshowSaveAction.slideshowSaveAction.slideshowSaveAction :is(svg,svg *) {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;}
+:global(#root#root#root#root) button.slideshowSaveAction :is(svg,svg *) {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;}

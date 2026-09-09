@@ -38,6 +38,13 @@ const editingTable: TableWithGuestCount = {
 };
 
 describe('CreateTableModal', () => {
+  it('sends an explicit empty value when existing notes are cleared', async () => {
+    const onSave = vi.fn().mockResolvedValue(true);
+    render(<CreateTableModal isOpen onClose={vi.fn()} onSave={onSave} editingTable={editingTable} existingTables={[editingTable]} />);
+    fireEvent.change(screen.getByLabelText('Notes'), { target: { value: '   ' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    await waitFor(() => expect(onSave).toHaveBeenCalledWith(expect.objectContaining({ notes: '' })));
+  });
   it('submits a new table through the existing create callback without persistence', async () => {
     const onSave = vi.fn().mockResolvedValue(true);
     const onClose = vi.fn();

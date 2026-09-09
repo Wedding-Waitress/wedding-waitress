@@ -84,7 +84,7 @@ export const GalleryPhotoBoothAccessCard: React.FC<{ meta: GalleryMeta; appearan
         <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
           <QrIcon className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} /> Digital Photo Booth Access
         </h2>
-        <p className={cn('text-sm mt-1 break-words', isGlass && managementStyles.gallerySecondaryText)} style={isGlass ? undefined : { color: '#1a1a1a' }}>
+        <p className={cn('text-sm mt-1 break-words', isGlass && [managementStyles.gallerySecondaryText, managementStyles.sharingHeadingDescription])} style={isGlass ? undefined : { color: '#1a1a1a' }}>
           Share the QR code or link guests use to open the Digital Photo Booth on their phone or tablet.
         </p>
       </div>

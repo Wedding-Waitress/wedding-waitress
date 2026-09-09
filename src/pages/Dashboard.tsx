@@ -1,11 +1,10 @@
-import React, { startTransition, useState, useEffect, useMemo, useRef, useCallback, lazy, Suspense, useDeferredValue } from 'react';
+import React, { useState, useEffect, useMemo, useRef, useCallback, lazy, Suspense, useDeferredValue } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { StatsBar } from "@/components/Dashboard/StatsBar";
 import { AppSidebar } from "@/components/Dashboard/AppSidebar";
 import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import myEventsStyles from "@/components/Dashboard/MyEventsPage.module.css";
 import { DashboardOverview } from "@/components/Dashboard/DashboardOverview";
-import { PlanningWorkflowInstruction } from "@/components/Dashboard/PlanningWorkflowInstruction";
 import dashboardOverviewStyles from "@/components/Dashboard/DashboardOverview.module.css";
 import { TableCard } from "@/components/Dashboard/TableCard";
 import { SortableTablesGrid } from "@/components/Dashboard/Tables/SortableTablesGrid";
@@ -70,7 +69,7 @@ import { useUserPlan } from '@/hooks/useUserPlan';
 import { ExpiryWarningBanner } from '@/components/Dashboard/ExpiryWarningBanner';
 import { useDashboardSession } from '@/hooks/useDashboardSession';
 import { scheduleIdleWork, loadAccountRoute } from '@/lib/authenticatedRoutePreload';
-import { preloadDashboardPage, preloadFrequentDashboardPages } from '@/lib/dashboardPagePreload';
+import { preloadAllDashboardPages, preloadDashboardPage } from '@/lib/dashboardPagePreload';
 import { calculateDashboardSeatStats } from '@/lib/dashboardSeatStats';
 
 /* Organiser pages that use the standardised 1px #472c1d neutral border pass.
@@ -127,23 +126,20 @@ export const Dashboard = () => {
   const isPhotoVideoWorkspace = location.pathname.startsWith('/dashboard/photo-video-gallery/');
   const requestedTab = isPhotoVideoWorkspace ? 'photo-video-gallery' : searchParams.get('tab') || 'dashboard';
   const urlTab = requestedTab === 'kiosk-live-view' ? 'live-slideshow' : requestedTab;
-  const [activeTab, setActiveTabState] = useState(urlTab);
+  // The URL is the single source of truth for navigation. Keeping a second tab
+  // state caused a click to render new -> old -> new while the URL transition
+  // caught up, producing the visible double jump.
+  const activeTab = urlTab;
   // Keep the previous page visible while a cold lazy chunk resolves. Sidebar
   // selection still updates synchronously, so navigation feedback is immediate.
   const renderedTab = useDeferredValue(activeTab);
   
-  // Wrap setActiveTab to persist in URL
+  // One click produces exactly one history update. React Router applies this
+  // synchronously, so the selected sidebar item changes in the same interaction.
   const setActiveTab = useCallback((tab: string) => {
-    setActiveTabState(tab);
-    startTransition(() => {
-      navigate(`/dashboard?tab=${encodeURIComponent(tab)}`);
-    });
-  }, [navigate]);
-
-  // Keep activeTab in sync when URL ?tab= changes (header dropdown, back/forward)
-  useEffect(() => {
-    if (urlTab !== activeTab) setActiveTabState(urlTab);
-  }, [urlTab, activeTab]);
+    if (tab === activeTab && location.pathname === '/dashboard') return;
+    navigate(`/dashboard?tab=${encodeURIComponent(tab)}`);
+  }, [activeTab, location.pathname, navigate]);
 
   // Canonicalise saved dashboard links without dropping event or other safe query parameters.
   useEffect(() => {
@@ -223,10 +219,10 @@ export const Dashboard = () => {
   const { pushAction, undo, canUndo, lastAction } = useUndoStack();
   const { toast } = useToast();
 
-  // Warm the most frequently used feature chunks after the first dashboard
-  // paint. Intent preloading below remains the fast path for every other tab.
+  // Warm sidebar feature chunks after the first dashboard paint. Intent
+  // preloading below remains the fastest path during the idle window.
   useEffect(() => scheduleIdleWork(() => {
-    preloadFrequentDashboardPages();
+    preloadAllDashboardPages();
     void loadAccountRoute();
   }), []);
 
@@ -555,7 +551,6 @@ export const Dashboard = () => {
               description="Easily manage your wedding guest list, track RSVPs, organise guests, and send invitations via email or SMS. The simplest way to stay organised for your big day."
               noIndex
             />
-            <PlanningWorkflowInstruction stepId="guest-list" onContinue={handleTabChange} />
             <GuestListTable
               selectedEventId={selectedEventId}
               onEventSelect={handleEventSelect}
@@ -586,7 +581,6 @@ export const Dashboard = () => {
           return (
             <div className={tablesPageStyles.page}>
               {tablesSeo}
-            <PlanningWorkflowInstruction stepId="table-list" onContinue={handleTabChange} />
             <Card className={`ww-box ${tablesPageStyles.unavailablePanel}`}>
               <CardHeader className="flex flex-col gap-4 pb-6">
                 {/* Event Selector */}
@@ -629,13 +623,12 @@ export const Dashboard = () => {
         }
         return <div className={`space-y-6 ${tablesPageStyles.page}`}>
             {tablesSeo}
-            <PlanningWorkflowInstruction stepId="table-list" onContinue={handleTabChange} />
             <Card className={`border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] ${tablesPageStyles.setupPanel}`}>
               <CardHeader className="flex flex-col gap-4 pb-6 max-lg:px-4">
                 {/* Top row - Title */}
                 <div className="flex items-start gap-3">
                   {/* Left: Icon + Title + Description */}
-                  <div className="flex items-start gap-3 flex-1 max-lg:flex-col max-lg:gap-2">
+                  <div className="flex items-start gap-[.55rem] flex-1">
                     <TableProperties size={34} strokeWidth={1.8} className={`text-primary flex-shrink-0 ${tablesPageStyles.setupIcon}`} aria-hidden="true" />
                     <div className="flex flex-col max-lg:w-full">
                       <CardTitle className={`mb-2 text-left text-2xl font-bold text-foreground ${tablesPageStyles.sectionHeading}`}>Table Setup</CardTitle>
@@ -721,7 +714,7 @@ export const Dashboard = () => {
                         onMoveGuest={handleGuestMove}
                         onReorderGuests={handleReorderGuests}
                       >
-                          <div className="grid grid-cols-1 sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
+                          <div className="grid grid-cols-1 items-start sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
                             {tables.map(table => <TableCard key={table.id} table={table} onEdit={handleEditTable} onDelete={deleteTable} guests={guests} eventId={selectedEventId} participant1={selectedEvent?.partner1_name} participant2={selectedEvent?.partner2_name} onSaveHeadSeating={saveHeadTableSeating} />)}
                           </div>
                       </SortableTablesGrid>
@@ -850,6 +843,10 @@ export const Dashboard = () => {
         </Card>
       </div>;
   }
+  // During a cold lazy-page load, keep all content-area chrome paired with the
+  // page that is still on screen. Only the sidebar selection follows activeTab.
+  const contentTab = renderedTab;
+
   return <SidebarProvider>
     {/* Defensive page-level noIndex — protects every dashboard tab even if a tab forgets its own SeoHead. */}
     <SeoHead
@@ -857,7 +854,7 @@ export const Dashboard = () => {
       description="View your event at a glance and plan, track and manage your event budget."
       noIndex
     />
-    <div data-dashboard-shell className={`dashboard-shell ww-application-background relative min-h-screen dashboard-surface w-full mobile-contain ${activeTab === 'my-events' ? 'ww-myevents-brown' : ''}${activeTab === 'running-sheet' ? ' ww-running-sheet-shell' : ''}${activeTab === 'dj-mc-questionnaire' ? ' ww-djmc-shell' : ''}`}>
+    <div data-dashboard-shell className={`dashboard-shell ww-application-background relative min-h-screen dashboard-surface w-full mobile-contain ${contentTab === 'my-events' ? 'ww-myevents-brown' : ''}${contentTab === 'running-sheet' ? ' ww-running-sheet-shell' : ''}${contentTab === 'dj-mc-questionnaire' ? ' ww-djmc-shell' : ''}`}>
       {/* Expiry Warning Banner */}
       <div className="print:hidden">
         <ExpiryWarningBanner />
@@ -878,11 +875,11 @@ export const Dashboard = () => {
         </div>
         
         {/* Main Content - Mobile optimized padding */}
-        <main data-dashboard-content data-solid-text-surface={isPhotoVideoWorkspace ? 'dark' : 'light'} className={`ww-application-background flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 min-w-0 overflow-x-hidden${BROWN_OUTLINE_TABS.has(activeTab) ? ` ${pageSpacingStyles.corePageBottomSpacing}` : ''}${activeTab === 'dashboard' ? ` ${dashboardOverviewStyles.mainSurface}` : ''}${ESPRESSO_FULL_PAGE_TABS.has(activeTab) ? ` ${signagePageStyles.fullPageSurface}` : ''}${activeTab === 'signage' ? ` ${signagePageStyles.signageWorkspaceSurface}` : ''}${activeTab === 'invitations' ? ` ${invitationsPageStyles.invitationsWorkspaceSurface}` : ''}${activeTab === 'place-cards' ? ` ${placeCardsPageStyles.placeCardsWorkspaceSurface}` : ''}${activeTab === 'individual-table-chart' ? ` ${individualTableChartStyles.workspaceSurface}` : ''}${activeTab === 'dietary-chart' ? ` ${kitchenDietaryStyles.dietaryWorkspaceSurface}` : ''}${activeTab === 'full-seating-chart' ? ` ${fullSeatingChartStyles.fullSeatingWorkspaceSurface}` : ''}${isPhotoVideoWorkspace || activeTab === 'photo-video-gallery' ? ` ${photoVideoManagementStyles.photoVideoWorkspaceMain}` : ''}${activeTab === 'my-events' ? ` ${myEventsStyles.mainSurface}` : ''}${activeTab === 'table-list' ? ` ${tablesPageStyles.mainSurface}` : ''}${activeTab === 'guest-list' ? ` ${guestListStyles.mainSurface}` : ''}${activeTab === 'qr-code' ? ` ${qrCodePageStyles.mainSurface}` : ''}${BROWN_OUTLINE_TABS.has(activeTab) ? ' ww-brown-outline-core' : ''}${BROWN_OUTLINE_TABS.has(activeTab) && activeTab !== 'running-sheet' ? ' ww-heading-system' : ''}${BROWN_OUTLINE_TABS.has(activeTab) || activeTab === 'photo-video-gallery' ? ' ww-solid-text' : ''}${activeTab === 'floor-plan' ? ' ww-floorplan-brown' : ''}${activeTab === 'live-slideshow' ? ' ww-live-slideshow-brown' : ''}${activeTab === 'running-sheet' ? ' ww-running-sheet-main' : ''}${activeTab === 'dj-mc-questionnaire' ? ' ww-djmc-main' : ''}`}>
+        <main data-dashboard-content data-solid-text-surface={contentTab === 'photo-video-gallery' ? 'dark' : 'light'} className={`ww-application-background flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 min-w-0 overflow-x-hidden${BROWN_OUTLINE_TABS.has(contentTab) ? ` ${pageSpacingStyles.corePageBottomSpacing}` : ''}${contentTab === 'dashboard' ? ` ${dashboardOverviewStyles.mainSurface}` : ''}${ESPRESSO_FULL_PAGE_TABS.has(contentTab) ? ` ${signagePageStyles.fullPageSurface}` : ''}${contentTab === 'signage' ? ` ${signagePageStyles.signageWorkspaceSurface}` : ''}${contentTab === 'invitations' ? ` ${invitationsPageStyles.invitationsWorkspaceSurface}` : ''}${contentTab === 'place-cards' ? ` ${placeCardsPageStyles.placeCardsWorkspaceSurface}` : ''}${contentTab === 'individual-table-chart' ? ` ${individualTableChartStyles.workspaceSurface}` : ''}${contentTab === 'dietary-chart' ? ` ${kitchenDietaryStyles.dietaryWorkspaceSurface}` : ''}${contentTab === 'full-seating-chart' ? ` ${fullSeatingChartStyles.fullSeatingWorkspaceSurface}` : ''}${contentTab === 'photo-video-gallery' ? ` ${photoVideoManagementStyles.photoVideoWorkspaceMain}` : ''}${contentTab === 'my-events' ? ` ${myEventsStyles.mainSurface}` : ''}${contentTab === 'table-list' ? ` ${tablesPageStyles.mainSurface}` : ''}${contentTab === 'guest-list' ? ` ${guestListStyles.mainSurface}` : ''}${contentTab === 'qr-code' ? ` ${qrCodePageStyles.mainSurface}` : ''}${BROWN_OUTLINE_TABS.has(contentTab) ? ' ww-brown-outline-core' : ''}${BROWN_OUTLINE_TABS.has(contentTab) && contentTab !== 'running-sheet' ? ' ww-heading-system' : ''}${BROWN_OUTLINE_TABS.has(contentTab) || contentTab === 'photo-video-gallery' ? ' ww-solid-text' : ''}${contentTab === 'floor-plan' ? ' ww-floorplan-brown' : ''}${contentTab === 'live-slideshow' ? ' ww-live-slideshow-brown' : ''}${contentTab === 'running-sheet' ? ' ww-running-sheet-main' : ''}${contentTab === 'dj-mc-questionnaire' ? ' ww-djmc-main' : ''}`}>
           <div className="w-full max-w-none">
             {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Live Slideshow, Printables, Place Cards, Dietary Requirements, Full Seating Chart, DJ & MC Questionnaire, Running Sheet, AI Features */}
-            {activeTab !== 'my-events' && activeTab !== 'qr-code' && activeTab !== 'dashboard' && activeTab !== 'vendor-team' && activeTab !== 'planner' && activeTab !== 'wishing-well' && activeTab !== 'rsvp-invite' && activeTab !== 'floor-plan' && activeTab !== 'live-slideshow' && activeTab !== 'printables' && activeTab !== 'individual-table-chart' && activeTab !== 'place-cards' && activeTab !== 'dietary-chart' && activeTab !== 'full-seating-chart' && activeTab !== 'dj-mc-questionnaire' && activeTab !== 'running-sheet' && activeTab !== 'invitations' && activeTab !== 'signage' && activeTab !== 'account' && activeTab !== 'photo-video-gallery' && <div className={`print:hidden${activeTab === 'table-list' || activeTab === 'guest-list' ? ' ww-tables-stats' : ''}${activeTab === 'table-list' ? ` ${tablesPageStyles.stats}` : ''}${activeTab === 'guest-list' ? ` ${guestListStyles.stats}` : ''}`}>
-              {(activeTab === 'table-list' || activeTab === 'guest-list') ? (
+            {contentTab !== 'my-events' && contentTab !== 'qr-code' && contentTab !== 'dashboard' && contentTab !== 'vendor-team' && contentTab !== 'planner' && contentTab !== 'wishing-well' && contentTab !== 'rsvp-invite' && contentTab !== 'floor-plan' && contentTab !== 'live-slideshow' && contentTab !== 'printables' && contentTab !== 'individual-table-chart' && contentTab !== 'place-cards' && contentTab !== 'dietary-chart' && contentTab !== 'full-seating-chart' && contentTab !== 'dj-mc-questionnaire' && contentTab !== 'running-sheet' && contentTab !== 'invitations' && contentTab !== 'signage' && contentTab !== 'account' && contentTab !== 'photo-video-gallery' && <div className={`print:hidden${contentTab === 'table-list' || contentTab === 'guest-list' ? ' ww-tables-stats' : ''}${contentTab === 'table-list' ? ` ${tablesPageStyles.stats}` : ''}${contentTab === 'guest-list' ? ` ${guestListStyles.stats}` : ''}`}>
+              {(contentTab === 'table-list' || contentTab === 'guest-list') ? (
                   <StatsBar stats={statsData} />
               ) : (
                 <StatsBar stats={statsData} />

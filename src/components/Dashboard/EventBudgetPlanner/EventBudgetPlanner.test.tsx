@@ -2,8 +2,9 @@ import { fireEvent, render, screen, waitFor, within } from '@testing-library/rea
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import type { EventBudgetExpense } from '@/lib/eventBudget';
 import { EventBudgetPlanner } from './EventBudgetPlanner';
+import { exportEventBudgetPdf } from '@/lib/eventBudgetPdfExporter';
 
-const mocks = vi.hoisted(() => ({ useEventBudget: vi.fn(), toast: vi.fn(), saveBudget: vi.fn(), saveExpense: vi.fn(), deleteExpense: vi.fn() }));
+const mocks = vi.hoisted(() => ({ useEventBudget: vi.fn(), toast: vi.fn(), saveBudget: vi.fn(), saveExpense: vi.fn(), deleteExpense: vi.fn(), convertCurrency: vi.fn() }));
 vi.mock('@/hooks/useEventBudget', () => ({ useEventBudget: mocks.useEventBudget }));
 vi.mock('@/hooks/use-toast', () => ({ useToast: () => ({ toast: mocks.toast }) }));
 vi.mock('@/lib/eventBudgetPdfExporter', () => ({ exportEventBudgetPdf: vi.fn() }));
@@ -17,16 +18,38 @@ const expense = (overrides: Partial<EventBudgetExpense> = {}): EventBudgetExpens
 });
 
 const hookValue = (expenses: EventBudgetExpense[] = [expense()]) => ({
-  query: { data: { settings: { id: 'budget-1', event_id: 'event-a', user_id: 'user-1', anticipated_budget: 5000, currency: 'AUD', created_at: '', updated_at: '' }, expenses }, isLoading: false, isError: false, refetch: vi.fn() },
+  query: { data: { settings: { id: 'budget-1', event_id: 'event-a', user_id: 'user-1', anticipated_budget: 5000, planned_budget_kind: 'exact', currency: 'AUD', created_at: '', updated_at: '' }, expenses }, isLoading: false, isError: false, refetch: vi.fn() },
+  convertCurrency: { mutateAsync: mocks.convertCurrency, isPending: false },
   saveBudget: { mutateAsync: mocks.saveBudget, isPending: false }, saveExpense: { mutateAsync: mocks.saveExpense, isPending: false }, deleteExpense: { mutateAsync: mocks.deleteExpense, isPending: false },
 });
 
 describe('EventBudgetPlanner interface', () => {
   beforeEach(() => { vi.clearAllMocks(); localStorage.clear(); mocks.saveBudget.mockResolvedValue({}); mocks.saveExpense.mockResolvedValue({}); mocks.deleteExpense.mockResolvedValue({}); mocks.useEventBudget.mockReturnValue(hookValue()); });
 
+  it('downloads the displayed document and marks that same document only while browser printing', async () => {
+    render(<EventBudgetPlanner event={{ id: 'event-a', name: 'Community Gala' }} />);
+    fireEvent.click(screen.getByRole('button', { name: 'Download PDF' }));
+    await waitFor(() => expect(exportEventBudgetPdf).toHaveBeenCalled());
+    const preview = screen.getByRole('dialog');
+    const root = preview.querySelector('[data-budget-print-document-root]') as HTMLElement;
+    expect(exportEventBudgetPdf).toHaveBeenCalledWith(root, 'Community Gala');
+    expect(preview).toHaveAttribute('data-budget-print-preview');
+    expect(root.parentElement).toHaveAttribute('data-budget-print-viewport');
+    const print = vi.spyOn(window, 'print').mockImplementation(() => {
+      expect(root).toHaveAttribute('data-budget-print-source', 'true');
+    });
+    try {
+      fireEvent.click(within(preview).getByRole('button', { name: 'Print Budget' }));
+      await waitFor(() => expect(print).toHaveBeenCalledOnce());
+      expect(root).not.toHaveAttribute('data-budget-print-source');
+    } finally {
+      print.mockRestore();
+    }
+  });
+
   it('renders the approved heading, subtitle, controls and six live summaries', () => {
     render(<EventBudgetPlanner event={{ id: 'event-a', name: 'Community Gala', date: '2026-12-20' }} />);
-    expect(screen.getByRole('heading', { name: 'Event Budget Planner' })).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Your Event Budget' })).toBeInTheDocument();
     expect(screen.getByText('Plan your event spending, track payments and stay on budget.')).toBeInTheDocument();
     ['Total Budget', 'Budgeted Costs', 'Actual Costs', 'Amount Paid', 'Amount Outstanding', 'Budget Remaining'].forEach(label => expect(screen.getAllByText(label).length).toBeGreaterThan(0));
     expect(screen.getByRole('button', { name: 'Add Expense' })).toBeInTheDocument();
@@ -34,10 +57,40 @@ describe('EventBudgetPlanner interface', () => {
     expect(screen.getByRole('button', { name: 'Download PDF' })).toBeInTheDocument();
   });
 
-  it('keeps Print and PDF in the heading and places Add Expense after Sort in the toolbar', () => {
+  it('places all six summaries inside the anticipated-budget panel in the required order', () => {
+    const { container } = render(<EventBudgetPlanner event={{ id: 'event-a', name: 'Community Gala' }} />);
+    const panel = container.querySelector('[data-budget-panel]') as HTMLElement;
+    const summary = within(panel).getByLabelText('Event budget summary');
+
+    expect(within(summary).getAllByRole('article').map(card => card.querySelector('span')?.textContent)).toEqual([
+      'Total Budget', 'Budgeted Costs', 'Actual Costs',
+      'Amount Paid', 'Amount Outstanding', 'Budget Remaining',
+    ]);
+    expect(panel.nextElementSibling).not.toHaveAttribute('aria-label', 'Event budget summary');
+  });
+
+  it('keeps every summary accurate after the anticipated budget is updated', async () => {
+    const event = { id: 'event-a', name: 'Community Gala' };
+    const { rerender } = render(<EventBudgetPlanner event={event} />);
+
+    fireEvent.change(screen.getByLabelText('Total Anticipated Event Budget'), { target: { value: '7000' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Update Budget' }));
+    await waitFor(() => expect(mocks.saveBudget).toHaveBeenCalledWith({ anticipatedBudget: 7000, currency: 'AUD' }));
+
+    const updated = hookValue();
+    updated.query.data.settings.anticipated_budget = 7000;
+    mocks.useEventBudget.mockReturnValue(updated);
+    rerender(<EventBudgetPlanner event={event} />);
+
+    const summary = screen.getByLabelText('Event budget summary');
+    ['A$7,000.00', 'A$1,200.00', 'A$1,300.00', 'A$300.00', 'A$1,000.00', 'A$5,700.00']
+      .forEach(value => expect(within(summary).getByText(value)).toBeInTheDocument());
+  });
+
+  it('groups Print and PDF in Export Controls and places Add Expense after Sort', () => {
     render(<EventBudgetPlanner event={{ id: 'event-a', name: 'Community Gala' }} />);
-    const heading = screen.getByRole('heading', { name: 'Event Budget Planner' });
-    const headingRow = heading.parentElement?.parentElement;
+    const heading = screen.getByRole('heading', { name: 'Your Event Budget' });
+    const headingRow = screen.getByRole('region', { name: 'Export Controls' });
     expect(within(headingRow as HTMLElement).getByRole('button', { name: 'Print Budget' })).toBeInTheDocument();
     expect(within(headingRow as HTMLElement).getByRole('button', { name: 'Download PDF' })).toBeInTheDocument();
     expect(within(headingRow as HTMLElement).queryByRole('button', { name: 'Add Expense' })).not.toBeInTheDocument();
@@ -65,18 +118,31 @@ describe('EventBudgetPlanner interface', () => {
     expect(within(selector).getAllByRole('option').map(option => option.textContent)).toEqual(['AUD A$', 'USD US$', 'GBP £', 'EUR €']);
   });
 
-  it('confirms currency changes without converting values and Cancel preserves the saved currency', async () => {
-    render(<EventBudgetPlanner event={{ id: 'event-a', name: 'Community Gala' }} />);
-    const selector = screen.getByLabelText('Event budget currency');
-    fireEvent.change(selector, { target: { value: 'EUR' } });
-    const dialog = await screen.findByRole('alertdialog');
-    expect(within(dialog).getByText('Changing the currency updates the currency used for this event budget. Existing numerical amounts will not be converted.')).toBeInTheDocument();
-    fireEvent.click(within(dialog).getByRole('button', { name: 'Cancel' }));
-    expect(selector).toHaveValue('AUD');
-    fireEvent.change(selector, { target: { value: 'USD' } });
-    fireEvent.click(await screen.findByRole('button', { name: 'Change Currency' }));
-    await waitFor(() => expect(mocks.saveBudget).toHaveBeenCalledWith({ anticipatedBudget: 5000, currency: 'USD' }));
-    expect(selector).toHaveValue('USD');
+  it('converts immediately and displays the rate date after saving', async () => {
+    const budget=hookValue().query.data;
+    mocks.convertCurrency.mockResolvedValue({budget:{...budget,settings:{...budget.settings,currency:'USD',anticipated_budget:3300}},quote:{from:'AUD',to:'USD',rate:.66,date:'2026-09-07'}});
+    render(<EventBudgetPlanner event={{id:'event-a',name:'Community Gala'}} />);
+    fireEvent.change(screen.getByLabelText('Event budget currency'),{target:{value:'USD'}});
+    await waitFor(()=>expect(mocks.convertCurrency).toHaveBeenCalledWith({from:'AUD',to:'USD',budget:5000}));
+    await waitFor(()=>expect(screen.getByLabelText('Event budget currency')).toHaveValue('USD'));
+    expect(screen.getByLabelText('Total Anticipated Event Budget')).toHaveValue('3,300.00');
+    expect(screen.getByText(/Rate published 2026-09-07/)).toBeInTheDocument();
+    expect(mocks.saveBudget).not.toHaveBeenCalled();
+  });
+  it('keeps the original currency and typed amount if conversion fails',async()=>{
+    mocks.convertCurrency.mockRejectedValue(new Error('Rate unavailable'));
+    render(<EventBudgetPlanner event={{id:'event-a',name:'Community Gala'}} />);
+    fireEvent.change(screen.getByLabelText('Event budget currency'),{target:{value:'EUR'}});
+    await screen.findByText('Rate unavailable');
+    expect(screen.getByLabelText('Event budget currency')).toHaveValue('AUD');
+    expect(screen.getByLabelText('Total Anticipated Event Budget')).toHaveValue('5,000.00');
+  });
+  it('places export actions in the supplied page-header target',()=>{
+    const target=document.createElement('div'); document.body.append(target);
+    const view=render(<EventBudgetPlanner event={{id:'event-a',name:'Community Gala'}} exportTarget={target}/>);
+    expect(within(target).getByRole('button',{name:'Print Budget'})).toBeInTheDocument();
+    expect(within(target).getByRole('button',{name:'Download PDF'})).toBeInTheDocument();
+    view.unmount();target.remove();
   });
 
   it('shows the useful empty state and opens a blank Add Expense drawer', async () => {

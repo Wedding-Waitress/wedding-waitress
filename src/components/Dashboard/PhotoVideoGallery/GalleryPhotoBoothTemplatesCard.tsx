@@ -340,7 +340,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
         <RotateCcw className="h-4 w-4 mr-1" /> Reset to default
       </Button>
       <Button
-        className={cn('lv-premium-shade font-bold text-white border-0 bg-[#16A34A] hover:bg-[#15803D] active:bg-[#166534] active:translate-y-px shadow-[0_4px_10px_-2px_rgba(22,163,74,0.55),inset_0_1px_0_rgba(255,255,255,0.35)] active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] transition-all', isGlass && managementStyles.galleryViewPrimaryAction)}
+        className={cn('lv-premium-shade font-bold text-white border-0 bg-[#16A34A] hover:bg-[#15803D] active:bg-[#166534] active:translate-y-px shadow-[0_4px_10px_-2px_rgba(22,163,74,0.55),inset_0_1px_0_rgba(255,255,255,0.35)] active:shadow-[inset_0_2px_4px_rgba(0,0,0,0.25)] transition-all', isGlass && [managementStyles.galleryViewPrimaryAction, managementStyles.gallerySaveAction])}
         disabled={!dirty || saving || !!uploading}
         onClick={handleSave}
       >
@@ -356,28 +356,28 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
       <div className="text-center px-2 py-2 sm:py-4">
         <h2 className="text-2xl sm:text-3xl font-bold text-white">Photo Booth Customisation</h2>
         <p className="text-sm text-white/85 mt-2 max-w-3xl mx-auto break-words">
-          Customise the final photo strip only — background, footer logo, fonts and footer text. Individual photos are always saved as original raw photos.
+          Customise the final photo strip only → background, footer logo, fonts, and footer text.<br />Individual photos are always saved as original raw photos.
         </p>
       </div>
 
       <div className="grid grid-cols-1 lg:grid-cols-2 gap-6 items-start lg:items-stretch">
       {/* ── Section 1: Photo Strip Background ───────────────────────────── */}
-      <Card className={cn('p-5 space-y-4 lg:p-4 lg:space-y-0 lg:gap-3 lg:h-full lg:flex lg:flex-col', isGlass && managementStyles.glassCard)}>
+      <Card className={cn('p-5 space-y-4 lg:p-4 lg:space-y-0 lg:gap-3 lg:h-full lg:flex lg:flex-col', isGlass && [managementStyles.glassCard, managementStyles.boothEditorSection])}>
         <div>
           <h3 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
             <Palette className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} /> Photo Strip Background
           </h3>
-          <p className="text-xs text-muted-foreground mt-1">
-            Choose one background for the complete 1200 × 1800 print. The four photo positions in each strip and the footer remain layered above it.
+          <p className={cn('text-xs text-muted-foreground mt-1', isGlass && [managementStyles.sharingHeadingDescription, managementStyles.boothSubtitle])}>
+            Choose one background for the complete 1200 × 1800 print.<br />The four photo positions in each strip and the footer remain layered above it.
           </p>
         </div>
 
         <div className="grid grid-cols-1 lg:grid-cols-2 gap-4 lg:gap-3 items-stretch">
           {/* 1. Background colour */}
           <div className={cn(`rounded-lg border bg-background p-3.5 lg:p-3 lg:col-span-2 flex flex-col gap-2 ${bgMode === 'colour' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`, isGlass && managementStyles.galleryViewInsetPanel)}>
-            <div className="flex items-center justify-between gap-2">
+            <div className="flex items-center justify-between gap-2 mb-3">
               <h4 className="text-sm font-semibold text-[#1D1D1F]">Background Colour</h4>
-              {bgMode === 'colour' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
+              {bgMode === 'colour' && <span className={cn('text-[11px] font-semibold text-[#16A34A]', isGlass && managementStyles.boothActiveLabel)}>Active</span>}
             </div>
             <p className="text-xs text-muted-foreground">
               A single solid colour behind the whole photo strip. Pick a shade or enter an exact colour code.
@@ -398,10 +398,10 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           </div>
 
           {/* 2. Template library */}
-          <div className={cn(`rounded-lg border bg-background p-3.5 lg:p-3 flex flex-col gap-2 ${bgMode === 'library' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`, isGlass && managementStyles.galleryViewInsetPanel)}>
-            <div className="flex items-center justify-between gap-2">
-              <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Background Template</h4>
-              {bgMode === 'library' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
+          <div className={cn(`rounded-lg border bg-background p-3.5 pb-7 lg:p-3 lg:pb-7 flex flex-col gap-2 ${bgMode === 'library' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`, isGlass && managementStyles.galleryViewInsetPanel)}>
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <h4 className={cn('text-sm font-semibold text-[#1D1D1F]', isGlass && managementStyles.eventBrandingBorder)}>Add Background Template</h4>
+              {bgMode === 'library' && <span className={cn('text-[11px] font-semibold text-[#16A34A]', isGlass && managementStyles.boothActiveLabel)}>Active</span>}
             </div>
             <p className="text-xs text-muted-foreground">
               Wedding Waitress templates, ready to use. Browse the library to pick one.
@@ -429,14 +429,14 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           </div>
 
           {/* 3. Custom template */}
-          <div className={cn(`rounded-lg border bg-background p-3.5 lg:p-3 flex flex-col gap-2 ${bgMode === 'custom' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`, isGlass && managementStyles.galleryViewInsetPanel)}>
-            <div className="flex items-center justify-between gap-2">
-              <h4 className="text-sm font-semibold text-[#1D1D1F]">Add Your Custom Template</h4>
-              {bgMode === 'custom' && <span className="text-[11px] font-semibold text-[#16A34A]">Active</span>}
+          <div className={cn(`rounded-lg border bg-background p-3.5 pb-7 lg:p-3 lg:pb-7 flex flex-col gap-2 ${bgMode === 'custom' ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`, isGlass && managementStyles.galleryViewInsetPanel)}>
+            <div className="flex items-center justify-between gap-2 mb-3">
+              <h4 className={cn('text-sm font-semibold text-[#1D1D1F]', isGlass && managementStyles.eventBrandingBorder)}>Add Your Custom Template</h4>
+              {bgMode === 'custom' && <span className={cn('text-[11px] font-semibold text-[#16A34A]', isGlass && managementStyles.boothActiveLabel)}>Active</span>}
             </div>
             <p className="text-xs text-muted-foreground">
-              <span className="font-medium text-[#1D1D1F]">Exact required size: {PB_STRIP_PRINT.w} × {PB_STRIP_PRINT.h} px.</span>{' '}
-              JPEG only (.jpg or .jpeg), exactly 1200 × 1800 px in portrait orientation (4 × 6 inches at 300 DPI). The image must be the full master print containing both 2 × 6 inch strips.
+              <span className="font-medium text-[#1D1D1F]">Exact required size: {PB_STRIP_PRINT.w} × {PB_STRIP_PRINT.h} px.</span><br />
+              JPEG only, exactly 1200 × 1800 px in portrait orientation (4 × 6 inches at 300 DPI). The image must be the full master print containing both 2 × 6 inch strips.
             </p>
             <div className="mt-auto space-y-2">
               <input
@@ -496,7 +496,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           </div>
         </div>
 
-        <div className="lg:mt-auto">
+        <div className="lg:mt-auto pt-5">
           {actionRow(handleBackgroundReset)}
         </div>
 
@@ -510,16 +510,14 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
       </Card>
 
       {/* ── Section 2: Live Preview ─────────────────────────────────────── */}
-      <Card className={cn('p-5', isGlass && managementStyles.glassCard)}>
-        <div className="flex flex-col sm:flex-row sm:items-baseline sm:gap-3">
+      <Card className={cn('p-5 lg:p-4', isGlass && managementStyles.glassCard)}>
+        <div className="flex flex-col">
           <h3 className={cn('text-xl font-bold shrink-0', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>Live Photo Strip Preview</h3>
-          <p className="text-xs text-muted-foreground break-words mt-1 sm:mt-0">
-            {tpl ? 'Using your uploaded template artwork.' : 'Using your selected background colour and footer settings.'}
-          </p>
+
         </div>
 
         <div className="mt-4 flex items-center justify-center">
-          <div className="w-full max-w-[420px]">
+          <div className="w-full max-w-[432px]">
             <PhotoBoothTemplatePreview kind="strip" opts={previewOpts} />
           </div>
         </div>
@@ -527,39 +525,34 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
       </div>
 
       {/* ── Section 3: Photo Strip Footer ───────────────────────────────── */}
-      <Card className={cn('p-5 space-y-4', isGlass && managementStyles.glassCard)}>
+      <Card className={cn('p-5 space-y-4', isGlass && [managementStyles.glassCard, managementStyles.boothEditorSection])}>
         <div className="flex flex-col sm:flex-row sm:items-baseline sm:justify-between gap-1 sm:gap-4">
           <h3 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
             <TypeIcon className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} /> Photo Strip Footer
           </h3>
-          <p className="text-xs text-muted-foreground sm:text-right">
-            Everything that appears in the footer band beneath the four photos in each strip.
+          <p className={cn('text-xs text-muted-foreground sm:text-right', isGlass && managementStyles.boothFooterDescription)}>
+            Everything that appears in the footer band beneath the four photos in each photo strip.
           </p>
         </div>
 
         <div className="text-xs text-muted-foreground space-y-2">
           <p>
             Upload one complete footer design using the exact dimensions below. It will fill the footer beneath one
-            photo column and be duplicated automatically beneath both columns. When active, it replaces the event
-            name, date and all text-footer settings.
+            photo column and be duplicated automatically beneath both columns.<br />When active, it replaces the event
+            name, date and all text footer settings.
           </p>
-          <div className="grid grid-cols-1 sm:grid-cols-2 xl:grid-cols-4 gap-x-6 gap-y-1.5">
-            <p>
-              <span className="font-semibold text-[#1D1D1F]">
-                Required size: {FOOTER_PANEL_WIDTH} × {FOOTER_PANEL_HEIGHT} px
-              </span>
-              <span className="text-muted-foreground"> (approx. {panelMm.w} × {panelMm.h} mm at 300 DPI)</span>
-            </p>
-            <p><span className="font-semibold text-[#1D1D1F]">JPEG only:</span> upload a .jpg or .jpeg file.</p>
-            <p><span className="font-semibold text-[#1D1D1F]">Complete background:</span> the footer JPEG replaces the complete footer background.</p>
-            <p>Keep important text and logos inside the recommended safe area.</p>
-          </div>
+
         </div>
 
-        <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 items-start">
+        <div className="grid grid-cols-1 xl:grid-cols-4 gap-4 items-stretch">
           {/* 1. Complete custom footer design */}
           <div className={cn(`rounded-lg border bg-background p-3.5 flex flex-col gap-2 ${footerDesignActive ? 'border-[#967A59] ring-2 ring-[#967A59]/20' : 'border-border'}`, isGlass && managementStyles.galleryViewInsetPanel)}>
-            <h4 className="text-sm font-semibold text-[#1D1D1F]">Upload Custom Footer Design</h4>
+            <h4 className={cn('text-sm font-semibold text-[#1D1D1F]', isGlass && managementStyles.boothFooterHeading)}>Upload Custom Footer Design</h4>
+            <p className="text-xs">
+              <span className="block font-semibold">Required size: {FOOTER_PANEL_WIDTH} × {FOOTER_PANEL_HEIGHT} px - JPEG only</span>
+              <span className="block">(approx. {panelMm.w} × {panelMm.h} mm at 300 DPI)</span>
+              <span className="block mt-3"><span className="font-semibold">Complete background:</span> the footer JPEG replaces the complete footer background.</span>
+            </p>
 
             <div className="space-y-2">
               <ImageSlot
@@ -587,7 +580,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             </div>
           </div>
 
-          <div className="xl:col-span-3 space-y-3">
+          <div className="xl:col-span-3 space-y-3 flex flex-col">
             {footerDesignActive && (
               <p
                 id="footer-custom-notice"
@@ -602,11 +595,11 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             <fieldset
               disabled={footerDesignActive}
               aria-describedby={footerDesignActive ? 'footer-custom-notice' : undefined}
-              className={`grid grid-cols-1 md:grid-cols-3 gap-4 items-start border-0 p-0 m-0 min-w-0 ${footerDesignActive ? 'opacity-50' : ''}`}
+              className={`grid grid-cols-1 md:grid-cols-3 gap-4 items-stretch flex-1 border-0 p-0 m-0 min-w-0 ${footerDesignActive ? 'opacity-50' : ''}`}
             >
           <div className={cn('rounded-lg border border-border bg-background p-3.5 flex flex-col gap-2', isGlass && managementStyles.galleryViewInsetPanel)}>
 
-            <h4 className="text-sm font-semibold text-[#1D1D1F]">Custom Footer Text</h4>
+            <h4 className={cn('text-sm font-semibold text-[#1D1D1F]', isGlass && managementStyles.boothFooterHeading)}>Custom Footer Text</h4>
 
             <Textarea
               className={cn('min-h-[88px] text-base', isGlass && managementStyles.galleryControl)}
@@ -650,7 +643,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
 
 
           <div className={cn('rounded-lg border border-border bg-background p-3.5 space-y-3', isGlass && managementStyles.galleryViewInsetPanel)}>
-            <h4 className="text-sm font-semibold text-[#1D1D1F]">Footer Header Font</h4>
+            <h4 className={cn('text-sm font-semibold text-[#1D1D1F]', isGlass && managementStyles.boothFooterHeading)}>Footer Header Font</h4>
 
             <p className="text-xs text-muted-foreground">Event name, or the first line of your Custom Footer Text.</p>
             <div>
@@ -682,7 +675,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
           </div>
 
           <div className={cn('rounded-lg border border-border bg-background p-3.5 space-y-3', isGlass && managementStyles.galleryViewInsetPanel)}>
-            <h4 className="text-sm font-semibold text-[#1D1D1F]">Footer Date Font</h4>
+            <h4 className={cn('text-sm font-semibold text-[#1D1D1F]', isGlass && managementStyles.boothFooterHeading)}>Footer Date Font</h4>
             <p className="text-xs text-muted-foreground">Event date, or the second and later lines of your Custom Footer Text.</p>
             <div>
               <Label className="text-sm">Font family</Label>

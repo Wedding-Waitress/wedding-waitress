@@ -1,36 +1,15 @@
-import { fireEvent, render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
-
-import type { ReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
-import { RoomShapePanel } from './RoomShapePanel';
-
-const makePlan = (): ReceptionFloorPlan => ({
-  room_width_m: 15,
-  room_length_m: 20,
-  room_polygon: null,
-} as ReceptionFloorPlan);
-
-describe('Reception room-shape controls', () => {
-  it('retains Rectangle, L-shape, T-shape, and Custom Polygon updates', () => {
-    let plan = makePlan();
-    const onChange = (mutator: (current: ReceptionFloorPlan) => ReceptionFloorPlan) => {
-      plan = mutator(plan);
-    };
-    const view = render(<RoomShapePanel plan={plan} onChange={onChange} />);
-
-    fireEvent.click(screen.getByRole('button', { name: 'L-shape' }));
-    expect(plan.room_polygon?.kind).toBe('L');
-    view.rerender(<RoomShapePanel plan={plan} onChange={onChange} />);
-
-    fireEvent.click(screen.getByRole('button', { name: 'T-shape' }));
-    expect(plan.room_polygon?.kind).toBe('T');
-    view.rerender(<RoomShapePanel plan={plan} onChange={onChange} />);
-
-    fireEvent.click(screen.getByRole('button', { name: 'Custom polygon' }));
-    expect(plan.room_polygon?.kind).toBe('custom');
-    view.rerender(<RoomShapePanel plan={plan} onChange={onChange} />);
-
-    fireEvent.click(screen.getByRole('button', { name: 'Rectangle' }));
-    expect(plan.room_polygon).toBeNull();
-  });
+import {fireEvent,render,screen} from '@testing-library/react';
+import {expect,it} from 'vitest';
+import {RoomShapePanel} from './RoomShapePanel';
+import type {ReceptionFloorPlan} from '@/hooks/useReceptionFloorPlan';
+it('adds independent movable wall sections without changing room dimensions or furniture',()=>{
+ let plan={room_width_m:20,room_length_m:35,grid_size_cm:50,fixtures:[],table_positions:[],room_polygon:null} as unknown as ReceptionFloorPlan;
+ const onChange=(m:(p:ReceptionFloorPlan)=>ReceptionFloorPlan)=>{plan=m(plan)};
+ render(<RoomShapePanel plan={plan} onChange={onChange}/>);
+ expect(screen.queryByRole('button',{name:'L-shape'})).toBeNull();
+ fireEvent.click(screen.getByRole('button',{name:'Add wall section'}));
+ fireEvent.click(screen.getByRole('button',{name:'Add wall section'}));
+ expect(plan.fixtures).toHaveLength(2);expect(plan.fixtures[0].id).not.toBe(plan.fixtures[1].id);
+ expect(plan.fixtures[0]).toMatchObject({type:'wall',width_m:.3,height_m:6,locked:false,rotation:0});
+ expect(plan.room_width_m).toBe(20);expect(plan.room_length_m).toBe(35);expect(plan.grid_size_cm).toBe(50);
 });

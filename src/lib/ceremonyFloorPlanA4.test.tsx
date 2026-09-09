@@ -173,3 +173,33 @@ describe('Ceremony Floor Plan A4 renderer', () => {
     expect(people[1]).toHaveTextContent('Celebrant');
   });
 });
+
+it('numbers chairs continuously through family and general rows on each side',()=>{
+ const {container}=render(<CeremonyFloorPlanA4 floorPlan={makePlan({chairs_per_row:5,total_rows:10,assigned_rows:3})} event={event} generatedAt={generatedAt}/>);
+ for(const side of ['left','right']){
+  const seats=Array.from(container.querySelectorAll('[data-ceremony-family="'+side+'"] [data-ceremony-seat]'));
+  expect(seats.map(e=>e.textContent)).toEqual(Array.from({length:50},(_,i)=>String(i+1)));
+ }
+ expect(container.querySelector('[data-ceremony-chair-total]')?.textContent).toBe('100');
+ expect(container.querySelector('[data-ceremony-seat="left-4-1"]')?.textContent).toBe('16');
+});
+
+describe('bridal party inside-out order', () => {
+  for (const arrangement of ['groom_left', 'bride_left'] as const) {
+    for (const count of [1, 3, 10]) {
+      it(arrangement + ' starts both groups beside the couple with ' + count + ' members', () => {
+        const {container, unmount} = render(<CeremonyFloorPlanA4 floorPlan={makePlan({couple_side_arrangement:arrangement,bridal_party_count_left:count,bridal_party_count_right:count})} event={event} generatedAt={generatedAt}/>);
+        for (const side of ['left','right'] as const) {
+          const members = Array.from(container.querySelectorAll<HTMLElement>('[data-ceremony-party="'+side+'"] [data-ceremony-party-member]'));
+          members.forEach((member, position) => {
+            expect(member.querySelector('[data-ceremony-party-seat]')).toHaveTextContent(String(position+1));
+            expect(member.style.gridColumn).toBe(String(side==='left'?5-position%5:position%5+1));
+            expect(member.style.gridRow).toBe(String(Math.floor(position/5)+1));
+          });
+          expect(members[0].querySelector('[data-ceremony-role]')).toHaveTextContent((arrangement==='groom_left')===(side==='left')?'Best Man':'Maid of Honor');
+        }
+        unmount();
+      });
+    }
+  }
+});

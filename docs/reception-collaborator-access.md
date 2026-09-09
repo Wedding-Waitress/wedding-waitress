@@ -1,0 +1,13 @@
+# Reception collaborator access
+
+Reception share links support View Only and Can Edit. Ceremony is constrained to View Only in the database.
+
+The public Reception route mounts a dedicated collaborator workspace when the validated link has can_edit permission. It does not render account navigation or request other dashboard data. Sidebar buttons and venue lookup are disabled; event and floor-plan type are fixed. Editors can arrange existing tables, use the 14 fixtures, transform the existing background, add vendor notes, export the canonical PDF, and submit empty venue templates. Optional trial requests notify support@weddingwaitress.com.au using the existing email service.
+
+Every Edge action validates token scope, permission and expiry. Draft payloads are rebuilt from an allowlist and authoritative event tables. Account identifiers, room configuration, guest assignments, background paths and sharing settings cannot be supplied by collaborators. The service-only save RPC repeats authorization inside a transaction, checks revisions, and freezes submitted drafts. The owner-only review RPC requires a matching live-plan timestamp before applying geometry and notes. Revoking a link removes its drafts. Uploads remain in the shared library.
+
+Save Draft preserves work without changing the live floor plan. Send to Couple for Approval creates an owner review item in Reception Setup. The owner can preview and approve it, or request a new draft. If the owner changed their plan meanwhile, approval is refused; request a new draft and the collaborator can reload the current layout.
+
+Validation: 21 focused sharing, sanitizer and fixture tests passed. A browser check using an isolated mocked service covered disabled navigation, fixture placement, notes, save, submission and owner review. The deployed database functions were cloned into temporary tables and exercised inside a rolled-back transaction: view-only/Ceremony denial, expired/revoked denial, stale base/revision checks, submitted lock, owner authorization, approval field boundaries and conflict rejection passed. No production event or live share token was created for testing. The two-page PDF was rendered back through PDF.js; both pages passed the preview comparison with zero differing pixels under the repository comparison rules. No email was sent during testing.
+
+Database changes and repeatable isolated RPC checks are recorded in reception-collaborator-migrations.sql and reception-collaborator-rpc-checks.sql. The app build passes. Full application type-check still reports existing errors in Reception resize-handle props, Ceremony plan typing, and protected Supabase URL access; this change introduced no new type-check errors.

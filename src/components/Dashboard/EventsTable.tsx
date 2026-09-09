@@ -197,11 +197,11 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     });
   };
   const handleEventSelect = (eventId: string) => {
-    // Immediate UI update (no await)
-    setActiveEventId(eventId);
-    // Fire callback asynchronously without blocking UI
+    // The page callback owns selection and countdown persistence when supplied.
     if (onEventSelect) {
-      Promise.resolve().then(() => onEventSelect(eventId));
+      onEventSelect(eventId);
+    } else {
+      setActiveEventId(eventId);
     }
   };
   const handleEdit = (event: Event) => {
@@ -218,8 +218,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
       event: null
     });
     // Immediately set this event as active and notify parent
-    setActiveEventId(id);
-    onEventSelect?.(id);
+    handleEventSelect(id);
   };
   const handleDeleteClick = (event: any) => {
     setDeleteModal({
@@ -244,17 +243,12 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     }
   };
   const handleCreateEvent = async (eventData: any) => {
-    try {
-      const newEvent = await createEvent(eventData);
-      setCreateModal(false);
-      
-      // Immediately set the new event as active and notify parent
-      if (newEvent?.id) {
-        setActiveEventId(newEvent.id);
-        onEventSelect?.(newEvent.id);
-      }
-    } catch (error) {
-      console.error('Failed to create event:', error);
+    // Let the form display failures and retain its draft for retry.
+    const newEvent = await createEvent(eventData);
+    setCreateModal(false);
+
+    if (newEvent?.id) {
+      handleEventSelect(newEvent.id);
     }
   };
   const isAtCapacity = (event: any) => {
@@ -338,6 +332,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         <RadioGroupItem 
                           value={event.id} 
                           id={`countdown-${event.id}`} 
+                          aria-label={`Show countdown for ${event.name}`}
+                          onClick={(e) => e.stopPropagation()}
                           className="mt-1 data-[state=checked]:border-green-500 data-[state=checked]:text-green-500" 
                         />
                         <div className="flex items-center gap-2 flex-wrap min-w-0 flex-1">
@@ -372,7 +368,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       </div>
 
                       {/* Action buttons: centered tablet-shape buttons */}
-                      <div className="flex items-center justify-center gap-3 mt-3">
+                      <div className="flex flex-wrap items-center justify-center gap-3 mt-3">
                         <Button 
                           size="sm" 
                           onClick={(e) => { e.stopPropagation(); handleEdit(event); }} 
@@ -387,7 +383,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                           className="ww-events-button lv-premium-shade rounded-full bg-red-500 hover:bg-red-600 text-white h-9 px-4 flex items-center gap-2"
                         >
                           <Trash2 size={17} strokeWidth={1.8} className="text-white shrink-0" aria-hidden="true" />
-                          <span>Cancel</span>
+                          <span>Delete Event</span>
                         </Button>
                       </div>
                     </div>
@@ -435,7 +431,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       `}>
                       <TableCell className="text-center w-20">
                         <div className="flex items-center justify-center">
-                          <RadioGroupItem value={event.id} id={`countdown-${event.id}`} aria-label={`Show countdown for ${event.name}`} className="sr-only" onClick={() => handleEventSelect(event.id)} />
+                          <RadioGroupItem value={event.id} id={`countdown-${event.id}`} aria-label={`Show countdown for ${event.name}`} className="sr-only" />
                           <label htmlFor={`countdown-${event.id}`} className="cursor-pointer inline-flex items-center justify-center p-1">
                             <CircleDot
                               size={20}
@@ -496,7 +492,9 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       </TableCell>
                       <TableCell className="w-24">
                         <span className="text-muted-foreground">
-                          {formatLocalDate(event.expiry_date_local, null, event.event_timezone) || getExpiryDateFallback(event.created_at, event.event_timezone)}
+                          {event.expiry_date_local || event.expiry_date
+                            ? formatLocalDate(event.expiry_date_local, event.expiry_date, event.event_timezone)
+                            : getExpiryDateFallback(event.created_at, event.event_timezone)}
                         </span>
                       </TableCell>
                       <TableCell className="w-20">
@@ -541,6 +539,13 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       </TableCell>
                     </TableRow>;
                   })}
+                  {events.length === 0 && (
+                    <TableRow>
+                      <TableCell colSpan={12} className="ww-events-empty text-center py-8 text-muted-foreground">
+                        No events yet. Create your first event!
+                      </TableCell>
+                    </TableRow>
+                  )}
                   {/* Solid footer row matching the high-contrast table header. */}
                   <TableRow className="ww-events-footer bg-primary hover:bg-primary border-t-0">
                     <TableCell colSpan={12} className="h-12">

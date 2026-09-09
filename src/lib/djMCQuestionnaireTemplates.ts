@@ -62,6 +62,10 @@ export const DEFAULT_SECTION_TEMPLATES: DefaultSectionTemplate[] = [
     section_type: 'main_event',
     section_label: 'Main Events Songs',
     items: [
+      { row_label: "Groom's Parents Introduction Song", has_music_url: true, has_pronunciation: true },
+      { row_label: "Bride's Parents Introduction Song", has_music_url: true, has_pronunciation: true },
+      { row_label: 'Bridal Party Entrance Song', has_music_url: true, has_pronunciation: true },
+      { row_label: 'Bride & Groom Entrance Song', has_music_url: true, has_pronunciation: true },
       { row_label: 'Cake Cutting & Toast Song', has_music_url: true, has_pronunciation: true },
       { row_label: 'First Bridal Dance', has_music_url: true, has_pronunciation: true },
       { row_label: 'Second Bridal Dance with Guests', has_music_url: true, has_pronunciation: true },

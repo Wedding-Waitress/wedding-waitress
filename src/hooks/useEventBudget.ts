@@ -1,6 +1,7 @@
 import { useMutation, useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import type { EventBudgetExpense, EventBudgetExpenseInput, EventBudgetSettings } from '@/lib/eventBudget';
+import { fetchBudgetExchangeQuote } from '@/lib/eventBudgetExchange';
 import type { CurrencyCode } from '@/lib/currencyPricing';
 
 export const eventBudgetKeys = {
@@ -53,6 +54,24 @@ export const useEventBudget = (eventId: string | null) => {
     onSuccess: (settings) => updateCached({ settings, expenses: query.data?.expenses ?? [] }),
   });
 
+  const convertCurrency = useMutation({
+    mutationFn: async ({ from, to, budget }: { from: CurrencyCode; to: CurrencyCode; budget: number | null }) => {
+      if (!eventId) throw new Error('Select an event first.');
+      const current = query.data;
+      if (!current) throw new Error('Wait for the budget to load.');
+      const quote = await fetchBudgetExchangeQuote(from, to);
+      const { data, error } = await supabase.rpc('convert_event_budget_currency', {
+        p_event_id: eventId, p_from: from, p_to: to, p_rate: quote.rate, p_rate_date: quote.date,
+        p_expected_updated_at: current.settings?.updated_at ?? null,
+        p_expense_versions: current.expenses.map(({ id, updated_at }) => ({ id, updated_at })), p_budget: budget,
+      });
+      if (error || !data) throw error ?? new Error('The conversion could not be saved.');
+      return { budget: data as unknown as EventBudgetData, quote };
+    },
+    onSuccess: ({ budget }) => updateCached(budget),
+    onError: () => { if (eventId) void queryClient.invalidateQueries({ queryKey: eventBudgetKeys.event(eventId) }); },
+  });
+
   const saveExpense = useMutation({
     mutationFn: async ({ id, input }: { id?: string; input: EventBudgetExpenseInput }) => {
       if (!eventId || input.event_id !== eventId) throw new Error('The selected event changed. Reopen the expense and try again.');
@@ -86,5 +105,5 @@ export const useEventBudget = (eventId: string | null) => {
     },
   });
 
-  return { query, saveBudget, saveExpense, deleteExpense };
+  return { query, saveBudget, saveExpense, deleteExpense, convertCurrency };
 };

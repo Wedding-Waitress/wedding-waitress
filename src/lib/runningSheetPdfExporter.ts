@@ -122,8 +122,11 @@ const textToHtmlLines = (text: string): string => {
 const generateRunningSheetHTML = (
   items: RunningSheetItem[],
   event: Event,
-  sectionNotes: string | null
+  sectionNotes: string | null,
+  sectionLabel: string,
+  rowTextSize: "standard" | "larger" = "standard"
 ): string => {
+  const rowFontPx = rowTextSize === "larger" ? 40 / 3 : 12;
   const receptionDate = formatDateWithOrdinal(event.date);
   const receptionVenue = event.venue || 'Venue TBD';
   const receptionTime = `${formatTimeDisplay(event.start_time)} – ${formatTimeDisplay(event.finish_time)}`;
@@ -139,8 +142,11 @@ const generateRunningSheetHTML = (
 
   const detailsHtml = detailLines.map(line => `<div style="color:#555;font-size:12px;margin-top:2px;">${line}</div>`).join('');
 
-  // Notes are intentionally excluded from PDF exports — they are only visible on screen/links
-  const notesBlock = '';
+  const notesBlock = sectionNotes?.trim() ? `
+    <section style="margin-bottom:14px;color:#222;font-size:12px;line-height:18px;">
+      <div data-pdf-block style="font-weight:bold;margin-bottom:4px;">Notes for Run Sheet</div>
+      ${sectionNotes.split('\n').map(line => `<div data-pdf-block style="white-space:pre-wrap;overflow-wrap:anywhere;line-height:18px;">${escapeHtml(line) || '&nbsp;'}</div>`).join('')}
+    </section>` : '';
 
   const rows = items.map((item, idx) => {
     const bgColor = idx % 2 === 0 ? '#fafafa' : '#ffffff';
@@ -151,9 +157,9 @@ const generateRunningSheetHTML = (
     if (item.is_underline) cellStyle += 'text-decoration:underline;';
     return `
       <tr style="background:${bgColor};">
-        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:12px;white-space:pre-wrap;vertical-align:top;width:10.6%;${cellStyle}">${textToHtmlLines(item.time_text || '')}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:12px;white-space:pre-wrap;vertical-align:top;width:69.4%;${cellStyle}">${textToHtmlLines(getEventText(item))}</td>
-        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:12px;white-space:pre-wrap;vertical-align:top;width:20%;${cellStyle}">${textToHtmlLines(item.responsible || '')}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:${rowFontPx}px;line-height:18px;overflow-wrap:anywhere;white-space:pre-wrap;vertical-align:top;width:10.6%;${cellStyle}">${textToHtmlLines(item.time_text || '')}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:${rowFontPx}px;white-space:pre-wrap;vertical-align:top;width:69.4%;${cellStyle}">${textToHtmlLines(getEventText(item))}</td>
+        <td style="padding:6px 8px;border-bottom:1px solid #e5e5e5;font-size:${rowFontPx}px;white-space:pre-wrap;vertical-align:top;width:20%;${cellStyle}">${textToHtmlLines(item.responsible || '')}</td>
       </tr>
     `;
   }).join('');
@@ -164,7 +170,7 @@ const generateRunningSheetHTML = (
       <!-- Header -->
       <div style="text-align:center;margin-bottom:4px;">
         <div style="font-size:22px;font-weight:bold;color:#967A59;">${escapeHtml(event.name)}</div>
-        <div style="font-size:16px;color:#222;margin-top:4px;">Run Sheet</div>
+        <div style="font-size:16px;color:#222;margin-top:4px;">${escapeHtml(sectionLabel || 'Run Sheet')}</div>
       </div>
       <!-- Event details -->
       <div style="text-align:center;margin-bottom:6px;">
@@ -174,7 +180,7 @@ const generateRunningSheetHTML = (
       <div style="border-top:2px solid #967A59;margin:8px 0 14px 0;"></div>
       ${notesBlock}
       <!-- Table -->
-      <table style="width:100%;border-collapse:collapse;border:1px solid #ddd;">
+      <table style="width:100%;table-layout:fixed;border-collapse:collapse;border:1px solid #ddd;">
         <thead>
           <tr style="background:#f3f3f3;">
 <th style="padding:7px 8px;text-align:left;font-size:10px;font-weight:bold;color:#555;border-bottom:2px solid #ccc;width:10.6%;text-transform:uppercase;">Time</th>
@@ -255,11 +261,11 @@ export const exportRunningSheetPDF = async (
   items: RunningSheetItem[],
   event: Event,
   sectionLabel: string = 'Run Sheet',
-  sectionNotes: string | null = null
+  sectionNotes: string | null = null,
+  rowTextSize: "standard" | "larger" = "standard"
 ): Promise<void> => {
-  void sectionLabel;
   const logoDataUrl = await loadLogoAsDataUrl();
-  const htmlContent = generateRunningSheetHTML(items, event, sectionNotes);
+  const htmlContent = generateRunningSheetHTML(items, event, sectionNotes, sectionLabel, rowTextSize);
   const timestamp = formatGeneratedTimestamp();
 
   // Create offscreen container
@@ -307,12 +313,45 @@ export const exportRunningSheetPDF = async (
     const usableHeightPage1Px = PAGE_HEIGHT_PX - FOOTER_ZONE_PX;
     const usableHeightPage2PlusPx = PAGE_HEIGHT_PX - FOOTER_ZONE_PX - TOP_MARGIN_PAGE2_PX;
 
-    // Calculate total pages
-    let totalPages = 1;
-    let remaining = contentHeight - usableHeightPage1Px;
-    if (remaining > 0) {
-      totalPages += Math.ceil(remaining / usableHeightPage2PlusPx);
+    // Prefer row boundaries; for a row taller than a page, split only between text lines.
+    const origin = container.getBoundingClientRect().top;
+    const rows = Array.from(container.querySelectorAll('tbody tr, [data-pdf-block]')).map(row => ({
+      top: Math.round(row.getBoundingClientRect().top - origin),
+      bottom: Math.round(row.getBoundingClientRect().bottom - origin),
+    }));
+    const raster = fullCanvas.getContext('2d')!;
+    const findTextGap = (limit: number, start: number) => {
+      const top = Math.max(start + 1, limit - 80);
+      const width = (PAGE_WIDTH_PX - 96) * SCALE;
+      const pixels = raster.getImageData(48 * SCALE, top * SCALE, width, (limit - top) * SCALE);
+      let clear = 0;
+      for (let y = pixels.height - 1; y >= 0; y--) {
+        let ink = false;
+        for (let x = 0; x < width; x++) {
+          const i = (y * width + x) * 4;
+          if (Math.min(pixels.data[i], pixels.data[i+1], pixels.data[i+2]) < 150) { ink = true; break; }
+        }
+        clear = ink ? 0 : clear + 1;
+        if (clear >= 3 * SCALE) return top + (y + clear / 2) / SCALE;
+      }
+      return limit;
+    };
+    const slices: {start:number; height:number}[] = [];
+    let cursor = 0;
+    while (cursor < contentHeight) {
+      const capacity = slices.length ? usableHeightPage2PlusPx : usableHeightPage1Px;
+      let end = Math.min(contentHeight, cursor + capacity);
+      const crossing = rows.find(row => row.top < end && row.bottom > end);
+      if (crossing) {
+        if (crossing.top > cursor + 1) end = crossing.top;
+        else end = findTextGap(end, cursor);
+      }
+      if (end < contentHeight && end > cursor + 1) end = findTextGap(end, cursor);
+      if (end <= cursor) end = Math.min(contentHeight, cursor + capacity);
+      slices.push({start:cursor, height:end-cursor});
+      cursor = end;
     }
+    const totalPages = slices.length;
 
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', ...PDF_DEFAULT_OPTIONS });
 
@@ -327,15 +366,9 @@ export const exportRunningSheetPDF = async (
       let sliceHeight: number;
       let destY: number; // Y position in mm where the image starts on the PDF page
 
-      if (page === 0) {
-        srcY = 0;
-        sliceHeight = Math.min(usableHeightPage1Px, contentHeight);
-        destY = 0;
-      } else {
-        srcY = usableHeightPage1Px + (page - 1) * usableHeightPage2PlusPx;
-        sliceHeight = Math.min(usableHeightPage2PlusPx, contentHeight - srcY);
-        destY = TOP_MARGIN_PAGE2_MM; // leave top margin on pages 2+
-      }
+      srcY = slices[page].start;
+      sliceHeight = slices[page].height;
+      destY = page === 0 ? 0 : TOP_MARGIN_PAGE2_MM;
 
       // Create slice canvas
       const sliceCanvas = document.createElement('canvas');

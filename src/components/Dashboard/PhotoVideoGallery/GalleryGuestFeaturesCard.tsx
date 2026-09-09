@@ -64,8 +64,11 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
   return (
     <Card className={styles.featuresPanel}>
       <div className={styles.featuresHeading}>
-        <h2><SlidersHorizontal size={22} strokeWidth={1.8} aria-hidden="true" /> Guest Experience Features</h2>
-        <p>Enable or disable the features your guests can see and use.</p>
+        <SlidersHorizontal size={25} strokeWidth={1.8} className={styles.headingIcon} aria-hidden="true" />
+        <div className={styles.headingCopy}>
+          <h2>Guest Experience Features</h2>
+          <p>Enable or disable the features your guests can see and use.</p>
+        </div>
       </div>
 
       <div className={styles.featureGrid}>

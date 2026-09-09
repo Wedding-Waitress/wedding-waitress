@@ -12,10 +12,14 @@ import type { ReceptionTable } from '@/hooks/useReceptionTables';
 import type { ReceptionPdfEvent } from '@/lib/receptionFloorPlanPdfExporter';
 import { parseHeadSeatingOrder } from '@/lib/headTable';
 
-interface SharePayload {
+export interface SharePayload {
+  permission?: string;
+  baseUpdatedAt?: string;
+  draft?: {payload: Partial<ReceptionFloorPlan>; revision: number; status: string};
   plan: ReceptionFloorPlan;
   event: ReceptionPdfEvent;
   tables: ReceptionTable[];
+  attendingCount: number;
 }
 
 interface State {
@@ -57,12 +61,9 @@ export const useReceptionFloorPlanShare = (token: string | undefined): State => 
     let cancelled = false;
     (async () => {
       setState((s) => ({ ...s, loading: true, error: null }));
-      const { data, error } = await supabase.rpc(
-        'get_reception_floor_plan_by_share_token',
-        { _token: token }
-      );
+      const { data, error } = token.length === 64 ? await supabase.functions.invoke('floor-plan-share', { body: { token } }) : await supabase.rpc('get_reception_floor_plan_by_share_token', { _token: token });
       if (cancelled) return;
-      if (error || !data) {
+      if (error || !data || (token.length === 64 && data.kind !== 'reception')) {
         setState({
           data: null,
           backgroundUrl: null,
@@ -75,10 +76,15 @@ export const useReceptionFloorPlanShare = (token: string | undefined): State => 
         plan: Record<string, unknown>;
         event: Record<string, unknown>;
         tables: Array<Record<string, unknown>>;
+        attending_count?: number;
+        backgroundUrl?: string;
+        permission?: string;
+        draft?: SharePayload["draft"];
       };
       const r = raw.plan;
       const plan: ReceptionFloorPlan = {
         id: String(r.id),
+        manual_placement: !!r.manual_placement,
         event_id: String(r.event_id),
         room_shape: String(r.room_shape ?? 'rect'),
         room_width_m: Number(r.room_width_m),
@@ -158,8 +164,8 @@ export const useReceptionFloorPlanShare = (token: string | undefined): State => 
         });
       }
 
-      let backgroundUrl: string | null = null;
-      if (plan.background.path) {
+      let backgroundUrl: string | null = raw.backgroundUrl ?? null;
+      if (plan.background.path && !backgroundUrl) {
         const { data: urlData } = await supabase.rpc(
           'get_reception_share_background_signed_url',
           { _token: token }
@@ -168,7 +174,7 @@ export const useReceptionFloorPlanShare = (token: string | undefined): State => 
       }
 
       if (cancelled) return;
-      setState({ data: { plan, event, tables }, backgroundUrl, loading: false, error: null });
+      setState({ data: { plan, event, tables, permission: raw.permission, draft: raw.draft, baseUpdatedAt: String(r.updated_at), attendingCount: Number(raw.attending_count ?? 0) }, backgroundUrl, loading: false, error: null });
     })();
     return () => {
       cancelled = true;

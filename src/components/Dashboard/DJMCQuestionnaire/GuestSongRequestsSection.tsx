@@ -16,6 +16,8 @@ import theme from './DJMCQuestionnaireTheme.module.css';
 
 interface Props {
   eventId: string | null;
+  disabled?: boolean;
+  onRunUndoable?: (action:()=>unknown|Promise<unknown>,rows:GuestSongRequestRow[])=>Promise<unknown>;
   eventName?: string | null;
   eventDate?: string | null;
 }
@@ -32,7 +34,7 @@ const statusLabel: Record<SongRequestStatus, string> = {
   rejected: 'Rejected',
 };
 
-export const GuestSongRequestsSection: React.FC<Props> = ({ eventId, eventName, eventDate }) => {
+export const GuestSongRequestsSection: React.FC<Props> = ({ eventId, eventName, eventDate, disabled=false, onRunUndoable }) => {
   const { settings } = useGuestSongRequestSettings(eventId);
   const { rows, loading, updateStatus, deleteRequest } = useGuestSongRequests(eventId);
   const [exporting, setExporting] = useState(false);
@@ -106,8 +108,9 @@ export const GuestSongRequestsSection: React.FC<Props> = ({ eventId, eventName, 
               <RequestRow
                 key={r.id}
                 row={r}
-                onStatusChange={(s) => updateStatus(r.id, s)}
-                onDelete={() => deleteRequest(r.id)}
+                disabled={disabled}
+                onStatusChange={(s) => onRunUndoable ? void onRunUndoable(()=>updateStatus(r.id,s),[r]) : void updateStatus(r.id,s)}
+                onDelete={() => onRunUndoable ? void onRunUndoable(()=>deleteRequest(r.id),[r]) : void deleteRequest(r.id)}
               />
             ))}
           </div>
@@ -119,9 +122,10 @@ export const GuestSongRequestsSection: React.FC<Props> = ({ eventId, eventName, 
 
 const RequestRow: React.FC<{
   row: GuestSongRequestRow;
+  disabled?:boolean;
   onStatusChange: (s: SongRequestStatus) => void;
   onDelete: () => void;
-}> = ({ row, onStatusChange, onDelete }) => {
+}> = ({ row, onStatusChange, onDelete, disabled }) => {
   return (
     <div className={`${theme.managedLink} flex flex-wrap items-start gap-3 rounded-lg p-3`}>
       <div className="flex-1 min-w-[240px] space-y-1">
@@ -154,7 +158,7 @@ const RequestRow: React.FC<{
         )}
       </div>
       <div className="flex items-center gap-2">
-        <Select value={row.status} onValueChange={(v) => onStatusChange(v as SongRequestStatus)}>
+        <Select disabled={disabled} value={row.status} onValueChange={(v) => onStatusChange(v as SongRequestStatus)}>
           <SelectTrigger className="h-9 w-[130px] text-xs">
             <SelectValue />
           </SelectTrigger>
@@ -166,7 +170,7 @@ const RequestRow: React.FC<{
         </Select>
         <AlertDialog>
           <AlertDialogTrigger asChild>
-            <Button size="icon" variant="ghost" className="h-9 w-9 text-destructive hover:text-destructive" title="Delete request" aria-label="Delete song request">
+            <Button size="icon" variant="ghost" className="h-9 w-9 text-destructive hover:text-destructive" title="Delete request" aria-label="Delete song request" disabled={disabled}>
               <Trash2 size={16} strokeWidth={1.8} />
             </Button>
           </AlertDialogTrigger>
@@ -174,7 +178,7 @@ const RequestRow: React.FC<{
             <AlertDialogHeader>
               <AlertDialogTitle>Delete this song request?</AlertDialogTitle>
               <AlertDialogDescription>
-                This will permanently remove the request from {row.guest_name || 'this guest'}. This action cannot be undone.
+                This will remove the request from {row.guest_name || 'this guest'}. Use the questionnaire's top Undo button to restore it while this page is open.
               </AlertDialogDescription>
             </AlertDialogHeader>
             <AlertDialogFooter>

@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
 import { resolveWeddingFontZones } from '@/lib/localWeddingFonts';
+import { resolveInvitationCardSize } from '@/lib/invitationCardSizes';
 
 export interface TextZone {
   id: string;
@@ -59,6 +60,7 @@ export interface InvitationCardSettings {
   orientation: string;
   card_type: CardType;
   name: string;
+  notes?: string;
   canva_template_url?: string | null;
   qr_config: QrConfig;
   created_at?: string;
@@ -87,12 +89,34 @@ export const useInvitationCardSettings = (eventId: string | null) => {
   const { toast } = useToast();
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
-  // Cleanup debounce timer on unmount
-  useEffect(() => () => { clearTimeout(saveTimerRef.current); }, []);
+  const pendingRef = useRef(new Map<string, { event: string; updates: Partial<InvitationCardSettings>; resolve: Array<(saved: boolean) => void> }>());
+  const writesRef = useRef<Promise<void>>(Promise.resolve());
+  const flushPending = useCallback(() => {
+    clearTimeout(saveTimerRef.current);
+    const batch = [...pendingRef.current.entries()];
+    pendingRef.current.clear();
+    for (const [id, pending] of batch) {
+      writesRef.current = writesRef.current.then(async () => {
+        let saved = false;
+        try {
+          const { data, error } = await supabase.from('invitation_card_settings' as any)
+            .update(pending.updates).eq('id', id).eq('event_id', pending.event).select('id').single();
+          if (error || !data) throw error || new Error('Artwork was not saved');
+          saved = true;
+        } catch (error) {
+          console.error('Error saving invitation artwork:', error);
+          toast({ title: 'Could not save card', description: 'Your last changes were not saved. Please try again.', variant: 'destructive' });
+        }
+        pending.resolve.forEach(resolve => resolve(saved));
+      });
+    }
+    return writesRef.current;
+  }, [toast]);
+  useEffect(() => () => { void flushPending(); }, [eventId, flushPending]);
 
   // Keep cache in sync
   useEffect(() => {
-    if (eventId && artworks.length > 0) invitationCache.set(eventId, { artworks, activeId: activeArtworkId });
+    if (eventId) invitationCache.set(eventId, { artworks, activeId: activeArtworkId });
   }, [eventId, artworks, activeArtworkId]);
 
   const activeArtwork = useMemo(
@@ -143,42 +167,18 @@ export const useInvitationCardSettings = (eventId: string | null) => {
     // Optimistic: update local state immediately so canvas reflects changes instantly
     setArtworks(prev => prev.map(a => a.id === activeArtworkId ? { ...a, ...newSettings } : a));
 
-    // Debounce the actual Supabase persistence
+    const pending = pendingRef.current.get(activeArtworkId) || { event: eventId, updates: {}, resolve: [] as Array<(saved: boolean) => void> };
+    pending.updates = { ...pending.updates, ...newSettings };
+    pendingRef.current.set(activeArtworkId, pending);
     clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(async () => {
-      try {
-        const { data: { user } } = await supabase.auth.getUser();
-        if (!user) {
-          toast({ title: "Error", description: "You must be logged in", variant: "destructive" });
-          return;
-        }
-
-        const result = await supabase
-          .from('invitation_card_settings' as any)
-          .update(newSettings)
-          .eq('id', activeArtworkId);
-
-        if (result.error) {
-          console.error('Error updating invitation card settings:', result.error);
-          toast({ title: "Error", description: "Failed to save settings", variant: "destructive" });
-        }
-      } catch (error) {
-        console.error('Error updating invitation card settings:', error);
-        toast({ title: "Error", description: "An unexpected error occurred", variant: "destructive" });
-      }
-    }, 300);
-
-    return true;
+    saveTimerRef.current = setTimeout(flushPending, 300);
+    return new Promise<boolean>(resolve => pending.resolve.push(resolve));
   };
 
   const createArtwork = async (cardType: CardType, name: string, cardSize?: string) => {
     if (!eventId) return null;
 
-    // Enforce size rules per card type
-    let resolvedSize = cardSize || 'A4';
-    if (cardType === 'invitation') resolvedSize = 'A4';
-    else if (cardType === 'save_the_date' && !['A4', 'A5'].includes(resolvedSize)) resolvedSize = 'A5';
-    else if (cardType === 'thank_you' && !['A4', 'A5', 'A6'].includes(resolvedSize)) resolvedSize = 'A6';
+    const resolvedSize = resolveInvitationCardSize(cardType, cardSize);
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -213,6 +213,8 @@ export const useInvitationCardSettings = (eventId: string | null) => {
   };
 
   const deleteArtwork = async (id: string) => {
+    await flushPending();
+    const deletedKind = artworks.find(a => a.id === id)?.card_type;
     try {
       const { error } = await supabase
         .from('invitation_card_settings' as any)
@@ -227,7 +229,7 @@ export const useInvitationCardSettings = (eventId: string | null) => {
       setArtworks(prev => {
         const remaining = prev.filter(a => a.id !== id);
         if (activeArtworkId === id) {
-          setActiveArtworkId(remaining[0]?.id || null);
+          setActiveArtworkId(remaining.find(a => a.card_type === deletedKind)?.id || null);
         }
         return remaining;
       });
@@ -240,6 +242,7 @@ export const useInvitationCardSettings = (eventId: string | null) => {
   };
 
   const duplicateArtwork = async (id: string) => {
+    await flushPending();
     const source = artworks.find(a => a.id === id);
     if (!source || !eventId) return null;
 
@@ -305,7 +308,7 @@ export const useInvitationCardSettings = (eventId: string | null) => {
     artworks,
     activeArtwork,
     activeArtworkId,
-    setActiveArtwork: setActiveArtworkId,
+    setActiveArtwork: (id: string | null) => { void flushPending(); setActiveArtworkId(id); },
     createArtwork,
     deleteArtwork,
     duplicateArtwork,

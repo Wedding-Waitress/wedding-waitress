@@ -118,7 +118,7 @@
   background: var(--pc-cream) !important; box-shadow: inset 0 1px 3px rgba(73,45,28,.08) !important;
 }
 .designerShell :global(.ww-placecards-premium-designer) [role="tab"] {
-  min-width: 0 !important; min-height: 52px; display: flex !important; flex-direction: row !important;
+  min-width: 0 !important; min-height: 52px; display: flex !important; flex-direction: column !important;
   align-items: center !important; justify-content: center !important; gap: 6px !important;
   white-space: nowrap !important; color: var(--pc-body) !important; border: 1px solid transparent !important;
   border-radius: 999px !important; background: transparent !important; box-shadow: none !important;
@@ -231,3 +231,80 @@
 @media (prefers-reduced-motion:reduce) {
   .page *,.page *::before,.page *::after { transition-duration:.01ms !important; animation-duration:.01ms !important; animation-iteration-count:1 !important; }
 }
+
+/* Approved designer treatment: one active green pill, readable controls. */
+:global(#root#root) .page .designerShell :global(.ww-placecards-premium-designer) > div:first-child { background: transparent !important; border-bottom: 0 !important; }
+:global(#root#root) .page .designerShell [role="tab"] { border: 0 !important; background: transparent !important; box-shadow: none !important; border-radius: 999px !important; }
+:global(#root#root) .page .designerShell [role="tab"][data-state="active"],
+:global(#root#root) .page .exportButton,
+:global(#root#root) .page .designerShell :global(.ww-placecards-upload),
+:global(#root#root) .page .designerShell :global(.ww-placecards-reset) {
+  border: 0 !important; color: #fff !important; -webkit-text-fill-color: #fff !important;
+  background: linear-gradient(180deg,#4ade80 0%,#22c55e 58%,#16a34a 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.34),0 7px 16px rgba(22,101,52,.22) !important;
+}
+:global(#root#root) .page .designerShell [role="tab"][data-state="active"] :is(span,svg,svg *),
+:global(#root#root) .page .exportButton :is(svg,svg *),
+:global(#root#root) .page .designerShell :global(.ww-placecards-upload) :is(svg,svg *),
+:global(#root#root) .page .designerShell :global(.ww-placecards-reset) :is(svg,svg *),
+:global(#root#root) .page .designerShell button[class*="bg-destructive"] :is(svg,svg *) {
+  color:#fff !important; -webkit-text-fill-color:#fff !important; stroke:currentColor !important;
+}
+:global(#root#root) .page .designerShell :global(.ww-placecards-library) {
+  background:linear-gradient(180deg,#e6d5bd 0%,#cbb396 100%) !important;
+  border-color:#b79b79 !important; color:#2b1711 !important; -webkit-text-fill-color:#2b1711 !important;
+}
+:global(#root#root) .page .designerShell :global(.ww-placecards-library) :is(svg,svg *) { color:#2b1711 !important; stroke:currentColor !important; }
+
+/* Approved heading reference, excluding card artwork. */
+:global(#root#root) .page .headerPanel h1,
+:global(#root#root) .page :global(.ww-placecards-premium-designer) > div:first-child h3 {
+ font-family:var(--ww-interface-font-family) !important; font-size:24px !important;
+ font-weight:600 !important; line-height:31px !important; letter-spacing:normal !important;
+ color:#2f1b14 !important; margin:0 !important; padding:0 !important; gap:.55rem;
+}
+:global(#root#root) .page .headerPanel h1 svg,
+:global(#root#root) .page :global(.ww-placecards-premium-designer) > div:first-child h3 svg {
+ width:25px !important; height:25px !important; color:#967a59 !important; stroke:#967a59 !important;
+}
+:global(#root#root) .page .headerPanel > div:first-child { padding-top:16px !important; }
+:global(#root#root) .page .headerPanel > div:first-child > div:first-child { margin-bottom:24px !important; }
+:global(#root#root) .page .headerPanel h1 + p { margin:0 0 0 calc(25px + .55rem) !important; }
+:global(#root#root) .page :global(.ww-placecards-premium-designer) > div:first-child { padding-top:16px !important; padding-bottom:24px !important; }
+/* Keep the total top inset consistent with the reference headings. */
+:global(#root#root) .page .headerPanel,
+:global(#root#root) .page :global(.ww-placecards-premium-designer) { padding-top: 0 !important; }
+:global(#root#root) .page .headerPanel > div:first-child,
+:global(#root#root) .page :global(.ww-placecards-premium-designer) > div:first-child { padding-top: 16px !important; }
+
+/* Approved export/designer action styling; existing tab geometry retained. */
+:global(#root#root#root) .designerShell [role="tab"] {color:#2f1b14!important;-webkit-text-fill-color:#2f1b14!important;text-shadow:none;}
+:global(#root#root#root) button.exportButton,
+:global(#root#root#root) .designerShell [role="tab"][data-state="active"],
+:global(#root#root#root) .designerShell :global(.ww-placecards-upload) {
+ border:0!important;color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.55);
+ background:linear-gradient(180deg,#7bd880,#55a447)!important;
+ box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30!important;
+}
+:global(#root#root#root) button.exportButton {min-height:40px!important;height:auto!important;padding:10px 16px!important;font:600 14px Manrope,sans-serif!important;border-radius:9999px!important;}
+:global(#root#root#root) .designerShell :global(.ww-placecards-reset) {
+ border:0!important;color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.55);
+ background:linear-gradient(180deg,#f85b53,#d9342c)!important;
+ box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #78191966,0 4px 10px #b91c1c30!important;
+}
+:global(#root#root#root) :is(button.exportButton,.designerShell [role="tab"],.designerShell :global(.ww-placecards-reset),.designerShell :global(.ww-placecards-upload)) svg,
+:global(#root#root#root) :is(button.exportButton,.designerShell [role="tab"],.designerShell :global(.ww-placecards-reset),.designerShell :global(.ww-placecards-upload)) svg * {
+ color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;
+}
+
+:global(#root#root#root) .designerShell :global(.ww-placecards-save-message) {
+ border:0!important;color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.55);
+ font:600 14px Manrope,sans-serif!important;min-height:40px;
+ background:linear-gradient(180deg,#7bd880,#55a447)!important;
+ box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30!important;
+}
+:global(#root#root#root) .designerShell :global(.ww-placecards-save-message) svg,
+:global(#root#root#root) .designerShell :global(.ww-placecards-save-message) svg * {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;}
+:global(#root#root#root) .designerShell :global(.ww-placecards-guest-search) {box-shadow:inset 0 1px 0 #ffffff55,inset 0 -2px 0 #170c0966,0 4px 10px #2f1b1430!important;}
+:global(#root#root#root) .designerShell :global(.ww-placecards-guest-search) svg,
+:global(#root#root#root) .designerShell :global(.ww-placecards-guest-search) svg * {color:#fff!important;stroke:#fff!important;}

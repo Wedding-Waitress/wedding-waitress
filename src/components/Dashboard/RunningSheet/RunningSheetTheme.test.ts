@@ -106,7 +106,7 @@ describe('Running Sheet light luxury dashboard theme', () => {
     expect(themeSource).toContain('.bodyText:global(.italic) { font-style: italic !important; }');
     expect(themeSource).toContain('.bodyText:global(.underline) { text-decoration-line: underline !important; }');
     expect(rowSource.match(/styles\.bodyText/g)).toHaveLength(3);
-    expect(rowSource).toContain("const headerClasses = isHeader ? 'text-destructive' : '';");
+    expect(rowSource).toContain("const headerClasses = isHeader ? styles.redRowText : '';");
     expect(rowSource).not.toContain("isHeader ? 'font-bold text-destructive'");
     expect(themeSource).toMatch(/ww-running-sheet-menu \[role="menuitem"\][\s\S]*font-size:\s*14px\s*!important[\s\S]*font-weight:\s*400\s*!important[\s\S]*line-height:\s*20px\s*!important/);
   });
@@ -115,7 +115,7 @@ describe('Running Sheet light luxury dashboard theme', () => {
     expect(pageSource).not.toMatch(/greenAction[^`]*text-xs/);
     expect(sectionSource).not.toMatch(/columnHeader[^`]*text-xs/);
     expect(themeSource).not.toContain('font-size: 0.9rem !important');
-    expect(dashboardSource).toContain("BROWN_OUTLINE_TABS.has(activeTab) && activeTab !== 'running-sheet' ? ' ww-heading-system' : ''");
+    expect(dashboardSource).toContain("BROWN_OUTLINE_TABS.has(contentTab) && contentTab !== 'running-sheet' ? ' ww-heading-system' : ''");
   });
 
   it('keeps meaningful schedule highlighting red and interactive overlays themed', () => {
@@ -142,14 +142,10 @@ describe('Running Sheet light luxury dashboard theme', () => {
     expect(themeSource).toContain('@media (max-width: 639px)');
   });
 
-  it('isolates the public espresso glass presentation from authenticated and PDF output', () => {
-    expect(themeSource).toContain('Public Run Sheet share page: screen-only espresso liquid-glass presentation');
-    expect(themeSource).toMatch(/@media screen\s*\{[\s\S]*\.publicPage\s*\{[\s\S]*linear-gradient\(135deg, #110705 0%, #2b130e 48%, #140806 100%\)/);
-    expect(themeSource).toMatch(/\.publicPage \.scheduleRow,[\s\S]*background:\s*rgba\(31, 15, 11, 0\.36\)\s*!important/);
-    expect(themeSource).toMatch(/\.publicPage \.notesEditor\s*\{[\s\S]*background:\s*var\(--rs-inset\)/);
-    expect(themeSource).toContain('.publicFooter {');
-    expect(themeSource).toContain('@media screen and (max-width: 1023px)');
-    expect(themeSource).toContain('@media screen and (max-width: 767px)');
-    expect(themeSource).not.toMatch(/@media print[\s\S]*\.publicPage/);
+  it('shares the light workspace theme with recipients', () => {
+    expect(themeSource).toContain('.publicPage.page');
+    expect(themeSource).toContain('color-scheme: light');
+    expect(themeSource).not.toContain('screen-only espresso liquid-glass presentation');
+    expect(themeSource).toContain('@media screen and (max-width:767px)');
   });
 });

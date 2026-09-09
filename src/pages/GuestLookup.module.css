@@ -1,7 +1,7 @@
 .mainSurface {
   min-height: 100dvh;
-  background-color: var(--ww-application-background-color) !important;
-  background-image: var(--ww-application-background-image) !important;
+  background-color: #000 !important;
+  background-image: none !important;
 }
 
 .page,
@@ -21,7 +21,7 @@
 .statePage :is(h2, h3, h4),
 .page .sectionHeading,
 .statePage .sectionHeading,
-:global(.ww-public-live-dialog) .sectionHeading,
+:global(.ww-public-live-dialog) .sectionHeading:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
 .sectionHeading {
   font-size: 20px !important;
   font-weight: 500 !important;
@@ -68,23 +68,6 @@
 .fallbackHero {
   position: relative;
   overflow: hidden;
-  background-color: #3b2018 !important;
-  background-image:
-    linear-gradient(90deg, rgba(12, 6, 5, 0.52), transparent 26%, transparent 74%, rgba(12, 6, 5, 0.52)),
-    linear-gradient(180deg, rgba(255, 224, 184, 0.1), rgba(15, 7, 5, 0.26)),
-    url("../assets/dashboard-mocha-liquid-glass.png") !important;
-  background-position: center center !important;
-  background-repeat: no-repeat !important;
-  background-size: cover !important;
-  box-shadow: inset 0 -1px 0 rgba(225, 183, 132, 0.34), 0 18px 42px rgba(3, 1, 1, 0.3);
-}
-
-.fallbackHero::after {
-  position: absolute;
-  inset: 0;
-  content: "";
-  pointer-events: none;
-  background: radial-gradient(circle at 50% 24%, rgba(235, 180, 119, 0.12), transparent 54%);
 }
 
 .fallbackHero > div {
@@ -282,12 +265,12 @@
 }
 
 .shareInvite {
-  grid-row: 3;
+  grid-row: 5;
   align-self: center;
 }
 
 .footerLogo {
-  grid-row: 5;
+  grid-row: 3;
   align-self: end;
 }
 
@@ -349,77 +332,77 @@
   -webkit-backdrop-filter: blur(20px);
 }
 
-:global(.ww-public-live-dialog) :is(h1, h2, h3, h4) {
+:global(.ww-public-live-dialog) :is(h1, h2, h3, h4):not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
   font-size: 20px !important;
   font-weight: 500 !important;
 }
 
-:global(.ww-public-live-dialog) :is(p, li, [data-live-body]),
-:global(.ww-public-live-dialog) :is(input, textarea, button[role="combobox"]),
-:global(.ww-public-live-dialog) :is(input, textarea)::placeholder,
+:global(.ww-public-live-dialog) :is(p, li, [data-live-body]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
+:global(.ww-public-live-dialog) :is(input, textarea, button[role="combobox"]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
+:global(.ww-public-live-dialog) :is(input, textarea):not(:where([data-print-mirror-document], [data-print-mirror-document] *))::placeholder,
 :global(.ww-public-live-menu) [role="option"] {
   font-size: 13px !important;
   font-weight: 400 !important;
   line-height: 18px !important;
 }
 
-:global(.ww-public-live-dialog) :is(label, strong, [data-live-label]) {
+:global(.ww-public-live-dialog) :is(label, strong, [data-live-label]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
   font-size: 13px !important;
   font-weight: 600 !important;
   line-height: 18px !important;
 }
 
-:global(.ww-public-live-dialog) button:not([aria-label]),
-:global(.ww-public-live-dialog) [role="button"]:not([aria-label]) {
+:global(.ww-public-live-dialog) button:not([aria-label]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
+:global(.ww-public-live-dialog) [role="button"]:not([aria-label]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
   font-size: 13px !important;
   font-weight: 500 !important;
   line-height: 18px !important;
 }
 
-:global(.ww-public-live-dialog) h2,
-:global(.ww-public-live-dialog) h3,
-:global(.ww-public-live-dialog) h4,
-:global(.ww-public-live-dialog) label,
-:global(.ww-public-live-dialog) [class*="text-foreground"] {
+:global(.ww-public-live-dialog) h2:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
+:global(.ww-public-live-dialog) h3:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
+:global(.ww-public-live-dialog) h4:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
+:global(.ww-public-live-dialog) label:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
+:global(.ww-public-live-dialog) [class*="text-foreground"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
   color: #ffffff !important;
 }
 
-:global(.ww-public-live-dialog) p,
-:global(.ww-public-live-dialog) [class*="text-muted-foreground"] {
+:global(.ww-public-live-dialog) p:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
+:global(.ww-public-live-dialog) [class*="text-muted-foreground"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
   color: #eadbc9 !important;
   opacity: 1 !important;
 }
 
-:global(.ww-public-live-dialog) svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-white"]) {
+:global(.ww-public-live-dialog) svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-white"]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
   color: #d9b77f !important;
   stroke: currentColor !important;
 }
 
-:global(.ww-public-live-dialog) input,
-:global(.ww-public-live-dialog) textarea,
-:global(.ww-public-live-dialog) button[role="combobox"],
-:global(.ww-public-live-dialog) [class*="bg-background"] {
+:global(.ww-public-live-dialog) input:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
+:global(.ww-public-live-dialog) textarea:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
+:global(.ww-public-live-dialog) button[role="combobox"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
+:global(.ww-public-live-dialog) [class*="bg-background"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
   color: #ffffff !important;
   border-color: rgba(201, 151, 93, 0.44) !important;
   background: rgba(17, 9, 7, 0.7) !important;
 }
 
-:global(.ww-public-live-dialog) input::placeholder,
-:global(.ww-public-live-dialog) textarea::placeholder {
+:global(.ww-public-live-dialog) input:not(:where([data-print-mirror-document], [data-print-mirror-document] *))::placeholder,
+:global(.ww-public-live-dialog) textarea:not(:where([data-print-mirror-document], [data-print-mirror-document] *))::placeholder {
   color: #ffffff !important;
 }
 
-:global(.ww-public-live-dialog) button[aria-label="Close"],
-:global(.ww-public-live-dialog) > button:last-child {
+:global(.ww-public-live-dialog) button[aria-label="Close"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
+:global(.ww-public-live-dialog) > button:last-child:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
   color: #f3e7d8 !important;
   border-color: rgba(217, 183, 127, 0.62) !important;
   background: rgba(31, 16, 12, 0.88) !important;
 }
 
-:global(.ww-public-live-dialog) button:focus-visible,
-:global(.ww-public-live-dialog) input:focus-visible,
-:global(.ww-public-live-dialog) textarea:focus-visible,
-:global(.ww-public-live-dialog) [role="button"]:focus-visible {
+:global(.ww-public-live-dialog) button:focus-visible:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
+:global(.ww-public-live-dialog) input:focus-visible:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
+:global(.ww-public-live-dialog) textarea:focus-visible:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
+:global(.ww-public-live-dialog) [role="button"]:focus-visible:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
   outline: none !important;
   box-shadow:
     0 0 0 2px rgba(22, 11, 8, 0.98),
@@ -498,266 +481,363 @@
   }
 }
 
-/* Approved light champagne theme for the public Guest Live View. The uploaded
-   hero image remains an image element above these surfaces and is deliberately
-   not restyled or repositioned here. */
-.mainSurface {
-  --live-workspace: #f2e9dc;
-  --live-panel: #fbf8f2;
-  --live-card: #f5ebdd;
-  --live-card-deep: #ede0d0;
-  --live-text: #2b1711;
-  --live-text-soft: #684b40;
-  --live-gold: #a18764;
-  --live-gold-strong: #806344;
-  --live-border: #cdb99e;
-  --live-focus: #755332;
-  background-color: var(--live-workspace) !important;
-  background-image: none !important;
-}
 
-.page,
-.statePage {
-  color: var(--live-text);
+/* Public QR guest app uses the Photo & Video Sharing surfaces. */
+.page, .statePage, :global(.ww-public-live-dialog), :global(.ww-public-live-menu) {
+  --foreground: 0 0% 100%;
+  --muted-foreground: 29 32% 86%;
+  --background: 18 33% 8%;
+  --card: 18 35% 13%;
+  --card-foreground: 0 0% 100%;
+  --popover: 18 35% 13%;
+  --popover-foreground: 0 0% 100%;
+  color-scheme: dark;
 }
-
-.eventDetails {
-  color: var(--live-text);
-  border-bottom-color: var(--live-border);
-  background: var(--live-panel);
-  box-shadow: 0 8px 20px rgba(74, 48, 35, 0.08);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+.searchCard, .stateCard, .page :global(.ww-box), :global(.ww-public-live-dialog) {
+  color: #fff !important;
+  border-color: rgba(201, 151, 93, .38) !important;
+  background: linear-gradient(180deg, rgba(101, 57, 40, .72), rgba(42, 23, 17, .76)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,239,218,.14), 0 12px 26px rgba(3,1,1,.32) !important;
 }
-
-:global(#root) .page .eventDetails [class*="text-foreground"],
-:global(#root) .page .eventDetails span,
-:global(#root) .page .eventDetails p {
-  color: var(--live-text) !important;
-}
-
-.eventDetails svg {
-  color: var(--live-gold-strong) !important;
-}
-
-.moduleTray {
-  border-color: var(--live-border);
-  background: var(--live-panel);
-  box-shadow: 0 10px 24px rgba(74, 48, 35, 0.1);
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-.moduleTray button {
-  color: var(--live-text) !important;
-  border-color: var(--live-border) !important;
-  background: var(--live-card) !important;
-  box-shadow: inset 0 1px 0 #ffffff, 0 6px 14px rgba(74, 48, 35, 0.08) !important;
-}
-
-.moduleTray button svg {
-  color: var(--live-gold-strong) !important;
-}
-
-.moduleTray button:hover:not(:disabled) {
-  color: var(--live-text) !important;
-  border-color: var(--live-gold-strong) !important;
-  background: #f8efe3 !important;
-}
-
-.moduleTray button:active:not(:disabled) {
-  background: var(--live-card-deep) !important;
-  box-shadow: inset 0 2px 4px rgba(74, 48, 35, 0.12) !important;
-}
-
-.moduleTray button:focus-visible,
-.page input:focus-visible,
-.page textarea:focus-visible,
-.page button:focus-visible,
-.page [role="button"]:focus-visible,
-.tableBackButton:focus-visible {
-  box-shadow: 0 0 0 2px #fffdf9, 0 0 0 4px var(--live-focus) !important;
-}
-
-.moduleTray button[data-state="active"] {
-  color: #ffffff !important;
-  border-color: #16a34a !important;
-  background: linear-gradient(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%) !important;
-  box-shadow: 0 8px 18px rgba(22, 163, 74, 0.22) !important;
-}
-
-.moduleTray button[data-state="active"] svg {
-  color: #ffffff !important;
-}
-
-.searchCard,
-.stateCard,
-.page :global(.ww-box) {
-  color: var(--live-text) !important;
-  border-color: var(--live-border) !important;
-  background: var(--live-panel) !important;
-  box-shadow: 0 12px 28px rgba(74, 48, 35, 0.1) !important;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
-}
-
-:global(#root) .page h2,
-:global(#root) .page h3,
-:global(#root) .page h4,
-:global(#root) .page h5,
-:global(#root) .page label,
-:global(#root) .page [class*="text-foreground"],
-:global(#root) .page [class*="text-\[\#1D1D1F\]"] {
-  color: var(--live-text) !important;
-}
-
-:global(#root) .page p,
-:global(#root) .page [class*="text-muted-foreground"] {
-  color: var(--live-text-soft) !important;
-}
-
-.page svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-warning"]):not([class*="text-white"]) {
-  color: var(--live-gold-strong) !important;
-}
-
-.page [class*="bg-background-subtle"],
-.page [class*="bg-gradient-card"],
-.page [class*="bg-accent"] {
-  color: var(--live-text) !important;
-  border-color: var(--live-border) !important;
-  background: var(--live-card) !important;
-  box-shadow: none;
-}
-
-.page input,
-.page textarea,
-.page button[role="combobox"] {
-  color: var(--live-text) !important;
-  border-color: var(--live-border) !important;
-  background: #fffdf9 !important;
-  box-shadow: inset 0 1px 2px rgba(74, 48, 35, 0.06) !important;
-}
-
-.page input::placeholder,
-.page textarea::placeholder {
-  color: #8a7167 !important;
-}
-
-.searchCard button:not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not([class*="bg-success"]) {
-  color: var(--live-text) !important;
-  border-color: var(--live-border) !important;
-  background: linear-gradient(180deg, #fffdf9 0%, #f3e6d6 100%) !important;
-  box-shadow: 0 6px 14px rgba(74, 48, 35, 0.1) !important;
-}
-
-.tableBackButton {
-  color: var(--live-text) !important;
-  border-color: var(--live-border) !important;
-  background: linear-gradient(180deg, #fffdf9 0%, #f3e6d6 100%) !important;
-  box-shadow: 0 7px 16px rgba(74, 48, 35, 0.1) !important;
-}
-
-.tableBackButton:hover:not(:disabled) {
-  color: var(--live-text) !important;
-  border-color: var(--live-gold-strong) !important;
-  background: #f8efe3 !important;
-}
-
-.tableBackButton:active:not(:disabled) {
-  background: var(--live-card-deep) !important;
-  box-shadow: inset 0 2px 4px rgba(74, 48, 35, 0.12) !important;
-}
-
-.page :global(.card-elevated) [class*="border-border"],
-.page :global(.card-elevated) [class*="border-t"] {
-  border-color: var(--live-border) !important;
-}
-
-.stateCard h3 {
-  color: var(--live-text) !important;
-}
-
-.stateCard p {
-  color: var(--live-text-soft) !important;
-}
-
 :global(.ww-public-live-dialog) {
-  color: #2b1711 !important;
-  border-color: #cdb99e !important;
-  background: #fbf8f2 !important;
-  box-shadow: 0 24px 60px rgba(74, 48, 35, 0.24) !important;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+  background-color: #120a08 !important;
+}
+.moduleTray {
+  background: linear-gradient(180deg, rgba(35,22,15,.92), rgba(6,4,3,.98));
+}
+.moduleTray button, .tableBackButton,
+.searchCard button:not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not([class*="bg-success"]),
+:global(.ww-public-live-dialog) button:not([role="combobox"]):not([role="checkbox"]):not([role="switch"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not([class*="bg-success"]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff;
+  border-color: rgba(216,173,121,.55) !important;
+  background: linear-gradient(180deg, rgba(77,43,31,.78), rgba(18,10,8,.86)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,239,218,.15), inset 0 -1px 0 rgba(0,0,0,.24), 0 4px 12px rgba(0,0,0,.26) !important;
+}
+.page .moduleTray button svg,
+.page .searchCard button svg,
+:global(.ww-public-live-dialog) button svg:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
+  color: #fff !important;
+  stroke: currentColor !important;
+}
+.page input, .page textarea, .page button[role="combobox"],
+:global(.ww-public-live-dialog) :is(input, textarea, button[role="combobox"]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff;
+  border-color: rgba(211,161,101,.42) !important;
+  background: linear-gradient(180deg, rgba(62,35,26,.62), rgba(18,10,8,.82)) !important;
+  box-shadow: inset 0 1px 0 rgba(255,239,218,.12), 0 3px 9px rgba(0,0,0,.22) !important;
+}
+.page input::placeholder, .page textarea::placeholder,
+:global(.ww-public-live-dialog) input::placeholder, :global(.ww-public-live-dialog) textarea::placeholder {
+  color: #cbbcaf !important;
+  -webkit-text-fill-color: #cbbcaf;
+}
+:global(.ww-public-live-dialog) [class*="bg-white"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
+  background: #24120d !important;
+}
+:global(.ww-public-live-dialog) [class*="text-gray"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
+.page [class*="text-gray"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
+  color: #e8ddd2 !important;
+}
+.page .footerLogo img { filter: grayscale(1) brightness(0) invert(1); }
+
+.fallbackHero {
+  background: linear-gradient(180deg, rgba(0,0,0,.7), rgba(0,0,0,.6) 50%, rgba(0,0,0,.8)), url('/default-hero-bg.png') center / cover;
+}
+:global(#root) .page :is(p, span, label, h1, h2, h3, h4, button, a, strong, li),
+:global(#root) .statePage :is(p, span, h1, h2, h3),
+:global(.ww-public-live-dialog.ww-public-live-dialog) :is(p, span, label, h1, h2, h3, h4, button, a, strong, li):not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
+:global(.ww-public-live-menu.ww-public-live-menu) :is(span, [role="option"]) {
+  -webkit-text-fill-color: currentColor !important;
+}
+:global(#root) .page .moduleTray button,
+:global(#root) .page .moduleTray button span,
+:global(#root) .page .moduleTray button svg,
+:global(#root) .page .shareInvite button,
+:global(#root) .page .shareInvite button span,
+:global(#root) .page .shareInvite button svg {
+  color: #fff !important;
 }
 
-:global(.ww-public-live-dialog) h2,
-:global(.ww-public-live-dialog) h3,
-:global(.ww-public-live-dialog) h4,
-:global(.ww-public-live-dialog) label,
-:global(.ww-public-live-dialog) [class*="text-foreground"] {
-  color: #2b1711 !important;
+:global(.ww-public-live-dialog), :global(.ww-public-live-menu) {
+  --ww-text-on-light: #fff;
+  --ww-text-on-dark: #fff;
+}
+:global(.ww-public-live-dialog) :where([data-print-mirror-document]) {
+  --ww-text-on-light: #412419;
+  --ww-text-on-dark: #fff;
 }
 
-:global(.ww-public-live-dialog) p,
-:global(.ww-public-live-dialog) [class*="text-muted-foreground"] {
-  color: #684b40 !important;
+/* Match the gallery app's full-screen hero in both photo and fallback modes. */
+.heroShell, .heroShell > div { min-height: 100svh; }
+.heroShell > div { display: flex; align-items: center; justify-content: center; }
+.heroShell > div > img { position: absolute; inset: 0; width: 100%; height: 100%; object-fit: cover; }
+.heroShell .heroTitleGroup { transform: none; }
+
+:global(#root) .statePage .stateCard p {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
 }
 
-:global(.ww-public-live-dialog) svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-white"]) {
-  color: #806344 !important;
+/* Match table centre labels to the seated guest heading. */
+:global(#root) .page [data-live-table-centre] > div {
+  font-size: 20px !important;
+  line-height: 1.3 !important;
 }
 
-:global(.ww-public-live-dialog) :not(button) > svg[class*="text-white"] {
-  color: #806344 !important;
+
+/* Spacious guest invitation viewer with a safe inset on every device. */
+:global(.ww-public-live-dialog.ww-rsvp-invite-viewer) {
+  inset: 12px !important;
+  width: calc(100% - 24px) !important;
+  max-width: 1200px !important;
+  height: calc(100dvh - 24px) !important;
+  max-height: calc(100dvh - 24px) !important;
+  margin: auto !important;
+  transform: none !important;
+  display: flex !important;
+  flex-direction: column !important;
+  gap: 8px !important;
+  padding: 12px !important;
+  border: 1px solid rgba(226, 205, 172, .65) !important;
+  border-radius: 12px !important;
+  overflow: hidden !important;
+}
+:global(.ww-rsvp-invite-viewer) > div:first-child {
+  min-height: 40px;
+  justify-content: center;
+  flex-shrink: 0;
+  padding-right: 52px;
+}
+.inviteViewport {
+  flex: 1;
+  min-height: 0;
+  width: 100%;
+  overflow-x: hidden;
+  overflow-y: auto;
+  overscroll-behavior: contain;
+  -webkit-overflow-scrolling: touch;
+  padding: 24px 12px 28px;
+}
+.inviteMedia {
+  width: 100%;
+  max-width: 900px;
+  margin: 0 auto;
+}
+.inviteImage {
+  display: block;
+  width: 100%;
+  height: auto;
+  max-width: 100%;
+  border-radius: 4px;
+  box-shadow: 0 14px 28px rgba(0,0,0,.48), 0 4px 8px rgba(0,0,0,.3);
+}
+.invitePdf {
+  width: 100%;
+  height: max(70dvh, 600px);
+  overflow: hidden;
+  border-radius: 4px;
+  background: #f5f3ef;
+  box-shadow: 0 14px 28px rgba(0,0,0,.48), 0 4px 8px rgba(0,0,0,.3);
+}
+@media (max-width: 639px) {
+  :global(.ww-public-live-dialog.ww-rsvp-invite-viewer) {
+    inset: 8px !important;
+    width: calc(100% - 16px) !important;
+    height: calc(100dvh - 16px) !important;
+    max-height: calc(100dvh - 16px) !important;
+    padding: 8px !important;
+  }
 }
 
-:global(.ww-public-live-dialog) input,
-:global(.ww-public-live-dialog) textarea,
-:global(.ww-public-live-dialog) button[role="combobox"],
-:global(.ww-public-live-dialog) [class*="bg-background"] {
-  color: #2b1711 !important;
-  border-color: #cdb99e !important;
-  background: #fffdf9 !important;
+@media (min-width: 1024px) {
+  .welcomeVideoMedia { max-width: none; }
 }
 
-:global(.ww-public-live-dialog) input::placeholder,
-:global(.ww-public-live-dialog) textarea::placeholder {
-  color: #8a7167 !important;
+.page :global(.guest-rsvp-action) {
+  text-shadow: 0 1px 2px rgba(0,0,0,.4);
+}
+.page :global(.guest-rsvp-action) svg {
+  filter: drop-shadow(0 1px 1px rgba(0,0,0,.4));
 }
 
-:global(.ww-public-live-dialog) button[aria-label="Close"],
-:global(.ww-public-live-dialog) > button:last-child {
-  color: #2b1711 !important;
-  border-color: #cdb99e !important;
-  background: #fffdf9 !important;
+:global(#root) .page input[data-guest-name-search] {
+  font-size: 20px !important;
+}
+:global(#root) .page input[data-guest-name-search]::placeholder {
+  font-size: 13px !important;
 }
 
-:global(.ww-public-live-dialog) button:focus-visible,
-:global(.ww-public-live-dialog) input:focus-visible,
-:global(.ww-public-live-dialog) textarea:focus-visible,
-:global(.ww-public-live-dialog) [role="button"]:focus-visible {
-  box-shadow: 0 0 0 2px #fffdf9, 0 0 0 4px #755332 !important;
+:global(#root) .page [data-guest-welcome] > span {
+  font-size: inherit !important;
+  line-height: inherit !important;
 }
 
-:global(.ww-public-live-menu) {
-  color: #2b1711 !important;
-  border-color: #cdb99e !important;
-  background: #fffdf9 !important;
-  box-shadow: 0 18px 38px rgba(74, 48, 35, 0.18) !important;
-  backdrop-filter: none;
-  -webkit-backdrop-filter: none;
+/* Larger labels beside icons without changing the six tile dimensions. */
+:global(#root) .moduleTray button {
+  flex-direction: row;
+  gap: 6px;
+  min-width: 0;
+}
+:global(#root) .moduleTray button svg {
+  width: 22px !important;
+  height: 22px !important;
+  flex-shrink: 0;
+  margin-bottom: 0;
+}
+:global(#root) .moduleTray button span {
+  font-size: 14px !important;
+  line-height: 18px !important;
+  white-space: normal;
+  min-width: 0;
+  overflow-wrap: anywhere;
+}
+:global(#root) .moduleTray button > div {
+  min-width: 0;
 }
 
-:global(.ww-public-live-menu) [role="option"] {
-  color: #2b1711 !important;
+/* Keep vertical tray spacing consistent across screen sizes. */
+.moduleTray {
+  padding-top: 15px;
+  padding-bottom: 15px;
 }
 
-:global(.ww-public-live-menu) [role="option"]:focus,
-:global(.ww-public-live-menu) [role="option"][data-highlighted] {
-  color: #2b1711 !important;
-  background: #ede0d0 !important;
+:global(#root) .page [data-guest-details-heading] {
+  color: rgba(217, 183, 127, 0.72) !important;
+  -webkit-text-fill-color: rgba(217, 183, 127, 0.72) !important;
 }
 
-:global(.ww-public-live-menu) svg {
-  color: #806344 !important;
+:global(#root) .page .eventDetails :is([data-live-body], span, p) {
+  font-size: 14px !important;
 }
+
+.heroShell .heroTitleGroup {
+  transform: translateY(25svh);
+  padding-inline: 12px;
+}
+:global(#root) .page .heroTitleGroup p {
+  font-size: 16px !important;
+  line-height: 1.4 !important;
+}
+:global(#root) .page .heroTitleGroup h1 {
+  font-size: 27px !important;
+  line-height: 1.3 !important;
+}
+.eventDetails {
+  padding-top: 15px;
+  padding-bottom: 15px;
+}
+
+:global(#root) .page .heroTitleGroup h1 {
+  font-weight: 400 !important;
+  font-synthesis: none;
+  text-shadow: none !important;
+  filter: none !important;
+}
+
+:global(#root) .page .heroTitleGroup p {
+  transform: translateY(-1.4em);
+}
+.searchCardContent {
+  grid-template-rows: auto 55px auto 55px auto;
+}
+
+.searchCard[data-search-empty="true"] .searchCardContent {
+  min-height: 0;
+  grid-template-rows: auto 60px auto 60px auto;
+  align-content: start;
+}
+
+:global(#root) .page input[data-guest-name-search]:placeholder-shown {
+  text-align: center;
+  padding-right: 40px;
+}
+:global(#root) .page input[data-guest-name-search]::placeholder {
+  font-size: 20px !important;
+  text-align: center;
+}
+
+@media (max-width: 1023px) {
+  .heroShell[data-has-hero-photo="true"],
+  .heroShell[data-has-hero-photo="true"] > div {
+    min-height: 0;
+  }
+  .heroShell[data-has-hero-photo="true"] > div > img {
+    position: static;
+    width: 100%;
+    height: auto;
+    object-fit: contain;
+  }
+  .heroShell[data-has-hero-photo="true"] .heroTitleGroup {
+    position: absolute;
+    top: 75%;
+    width: 100%;
+    transform: translateY(-50%);
+  }
+}
+
+:global(#root) .page .heroTitleGroup h1 {
+  font-size: 28px !important;
+}
+:global(#root) .page .heroTitleGroup p {
+  font-size: 17px !important;
+  font-weight: 500 !important;
+}
+
+:global(#root) .page [data-live-table-centre] > [data-live-body] {
+  font-size: 18px !important;
+}
+
+.page [data-round-guest-table] {
+  --guest-seat-size: 64px;
+  width: min(100%, 316px);
+  aspect-ratio: 1;
+}
+.page [data-round-table-surface] {
+  inset: calc(var(--guest-seat-size) + 4px);
+}
+.page [data-round-guest-seat] {
+  width: var(--guest-seat-size);
+  height: var(--guest-seat-size);
+}
+@media (min-width: 768px) {
+  .page [data-round-guest-table] {
+    --guest-seat-size: 80px;
+    width: min(100%, 448px);
+  }
+}
+
+@media (max-width: 767px) {
+  .page :global(.ww-box):has([data-round-guest-table]) {
+    padding-inline: 12px;
+  }
+}
+
+.guestHomeButton {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 8px;
+  min-height: 40px;
+  padding: 8px 14px;
+  flex-shrink: 0;
+  width: fit-content;
+  color: #fff !important;
+  background: linear-gradient(180deg, #573725, #29180f) !important;
+  border: 1px solid rgba(226, 205, 172, .65);
+  border-radius: 10px;
+  box-shadow: inset 0 1px 0 #ffffff26, 0 3px 8px #00000040;
+}
+.guestHomeButton:hover { filter: brightness(1.1); }
+.guestViewerHeader {
+  display: flex;
+  flex-direction: row !important;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: flex-start !important;
+  gap: 12px;
+  padding-right: 52px;
+  text-align: left;
+}
+.guestViewerHeader > * { margin-top: 0 !important; }

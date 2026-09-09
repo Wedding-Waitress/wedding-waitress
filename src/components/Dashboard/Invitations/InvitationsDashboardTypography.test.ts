@@ -51,7 +51,7 @@ describe('Invitations & Cards dashboard typography contract', () => {
     expect(page).not.toContain('premiumStyles.');
     expect(pageCss).toContain('.invitationsWorkspaceSurface');
     expect(pageCss).toContain(':global(main[data-dashboard-content]).invitationsWorkspaceSurface');
-    expect(dashboard).toContain("activeTab === 'invitations' ? ` ${invitationsPageStyles.invitationsWorkspaceSurface}`");
+    expect(dashboard).toContain("contentTab === 'invitations' ? ` ${invitationsPageStyles.invitationsWorkspaceSurface}`");
     expect(pageCss).not.toMatch(/\.page :is\(h1, h2, h3, h4, label, strong\)\s*,\s*\n:global\(#root\) \.page \[class\*="text-foreground"\]/);
   });
 });

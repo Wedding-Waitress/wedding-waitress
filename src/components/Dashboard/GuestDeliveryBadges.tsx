@@ -16,13 +16,14 @@
  */
 import React from 'react';
 import { cn } from '@/lib/utils';
-import { normalizeRsvp } from '@/lib/rsvp';
+import { hasGuestResponded } from '@/lib/rsvp';
 
 type DeliveryMethod = 'email' | 'sms' | 'both' | null;
 
 interface Props {
   inviteStatus?: string | null;            // guest.rsvp_invite_status
   rsvp?: string | null;                    // guest.rsvp
+  rsvpDate?: string | null;                // guest.rsvp_date (actual response marker)
   purchaseDeliveryMethod?: DeliveryMethod; // fallback from rsvp_invite_purchases
   /** When true, render a tiny inline "Low Credits" pill (remaining ≤ 24). */
   lowCredits?: boolean;
@@ -61,19 +62,28 @@ const deriveDelivery = (status?: string | null): 'delivered' | 'pending' | 'fail
 export const GuestDeliveryBadges: React.FC<Props> = ({
   inviteStatus,
   rsvp,
+  rsvpDate,
   purchaseDeliveryMethod,
   lowCredits,
   className,
 }) => {
   const method = deriveMethod(inviteStatus, purchaseDeliveryMethod);
   const delivery = deriveDelivery(inviteStatus);
-  const responded = (() => {
-    const r = normalizeRsvp(rsvp);
-    return r === 'Attending' || r === 'Not Attending';
-  })();
+  const responded = hasGuestResponded(rsvp, rsvpDate);
   const showLowCreditsPill = lowCredits && (method === 'sms' || method === 'both');
 
-  if (!method && !delivery && !responded && !showLowCreditsPill) return null;
+  // A submitted response is the only relevant compact-cell state. Delivery
+  // history remains stored and available elsewhere; it is merely suppressed
+  // here so externally distributed invitations do not read "Not Sent".
+  if (responded) {
+    return (
+      <span className={cn('inline-flex flex-wrap items-center gap-1 ml-1.5 align-middle', className)}>
+        <span className={cn(PILL, styles.responded)} title="Guest has responded">Responded</span>
+      </span>
+    );
+  }
+
+  if (!method && !delivery && !showLowCreditsPill) return null;
 
   return (
     <span className={cn('inline-flex flex-wrap items-center gap-1 ml-1.5 align-middle', className)}>
@@ -85,11 +95,6 @@ export const GuestDeliveryBadges: React.FC<Props> = ({
       {delivery && (
         <span className={cn(PILL, styles[delivery])} title={`Delivery: ${delivery}`}>
           {delivery === 'delivered' ? 'Delivered' : delivery === 'failed' ? 'Failed' : 'Pending'}
-        </span>
-      )}
-      {responded && (
-        <span className={cn(PILL, styles.responded)} title="Guest has responded">
-          Responded
         </span>
       )}
       {showLowCreditsPill && (

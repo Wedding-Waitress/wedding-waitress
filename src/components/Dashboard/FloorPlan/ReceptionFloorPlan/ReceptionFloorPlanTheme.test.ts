@@ -64,11 +64,11 @@ describe('Reception Floor Plan glossy theme scope', () => {
   it('retains the established Reception interaction and export wiring', () => {
     expect(page).toContain('exportReceptionPreviewToPdf');
     expect(page).toContain('pageElement: receptionA4Ref.current');
-    expect(page).toContain('onConfirm={handleReset}');
+    expect(page).toContain('onResetRequest={handleReset}');
     expect(page).toContain('onApply={update}');
     expect(page).toContain('onChange={update}');
-    expect(page).toContain('onGenerate={generateShareToken}');
-    expect(page).toContain('onRevoke={revokeShareToken}');
+    expect(page).toContain('<FloorPlanShareModal');
+    expect(page).toContain('eventId={selectedEventId} kind="reception"');
     expect(canvas).toContain('onDragStart={');
     expect(canvas).toContain('onRotate={');
     expect(canvas).toContain('onToggleLock={');
@@ -95,7 +95,8 @@ describe('Reception Floor Plan glossy theme scope', () => {
 
   it('embeds the single approval selector inside venue sharing without changing persistence wiring', () => {
     expect(page).not.toContain('<ApprovalStatusPanel');
-    expect(page).toContain('onApprovalChange={update}');
+    expect(page).toContain('<ReceptionDraftReview plan={plan}');
+    expect(page).toContain('settle={settle} reload={reload}');
     expect(share.match(/<ApprovalStatusPanel/g)).toHaveLength(1);
     expect(share).toContain('onChange={onApprovalChange}');
     expect(share).toContain('onCheckedChange={toggle}');

@@ -3,7 +3,7 @@ import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
-import { Palette, Save, LoaderCircle, Upload, X, ImagePlus, Images, Trash2 } from 'lucide-react';
+import { Palette, Save, LoaderCircle, Upload, X, ImagePlus, Images, Trash2, RotateCcw } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { supabase } from '@/integrations/supabase/client';
 import type { GalleryMeta, GalleryBrandingSettings } from '@/hooks/useEventMediaGallery';
@@ -157,8 +157,8 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave, ap
         <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
           <Palette className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} strokeWidth={1.8} /> Branding &amp; Theme
         </h2>
-        <p className={cn('text-sm mt-1 break-words', isGlass && managementStyles.gallerySecondaryText)} style={isGlass ? undefined : { color: '#1a1a1a' }}>
-          Customise the look of your guest gallery. Buttons and accents always use the Wedding Waitress
+        <p className={cn('text-sm mt-1 break-words', isGlass && [managementStyles.gallerySecondaryText, managementStyles.sharingHeadingDescription])} style={isGlass ? undefined : { color: '#1a1a1a' }}>
+          Customise the look of your guest gallery.<br />Buttons and accents always use the Wedding Waitress
           gold ({DEFAULT_THEME_COLOR}).
         </p>
       </div>
@@ -166,11 +166,11 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave, ap
       <div className="grid grid-cols-1 gap-6 items-start">
         {/* LEFT — Event Branding */}
         <section className="space-y-5 min-w-0">
-          <h3 className={cn('text-sm font-bold uppercase tracking-wide text-[#967A59]', isGlass && managementStyles.galleryViewSectionLabel)}>Event Branding</h3>
+          <h3 className={cn('text-sm font-bold uppercase tracking-wide text-[#967A59]', isGlass && [managementStyles.galleryViewSectionLabel, managementStyles.eventBrandingBorder])}>Event Branding</h3>
 
           <ImagePicker
             label="Cover Image / Logo (optional)"
-            hint="Shown at the top of your guest-facing event page."
+            hint="Shown at the top of your guest facing event page." hintSize="label"
             url={coverUrl}
             uploading={uploading === 'cover'}
             inputRef={coverInput}
@@ -344,17 +344,17 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave, ap
       </div>
 
       <div className="flex flex-wrap justify-between gap-2 pt-1">
-        <Button variant="outline" className={cn('lv-premium-shade h-11', isGlass && managementStyles.galleryControl)} onClick={handleReset} disabled={saving}>
-          Reset to default
-        </Button>
         <Button
-          className={cn('lv-premium-shade h-11 bg-green-600 hover:bg-green-700 text-white', isGlass && managementStyles.galleryViewPrimaryAction)}
+          className={cn('lv-premium-shade h-11 bg-green-600 hover:bg-green-700 text-white', isGlass && [managementStyles.galleryViewPrimaryAction, managementStyles.gallerySaveAction, managementStyles.saveBrandingContentShadow])}
           variant="default"
           disabled={!dirty || saving || !!uploading}
           onClick={handleSave}
         >
           {saving ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <Save className="h-4 w-4 mr-1" strokeWidth={1.8} />}
           Save branding
+        </Button>
+        <Button variant="outline" className={cn('lv-premium-shade h-11', isGlass && managementStyles.approvedResetAction)} onClick={handleReset} disabled={saving}>
+          <RotateCcw size={16} strokeWidth={1.8} className="mr-2" aria-hidden="true" />Reset to default
         </Button>
       </div>
 
@@ -370,7 +370,7 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave, ap
 
 interface ImagePickerProps {
   label: string;
-  hint: string;
+  hint: string; hintSize?: 'label';
   url: string | null;
   uploading: boolean;
   inputRef: React.RefObject<HTMLInputElement>;
@@ -380,12 +380,12 @@ interface ImagePickerProps {
   appearance?: 'default' | 'espresso-glass';
 }
 
-const ImagePicker: React.FC<ImagePickerProps> = ({ label, hint, url, uploading, inputRef, onPick, onClear, aspect = 'cover', appearance = 'default' }) => {
+const ImagePicker: React.FC<ImagePickerProps> = ({ label, hint, hintSize, url, uploading, inputRef, onPick, onClear, aspect = 'cover', appearance = 'default' }) => {
   const isGlass = appearance === 'espresso-glass';
   return (
   <div>
     <Label className={cn('text-sm', isGlass && managementStyles.galleryViewHeading)}>{label}</Label>
-    <p className={cn('text-xs text-muted-foreground mt-0.5', isGlass && managementStyles.gallerySecondaryText)}>{hint}</p>
+    <p className={cn(hintSize === 'label' ? 'text-sm' : 'text-xs', 'text-muted-foreground mt-0.5', isGlass && managementStyles.gallerySecondaryText)}>{hint}</p>
     <input
       ref={inputRef}
       type="file"

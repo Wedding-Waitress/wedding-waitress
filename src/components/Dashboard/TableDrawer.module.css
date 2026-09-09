@@ -359,3 +359,25 @@
     font-size: 20px !important;
   }
 }
+
+/* Table form footer: approved green Save and red Cancel. */
+.drawer button[class*="lv-premium-shade"][class*="rounded-full"]:is([class*="bg-green-500"],[class*="bg-red-500"]) {
+  min-height:40px !important; height:auto !important; padding:10px 16px !important;
+  border:0 !important; border-radius:9999px !important;
+  font-family:Manrope,ui-sans-serif,system-ui,sans-serif !important;
+  font-size:14px !important; font-weight:600 !important;
+  color:#fff !important; -webkit-text-fill-color:#fff !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.55);
+}
+.drawer button[class*="lv-premium-shade"][class*="bg-green-500"] {
+  background:linear-gradient(180deg,#7bd880,#55a447) !important;
+  box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30 !important;
+}
+.drawer button[class*="lv-premium-shade"][class*="bg-red-500"] {
+  background:linear-gradient(180deg,#f85b53,#d9342c) !important;
+  box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #78191966,0 4px 10px #b91c1c30 !important;
+}
+.drawer button[class*="lv-premium-shade"]:is([class*="bg-green-500"],[class*="bg-red-500"]) svg {
+  width:16px; height:16px; color:#2f1b14 !important; stroke:#2f1b14 !important;
+  filter:none !important; text-shadow:none;
+}

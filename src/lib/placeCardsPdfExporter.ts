@@ -1,209 +1,64 @@
-/**
- * Place Cards PDF Exporter
- * 
- * Generates PDF documents for place cards with:
- * - A4 paper size (210mm × 297mm)
- * - 1.27cm margins
- * - Image capture at 300 DPI for pixel-perfect export
- * - 2×3 grid layout (6 cards per page)
- * - Standard 105mm × 99mm foldable place cards
- */
-
+﻿import html2canvas from 'html2canvas';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
-import { PlaceCardSettings } from '@/hooks/usePlaceCardSettings';
-import { Guest } from '@/hooks/useGuests';
-import { PDF_DEFAULT_OPTIONS } from '@/lib/pdfExportUtils';
+import { PDF_DEFAULT_OPTIONS, savePdfAsync } from '@/lib/pdfExportUtils';
+import { assertAuthoritativeMirrorDocument } from '@/lib/printPdfMirrorContract';
 
-const yieldPlaceCardExport = (): Promise<void> =>
-  new Promise((resolve) => setTimeout(resolve, 0));
-
-const savePlaceCardPdf = async (pdf: jsPDF, fileName: string): Promise<void> => {
-  await yieldPlaceCardExport();
-  const url = URL.createObjectURL(pdf.output('blob'));
-  try {
-    const anchor = document.createElement('a');
-    anchor.href = url;
-    anchor.download = fileName;
-    anchor.rel = 'noopener';
-    anchor.style.display = 'none';
-    document.body.appendChild(anchor);
-    anchor.click();
-    anchor.remove();
-  } finally {
-    setTimeout(() => URL.revokeObjectURL(url), 4000);
-  }
-  await yieldPlaceCardExport();
+export const PLACE_CARD_PRINT_CONTRACT = {
+  id: 'name-place-cards', selector: '[data-print-mirror-document="name-place-cards"]',
+  widthMm: 210, heightMm: 297, orientation: 'portrait' as const,
 };
-
-/**
- * Capture a single place card page as high-resolution image
- * @param pageIndex - The page number to capture (0-based)
- * @returns Base64 encoded PNG image at 300 DPI
- */
-const convertPlaceCardPageToImage = async (
-  pageIndex: number,
-  root: ParentNode = document,
-): Promise<string> => {
-  const pageElement = root.querySelector(
-    `[data-page="${pageIndex}"]`
-  ) as HTMLElement;
-
-  if (!pageElement) {
-    throw new Error(`Page ${pageIndex} not found in DOM`);
+export interface PlaceCardPdfOptions {
+  pageElement: () => HTMLElement | null;
+  pageIndex: number;
+  totalPages: number;
+  eventName: string;
+  showPage: (index: number) => Promise<void>;
+}
+/** Neutralise only external preview presentation, retaining all card geometry. */
+export function preparePlaceCardPdfClone(doc: Document) {
+  const page = doc.querySelector<HTMLElement>(PLACE_CARD_PRINT_CONTRACT.selector);
+  for (let node = page; node; node = node.parentElement) {
+    node.style.setProperty('transform', 'none', 'important');
+    node.style.setProperty('transform-origin', 'top left', 'important');
+    node.style.setProperty('box-shadow', 'none', 'important');
   }
-
-  // Target A4 @ 300 DPI
-  const A4_MM_W = 210;
-  const A4_MM_H = 297;
-  const DPI = 300;
-  const targetWidthPx = Math.round((A4_MM_W / 25.4) * DPI);  // 2480
-  const targetHeightPx = Math.round((A4_MM_H / 25.4) * DPI); // 3508
-
-  // Element's current pixel size (CSS -> px)
-  const rect = pageElement.getBoundingClientRect();
-  // Guard: avoid division by zero
-  const baseW = Math.max(1, rect.width);
-  const baseH = Math.max(1, rect.height);
-
-  // Scale so output bitmap matches our DPI target
-  const scaleX = targetWidthPx / baseW;
-  const scaleY = targetHeightPx / baseH;
-  const scale = Math.min(scaleX, scaleY);
-
-  const canvas = await html2canvas(pageElement, {
-    scale,
-    useCORS: true,
-    allowTaint: false,
-    backgroundColor: '#FFFFFF',
+}
+async function capturePage(page: HTMLElement) {
+  assertAuthoritativeMirrorDocument(page, PLACE_CARD_PRINT_CONTRACT);
+  await document.fonts.ready;
+  const sources = new Set<string>();
+  page.querySelectorAll('img').forEach(img => sources.add(img.currentSrc || img.src));
+  [page, ...page.querySelectorAll<HTMLElement>('*')].forEach(node => {
+    const match = /^url\(["']?(.*?)["']?\)$/.exec(getComputedStyle(node).backgroundImage);
+    if (match) sources.add(match[1]);
   });
-
-  return canvas.toDataURL('image/jpeg', 0.95);
-};
-
-const drawPhotoVideoQr = (
-  pdf: jsPDF,
-  settings: PlaceCardSettings | null,
-  qrDataUrl: string | null | undefined,
-  cardCount: number,
-) => {
-  if (!settings?.photo_video_qr_enabled || !qrDataUrl) return;
-  const sizePct = Math.max(12, Math.min(36, Number(settings.photo_video_qr_size ?? 22)));
-  const sizeMm = 105 * sizePct / 100;
-  const halfX = sizePct / 2;
-  const halfY = sizeMm / 49.5 * 50;
-  const xPct = Math.max(halfX, Math.min(100 - halfX, Number(settings.photo_video_qr_x ?? 50)));
-  const yPct = Math.max(halfY, Math.min(100 - halfY, Number(settings.photo_video_qr_y ?? 50)));
-  for (let index = 0; index < Math.min(6, cardCount); index += 1) {
-    const cardX = (index % 2) * 105;
-    const cardY = Math.floor(index / 2) * 99;
-    const x = cardX + 105 * xPct / 100 - sizeMm / 2;
-    const y = cardY + 49.5 * yPct / 100 - sizeMm / 2;
-    pdf.addImage(qrDataUrl, 'PNG', x, y, sizeMm, sizeMm, 'place-card-photo-video-qr', 'FAST');
-  }
-};
-
-/**
- * Export a single place cards page to PDF document
- */
-export const exportPlaceCardPageToPdf = async (
-  settings: PlaceCardSettings | null,
-  guests: Guest[],
-  event: any,
-  pageIndex: number,
-  qrDataUrl?: string | null,
-): Promise<void> => {
+  await Promise.all([...sources].filter(Boolean).map(async src => {
+    const image = new Image(); image.crossOrigin = 'anonymous'; image.src = src;
+    try { await image.decode(); } catch { throw new Error('A place card image could not load. Try again before printing.'); }
+  }));
+  return html2canvas(page, { scale: 300 / 96, width: 210 * 96 / 25.4, height: 297 * 96 / 25.4,
+    useCORS: true, backgroundColor: '#ffffff', logging: false, onclone: preparePlaceCardPdfClone });
+}
+export async function createPlaceCardsPDF(options: PlaceCardPdfOptions, allPages = false): Promise<jsPDF> {
+  if (options.totalPages < 1 || options.pageIndex < 0 || options.pageIndex >= options.totalPages) throw new Error('No place card page is available.');
+  const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', ...PDF_DEFAULT_OPTIONS });
+  const indices = allPages ? Array.from({ length: options.totalPages }, (_, i) => i) : [options.pageIndex];
   try {
-    // Capture the page as image
-    const imageData = await convertPlaceCardPageToImage(pageIndex);
-
-    // Create PDF document (A4 portrait)
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
-      ...PDF_DEFAULT_OPTIONS,
-    });
-
-    // Add the captured image to fill entire A4 page
-    // Keep every source pixel exact while avoiding minutes of synchronous
-    // recompression for each 300-DPI page.
-    pdf.addImage(imageData, 'JPEG', 0, 0, 210, 297);
-    drawPhotoVideoQr(pdf, settings, qrDataUrl, guests.slice(pageIndex * 6, pageIndex * 6 + 6).length);
-
-    // Generate filename
-    const fileName = `PlaceCards-WeddingWaitress-SinglePage-${event.name}.pdf`;
-
-    // Save the PDF (async blob download for stability)
-    await savePlaceCardPdf(pdf, fileName);
-  } catch (error) {
-    console.error('Place card PDF export error:', error);
-    throw error;
-  }
-};
-
-/**
- * Export all place cards pages to a single multi-page PDF document
- */
-export const exportAllPlaceCardsToPdf = async (
-  settings: PlaceCardSettings | null,
-  guests: Guest[],
-  event: any,
-  totalPages: number,
-  qrDataUrl?: string | null,
-): Promise<void> => {
-  // Find and temporarily show the hidden print container
-  const printContainer = document.querySelector('.hidden.print\\:block') as HTMLElement;
-  if (printContainer) {
-    printContainer.style.display = 'block';
-    // Keep the export DOM at a real viewport coordinate. Very large negative
-    // offsets can make html2canvas spend minutes rasterising an enormous
-    // intermediate surface on multi-page exports.
-    printContainer.style.position = 'fixed';
-    printContainer.style.left = '0';
-    printContainer.style.top = '0';
-    printContainer.style.zIndex = '-1000';
-    printContainer.style.pointerEvents = 'none';
-  }
-
-  try {
-    // Create PDF document (A4 portrait)
-    const pdf = new jsPDF({
-      orientation: 'portrait',
-      unit: 'mm',
-      format: 'a4',
-      ...PDF_DEFAULT_OPTIONS,
-    });
-
-    // Capture and add each page
-    for (let pageIndex = 0; pageIndex < totalPages; pageIndex++) {
-      if (pageIndex > 0) {
-        pdf.addPage();
-        await yieldPlaceCardExport();
-      }
-
-      const imageData = await convertPlaceCardPageToImage(pageIndex, printContainer || document);
-      pdf.addImage(imageData, 'JPEG', 0, 0, 210, 297);
-      drawPhotoVideoQr(pdf, settings, qrDataUrl, guests.slice(pageIndex * 6, pageIndex * 6 + 6).length);
+    for (const [position, index] of indices.entries()) {
+      await options.showPage(index);
+      const page = options.pageElement();
+      if (page === null || Number(page.dataset.page) !== index) throw new Error('The selected place card page is not ready.');
+      const canvas = await capturePage(page);
+      if (position > 0) pdf.addPage();
+      pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 210, 297, undefined, 'FAST');
+      canvas.width = 0; canvas.height = 0;
     }
-
-    // Generate filename
-    const fileName = `PlaceCards-WeddingWaitress-AllPages-${event.name}.pdf`;
-
-    // Save the PDF (async blob download for stability)
-    await savePlaceCardPdf(pdf, fileName);
-  } catch (error) {
-    console.error('All place cards PDF export error:', error);
-    throw error;
-  } finally {
-    // Restore hidden state
-    if (printContainer) {
-      printContainer.style.display = '';
-      printContainer.style.position = '';
-      printContainer.style.left = '';
-      printContainer.style.top = '';
-      printContainer.style.zIndex = '';
-      printContainer.style.pointerEvents = '';
-    }
-  }
-};
+    return pdf;
+  } finally { await options.showPage(options.pageIndex); }
+}
+export async function exportPlaceCardPageToPdf(options: PlaceCardPdfOptions) {
+  await savePdfAsync(await createPlaceCardsPDF(options), `PlaceCards-WeddingWaitress-Page-${options.pageIndex + 1}-${options.eventName}.pdf`);
+}
+export async function exportAllPlaceCardsToPdf(options: PlaceCardPdfOptions) {
+  await savePdfAsync(await createPlaceCardsPDF(options, true), `PlaceCards-WeddingWaitress-AllPages-${options.eventName}.pdf`);
+}

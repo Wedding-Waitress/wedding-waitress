@@ -3,7 +3,7 @@ import { Upload } from 'tus-js-client';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
-export const useWelcomeVideoUpload = (eventId: string | null) => {
+export const useWelcomeVideoUpload = (eventId: string | null, onSaved?: () => void) => {
   const [uploadProgress, setUploadProgress] = useState(0);
   const [isUploading, setIsUploading] = useState(false);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -44,9 +44,17 @@ export const useWelcomeVideoUpload = (eventId: string | null) => {
           body: { stream_uid: streamUid, event_id: eventId },
         });
 
-        if (error) throw error;
+        if (error || data?.error) throw error || new Error(data.error);
+
+        if (data.status === 'superseded') {
+          setIsProcessing(false);
+          onSaved?.();
+          return;
+        }
 
         if (data.status === 'ready') {
+          onSaved?.();
+          if (data.cleanup_warning) toast({ title: 'Video saved; cleanup needs retry', description: data.cleanup_warning, variant: 'destructive' });
           setIsProcessing(false);
           toast({
             title: 'Video ready!',
@@ -151,17 +159,9 @@ export const useWelcomeVideoUpload = (eventId: string | null) => {
     if (!eventId) return;
 
     try {
-      await supabase
-        .from('live_view_module_settings')
-        .update({
-          welcome_video_config: null,
-        })
-        .eq('event_id', eventId);
-
-      await supabase
-        .from('welcome_video_uploads')
-        .delete()
-        .eq('event_id', eventId);
+      const { data, error } = await supabase.functions.invoke('delete-welcome-video', { body: { event_id: eventId } });
+      if (error || data?.error || !data?.success) throw error || new Error(data?.error || 'Video removal was not confirmed');
+      onSaved?.();
 
       toast({
         title: 'Video removed',

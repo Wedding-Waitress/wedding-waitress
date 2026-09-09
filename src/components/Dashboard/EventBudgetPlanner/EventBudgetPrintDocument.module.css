@@ -28,11 +28,22 @@
 .footer span:last-child { justify-self: end; }
 @page event-budget { size: A4 landscape; margin: 0; }
 @media print {
-  :global(body:has([data-budget-print-source="true"])) { background: #fff !important; }
+  :global(html:has([data-budget-print-source="true"])),
+  :global(body:has([data-budget-print-source="true"])) { background: #fff !important; height: auto !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; }
+  :global(body:has([data-budget-print-source="true"]) > :not([data-budget-print-preview])) { display: none !important; }
   :global(body:has([data-budget-print-source="true"]) *) { visibility: hidden !important; }
-  :global([data-budget-print-source="true"]), :global([data-budget-print-source="true"] *) { visibility: visible !important; }
-  :global([data-budget-print-source="true"]) { position: absolute !important; inset: 0 auto auto 0 !important; }
+  :global(body [data-budget-print-source="true"]), :global(body [data-budget-print-source="true"] *) { visibility: visible !important; }
+  :global([data-budget-print-preview]:has([data-budget-print-source="true"])) {
+    display: block !important; position: static !important; inset: auto !important;
+    width: 297mm !important; max-width: none !important; height: auto !important; max-height: none !important;
+    margin: 0 !important; padding: 0 !important; border: 0 !important; border-radius: 0 !important;
+    transform: none !important; animation: none !important; overflow: visible !important; box-shadow: none !important;
+  }
+  :global([data-budget-print-preview]:has([data-budget-print-source="true"]) > :not([data-budget-print-viewport])) { display: none !important; }
+  :global([data-budget-print-viewport]:has([data-budget-print-source="true"])) { display: block !important; overflow: visible !important; margin: 0 !important; padding: 0 !important; border: 0 !important; }
+  :global([data-budget-print-source="true"]) { position: static !important; display: block !important; }
   .document { gap: 0; }
+  .header { display: flex !important; }
   .presentation { width: 297mm !important; height: 210mm !important; border: 0 !important; box-shadow: none !important; break-after: page; }
   .presentation:last-child { break-after: auto; }
   .page { page: event-budget; }

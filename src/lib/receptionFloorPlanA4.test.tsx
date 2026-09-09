@@ -122,12 +122,12 @@ describe('Reception Floor Plan authoritative A4 architecture', () => {
     expect(css).toContain('background: transparent');
     expect(css).not.toMatch(/\.previewViewport[^}]*background:\s*(#|rgb|linear-gradient)/s);
     expect(exporter).toContain('assertAuthoritativeMirrorDocument(pageElement, RECEPTION_PRINT_MIRROR_CONTRACT)');
-    expect(exporter).toContain('html2canvas(pageElement');
+    expect(exporter).toContain('captureReceptionDocument(page');
     expect(exporter).toContain("orientation: 'landscape'");
     expect(exporter).toContain('A4_MM.height');
     expect(exporter).toContain('A4_MM.width');
     expect(exporter).not.toMatch(/draw(Room|Table|Fixture|Legend|Header|Footer)/);
-    expect(exporter).not.toContain('addPage');
+    expect(exporter).toContain('pages.entries()');
     expect(page).not.toContain('Reception PDF export options');
     expect(page).not.toContain('A4 landscape (297 × 210mm)');
     expect(page.match(/onClick=\{\(\) => handleExport\('a4'\)\}/g)).toHaveLength(1);

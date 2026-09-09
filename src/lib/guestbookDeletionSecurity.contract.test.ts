@@ -18,7 +18,9 @@ describe('guestbook submission deletion security', () => {
 
   it('cleans storage only after the database validates the submission secret', () => {
     expect(edge.indexOf("rpc('consume_guestbook_media_delete'")).toBeLessThan(edge.indexOf("storage.from('event-media').remove"));
-    expect(guestbook).toContain("functions.invoke('delete-guestbook-submission'");
-    expect(guestbook).toContain('setSavedAudioDeleteToken(uploadResult.deleteToken)');
+    // Remove now discards an unsent draft; it must not delete a saved submission.
+    expect(guestbook).toContain("const removeText = () => { setMessage('');");
+    expect(guestbook).toContain("(kind === 'audio' ? audio : video).discard();");
+    expect(guestbook).not.toContain("storage.from('event-media').remove");
   });
 });

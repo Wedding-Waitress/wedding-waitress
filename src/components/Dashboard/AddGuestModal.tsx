@@ -50,6 +50,7 @@ import {
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
 import { X, AlertCircle, Users, Utensils, Calendar, MapPin, Plus, UserPlus, Pencil, UserRound, Phone, Mail, ClipboardCheck, Table2, StickyNote, Save } from 'lucide-react';
+import { normalizeGuestPhone, guestPhoneHint } from '@/lib/guestPhone';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTables } from "@/hooks/useTables";
@@ -84,6 +85,7 @@ interface AddGuestModalProps {
     email: string | null;
     notes: string | null;
     family_group?: string | null;
+    allow_plus_one?: boolean | null;
     relation_partner: string;
     relation_role: string;
     relation_display: string;
@@ -148,6 +150,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   }>>([]);
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
   const [manualInviteStatus, setManualInviteStatus] = useState((editGuest as any)?.rsvp_invite_status || 'not_sent');
+  const [allowPlusOne, setAllowPlusOne] = useState(editGuest?.allow_plus_one !== false);
 
   // Relationship Group Override (Phase 1) — only writes to guests.family_group
   const detectGroupType = (fg?: string | null): 'individual' | 'couple' | 'family' => {
@@ -267,6 +270,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     }
     if (isEdit && editGuest) {
       setManualInviteStatus((editGuest as any).rsvp_invite_status || 'not_sent');
+      setAllowPlusOne(editGuest.allow_plus_one !== false);
       const t = detectGroupType(editGuest.family_group);
       setGroupTypeOverride(t);
       setFamilyGroupNameOverride(t === 'family' ? (editGuest.family_group || '') : '');
@@ -395,6 +399,13 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   };
 
   const addPartyMember = () => {
+    let normalizedMobile: string;
+    try {
+      normalizedMobile = normalizeGuestPhone(memberForm.mobile);
+    } catch (error) {
+      toast({ title: 'Check mobile number', description: (error as Error).message, variant: 'destructive' });
+      return;
+    }
     if (!memberForm.first_name || !memberForm.last_name) {
       toast({
         title: "Missing information",
@@ -404,7 +415,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       return;
     }
 
-    setPartyMembers(prev => [...prev, memberForm]);
+    setPartyMembers(prev => [...prev, { ...memberForm, mobile: normalizedMobile }]);
     setMemberForm({ first_name: '', last_name: '', mobile: '', email: '', dietary: 'None' });
     setShowAddMemberForm(false);
     
@@ -471,7 +482,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   const getSeatDisplayInfo = useCallback((tableId: string, seatNo: number) => {
     const taken = takenSeats[tableId] || [];
     const takenSeat = taken.find(seat => seat.seatNo === seatNo);
-    const isCurrentSeat = isEdit && editGuest && editGuest.seat_no === seatNo;
+    const isCurrentSeat = isEdit && editGuest && editGuest.table_id === tableId && editGuest.seat_no === seatNo;
     
     if (isCurrentSeat) {
       return {
@@ -534,9 +545,10 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       .from('guests')
       .select('id')
       .eq('event_id', eventId)
-      .eq('family_group', g);
+      .eq('family_group', g)
+      .throwOnError();
     if (remaining && remaining.length === 1) {
-      await supabase.from('guests').update({ family_group: null }).eq('id', remaining[0].id);
+      await supabase.from('guests').update({ family_group: null }).eq('event_id', eventId).eq('id', remaining[0].id).throwOnError();
     }
   };
 
@@ -560,7 +572,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       }
 
       if (newType === 'individual') {
-        await supabase.from('guests').update({ family_group: null }).eq('id', currentGuest.id);
+        await supabase.from('guests').update({ family_group: null }).eq('event_id', eventId).eq('id', currentGuest.id).throwOnError();
         await cleanupSingleMemberFamily(originalGroup);
         return;
       }
@@ -571,7 +583,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           toast({ title: 'Family group name required', description: 'Enter a family group name to apply.', variant: 'destructive' });
           return;
         }
-        await supabase.from('guests').update({ family_group: desired }).eq('id', currentGuest.id);
+        await supabase.from('guests').update({ family_group: desired }).eq('event_id', eventId).eq('id', currentGuest.id).throwOnError();
         if (originalGroup && originalGroup !== desired) {
           await cleanupSingleMemberFamily(originalGroup);
         }
@@ -590,8 +602,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         const coupleName = `${currentFirst} & ${partnerFirst} Couple`;
         const oldCurrent = originalGroup;
         const oldPartner = partner.family_group || null;
-        await supabase.from('guests').update({ family_group: coupleName }).eq('id', currentGuest.id);
-        await supabase.from('guests').update({ family_group: coupleName }).eq('id', partner.id);
+        await supabase.from('guests').update({ family_group: coupleName }).eq('event_id', eventId).in('id', [currentGuest.id, partner.id]).throwOnError();
         if (oldCurrent && oldCurrent !== coupleName) await cleanupSingleMemberFamily(oldCurrent);
         if (oldPartner && oldPartner !== coupleName && oldPartner !== oldCurrent) {
           await cleanupSingleMemberFamily(oldPartner);
@@ -605,13 +616,25 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         description: 'Guest was saved, but the group change could not be applied.',
         variant: 'destructive',
       });
+      return false;
     }
   };
 
   const onSubmit = async (data: AddGuestFormData) => {
+    if (isEdit && editGuest) {
+      if (groupTypeOverride === 'family' && !familyGroupNameOverride.trim()) {
+        toast({ title: 'Family group name required', description: 'Enter a family group name to apply.', variant: 'destructive' });
+        return;
+      }
+      if (groupTypeOverride === 'couple' && detectGroupType(editGuest.family_group) !== 'couple' && !partnerGuestId) {
+        toast({ title: 'Partner required', description: 'Select a partner guest to form a couple.', variant: 'destructive' });
+        return;
+      }
+    }
     setLoading(true);
     
     try {
+      data.mobile = normalizeGuestPhone(data.mobile);
       // Get current user for rate limiting and security monitoring
       const { data: { user } } = await supabase.auth.getUser();
       const userId = user?.id;
@@ -734,7 +757,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         relation_partner: data.relation_partner,
         relation_role: data.relation_role,
         relation_display: relationDisplay,
-        ...(isEdit ? { rsvp_invite_status: manualInviteStatus } : {}),
+        ...(isEdit ? { rsvp_invite_status: manualInviteStatus, allow_plus_one: allowPlusOne } : {}),
       };
 
       if (isEdit && editGuest) {
@@ -787,7 +810,10 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           }
           
           // Apply Relationship Group Override (Phase 1) — touches ONLY family_group
-          await applyRelationshipOverride(editGuest, data);
+          if (await applyRelationshipOverride(editGuest, data) === false) {
+            onGuestAdded();
+            return;
+          }
 
           toast({
             title: "Guest Updated",
@@ -1165,10 +1191,18 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     <FormControl>
                       <Input 
                         placeholder="Enter mobile number" 
+                        type="tel"
+                        autoComplete="tel"
                         className="rounded-full border-2 border-primary focus-visible:border-primary focus-visible:border-[3px] focus-visible:ring-0 focus-visible:outline-none h-9"
                         {...field} 
+                        onChange={(event) => {
+                          const value = event.target.value;
+                          try { field.onChange(normalizeGuestPhone(value)); }
+                          catch { field.onChange(value); }
+                        }}
                       />
                     </FormControl>
+                    <p className="text-xs text-muted-foreground">{guestPhoneHint()}</p>
                     <FormMessage />
                   </FormItem>
                 )}
@@ -1410,6 +1444,13 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             )}
 
             {isEdit && editGuest && (
+              <label className="flex items-center gap-2 text-sm font-medium">
+                <input type="checkbox" checked={allowPlusOne} onChange={(event) => setAllowPlusOne(event.target.checked)} />
+                Allow + Guest
+              </label>
+            )}
+
+            {isEdit && editGuest && (
               <div className="flex items-center gap-2">
                 <Label className="text-sm font-medium">RSVP Invite Status</Label>
                 <Select value={manualInviteStatus} onValueChange={setManualInviteStatus}>
@@ -1421,6 +1462,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     <SelectItem value="email_sent">Email Sent</SelectItem>
                     <SelectItem value="sms_sent">SMS Sent</SelectItem>
                     <SelectItem value="both_sent">Both Sent</SelectItem>
+                    <SelectItem value="mail_sent">Physical Mail Sent</SelectItem>
                   </SelectContent>
                 </Select>
               </div>
@@ -1516,6 +1558,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="ww-guest-list-menu">
+                        <SelectItem value="NA">Not Applicable</SelectItem>
                         <SelectItem value="None">None</SelectItem>
                         <SelectItem value="Kids Meal">Kids Meal</SelectItem>
                         <SelectItem value="Pescatarian">Pescatarian</SelectItem>
@@ -1585,10 +1628,16 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         <Label className="text-xs">Mobile</Label>
                         <Input
                           value={memberForm.mobile}
-                          onChange={(e) => setMemberForm(prev => ({ ...prev, mobile: e.target.value }))}
+                          type="tel"
+                          onChange={(e) => {
+                            let mobile = e.target.value;
+                            try { mobile = normalizeGuestPhone(mobile); } catch { /* Keep incomplete typing. */ }
+                            setMemberForm(prev => ({ ...prev, mobile }));
+                          }}
                           placeholder="Mobile (optional)"
                           className="rounded-full border-[#967A59] text-sm"
                         />
+                        <p className="text-xs text-muted-foreground">{guestPhoneHint()}</p>
                       </div>
                       <div>
                         <Label className="text-xs">Email</Label>
@@ -1723,7 +1772,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         </Form>
         </div>
 
-        <div className="border-t px-4 sm:px-8 py-4 flex flex-col-reverse gap-3 max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 sm:flex-row sm:justify-end sm:space-x-2 sm:gap-0">
+        <div className={`border-t px-4 sm:px-8 py-4 flex flex-col-reverse gap-3 max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 sm:flex-row sm:justify-end sm:space-x-2 sm:gap-0 ${categoryStyles.actionFooter}`}>
           <Button
             type="submit"
             variant="default"

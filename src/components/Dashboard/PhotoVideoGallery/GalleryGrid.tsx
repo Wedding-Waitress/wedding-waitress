@@ -501,7 +501,7 @@ export const GalleryGrid: React.FC<{
             <button
               type="button"
               onClick={selectAllVisible}
-              className={`lv-premium-shade px-3 h-9 rounded-md text-sm border bg-white text-[#1D1D1F] border-border hover:bg-muted ${isEspressoGallery ? managementStyles.galleryControl : ''}`}
+              className={`gallery-select-visible lv-premium-shade px-3 h-9 rounded-md text-sm border bg-white text-[#1D1D1F] border-border hover:bg-muted ${isEspressoGallery ? managementStyles.galleryControl : ''}`}
             >
               {allVisibleSelected ? 'Clear visible' : `Select all visible (${visibleIds.length})`}
             </button>
@@ -682,7 +682,7 @@ export const GalleryGrid: React.FC<{
                   )}
 
                   {/* Guest reactions (read-only for host) */}
-                  {(it.like_count ?? 0) > 0 && (
+                  {!isEspressoGallery && (it.like_count ?? 0) > 0 && (
                     <div className="absolute bottom-1 left-1 z-10 pointer-events-none flex items-center gap-1 rounded-full bg-black/60 px-1.5 py-0.5 text-[10px] font-medium text-white">
                       <span aria-hidden>❤️</span>
                       <span>{it.like_count}</span>
@@ -698,6 +698,14 @@ export const GalleryGrid: React.FC<{
                       <div className={managementStyles.galleryMediaFooterName} title={uploaderLabel}>
                         {uploaderLabel}
                       </div>
+                      <span
+                        className={managementStyles.galleryGuestHearts}
+                        aria-label={`${it.like_count ?? 0} guest likes`}
+                        title="Guest likes"
+                      >
+                        <span aria-hidden="true">❤️</span>
+                        <span>{it.like_count ?? 0}</span>
+                      </span>
                       {showAlbumControls && (
                         <Select
                           value={normaliseGalleryAlbum(it.album)}
@@ -705,7 +713,7 @@ export const GalleryGrid: React.FC<{
                         >
                           <SelectTrigger
                             aria-label={`Change album for ${uploaderLabel}`}
-                            className={`h-7 w-[6.75rem] shrink-0 bg-transparent px-2 text-[10px] ${managementStyles.galleryControl} ${managementStyles.galleryFooterSelect}`}
+                            className={`h-7 w-[5rem] shrink-0 bg-transparent px-1 text-[10px] ${managementStyles.galleryControl} ${managementStyles.galleryFooterSelect}`}
                           >
                             <SelectValue />
                           </SelectTrigger>

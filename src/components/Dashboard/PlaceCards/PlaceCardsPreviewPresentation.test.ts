@@ -28,9 +28,10 @@ describe('Name Place Cards preview presentation contract', () => {
     expect(preview).toContain("top: '25%'");
   });
 
-  it('keeps guide labels out of the print-only renderer', () => {
-    const printRendererStart = preview.indexOf('{/* Print Version - All Pages */}');
-    expect(printRendererStart).toBeGreaterThan(0);
-    expect(preview.slice(printRendererStart)).not.toContain('ww-placecards-guide-layer');
+  it('keeps guide labels outside the single authoritative document', () => {
+    const documentStart = preview.indexOf('<div ref={ref} data-page=');
+    expect(documentStart).toBeGreaterThan(0);
+    expect(preview.slice(documentStart)).not.toContain('ww-placecards-guide-layer');
+    expect(preview).not.toContain('hidden print:block');
   });
 });

@@ -78,6 +78,11 @@ class Query {
       return { data: rows, error: null };
     }
     if (this.table === 'guests') {
+      if (this.operation === 'update') {
+        const rows = state.guests.filter((row) => [...this.filters].every(([key, value]) => row[key] === value));
+        rows.forEach((row) => Object.assign(row, payload));
+        return { data: single ? rows[0] || null : rows, error: null };
+      }
       if (this.operation === 'insert') {
         const guest: Row = { ...(payload || {}), id: `guest-${state.guests.length + 1}` };
         const duplicate = state.guests.some((row) => row.event_id === guest.event_id && row.guided_setup_origin === guest.guided_setup_origin);
@@ -112,6 +117,9 @@ vi.mock('@/lib/eventAllowance', () => ({
 }));
 
 vi.mock('@/hooks/useSelectedEvent', () => ({ setSelectedEventId: vi.fn() }));
+vi.mock('@/lib/eventHeroImage', () => ({ syncEventHeroImage: vi.fn(async () => {
+  if (state.failOnce === 'event-image-sync') { state.failOnce = ''; throw new Error('image sync failed'); }
+}) }));
 
 import { completeGuidedSetup, GuidedSetupCreationError } from './guidedEventSetup';
 
@@ -151,8 +159,8 @@ describe('Guided Setup completion recovery', () => {
     expect(state.tables.filter((table) => table.table_purpose === 'head')).toEqual([expect.objectContaining({ table_type: 'long', limit_seats: 4 })]);
     expect(state.qrs).toHaveLength(1);
     expect(state.guests).toEqual([
-      expect.objectContaining({ first_name: 'Nader', last_name: null, guided_setup_origin: 'wedding_couple_1', assigned: false, table_id: null, table_no: null, seat_no: null, email: null, mobile: null, rsvp: null, dietary: null }),
-      expect.objectContaining({ first_name: 'Nahla', last_name: null, guided_setup_origin: 'wedding_couple_2', assigned: false, table_id: null, table_no: null, seat_no: null, email: null, mobile: null, rsvp: null, dietary: null }),
+      expect.objectContaining({ first_name: 'Nader', last_name: null, guided_setup_origin: 'wedding_couple_1', family_group: 'Nader & Nahla Couple', assigned: false, table_id: null, table_no: null, seat_no: null, email: null, mobile: null, rsvp: null, dietary: null }),
+      expect.objectContaining({ first_name: 'Nahla', last_name: null, guided_setup_origin: 'wedding_couple_2', family_group: 'Nader & Nahla Couple', assigned: false, table_id: null, table_no: null, seat_no: null, email: null, mobile: null, rsvp: null, dietary: null }),
     ]);
     expect(state.draft).toMatchObject({ created_event_id: 'event-1', current_step: 10 });
   });
@@ -164,7 +172,7 @@ describe('Guided Setup completion recovery', () => {
   });
 
   it.each<GuidedSetupCreationStage>([
-    'draft-start', 'event-recovery', 'event-insert', 'draft-link', 'budget', 'tables-read', 'tables-insert', 'guests-read', 'guests-insert', 'draft-completion',
+    'draft-start', 'event-recovery', 'event-insert', 'draft-link', 'budget', 'tables-read', 'tables-insert', 'guests-read', 'guests-insert', 'event-image-sync', 'draft-completion',
   ])('recovers after a %s failure without duplicate records', async (stage) => {
     state.failOnce = stage;
     await expect(completeGuidedSetup(draft(), 100, 20)).rejects.toEqual(expect.objectContaining({ name: GuidedSetupCreationError.name, stage }));
@@ -211,5 +219,20 @@ describe('Guided Setup completion recovery', () => {
     await completeGuidedSetup(draft(answers({ customerSurname: 'Elalfy', partnerSurname: 'Megm' })), 100, 20);
     expect(state.guests).toHaveLength(3);
     expect(state.guests.filter((guest) => guest.guided_setup_origin === null)).toHaveLength(1);
+  });
+
+  it('repairs an existing guided couple without changing unrelated guests', async () => {
+    state.events.push({ id: 'event-1', onboarding_draft_id: 'draft-1' });
+    state.guests.push(
+      { id: 'guided-1', event_id: 'event-1', user_id: 'owner-1', first_name: 'Nader', family_group: null, guided_setup_origin: 'wedding_couple_1' },
+      { id: 'guided-2', event_id: 'event-1', user_id: 'owner-1', first_name: 'Nahla', family_group: null, guided_setup_origin: 'wedding_couple_2' },
+      { id: 'manual-1', event_id: 'event-1', user_id: 'owner-1', first_name: 'Other', family_group: null, guided_setup_origin: null },
+    );
+
+    await completeGuidedSetup(draft(answers()), 100, 20);
+
+    expect(state.guests.find((guest) => guest.id === 'guided-1')?.family_group).toBe('Nader & Nahla Couple');
+    expect(state.guests.find((guest) => guest.id === 'guided-2')?.family_group).toBe('Nader & Nahla Couple');
+    expect(state.guests.find((guest) => guest.id === 'manual-1')?.family_group).toBeNull();
   });
 });

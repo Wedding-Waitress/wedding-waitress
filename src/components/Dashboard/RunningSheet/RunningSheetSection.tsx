@@ -1,3 +1,4 @@
+import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 /**
  * PRODUCTION-READY -- LOCKED FOR PRODUCTION
  *
@@ -52,7 +53,7 @@ import {
 } from '@/components/ui/alert-dialog';
 import {
   ChevronDown, ChevronUp, Plus, EllipsisVertical, RotateCcw, MessageSquareText,
-  Trash2, Eraser, ListChecks, NotebookPen, Clock3, ListTodo, UsersRound,
+  LoaderCircle, Undo2, Trash2, Eraser, ListChecks, NotebookPen, Clock3, ListTodo, UsersRound,
 } from 'lucide-react';
 import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { RunningSheetItem } from '@/types/runningSheet';
@@ -60,6 +61,8 @@ import { RunningSheetRow } from './RunningSheetRow';
 import styles from './RunningSheetTheme.module.css';
 
 interface RunningSheetSectionProps {
+  rowTextSize?: "standard" | "larger";
+  onRowTextSizeChange?: (size: "standard" | "larger") => void;
   label: string;
   onLabelChange: (label: string) => void;
   notes: string | null;
@@ -67,7 +70,8 @@ interface RunningSheetSectionProps {
   items: RunningSheetItem[];
   onUpdateItem: (itemId: string, updates: Partial<RunningSheetItem>) => void;
   onAddItem: () => void;
-  onDeleteItem: (itemId: string) => void;
+  onDeleteItem: (itemId: string) => void | Promise<void>;
+  onRestoreItems: (items: RunningSheetItem[]) => Promise<RunningSheetItem[] | null>;
   onDuplicateItem: (item: RunningSheetItem) => void;
   onReorderItems: (items: RunningSheetItem[]) => void;
   onResetToDefault: () => void;
@@ -75,9 +79,13 @@ interface RunningSheetSectionProps {
   onInsertFromDJMC?: (itemId: string, type: 'ceremony' | 'introductions' | 'speeches', includeSongs: boolean) => void;
   hasDJMCData?: boolean;
   disabled?: boolean;
+  readOnly?: boolean;
+  allowReset?: boolean;
 }
 
 export function RunningSheetSection({
+  rowTextSize = "standard",
+  onRowTextSizeChange,
   label,
   onLabelChange,
   notes,
@@ -86,14 +94,21 @@ export function RunningSheetSection({
   onUpdateItem,
   onAddItem,
   onDeleteItem,
+  onRestoreItems,
   onDuplicateItem,
   onReorderItems,
   onResetToDefault,
   onDownloadSectionPDF,
   onInsertFromDJMC,
   hasDJMCData = false,
-  disabled = false,
+  disabled: externallyDisabled = false,
+  readOnly = externallyDisabled,
+  allowReset = true,
 }: RunningSheetSectionProps) {
+  const [busy, setBusy] = useState<false | "saving" | "restoring">(false);
+  const busyRef = useRef(false);
+  const disabled = readOnly || externallyDisabled || !!busy;
+  const [undoError, setUndoError] = useState(false);
   const [isCollapsed, setIsCollapsed] = useState(false);
   const [editingLabel, setEditingLabel] = useState(false);
   const [localLabel, setLocalLabel] = useState(label);
@@ -101,7 +116,7 @@ export function RunningSheetSection({
   const [showResetDialog, setShowResetDialog] = useState(false);
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [showDeleteAllDialog, setShowDeleteAllDialog] = useState(false);
-  const [undoStack, setUndoStack] = useState<{ itemId: string; snapshot: Partial<RunningSheetItem> }[]>([]);
+  const [undoStack, setUndoStack] = useState<({ itemId: string; snapshot: Partial<RunningSheetItem> } | { rows: RunningSheetItem[] })[]>([]);
   const labelInputRef = useRef<HTMLInputElement>(null);
 
   const handleUpdateWithUndo = useCallback((itemId: string, updates: Partial<RunningSheetItem>) => {
@@ -116,14 +131,44 @@ export function RunningSheetSection({
     onUpdateItem(itemId, updates);
   }, [items, onUpdateItem]);
 
-  const handleUndo = useCallback(() => {
-    setUndoStack(prev => {
-      if (prev.length === 0) return prev;
-      const last = prev[prev.length - 1];
-      onUpdateItem(last.itemId, last.snapshot);
-      return prev.slice(0, -1);
-    });
-  }, [onUpdateItem]);
+  const rememberRows = (rows: RunningSheetItem[]) => {
+    if (rows.length) setUndoStack(prev => [...prev.slice(-19), { rows: structuredClone(rows) }]);
+  };
+
+  const handleUndo = async () => {
+    if (disabled || busyRef.current) return;
+    const last = [...undoStack].reverse().find(entry => 'rows' in entry || items.some(item => item.id === entry.itemId));
+    if (!last) return;
+    busyRef.current = true;
+    setBusy("restoring");
+    setUndoError(false);
+    try {
+      if ('rows' in last) {
+        const restored = await onRestoreItems(last.rows);
+        if (!restored) { setUndoError(true); return; }
+        // Shared-link restoration may assign new row IDs. Keep earlier Undo entries usable.
+        const ids = new Map(last.rows.map((row, index) => [row.id, restored[index].id]));
+        setUndoStack(prev => prev.slice(0, prev.indexOf(last)).map(entry => 'rows' in entry
+          ? { rows: entry.rows.map(row => ({ ...row, id: ids.get(row.id) || row.id })) }
+          : { ...entry, itemId: ids.get(entry.itemId) || entry.itemId }));
+      } else {
+        const current = items.find(item => item.id === last.itemId)!;
+        const restored = await onRestoreItems([{ ...current, ...last.snapshot }]);
+        if (!restored) { setUndoError(true); return; }
+        setUndoStack(prev => prev.slice(0, prev.indexOf(last)));
+      }
+    } catch { setUndoError(true); }
+    finally { busyRef.current = false; setBusy(false); }
+  };
+
+  const deleteRows = async (rows: RunningSheetItem[]) => {
+    if (disabled || busyRef.current) return;
+    rememberRows(rows);
+    busyRef.current = true;
+    setBusy("saving");
+    try { await Promise.all(rows.map(item => onDeleteItem(item.id))); }
+    finally { busyRef.current = false; setBusy(false); }
+  };
 
   const sensors = useSensors(
     useSensor(PointerSensor),
@@ -132,14 +177,14 @@ export function RunningSheetSection({
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
     const { active, over } = event;
-    if (!over || active.id === over.id) return;
+    if (disabled || !over || active.id === over.id) return;
     const oldIndex = items.findIndex(i => i.id === active.id);
     const newIndex = items.findIndex(i => i.id === over.id);
     if (oldIndex !== -1 && newIndex !== -1) {
       const newItems = arrayMove(items, oldIndex, newIndex).map((item, idx) => ({ ...item, order_index: idx }));
       onReorderItems(newItems);
     }
-  }, [items, onReorderItems]);
+  }, [items, disabled, onReorderItems]);
 
   const handleLabelBlur = useCallback(() => {
     setEditingLabel(false);
@@ -162,11 +207,15 @@ export function RunningSheetSection({
 
   return (
     <>
-      <Card className={`${styles.glassCard} ${styles.scheduleCard}`}>
+      {busy && <div role="status" aria-live="polite" className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-lg border border-[#967a59] bg-[#fff4e5] px-5 py-3 text-[#2f1b14] shadow-lg">
+        <LoaderCircle size={20} className="animate-spin" aria-hidden="true"/>
+        {busy === 'restoring' ? 'Restoring run sheet… Please keep this page open.' : 'Saving changes… Please wait.'}
+      </div>}
+      <Card data-row-text-size={rowTextSize} className={`${styles.glassCard} ${styles.scheduleCard}`}>
         <Collapsible open={!isCollapsed} onOpenChange={(open) => setIsCollapsed(!open)}>
           <CardHeader className="py-3 px-4">
-            <div className="flex items-center justify-between">
-              <div className="flex items-center gap-2 flex-1">
+            <div className="flex flex-wrap md:flex-nowrap items-center justify-between gap-3">
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
                 <CollapsibleTrigger asChild>
                   <Button
                     variant="ghost"
@@ -202,8 +251,31 @@ export function RunningSheetSection({
                 )}
               </div>
 
+              {!readOnly && (
+                <p className="order-3 w-full md:order-none md:w-auto md:flex-1 md:min-w-0 mx-auto px-4 text-center text-sm leading-relaxed text-[#6f5342] print:hidden">
+                  <span className="block"><strong>Tip:</strong> We have included a sample wedding run sheet to get you started.</span><span className="block">Keep it as it is, edit any field, or remove rows and add your own to suit your celebration.</span>
+                </p>
+              )}
+
               <TooltipProvider>
-              <div className="flex items-center gap-2">
+              <div className="flex flex-wrap items-center gap-2 shrink-0">
+                {onRowTextSizeChange && <Select value={rowTextSize}
+                  onValueChange={value => onRowTextSizeChange(value as "standard" | "larger")}>
+                  <SelectTrigger aria-label="Row Text Size" className="w-auto gap-2 border-primary focus:ring-primary print:hidden">
+                    <span>Row Text Size</span>
+                    <SelectValue />
+                  </SelectTrigger>
+                  <SelectContent className="bg-popover border-border z-50 ww-running-sheet-menu">
+                    <SelectItem value="standard">Standard</SelectItem>
+                    <SelectItem value="larger">Larger</SelectItem>
+                  </SelectContent>
+                </Select>}
+                {!readOnly && <Button variant="ghost" size="sm" className="h-8 gap-1.5 print:hidden"
+                  onClick={handleUndo} disabled={disabled || undoStack.length === 0}
+                  title="Undo the last row edit, clear, or deletion while this page is open">
+                  {busy === 'restoring' ? <LoaderCircle size={18} className="animate-spin" aria-hidden="true"/> : <Undo2 size={18} strokeWidth={1.8} aria-hidden="true"/>}
+                  {busy === 'restoring' ? 'Restoring…' : 'Undo'}
+                </Button>}
                 <Tooltip>
                   <TooltipTrigger asChild>
                     <Button variant="ghost" size="icon" className="h-8 w-8" onClick={() => setShowNotes(!showNotes)} title="Notes" aria-label="Toggle notes">
@@ -217,7 +289,7 @@ export function RunningSheetSection({
                   <Tooltip>
                     <TooltipTrigger asChild>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="icon" className="h-8 w-8" title="More actions" aria-label="More actions">
+                        <Button variant="ghost" size="icon" className="h-8 w-8" title="More actions" aria-label="More actions" disabled={disabled}>
                           <EllipsisVertical size={16} strokeWidth={1.8} aria-hidden="true" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -229,10 +301,10 @@ export function RunningSheetSection({
                       <Eraser size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                       Clear All Fields
                     </DropdownMenuItem>
-                    <DropdownMenuItem onClick={() => setShowResetDialog(true)}>
+                    {allowReset && <DropdownMenuItem onClick={() => setShowResetDialog(true)}>
                       <RotateCcw size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                       Reset to Default
-                    </DropdownMenuItem>
+                    </DropdownMenuItem>}
                     <DropdownMenuItem onClick={() => setShowDeleteAllDialog(true)} className="text-destructive">
                       <Trash2 size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
                       Delete All Rows
@@ -246,6 +318,7 @@ export function RunningSheetSection({
 
 
 
+            {undoError && <p role="alert" className="text-destructive text-sm">Undo could not be saved. Please try Undo again.</p>}
             {showNotes && (
               <div className="mt-3">
                 <div className={`rounded-md px-3 py-2 ${styles.notesEditor}`}>
@@ -296,28 +369,30 @@ export function RunningSheetSection({
                     <SortableContext items={items.map(i => i.id)} strategy={verticalListSortingStrategy}>
                       {items.map(item => (
                         <RunningSheetRow
+                          rowTextSize={rowTextSize}
                           key={item.id}
                           item={item}
                           onUpdate={handleUpdateWithUndo}
                           onDuplicate={onDuplicateItem}
-                          onDelete={onDeleteItem}
+                          onDelete={(id) => { const row = items.find(item => item.id === id); if (row) void deleteRows([row]); }}
                           onClearText={(itemId) => handleUpdateWithUndo(itemId, { time_text: '', description_rich: { text: '' }, responsible: '' })}
                           onInsertFromDJMC={onInsertFromDJMC}
                           onUndo={handleUndo}
                           canUndo={undoStack.length > 0}
                           hasDJMCData={hasDJMCData}
                           disabled={disabled}
+                          readOnly={readOnly}
                         />
                       ))}
                     </SortableContext>
                   </DndContext>
 
                   {/* Add Row */}
-                  {!disabled && (
+                  {!readOnly && (
                     <div className="mt-3 flex justify-center">
-                      <Button variant="outline" size="sm" onClick={onAddItem} className={`gap-1.5 ${styles.greenAction}`} aria-label="Add row">
+                      <Button variant="outline" size="sm" onClick={onAddItem} disabled={disabled} className={`gap-1.5 ${styles.greenAction}`} aria-label="Add bottom row">
                         <Plus size={16} strokeWidth={1.8} aria-hidden="true" />
-                        Add Row
+                        Add Bottom Row
 
                       </Button>
                     </div>
@@ -335,12 +410,13 @@ export function RunningSheetSection({
           <AlertDialogHeader>
             <AlertDialogTitle>Clear All Fields?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will erase the text in every row but keep the rows. This cannot be undone.
+              This will erase the text in every row but keep the rows. Use Undo to restore them while this page is open.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
             <AlertDialogAction className={styles.destructiveAction} onClick={() => {
+              rememberRows(items);
               items.forEach(item => onUpdateItem(item.id, { time_text: '', description_rich: { text: '' }, responsible: '' }));
               setShowClearDialog(false);
             }}>
@@ -361,7 +437,7 @@ export function RunningSheetSection({
           </AlertDialogHeader>
           <AlertDialogFooter>
             <AlertDialogCancel>Cancel</AlertDialogCancel>
-            <AlertDialogAction className={styles.destructiveAction} onClick={() => { onResetToDefault(); setShowResetDialog(false); }}>
+            <AlertDialogAction className={styles.destructiveAction} onClick={() => { setUndoStack([]); onResetToDefault(); setShowResetDialog(false); }}>
               Reset
             </AlertDialogAction>
           </AlertDialogFooter>
@@ -373,7 +449,7 @@ export function RunningSheetSection({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete All Rows?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will delete all the rows. Start fresh and manually add rows as you desire. Once deleted, they cannot be retrieved.
+              This will delete all the rows. Use Undo to restore them while this page is open.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -381,7 +457,7 @@ export function RunningSheetSection({
             <AlertDialogAction
               className="bg-destructive text-destructive-foreground hover:bg-destructive/90"
               onClick={() => {
-                items.forEach(item => onDeleteItem(item.id));
+                void deleteRows(items);
                 setShowDeleteAllDialog(false);
               }}
             >

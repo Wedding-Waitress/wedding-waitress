@@ -30,6 +30,7 @@ interface Event {
   id: string;
   user_id?: string;
   name: string;
+  event_display_name?: string | null;
   date: string | null;
   venue: string | null;
   venue_address?: string | null;
@@ -75,6 +76,18 @@ interface EventEditModalProps {
   onSave: (id: string, eventData: any) => Promise<void>;
   onImageChange: (id: string, value: EventImageValue | null) => Promise<void>;
 }
+
+const receptionSyncFields = {
+  ceremony_name: 'name',
+  ceremony_date: 'date',
+  ceremony_rsvp_deadline: 'rsvp_deadline',
+  ceremony_guest_limit: 'guest_limit',
+  ceremony_venue: 'venue',
+  ceremony_venue_address: 'venue_address',
+  ceremony_venue_phone: 'venue_phone',
+  ceremony_venue_contact: 'venue_contact',
+  ceremony_venue_contact_email: 'venue_contact_email',
+} as const;
 
 export const EventEditModal: React.FC<EventEditModalProps> = ({
   isOpen,
@@ -150,18 +163,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
 
     setFormData(prev => {
       const updates: Partial<typeof prev> = {};
-      const syncMap: Record<string, string> = {
-        ceremony_name: 'name',
-        ceremony_date: 'date',
-        ceremony_rsvp_deadline: 'rsvp_deadline',
-        ceremony_guest_limit: 'guest_limit',
-        ceremony_venue: 'venue',
-        ceremony_venue_address: 'venue_address',
-        ceremony_venue_phone: 'venue_phone',
-        ceremony_venue_contact: 'venue_contact',
-        ceremony_venue_contact_email: 'venue_contact_email',
-      };
-      for (const [srcKey, destKey] of Object.entries(syncMap)) {
+      for (const [srcKey, destKey] of Object.entries(receptionSyncFields)) {
         if (!receptionOverrides.has(destKey)) {
           (updates as any)[destKey] = (prev as any)[srcKey];
         }
@@ -194,10 +196,21 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   // Populate form when event changes
   useEffect(() => {
     if (event) {
-      setReceptionOverrides(new Set());
+      // Stored differences are intentional overrides, just like edits made in this form.
+      // Preserve them before the ceremony-sync effect runs on the hydrated draft.
+      const overrides = new Set<string>();
+      for (const [source, destination] of Object.entries(receptionSyncFields)) {
+        const fallback = destination === 'guest_limit' ? 10 : '';
+        if ((event[source as keyof Event] ?? fallback) !== (event[destination] ?? fallback)) {
+          overrides.add(destination);
+        }
+      }
+      const displayName = event.event_display_name || event.name || '';
+      if (displayName !== (event.ceremony_name || '')) overrides.add('event_name');
+      setReceptionOverrides(overrides);
       setFormData({
         // Top-level event name
-        event_name: (event as any).event_display_name || event.name || '',
+        event_name: displayName,
         
         // Ceremony fields
         ceremony_enabled: event.ceremony_enabled ?? false,
@@ -576,12 +589,12 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
           display: 'flex', gap: 12,
         }}>
           <Button onClick={handleSave} disabled={!isFormValid || isSaving}
-            className={`lv-premium-shade flex-1 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white ${styles.createButton}`}>
+            className={`lv-premium-shade flex-1 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white ${styles.createButton} ${styles.editAction}`}>
             <Save className="w-5 h-5 mr-2 text-white" />
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>
           <Button variant="destructive" onClick={onClose}
-            className={`lv-premium-shade flex-1 h-11 rounded-full bg-red-500 hover:bg-red-600 text-white ${styles.cancelButton}`}>
+            className={`lv-premium-shade flex-1 h-11 rounded-full bg-red-500 hover:bg-red-600 text-white ${styles.cancelButton} ${styles.editAction}`}>
             <X className="w-5 h-5 mr-2 text-white" />
             Cancel
           </Button>
@@ -618,7 +631,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
             variant="default"
             onClick={handleSave}
             disabled={!isFormValid || isSaving}
-            className={`lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-1 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full ${styles.createButton}`}
+            className={`lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-1 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full ${styles.createButton} ${styles.editAction}`}
           >
             <Save className="w-5 h-5 mr-2 text-white" />
             {isSaving ? 'Saving...' : 'Save Changes'}
@@ -626,7 +639,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
           <Button
             variant="destructive"
             onClick={onClose}
-            className={`lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-2 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-red-500 hover:bg-red-600 text-white max-lg:order-2 max-lg:w-full ${styles.cancelButton}`}
+            className={`lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-2 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-red-500 hover:bg-red-600 text-white max-lg:order-2 max-lg:w-full ${styles.cancelButton} ${styles.editAction}`}
           >
             <X className="w-5 h-5 mr-2 text-white" />
             Cancel

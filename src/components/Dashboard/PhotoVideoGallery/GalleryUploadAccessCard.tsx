@@ -52,14 +52,17 @@ export const GalleryUploadAccessCard: React.FC<{
           <h2 className={cn('text-xl flex items-center gap-2', isGlass ? 'font-semibold tracking-[-0.012em] leading-tight text-white' : 'font-bold')} style={isGlass ? undefined : { color: '#000000' }}>
             <QrCode className="h-5 w-5 text-[#967A59] shrink-0" /> Photo & Video Sharing Access
           </h2>
-          <p className={cn('text-sm mt-1 break-words', isGlass && 'font-normal text-[#e8ddd2]')} style={isGlass ? undefined : { color: '#1a1a1a' }}>
+          <p className={cn('text-sm mt-1 break-words', isGlass && ['font-normal text-[#e8ddd2]', managementStyles.sharingHeadingDescription])} style={isGlass ? undefined : { color: '#1a1a1a' }}>
             Share the QR code or link your guests use to share photos and videos.
           </p>
         </div>
         <div className="flex items-center gap-3 shrink-0">
           <Label htmlFor="open-toggle" className={cn('text-sm', isGlass && 'font-medium text-white')}>Accepting Guest Uploads</Label>
-          <Switch id="open-toggle" checked={meta.is_open} onCheckedChange={onToggleOpen} />
+          <Switch id="open-toggle" checked={meta.is_open} onCheckedChange={onToggleOpen} aria-describedby="upload-toggle-description" />
         </div>
+        <p id="upload-toggle-description" className={cn('basis-full text-xs text-muted-foreground', isGlass && managementStyles.gallerySecondaryText)}>
+          This link does not expire. Switch <strong>Accepting Guest Uploads</strong> off to stop new uploads.
+        </p>
       </div>
 
       <div className="grid grid-cols-1 sm:grid-cols-[180px_1fr] gap-5 sm:gap-6 items-start">
@@ -102,9 +105,7 @@ export const GalleryUploadAccessCard: React.FC<{
               <Download className="h-4 w-4 mr-1" /> Download QR code
             </Button>
           </div>
-          <p className={cn('text-xs text-muted-foreground', isGlass && managementStyles.gallerySecondaryText)}>
-            This link does not expire. Switch <strong>Accepting Guest Uploads</strong> off to stop new uploads.
-          </p>
+
         </div>
       </div>
     </Card>

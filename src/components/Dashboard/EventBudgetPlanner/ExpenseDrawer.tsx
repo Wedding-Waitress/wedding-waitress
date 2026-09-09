@@ -166,8 +166,8 @@ export const ExpenseDrawer: React.FC<ExpenseDrawerProps> = ({
           {submitError && <p className={styles.formError} role="alert">{submitError}</p>}
           <div className={styles.drawerActions}>
             {expense && <button type="button" className={styles.dangerButton} onClick={() => setConfirmation('delete')} disabled={saving || deleting}><Trash2 size={16} />Delete Expense</button>}
-            <button type="button" className={styles.dangerButton} onClick={requestClose} disabled={saving || deleting}><X size={16} aria-hidden="true" />Cancel</button>
             <button type="submit" className={styles.successButton} disabled={saving || deleting}>{saving ? <><span className={styles.spinner} />Saving…</> : <><Save size={16} />{expense ? 'Save Changes' : 'Save Expense'}</>}</button>
+            <button type="button" className={styles.dangerButton} onClick={requestClose} disabled={saving || deleting}><X size={16} aria-hidden="true" />Cancel</button>
           </div>
         </form>
       </SheetContent>

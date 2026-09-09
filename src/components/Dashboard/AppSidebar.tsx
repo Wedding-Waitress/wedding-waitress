@@ -74,9 +74,10 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
   const navigate = useNavigate();
   // isMobile already destructured from useSidebar above
   const { profile } = useProfile();
-  const { plan } = useUserPlan();
+  const { plan, hasPlatformOwnerAccess } = useUserPlan();
 
   const planDisplayName = (() => {
+    if (hasPlatformOwnerAccess) return 'Platform Owner Access';
     const raw = plan?.plan_name?.trim();
     if (!raw || raw.toLowerCase() === 'starter' || raw.toLowerCase() === 'free') return 'Free';
     return raw;
@@ -102,6 +103,13 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     <Sidebar collapsible="icon" className={`dashboard-sidebar ${styles.sidebarRoot}`}>
       <SidebarHeader className={`${styles.header} ${isMobile ? 'pt-6 pb-4' : 'pt-6 pb-12'}`}>
         <div className={styles.brandRow}>
+          <div className={styles.logoWrap}>
+            <img
+              src={logoImage}
+              alt="Wedding Waitress"
+              className={`${styles.logo} h-12 sm:h-10 md:h-14 w-auto group-data-[collapsible=icon]:!h-auto group-data-[collapsible=icon]:!w-9`}
+            />
+          </div>
           <button
             type="button"
             onClick={toggleSidebar}
@@ -115,13 +123,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
               <PanelLeftOpen size={20} strokeWidth={1.8} aria-hidden="true" />
             )}
           </button>
-          <div className={styles.logoWrap}>
-            <img
-              src={logoImage}
-              alt="Wedding Waitress"
-              className={`${styles.logo} h-12 sm:h-10 md:h-14 w-auto group-data-[collapsible=icon]:!h-auto group-data-[collapsible=icon]:!w-9`}
-            />
-          </div>
         </div>
       </SidebarHeader>
       <SidebarContent className={`${styles.content} pt-2`}>
@@ -153,7 +154,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                       {getMobileLabel(item.id, item.label)}
                     </span>
                     {workflowStep?.actionLabel === 'Start Here' && (
-                       <span className="bg-green-500 text-white text-xs font-normal ml-auto px-2 py-0.5 rounded-full whitespace-nowrap">
+                       <span className={`${styles.startHereBadge} bg-green-500 text-white text-xs font-normal ml-auto px-2 py-0.5 rounded-full whitespace-nowrap`}>
                         Start Here
                        </span>
                     )}

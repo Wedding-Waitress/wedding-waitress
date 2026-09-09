@@ -60,16 +60,15 @@ export const GalleryPasswordCard: React.FC<Props> = ({ passwordEnabled, hasPassw
 
   return (
     <Card className={cn('dashboard-card p-4 sm:p-5 space-y-4 overflow-hidden', isGlass && managementStyles.glassCard)} data-appearance={isGlass ? appearance : undefined}>
-      <div className="flex items-start gap-3">
-        <LockKeyhole className={cn('h-5 w-5 text-[#967A59] mt-0.5 shrink-0', isGlass && managementStyles.galleryWarmIcon)} strokeWidth={1.8} />
-        <div className="flex-1 min-w-0">
-          <h3 className={cn('text-xl font-bold text-black', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>Password Protection</h3>
-          <p className={cn('text-sm mt-1 break-words', isGlass && managementStyles.gallerySecondaryText)} style={isGlass ? undefined : { color: '#1a1a1a' }}>
-            Add a password to control who can upload or view the gallery.
-          </p>
+      <div>
+        <div className="flex items-start gap-3">
+          <LockKeyhole className={cn('h-5 w-5 text-[#967A59] mt-0.5 shrink-0', isGlass && managementStyles.galleryWarmIcon)} strokeWidth={1.8} />
+          <h3 className={cn('text-xl font-bold text-black flex-1 min-w-0', isGlass && [managementStyles.galleryViewHeading, managementStyles.passwordHeading])} style={isGlass ? undefined : { color: '#000000' }}>Password Protection</h3>
         </div>
+        <p className={cn('text-sm mt-1 break-words', isGlass && [managementStyles.gallerySecondaryText, managementStyles.sharingHeadingDescription])} style={isGlass ? undefined : { color: '#1a1a1a' }}>
+          Add a password to control who can upload or view the gallery.
+        </p>
       </div>
-
 
       <div className="flex items-center justify-between gap-3 pt-1">
         <Label htmlFor="pw-enabled" className={cn('text-sm font-medium', isGlass && managementStyles.galleryViewHeading)}>
@@ -118,7 +117,7 @@ export const GalleryPasswordCard: React.FC<Props> = ({ passwordEnabled, hasPassw
           type="button"
           onClick={submit}
           disabled={saving || !canSave}
-          className={cn('lv-premium-shade h-11 bg-green-600 hover:bg-green-700 text-white', isGlass && managementStyles.galleryViewPrimaryAction)}
+          className={cn('lv-premium-shade h-11 bg-green-600 hover:bg-green-700 text-white', isGlass && [managementStyles.galleryViewPrimaryAction, managementStyles.gallerySaveAction])}
         >
           {saving ? <><LoaderCircle className="animate-spin h-4 w-4 mr-2" strokeWidth={1.8} /> Saving…</> : <><Save className="h-4 w-4 mr-2" strokeWidth={1.8} /> Save</>}
         </Button>

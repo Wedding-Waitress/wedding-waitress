@@ -12,6 +12,7 @@ import styles from './LiveSlideshowSetup.module.css';
 
 interface LiveSlideshowAutoProtectionProps {
   eventId: string;
+  moduleState: ReturnType<typeof useLiveViewModuleSettings>;
 }
 
 const autoLockKeys = [
@@ -20,8 +21,8 @@ const autoLockKeys = [
   { key: 'update_details_override_auto_lock', label: 'Keep Update Your Details available', Icon: UserRoundCog },
 ] as const;
 
-export const LiveSlideshowAutoProtection: React.FC<LiveSlideshowAutoProtectionProps> = ({ eventId }) => {
-  const { settings: modules, updateModuleConfig } = useLiveViewModuleSettings(eventId);
+export const LiveSlideshowAutoProtection: React.FC<LiveSlideshowAutoProtectionProps> = ({ eventId, moduleState }) => {
+  const { settings: modules, updateModuleConfig, loading: modulesLoading, saving } = moduleState;
   const rsvpConf = (modules as any)?.rsvp_invite_config || {};
 
   return (
@@ -51,6 +52,8 @@ export const LiveSlideshowAutoProtection: React.FC<LiveSlideshowAutoProtectionPr
                   {checked ? 'Override ON' : 'Auto-hide'}
                 </span>
                 <Switch
+                  aria-label={label}
+                  disabled={modulesLoading || saving}
                   checked={checked}
                   onCheckedChange={(c) =>
                     updateModuleConfig('rsvp_invite_config' as any, { ...rsvpConf, [key]: c })

@@ -40,6 +40,8 @@ export const ShareLinkPanel = ({ plan, onGenerate, onRevoke, onApprovalChange }:
         await onRevoke();
         toast({ title: 'Share link revoked' });
       }
+    } catch {
+      toast({ title: 'Share link change was not saved', description: 'Please retry.', variant: 'destructive' });
     } finally {
       setBusy(false);
     }
@@ -58,7 +60,7 @@ export const ShareLinkPanel = ({ plan, onGenerate, onRevoke, onApprovalChange }:
 
   return (
     <div data-reception-panel="true" className="flex h-full min-w-0 flex-col gap-3 rounded-lg border border-border bg-muted/20 p-3 max-lg:p-4">
-      <div className="flex items-center justify-between gap-2 max-lg:flex-col max-lg:items-stretch">
+      <div className="flex flex-wrap items-center justify-between gap-2 max-lg:flex-col max-lg:items-stretch">
         <div className="flex items-center gap-2">
           <Share2 className="w-4 h-4 text-primary" />
           <h3 className="text-sm font-semibold text-foreground">Share with venue coordinator</h3>
@@ -68,6 +70,7 @@ export const ShareLinkPanel = ({ plan, onGenerate, onRevoke, onApprovalChange }:
           <Switch
             className={styles.shareToggle}
             data-reception-share-toggle="true"
+            aria-label="Enable read-only link"
             checked={plan.share_enabled && !!plan.share_token}
             onCheckedChange={toggle}
             disabled={busy}

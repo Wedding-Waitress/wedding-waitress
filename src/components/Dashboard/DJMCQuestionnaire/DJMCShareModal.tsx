@@ -76,21 +76,22 @@ export function DJMCShareModal({
         toast({ className: 'ww-djmc-toast', title: 'Share Link Created', description: 'Link copied to clipboard' });
         setRecipientName('');
       }
+    } catch {
+      toast({ title: 'Could not copy link', description: 'If the link was created, find it in Manage and copy it there.', variant: 'destructive' });
     } finally {
       setGenerating(false);
     }
   }, [permission, recipientName, onGenerateToken, toast, eventSlug]);
 
   const copyLink = useCallback(async (token: string) => {
-    const url = buildDJQuestionnaireUrl(token, eventSlug);
-    await navigator.clipboard.writeText(url);
-    setCopiedId(token);
-    setTimeout(() => setCopiedId(null), 2000);
-    toast({
-      className: 'ww-djmc-toast',
-      title: 'Link Copied',
-      description: 'Share link copied to clipboard',
-    });
+    try {
+      await navigator.clipboard.writeText(buildDJQuestionnaireUrl(token, eventSlug));
+      setCopiedId(token);
+      setTimeout(() => setCopiedId(null), 2000);
+      toast({ className: 'ww-djmc-toast', title: 'Link Copied', description: 'Share link copied to clipboard' });
+    } catch {
+      toast({ className: 'ww-djmc-toast', title: 'Could not copy link', description: 'Please try copying the link again.', variant: 'destructive' });
+    }
   }, [toast, eventSlug]);
 
   const toggleTokenPermission = useCallback(async (tokenId: string, currentPermission: string) => {

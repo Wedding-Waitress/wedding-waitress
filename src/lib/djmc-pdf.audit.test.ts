@@ -1,0 +1,22 @@
+import {it,expect,vi} from 'vitest';
+import fs from 'node:fs';
+import os from 'node:os';
+import path from 'node:path';
+import {DEFAULT_SECTION_TEMPLATES} from './djMCQuestionnaireTemplates';
+const out=(process.env.DJMC_PDF_AUDIT_DIR || fs.mkdtempSync(path.join(os.tmpdir(),'djmc-pdf-audit-')))+path.sep;
+vi.mock('@/lib/pdfExportUtils',()=>({PDF_DEFAULT_OPTIONS:{},yieldToBrowser:async()=>{},savePdfAsync:async(pdf:any,name:string)=>{fs.writeFileSync(out+name,Buffer.from(pdf.output('arraybuffer')));}}));
+import {exportSectionPDF,exportEntireQuestionnairePDF} from './djMCQuestionnairePdfExporter';
+it('exports all defaults and a long answer without truncation',async()=>{
+ vi.stubGlobal('fetch',vi.fn(async()=>({blob:async()=>new Blob([fs.readFileSync('public/wedding-waitress-logo-brown.png')],{type:'image/png'})})));
+ const sections=DEFAULT_SECTION_TEMPLATES.map((s,n)=>({...s,id:String(n),notes:n===4?'Please confirm every entrance with the MC before starting the music.\nKeep the aisle clear and wait for the coordinator signal.':null,items:s.items.map((i,j)=>({...i,id:`${n}-${j}`,song_title_artist:j===0?'A long song title and artist with complete entrance instructions, without missing words.':'',value_text:j===0?'A complete song title and artist with additional instructions that must remain readable in the exported questionnaire.':'',order_index:j}))}));
+ const event={id:'event',name:'QA Wedding',date:'2027-09-05',venue:'Sample Reception Venue',ceremony_date:'2027-09-05',ceremony_venue:'Sample Ceremony Venue'};
+ await exportSectionPDF(sections[4] as any,event);await exportEntireQuestionnairePDF({sections} as any,event);
+ expect(fs.statSync(out+'QA Wedding-Main Events Songs-05-09-2027.pdf').size).toBeGreaterThan(1000);
+ const longSection={...sections[4],notes:Array.from({length:90},(_,i)=>'Coordinator note '+(i+1)+': Wait for the signal before introducing the next guest.').join('\n')};
+ await exportSectionPDF(longSection as any,{...event,name:'QA Long Notes'});
+ const longPdf=fs.readFileSync(out+'QA Long Notes-Main Events Songs-05-09-2027.pdf','latin1');
+ expect(longPdf).toContain('Coordinator note 90');
+ expect(longPdf).toContain('Notes for DJ-MC');
+ if (!process.env.DJMC_PDF_AUDIT_DIR) fs.rmSync(out,{recursive:true,force:true});
+ vi.unstubAllGlobals();
+});

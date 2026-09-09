@@ -66,17 +66,51 @@ export const useSignageSettings = (eventId: string | null) => {
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
+  const settingsRef = useRef(settings);
+  const pendingRef = useRef<Partial<SignageSettings>>({});
+  const waitersRef = useRef<Array<(saved: boolean) => void>>([]);
+  const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
+  const failedChangesRef = useRef(new Map<string, Partial<SignageSettings>>());
+  const loadVersionRef = useRef(0);
 
-  useEffect(() => () => clearTimeout(saveTimerRef.current), []);
+  const flushPending = useCallback(() => {
+    clearTimeout(saveTimerRef.current);
+    const current = settingsRef.current;
+    const changes = pendingRef.current;
+    if (!current?.id || !Object.keys(changes).length) return;
+    const waiters = waitersRef.current;
+    pendingRef.current = {};
+    waitersRef.current = [];
+    saveQueueRef.current = saveQueueRef.current.then(async () => {
+      const updates = { ...failedChangesRef.current.get(current.id!), ...changes };
+      try {
+        const { error } = await supabase.from('signage_settings').update(updates as any)
+          .eq('id', current.id!).eq('event_id', current.event_id).select('id').single();
+        if (error) throw error;
+        failedChangesRef.current.delete(current.id!);
+        waiters.forEach(resolve => resolve(true));
+      } catch (error) {
+        failedChangesRef.current.set(current.id!, updates);
+        console.error('signage_settings update error', error);
+        toast({ title: 'Error', description: 'Failed to save signage settings. Please try your change again.', variant: 'destructive' });
+        waiters.forEach(resolve => resolve(false));
+      }
+    });
+  }, [toast]);
 
   const fetchSettings = useCallback(async () => {
+    const version = ++loadVersionRef.current;
     if (!eventId) {
       setSettings(null);
+      settingsRef.current = null;
       return;
     }
+    settingsRef.current = cache.get(eventId) ?? null;
+    setSettings(settingsRef.current);
     if (!cache.has(eventId)) setLoading(true);
     try {
       const { data: { user } } = await supabase.auth.getUser();
+      if (version !== loadVersionRef.current) return;
       if (!user) { setLoading(false); return; }
 
       const { data, error } = await (supabase as any)
@@ -84,11 +118,10 @@ export const useSignageSettings = (eventId: string | null) => {
         .select('*')
         .eq('event_id', eventId)
         .maybeSingle();
+      if (version !== loadVersionRef.current) return;
 
       if (error) {
-        console.error('signage_settings fetch error', error);
-        setLoading(false);
-        return;
+        throw error;
       }
 
       if (data) {
@@ -104,6 +137,7 @@ export const useSignageSettings = (eventId: string | null) => {
           parsed.background_image_url = previewUrlFor(parsed.background_image_url) ?? parsed.background_image_url;
         }
         setSettings(parsed);
+        settingsRef.current = parsed;
         cache.set(eventId, parsed);
       } else {
         // Auto-create default record
@@ -117,40 +151,44 @@ export const useSignageSettings = (eventId: string | null) => {
           .insert(def)
           .select()
           .single();
+        if (version !== loadVersionRef.current) return;
         if (insErr) {
-          console.error('signage_settings insert error', insErr);
+          throw insErr;
         } else if (inserted) {
           const parsed = { ...def, id: inserted.id } as SignageSettings;
           setSettings(parsed);
+          settingsRef.current = parsed;
           cache.set(eventId, parsed);
         }
       }
+    } catch (error) {
+      if (version === loadVersionRef.current) {
+        console.error('signage_settings fetch error', error);
+        toast({ title: 'Could not load sign', description: 'Please reload to try again. Your saved sign has not been changed.', variant: 'destructive' });
+      }
     } finally {
-      setLoading(false);
+      if (version === loadVersionRef.current) setLoading(false);
     }
-  }, [eventId]);
+  }, [eventId, toast]);
 
-  useEffect(() => { fetchSettings(); }, [fetchSettings]);
+  useEffect(() => {
+    void fetchSettings();
+    return () => { loadVersionRef.current++; flushPending(); };
+  }, [fetchSettings, flushPending]);
 
   const updateSettings = useCallback(async (updates: Partial<SignageSettings>) => {
-    if (!eventId || !settings?.id) return false;
-    const next = { ...settings, ...updates };
+    const current = settingsRef.current;
+    if (!eventId || !current?.id || current.event_id !== eventId) return false;
+    const next = { ...current, ...updates };
+    settingsRef.current = next;
     setSettings(next);
     cache.set(eventId, next);
 
+    pendingRef.current = { ...pendingRef.current, ...updates };
     clearTimeout(saveTimerRef.current);
-    saveTimerRef.current = setTimeout(async () => {
-      const { error } = await (supabase as any)
-        .from('signage_settings')
-        .update(updates)
-        .eq('id', settings.id);
-      if (error) {
-        console.error('signage_settings update error', error);
-        toast({ title: 'Error', description: 'Failed to save signage settings', variant: 'destructive' });
-      }
-    }, 300);
-    return true;
-  }, [eventId, settings, toast]);
+    saveTimerRef.current = setTimeout(flushPending, 300);
+    return new Promise<boolean>(resolve => { waitersRef.current.push(resolve); });
+  }, [eventId, flushPending]);
 
   // Adapter so we can feed the shared InvitationCardCustomizer + Preview as-is.
   const asInvitationSettings: InvitationCardSettings | null = useMemo(() => {

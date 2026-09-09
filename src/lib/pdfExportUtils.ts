@@ -66,19 +66,24 @@ export const savePdfAsync = async (pdf: jsPDF, fileName: string): Promise<void> 
     return;
   }
 
+  await savePdfBlobAsync(blob, fileName);
+};
+
+/** Use an attached download link, including in embedded browsers. */
+export const savePdfBlobAsync = async (blob: Blob, fileName: string): Promise<void> => {
   const url = URL.createObjectURL(blob);
+  const a = document.createElement('a');
   try {
-    const a = document.createElement('a');
     a.href = url;
     a.download = fileName;
     a.rel = 'noopener';
     a.style.display = 'none';
     document.body.appendChild(a);
     a.click();
-    document.body.removeChild(a);
+
   } finally {
-    // Defer revoke so the download has time to start in all browsers.
-    setTimeout(() => URL.revokeObjectURL(url), 4000);
+    // Embedded browsers may accept the download asynchronously; keep its source alive.
+    setTimeout(() => { a.remove(); URL.revokeObjectURL(url); }, 60_000);
   }
 
   // Yield again so the caller's UI can resume immediately.

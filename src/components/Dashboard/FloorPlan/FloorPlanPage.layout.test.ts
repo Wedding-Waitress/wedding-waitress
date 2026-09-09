@@ -105,7 +105,7 @@ describe('Ceremony Floor Plan page composition', () => {
     expect(canvas).toContain('onClick={onResetRequest}');
     expect(reception.match(/Export Controls/g)).toHaveLength(1);
     expect(reception).toContain("exporting ? 'Exporting...' : 'Download PDF'");
-    expect(reception).toContain('onResetRequest={() => setResetOpen(true)}');
+    expect(reception).toContain('onResetRequest={handleReset}');
     expect(reception).toContain("onClick={() => handleExport('a4')}");
     expect(reception).toContain('createPortal(headerControls, headerControlsContainer)');
     expect(reception).not.toContain("'Export PDF'");

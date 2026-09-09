@@ -86,18 +86,20 @@ export const useReceptionTables = (eventId: string | null) => {
       return;
     }
     let cancelled = false;
+    let requestVersion = 0;
     const refresh = async (showLoading = false) => {
+      const version = ++requestVersion;
       if (showLoading) setLoading(true);
       try {
         const next = await fetchTables();
-        if (!cancelled) {
+        if (!cancelled && version === requestVersion) {
           setTables(next);
           setReadyEventId(eventId);
         }
       } catch (error) {
         console.error('useReceptionTables: failed to load tables', error);
       } finally {
-        if (!cancelled) setLoading(false);
+        if (!cancelled && version === requestVersion) setLoading(false);
       }
     };
 
@@ -125,5 +127,5 @@ export const useReceptionTables = (eventId: string | null) => {
     };
   }, [eventId, fetchTables]);
 
-  return { tables, loading, ready: !!eventId && readyEventId === eventId };
+  return { tables: readyEventId === eventId ? tables : [], loading, ready: !!eventId && readyEventId === eventId };
 };

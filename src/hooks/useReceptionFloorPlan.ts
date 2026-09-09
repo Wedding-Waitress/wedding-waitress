@@ -1,3 +1,4 @@
+import {createReceptionDefaultFixtures, RECEPTION_DEFAULT_ROOM} from '@/lib/receptionDefaultLayout';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type { Database } from '@/integrations/supabase/types';
@@ -84,6 +85,7 @@ export type ApprovalStatus = 'draft' | 'sent_to_venue' | 'approved' | 'final';
 export interface ReceptionFloorPlan {
   id: string;
   event_id: string;
+  manual_placement?: boolean;
   room_shape: string;
   room_width_m: number;
   room_length_m: number;
@@ -122,6 +124,7 @@ const fromRow = (row: Row): ReceptionFloorPlan => {
   return {
     id: row.id,
     event_id: row.event_id,
+    manual_placement: !!(row as unknown as {manual_placement?: boolean}).manual_placement,
     room_shape: row.room_shape,
     room_width_m: Number(row.room_width_m),
     room_length_m: Number(row.room_length_m),
@@ -154,32 +157,6 @@ const BUCKET = 'reception-floor-plan-backgrounds';
 const ACCEPTED = ['image/png', 'image/jpeg', 'application/pdf'];
 const MAX_BYTES = 25 * 1024 * 1024; // 25MB
 
-const initialReceptionFixtures = (roomWidth: number, roomLength: number): Fixture[] => {
-  const create = (
-    type: FixtureType,
-    x: number,
-    y: number,
-  ): Fixture => {
-    const spec = FIXTURE_BY_TYPE[type];
-    return {
-      id: crypto.randomUUID(),
-      type,
-      x,
-      y,
-      width_m: spec.width_m,
-      height_m: spec.height_m,
-      rotation: 0,
-      locked: false,
-    };
-  };
-
-  return [
-    create('dance_floor', roomWidth / 2, roomLength / 2),
-    create('stage', roomWidth / 2, Math.max(2.5, FIXTURE_BY_TYPE.stage.height_m / 2 + 0.5)),
-    create('cake_table', Math.max(1, roomWidth * 0.15), Math.max(1, roomLength * 0.25)),
-  ];
-};
-
 export const useReceptionFloorPlan = (eventId: string | null) => {
   const [plan, setPlan] = useState<ReceptionFloorPlan | null>(null);
   const [loading, setLoading] = useState(false);
@@ -187,19 +164,39 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
   const [uploadingBackground, setUploadingBackground] = useState(false);
   const [backgroundUrl, setBackgroundUrl] = useState<string | null>(null);
   const saveTimer = useRef<number | null>(null);
+  const currentPlan = useRef<ReceptionFloorPlan | null>(null);
+  const activeEvent = useRef(eventId);
+  activeEvent.current = eventId;
+  const saveQueue = useRef<Promise<unknown>>(Promise.resolve());
+  const pendingPlan = useRef<ReceptionFloorPlan | null>(null);
+  const [saveError, setSaveError] = useState<string | null>(null);
+  const [loadError, setLoadError] = useState<string | null>(null);
+  const publish = useCallback((next: ReceptionFloorPlan) => {
+    if (next.event_id !== activeEvent.current) return;
+    currentPlan.current = next;
+    setPlan(next);
+  }, []);
 
   // Load (and create if missing)
   useEffect(() => {
+    currentPlan.current = null;
+    setPlan(null);
+    setLoadError(null);
+    setSaveError(null);
+    setSaving(false);
     if (!eventId) {
-      setPlan(null);
+      setLoading(false);
       return;
     }
     let cancelled = false;
     setLoading(true);
     (async () => {
+      try {
       const { data: userRes } = await supabase.auth.getUser();
+      if (cancelled) return;
       const user = userRes.user;
       if (!user) {
+        setLoadError('Please sign in again to load your floor plan.');
         setLoading(false);
         return;
       }
@@ -211,27 +208,35 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
       if (cancelled) return;
       if (error) {
         console.error('load reception plan', error);
+        setLoadError('Could not load the reception floor plan. Please refresh to retry.');
         setLoading(false);
         return;
       }
       if (data) {
-        setPlan(fromRow(data as Row));
+        publish(fromRow(data as Row));
       } else {
-        const roomWidth = 15;
-        const roomLength = 20;
+        const roomWidth = RECEPTION_DEFAULT_ROOM.width;
+        const roomLength = RECEPTION_DEFAULT_ROOM.length;
         const { data: created, error: insErr } = await supabase
           .from('reception_floor_plans')
           .insert({
             event_id: eventId,
             user_id: user.id,
-            fixtures: initialReceptionFixtures(roomWidth, roomLength) as unknown as Database['public']['Tables']['reception_floor_plans']['Insert']['fixtures'],
+            room_width_m: roomWidth,
+            room_length_m: roomLength,
+            grid_size_cm: RECEPTION_DEFAULT_ROOM.grid,
+            fixtures: createReceptionDefaultFixtures(roomWidth, roomLength) as unknown as Database['public']['Tables']['reception_floor_plans']['Insert']['fixtures'],
           })
           .select('*')
           .single();
-        if (!insErr && created) setPlan(fromRow(created as Row));
-        else console.error('create reception plan', insErr);
+        if (cancelled) return;
+        if (!insErr && created) publish(fromRow(created as Row));
+        else { console.error('create reception plan', insErr); setLoadError('Could not create the reception floor plan. Please refresh to retry.'); }
       }
       setLoading(false);
+      } catch (error) {
+        if (!cancelled) { setLoadError('Could not load the reception floor plan. Please refresh to retry.'); setLoading(false); }
+      }
     })();
     return () => {
       cancelled = true;
@@ -266,8 +271,10 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
     };
   }, [plan?.background.path]);
 
-  const persist = useCallback(async (next: ReceptionFloorPlan) => {
-    setSaving(true);
+  const persist = useCallback((next: ReceptionFloorPlan): Promise<void> => {
+    const run = saveQueue.current.catch(() => undefined).then(async () => {
+    if (next.event_id === activeEvent.current) setSaving(true);
+    try {
     const { error } = await supabase
       .from('reception_floor_plans')
       .update({
@@ -288,6 +295,7 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
         background_visible: next.background.visible,
         // Phase 2/5: room polygon, share token, approval + vendor notes (typed loosely; columns added via migration)
         ...({
+          manual_placement: !!next.manual_placement,
           room_polygon: next.room_polygon as unknown,
           share_enabled: next.share_enabled,
           share_token: next.share_token,
@@ -296,32 +304,58 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
         } as Record<string, unknown>),
         last_saved_at: new Date().toISOString(),
       })
-      .eq('id', next.id);
-    if (error) console.error('save reception plan', error);
-    setSaving(false);
+      .eq('id', next.id).eq('event_id', next.event_id).select('id').single();
+    if (error) throw error;
+    if (next === currentPlan.current) setSaveError(null);
+    } catch (error) {
+      if (next.event_id === activeEvent.current) setSaveError('Changes have not been saved. Please retry before leaving this page.');
+      throw error;
+    } finally {
+      if (next.event_id === activeEvent.current && !pendingPlan.current) setSaving(false);
+    }
+    });
+    saveQueue.current = run;
+    return run;
   }, []);
 
-  const update = useCallback(
-    (mutator: (p: ReceptionFloorPlan) => ReceptionFloorPlan) => {
-      setPlan((prev) => {
-        if (!prev) return prev;
-        const next = mutator(prev);
-        if (saveTimer.current) window.clearTimeout(saveTimer.current);
-        saveTimer.current = window.setTimeout(() => persist(next), 500);
-        return next;
-      });
-    },
-    [persist]
-  );
-
-  /** Flush any pending debounced save immediately. */
-  const flush = useCallback(async () => {
-    if (saveTimer.current) {
-      window.clearTimeout(saveTimer.current);
+  const update = useCallback((mutator: (p: ReceptionFloorPlan) => ReceptionFloorPlan) => {
+    const previous = currentPlan.current;
+    if (!previous || previous.event_id !== activeEvent.current) return;
+    const next = mutator(previous);
+    if (next === previous) return;
+    publish(next);
+    pendingPlan.current = next;
+    setSaving(true);
+    if (saveTimer.current) window.clearTimeout(saveTimer.current);
+    saveTimer.current = window.setTimeout(() => {
       saveTimer.current = null;
-    }
-    if (plan) await persist(plan);
-  }, [persist, plan]);
+      pendingPlan.current = null;
+      void persist(next).catch(() => undefined);
+    }, 500);
+  }, [persist, publish]);
+
+  const flush = useCallback(async () => {
+    if (saveTimer.current) window.clearTimeout(saveTimer.current);
+    saveTimer.current = null;
+    pendingPlan.current = null;
+    if (currentPlan.current) await persist(currentPlan.current);
+  }, [persist]);
+
+  useEffect(() => () => {
+    if (saveTimer.current) window.clearTimeout(saveTimer.current);
+    saveTimer.current = null;
+    const pending = pendingPlan.current;
+    pendingPlan.current = null;
+    if (pending) void persist(pending).catch(() => undefined);
+  }, [eventId, persist]);
+
+  useEffect(() => {
+    const beforeUnload = (event: BeforeUnloadEvent) => {
+      if (saving || saveError) { event.preventDefault(); event.returnValue = ''; }
+    };
+    window.addEventListener('beforeunload', beforeUnload);
+    return () => window.removeEventListener('beforeunload', beforeUnload);
+  }, [saving, saveError]);
 
   const uploadBackground = useCallback(
     async (file: File): Promise<{ ok: true } | { ok: false; error: string }> => {
@@ -360,15 +394,13 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
           return { ok: false, error: upErr.message };
         }
 
-        // Remove the previous file (best effort)
-        const prevPath = plan.background.path;
-        if (prevPath && prevPath !== path) {
-          supabase.storage.from(BUCKET).remove([prevPath]).catch(() => undefined);
-        }
+        const latest = currentPlan.current;
+        if (!latest || latest.id !== plan.id) throw new Error('The selected event changed. Please upload again.');
+        const prevPath = latest.background.path;
 
         // Default geometry: cover the room
         const next: ReceptionFloorPlan = {
-          ...plan,
+          ...latest,
           background: {
             path,
             x: 0,
@@ -381,8 +413,11 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
             visible: true,
           },
         };
-        setPlan(next);
+        publish(next);
+        if (saveTimer.current) window.clearTimeout(saveTimer.current);
+        pendingPlan.current = null;
         await persist(next);
+        if (prevPath && prevPath !== path) void supabase.storage.from(BUCKET).remove([prevPath]).catch(() => undefined);
         return { ok: true };
       } catch (e) {
         console.error('uploadBackground', e);
@@ -394,10 +429,11 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
         setUploadingBackground(false);
       }
     },
-    [persist, plan]
+    [persist, plan, publish, flush]
   );
 
   const removeBackground = useCallback(async () => {
+    const plan = currentPlan.current;
     if (!plan) return;
     const prevPath = plan.background.path;
     const next: ReceptionFloorPlan = {
@@ -414,14 +450,15 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
         visible: true,
       },
     };
-    setPlan(next);
-    await persist(next);
+    publish(next);
+    await flush();
     if (prevPath) {
       supabase.storage.from(BUCKET).remove([prevPath]).catch(() => undefined);
     }
-  }, [persist, plan]);
+  }, [persist, plan, publish, flush]);
 
   const generateShareToken = useCallback(async (): Promise<string | null> => {
+    const plan = currentPlan.current;
     if (!plan) return null;
     const bytes = new Uint8Array(24);
     crypto.getRandomValues(bytes);
@@ -434,26 +471,43 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
       share_enabled: true,
       share_token: token,
     };
-    setPlan(next);
-    await persist(next);
+    publish(next);
+    await flush();
     return token;
-  }, [persist, plan]);
+  }, [persist, plan, publish, flush]);
 
   const revokeShareToken = useCallback(async () => {
+    const plan = currentPlan.current;
     if (!plan) return;
     const next: ReceptionFloorPlan = {
       ...plan,
       share_enabled: false,
       share_token: null,
     };
-    setPlan(next);
-    await persist(next);
-  }, [persist, plan]);
+    publish(next);
+    await flush();
+  }, [persist, plan, publish, flush]);
 
+  const settle = useCallback(async () => {
+    if (saveTimer.current) window.clearTimeout(saveTimer.current);
+    saveTimer.current = null;
+    const pending = pendingPlan.current;
+    pendingPlan.current = null;
+    if (pending) await persist(pending);
+    else await saveQueue.current;
+  }, [persist]);
+  const reload = useCallback(async () => {
+    const {data,error} = await supabase.from('reception_floor_plans').select('*').eq('event_id',eventId!).single();
+    if(error) throw error;
+    publish(fromRow(data as Row));
+  }, [eventId,publish]);
   return {
-    plan,
+    settle, reload,
+    plan: plan?.event_id === eventId ? plan : null,
     loading,
     saving,
+    saveError,
+    loadError,
     update,
     flush,
     backgroundUrl,

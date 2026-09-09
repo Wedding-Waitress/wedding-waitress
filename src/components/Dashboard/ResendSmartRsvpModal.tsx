@@ -12,6 +12,7 @@
  * accounting, RLS, and delivery_method logging continue to work unchanged.
  */
 import { useEffect, useMemo, useState } from 'react';
+import styles from './ResendSmartRsvpModal.module.css';
 import {
   Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle, DialogDescription,
 } from '@/components/ui/dialog';
@@ -20,11 +21,12 @@ import { Badge } from '@/components/ui/badge';
 import {
   Select, SelectContent, SelectItem, SelectTrigger, SelectValue,
 } from '@/components/ui/select';
-import { Mail, MessageSquare, Loader2, RefreshCw, AlertTriangle } from 'lucide-react';
+import { Mail, MessageSquare, Loader2, RefreshCw, AlertTriangle, X } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useSmsCredits } from '@/hooks/useSmsCredits';
 import { getCreditHealth } from './SmartSmsCreditStatus';
+import { hasGuestResponded } from '@/lib/rsvp';
 
 export type ResendAudience = 'failed_sms' | 'non_responders' | 'email_only' | 'sms_only';
 export type ResendChannel = 'email' | 'sms';
@@ -45,6 +47,7 @@ interface GuestLite {
   first_name: string | null;
   last_name: string | null;
   rsvp: string | null;
+  rsvp_date: string | null;
   rsvp_invite_status: string | null;
   email: string | null;
   mobile: string | null;
@@ -59,7 +62,7 @@ const AUDIENCE_LABEL: Record<ResendAudience, string> = {
 
 const AUDIENCE_HINT: Record<ResendAudience, string> = {
   failed_sms: 'Guests whose last SMS attempt failed, blocked or was undelivered.',
-  non_responders: 'Invited guests who have not yet replied (RSVP still pending).',
+  non_responders: 'Guests who have not yet submitted an RSVP response.',
   email_only: 'Guests previously contacted via Email — re-send the email.',
   sms_only: 'Guests previously contacted via SMS — re-send the SMS.',
 };
@@ -90,7 +93,7 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
         const [{ data: g }, { data: logs }] = await Promise.all([
           supabase
             .from('guests')
-            .select('id, first_name, last_name, rsvp, rsvp_invite_status, email, mobile')
+            .select('id, first_name, last_name, rsvp, rsvp_date, rsvp_invite_status, email, mobile')
             .eq('event_id', eventId),
           supabase
             .from('sms_send_logs')
@@ -120,12 +123,11 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
 
   const targetGuests = useMemo(() => {
     const status = (g: GuestLite) => (g.rsvp_invite_status ?? 'not_sent').toLowerCase();
-    const rsvp = (g: GuestLite) => (g.rsvp ?? 'pending').toLowerCase();
     switch (audience) {
       case 'failed_sms':
         return guests.filter(g => failedSmsGuestIds.has(g.id) && !!g.mobile);
       case 'non_responders':
-        return guests.filter(g => status(g) !== 'not_sent' && rsvp(g) === 'pending');
+        return guests.filter(g => !hasGuestResponded(g.rsvp, g.rsvp_date));
       case 'email_only':
         return guests.filter(g => ['email_sent', 'sent', 'delivered'].includes(status(g)) && !!g.email);
       case 'sms_only':
@@ -253,14 +255,7 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
           )}
         </div>
 
-        <DialogFooter className="gap-2 pb-4">
-          <Button
-            onClick={onClose}
-            disabled={sending}
-            className="rounded-full bg-red-500 hover:bg-red-600 text-white lv-premium-shade"
-          >
-            Cancel
-          </Button>
+        <DialogFooter className={`gap-2 pb-4 ${styles.footer}`}>
           <Button
             onClick={handleSend}
             disabled={sending || loading || reachable.length === 0 || (channel === 'sms' && smsEmpty)}
@@ -269,6 +264,13 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
           >
             {sending ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <RefreshCw className="w-4 h-4 mr-2" />}
             Resend to {reachable.length}
+          </Button>
+          <Button
+            onClick={onClose}
+            disabled={sending}
+            className="rounded-full bg-red-500 hover:bg-red-600 text-white lv-premium-shade"
+          >
+            <X size={16} strokeWidth={1.8} className="mr-2" aria-hidden="true" />Cancel
           </Button>
         </DialogFooter>
       </DialogContent>

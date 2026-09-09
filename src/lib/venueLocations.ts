@@ -1,0 +1,5 @@
+import { Country, State } from 'country-state-city';
+export const venueCountries = Country.getAllCountries().map(c=>({name:c.name,code:c.isoCode}));
+export const locationKey=(value:string|null|undefined)=>(value??'').trim().toLocaleLowerCase();
+export function venueRegions(country:string){const c=venueCountries.find(c=>locationKey(c.name)===locationKey(country)||locationKey(c.code)===locationKey(country));return c?State.getStatesOfCountry(c.code).filter(s=>c.code !== 'IT' || /^\d{2}$/.test(s.isoCode)).map(s=>s.name).sort():[];}
+export function matchesVenueLocation(t:{country:string|null;state_region?:string|null;venue_name:string;city?:string|null;venue_address?:string|null},country:string,region:string,query:string,suburb=''){return (!country||locationKey(t.country)===locationKey(country))&&(!region||locationKey(t.state_region)===locationKey(region))&&locationKey(t.venue_name).includes(locationKey(query))&&(!locationKey(suburb)||locationKey([t.city,t.venue_address].filter(Boolean).join(' ')).includes(locationKey(suburb)));}

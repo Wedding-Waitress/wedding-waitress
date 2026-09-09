@@ -18,6 +18,7 @@ interface InteractiveQROverlayProps {
   containerRef: React.RefObject<HTMLElement>;
   /** Render a tight white plate behind the QR (matches print-ready PDF output). */
   whitePlate?: boolean;
+  controlScale?: number;
 }
 
 const SNAP_THRESHOLD = 4;
@@ -38,6 +39,7 @@ export const InteractiveQROverlay: React.FC<InteractiveQROverlayProps> = ({
   onRotate,
   containerRef,
   whitePlate = false,
+  controlScale = 1,
 }) => {
   const [isDragging, setIsDragging] = useState(false);
   const [isRotating, setIsRotating] = useState(false);
@@ -184,8 +186,9 @@ export const InteractiveQROverlay: React.FC<InteractiveQROverlayProps> = ({
               style={{
                 bottom: '100%',
                 left: '50%',
-                transform: 'translateX(-50%)',
-                marginBottom: 6,
+                transform: `translateX(-50%) scale(${controlScale})`,
+                transformOrigin: 'bottom center',
+                marginBottom: 6 * controlScale,
                 background: 'hsl(var(--background))',
                 border: '1px solid hsl(var(--border))',
                 borderRadius: 6,
@@ -227,6 +230,7 @@ export const InteractiveQROverlay: React.FC<InteractiveQROverlayProps> = ({
                 key={corner}
                 className="absolute w-3 h-3 bg-primary border border-primary-foreground rounded-sm"
                 style={{
+                  transform: `scale(${controlScale})`,
                   top: isTop ? -6 : 'auto',
                   bottom: isTop ? 'auto' : -6,
                   left: isLeft ? -6 : 'auto',
@@ -245,8 +249,9 @@ export const InteractiveQROverlay: React.FC<InteractiveQROverlayProps> = ({
             style={{
               top: '100%',
               left: '50%',
-              transform: 'translateX(-50%)',
-              marginTop: 6,
+              transform: `translateX(-50%) scale(${controlScale})`,
+              transformOrigin: 'top center',
+              marginTop: 6 * controlScale,
               zIndex: 30,
             }}
           >

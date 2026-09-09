@@ -1,16 +1,18 @@
+import { Printer as ExportControlsPrinter } from 'lucide-react';
 /**
  * ⚠️ PRODUCTION-READY - DO NOT MODIFY WITHOUT APPROVAL ⚠️
- * 
+ *
  * This Place Cards feature is COMPLETE and LOCKED.
  * All functionality has been thoroughly tested and approved.
- * 
+ *
  * DO NOT make changes unless explicitly requested by the project owner.
  * Any modifications could break the carefully calibrated 300 DPI export system.
- * 
+ *
  * Last completed: 2025-10-04
  */
 
 import React, { useState } from 'react';
+import { flushSync } from 'react-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from "@/components/ui/select";
@@ -28,6 +30,7 @@ import { useToast } from '@/hooks/use-toast';
 import styles from './PlaceCardsPage.module.css';
 import { usePlaceCardPhotoVideoQr } from '@/hooks/usePlaceCardPhotoVideoQr';
 import { tableDisplayName } from '@/lib/tableDisplayName';
+import { usePlaceCardImageFit } from './usePlaceCardImageFit';
 interface PlaceCardsPageProps {
   selectedEventId: string | null;
   onEventSelect: (eventId: string) => void;
@@ -54,7 +57,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   events,
   eventsLoading,
 }) => {
-  const [focusedPage, setFocusedPage] = useState<number | null>(null);
+  const focusedPage = null;
+  const previewRef = React.useRef<HTMLDivElement>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [selectedPage, setSelectedPage] = useState<number>(0);
   const [isProcessing, setIsProcessing] = useState(false);
@@ -63,12 +67,21 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   const [textOverflowing, setTextOverflowing] = useState(false);
   const [qrEditMode, setQrEditMode] = useState(false);
   const [selectedTableId, setSelectedTableId] = useState<string | null>(readStoredTableId);
-  
+
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
   const { tables, loading: tablesLoading } = useTables(selectedEventId);
   const { settings, loading: settingsLoading, updateSettings } = usePlaceCardSettings(selectedEventId);
+  const imageFit = usePlaceCardImageFit(settings, updateSettings);
   const photoVideoQr = usePlaceCardPhotoVideoQr(selectedEventId);
   const { toast } = useToast();
+
+  React.useEffect(() => {
+    const before = () => flushSync(() => setIsExporting(true));
+    const after = () => setIsExporting(false);
+    window.addEventListener('beforeprint', before);
+    window.addEventListener('afterprint', after);
+    return () => { window.removeEventListener('beforeprint', before); window.removeEventListener('afterprint', after); };
+  }, []);
 
   // Persist table selection to sessionStorage
   React.useEffect(() => {
@@ -88,11 +101,11 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
   const selectedEvent = events.find(event => event.id === selectedEventId);
   const selectedTable = tables.find(table => table.id === selectedTableId);
-  
+
   // Filter guests by assigned status - require table selection to show guests
-  const assignedGuests = selectedTableId 
-    ? guests.filter(guest => 
-        guest.assigned && 
+  const assignedGuests = selectedTableId
+    ? guests.filter(guest =>
+        guest.assigned &&
         guest.table_id === selectedTableId
       )
     : [];
@@ -105,23 +118,36 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
     writeStoredTableId(null);
   };
 
+  React.useEffect(() => { setSelectedPage(0); }, [selectedTableId, selectedEventId]);
+  React.useEffect(() => { setSelectedPage(page => Math.min(page, Math.max(0, totalPages - 1))); }, [totalPages]);
+  const previewOptions = () => ({
+    pageElement: () => previewRef.current,
+    pageIndex: selectedPage,
+    totalPages,
+    eventName: selectedEvent?.name || 'Event',
+    showPage: async (index: number) => {
+      setSelectedPage(index);
+      await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+    },
+  });
   const handleDownloadPdfPage = async () => {
+    if (!await imageFit.ensureFit()) return;
     setExportTarget('single');
     setIsProcessing(true);
     setIsExporting(true);
-    
+
     try {
       toast({
         title: 'Generating PDF',
-        description: `Creating place cards for page 1...`,
+        description: `Creating place cards for page ${selectedPage + 1}...`,
       });
 
       const { exportPlaceCardPageToPdf } = await import('@/lib/placeCardsPdfExporter');
-      await exportPlaceCardPageToPdf(settings, assignedGuests, selectedEvent, 0, photoVideoQr.data?.dataUrl);
+      await exportPlaceCardPageToPdf(previewOptions());
 
       toast({
         title: 'PDF Downloaded',
-        description: `Page 1 has been saved`,
+        description: `Page ${selectedPage + 1} has been saved`,
       });
     } catch (error) {
       console.error('PDF export error:', error);
@@ -138,10 +164,11 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   };
 
   const handleDownloadPdfAll = async () => {
+    if (!await imageFit.ensureFit()) return;
     setExportTarget('all');
     setIsProcessing(true);
     setIsExporting(true);
-    
+
     try {
       toast({
         title: 'Generating PDF',
@@ -149,7 +176,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
       });
 
       const { exportAllPlaceCardsToPdf } = await import('@/lib/placeCardsPdfExporter');
-      await exportAllPlaceCardsToPdf(settings, assignedGuests, selectedEvent, totalPages, photoVideoQr.data?.dataUrl);
+      await exportAllPlaceCardsToPdf(previewOptions());
 
       toast({
         title: 'PDF Downloaded',
@@ -172,7 +199,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   const handleDownloadWordPage = async () => {
     setIsProcessing(true);
     setIsExporting(true);
-    
+
     try {
       toast({
         title: 'Generating Word Document',
@@ -202,7 +229,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   const handleDownloadWordAll = async () => {
     setIsProcessing(true);
     setIsExporting(true);
-    
+
     try {
       toast({
         title: 'Generating Word Document',
@@ -231,12 +258,12 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
   const handlePrint = () => {
     if (!selectedEvent || assignedGuests.length === 0) return;
-    
+
     toast({
       title: 'Opening Print Dialog',
       description: 'Preparing place cards for printing...',
     });
-    
+
     // Small delay to show toast before print dialog
     setTimeout(() => {
       window.print();
@@ -272,7 +299,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   }
 
   return (
-    <div className={`${styles.page} space-y-6 place-cards-page`}>
+    <div className={`${styles.page} space-y-6 place-cards-page`} {...(isExporting ? { inert: '' } : {})}>
+      {imageFit.dialog}
       {/* Combined Header Box */}
       <Card className={`${styles.mainStudio} ${styles.headerPanel}`}>
         <CardContent className="space-y-4 pt-6">
@@ -301,12 +329,12 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     {assignedGuests.length} assigned guests - {assignedGuests.length} place cards ready for export. {totalPages} A4 page{totalPages !== 1 ? 's' : ''} (6 cards per page). Standard 105mm × 99mm foldable place cards.
                   </span>
                 </p>
-                
+
                 {/* Quality information */}
                 <div className="text-muted-foreground space-y-1 mt-3">
                   <p>• All exports are 300 DPI for professional quality</p>
                   <p>• PDF exports maintain exact A4 dimensions (210×297mm)</p>
-                  <p>• Image exports are 2480×3508 pixels (A4 @ 300 DPI)</p>
+                  <p>• Each PDF page contains six foldable place card positions</p>
                   <p>• We have made it easy for you to print & cut at home or get it done at your local printer</p>
                   <p>• Background images must be smaller than 5MB</p>
                 </div>
@@ -339,7 +367,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
           )}
 
           {/* SEPARATOR */}
-          <div className={styles.divider} />
+
 
           {/* CHOOSE EVENT & TABLE DROPDOWNS */}
           <div className={`${styles.controlsRow} flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-8 lg:flex-nowrap pt-2`}>
@@ -381,8 +409,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     <Table2 size={17} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
                     Table:
                   </label>
-                  <Select 
-                    value={selectedTableId || ''} 
+                  <Select
+                    value={selectedTableId || ''}
                     onValueChange={setSelectedTableId}
                     disabled={!selectedEventId || tablesLoading}
                   >
@@ -392,7 +420,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     <SelectContent className="ww-placecards-portal z-50">
                       {[...tables].sort((a, b) => (a.table_no || 0) - (b.table_no || 0)).map((table) => {
                         const displayName = tableDisplayName(table);
-                        
+
                         return (
                           <SelectItem key={table.id} value={table.id}>
                             {displayName} ({table.guest_count} of {table.limit_seats} guests)
@@ -407,14 +435,14 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
             {/* Right side: Export Controls */}
             {selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
-              <div className={`${styles.surfacePanel} ${styles.exportPanel} w-full lg:w-auto rounded-xl p-3 flex flex-col gap-2`}>
+              <div data-export-controls-panel className={`${styles.surfacePanel} ${styles.exportPanel} w-full lg:w-auto rounded-xl p-3 flex flex-col gap-2`}>
                 <div className="text-sm flex items-center gap-1.5 flex-wrap">
-                  <Printer size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
-                  <span className="font-medium">Export Controls</span>
-                  <span className="text-muted-foreground ml-2">Download your place cards as PDF ready for printing.</span>
+
+                  <span data-export-controls-heading><ExportControlsPrinter size={16} strokeWidth={2} aria-hidden="true" />Export Controls</span>
+
                 </div>
                 <div className="flex flex-col sm:flex-row items-stretch sm:items-center gap-2">
-                  <button 
+                  <button
                     onClick={handleDownloadPdfPage}
                     disabled={exportTarget !== null}
                     aria-label="Download Single Page PDF"
@@ -428,7 +456,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     )}
                     Download Single Page PDF
                   </button>
-                  <button 
+                  <button
                     onClick={handleDownloadPdfAll}
                     disabled={exportTarget !== null}
                     aria-label="Download All Pages PDF"
@@ -446,6 +474,15 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               </div>
             )}
           </div>
+      {/* Premium info bar — mirrors Seating Chart Signs */}
+      {selectedEventId && selectedTableId && selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
+        <div className={`${styles.infoStrip} rounded-xl px-5 py-4 flex items-center justify-center`}>
+          <p className="text-sm text-foreground/85 font-medium text-center">
+            Portrait print layouts optimised for professional wedding signage. <span className="mx-1">•</span> 300 DPI • Australian standard print sizes • Print-shop ready PDFs
+          </p>
+        </div>
+      )}
+
         </CardContent>
       </Card>
 
@@ -471,13 +508,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
         </Card>
       )}
 
-      {/* Premium info bar — mirrors Seating Chart Signs */}
-      {selectedEventId && selectedTableId && selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
-        <div className={`${styles.infoStrip} rounded-xl px-5 py-4 flex items-center justify-center`}>
-          <p className="text-sm text-foreground/85 font-medium text-center">
-            Portrait print layouts optimised for professional wedding signage. <span className="mx-1">•</span> 300 DPI • Australian standard print sizes • Print-shop ready PDFs
-          </p>
-        </div>
+      {selectedTableId && !guestsLoading && assignedGuests.length === 0 && (
+        <Card className={`${styles.mainStudio} p-8 text-center`}><CardTitle>No assigned guests at this table</CardTitle><CardDescription>Choose a table with assigned guests to create name place cards.</CardDescription></Card>
       )}
 
       {/* Bottom Section - Grid Layout */}
@@ -486,8 +518,9 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
           {/* Left Panel - Customizer */}
           <div className={`${styles.designerShell} lg:col-span-5 min-w-0`}>
             <PlaceCardCustomizer
+              beforeBackgroundUpload={imageFit.beforeBackgroundUpload}
               settings={settings}
-              onSettingsChange={updateSettings}
+              onSettingsChange={imageFit.updateSettings}
               guests={assignedGuests}
               eventName={selectedEvent.name}
               photoVideoQr={photoVideoQr.data}
@@ -515,6 +548,10 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
           {/* Right Panel - Preview */}
           <div className={`${styles.previewStage} ww-placecards-preview lg:col-span-7 min-w-0`}>
             <PlaceCardPreview
+              backgroundFit={imageFit.backgroundFit}
+              ref={previewRef}
+              pageIndex={selectedPage}
+              onPageChange={setSelectedPage}
               settings={settings}
               guests={assignedGuests}
               event={selectedEvent}

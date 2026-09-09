@@ -11,6 +11,7 @@
  * polling.
  */
 import React from 'react';
+import styles from './SmartSmsCreditStatus.module.css';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
@@ -199,19 +200,19 @@ export const SmartSmsCreditStatus: React.FC<Props> = ({
             )}
           </div>
         </div>
-        <Badge variant="outline" className={cn('text-[10px] font-semibold', stateBadgeClasses[health.state])}>
-          {stateBadgeLabel[health.state]}
+        <Badge variant="outline" data-credit-state={health.state} className={cn(styles.compactStatus, 'text-[10px] font-semibold', stateBadgeClasses[health.state])}>
+          <AlertTriangle size={16} strokeWidth={1.8} aria-hidden="true" />{stateBadgeLabel[health.state]}
         </Badge>
         <Button
           size="sm"
           onClick={() => startTopup(eventId)}
           disabled={ctaDisabled}
           className={cn(
-            'lv-premium-shade rounded-full h-8 px-3 text-xs',
+            styles.compactTopup, 'lv-premium-shade rounded-full h-8 px-3 text-xs',
             ctaDisabled && 'pointer-events-none opacity-80',
           )}
         >
-          {ctaDisabled ? <Loader2 className="h-3.5 w-3.5 animate-spin" /> : 'Top Up'}
+          {ctaDisabled ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard size={16} strokeWidth={1.8} aria-hidden="true" />}<span>Top Up</span>
         </Button>
       </Card>
     );
@@ -270,7 +271,7 @@ export const SmartSmsCreditStatus: React.FC<Props> = ({
               onClick={() => startTopup(eventId)}
               disabled={ctaDisabled}
               className={cn(
-                'mt-3 inline-flex w-auto h-9 px-4 text-xs font-medium rounded-full border-none shadow-none ww-sms-topup-stat',
+                styles.fullTopup, 'mt-3 inline-flex w-auto h-9 px-4 text-xs font-medium rounded-full border-none shadow-none ww-sms-topup-stat',
                 ctaDisabled && 'pointer-events-none opacity-80',
               )}
               aria-label={`Top-Up Credits +${SMS_TOPUP.credits}`}

@@ -1,6 +1,7 @@
 import { useState } from 'react';
 import { SUPABASE_URL, supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { normalizeGuestPhone } from '@/lib/guestPhone';
 
 interface SendResult {
   sent: number;
@@ -64,6 +65,20 @@ export const useRsvpInvites = () => {
         return null;
       }
 
+      // Older guests may still have national-format numbers. Normalize only
+      // the selected event's intended recipients before handing off to SMS.
+      const { data: recipients, error: readError } = await supabase.from('guests')
+        .select('id, mobile').eq('event_id', eventId).in('id', guestIds);
+      if (readError) throw readError;
+      const normalized = (recipients || []).map(guest => ({ ...guest, normalized: normalizeGuestPhone(guest.mobile) }));
+      for (const guest of normalized) {
+        if (guest.normalized && guest.normalized !== guest.mobile) {
+          const { error } = await supabase.from('guests').update({ mobile: guest.normalized })
+            .eq('event_id', eventId).eq('id', guest.id);
+          if (error) throw error;
+        }
+      }
+
       const response = await fetch(
         `${SUPABASE_URL}/functions/v1/send-rsvp-sms`,
         {
@@ -100,7 +115,7 @@ export const useRsvpInvites = () => {
       return result;
     } catch (error) {
       console.error('Error sending SMS invites:', error);
-      toast({ title: "Error", description: "Failed to send SMS invites", variant: "destructive" });
+      toast({ title: "Error", description: error instanceof Error ? error.message : "Failed to send SMS invites", variant: "destructive" });
       return null;
     } finally {
       setSending(false);

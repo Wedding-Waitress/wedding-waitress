@@ -226,6 +226,9 @@ export const useDietaryChartSettings = (eventId: string | null) => {
   }, []);
 
   const saveSettings = (newSettings: Partial<DietaryChartSettings>) => {
+    // A delayed refresh must not overwrite a newer local edit.
+    loadGenerationRef.current++;
+    setLoading(false);
     const updatedSettings = { ...settingsRef.current, ...newSettings };
     settingsRef.current = updatedSettings;
     setSettings(updatedSettings);

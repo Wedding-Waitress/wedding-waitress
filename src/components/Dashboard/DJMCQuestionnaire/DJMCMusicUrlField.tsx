@@ -29,6 +29,7 @@ interface DJMCMusicUrlFieldProps {
   onChange: (url: string | null) => void;
   onMetadataFetched?: (metadata: { title: string; artist: string }) => void;
   placeholder?: string;
+  ariaLabel?: string;
   disabled?: boolean;
 }
 
@@ -38,6 +39,7 @@ export function DJMCMusicUrlField({
   onMetadataFetched,
   placeholder = 'Paste YouTube, Spotify, or Apple Music link',
   disabled = false,
+  ariaLabel,
 }: DJMCMusicUrlFieldProps) {
   const [showPreview, setShowPreview] = useState(false);
   const [isFetchingMetadata, setIsFetchingMetadata] = useState(false);
@@ -48,14 +50,16 @@ export function DJMCMusicUrlField({
   const handleChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value || null;
     onChange(newValue);
+    lastFetchedUrlRef.current = newValue;
+    if (!newValue || !newValue.includes('://')) setIsFetchingMetadata(false);
 
     // Fetch metadata if we have a callback and a valid URL
-    if (onMetadataFetched && newValue && newValue.includes('://') && newValue !== lastFetchedUrlRef.current) {
+    if (onMetadataFetched && newValue && newValue.includes('://')) {
       lastFetchedUrlRef.current = newValue;
       setIsFetchingMetadata(true);
       try {
         const metadata = await fetchSongMetadata(newValue);
-        if (metadata.title !== 'Unknown Song') {
+        if (lastFetchedUrlRef.current === newValue && metadata.title !== 'Unknown Song') {
           onMetadataFetched({
             title: metadata.title,
             artist: metadata.artist
@@ -64,12 +68,14 @@ export function DJMCMusicUrlField({
       } catch (error) {
         console.warn('Could not fetch song metadata:', error);
       } finally {
-        setIsFetchingMetadata(false);
+        if (lastFetchedUrlRef.current === newValue) setIsFetchingMetadata(false);
       }
     }
   }, [onChange, onMetadataFetched]);
 
   const clearUrl = useCallback(() => {
+    lastFetchedUrlRef.current = null;
+    setIsFetchingMetadata(false);
     onChange(null);
   }, [onChange]);
 
@@ -206,6 +212,7 @@ export function DJMCMusicUrlField({
         </div>
         <Input
           type="url"
+          aria-label={ariaLabel}
           value={value || ''}
           onChange={handleChange}
           placeholder={placeholder}
@@ -241,6 +248,7 @@ export function DJMCMusicUrlField({
                 size="icon"
                 className="h-7 w-7"
                 onClick={clearUrl}
+                disabled={disabled}
                 title="Clear" aria-label="Clear music link"
               >
                 <X size={16} strokeWidth={1.8} className="text-muted-foreground" />

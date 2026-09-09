@@ -74,7 +74,7 @@ describe('Live Slideshow premium appearance', () => {
     expect(launchAction).toHaveClass(managementStyles.workspaceHeaderAction);
     expect(launchAction).toBeEnabled();
     expect(screen.getByText('Selected event')).toHaveClass(managementStyles.selectedEventLabel);
-    expect(screen.getByText(event.name)).toHaveClass(managementStyles.selectedEventName);
+    expect(screen.getAllByText(event.name).find(node => node.classList.contains(managementStyles.selectedEventName))).toHaveClass(managementStyles.selectedEventName);
     expect(screen.getByRole('switch', { name: 'Live Slideshow enabled' })).toHaveClass(managementStyles.galleryViewToggle);
 
     for (const heading of ['How the Live Slideshow Works', 'Live Slideshow Access', 'Slideshow Settings', 'Slideshow Preview']) {
@@ -98,13 +98,13 @@ describe('Live Slideshow premium appearance', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Download QR code' }));
     expect(anchorClick).toHaveBeenCalled();
 
-    expect(screen.getByText('Shared by Fiona').closest('.aspect-video')).toHaveClass('bg-black');
+    expect(screen.getByText('First dance').closest('.aspect-video')).toHaveClass('bg-black');
     const previewCard = screen.getByRole('heading', { name: 'Slideshow Preview' }).closest('[data-appearance="espresso-glass"]')!;
     const previewHeader = previewCard.querySelector('[data-slideshow-preview-header]')!;
     const previewControls = previewCard.querySelector('[data-slideshow-preview-controls]')!;
     const previewStage = previewCard.querySelector('[data-slideshow-preview-stage]')!;
     expect(previewHeader).toContainElement(screen.getByRole('heading', { name: 'Slideshow Preview' }));
-    expect(previewHeader).toContainElement(screen.getByText('Exactly what your guests will see on the big screen.'));
+    expect(previewHeader).toContainElement(screen.getByText('Below is exactly what your guests will see on the big screen.'));
     expect(previewHeader).toHaveClass('flex-wrap', 'justify-between');
     expect(Array.from(previewControls.querySelectorAll('button')).map((button) => button.textContent?.trim())).toEqual([
       'Previous',
@@ -119,7 +119,7 @@ describe('Live Slideshow premium appearance', () => {
     for (const label of ['Previous', 'Pause', 'Next', 'Restart', 'Fullscreen']) {
       expect(screen.getByRole('button', { name: label })).toHaveClass(managementStyles.galleryControl);
     }
-    expect(screen.getByRole('button', { name: 'Save Settings' })).toHaveClass(managementStyles.galleryViewPrimaryAction);
+    expect(screen.getByRole('button', { name: 'Save Settings' })).toHaveClass(managementStyles.gallerySaveAction, managementStyles.slideshowSaveAction);
   });
 
   it('uses the requested two-row responsive settings layout and route-only width', async () => {
@@ -155,7 +155,7 @@ describe('Live Slideshow premium appearance', () => {
     ]);
 
     const accessLayout = settingsPanel?.querySelector('[data-slideshow-access-layout]');
-    expect(accessLayout).toHaveClass('grid-cols-1', 'min-[1440px]:grid-cols-[180px_minmax(0,1fr)]');
+    expect(accessLayout).toHaveClass('grid-cols-1', 'gap-4');
     const qr = await screen.findByRole('img', { name: 'Live Slideshow QR code' });
     expect(qr).toHaveClass('w-40', 'h-40', 'sm:w-44', 'sm:h-44');
 

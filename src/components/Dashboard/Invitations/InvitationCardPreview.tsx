@@ -9,7 +9,7 @@
  * Last locked: 2026-03-18
  */
 
-import React, { useRef, useCallback, useState, useEffect } from 'react';
+import React, { useRef, useCallback, useState, useEffect, useMemo } from 'react';
 import { InvitationCardSettings, TextZone, QrConfig } from '@/hooks/useInvitationCardSettings';
 import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
 import { InteractiveQROverlay } from '@/components/ui/InteractiveQROverlay';
@@ -30,8 +30,14 @@ interface InvitationCardPreviewProps {
   onQrConfigUpdate?: (config: Partial<QrConfig>) => void;
   /** Render a white plate behind the QR (matches print-ready PDF). Used by Seating Chart Signs. */
   qrWhitePlate?: boolean;
+  normaliseQrControls?: boolean;
   /** When true, the preview canvas is sized to fit the parent container height while preserving aspect ratio. */
   fitToContainer?: boolean;
+  backgroundFit?: 'cover' | 'contain';
+  paperSize?: { widthMm: number; heightMm: number };
+  documentRef?: React.MutableRefObject<HTMLDivElement | null>;
+  documentId?: string;
+  fitToWidth?: boolean;
 }
 
 
@@ -56,17 +62,24 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
   qrDataUrl,
   onQrConfigUpdate,
   qrWhitePlate = false,
+  normaliseQrControls = false,
   fitToContainer = false,
+  backgroundFit = 'cover',
+  paperSize,
+  documentRef,
+  documentId = 'seating-chart-sign',
+  fitToWidth = false,
 }) => {
-  const containerRef = useRef<HTMLDivElement>(null);
+  const scaledPaper = !!paperSize || fitToWidth;
+  const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasAreaRef = useRef<HTMLDivElement>(null);
   const [dragGuides, setDragGuides] = useState<{ showVertical: boolean; showHorizontal: boolean } | null>(null);
   const [zoom, setZoom] = useState(100);
 
   const handleZoomChange = useCallback((value: number) => {
 
-    setZoom(Math.max(25, Math.min(100, value)));
-  }, []);
+    setZoom(Math.max(scaledPaper ? 5 : 25, Math.min(100, value)));
+  }, [scaledPaper]);
 
   const currentSettings = settings || {
     background_color: '#ffffff',
@@ -88,9 +101,12 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
     A5: { w: 148, h: 210 },
     A6: { w: 105, h: 148 },
   };
-  const dims = SIZE_MAP[currentSettings.card_size] || SIZE_MAP.A5;
-  const previewWidth = isLandscape ? `${dims.h}mm` : `${dims.w}mm`;
-  const previewHeight = isLandscape ? `${dims.w}mm` : `${dims.h}mm`;
+  const dims = useMemo(() => paperSize ? { w: paperSize.widthMm, h: paperSize.heightMm } : SIZE_MAP[currentSettings.card_size] || SIZE_MAP.A5, [paperSize, currentSettings.card_size]);
+  const paperWidth = !paperSize && isLandscape ? dims.h : dims.w;
+  const paperHeight = !paperSize && isLandscape ? dims.w : dims.h;
+  const previewWidth = `${paperWidth}mm`;
+  const previewHeight = `${paperHeight}mm`;
+  const fontScale = paperSize ? Math.min(paperWidth / 210, paperHeight / 297) : 1;
 
   useEffect(() => {
     if (!fitToContainer || !canvasAreaRef.current) return;
@@ -100,7 +116,17 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
     const naturalHeightPx = (isLandscape ? dims.w : dims.h) * MM_TO_PX;
 
     const area = canvasAreaRef.current;
+    let fittedWidth: number | undefined;
     const compute = () => {
+      if (scaledPaper) {
+        const width = area.getBoundingClientRect().width;
+        // Fill the editing column. Page scrolling handles tall signs; changing
+        // zoom must not be undone by the resulting height-only resize.
+        if (width === fittedWidth) return;
+        fittedWidth = width;
+        setZoom(Math.max(5, Math.min(100, Math.floor(width / (paperWidth * 96 / 25.4) * 100))));
+        return;
+      }
       // Only apply fit-to-container scaling on desktop (lg breakpoint and above).
       if (typeof window !== 'undefined' && window.innerWidth < 1024) {
         setZoom(100);
@@ -118,7 +144,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
     const ro = new ResizeObserver(compute);
     ro.observe(area);
     return () => ro.disconnect();
-  }, [fitToContainer, dims, isLandscape]);
+  }, [fitToContainer, dims, isLandscape, paperSize, paperWidth, paperHeight, scaledPaper]);
 
 
 
@@ -220,20 +246,23 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
         <div
           ref={canvasAreaRef}
           className={`flex-1 flex justify-center items-center ${fitToContainer ? 'lg:!h-full lg:!min-h-0' : ''}`}
-          style={{ minHeight: '70vh' }}
+          style={{ minHeight: scaledPaper ? 0 : '70vh', minWidth: 0 }}
         >
           <div
             style={{
-              transform: `scale(${zoom / 100})`,
+              ...(scaledPaper ? { width: paperWidth * 96 / 25.4 * zoom / 100, height: paperHeight * 96 / 25.4 * zoom / 100, flexShrink: 0 } : { transform: `scale(${zoom / 100})` }),
               transformOrigin: 'center center',
               transition: 'transform 0.15s ease-out',
             }}
           >
             <div
-              ref={containerRef}
+              ref={node => { containerRef.current = node; if (documentRef) documentRef.current = node; }}
+              data-print-mirror-document={documentRef ? documentId : undefined}
               style={{
                 width: previewWidth,
                 height: previewHeight,
+                overflow: scaledPaper ? 'hidden' : undefined,
+                ...(scaledPaper ? { transform: `scale(${zoom / 100})`, transformOrigin: 'top left' } : {}),
                 backgroundColor: currentSettings.background_color,
               }}
               className="bg-white shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-visible relative"
@@ -244,10 +273,10 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                   className="absolute inset-0 pointer-events-none"
                   style={{
                     backgroundImage: `url(${currentSettings.background_image_url})`,
-                    backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
-                    backgroundSize: 'cover',
+                    backgroundPosition: `${currentSettings.background_image_x_position ?? 50}% ${currentSettings.background_image_y_position ?? 50}%`,
+                    backgroundSize: backgroundFit,
                     backgroundRepeat: 'no-repeat',
-                    opacity: (currentSettings.background_image_opacity || 100) / 100,
+                    opacity: (currentSettings.background_image_opacity ?? 100) / 100,
                   }}
                 />
               )}
@@ -274,7 +303,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
 
                 const textStyle: React.CSSProperties = {
                   fontFamily: weddingFontFamilyStack(zone.font_family),
-                  fontSize: `${zone.font_size}px`,
+                  fontSize: `${zone.font_size * fontScale}px`,
                   color: zone.font_color,
                   fontWeight: zone.font_style === 'bold' ? '700' : (zone.font_weight === 'bold' ? '700' : '400'),
                   fontStyle: zone.font_style === 'italic' ? 'italic' : 'normal',
@@ -294,7 +323,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                       onMove={(dx, dy) => handleMove(zone.id, dx, dy)}
                       onResize={(dw, side) => handleResize(zone.id, dw, side)}
                       onCornerResize={(dw, dy, corner) => handleCornerResize(zone.id, dw, dy, corner)}
-                      onFontSizeChange={(delta) => handleFontSizeChange(zone.id, delta)}
+                      onFontSizeChange={(delta) => handleFontSizeChange(zone.id, delta / fontScale)}
                       onRotate={(deg) => handleRotate(zone.id, deg)}
                       onDragMove={(offset) => handleDragMove(zone.id, offset)}
                       onDragEnd={handleDragEnd}
@@ -305,7 +334,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                       showResizeHandles={true}
                       showRotateHandle={true}
                       rotation={zone.rotation || 0}
-                      currentFontSize={zone.font_size}
+                      currentFontSize={zone.font_size * fontScale}
                       style={computeZoneStyle(zone)}
                     >
                       <div style={textStyle}>{text}</div>
@@ -341,11 +370,12 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                   onRotate={(r) => onQrConfigUpdate?.({ rotation: r })}
                   containerRef={containerRef as React.RefObject<HTMLElement>}
                   whitePlate={qrWhitePlate}
+                  controlScale={normaliseQrControls ? 100 / zoom : 1}
                 />
               )}
 
-              {textZones.length === 0 && !currentSettings.background_image_url && (
-                <div className="absolute inset-0 flex items-center justify-center text-muted-foreground">
+              {textZones.length === 0 && !currentSettings.background_image_url && !settings?.qr_config?.enabled && (
+                <div data-html2canvas-ignore className="absolute inset-0 flex items-center justify-center text-muted-foreground">
                   <div className="text-center">
                     <p className="text-lg font-medium">Invitation Preview</p>
                     <p className="text-sm">Add text zones and a background image to get started</p>
@@ -376,7 +406,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
           <Slider
             value={[zoom]}
             onValueChange={([v]) => handleZoomChange(v)}
-            min={25}
+            min={scaledPaper ? 5 : 25}
             max={100}
             step={5}
             orientation="vertical"
@@ -386,7 +416,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
             type="button"
             className="flex h-7 w-7 items-center justify-center rounded-md text-muted-foreground hover:bg-accent hover:text-foreground transition-colors disabled:opacity-40"
             onClick={() => handleZoomChange(zoom - 10)}
-            disabled={zoom <= 25}
+            disabled={zoom <= (scaledPaper ? 5 : 25)}
             aria-label="Zoom out" title="Zoom out"
           >
             <ZoomOut className="h-[17px] w-[17px]" strokeWidth={1.8} aria-hidden="true" />

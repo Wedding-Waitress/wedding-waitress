@@ -30,6 +30,24 @@ export function normalizeRsvp(input: string | null | undefined): RsvpStatus {
   return "Pending";
 }
 
+/**
+ * A non-pending value alone is not proof that a guest replied: organisers can
+ * preassign an RSVP value while creating or editing a guest. Guest-facing RSVP
+ * submissions also stamp rsvp_date, which is the persisted response marker.
+ */
+export function hasGuestResponded(
+  rsvp: string | null | undefined,
+  rsvpDate: string | null | undefined,
+): boolean {
+  return Boolean(rsvpDate) && normalizeRsvp(rsvp) !== "Pending";
+}
+
+export function getDefaultRsvpInviteRecipientIds<
+  T extends { id: string; rsvp?: string | null; rsvp_date?: string | null },
+>(guests: T[]): string[] {
+  return guests.filter((guest) => !hasGuestResponded(guest.rsvp, guest.rsvp_date)).map((guest) => guest.id);
+}
+
 export function getRsvpDisplayLabel(rsvp: string): string {
   const normalized = normalizeRsvp(rsvp);
   switch (normalized) {

@@ -47,4 +47,18 @@ describe('QR Code Seating Chart typography contract', () => {
     expect(qrGenerator).toContain('export class AdvancedQRGenerator');
     expect(urlUtils).toContain('export function buildGuestLookupUrl');
   });
+
+  it('keeps the event selector compact and places live status in the generator header', () => {
+    expect(page).not.toContain('eventDetailsText');
+    expect(page).not.toContain('Connected & Synced');
+    expect(page).not.toContain('formatEventDate');
+    expect(page).toContain('events.find(event => event.id === selectedEventId)');
+    expect(page).toContain('<QRCodeMainCard eventId={currentEventId} event={selectedEvent} />');
+    expect(card).toContain('generatorHeaderRow');
+    expect(card).toContain('Connected &amp; Synced');
+    expect(card).toContain('Linked: <strong>{event.name}</strong>');
+    expect(card).toMatch(/className=\{styles\.compactStatus\} onClick=\{handleLiveView\}/);
+    expect(dashboardCss).toMatch(/\.generatorConnectionStatus[^{]*\{[\s\S]*?margin-left:\s*auto;/);
+    expect(dashboardCss).toMatch(/@media \(max-width: 767px\)[\s\S]*?\.generatorConnectionStatus[^{]*\{[\s\S]*?width:\s*100%;/);
+  });
 });

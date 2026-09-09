@@ -1,3 +1,6 @@
+import QRCode from 'qrcode';
+import { buildGalleryUploadUrl } from '@/lib/urlUtils';
+import slideshowLogo from '@/assets/wedding-waitress-slideshow-logo.png';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { Maximize, Minimize, Play, Pause, Heart } from 'lucide-react';
@@ -92,6 +95,19 @@ const GalleryLiveView: React.FC = () => {
   const location = useLocation();
   // Projector/TV slideshow route: clean fullscreen, no controls.
   const isSlideshow = location.pathname.endsWith('/slideshow');
+  const [uploadQr, setUploadQr] = useState('');
+  useEffect(() => {
+    let cancelled = false;
+    setUploadQr('');
+    if (isSlideshow && token) {
+      QRCode.toDataURL(buildGalleryUploadUrl(token), {
+        width: 512, margin: 4, errorCorrectionLevel: 'M',
+        color: { dark: '#1D1D1F', light: '#FFFFFF' },
+      }).then(url => { if (!cancelled) setUploadQr(url); })
+        .catch(() => { if (!cancelled) setUploadQr(''); });
+    }
+    return () => { cancelled = true; };
+  }, [isSlideshow, token]);
   const [meta, setMeta] = useState<LiveMeta | null>(null);
   const [rawItems, setItems] = useState<LiveItem[]>([]);
   const [error, setError] = useState<string | null>(null);
@@ -380,11 +396,18 @@ const GalleryLiveView: React.FC = () => {
           )}
           <div className="min-w-0">
             {headerTitle && (
-              <h1 className="text-white text-3xl md:text-5xl font-light tracking-[0.02em] drop-shadow-lg truncate">
+              <h1 className={`text-white font-light tracking-[0.02em] drop-shadow-lg ${isSlideshow ? 'text-[15px] md:text-2xl leading-[1.3] md:leading-[1.3] break-words pb-1' : 'text-3xl md:text-5xl truncate'}`}>
                 {headerTitle}
               </h1>
             )}
-            {eventDateLabel && (
+            {isSlideshow && uploadQr && (
+              <div className="mt-4 flex flex-col items-start gap-2 text-left text-white">
+                <p className="text-sm md:text-base font-semibold">Share your photos &amp; videos</p>
+                <img src={uploadQr} alt="Scan to upload photos and videos" className="w-28 h-28 md:w-40 md:h-40 rounded bg-white" />
+                <p className="text-xs md:text-sm">Scan with your phone to upload.</p>
+              </div>
+            )}
+            {!isSlideshow && eventDateLabel && (
               <div className="mt-1.5 text-white/70 text-sm md:text-lg font-light tracking-[0.28em] uppercase">
                 {eventDateLabel}
               </div>
@@ -460,7 +483,7 @@ const GalleryLiveView: React.FC = () => {
       {/* Caption / uploader / controls */}
       {(current && (current.caption || current.uploader_name)) || items.length > 0 ? (
         <div className="absolute bottom-0 left-0 right-0 z-20 px-8 pt-16 pb-7 bg-gradient-to-t from-black/80 via-black/35 to-transparent flex items-end justify-between gap-4">
-          <div className="pointer-events-none min-w-0">
+          <div className={`pointer-events-none min-w-0 ${isSlideshow ? 'ml-auto text-right pl-56' : ''}`}>
             {settings.show_caption && current?.caption && (
               <div className="text-white text-lg md:text-2xl font-light drop-shadow-lg">
                 {current.caption}
@@ -484,13 +507,14 @@ const GalleryLiveView: React.FC = () => {
                   disabled={likeBusy}
                   className={`h-10 px-3 rounded-full flex items-center gap-1.5 backdrop-blur-sm transition-colors ${
                     likedIds.has(current.id)
-                      ? 'bg-rose-500/90 text-white'
+                      ? 'bg-red-500/20 text-white'
                       : 'bg-white/10 hover:bg-white/20 text-white/80 hover:text-white'
                   }`}
                   title={likedIds.has(current.id) ? 'Remove your heart' : 'Love this photo'}
-                  aria-label="Like this item"
+                  aria-label={likedIds.has(current.id) ? "Remove your heart" : "Like this item"}
+                  aria-pressed={likedIds.has(current.id)}
                 >
-                  <Heart className={`h-4 w-4 ${likedIds.has(current.id) ? 'fill-current' : ''}`} />
+                  <Heart className="h-4 w-4" style={{ color: "#ff2424", stroke: "#ff2424", fill: likedIds.has(current.id) ? "#ff2424" : "none" }} aria-hidden="true" />
                   <span className="text-sm font-medium">{current.like_count ?? 0}</span>
                 </button>
               )}
@@ -512,23 +536,26 @@ const GalleryLiveView: React.FC = () => {
           )}
         </div>
       ) : null}
-      {theme.showBranding && (
-        <div className={`absolute bottom-4 z-20 text-[10px] md:text-xs uppercase tracking-[0.25em] text-white/35 pointer-events-none ${isSlideshow ? 'right-14' : 'right-6'}`}>
+      {!isSlideshow && theme.showBranding && (
+        <div className={`absolute bottom-4 z-20 text-[10px] md:text-xs uppercase tracking-[0.25em] text-white/35 pointer-events-none ${isSlideshow ? 'left-14' : 'right-6'}`}>
           Wedding Waitress
         </div>
       )}
       {isSlideshow && (
+        <div className="fixed bottom-1.5 left-6 z-30 flex items-center gap-2">
+          {theme.showBranding && <img src={slideshowLogo} alt="Wedding Waitress" className="w-40 h-auto object-contain" />}
         <button
           type="button"
           onClick={handleExitSlideshow}
           aria-label="Exit live slideshow"
           title="Exit live slideshow"
-          className="group fixed bottom-1.5 right-1.5 z-30 flex h-11 w-11 items-center justify-center bg-transparent text-[#b8a58d]/30 outline-none transition-colors duration-150 hover:text-[#d6c2a4]/60 focus-visible:text-[#ead7b8]/80 active:text-[#ead7b8]/70 motion-reduce:transition-none"
+          className="group flex h-11 w-11 items-center justify-center bg-transparent text-[#b8a58d]/30 outline-none transition-colors duration-150 hover:text-[#d6c2a4]/60 focus-visible:text-[#ead7b8]/80 active:text-[#ead7b8]/70 motion-reduce:transition-none"
         >
-          <span aria-hidden="true" className="text-base font-light leading-none transition-transform duration-150 group-hover:scale-110 group-focus-visible:scale-110 group-active:scale-95 motion-reduce:transition-none motion-reduce:transform-none">
+          <span aria-hidden="true" className="text-[32px] font-light leading-none transition-transform duration-150 group-hover:scale-110 group-focus-visible:scale-110 group-active:scale-95 motion-reduce:transition-none motion-reduce:transform-none">
             ×
           </span>
         </button>
+        </div>
       )}
     </div>
   );

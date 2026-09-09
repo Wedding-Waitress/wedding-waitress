@@ -1,3 +1,4 @@
+import { DJMCRowTextSize } from '@/components/Dashboard/DJMCQuestionnaire/DJMCRowTextSize';
 /**
  * DJ-MC Questionnaire Public View
  * Full feature parity with dashboard DJMCQuestionnairePage
@@ -6,13 +7,15 @@
  */
 import React, { useEffect, useState, useCallback, useRef } from 'react';
 import { useParams } from 'react-router-dom';
-import { Music, AlertCircle, Download, Loader2, FileText } from 'lucide-react';
+import { Undo2, Music, AlertCircle, Download, Loader2, FileText } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { Card, CardContent } from '@/components/ui/card';
 import { DJMCSection, DJMCItem, SectionType } from '@/types/djMCQuestionnaire';
 import { DEFAULT_SECTION_TEMPLATES } from '@/lib/djMCQuestionnaireTemplates';
 import { exportEntireQuestionnairePDF, exportSectionPDF } from '@/lib/djMCQuestionnairePdfExporter';
 import { DJMCQuestionnaireSection } from '@/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnaireSection';
+import { useDJMCUndo } from '@/hooks/useDJMCUndo';
+import { Button } from '@/components/ui/button';
 import { decodeShareToken, sameShareToken } from '@/lib/shareTokens';
 import theme from '@/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnaireTheme.module.css';
 
@@ -70,8 +73,12 @@ export function DJMCPublicView() {
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
   const [data, setData] = useState<PublicQuestionnaireData | null>(null);
+  const [rowTextSize, setRowTextSize] = useState<"standard"|"larger">("standard");
   const [downloadingPDF, setDownloadingPDF] = useState(false);
   const saveTimeoutRef = useRef<Record<string, NodeJS.Timeout>>({});
+  const undoWrites=useRef(new Set<Promise<unknown>>());
+  const trackUndoWrite=async <T,>(request:PromiseLike<T>):Promise<T>=>{const p=Promise.resolve(request);undoWrites.current.add(p);try{return await p;}finally{undoWrites.current.delete(p);}};
+  const prepareUndo=async()=>{Object.values(saveTimeoutRef.current).forEach(clearTimeout);saveTimeoutRef.current={};await Promise.allSettled([...undoWrites.current]);lastSaveRef.current=Date.now();};
   const lastSaveRef = useRef<number>(0);
 
   const fetchData = useCallback(async () => {
@@ -192,6 +199,7 @@ export function DJMCPublicView() {
   }, [data?.questionnaire_id, data?.sections, data?.permission, token, fetchData]);
 
   const canEdit = data?.permission === 'can_edit';
+  const undoHistory=useDJMCUndo({questionnaireId:data?.questionnaire_id,eventId:data?.event_id,sections:data?.sections||[],shareToken:token||undefined,canEdit,beforeRestore:prepareUndo,refresh:fetchData});
 
   // ── Token-secured mutation handlers ──
 
@@ -215,14 +223,15 @@ export function DJMCPublicView() {
     saveTimeoutRef.current[key] = setTimeout(async () => {
       try {
         lastSaveRef.current = Date.now();
-        const { error: saveError } = await supabase.rpc('update_dj_mc_section_by_token', {
+        const { error: saveError }: {error?: unknown} = await trackUndoWrite((supabase.rpc as any)(updates.custom_columns ? 'update_dj_mc_section_by_token_v2' : 'update_dj_mc_section_by_token', {
+          ...(updates.custom_columns ? {new_custom_columns:updates.custom_columns} : {}),
           share_token: token,
           p_section_id: sectionId,
           new_section_label: updates.section_label ?? null,
           new_notes: updates.notes ?? null,
           new_is_collapsed: updates.is_collapsed ?? null,
           clear_notes: updates.notes === null && 'notes' in updates,
-        });
+        }));
         if (saveError) throw saveError;
       } catch (err) {
         console.error('Error updating section:', err);
@@ -254,7 +263,8 @@ export function DJMCPublicView() {
     saveTimeoutRef.current[key] = setTimeout(async () => {
       try {
         lastSaveRef.current = Date.now();
-        const { error: saveError } = await supabase.rpc('update_dj_mc_item_by_token', {
+        const { error: saveError }: {error?: unknown} = await trackUndoWrite((supabase.rpc as any)(updates.custom_values ? 'update_dj_mc_item_by_token_v2' : 'update_dj_mc_item_by_token', {
+          ...(updates.custom_values ? {new_custom_values:updates.custom_values} : {}),
           share_token: token,
           item_id: itemId,
           new_value_text: updates.value_text ?? null,
@@ -263,7 +273,7 @@ export function DJMCPublicView() {
           new_song_title_artist: updates.song_title_artist ?? null,
           new_duration: updates.duration ?? null,
           new_pronunciation_audio_url: updates.pronunciation_audio_url ?? null,
-        });
+        }));
         if (saveError) throw saveError;
       } catch (err) {
         console.error('Error updating item:', err);
@@ -480,7 +490,7 @@ export function DJMCPublicView() {
         id: data.questionnaire_id,
         sections: data.sections,
       };
-      await exportEntireQuestionnairePDF(questionnaireData as any, eventData);
+      await exportEntireQuestionnairePDF(questionnaireData as any, eventData, rowTextSize);
     } catch (err) {
       console.error('PDF generation failed:', err);
     } finally {
@@ -503,7 +513,7 @@ export function DJMCPublicView() {
         ceremony_start_time: data.ceremony_start_time,
         ceremony_finish_time: data.ceremony_finish_time,
       };
-      await exportSectionPDF(section, eventData);
+      await exportSectionPDF(section, eventData, rowTextSize);
     } catch (err) {
       console.error('Section PDF generation failed:', err);
     }
@@ -540,7 +550,7 @@ export function DJMCPublicView() {
   if (!data) return null;
 
   return (
-    <div className={`${theme.publicPage} ww-application-background`}>
+    <div data-row-text-size={rowTextSize} className={`${theme.publicPage} ww-application-background`}>
       {/* Header */}
       <header className={`${theme.publicHeader} sticky top-0 z-10 print:static`}>
         <div className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-4">
@@ -629,6 +639,17 @@ export function DJMCPublicView() {
         </div>
       </div>
 
+      {canEdit && <div className="w-full max-w-[96%] mx-auto px-4 flex justify-end print:hidden">
+        <Button variant="ghost" className="gap-1.5" disabled={!undoHistory.canUndo||undoHistory.busy} onClick={undoHistory.undo}>
+          {undoHistory.operation === 'restoring' ? <Loader2 size={18} className="animate-spin" aria-hidden="true"/> : <Undo2 size={18} strokeWidth={1.8} aria-hidden="true"/>}
+          {undoHistory.operation === 'restoring' ? 'Restoring…' : 'Undo'}
+        </Button>
+      </div>}
+      <div className="flex justify-end mb-3"><DJMCRowTextSize value={rowTextSize} onChange={setRowTextSize}/></div>
+      {undoHistory.busy && <div role="status" aria-live="polite" className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-lg border border-[#967a59] bg-[#fff4e5] px-5 py-3 text-[#2f1b14] shadow-lg">
+        <Loader2 size={20} className="animate-spin" aria-hidden="true"/>
+        {undoHistory.operation === 'restoring' ? 'Restoring questionnaire… Please keep this page open.' : 'Saving changes… Please wait.'}
+      </div>}
       {/* Main Content — Uses same DJMCQuestionnaireSection as dashboard */}
       <main className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-6">
         <div className="space-y-4">
@@ -636,19 +657,20 @@ export function DJMCPublicView() {
             <DJMCQuestionnaireSection
               key={section.id}
               section={section}
+              onRunUndoable={undoHistory.run}
               eventId={data.event_id}
               shareToken={token || undefined}
-              onUpdateSection={(updates) => handleUpdateSection(section.id, updates)}
-              onUpdateItem={(itemId, updates) => handleUpdateItem(itemId, updates)}
-              onAddItem={() => handleAddItem(section.id)}
-              onDeleteItem={(itemId) => handleDeleteItem(itemId)}
-              onDuplicateItem={(item) => handleDuplicateItem(item)}
-              onReorderItems={(items) => handleReorderItems(section.id, items)}
-              onResetToDefault={() => handleResetToDefault(section.id)}
-              onDuplicateSection={() => handleDuplicateSection(section.id)}
-              onDeleteSection={() => handleDeleteSection(section.id)}
+              onUpdateSection={(updates) => undoHistory.record(() => handleUpdateSection(section.id, updates))}
+              onUpdateItem={(itemId, updates) => undoHistory.record(() => handleUpdateItem(itemId, updates))}
+              onAddItem={() => undoHistory.run(() => handleAddItem(section.id))}
+              onDeleteItem={(itemId) => undoHistory.run(() => handleDeleteItem(itemId))}
+              onDuplicateItem={(item) => undoHistory.run(() => handleDuplicateItem(item))}
+              onReorderItems={(items) => undoHistory.run(() => handleReorderItems(section.id, items))}
+              onResetToDefault={() => undoHistory.run(() => handleResetToDefault(section.id))}
+              onDuplicateSection={() => undoHistory.run(() => handleDuplicateSection(section.id))}
+              onDeleteSection={() => undoHistory.run(() => handleDeleteSection(section.id))}
               onDownloadSectionPDF={() => handleDownloadSectionPDF(section)}
-              disabled={!canEdit}
+              disabled={!canEdit||undoHistory.busy}
             />
           ))}
           

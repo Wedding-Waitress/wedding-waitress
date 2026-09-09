@@ -31,6 +31,7 @@ import { useToast } from '@/hooks/use-toast';
 import { buildLiveSlideshowUrl } from '@/lib/urlUtils';
 import { LiveSlideshowConfig } from './LiveSlideshowConfig';
 import { LiveSlideshowAutoProtection } from './LiveSlideshowAutoProtection';
+import { useLiveViewModuleSettings } from '@/hooks/useLiveViewModuleSettings';
 import styles from './LiveSlideshowSetup.module.css';
 
 interface LiveSlideshowSetupProps {
@@ -47,6 +48,7 @@ export const LiveSlideshowSetup: React.FC<LiveSlideshowSetupProps> = ({
   eventsLoading,
 }) => {
   const { toast } = useToast();
+  const moduleState = useLiveViewModuleSettings(selectedEventId || undefined);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
   const [copied, setCopied] = useState(false);
   const [isOpeningSlideshow, setIsOpeningSlideshow] = useState(false);
@@ -90,22 +92,15 @@ export const LiveSlideshowSetup: React.FC<LiveSlideshowSetupProps> = ({
 
   const handleFullscreen = () => {
     if (!liveSlideshowUrl) return;
-    const newWindow = window.open(liveSlideshowUrl, '_blank', 'fullscreen=yes,scrollbars=no,toolbar=no,menubar=no,status=no');
-    if (newWindow) {
-      // Try to make it fullscreen
-      setTimeout(() => {
-        try {
-          newWindow.document.documentElement.requestFullscreen?.();
-        } catch (error) {
-          // Silently fail if fullscreen is not available
-        }
-      }, 1000);
-    }
+    const opened = window.open(liveSlideshowUrl + '?fullscreen=1', '_blank');
+    if (!opened) toast({ title: 'Popup blocked', description: 'Allow pop-ups to open the slideshow.', variant: 'destructive' });
   };
 
   // Auto-generate the QR code whenever the selected event (and thus URL) changes.
   React.useEffect(() => {
     let cancelled = false;
+    setQrCodeDataUrl('');
+    setCopied(false);
     if (!liveSlideshowUrl) {
       setQrCodeDataUrl('');
       return;
@@ -126,13 +121,13 @@ export const LiveSlideshowSetup: React.FC<LiveSlideshowSetupProps> = ({
       <Card className={`${styles.primaryPanel} border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}>
         <CardHeader>
           {/* Live Slideshow heading and description on one row. */}
-          <div className="flex flex-col sm:flex-row sm:items-center gap-3">
-            <div className="p-2 bg-primary/10 rounded-lg w-fit">
+          <div className={styles.referenceHeadingRow}>
+            <div className={styles.referenceHeadingIcon}>
               <MonitorCog className="w-[25px] h-[25px] text-primary" strokeWidth={1.8} aria-hidden="true" />
             </div>
-            <div className="flex flex-col lg:flex-row lg:items-baseline gap-1 lg:gap-3">
+            <div className={styles.referenceHeadingCopy}>
               <CardTitle className={`${styles.mainHeading} ww-live-slideshow-main-heading text-2xl font-bold text-foreground`}>Live Slideshow</CardTitle>
-              <CardDescription className={`${styles.mainDescription} shrink-0`}>
+              <CardDescription className={`${styles.mainDescription} min-w-0`}>
                 Configure a self-service guest lookup slideshow for weddings, corporate events, workshops and seminars
               </CardDescription>
             </div>
@@ -147,8 +142,8 @@ export const LiveSlideshowSetup: React.FC<LiveSlideshowSetupProps> = ({
               <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Choose Event:
             </label>
-            <Select value={selectedEventId || "no-event"} onValueChange={onEventSelect}>
-              <SelectTrigger className={`${styles.control} w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#967A59]`}>
+            <Select disabled={eventsLoading || !events.length} value={selectedEventId || undefined} onValueChange={onEventSelect}>
+              <SelectTrigger aria-label="Choose Event" className={`${styles.control} w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#967A59]`}>
                 <SelectValue placeholder="Choose Event" />
               </SelectTrigger>
               <SelectContent className={`${styles.portalSurface} bg-popover border-border z-50`}>
@@ -170,8 +165,8 @@ export const LiveSlideshowSetup: React.FC<LiveSlideshowSetupProps> = ({
             </Select>
           </div>
 
-          {/* Full-width divider */}
-          <hr className={`${styles.divider} w-full border-t border-[#472c1d]`} />
+
+
 
           {/* Three equal boxes: Live Slideshow controls, instructions, and auto-protection. */}
           <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch">
@@ -286,7 +281,7 @@ export const LiveSlideshowSetup: React.FC<LiveSlideshowSetupProps> = ({
                   <Badge variant="outline" className={`${styles.numberBadge} mt-1`}>3</Badge>
                   <Maximize className="w-4 h-4 mt-1 shrink-0 text-[#856A4C]" strokeWidth={1.8} aria-hidden="true" />
                   <p className="text-sm">
-                    <strong>Go fullscreen:</strong> Use the "Launch Fullscreen" button or press F11 on desktop
+                    <strong>Go fullscreen:</strong> Use "Launch Fullscreen", then "Enter Fullscreen" in the slideshow, or press F11 on desktop
                   </p>
                 </div>
 
@@ -326,7 +321,7 @@ export const LiveSlideshowSetup: React.FC<LiveSlideshowSetupProps> = ({
             {/* THIRD: 7-Day Auto-Protection */}
             <div className={`${styles.innerPanel} h-full rounded-lg border border-[#472c1d] p-4 md:col-span-2 xl:col-span-1`}>
               {selectedEvent ? (
-                <LiveSlideshowAutoProtection eventId={selectedEvent.id} />
+                <LiveSlideshowAutoProtection eventId={selectedEvent.id} moduleState={moduleState} />
               ) : (
                 <p className="text-sm text-muted-foreground">
                   Choose an event above to configure 7-Day Auto-Protection.
@@ -339,7 +334,7 @@ export const LiveSlideshowSetup: React.FC<LiveSlideshowSetupProps> = ({
       </Card>
 
       {/* Guest Live View Configuration */}
-      {selectedEvent && <LiveSlideshowConfig eventId={selectedEvent.id} />}
+      {selectedEvent && <LiveSlideshowConfig key={selectedEvent.id} eventId={selectedEvent.id} moduleState={moduleState} />}
     </div>
   );
 };

@@ -34,4 +34,17 @@ describe('dashboard table contrast', () => {
     expect(guests).toContain('`${styles.tableWrap} hidden lg:block');
     expect(guests).toContain('max-lg:flex-col max-lg:items-center max-lg:gap-2');
   });
+
+  it('uses the darkest Tables token for head and numbered table markers', () => {
+    const card = read('src/components/Dashboard/TableCard.tsx');
+    const css = read('src/pages/TablesPage.module.css');
+
+    expect(card).toContain('ww-head-table-badge');
+    expect(card).toContain('table.table_no != null');
+    expect(card).toContain('relative mx-auto flex h-7 w-7 items-center justify-center');
+    expect(card).toContain('ww-regular-table-number pointer-events-none absolute h-[34px] w-[34px] rounded-full border');
+    expect(css).not.toContain(':global(.ww-table-name) > span');
+    expect(css).toMatch(/\.ww-head-table-badge\),[\s\S]*\.ww-regular-table-number\)[\s\S]*color: var\(--tables-text\) !important;[\s\S]*border-color: var\(--tables-text\) !important;[\s\S]*background: transparent !important/);
+    expect(css).toMatch(/\.ww-head-table-badge\) svg[\s\S]*color: currentColor !important;[\s\S]*stroke: currentColor !important/);
+  });
 });

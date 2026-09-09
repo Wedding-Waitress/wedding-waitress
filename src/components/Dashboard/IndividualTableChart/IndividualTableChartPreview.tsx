@@ -16,6 +16,7 @@ import { Guest } from '@/hooks/useGuests';
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { IndividualChartSettings } from './IndividualTableSeatingChartPage';
 import { IndividualTableChartPrintPage } from './IndividualTableChartPrintPage';
+import printStyles from './IndividualTableChartPrint.css?inline';
 import { A4_PAGE_STYLE, A4_PX } from '@/lib/a4';
 
 interface IndividualTableChartPreviewProps {
@@ -61,6 +62,7 @@ export const IndividualTableChartPreview: React.FC<IndividualTableChartPreviewPr
 
   return (
     <div className="flex justify-center">
+      <style>{printStyles}</style>
       <div
         ref={tabletWrapperRef}
         className="w-full"

@@ -1,4 +1,4 @@
-import html2canvas from 'html2canvas';
+import { captureReceptionDocument } from './receptionDocumentCapture';
 import jsPDF from 'jspdf';
 
 import { A4_MM } from '@/lib/a4';
@@ -66,24 +66,17 @@ export const createReceptionPreviewPdf = async ({
   assertAuthoritativeMirrorDocument(pageElement, RECEPTION_PRINT_MIRROR_CONTRACT);
   await waitForAssets(pageElement);
 
-  const canvas = await html2canvas(pageElement, {
-    backgroundColor: '#ffffff',
-    scale: 3,
-    useCORS: true,
-    logging: false,
-    width: pageElement.offsetWidth,
-    height: pageElement.offsetHeight,
-    windowWidth: pageElement.offsetWidth,
-    windowHeight: pageElement.offsetHeight,
-    onclone: prepareReceptionPdfClone,
-  });
-
   const pdf = new jsPDF({
     orientation: 'landscape',
     unit: 'mm',
     format: 'a4',
     ...PDF_DEFAULT_OPTIONS,
   });
+  const group = pageElement.closest('[data-reception-document-group]');
+  const pages = group ? Array.from(group.querySelectorAll<HTMLElement>('[data-reception-a4-renderer="true"]')) : [pageElement];
+  for (const [index, page] of pages.entries()) {
+  if (index) pdf.addPage('a4', 'landscape');
+  const canvas = await captureReceptionDocument(page);
   pdf.addImage(
     canvas.toDataURL('image/png'),
     'PNG',
@@ -94,6 +87,7 @@ export const createReceptionPreviewPdf = async ({
     undefined,
     'FAST',
   );
+  }
   return pdf;
 };
 

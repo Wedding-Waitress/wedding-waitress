@@ -12,9 +12,10 @@
  */
 
 import React from 'react';
+import { individualChartCapacityError } from './individualTableChartValidation';
 import { createRoot } from 'react-dom/client';
 import jsPDF from 'jspdf';
-import html2canvas from 'html2canvas';
+import { captureIndividualTableChart } from './individualTableChartCapture';
 import { Guest } from '@/hooks/useGuests';
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { IndividualChartSettings } from '@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage';
@@ -65,6 +66,8 @@ const renderPrintPageToCanvas = async (
   currentTableIndex = 1,
   totalTables = 1
 ): Promise<HTMLCanvasElement> => {
+  const capacityError = individualChartCapacityError(settings, table, guests);
+  if (capacityError) throw new Error(capacityError);
   const container = createPrintPageContainer();
   const root = createRoot(container);
 
@@ -90,30 +93,9 @@ const renderPrintPageToCanvas = async (
     await waitForImagesToLoad(container);
     await new Promise((resolve) => setTimeout(resolve, 200));
 
-    const canvas = await html2canvas(container, {
-      width: A4_PX.width,
-      height: A4_PX.height,
-      scale: 3,
-      useCORS: true,
-      backgroundColor: '#ffffff',
-      foreignObjectRendering: false,
-      allowTaint: false,
-      removeContainer: false,
-      imageTimeout: 30000,
-      logging: false,
-      onclone: (clonedDoc) => {
-        const style = clonedDoc.createElement('style');
-        style.textContent = `
-          * {
-            -webkit-font-smoothing: antialiased !important;
-            -moz-osx-font-smoothing: grayscale !important;
-            text-rendering: optimizeLegibility !important;
-            font-display: swap !important;
-          }
-        `;
-        clonedDoc.head.appendChild(style);
-      },
-    });
+    const page = container.querySelector<HTMLElement>('[data-individual-table-chart-page]');
+    if (!page) throw new Error('The table chart is not ready');
+    const canvas = await captureIndividualTableChart(page);
 
     return canvas;
   } finally {
@@ -139,6 +121,7 @@ export const generateIndividualTableChartPDF = async (
 
   const pdf = new jsPDF({
     orientation: 'portrait',
+    compress: true,
     unit: 'mm',
     format: [A4_MM.width, A4_MM.height],
   });
@@ -183,10 +166,15 @@ export const generateAllTablesChartPDF = async (
 
   const pdf = new jsPDF({
     orientation: 'portrait',
+    compress: true,
     unit: 'mm',
     format: [A4_MM.width, A4_MM.height],
   });
 
+  for (const table of tables) {
+    const error = individualChartCapacityError(settings, table, guests);
+    if (error) throw new Error(error);
+  }
   for (let i = 0; i < tables.length; i++) {
     const table = tables[i];
     const tableGuests = guests.filter((guest) => guest.table_id === table.id);

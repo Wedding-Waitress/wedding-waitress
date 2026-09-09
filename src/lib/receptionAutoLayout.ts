@@ -8,7 +8,7 @@ import type {
   Fixture,
 } from '@/hooks/useReceptionFloorPlan';
 import type { ReceptionTable } from '@/hooks/useReceptionTables';
-import { aabbInsidePolygon, rectPolygon } from '@/lib/floorPlanShapes';
+import { aabbInsidePolygon, pointInPolygon, rectPolygon } from '@/lib/floorPlanShapes';
 import { getHeadTableDimensions, getReceptionTableDimensions } from '@/lib/receptionTableGeometry';
 
 const tableRadiusM = (table: ReceptionTable) => {
@@ -21,8 +21,8 @@ const tableRadiusM = (table: ReceptionTable) => {
 const fixtureFootprint = (f: Fixture) => ({
   x: f.x,
   y: f.y,
-  w: f.width_m + 0.6,
-  h: f.height_m + 0.6,
+  w: Math.abs(Math.cos(f.rotation * Math.PI / 180)) * f.width_m + Math.abs(Math.sin(f.rotation * Math.PI / 180)) * f.height_m + 0.6,
+  h: Math.abs(Math.sin(f.rotation * Math.PI / 180)) * f.width_m + Math.abs(Math.cos(f.rotation * Math.PI / 180)) * f.height_m + 0.6,
 });
 
 const collidesRectCircle = (
@@ -47,7 +47,7 @@ export interface AutoLayoutResult {
 export const autoArrangeReception = (
   plan: ReceptionFloorPlan,
   tables: ReceptionTable[],
-  options: { preserveExisting?: boolean } = {},
+  options: { preserveExisting?: boolean; placeAll?: boolean } = {},
 ): AutoLayoutResult => {
   const poly =
     plan.room_polygon && plan.room_polygon.points.length > 2
@@ -66,6 +66,7 @@ export const autoArrangeReception = (
     ...unlockedPositions.map((p) => p.table_id),
     ...tables.filter((t) => !kept.some((p) => p.table_id === t.id)).map((t) => t.id),
   ]);
+  for (const fixture of plan.fixtures) if (fixture.linked_table_id) candidateIds.delete(fixture.linked_table_id);
   for (const id of lockedIds) candidateIds.delete(id);
 
   const candidates = tables.filter((t) => candidateIds.has(t.id));
@@ -77,7 +78,7 @@ export const autoArrangeReception = (
   const avgR = candidates.length
     ? candidates.reduce((s, t) => s + tableRadiusM(t), 0) / candidates.length
     : 1.2;
-  const step = Math.max(1.4, avgR * 2 + 0.4);
+  const step = options.preserveExisting ? 0.5 : Math.max(1.4, avgR * 2 + 0.4);
   const margin = 0.6;
 
   const cellFits = (cx: number, cy: number, r: number) => {
@@ -102,10 +103,26 @@ export const autoArrangeReception = (
     for (let y = margin + r; y <= plan.room_length_m - margin - r && !placed; y += step) {
       for (let x = margin + r; x <= plan.room_width_m - margin - r && !placed; x += step) {
         if (cellFits(x, y, r)) {
-          result.push({ table_id: t.id, x, y, rotation: 0, locked: false });
+          result.push({ ...plan.table_positions.find(p => p.table_id === t.id), table_id: t.id, x, y, rotation: 0, locked: false });
           placed = true;
         }
       }
+    }
+    if (!placed && options.placeAll) {
+      // Keep every synced table visible even when the room needs rearranging.
+      // Pick the least crowded point; Smart Suggestions still reports overlaps.
+      let best = { x: plan.room_width_m / 2, y: plan.room_length_m / 2 };
+      let bestClearance = -Infinity;
+      for (let y = 0.5; y < plan.room_length_m; y += 0.5) {
+        for (let x = 0.5; x < plan.room_width_m; x += 0.5) {
+          if (!pointInPolygon({x, y}, poly)) continue;
+          let clearance = Math.min(x, y, plan.room_width_m - x, plan.room_length_m - y);
+          for (const position of result) clearance = Math.min(clearance, Math.hypot(x - position.x, y - position.y) / 2);
+          for (const fixture of fixtures) clearance = Math.min(clearance, Math.hypot(Math.max(0, Math.abs(x - fixture.x) - fixture.w / 2), Math.max(0, Math.abs(y - fixture.y) - fixture.h / 2)));
+          if (clearance > bestClearance) { bestClearance = clearance; best = {x, y}; }
+        }
+      }
+      result.push({ ...plan.table_positions.find(p => p.table_id === t.id), table_id: t.id, ...best, rotation: 0, locked: false });
     }
   }
 

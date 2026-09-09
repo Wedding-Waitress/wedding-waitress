@@ -1,4 +1,4 @@
-.planner { width: 100%; min-width: 0; margin-top: 1.5rem; padding: 1rem; border: 1px solid var(--dashboard-border); border-radius: .8rem; color: var(--dashboard-text); background: var(--dashboard-panel); box-shadow: inset 0 1px 0 rgba(255,255,255,.74),0 10px 25px rgba(79,48,30,.1); font-family: 'Manrope',ui-sans-serif,system-ui,sans-serif; }
+.planner { width: 100%; min-width: 0; margin-top: 1rem; padding: 1rem; border: 1px solid var(--dashboard-border); border-radius: .8rem; color: var(--dashboard-text); background: var(--dashboard-panel); box-shadow: inset 0 1px 0 rgba(255,255,255,.74),0 10px 25px rgba(79,48,30,.1); font-family: 'Manrope',ui-sans-serif,system-ui,sans-serif; }
 .plannerHeading { display: flex; align-items: flex-end; justify-content: space-between; gap: 1rem; margin-bottom: 1rem; }
 .plannerHeading h2 { margin: 0; color: var(--dashboard-text); font-size: 24px; font-weight: 600; line-height: 1.25; letter-spacing: -.012em; }
 .plannerHeading p { margin: .25rem 0 0; color: var(--dashboard-text-soft); font-size: 13px; font-weight: 400; line-height: 18px; }
@@ -13,25 +13,26 @@
 .successButton:disabled,.dangerButton:disabled,.secondaryButton:disabled { cursor: not-allowed; opacity: 1; transform: none; }
 .successButton svg,.dangerButton svg { color: #FFFFFF; }
 
-.budgetPanel,.expensePanel { border: 1px solid var(--dashboard-border); border-radius: .8rem; background: var(--dashboard-panel); box-shadow: inset 0 1px 0 rgba(255,255,255,.74),0 10px 25px rgba(79,48,30,.1); }
-.budgetPanel { display: grid; grid-template-columns: minmax(15rem,1fr) auto; align-items: center; gap: 1rem; padding: 1rem; }
+.expensePanel { border: 1px solid var(--dashboard-border); border-radius: .8rem; background: var(--dashboard-panel); box-shadow: inset 0 1px 0 rgba(255,255,255,.74),0 10px 25px rgba(79,48,30,.1); }
+.budgetPanel { display: grid; height: 7rem; grid-template-columns: minmax(11rem,.7fr) minmax(25.5rem,1.3fr) auto; align-items: center; gap: .75rem; border: 0; border-radius: 0; outline: 0; padding: calc(.35rem + 1px) calc(1rem + 1px); background: transparent; box-shadow: none; }
+.budgetCopy,.budgetControls { min-width: 0; }
 .budgetPanel label { color: var(--dashboard-text); font-size: 14px; font-weight: 600; line-height: 20px; }
 .budgetPanel p { margin: .2rem 0 0; color: var(--dashboard-text-soft); font-size: 12px; line-height: 17px; }
-.budgetEntry { display: flex; align-items: center; justify-content: flex-end; gap: .65rem; min-width: 0; }
-.amountControl { display: grid; width: clamp(15rem,22vw,20rem); grid-template-columns: auto minmax(0,1fr); align-items: center; overflow: hidden; border: 1px solid var(--dashboard-border); border-radius: .65rem; background: #f8f0e5; }
+.budgetEntry { --budget-field-width: 9rem; display: flex; align-items: center; justify-content: flex-end; gap: .65rem; min-width: 0; }
+.amountControl { flex-shrink: 0; display: grid; width: var(--budget-field-width); grid-template-columns: auto minmax(0,1fr); align-items: center; overflow: hidden; border: 1px solid var(--dashboard-border); border-radius: .65rem; background: #f8f0e5; }
 .amountControl > span { padding: 0 .7rem; color: var(--dashboard-gold-strong); font-size: 14px; font-weight: 700; }
 .amountControl input { min-width: 0; height: 2.7rem; border: 0; border-left: 1px solid rgba(161,135,100,.28); padding: 0 .7rem; color: var(--dashboard-text); background: transparent; font: inherit; font-size: 15px; font-weight: 600; outline: none; }
-.currencySelect { width: 7.5rem; min-height: 2.7rem; border: 1px solid var(--dashboard-border); border-radius: .65rem; padding: .5rem 2rem .5rem .7rem; color: var(--dashboard-text); background-color: #f8f0e5; font: inherit; font-size: 12px; font-weight: 600; }
+.currencySelect { flex-shrink: 0; width: var(--budget-field-width); min-height: 2.7rem; border: 1px solid var(--dashboard-border); border-radius: .65rem; padding: .5rem 2rem .5rem .7rem; color: var(--dashboard-text); background-color: #f8f0e5; font: inherit; font-size: 12px; font-weight: 600; }
 .budgetEntry .successButton { min-height: 2.7rem; flex: 0 0 auto; }
-.budgetFeedback { min-height: 1.1rem; grid-column: 2; color: var(--dashboard-text-soft); font-size: 12px; }
+.budgetFeedback { min-height: 1rem; margin-top: .15rem; color: var(--dashboard-text-soft); font-size: 12px; line-height: 1rem; text-align: right; }
 .budgetFeedback span { display: inline-flex; align-items: center; gap: .3rem; }
 .budgetFeedback [data-state="saved"] { color: #166534; }.budgetFeedback [data-state="error"],.formError { color: #b91c1c; }
 
-.summaryGrid { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: .7rem; margin: .8rem 0; }
-.summaryCard { min-width: 0; min-height: 5.5rem; border: 1px solid var(--dashboard-border); border-radius: .7rem; padding: .75rem; background: linear-gradient(145deg,var(--dashboard-panel),var(--dashboard-card)); box-shadow: inset 0 1px 0 rgba(255,255,255,.72),0 6px 16px rgba(79,48,30,.08); }
-.summaryCard span { display: block; color: var(--dashboard-text-soft); font-size: 11px; font-weight: 600; line-height: 16px; }
-.summaryCard strong { display: block; margin-top: .35rem; color: var(--dashboard-text); font-size: 18px; font-weight: 700; line-height: 1.2; overflow-wrap: anywhere; }
-.summaryCard small { display: block; margin-top: .25rem; font-size: 10px; line-height: 14px; }
+.summaryGrid { display: grid; align-self: stretch; grid-template-columns: repeat(3,minmax(0,1fr)); grid-template-rows: repeat(2,minmax(0,1fr)); gap: .3rem .4rem; min-width: 0; margin: 0; }
+.summaryCard { display: flex; min-width: 0; min-height: 0; flex-direction: column; justify-content: center; border: 1px solid var(--dashboard-border); border-radius: .55rem; padding: .15rem .45rem; background: linear-gradient(145deg,var(--dashboard-panel),var(--dashboard-card)); box-shadow: inset 0 1px 0 rgba(255,255,255,.72),0 3px 8px rgba(79,48,30,.08); }
+.summaryCard span { display: block; color: var(--dashboard-text-soft); font-size: 11px; font-weight: 600; line-height: 13px; }
+.summaryCard strong { display: block; margin-top: .1rem; color: var(--dashboard-text); font-size: 18px; font-weight: 700; line-height: 18px; white-space: nowrap; }
+.summaryCard small { display: block; margin-top: .1rem; font-size: 10px; line-height: 10px; }
 .summaryCard[data-tone="success"] { border-color: #22c55e; }.summaryCard[data-tone="success"] strong { color: #166534; }
 .summaryCard[data-tone="info"] { border-color: #3b82f6; }.summaryCard[data-tone="info"] strong { color: #1d4ed8; }
 .summaryCard[data-tone="warning"] { border-color: #f97316; background: linear-gradient(145deg,#fff7ed,#ffedd5); }.summaryCard[data-tone="warning"] strong { color: #9a3412; }
@@ -84,8 +85,148 @@
 
 .printDialog { width: 96vw !important; max-width: 96vw !important; height: 94vh; overflow: hidden; border: 1px solid #cdb99e !important; color: #2b1711 !important; background: #f2e9dc !important; }.printDialog h2 { color: #2b1711; }.printDialog p { color: #684b40; }.printDialogActions { position: absolute; top: 1rem; right: 3.5rem; }.printViewport { min-height: 0; overflow: auto; padding: 1rem; border: 1px solid #cdb99e; border-radius: .6rem; background: #dfd2c2; }
 
-@media (max-width: 86rem) { .summaryGrid { grid-template-columns: repeat(3,minmax(0,1fr)); }.controls { grid-template-columns: repeat(2,minmax(0,1fr)); }.controls > .successButton { width: fit-content; }.budgetFeedback { grid-column: 2; } }
-@media (max-width: 70rem) { .budgetPanel { grid-template-columns: 1fr; }.budgetEntry { justify-content: flex-start; flex-wrap: wrap; }.budgetFeedback { grid-column: 1; }.tableRegion { display: none; }.mobileExpenses { display: grid; gap: .7rem; padding: .75rem; } }
+@media (max-width: 88rem) { .budgetPanel { height: auto; grid-template-columns: minmax(0,1fr) auto; gap: .75rem; padding: calc(.8rem + 1px); }.summaryGrid { grid-column: 1/-1; grid-row: 2; min-height: 6.25rem; }.controls { grid-template-columns: repeat(2,minmax(0,1fr)); }.controls > .successButton { width: fit-content; } }
+@media (max-width: 70rem) { .budgetPanel { grid-template-columns: 1fr; }.summaryGrid { grid-column: 1; grid-row: auto; }.budgetEntry { justify-content: flex-start; flex-wrap: wrap; }.budgetFeedback { text-align: left; }.tableRegion { display: none; }.mobileExpenses { display: grid; gap: .7rem; padding: .75rem; } }
 @media (max-width: 56rem) { .plannerHeading { align-items: flex-start; flex-direction: column; }.topActions { width: 100%; justify-content: flex-start; }.summaryGrid { grid-template-columns: repeat(2,minmax(0,1fr)); }.controls { grid-template-columns: 1fr; }.controls > .successButton { width: 100%; }.formGrid { grid-template-columns: 1fr; }.fullField { grid-column: auto; }.printDialogActions { position: static; justify-content: flex-start; } }
 @media (max-width: 44rem) { .planner { padding: .75rem; }.drawerForm { padding-inline: 1rem; }.drawerActions { margin-inline: -1rem; padding-inline: 1rem; }.drawerActions > button { width: 100%; }.topActions > button { flex: 1 1 auto; }.budgetEntry { display: grid; grid-template-columns: minmax(0,1fr); width: 100%; }.amountControl,.currencySelect,.budgetEntry .successButton { width: 100%; }.printDialog { width: 100vw !important; max-width: 100vw !important; height: 100dvh; border-radius: 0 !important; }.summaryCard strong { font-size: 15px; } }
 @media (prefers-reduced-motion: reduce) { .planner * { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
+
+.planner { padding-top:16px; }
+.plannerHeading { margin-bottom:24px; }
+.headingGroup { display:flex; align-items:flex-start; gap:.55rem; min-width:0; }
+.headingGroup > div { min-width:0; }
+.headingIcon { flex-shrink:0; margin-top:.16rem; color:#967a59 !important; stroke:#967a59 !important; }
+.plannerHeading h2 { font-family:var(--ww-interface-font-family); line-height:31px; letter-spacing:normal; color:#2f1b14 !important; }
+.plannerHeading p { margin:0; }
+:global(#root#root) .planner .plannerHeading h2 {
+  font-family: var(--ww-interface-font-family) !important;
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  line-height: 31px !important;
+  letter-spacing: normal !important;
+  color: #2f1b14 !important;
+}
+/* Approved green action reference for the five main budget controls. */
+.planner :is(.topActions, .budgetEntry, .controls, .emptyState) > button.successButton {
+  min-height:40px !important;
+  height:auto;
+  padding:10px 16px;
+  border:0;
+  border-radius:9999px;
+  font-family:Manrope,ui-sans-serif,system-ui,sans-serif;
+  font-size:14px;
+  font-weight:600;
+  color:#fff;
+  text-shadow:0 1px 2px rgba(0,0,0,.55);
+  background:linear-gradient(180deg,#7bd880,#55a447);
+  box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30;
+}
+.planner :is(.topActions, .budgetEntry, .controls, .emptyState) > button.successButton svg {
+  width:16px;
+  height:16px;
+  color:#2f1b14;
+  stroke:#2f1b14;
+  stroke-width:1.8;
+  filter:none;
+  text-shadow:none;
+}
+.planner :is(.topActions, .budgetEntry, .controls, .emptyState) > button.successButton:hover:not(:disabled) { filter:brightness(1.04); }
+.planner :is(.topActions, .budgetEntry, .controls, .emptyState) > button.successButton {
+  background:linear-gradient(180deg,#7bd880,#55a447) !important;
+  border:0 !important;
+  color:#fff !important;
+  -webkit-text-fill-color:#fff !important;
+  box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30 !important;
+}
+/* Override the dashboard's higher-specificity brown button border. */
+:global(#root#root) .planner :is(.topActions, .budgetEntry, .controls, .emptyState) > button.successButton {
+  border:0 !important;
+}
+
+/* Expense form Save and Cancel follow the approved action reference. */
+.drawerActions > button:is(.successButton,.dangerButton) {
+  min-height:40px !important;
+  height:auto;
+  padding:10px 16px;
+  border:0 !important;
+  border-radius:9999px;
+  font-family:Manrope,ui-sans-serif,system-ui,sans-serif;
+  font-size:14px;
+  font-weight:600;
+  color:#fff !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.55);
+}
+.drawerActions > button.successButton {
+  background:linear-gradient(180deg,#7bd880,#55a447) !important;
+  box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30 !important;
+}
+.drawerActions > button.dangerButton {
+  background:linear-gradient(180deg,#f85b53,#d9342c) !important;
+  box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #78191966,0 4px 10px #b91c1c30 !important;
+}
+.drawerActions > button:is(.successButton,.dangerButton) svg {
+  color:#2f1b14 !important;
+  stroke:#2f1b14 !important;
+  stroke-width:1.8;
+  filter:none !important;
+  text-shadow:none;
+}
+
+/* Keep expense fields visibly outlined before focus, including portal rendering. */
+.drawerForm .formField :is(input,select,textarea) {
+  border:1px solid #d8c7b2 !important;
+}
+
+.exportPanel { border:1px solid #cdb99e; border-radius:12px; padding:12px; background:#f5ebdd; display:flex; flex-direction:column; gap:12px; }
+.exportHeading { display:flex; align-items:center; gap:6px; color:#2f1b14; font-size:14px; font-weight:600; }
+.exportHeading svg { color:#806344; }
+:global(#root#root#root) button.exportAction {
+ min-height:40px; height:auto; padding:10px 16px; border:0!important; border-radius:9999px;
+ background:linear-gradient(180deg,#7bd880,#55a447)!important; color:#fff!important;
+ -webkit-text-fill-color:#fff!important; font-family:Manrope,sans-serif; font-size:14px; font-weight:600;
+ text-shadow:0 1px 2px rgba(0,0,0,.55); box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30;
+}
+:global(#root#root#root) button.exportAction svg,
+:global(#root#root#root) button.exportAction svg * { color:#2f1b14!important; stroke:#2f1b14!important; filter:none!important; text-shadow:none!important; }
+
+.budgetEntry { flex-direction:column; align-items:flex-end; }
+@media(max-width:70rem) { .budgetEntry { align-items:flex-start; } }
+/* Shared tracks align the editable amount/currency with the summary cards. */
+.budgetPanel {
+ height:auto; grid-template-columns:minmax(11rem,.7fr) repeat(4,minmax(0,.433333fr));
+ grid-template-rows:repeat(2,minmax(48px,auto)); align-items:stretch; gap:.3rem .4rem;
+}
+.budgetCopy { grid-column:1; grid-row:1 / span 2; align-self:center; }
+.summaryGrid {
+ grid-column:2 / span 3; grid-row:1 / span 2; display:grid;
+ grid-template-columns:subgrid; grid-template-rows:subgrid; min-height:0;
+}
+.budgetControls,.budgetEntry { display:contents; }
+.amountControl { grid-column:5; grid-row:1; width:100%; height:100%; min-width:0; border-radius:.55rem; }
+.amountControl input { height:100%; width:100%; padding-inline:.45rem; }
+.amountControl > span { padding-inline:.45rem; }
+.currencySelect { grid-column:5; grid-row:2; width:100%; height:100%; min-height:0; min-width:0; border-radius:.55rem; }
+.budgetFeedback { grid-column:2 / -1; grid-row:3; min-height:0; margin:0; }
+.budgetFeedback:empty { display:none; }
+@media(max-width:70rem) {
+ .budgetPanel { grid-template-columns:repeat(4,minmax(0,1fr)); grid-template-rows:auto repeat(2,minmax(48px,auto)); }
+ .budgetCopy { grid-column:1 / -1; grid-row:1; }
+ .summaryGrid { grid-column:1 / span 3; grid-row:2 / span 2; }
+ .amountControl { grid-column:4; grid-row:2; }
+ .currencySelect { grid-column:4; grid-row:3; }
+ .budgetFeedback { grid-column:1 / -1; grid-row:4; }
+}
+@media(max-width:44rem) {
+ .budgetPanel { grid-template-columns:repeat(2,minmax(0,1fr)); grid-template-rows:auto repeat(4,minmax(48px,auto)); }
+ .summaryGrid { grid-column:1 / -1; grid-row:2 / span 3; }
+ .amountControl { grid-column:1; grid-row:5; }
+ .currencySelect { grid-column:2; grid-row:5; }
+ .budgetFeedback { grid-row:6; }
+}
+
+/* Separate the budget summary from the expense table. */
+.budgetPanel { margin-bottom:24px; }
+
+/* Budget exports sit side by side beneath the shared heading. */
+.exportPanel .topActions { flex-direction:row; align-items:center; gap:8px; }
+.exportPanel .topActions > button { width:auto; }

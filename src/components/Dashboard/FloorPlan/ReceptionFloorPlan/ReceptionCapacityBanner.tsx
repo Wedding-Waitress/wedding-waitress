@@ -39,7 +39,7 @@ export const ReceptionCapacityBanner = ({ plan, tables, attendingCount, compact 
   const allPlaced = stats.unplacedCount === 0 && stats.totalTablesCount > 0;
 
   let tone: 'good' | 'warn' | 'bad' = 'good';
-  if (overCapacity) tone = 'warn';
+  if (overCapacity || stats.unplacedCount > 0) tone = 'warn';
   if (undersized) tone = 'bad';
 
   const toneClasses =
@@ -69,6 +69,7 @@ export const ReceptionCapacityBanner = ({ plan, tables, attendingCount, compact 
           label="Tables placed"
           value={`${stats.placedTablesCount} / ${stats.totalTablesCount}`}
         />
+        <Stat label="Tables remaining" value={stats.unplacedCount} />
       </div>
 
       <div className={`${compact ? 'w-full' : 'ml-auto'} text-xs sm:text-sm font-medium`}>

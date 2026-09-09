@@ -1,16 +1,18 @@
+import { Printer as ExportControlsPrinter } from 'lucide-react';
 /**
  * ⚠️ PRODUCTION-READY - DO NOT MODIFY WITHOUT APPROVAL ⚠️
- * 
+ *
  * This Individual Table Charts feature is COMPLETE and LOCKED.
  * All functionality has been thoroughly tested and approved.
- * 
+ *
  * DO NOT make changes unless explicitly requested by the project owner.
  * Any modifications could break the carefully calibrated A4 export system,
  * seat positioning algorithms, and multi-table PDF generation.
- * 
+ *
  * Last completed: 2025-10-04
  */
 
+import { individualChartCapacityError } from '@/lib/individualTableChartValidation';
 import React, { useState, useEffect, useMemo } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
@@ -31,7 +33,7 @@ import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { format } from 'date-fns';
 import { IndividualTableChartPreview } from './IndividualTableChartPreview';
 import { IndividualTableChartCustomizer } from './IndividualTableChartCustomizer';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import { normalizeDietaryAccentColor } from '@/lib/dietaryChartSettings';
 import type { DietaryAccentColor } from '@/lib/dietaryChartSettings';
 import styles from './IndividualTableChartPage.module.css';
@@ -70,6 +72,9 @@ interface IndividualTableSeatingChartPageProps {
   eventsLoading: boolean;
 }
 
+const readSession = (key: string) => { try { return sessionStorage.getItem(key); } catch { return null; } };
+const writeSession = (key: string, value: string | null) => { try { if(value === null) sessionStorage.removeItem(key); else sessionStorage.setItem(key, value); } catch { /* Keep the page usable when storage is unavailable. */ } };
+
 const defaultSettings: IndividualChartSettings = {
   tableShape: 'round',
   fontSize: 'medium',
@@ -102,10 +107,10 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   eventsLoading,
 }) => {
   const [selectedTableId, setSelectedTableId] = useState<string | null>(() => {
-    return sessionStorage.getItem('ww:individual_table_chart_selected_table') || null;
+    return readSession('ww:individual_table_chart_selected_table') || null;
   });
   const [settings, setSettings] = useState<IndividualChartSettings>(() => {
-    const stored = sessionStorage.getItem('ww:individual_table_chart_settings');
+    const stored = readSession('ww:individual_table_chart_settings');
     if (stored) {
       try {
         const parsed = JSON.parse(stored);
@@ -124,9 +129,11 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
     }
     return defaultSettings;
   });
+  const [preparedPdf, setPreparedPdf] = useState<{ url: string; name: string } | null>(null);
+  useEffect(() => () => { if (preparedPdf) URL.revokeObjectURL(preparedPdf.url); }, [preparedPdf]);
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingAll, setIsExportingAll] = useState(false);
-  
+
   const [showGuestLimitWarning, setShowGuestLimitWarning] = useState(false);
 
   const { tables, loading: tablesLoading } = useTables(selectedEventId);
@@ -135,9 +142,9 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   // Persist table selection to sessionStorage
   useEffect(() => {
     if (selectedTableId) {
-      sessionStorage.setItem('ww:individual_table_chart_selected_table', selectedTableId);
+      writeSession('ww:individual_table_chart_selected_table', selectedTableId);
     } else {
-      sessionStorage.removeItem('ww:individual_table_chart_selected_table');
+      writeSession('ww:individual_table_chart_selected_table', null);
     }
   }, [selectedTableId]);
 
@@ -147,14 +154,14 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       const tableExists = tables.some(table => table.id === selectedTableId);
       if (!tableExists) {
         setSelectedTableId(null);
-        sessionStorage.removeItem('ww:individual_table_chart_selected_table');
+        writeSession('ww:individual_table_chart_selected_table', null);
       }
     }
   }, [selectedTableId, tables, tablesLoading]);
 
   // Persist chart settings to sessionStorage
   useEffect(() => {
-    sessionStorage.setItem('ww:individual_table_chart_settings', JSON.stringify(settings));
+    writeSession('ww:individual_table_chart_settings', JSON.stringify(settings));
   }, [settings]);
 
   const selectedEvent = events.find(event => event.id === selectedEventId);
@@ -167,11 +174,8 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   const eventDate = selectedEvent?.date ? format(new Date(selectedEvent.date), 'PPP') : '';
 
   // Check if table capacity exceeds limit for round/square shape
-  const isTableTooLargeForShape = useMemo(() => {
-    const tableCapacity = selectedTable?.limit_seats || 0;
-    return (settings.tableShape === 'round' || settings.tableShape === 'square') 
-      && tableCapacity > 20;
-  }, [settings.tableShape, selectedTable?.limit_seats]);
+  const capacityWarning = useMemo(() => selectedTable ? individualChartCapacityError(settings, selectedTable, guests) : null, [settings, selectedTable, guests]);
+  const isTableTooLargeForShape = Boolean(capacityWarning);
 
   // Show warning when table is too large for selected shape
   useEffect(() => {
@@ -179,7 +183,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       setShowGuestLimitWarning(true);
     }
   }, [isTableTooLargeForShape, selectedTableId]);
-  
+
 
   // Update chart title when event or table changes
   useEffect(() => {
@@ -209,14 +213,16 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
   const handleDownloadPdf = async () => {
     if (!selectedEvent || !selectedTableId || !selectedTable) return;
-    
+
+    const capacityError = individualChartCapacityError(settings, selectedTable, guests);
+    if (capacityError) { toast({ title: 'Export Failed', description: capacityError, variant: 'destructive' }); return; }
     setIsExporting(true);
     try {
-      toast.info('Generating PDF...', { className: styles.toastTypography });
-      
-      const [{ generateIndividualTableChartPDF }, { saveAs }] = await Promise.all([
+      toast({ title: 'Generating PDF', description: 'Creating the selected table chart...' });
+
+      const [{ generateIndividualTableChartPDF }, { savePdfBlobAsync }] = await Promise.all([
         import('@/lib/individualTableChartEngine'),
-        import('file-saver'),
+        import('@/lib/pdfExportUtils'),
       ]);
       const pdfBlob = await generateIndividualTableChartPDF(
         settings,
@@ -226,20 +232,21 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         tables.findIndex((table) => table.id === selectedTableId) + 1,
         tables.length
       );
-      
+
       const eventName = selectedEvent.name.replace(/[<>:"/\\|?*]/g, '');
-      const date = new Date().toLocaleDateString('en-GB', { 
-        day: '2-digit', 
-        month: '2-digit', 
-        year: 'numeric' 
+      const date = new Date().toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
       }).replace(/\//g, '-');
       const fileName = `${eventName}-Download Single Page-${date}.pdf`;
-      
-      saveAs(pdfBlob, fileName);
-      toast.success('PDF downloaded successfully!', { className: styles.toastTypography });
+
+      setPreparedPdf({ url: URL.createObjectURL(pdfBlob), name: fileName });
+      await savePdfBlobAsync(pdfBlob, fileName);
+      toast({ title: 'PDF Downloaded', description: `Page ${tables.findIndex(table => table.id === selectedTableId) + 1} has been saved` });
     } catch (error) {
       console.error('PDF export error:', error);
-      toast.error('Failed to generate PDF', { className: styles.toastTypography });
+      toast({ title: 'Export Failed', description: 'Failed to generate PDF', variant: 'destructive' });
     } finally {
       setIsExporting(false);
     }
@@ -247,14 +254,16 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
   const handleDownloadAllPdf = async () => {
     if (!selectedEvent || tables.length === 0) return;
-    
+
+    const capacityError = tables.map(table => individualChartCapacityError(settings, table, guests)).find(Boolean);
+    if (capacityError) { toast({ title: 'Export Failed', description: capacityError, variant: 'destructive' }); return; }
     setIsExportingAll(true);
     try {
-      toast.info(`Generating PDF for ${tables.length} tables...`, { className: styles.toastTypography });
-      
-      const [{ generateAllTablesChartPDF }, { saveAs }] = await Promise.all([
+      toast({ title: 'Generating PDF', description: `Creating charts for all ${tables.length} tables...` });
+
+      const [{ generateAllTablesChartPDF }, { savePdfBlobAsync }] = await Promise.all([
         import('@/lib/individualTableChartEngine'),
-        import('file-saver'),
+        import('@/lib/pdfExportUtils'),
       ]);
       const pdfBlob = await generateAllTablesChartPDF(
         settings,
@@ -262,20 +271,21 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         guests,
         selectedEvent
       );
-      
+
       const eventName = selectedEvent.name.replace(/[<>:"/\\|?*]/g, '');
-      const date = new Date().toLocaleDateString('en-GB', { 
-        day: '2-digit', 
-        month: '2-digit', 
-        year: 'numeric' 
+      const date = new Date().toLocaleDateString('en-GB', {
+        day: '2-digit',
+        month: '2-digit',
+        year: 'numeric'
       }).replace(/\//g, '-');
       const fileName = `${eventName}-Download All Pages-${date}.pdf`;
-      
-      saveAs(pdfBlob, fileName);
-      toast.success(`Successfully exported ${tables.length} tables to PDF!`, { className: styles.toastTypography });
+
+      setPreparedPdf({ url: URL.createObjectURL(pdfBlob), name: fileName });
+      await savePdfBlobAsync(pdfBlob, fileName);
+      toast({ title: 'PDF Downloaded', description: `All ${tables.length} pages have been saved` });
     } catch (error) {
       console.error('PDF export all error:', error);
-      toast.error('Failed to export all tables', { className: styles.toastTypography });
+      toast({ title: 'Export Failed', description: 'Failed to export all pages', variant: 'destructive' });
     } finally {
       setIsExportingAll(false);
     }
@@ -294,7 +304,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
               Table Has Too Many Guests
             </AlertDialogTitle>
             <AlertDialogDescription className={styles.interfaceText}>
-              To view a table that has 20+ guests, please choose the <strong>Long Table</strong> option in the Chart Settings.
+              {capacityWarning}
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -309,7 +319,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
         <CardHeader className="space-y-0">
           <div
             data-individual-chart-top-layout="true"
-            className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(380px,520px)] xl:gap-6 xl:items-stretch"
+            className="grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_300px] xl:gap-6 xl:items-stretch"
           >
             <div data-individual-chart-existing-controls="true" className="space-y-4 min-w-0">
               {/* Title and Description */}
@@ -324,7 +334,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
               </div>
 
               {/* Choose Event + Table dropdowns */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-4 sm:gap-8 flex-wrap">
+              <div className={styles.headerSelectors}>
             {/* Choose Event Section */}
             <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
               <label className={`${styles.interfaceLabel} text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]`}>
@@ -332,14 +342,14 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 Choose Event:
               </label>
               <Select
-                value={selectedEventId || 'no-event'} 
+                value={selectedEventId || 'no-event'}
                 onValueChange={(value) => {
                   if (value === 'no-event') return;
                   onEventSelect(value);
                   setSelectedTableId(null);
-                  sessionStorage.removeItem('ww:individual_table_chart_selected_table');
+                  writeSession('ww:individual_table_chart_selected_table', null);
                 }}
-                disabled={eventsLoading}
+                disabled={eventsLoading || isExporting || isExportingAll}
               >
                 <SelectTrigger className={`${styles.selectTrigger} ${styles.headerSelectTrigger} ${styles.interactiveText} w-full sm:w-[300px] font-bold`}>
                   <SelectValue placeholder="Choose Event" />
@@ -369,8 +379,8 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 <Table2 className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Choose Table:
               </label>
-              <Select 
-                value={selectedTableId || ''} 
+              <Select
+                value={selectedTableId || ''}
                 onValueChange={setSelectedTableId}
                 disabled={!selectedEventId || tablesLoading}
               >
@@ -391,19 +401,16 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
             {/* Export Controls */}
             {isDataReady && (
-              <div
+              <div data-export-controls-panel
                 data-export-controls-card="true"
                 className={`${styles.exportPanel} rounded-xl p-3 sm:p-4 flex flex-col justify-between gap-3 min-w-0`}
               >
                 <div className="text-sm flex flex-wrap items-center gap-x-2 gap-y-1">
-                  <span className={`${styles.sectionHeading} font-bold inline-flex items-center gap-1.5`}>
-                    <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
-                    Export Controls
-                  </span>
-                  <span className={`${styles.interfaceText} text-muted-foreground`}>Download &amp; share your individual table charts with your venue.</span>
+                  <span data-export-controls-heading><ExportControlsPrinter size={16} strokeWidth={2} aria-hidden="true" />Export Controls</span>
+
                 </div>
-                <div className="flex flex-wrap items-center gap-2 max-sm:flex-col max-sm:items-stretch">
-                <button 
+                <div className="flex flex-col items-end gap-2 [&>button]:justify-center [&>button]:w-full">
+                <button
                   onClick={handleDownloadPdf}
                   disabled={isExporting || isExportingAll}
                   aria-label="Download single page PDF"
@@ -414,7 +421,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                     : <FileDown className="w-4 h-4 text-green-600" strokeWidth={1.8} aria-hidden="true" />}
                   Download single page PDF
                 </button>
-                <button 
+                <button
                   onClick={handleDownloadAllPdf}
                   disabled={isExporting || isExportingAll}
                   aria-label="Download all pages PDF"
@@ -426,6 +433,10 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                   Download all pages PDF
                 </button>
                 </div>
+                {preparedPdf && <p className={styles.interfaceText} style={{ fontSize: '12px' }}>
+                  Download not started?{' '}
+                  <a href={preparedPdf.url} download={preparedPdf.name} style={{ color: '#166534', textDecoration: 'underline', fontWeight: 600 }}>Save the prepared PDF</a>
+                </p>}
               </div>
             )}
           </div>
@@ -458,6 +469,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
           {/* Customizer */}
           <div className="min-w-0">
             <IndividualTableChartCustomizer
+              isHeadTable={selectedTable?.table_purpose === 'head'}
               settings={settings}
               onSettingsChange={handleSettingsChange}
             />
@@ -495,9 +507,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
               </div>
               <CardTitle className={`${styles.sectionHeading} mb-2 text-amber-600`}>Table Has Too Many Guests</CardTitle>
               <CardDescription className={`${styles.interfaceText} text-base`}>
-                This table has a capacity of {selectedTable?.limit_seats || 0} guests. Round and Square tables can only display up to 20 guests.
-                <br /><br />
-                Please select <strong>Long Table</strong> in Chart Settings to view this table.
+                {capacityWarning}
               </CardDescription>
             </Card>
           </div>

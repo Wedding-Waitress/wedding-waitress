@@ -26,6 +26,7 @@ interface DJMCPronunciationRecorderProps {
   eventId: string;
   itemId: string;
   shareToken?: string;
+  onRunUndoable?: (action: () => unknown | Promise<unknown>, recordings?: boolean) => Promise<unknown>;
   disabled?: boolean;
 }
 
@@ -36,6 +37,7 @@ export function DJMCPronunciationRecorder({
   eventId,
   itemId,
   shareToken,
+  onRunUndoable = async action => action(),
   disabled = false,
 }: DJMCPronunciationRecorderProps) {
   const [isRecording, setIsRecording] = useState(false);
@@ -72,8 +74,10 @@ export function DJMCPronunciationRecorder({
   const uploadAudio = useCallback(async (blob: Blob) => {
     setUploading(true);
     try {
+      await onRunUndoable(async () => {
       const filePath = await uploadDJMCPronunciation(blob, { eventId, itemId, shareToken });
       onChange(filePath);
+      }, true);
 
       toast({
         className: 'ww-djmc-toast',
@@ -91,7 +95,7 @@ export function DJMCPronunciationRecorder({
     } finally {
       setUploading(false);
     }
-  }, [eventId, itemId, onChange, shareToken, toast]);
+  }, [eventId, itemId, onChange, shareToken, toast, onRunUndoable]);
 
   const startRecording = useCallback(async () => {
     try {
@@ -188,9 +192,11 @@ export function DJMCPronunciationRecorder({
     setIsPlaying(false);
     setUploading(true);
     try {
+      await onRunUndoable(async () => {
       await deleteDJMCPronunciation(storedReference, { eventId, itemId, shareToken });
       setSignedUrl(null);
       onChange(null);
+      }, true);
     } catch (error) {
       console.error('Error deleting pronunciation recording:', error);
       toast({
@@ -202,7 +208,7 @@ export function DJMCPronunciationRecorder({
     } finally {
       setUploading(false);
     }
-  }, [audioPath, eventId, itemId, legacyAudioUrl, onChange, shareToken, toast]);
+  }, [audioPath, eventId, itemId, legacyAudioUrl, onChange, shareToken, toast, onRunUndoable]);
 
   if (audioPath || (legacyAudioUrl && !shareToken)) {
     return (

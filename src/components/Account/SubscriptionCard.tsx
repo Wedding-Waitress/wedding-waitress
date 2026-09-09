@@ -28,7 +28,7 @@ const formatDate = (iso: string | null) => {
 };
 
 export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
-  const { plan, isTrialExpired } = useUserPlan();
+  const { plan, loading, isTrialExpired, hasPlatformOwnerAccess } = useUserPlan();
   const { data: billing } = useAccountBilling();
   const {
     loading: usageLoading,
@@ -78,13 +78,16 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
   const msLeft = trialExpiry ? trialExpiry.getTime() - Date.now() : null;
   const daysLeft = msLeft != null ? Math.max(0, Math.ceil(msLeft / (24 * 60 * 60 * 1000))) : null;
 
-  const isExpired = !!isTrialExpired || (isFreeOrStarter && daysLeft === 0);
+  const isExpired = !loading && !hasPlatformOwnerAccess && (!!isTrialExpired || (isFreeOrStarter && daysLeft === 0));
   const status = plan?.status || 'active';
   let badgeClass = 'bg-green-100 text-green-700 hover:bg-green-100 border-green-200';
   let statusLabel: string = 'Active';
   let displayPlanName = planName;
 
-  if (isFreeOrStarter) {
+  if (hasPlatformOwnerAccess) {
+    displayPlanName = 'Platform Owner Access';
+    statusLabel = 'Full Access';
+  } else if (isFreeOrStarter) {
     if (isExpired) {
       badgeClass = 'bg-red-100 text-red-700 hover:bg-red-100 border-red-200';
       statusLabel = 'Expired';

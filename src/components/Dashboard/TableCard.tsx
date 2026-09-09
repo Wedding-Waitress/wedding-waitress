@@ -170,11 +170,26 @@ export const TableCard: React.FC<TableCardProps> = ({
           isOver ? 'border-4 border-blue-500 bg-blue-50 dark:bg-blue-950' : ''
         }`}
       >
-        <CardContent className="p-4 flex flex-col min-h-fit">
+        <CardContent className="px-4 py-2 flex flex-col min-h-fit">
           {/* Table Name */}
           <div className="ww-table-name text-xl font-bold text-foreground mb-3 text-center">
-            {isHeadTable && <span className="mx-auto mb-2 flex w-fit items-center gap-1 rounded-full border border-[#C4A882] px-2 py-1 text-[10px] tracking-widest text-[#C4A882]"><Crown size={12} aria-hidden="true" />HEAD TABLE</span>}
-            {table.name}
+            {isHeadTable ? (
+              <>
+                <span className="ww-head-table-badge mx-auto mb-2 flex w-fit items-center gap-1 rounded-full border px-2 py-1 text-[10px] tracking-widest">
+                  <Crown size={12} aria-hidden="true" />
+                  HEAD TABLE
+                </span>
+                {table.name}
+              </>
+            ) : table.table_no != null ? (
+              <span className="relative mx-auto flex h-7 w-7 items-center justify-center">
+                <span
+                  className="ww-regular-table-number pointer-events-none absolute h-[34px] w-[34px] rounded-full border"
+                  aria-hidden="true"
+                />
+                <span className="relative">{table.name}</span>
+              </span>
+            ) : table.name}
           </div>
 
           {isHeadTable && (
@@ -328,7 +343,7 @@ export const TableCard: React.FC<TableCardProps> = ({
 
         {/* Actions - Fixed at bottom */}
         <div className="flex flex-wrap justify-center items-center gap-2 mt-4">
-          {isHeadTable && <Button onClick={() => setShowHeadSeating(true)} className="lv-premium-shade rounded-full bg-[#967A59] hover:bg-[#7e664b] text-white h-7 px-4 text-xs"><Crown size={14} aria-hidden="true" />Arrange Head Table Seating</Button>}
+          {isHeadTable && <Button onClick={() => setShowHeadSeating(true)} className="lv-premium-shade w-full rounded-full bg-[#967A59] hover:bg-[#7e664b] text-white min-h-7 h-auto whitespace-nowrap py-1 px-1 text-[10px] tracking-tight">Arrange Head Table Seating</Button>}
           <Button
             onClick={() => onEdit(table)}
             title="Edit table"

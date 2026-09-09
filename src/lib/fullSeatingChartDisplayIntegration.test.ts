@@ -17,7 +17,7 @@ const fields = [
 describe('Full Seating Chart display-option integration', () => {
   it('passes the same complete settings object to live preview and both PDF actions', () => {
     expect(page).toContain('settings={settings}');
-    expect(page.match(/exportFullSeatingChartToPdf\([^;]+settings/g)?.length).toBe(2);
+    expect(page).toContain("await exportPreview('single')"); expect(page).toContain("await exportPreview('all')"); expect(page).toContain('getPageElement: preview.getPageElement');
     fields.forEach(field => {
       expect(preview).toContain(`settings.${field}`);
       expect(exporter).toContain(`settings.${field}`);

@@ -80,6 +80,11 @@ export const LiveSlideshowView: React.FC = () => {
   const [guests, setGuests] = useState<Guest[]>([]);
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
+  const [loadError, setLoadError] = useState(false);
+  useEffect(() => { setEvent(null); setGuests([]); setSearchTerm(''); setLoading(true); }, [eventSlug]);
+  const [fullscreenError, setFullscreenError] = useState('');
+  const [refresh, setRefresh] = useState(0);
+  useEffect(() => { const tick = () => setRefresh(n => n + 1); const timer = window.setInterval(tick, 15000); window.addEventListener('focus', tick); return () => { clearInterval(timer); window.removeEventListener('focus', tick); }; }, []);
   const [lastActivity, setLastActivity] = useState(Date.now());
 
   // No auto-clear: results stay until manually cleared or new search
@@ -94,17 +99,20 @@ export const LiveSlideshowView: React.FC = () => {
 
   // Fetch event and guests data
   useEffect(() => {
+    let cancelled = false;
     const fetchEventData = async () => {
       if (!eventSlug) return;
 
-      setLoading(true);
+      if (!event) setLoading(true);
       try {
         const { data: publicData, error: rpcError } = await supabase.rpc(
           'get_public_event_with_data_secure',
           { event_slug: eventSlug }
         );
 
-        if (rpcError || !publicData || publicData.length === 0) {
+        if (cancelled) return;
+        if (rpcError) throw rpcError;
+        if (!publicData || publicData.length === 0) {
           setEvent(null);
           return;
         }
@@ -128,6 +136,7 @@ export const LiveSlideshowView: React.FC = () => {
           kiosk_show_rsvp_status: (firstRow as any).kiosk_show_rsvp_status ?? true,
           kiosk_show_dietary: (firstRow as any).kiosk_show_dietary ?? true,
         };
+        setLoadError(false);
         setEvent(eventData);
 
         // Transform guest data with normalized RSVP
@@ -137,9 +146,9 @@ export const LiveSlideshowView: React.FC = () => {
             id: row.guest_id,
             event_id: firstRow.event_id,
             user_id: '', // Not available in public view
-            first_name: row.guest_first_name,
-            last_name: row.guest_last_name,
-            table_id: null,
+            first_name: row.guest_first_name || '',
+            last_name: row.guest_last_name || '',
+            table_id: row.guest_table_id,
             table_no: row.guest_table_no,
             seat_no: row.guest_seat_no,
             rsvp_date: null,
@@ -159,14 +168,16 @@ export const LiveSlideshowView: React.FC = () => {
 
         setGuests(transformedGuests);
       } catch (error) {
+        if (!cancelled) setLoadError(true);
         console.error('Error fetching event data:', error);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     fetchEventData();
-  }, [eventSlug]);
+    return () => { cancelled = true; };
+  }, [eventSlug, refresh]);
 
   // Set up realtime subscription for instant sync with dashboard and QR app
   useEffect(() => {
@@ -250,13 +261,13 @@ export const LiveSlideshowView: React.FC = () => {
 
   // Filter guests with no minimum character requirement for the Live Slideshow.
   const filteredGuests = useMemo(() => {
-    if (searchTerm.length === 0) return [];
+    if (searchTerm.trim().length === 0) return [];
 
-    const term = searchTerm.toLowerCase();
+    const term = searchTerm.trim().toLowerCase();
     return guests.filter(guest => {
       const fullName = `${guest.first_name} ${guest.last_name}`.toLowerCase();
-      const firstName = guest.first_name.toLowerCase();
-      const lastName = guest.last_name.toLowerCase();
+      const firstName = (guest.first_name || '').toLowerCase();
+      const lastName = (guest.last_name || '').toLowerCase();
       
       return firstName.includes(term) || 
              lastName.includes(term) || 
@@ -285,10 +296,11 @@ export const LiveSlideshowView: React.FC = () => {
       <div className={`${styles.page} ww-application-background min-h-screen flex items-center justify-center`}>
         <div className="text-white text-center max-w-2xl px-8">
           <AlertCircle className="w-24 h-24 mx-auto mb-6" />
-          <h1 className="text-4xl font-bold mb-4">Event Not Found</h1>
+          <h1 className="text-4xl font-bold mb-4">{loadError ? 'Unable to load event' : 'Event Not Found'}</h1>
           <p className="text-xl opacity-90">
-            The requested event could not be found. Please contact event staff for assistance.
+            {loadError ? 'Please check your connection and try again.' : 'The requested event could not be found. Please contact event staff for assistance.'}
           </p>
+          {loadError && <button onClick={() => setRefresh(n => n + 1)}>Retry</button>}
         </div>
       </div>
     );
@@ -296,6 +308,14 @@ export const LiveSlideshowView: React.FC = () => {
 
   return (
     <div className={`${styles.page} ww-application-background min-h-screen text-white overflow-hidden`}>
+      <div className="flex justify-end p-3">
+        <button className="rounded-full bg-green-600 text-white px-4 py-2" onClick={async () => {
+          try { if (document.fullscreenElement) await document.exitFullscreen(); else await document.documentElement.requestFullscreen(); setFullscreenError(''); }
+          catch { setFullscreenError('Fullscreen is unavailable here. On a desktop, try F11.'); }
+        }}>Enter / Exit Fullscreen</button>
+        {fullscreenError && <p role="status">{fullscreenError}</p>}
+      </div>
+      {loadError && <p role="status" className="text-center">Connection interrupted. Showing the last received seating details while reconnecting.</p>}
       {/* Header */}
       <div className="bg-white/10 backdrop-blur-sm border-b border-white/20">
         <div className="w-full px-4 sm:px-8 py-6">
@@ -327,7 +347,7 @@ export const LiveSlideshowView: React.FC = () => {
       </div>
 
       {/* Main Content */}
-      <div className="w-full px-8 py-12">
+      <div className="w-full px-4 sm:px-8 py-6 sm:py-12">
         <div className="max-w-6xl mx-auto">
           {/* Search Section */}
           <Card className="ww-box bg-white/95 backdrop-blur-sm shadow-2xl mb-8">
@@ -344,6 +364,7 @@ export const LiveSlideshowView: React.FC = () => {
               <div className="relative w-full max-w-2xl mx-auto mb-8 max-md:mb-4">
                 <Search className="absolute left-6 top-1/2 -translate-y-1/2 text-muted-foreground w-6 h-6 max-md:left-3 max-md:w-5 max-md:h-5 pointer-events-none" />
                 <Input
+                  aria-label="Search guest names"
                   type="text"
                   placeholder="Enter your name..."
                   value={searchTerm}
@@ -405,7 +426,7 @@ export const LiveSlideshowView: React.FC = () => {
                 </>
               ) : (
                 <Card className="ww-box bg-white/95 backdrop-blur-sm shadow-2xl">
-                  <CardContent className="p-12 text-center">
+                  <CardContent className="p-5 sm:p-12 text-center break-words">
                     <AlertCircle className="w-20 h-20 mx-auto text-orange-500 mb-6" />
                     <h3 className="text-2xl font-bold text-foreground mb-4">No guests found</h3>
                     <p className="text-xl text-muted-foreground mb-6">

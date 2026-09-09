@@ -33,6 +33,7 @@ vi.mock('@/components/Dashboard/PhotoVideoGallery/PhotoBoothTemplatePreview', ()
 }));
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
+    rpc: vi.fn(async () => ({ data: false, error: null })),
     auth: {
       getSession: hooks.getSession,
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe: vi.fn() } } }),
@@ -144,14 +145,14 @@ describe('affected gallery feature routes', () => {
       const firstMount = renderDirectRoute(path, Page);
 
       expect(await screen.findByRole('heading', { name: title, level: 1 })).toBeInTheDocument();
-      expect(screen.getByText(event.name)).toBeInTheDocument();
+      expect(screen.getAllByText(event.name).length).toBeGreaterThan(0);
       expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
 
       firstMount.unmount();
       renderDirectRoute(path, Page);
 
       expect(await screen.findByRole('heading', { name: title, level: 1 })).toBeInTheDocument();
-      expect(screen.getByText(event.name)).toBeInTheDocument();
+      expect(screen.getAllByText(event.name).length).toBeGreaterThan(0);
       expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
     });
 
@@ -170,7 +171,7 @@ describe('affected gallery feature routes', () => {
       fireEvent.click(screen.getByRole('button', { name: `Manage ${title}` }));
 
       expect(await screen.findByRole('heading', { name: title, level: 1 })).toBeInTheDocument();
-      expect(screen.getByText(event.name)).toBeInTheDocument();
+      expect(screen.getAllByText(event.name).length).toBeGreaterThan(0);
       expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
     });
   }

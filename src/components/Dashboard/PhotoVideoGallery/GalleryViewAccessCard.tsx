@@ -49,7 +49,7 @@ export const GalleryViewAccessCard: React.FC<Props> = ({ meta, guestUrl, appeara
         <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
           <Images className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} strokeWidth={1.8} /> Guest Gallery Access
         </h2>
-        <p className={cn('text-sm mt-1 break-words', isGlass && managementStyles.gallerySecondaryText)} style={isGlass ? undefined : { color: '#1a1a1a' }}>
+        <p className={cn('text-sm mt-1 break-words', isGlass && [managementStyles.gallerySecondaryText, managementStyles.sharingHeadingDescription])} style={isGlass ? undefined : { color: '#1a1a1a' }}>
           Share this link so guests can browse the photos and videos from your event.
         </p>
       </div>
@@ -71,7 +71,7 @@ export const GalleryViewAccessCard: React.FC<Props> = ({ meta, guestUrl, appeara
             </div>
           </div>
 
-          <Label className={cn('text-sm', isGlass && managementStyles.galleryViewHeading)}>Public gallery link</Label>
+          <Label className={cn('text-sm block w-full text-center', isGlass && managementStyles.galleryViewHeading)}>Public gallery link</Label>
           <Input value={guestUrl} readOnly className={cn('h-11 text-sm w-full', isGlass && managementStyles.galleryControl, isGlass && managementStyles.upperGlassField)} />
           <Button variant="outline" className={cn('lv-premium-shade h-11 w-full', isGlass && managementStyles.galleryControl)} onClick={copy}>
             <Copy className="h-4 w-4 mr-1" strokeWidth={1.8} /> Copy Gallery Link

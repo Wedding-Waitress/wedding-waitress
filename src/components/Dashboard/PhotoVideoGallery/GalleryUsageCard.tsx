@@ -44,7 +44,7 @@ export const GalleryUsageCard: React.FC<Props> = ({ meta, items, appearance = 'd
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="min-w-0">
           <h2 className={cn('text-xl flex items-center gap-2', isGlass ? 'font-semibold tracking-[-0.012em] leading-tight text-white' : 'font-bold text-black')} style={isGlass ? undefined : { color: '#000000' }}><BarChart3 className="h-5 w-5 text-[#967A59] shrink-0" /> Gallery Usage</h2>
-          <p className={cn('text-sm mt-1 break-words', isGlass && 'font-normal text-[#e8ddd2]')} style={isGlass ? undefined : { color: '#1a1a1a' }}>View photo, video and storage usage for this event.</p>
+          <p className={cn('text-sm mt-1 break-words', isGlass && ['font-normal text-[#e8ddd2]', managementStyles.sharingHeadingDescription])} style={isGlass ? undefined : { color: '#1a1a1a' }}>View photo, video and storage usage for this event.</p>
         </div>
         <HardDrive className="h-5 w-5 text-[#967A59] shrink-0" />
       </div>

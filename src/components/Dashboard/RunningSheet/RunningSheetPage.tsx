@@ -1,3 +1,4 @@
+import { Printer as ExportControlsPrinter } from 'lucide-react';
 /**
  * PRODUCTION-READY -- LOCKED FOR PRODUCTION
  *
@@ -66,6 +67,7 @@ const formatTimeDisplay = (time: string | null | undefined): string => {
 
 export function RunningSheetPage({ selectedEventId, onEventSelect, events }: RunningSheetPageProps) {
   const { toast } = useToast();
+  const [rowTextSize, setRowTextSize] = useState<"standard" | "larger">("standard");
   const [showShareModal, setShowShareModal] = useState(false);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
 
@@ -81,6 +83,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect, events }: Run
     updateItem,
     addItem,
     deleteItem,
+    restoreItems,
     duplicateItem,
     reorderItems,
     resetToDefault,
@@ -115,7 +118,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect, events }: Run
       ? `${existingText.trim()}\n${formatted}`
       : formatted;
 
-    updateItem(itemId, { description_rich: { text: newText } });
+    updateItem(itemId, { description_rich: { ...(typeof currentItem.description_rich === 'object' ? currentItem.description_rich : {}), text: newText } });
     toast({ title: 'Inserted', description: `${type.charAt(0).toUpperCase() + type.slice(1)} data inserted from DJ-MC Questionnaire.` });
   }, [questionnaire, sheet, updateItem, toast]);
 
@@ -126,7 +129,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect, events }: Run
     setDownloadingPDF(true);
     try {
       const { exportRunningSheetPDF } = await import('@/lib/runningSheetPdfExporter');
-      await exportRunningSheetPDF(sheet.items, selectedEvent, sectionLabel, sectionNotes);
+      await exportRunningSheetPDF(sheet.items, selectedEvent, sectionLabel, sectionNotes, rowTextSize);
       toast({ title: 'PDF Downloaded', description: 'Your Run Sheet has been downloaded.' });
     } catch (error) {
       console.error('Failed to download PDF:', error);
@@ -140,7 +143,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect, events }: Run
     if (!selectedEvent || !sheet) return;
     try {
       const { exportRunningSheetSectionPDF } = await import('@/lib/runningSheetPdfExporter');
-      await exportRunningSheetSectionPDF(sheet.items, selectedEvent, sectionLabel, sectionNotes);
+      await exportRunningSheetSectionPDF(sheet.items, selectedEvent, sectionLabel, sectionNotes, rowTextSize);
       toast({ title: 'Section PDF Downloaded', description: `"${sectionLabel}" has been downloaded.` });
     } catch (error) {
       console.error('Failed to download section PDF:', error);
@@ -150,6 +153,11 @@ export function RunningSheetPage({ selectedEventId, onEventSelect, events }: Run
 
   return (
     <div className={`space-y-6 ${styles.page}`} data-running-sheet-page>
+      {/* Event Selector */}
+      <Card className={`${styles.glassCard} ${styles.topCard}`}>
+        <CardContent className="py-4">
+          <div className="flex items-center justify-between gap-4 flex-wrap max-sm:flex-col max-sm:items-stretch">
+            <div className="flex flex-col gap-5 min-w-0 max-sm:w-full">
       {/* Header */}
       <div className={`flex items-center justify-between ${styles.pageHeader}`}>
         <div className="flex items-center gap-2">
@@ -157,7 +165,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect, events }: Run
             <ClipboardList size={25} strokeWidth={1.8} className="text-primary" aria-hidden="true" />
           </div>
           <div>
-            <h1 className="text-2xl font-bold">Run Sheet</h1>
+            <h1 className="text-2xl font-bold">Run Sheet Timeline</h1>
             <p className={`text-muted-foreground ${styles.supportingText}`}>
               Organise the perfect schedule for your wedding or event
             </p>
@@ -171,30 +179,25 @@ export function RunningSheetPage({ selectedEventId, onEventSelect, events }: Run
         )}
       </div>
 
-      {/* Event Selector */}
-      <Card className={`${styles.glassCard} ${styles.topCard}`}>
-        <CardContent className="py-4">
-          <div className="flex items-center justify-between gap-4 flex-wrap max-sm:flex-col max-sm:items-stretch">
             <div className="flex-shrink-0 max-sm:w-full flex items-center gap-2">
               <CalendarDays size={17} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
               <StandardEventSelector events={events} selectedEventId={selectedEventId} onEventSelect={onEventSelect} menuClassName="ww-running-sheet-menu" />
             </div>
 
+            </div>
+
             {selectedEventId && sheet && (
-              <div className={`border border-primary rounded-xl p-3 flex flex-col gap-3 max-sm:w-full ${styles.exportPanel}`}>
+              <div data-export-controls-panel className={`border border-primary rounded-xl p-3 flex flex-col gap-3 max-sm:w-full ${styles.exportPanel}`}>
                 <div className="text-sm">
-                  <span className={`inline-flex items-center gap-1.5 align-middle ${styles.controlLabel}`}>
-                    <Printer size={16} strokeWidth={1.8} aria-hidden="true" />
-                    Export Controls
-                  </span>
-                  <span className={`text-muted-foreground ml-2 ${styles.supportingText}`}>Download your run sheet and share it with your DJ-MC or any of your vendors.</span>
+                  <span data-export-controls-heading><ExportControlsPrinter size={16} strokeWidth={2} aria-hidden="true" />Export Controls</span>
+
                 </div>
                 <div className="flex items-center gap-3 flex-wrap max-sm:flex-col max-sm:items-stretch">
                   <button
                     onClick={() => setShowShareModal(true)}
                     disabled={downloadingPDF}
                     aria-label="Share run sheet"
-                    className={`inline-flex items-center justify-center gap-1.5 h-7 max-sm:h-11 px-2.5 rounded-full transition-all disabled:opacity-50 max-sm:w-full ${styles.greenAction}`}
+                    className={`inline-flex items-center justify-center gap-1.5 h-10 px-4 text-sm font-semibold rounded-full transition-all disabled:opacity-50 max-sm:w-full ${styles.greenAction}`}
                   >
                     <Share2 size={16} strokeWidth={1.8} aria-hidden="true" />
                     Share
@@ -203,7 +206,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect, events }: Run
                     onClick={handleDownloadEntirePDF}
                     disabled={downloadingPDF}
                     aria-label="Download run sheet PDF"
-                    className={`inline-flex items-center justify-center gap-1.5 h-7 max-sm:h-11 px-2.5 rounded-full transition-all disabled:opacity-50 max-sm:w-full ${styles.greenAction}`}
+                    className={`inline-flex items-center justify-center gap-1.5 h-10 px-4 text-sm font-semibold rounded-full transition-all disabled:opacity-50 max-sm:w-full ${styles.greenAction}`}
                   >
                     {downloadingPDF
                       ? <LoaderCircle size={16} strokeWidth={1.8} className="animate-spin" aria-hidden="true" />
@@ -289,6 +292,10 @@ export function RunningSheetPage({ selectedEventId, onEventSelect, events }: Run
 
           {/* Section */}
           <RunningSheetSection
+            rowTextSize={rowTextSize}
+            onRowTextSizeChange={setRowTextSize}
+            key={sheet.id}
+            onRestoreItems={restoreItems}
             label={sectionLabel}
             onLabelChange={setSectionLabel}
             notes={sectionNotes}

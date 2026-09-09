@@ -91,8 +91,12 @@ Deno.serve(async (req) => {
         .filter((r) => r.signed_url.length > 0);
     }
 
+    // The same password gate above protects written Guestbook messages.
+    const { data: guestbookMessages, error: guestbookError } = await supabase.rpc('get_guestbook_gallery_text', { _token: token });
+    if (guestbookError) throw guestbookError;
+
     return new Response(
-      JSON.stringify({ items: signed, ttl: SIGNED_URL_TTL_SECONDS }),
+      JSON.stringify({ items: signed, guestbook_messages: guestbookMessages || [], ttl: SIGNED_URL_TTL_SECONDS }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 },
     );
   } catch (e) {

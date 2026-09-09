@@ -218,6 +218,8 @@ export const useFullSeatingChartSettings = (eventId: string | null) => {
   }, []);
 
   const saveSettings = (newSettings: Partial<FullSeatingChartSettings>) => {
+    loadGenerationRef.current += 1;
+    setLoading(false);
     const updatedSettings = { ...settingsRef.current, ...newSettings };
     settingsRef.current = updatedSettings;
     setSettings(updatedSettings);

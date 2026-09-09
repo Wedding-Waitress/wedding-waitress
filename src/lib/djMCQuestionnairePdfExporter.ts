@@ -1,3 +1,4 @@
+import { cellValue } from '@/lib/djmcCustomColumns';
 /**
  * PRODUCTION-READY -- LOCKED FOR PRODUCTION
  *
@@ -154,11 +155,12 @@ const getSectionColumnConfig = (sectionType: string): { headers: string[]; width
     case 'cocktail':
     case 'dinner':
     case 'dance':
-    case 'main_event':
       return {
         headers: ['Song Number', 'Song Title & Artist', 'Music Link'],
         widths: [0.2, 0.45, 0.35]
       };
+    case 'main_event':
+      return { headers: ['Event', 'Song Title & Artist', 'Music Link'], widths: [0.35, 0.4, 0.25] };
     case 'do_not_play':
       return {
         headers: ['Song Number', 'Song Name'],
@@ -246,12 +248,13 @@ const drawSectionTable = (
   startY: number,
   addNewPage: () => void,
   getYPos: () => number,
-  isFirstPage: () => boolean
+  isFirstPage: () => boolean,
+  rowTextSize: "standard" | "larger" = "standard"
 ): number => {
-  const config = getSectionColumnConfig(section.section_type);
+  const config = section.custom_columns ? {headers:section.custom_columns.map(c=>c.label),widths:section.custom_columns.map(()=>1/section.custom_columns!.length)} : getSectionColumnConfig(section.section_type);
   const rowHeight = 7;
   const headerHeight = 8;
-  const fontSize = 9;
+  const fontSize = rowTextSize === "larger" ? 10 : 9;
   let yPos = startY;
 
   const getUsableBottom = () => isFirstPage() ? usableHeightPage1 : usableHeightPage2Plus + TOP_MARGIN_PAGE2_MM;
@@ -271,7 +274,30 @@ const drawSectionTable = (
   pdf.text(section.section_label, MARGIN, yPos);
   yPos += 5;
 
-  // Notes are intentionally excluded from PDF exports — they are only visible on screen/links
+  const notes = section.notes?.trim();
+  if (notes) {
+    pdf.setFont('helvetica', 'normal');
+    pdf.setFontSize(fontSize);
+    const lines = pdf.splitTextToSize(notes, CONTENT_WIDTH - 4) as string[];
+    let offset = 0;
+    while (offset < lines.length) {
+      checkPageBreak(16);
+      pdf.setFont('helvetica', 'bold');
+      pdf.setTextColor(80, 65, 50);
+      pdf.text(offset ? 'Notes for DJ-MC (continued)' : 'Notes for DJ-MC', MARGIN + 2, yPos + 4);
+      yPos += 7;
+      const count = Math.min(lines.length - offset, Math.max(1, Math.floor((getUsableBottom() - yPos - 3) / 4)));
+      pdf.setFont('helvetica', 'normal');
+      pdf.setTextColor(45, 45, 45);
+      for (let line = 0; line < count; line++) {
+        pdf.text(lines[offset + line], MARGIN + 2, yPos + 3);
+        yPos += 4;
+      }
+      offset += count;
+      yPos += 3;
+    }
+    yPos += 2;
+  }
 
   // Draw header row
   checkPageBreak(headerHeight + 2);
@@ -302,46 +328,33 @@ const drawSectionTable = (
   pdf.setTextColor(0, 0, 0);
 
   section.items.forEach((item, idx) => {
-    checkPageBreak(rowHeight + 1);
-
-    // Alternate row background
-    if (idx % 2 === 0) {
-      pdf.setFillColor(252, 252, 252);
-      pdf.rect(MARGIN, yPos, CONTENT_WIDTH, rowHeight, 'F');
+    const values = section.custom_columns ? section.custom_columns.map(column=>cellValue(item,column)) : getItemCellValues(item, section.section_type);
+    const links = values.map((value, col) => col === values.length - 1 && !['speeches', 'do_not_play'].includes(section.section_type) && /^https?:\/\//.test(value));
+    pdf.setFont('helvetica', item.is_bold ? (item.is_italic ? 'bolditalic' : 'bold') : (item.is_italic ? 'italic' : 'normal'));
+    pdf.setFontSize(fontSize);
+    const lines: string[][] = values.map((value, col) => pdf.splitTextToSize(links[col] ? 'Click to open' : value, CONTENT_WIDTH * config.widths[col] - 4));
+    const totalLines = Math.max(1, ...lines.map(cell => cell.length));
+    if (totalLines * 4 + 4 <= usableHeightPage2Plus) checkPageBreak(totalLines * 4 + 4);
+    let offset = 0;
+    while (offset < totalLines) {
+      checkPageBreak(8);
+      const count = Math.min(totalLines - offset, Math.max(1, Math.floor((getUsableBottom() - yPos - 4) / 4)));
+      const height = count * 4 + 4;
+      if (idx % 2 === 0) { pdf.setFillColor(252,252,252); pdf.rect(MARGIN,yPos,CONTENT_WIDTH,height,'F'); }
+      let x = MARGIN + 2;
+      lines.forEach((cell, col) => {
+        cell.slice(offset, offset + count).forEach((line, lineIndex) => {
+          const y = yPos + 5 + lineIndex * 4;
+          if (links[col]) { pdf.setTextColor(PURPLE.r,PURPLE.g,PURPLE.b); pdf.textWithLink(line,x,y,{url:values[col]}); }
+          else { pdf.setTextColor(0,0,0); pdf.text(line,x,y); }
+          if (item.is_underline) { pdf.setDrawColor(0,0,0); pdf.line(x,y+0.5,x+pdf.getTextWidth(line),y+0.5); }
+        });
+        x += CONTENT_WIDTH * config.widths[col];
+      });
+      yPos += height;
+      pdf.setDrawColor(230,230,230);pdf.setLineWidth(0.1);pdf.line(MARGIN,yPos,MARGIN+CONTENT_WIDTH,yPos);
+      offset += count;
     }
-
-    const cellValues = getItemCellValues(item, section.section_type);
-    xPos = MARGIN + 2;
-    
-    cellValues.forEach((value, colIdx) => {
-      const colWidth = CONTENT_WIDTH * config.widths[colIdx];
-      
-      // Check if this is a music URL column (last column for sections with music links)
-      const isMusicUrlColumn = 
-        (section.section_type !== 'speeches' && section.section_type !== 'do_not_play') && 
-        colIdx === cellValues.length - 1 && 
-        value && 
-        (value.startsWith('http://') || value.startsWith('https://'));
-      
-      if (isMusicUrlColumn && value) {
-        // Render as clickable link
-        const displayText = truncateText(pdf, 'Click to open', colWidth - 4);
-        pdf.setTextColor(PURPLE.r, PURPLE.g, PURPLE.b); // Brown color for links
-        pdf.textWithLink(displayText, xPos, yPos + 5, { url: value });
-        pdf.setTextColor(0, 0, 0); // Reset to black
-      } else {
-        const truncatedValue = truncateText(pdf, value, colWidth - 4);
-        pdf.text(truncatedValue, xPos, yPos + 5);
-      }
-      xPos += colWidth;
-    });
-
-    yPos += rowHeight;
-
-    // Draw light border between rows
-    pdf.setDrawColor(230, 230, 230);
-    pdf.setLineWidth(0.1);
-    pdf.line(MARGIN, yPos, MARGIN + CONTENT_WIDTH, yPos);
   });
 
   return yPos + 8; // Add some spacing after the section
@@ -362,8 +375,9 @@ const drawHeader = (pdf: jsPDF, event: Event): number => {
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(16);
   pdf.setTextColor(PURPLE.r, PURPLE.g, PURPLE.b);
-  pdf.text(event.name, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
-  yPos += 6;
+  const titleLines = pdf.splitTextToSize(event.name, CONTENT_WIDTH);
+  pdf.text(titleLines, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
+  yPos += titleLines.length * 6;
 
   // Subtitle
   pdf.setFont('helvetica', 'normal');
@@ -381,15 +395,17 @@ const drawHeader = (pdf: jsPDF, event: Event): number => {
     const ceremonyDate = formatDateWithOrdinal(event.ceremony_date);
     const ceremonyVenue = event.ceremony_venue || 'Venue TBD';
     const ceremonyTime = `${formatTimeDisplay(event.ceremony_start_time)} – ${formatTimeDisplay(event.ceremony_finish_time)}`;
-    pdf.text(`Ceremony: ${ceremonyDate} | ${ceremonyVenue} | ${ceremonyTime}`, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
-    yPos += 4;
+    const detailLines = pdf.splitTextToSize(`Ceremony: ${ceremonyDate} | ${ceremonyVenue} | ${ceremonyTime}`, CONTENT_WIDTH);
+    pdf.text(detailLines, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
+    yPos += detailLines.length * 4;
   }
 
   const receptionDate = formatDateWithOrdinal(event.date);
   const receptionVenue = event.venue || 'Venue TBD';
   const receptionTime = `${formatTimeDisplay(event.start_time)} – ${formatTimeDisplay(event.finish_time)}`;
-  pdf.text(`Reception: ${receptionDate} | ${receptionVenue} | ${receptionTime}`, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
-  yPos += 4;
+  const detailLines = pdf.splitTextToSize(`Reception: ${receptionDate} | ${receptionVenue} | ${receptionTime}`, CONTENT_WIDTH);
+  pdf.text(detailLines, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
+  yPos += detailLines.length * 4;
 
   // Purple divider
   yPos += 2;
@@ -404,7 +420,8 @@ const drawHeader = (pdf: jsPDF, event: Event): number => {
 // Export a single section to PDF
 export const exportSectionPDF = async (
   section: DJMCSection,
-  event: Event
+  event: Event,
+  rowTextSize: "standard" | "larger" = "standard"
 ): Promise<void> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
@@ -430,7 +447,7 @@ export const exportSectionPDF = async (
   };
 
   // Draw section table
-  yPos = drawSectionTable(pdf, section, yPos, addNewPage, () => yPos, () => onFirstPage);
+  yPos = drawSectionTable(pdf, section, yPos, addNewPage, () => yPos, () => onFirstPage, rowTextSize);
 
   // Stamp footers on all pages
   const totalPages = pdf.getNumberOfPages();
@@ -451,7 +468,8 @@ export const exportSectionPDF = async (
 // Export entire questionnaire to PDF
 export const exportEntireQuestionnairePDF = async (
   questionnaire: DJMCQuestionnaire,
-  event: Event
+  event: Event,
+  rowTextSize: "standard" | "larger" = "standard"
 ): Promise<void> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
@@ -487,7 +505,7 @@ export const exportEntireQuestionnairePDF = async (
       addNewPage();
     }
 
-    yPos = drawSectionTable(pdf, section, yPos, addNewPage, () => yPos, () => onFirstPage);
+    yPos = drawSectionTable(pdf, section, yPos, addNewPage, () => yPos, () => onFirstPage, rowTextSize);
   }
 
   // Stamp footers on all pages

@@ -12,7 +12,7 @@ describe('Photo & Video Sharing landing background coverage', () => {
     const landingCss = read('src/components/Dashboard/PhotoVideoGallery/PhotoVideoGalleryLanding.module.css');
     const applicationCss = read('src/index.css');
 
-    expect(dashboard).toContain("isPhotoVideoWorkspace || activeTab === 'photo-video-gallery'");
+    expect(dashboard).toContain("contentTab === 'photo-video-gallery'");
     expect(page).toContain('managementStyles.photoVideoLandingContent');
     expect(page).toContain('styles.page');
     expect(page).toContain('data-photo-video-landing');

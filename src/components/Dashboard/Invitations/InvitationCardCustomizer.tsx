@@ -67,6 +67,9 @@ interface InvitationCardCustomizerProps {
   qrTabTitle?: string;
   notesPlaceholder?: string;
   notesHelper?: string;
+  notes?: string;
+  onNotesChange?: (notes: string) => Promise<boolean>;
+  beforeBackgroundUpload?: (file: File) => Promise<boolean>;
   imageUploadFolder?: string;
   storageBucket?: string;
   galleryButtonLabel?: string;
@@ -218,6 +221,9 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
   qrTabTitle,
   notesPlaceholder,
   notesHelper,
+  notes,
+  onNotesChange,
+  beforeBackgroundUpload,
   imageUploadFolder,
   storageBucket,
   galleryButtonLabel = 'Template Library',
@@ -259,7 +265,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
   const textZones = currentSettings.text_zones || [];
 
   const handleSettingChange = async (key: keyof InvitationCardSettings, value: any) => {
-    await onSettingsChange({ [key]: value });
+    return onSettingsChange({ [key]: value });
   };
 
   const updateZones = async (newZones: TextZone[]) => {
@@ -314,6 +320,10 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
     }
     setUploading(true);
     try {
+      if (beforeBackgroundUpload && !(await beforeBackgroundUpload(file))) {
+        event.target.value = '';
+        return;
+      }
       const { data: { user }, error: authError } = await supabase.auth.getUser();
       if (authError || !user) throw new Error('User not authenticated');
       const fileExt = file.name.split('.').pop();
@@ -324,7 +334,10 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
       const { error: uploadError } = await supabase.storage.from(bucket).upload(filePath, file);
       if (uploadError) throw uploadError;
       const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(filePath);
-      await handleSettingChange('background_image_url', publicUrl);
+      const saved = await handleSettingChange('background_image_url', publicUrl);
+      if (saved === false) {
+        throw new Error('Image settings could not be saved');
+      }
       toast({ title: "Success", description: "Image uploaded successfully" });
     } catch (error) {
       console.error('Error uploading image:', error);
@@ -459,7 +472,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         </div>
                         <div>
                           <Label className="text-xs">Text Style</Label>
-                          <Select value={zone.font_style || 'default'} onValueChange={(v) => updateZone(zone.id, { font_style: v })}>
+                          <Select value={zone.font_style === 'normal' ? 'default' : (zone.font_style || 'default')} onValueChange={(v) => updateZone(zone.id, { font_style: v })}>
                             <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
                             <SelectContent className={portalClassName}>
                               <SelectItem value="default">Default</SelectItem>
@@ -530,7 +543,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                 <div className="pt-4 border-t">
                   <Button
                     onClick={async () => {
-                      await onSettingsChange({ text_zones: [] });
+                      if (await onSettingsChange({ text_zones: [] }) === false) return;
                       toast({ title: "Text Zones Reset", description: "All text zones have been removed" });
                     }}
                     variant="outline"
@@ -585,7 +598,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           size="sm"
                           onClick={() => document.getElementById('inv-background-image-upload')?.click()}
                           disabled={uploading}
-                          className="flex-1 max-sm:basis-[calc(50%-0.25rem)] max-sm:flex-none max-sm:min-w-0 rounded-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
+                          className="ww-invitation-choose-file flex-1 max-sm:basis-[calc(50%-0.25rem)] max-sm:flex-none max-sm:min-w-0 rounded-full flex items-center justify-center gap-2 bg-green-600 hover:bg-green-700 text-white"
                         >
                           <Upload className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />
                           {uploading ? 'Uploading...' : 'Choose File'}
@@ -594,7 +607,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                           type="button"
                           size="sm"
                           onClick={() => setGalleryModalOpen(true)}
-                          className="flex-1 max-sm:basis-[calc(50%-0.25rem)] max-sm:flex-none max-sm:min-w-0 rounded-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
+                          className="ww-signage-template-library flex-1 max-sm:basis-[calc(50%-0.25rem)] max-sm:flex-none max-sm:min-w-0 rounded-full flex items-center justify-center gap-2 bg-primary hover:bg-primary/90 text-primary-foreground"
                         >
                           <Images className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />
                           {galleryButtonLabel}
@@ -621,7 +634,8 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                             variant="destructive"
                             size="sm"
                             onClick={async () => {
-                              await handleSettingChange('background_image_url', null);
+                              const saved = await handleSettingChange('background_image_url', null);
+                              if (saved === false) return;
                               toast({ title: "Image Removed", description: "Background image has been removed" });
                             }}
                             className="w-full rounded-full flex items-center justify-center gap-2 bg-destructive/85 hover:bg-destructive/95"
@@ -641,7 +655,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                     <div className="space-y-2">
                       <Label className="flex items-center gap-2"><Scaling className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />Image Opacity</Label>
                       <Select
-                        value={String(currentSettings.background_image_opacity || 100)}
+                        value={String(currentSettings.background_image_opacity ?? 100)}
                         onValueChange={(value) => handleSettingChange('background_image_opacity', Number(value))}
                       >
                         <SelectTrigger><SelectValue /></SelectTrigger>
@@ -666,7 +680,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                 <div className="pt-4 border-t">
                   <Button
                     onClick={async () => {
-                      await onSettingsChange({
+                      const saved = await onSettingsChange({
                         background_color: '#ffffff',
                         background_image_url: null,
                         background_image_type: 'none',
@@ -674,6 +688,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         background_image_y_position: 50,
                         background_image_opacity: 100,
                       });
+                      if (saved === false) return;
                       toast({ title: "Background Reset", description: "Background settings reset to defaults" });
                     }}
                     variant="outline"
@@ -720,7 +735,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                   </Select>
                 </div>
 
-                {currentSettings.qr_config?.enabled && (
+                {(currentSettings.qr_config?.enabled || currentSettings.qr_config?.event_id) && (
                   <div className="space-y-3">
                     <div className="flex items-center justify-between">
                       <Label className="text-sm flex items-center gap-2"><Move className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />Show QR on Canvas</Label>
@@ -749,8 +764,8 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
 
                 <div className="pt-4 border-t">
                   <Button
-                    onClick={() => {
-                      handleSettingChange('qr_config', { ...DEFAULT_QR_CONFIG });
+                    onClick={async () => {
+                      if (await handleSettingChange('qr_config', { ...DEFAULT_QR_CONFIG }) === false) return;
                       onQrEventChange?.(null);
                       toast({ title: "QR Code Reset", description: "QR code removed from invitation" });
                     }}
@@ -774,8 +789,8 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                   </Label>
                   <Textarea
                     placeholder={notesPlaceholder || 'Add any notes or captions for this invitation design...'}
-                    value={localNotes}
-                    onChange={e => setLocalNotes(e.target.value)}
+                    value={onNotesChange ? notes ?? '' : localNotes}
+                    onChange={e => onNotesChange ? void onNotesChange(e.target.value) : setLocalNotes(e.target.value)}
                     rows={4}
                   />
                   <p className="text-xs text-muted-foreground">
@@ -785,7 +800,8 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
 
                 <div className="pt-4 border-t">
                   <Button
-                    onClick={() => {
+                    onClick={async () => {
+                      if (onNotesChange && !await onNotesChange('')) return;
                       setLocalNotes('');
                       toast({ title: "Messages Reset", description: "Notes and captions have been cleared" });
                     }}
@@ -809,7 +825,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
             open={galleryModalOpen}
             onOpenChange={setGalleryModalOpen}
             onSelectImage={async (imageUrl) => {
-              await handleSettingChange('background_image_url', imageUrl);
+              if (await handleSettingChange('background_image_url', imageUrl) === false) return;
               toast({ title: "Image Selected", description: "Gallery image has been applied" });
             }}
           />

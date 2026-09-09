@@ -40,7 +40,9 @@ interface RunningSheetRowProps {
   onInsertFromDJMC?: (itemId: string, type: 'ceremony' | 'introductions' | 'speeches', includeSongs: boolean) => void;
   onUndo?: () => void;
   canUndo?: boolean;
+  rowTextSize?: "standard" | "larger";
   disabled?: boolean;
+  readOnly?: boolean;
   hasDJMCData?: boolean;
 }
 
@@ -58,39 +60,28 @@ function buildEventDisplay(rich: any): string {
 
 /** Parse edited text back into description_rich structure */
 function parseEventText(text: string): any {
-  const lines = text.split('\n');
-  const mainLines: string[] = [];
-  const bullets: string[] = [];
-  let subText = '';
-
-  for (const line of lines) {
-    const trimmed = line.trim();
-    if (trimmed.startsWith('•') || trimmed.startsWith('-')) {
-      bullets.push(trimmed.replace(/^[•\-]\s*/, ''));
-    } else if (trimmed.startsWith('(') && trimmed.endsWith(')')) {
-      subText = trimmed;
-    } else {
-      mainLines.push(line);
-    }
-  }
-
-  const result: any = { text: mainLines.join('\n') };
-  if (bullets.length > 0) result.bullets = bullets;
-  if (subText) result.subText = subText;
-  return result;
+  // Preserve the exact order of typed paragraphs, bullet points and parenthetical notes.
+  return { text };
 }
 
 /** Auto-resize textarea to fit content */
-function useAutoResize(ref: React.RefObject<HTMLTextAreaElement>, value: string) {
+function useAutoResize(ref: React.RefObject<HTMLTextAreaElement>, value: string, rowTextSize: string) {
   useEffect(() => {
     const el = ref.current;
     if (!el) return;
-    el.style.height = '0';
-    el.style.height = `${el.scrollHeight}px`;
-  }, [ref, value]);
+    const resize = () => { el.style.height = '0'; el.style.height = el.scrollHeight + 'px'; };
+    resize();
+    let width = el.getBoundingClientRect().width;
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(() => {
+      const nextWidth = el.getBoundingClientRect().width;
+      if (nextWidth !== width) { width = nextWidth; resize(); }
+    });
+    observer?.observe(el);
+    return () => observer?.disconnect();
+  }, [ref, value, rowTextSize]);
 }
 
-export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClearText, onInsertFromDJMC, onUndo, canUndo = false, disabled = false, hasDJMCData = false }: RunningSheetRowProps) {
+export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClearText, onInsertFromDJMC, onUndo, canUndo = false, rowTextSize = "standard", disabled = false, readOnly = disabled, hasDJMCData = false }: RunningSheetRowProps) {
   const {
     attributes,
     listeners,
@@ -98,7 +89,7 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: item.id });
+  } = useSortable({ id: item.id, disabled });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -111,9 +102,9 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
   const eventRef = useRef<HTMLTextAreaElement>(null);
   const whoRef = useRef<HTMLTextAreaElement>(null);
 
-  useAutoResize(timeRef, item.time_text);
-  useAutoResize(eventRef, eventText);
-  useAutoResize(whoRef, item.responsible || '');
+  useAutoResize(timeRef, item.time_text, rowTextSize);
+  useAutoResize(eventRef, eventText, rowTextSize);
+  useAutoResize(whoRef, item.responsible || '', rowTextSize);
 
   const isHeader = item.is_section_header;
   const [showClearDialog, setShowClearDialog] = useState(false);
@@ -131,7 +122,7 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
     onUpdate(item.id, { responsible: e.target.value });
   }, [item.id, onUpdate]);
 
-  const headerClasses = isHeader ? 'text-destructive' : '';
+  const headerClasses = isHeader ? styles.redRowText : '';
   const boldClass = item.is_bold ? 'font-bold' : '';
   const italicClass = item.is_italic ? 'italic' : '';
   const underlineClass = item.is_underline ? 'underline' : '';
@@ -148,7 +139,8 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
         {...attributes}
         {...listeners}
         className={`w-6 shrink-0 cursor-grab active:cursor-grabbing text-muted-foreground hover:text-foreground mt-2 ${styles.dragHandle}`}
-        tabIndex={-1}
+        tabIndex={disabled ? -1 : 0}
+        disabled={disabled}
         title="Drag to reorder row"
         aria-label="Drag to reorder row"
       >
@@ -163,6 +155,7 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
         value={item.time_text}
         onChange={handleTimeChange}
         placeholder="Time"
+        aria-label="Time"
         className={`w-[15%] shrink-0 min-w-0 bg-background border border-input rounded-md px-3 py-1.5 resize-none overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${styles.bodyText} ${styles.timeField} ${headerClasses} ${formattingClasses}`}
         rows={1}
         disabled={disabled}
@@ -175,6 +168,7 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
         value={eventText}
         onChange={handleEventChange}
         placeholder="Event"
+        aria-label="Event"
         className={`flex-1 min-w-0 bg-background border border-input rounded-md px-3 py-1.5 resize-none overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${styles.bodyText} ${styles.eventField} ${headerClasses} ${formattingClasses}`}
         rows={1}
         disabled={disabled}
@@ -187,20 +181,21 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
         value={item.responsible || ''}
         onChange={handleWhoChange}
         placeholder="Who"
+        aria-label="Who"
         className={`basis-1/5 min-w-0 bg-background border border-input rounded-md px-3 py-1.5 resize-none overflow-hidden focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-ring ${styles.bodyText} ${styles.whoField} ${headerClasses} ${formattingClasses}`}
         rows={1}
         disabled={disabled}
       />
 
       {/* Row actions - 3-dot menu */}
-      {!disabled && (
+      {!readOnly && (
         <div className={`shrink-0 mt-1 ${styles.rowActions}`}>
           <DropdownMenu>
             <TooltipProvider>
               <Tooltip>
                 <TooltipTrigger asChild>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-7 w-7" title="Row actions" aria-label="Row actions">
+                    <Button variant="ghost" size="icon" className="h-7 w-7" title="Row actions" aria-label="Row actions" disabled={disabled}>
                       <EllipsisVertical size={16} strokeWidth={1.8} aria-hidden="true" />
                     </Button>
                   </DropdownMenuTrigger>
@@ -220,7 +215,7 @@ export function RunningSheetRow({ item, onUpdate, onDuplicate, onDelete, onClear
               {/* Highlight Row */}
               <DropdownMenuItem onClick={() => onUpdate(item.id, { is_section_header: !item.is_section_header })}>
                 <Highlighter size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
-                Highlight Row
+                {isHeader ? 'Restore Normal Text Colour' : 'Make Row Text Red'}
                 {isHeader && <span className="ml-auto text-xs text-destructive">✓</span>}
               </DropdownMenuItem>
 

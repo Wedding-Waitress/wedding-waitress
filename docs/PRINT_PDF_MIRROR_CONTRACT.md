@@ -45,11 +45,11 @@ The full typed audit is `PRINT_PDF_MIRROR_DECLARATIONS` in `src/lib/printPdfMirr
 | Ceremony Floor Plan | Compliant | One mounted `CeremonyFloorPlanA4` document reference |
 | Individual Table Charts | Compliant and protected | Preview and transient export use `IndividualTableChartPrintPage` |
 | Dietary Requirements | Protected exception | Visible A4 DOM is captured, but approved clone-only text offsets remain; do not change without explicit approval |
-| Full Seating Chart | Audited violation | Preview DOM and manual jsPDF layout are separate implementations |
+| Full Seating Chart | Dashboard compliant (6 September 2026); legacy public export remains separate | Dashboard PDF/print capture the mounted FullSeatingChartPreview; two-page comparisons passed at PC/tablet/mobile sizes |
 | Reception Floor Plan | Audited violation | Interactive canvas and vector jsPDF layout are separate implementations |
 | Seating Chart Signs | Audited violation | Exporter rebuilds a separate overlay DOM for large-format performance |
-| Invitations and Cards | Audited violation | Preview and transient export element use separate construction paths |
-| Name Place Cards | Audited violation | Visible preview and a permanently mounted hidden print collection coexist |
+| Invitations and Cards | Compliant (5 September 2026) | InvitationCardPreview is captured through previewDocumentRef; A4/A5/A6 rendered comparisons passed |
+| Name Place Cards | Compliant (5 September 2026) | One visible PlaceCardPreview sheet; all-page PDF export paginates this renderer and restores selection; rendered comparisons passed |
 | Run Sheet | No fixed-paper preview | Programmatic PDF only; enforce this contract if a paper preview is introduced |
 | DJ & MC Questionnaire | No fixed-paper preview | Programmatic PDF only; enforce this contract if a paper preview is introduced |
 

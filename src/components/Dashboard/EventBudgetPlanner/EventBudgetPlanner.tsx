@@ -1,12 +1,10 @@
+import { Printer as ExportControlsPrinter } from 'lucide-react';
 import React from 'react';
+import { createPortal } from 'react-dom';
 import {
   AlertCircle, CheckCircle2, Clock3, Download, Edit3, Plus, Printer,
   Save, Search, WalletCards,
 } from 'lucide-react';
-import {
-  AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription,
-  AlertDialogFooter, AlertDialogHeader, AlertDialogTitle,
-} from '@/components/ui/alert-dialog';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
 import { useEventBudget } from '@/hooks/useEventBudget';
@@ -36,15 +34,16 @@ const SORT_OPTIONS: Array<[SortKey, string]> = [
 const expenseCategory = (expense: EventBudgetExpense): string => expense.category === 'Other' ? expense.custom_category || 'Other' : expense.category;
 const expenseTitle = (expense: EventBudgetExpense): string => expense.vendor_name || expense.expense_name || expenseCategory(expense);
 
-export const EventBudgetPlanner: React.FC<{ event: BudgetPlannerEvent }> = ({ event }) => {
+export const EventBudgetPlanner: React.FC<{ event: BudgetPlannerEvent; exportTarget?: HTMLElement | null }> = ({ event, exportTarget }) => {
   const { toast } = useToast();
-  const { query, saveBudget, saveExpense, deleteExpense } = useEventBudget(event.id);
+  const { query, saveBudget, saveExpense, deleteExpense, convertCurrency } = useEventBudget(event.id);
   const data = query.data ?? { settings: null, expenses: [] };
   const [budgetInput, setBudgetInput] = React.useState('');
   const [budgetState, setBudgetState] = React.useState<'idle' | 'saved' | 'error'>('idle');
   const [budgetError, setBudgetError] = React.useState('');
   const [currency, setCurrency] = React.useState<CurrencyCode>(() => resolveEventBudgetCurrency(undefined, typeof window === 'undefined' ? null : window.localStorage.getItem('ww_currency')));
-  const [pendingCurrency, setPendingCurrency] = React.useState<CurrencyCode | null>(null);
+  const [rateNotice, setRateNotice] = React.useState('');
+  const convertingRef = React.useRef(false);
   const [search, setSearch] = React.useState('');
   const [category, setCategory] = React.useState('All Categories');
   const [status, setStatus] = React.useState<'All Statuses' | BudgetPaymentStatus>('All Statuses');
@@ -57,7 +56,7 @@ export const EventBudgetPlanner: React.FC<{ event: BudgetPlannerEvent }> = ({ ev
   const [generatedAt, setGeneratedAt] = React.useState(() => new Date());
   const addButtonRef = React.useRef<HTMLButtonElement>(null);
   const drawerReturnRef = React.useRef<HTMLButtonElement>(null);
-  const printRootRef = React.useRef<HTMLDivElement>(null);
+  const [printRoot, setPrintRoot] = React.useState<HTMLDivElement | null>(null);
 
   React.useEffect(() => {
     const resolvedCurrency = resolveEventBudgetCurrency(data.settings?.currency, typeof window === 'undefined' ? null : window.localStorage.getItem('ww_currency'));
@@ -66,7 +65,7 @@ export const EventBudgetPlanner: React.FC<{ event: BudgetPlannerEvent }> = ({ ev
     setBudgetState('idle'); setBudgetError('');
   }, [data.settings, event.id]);
 
-  React.useEffect(() => { setDrawerOpen(false); setEditingExpense(null); setPendingCurrency(null); }, [event.id]);
+  React.useEffect(() => { setDrawerOpen(false); setEditingExpense(null); setRateNotice(''); }, [event.id]);
 
   const summary = React.useMemo(() => calculateBudgetSummary(Number(data.settings?.anticipated_budget ?? 0), data.expenses), [data]);
   const lowBudget = summary.totalBudget > 0 && summary.budgetRemaining >= 0 && summary.budgetRemaining <= summary.totalBudget * .1;
@@ -104,38 +103,29 @@ export const EventBudgetPlanner: React.FC<{ event: BudgetPlannerEvent }> = ({ ev
     }
   };
 
-  const requestCurrencyChange = (nextCurrency: CurrencyCode) => {
-    if (nextCurrency === currency) return;
-    if (data.settings || data.expenses.length > 0) setPendingCurrency(nextCurrency);
-    else setCurrency(nextCurrency);
-  };
-
-  const confirmCurrencyChange = async () => {
-    if (!pendingCurrency) return;
-    const nextCurrency = pendingCurrency;
-    const currentBudget = Number(data.settings?.anticipated_budget ?? parseCurrencyInput(budgetInput) ?? 0);
-    setBudgetError(''); setBudgetState('idle');
-    try {
-      await saveBudget.mutateAsync({
-        anticipatedBudget: currentBudget,
-        currency: nextCurrency,
-        ...(data.settings?.planned_budget_kind && data.settings.planned_budget_kind !== 'exact' ? {
-          plannedBudgetKind: data.settings.planned_budget_kind,
-          plannedBudgetRange: data.settings.planned_budget_range,
-        } : {}),
-      });
-      setCurrency(nextCurrency);
-      setBudgetInput(currentBudget > 0 ? formatBudgetInput(nextCurrency, currentBudget) : '');
-      setPendingCurrency(null); setBudgetState('saved');
-      toast({ title: 'Budget currency changed', description: `${event.name}'s budget now uses ${nextCurrency}. Existing amounts were not converted.` });
-    } catch (error) {
-      setPendingCurrency(null); setBudgetState('error');
-      setBudgetError(error instanceof Error ? error.message : 'The currency could not be changed. The previous currency has been preserved.');
+  const requestCurrencyChange = async (nextCurrency: CurrencyCode) => {
+    if (nextCurrency === currency || convertingRef.current || saveBudget.isPending || saveExpense.isPending || deleteExpense.isPending || drawerOpen || !query.data) return;
+    const typedBudget = budgetInput.trim() ? parseCurrencyInput(budgetInput) : null;
+    if (budgetInput.trim() && typedBudget === null) {
+      setBudgetError('Enter a valid budget before changing currency.'); return;
     }
+    convertingRef.current = true;
+    setBudgetError(''); setBudgetState('idle'); setRateNotice('');
+    try {
+      const result = await convertCurrency.mutateAsync({ from: currency, to: nextCurrency, budget: typedBudget });
+      setCurrency(nextCurrency);
+      setBudgetInput(result.budget.settings?.planned_budget_kind === 'exact' ? formatBudgetInput(nextCurrency, Number(result.budget.settings.anticipated_budget)) : '');
+      setBudgetState('saved');
+      setRateNotice('Rate published ' + result.quote.date + ' · 1 ' + result.quote.from + ' = ' + result.quote.rate + ' ' + result.quote.to);
+      toast({ title: 'Budget converted and saved', description: 'The budget and all expense amounts now use ' + nextCurrency + '.' });
+    } catch (error) {
+      setBudgetState('error');
+      setBudgetError(error instanceof Error ? error.message : 'Currency conversion failed. Please retry.');
+    } finally { convertingRef.current = false; }
   };
 
-  const openAdd = (source: React.RefObject<HTMLButtonElement>) => { drawerReturnRef.current = source.current; setEditingExpense(null); setDrawerOpen(true); };
-  const openEdit = (expense: EventBudgetExpense, button: HTMLButtonElement) => { drawerReturnRef.current = button; setEditingExpense(expense); setDrawerOpen(true); };
+  const openAdd = (source: React.RefObject<HTMLButtonElement>) => { if (convertingRef.current) return; drawerReturnRef.current = source.current; setEditingExpense(null); setDrawerOpen(true); };
+  const openEdit = (expense: EventBudgetExpense, button: HTMLButtonElement) => { if (convertingRef.current) return; drawerReturnRef.current = button; setEditingExpense(expense); setDrawerOpen(true); };
 
   const handleSaveExpense = async (input: EventBudgetExpenseInput) => {
     await saveExpense.mutateAsync({ id: editingExpense?.id, input });
@@ -151,55 +141,65 @@ export const EventBudgetPlanner: React.FC<{ event: BudgetPlannerEvent }> = ({ ev
 
   const requestPrintAction = (action: 'print' | 'download') => { setGeneratedAt(new Date()); setPendingPrintAction(action); setPrintOpen(true); };
   React.useEffect(() => {
-    if (!printOpen || !pendingPrintAction || !printRootRef.current) return;
+    if (!printOpen || !pendingPrintAction || !printRoot) return;
     const timer = window.setTimeout(async () => {
-      if (!printRootRef.current) return;
       if (pendingPrintAction === 'print') {
-        printRootRef.current.dataset.budgetPrintSource = 'true'; window.print(); delete printRootRef.current.dataset.budgetPrintSource;
+        printRoot.dataset.budgetPrintSource = 'true';
+        try { window.print(); } finally { delete printRoot.dataset.budgetPrintSource; }
       } else {
         setExporting(true);
-        try { await exportEventBudgetPdf(printRootRef.current, event.name); }
+        try { await exportEventBudgetPdf(printRoot, event.name); }
         catch (error) { toast({ title: 'PDF export failed', description: error instanceof Error ? error.message : 'Please try again.', variant: 'destructive' }); }
         finally { setExporting(false); }
       }
       setPendingPrintAction(null);
     }, 80);
     return () => window.clearTimeout(timer);
-  }, [event.name, pendingPrintAction, printOpen, toast]);
+  }, [event.name, pendingPrintAction, printOpen, printRoot, toast]);
 
   const statusIcon = (value: BudgetPaymentStatus) => value === 'Paid' ? <CheckCircle2 size={14} /> : value === 'Overdue' ? <AlertCircle size={14} /> : <Clock3 size={14} />;
 
-  return <section className={styles.planner} aria-labelledby="event-budget-heading">
-    <div className={styles.plannerHeading}>
-      <div><h2 id="event-budget-heading">Event Budget Planner</h2><p>Plan your event spending, track payments and stay on budget.</p></div>
+  const exportControls = <section data-export-controls-panel className={styles.exportPanel} aria-label="Export Controls">
+    <span data-export-controls-heading><ExportControlsPrinter size={16} strokeWidth={2} aria-hidden="true" />Export Controls</span>
       <div className={styles.topActions}>
-        <button type="button" className={styles.successButton} onClick={() => requestPrintAction('print')} disabled={query.isLoading}><Printer size={16} aria-hidden="true" />Print Budget</button>
-        <button type="button" className={styles.successButton} onClick={() => requestPrintAction('download')} disabled={query.isLoading || exporting}><Download size={16} aria-hidden="true" />{exporting ? 'Preparing PDF…' : 'Download PDF'}</button>
+        <button type="button" className={`${styles.successButton} ${styles.exportAction}`} onClick={() => requestPrintAction('print')} disabled={query.isLoading || convertCurrency.isPending}><Printer size={16} aria-hidden="true" />Print Budget</button>
+        <button type="button" className={`${styles.successButton} ${styles.exportAction}`} onClick={() => requestPrintAction('download')} disabled={query.isLoading || exporting || convertCurrency.isPending}><Download size={16} aria-hidden="true" />{exporting ? 'Preparing PDF…' : 'Download PDF'}</button>
       </div>
+  </section>;
+
+  return <section className={styles.planner} aria-labelledby="event-budget-heading">
+    {exportTarget && createPortal(exportControls, exportTarget)}
+    <div className={styles.plannerHeading}>
+      <div className={styles.headingGroup}><WalletCards size={25} strokeWidth={1.8} className={styles.headingIcon} aria-hidden="true" /><div><h2 id="event-budget-heading">Your Event Budget</h2><p>Plan your event spending, track payments and stay on budget.</p></div></div>
+          <button type="button" className={`${styles.successButton} ${styles.exportAction}`} onClick={() => void saveAnticipatedBudget()} disabled={saveBudget.isPending || convertCurrency.isPending}><Save size={16} aria-hidden="true" />{saveBudget.isPending ? 'Saving…' : data.settings ? 'Update Budget' : 'Save Budget'}</button>
+      {!exportTarget && exportControls}
     </div>
 
-    <div className={styles.budgetPanel}>
-      <div><label htmlFor="anticipated-event-budget">Total Anticipated Event Budget</label><p>{currency} · saved only for {event.name}</p></div>
-      {data.settings?.planned_budget_kind === 'range' && <p role="status">Guided setup estimate: {BUDGET_LABELS[data.settings.planned_budget_range as BudgetChoice] || data.settings.planned_budget_range}. Enter an exact amount whenever you are ready.</p>}
-      {data.settings?.planned_budget_kind === 'undecided' && <p role="status">Your planned budget is not decided yet. Enter an exact amount whenever you are ready.</p>}
-      <div className={styles.budgetEntry}>
-        <div className={styles.amountControl}><span aria-hidden="true">{CURRENCY_PREFIX[currency]}</span><input id="anticipated-event-budget" inputMode="decimal" value={budgetInput} onChange={event => { setBudgetInput(event.target.value); setBudgetState('idle'); setBudgetError(''); }} onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); void saveAnticipatedBudget(); } }} aria-invalid={budgetState === 'error'} /></div>
-        <label className="sr-only" htmlFor="event-budget-currency">Event budget currency</label>
-        <select id="event-budget-currency" className={styles.currencySelect} value={currency} onChange={event => requestCurrencyChange(event.target.value as CurrencyCode)}>
-          {SUPPORTED_PRICING_CURRENCIES.map(code => <option key={code} value={code}>{code} {CURRENCY_PREFIX[code]}</option>)}
-        </select>
-        <button type="button" className={styles.successButton} onClick={() => void saveAnticipatedBudget()} disabled={saveBudget.isPending}><Save size={16} aria-hidden="true" />{saveBudget.isPending ? 'Saving…' : data.settings ? 'Update Budget' : 'Save Budget'}</button>
+    <div className={styles.budgetPanel} data-budget-panel>
+      <div className={styles.budgetCopy}>
+        <label htmlFor="anticipated-event-budget">Total Anticipated Event Budget</label><p>{currency} · saved only for {event.name}</p>
+        {data.settings?.planned_budget_kind === 'range' && <p role="status">Guided setup estimate: {BUDGET_LABELS[data.settings.planned_budget_range as BudgetChoice] || data.settings.planned_budget_range}. Enter an exact amount whenever you are ready.</p>}
+        {data.settings?.planned_budget_kind === 'undecided' && <p role="status">Your planned budget is not decided yet. Enter an exact amount whenever you are ready.</p>}
       </div>
-      <div className={styles.budgetFeedback} aria-live="polite">{budgetState === 'saved' && <span data-state="saved"><CheckCircle2 size={14} />Saved</span>}{budgetError && <span data-state="error"><AlertCircle size={14} />{budgetError}</span>}</div>
-    </div>
+      <div className={styles.summaryGrid} aria-label="Event budget summary">
+        {[
+          ['Total Budget', summary.totalBudget, 'neutral'], ['Budgeted Costs', summary.estimatedCosts, 'info'],
+          ['Actual Costs', summary.actualCosts, 'neutral'], ['Amount Paid', summary.amountPaid, 'success'],
+          ['Amount Outstanding', summary.amountOutstanding, summary.amountOutstanding > 0 ? 'warning' : 'success'],
+          [summary.budgetRemaining < 0 ? 'Over Budget' : 'Budget Remaining', Math.abs(summary.budgetRemaining), summary.budgetRemaining < 0 ? 'danger' : lowBudget ? 'warning' : 'success'],
+        ].map(([label, value, tone]) => <article key={String(label)} className={styles.summaryCard} data-tone={tone}><span>{label}</span><strong>{formatBudgetCurrency(currency, Number(value))}</strong>{label === 'Over Budget' && <small>Committed costs exceed the saved budget</small>}</article>)}
+      </div>
+      <div className={styles.budgetControls}>
+        <div className={styles.budgetEntry}>
+          <div className={styles.amountControl}><span aria-hidden="true">{CURRENCY_PREFIX[currency]}</span><input id="anticipated-event-budget" disabled={convertCurrency.isPending} inputMode="decimal" value={budgetInput} onChange={event => { setBudgetInput(event.target.value); setBudgetState('idle'); setBudgetError(''); }} onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); void saveAnticipatedBudget(); } }} aria-invalid={budgetState === 'error'} /></div>
+          <label className="sr-only" htmlFor="event-budget-currency">Event budget currency</label>
+          <select id="event-budget-currency" className={styles.currencySelect} value={currency} disabled={convertCurrency.isPending || saveBudget.isPending || query.isLoading || drawerOpen} onChange={event => void requestCurrencyChange(event.target.value as CurrencyCode)}>
+            {SUPPORTED_PRICING_CURRENCIES.map(code => <option key={code} value={code}>{code} {CURRENCY_PREFIX[code]}</option>)}
+          </select>
 
-    <div className={styles.summaryGrid} aria-label="Event budget summary">
-      {[
-        ['Total Budget', summary.totalBudget, 'neutral'], ['Budgeted Costs', summary.estimatedCosts, 'info'],
-        ['Actual Costs', summary.actualCosts, 'neutral'], ['Amount Paid', summary.amountPaid, 'success'],
-        ['Amount Outstanding', summary.amountOutstanding, summary.amountOutstanding > 0 ? 'warning' : 'success'],
-        [summary.budgetRemaining < 0 ? 'Over Budget' : 'Budget Remaining', Math.abs(summary.budgetRemaining), summary.budgetRemaining < 0 ? 'danger' : lowBudget ? 'warning' : 'success'],
-      ].map(([label, value, tone]) => <article key={String(label)} className={styles.summaryCard} data-tone={tone}><span>{label}</span><strong>{formatBudgetCurrency(currency, Number(value))}</strong>{label === 'Over Budget' && <small>Committed costs exceed the saved budget</small>}</article>)}
+        </div>
+        <div className={styles.budgetFeedback} aria-live="polite">{convertCurrency.isPending && <span><Clock3 size={14} />Converting and saving…</span>}{rateNotice && <span>{rateNotice}</span>}{budgetState === 'saved' && <span data-state="saved"><CheckCircle2 size={14} />Saved</span>}{budgetError && <span data-state="error"><AlertCircle size={14} />{budgetError}</span>}</div>
+      </div>
     </div>
 
     <div className={styles.expensePanel}>
@@ -240,15 +240,12 @@ export const EventBudgetPlanner: React.FC<{ event: BudgetPlannerEvent }> = ({ ev
 
     <ExpenseDrawer open={drawerOpen} eventId={event.id} currency={currency} expense={editingExpense} saving={saveExpense.isPending} deleting={deleteExpense.isPending} returnFocusRef={drawerReturnRef} onSave={handleSaveExpense} onDelete={handleDeleteExpense} onClose={() => { setDrawerOpen(false); setEditingExpense(null); }} />
 
-    <AlertDialog open={pendingCurrency !== null} onOpenChange={next => { if (!next) setPendingCurrency(null); }}><AlertDialogContent className={styles.confirmDialog}>
-      <AlertDialogHeader><AlertDialogTitle>Change event budget currency?</AlertDialogTitle><AlertDialogDescription>Changing the currency updates the currency used for this event budget. Existing numerical amounts will not be converted.</AlertDialogDescription></AlertDialogHeader>
-      <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><AlertDialogAction className={styles.successButton} onClick={event => { event.preventDefault(); void confirmCurrencyChange(); }} disabled={saveBudget.isPending}>Change Currency</AlertDialogAction></AlertDialogFooter>
-    </AlertDialogContent></AlertDialog>
 
-    <Dialog open={printOpen} onOpenChange={setPrintOpen}><DialogContent className={styles.printDialog}>
+
+    <Dialog open={printOpen} onOpenChange={setPrintOpen}><DialogContent className={styles.printDialog} data-budget-print-preview>
       <DialogHeader><DialogTitle>Event Budget Planner Preview</DialogTitle><DialogDescription>This authoritative A4 landscape preview is used for both browser print and PDF.</DialogDescription></DialogHeader>
       <div className={styles.printDialogActions}><button className={styles.secondaryButton} onClick={() => requestPrintAction('print')}><Printer size={16} />Print Budget</button><button className={styles.successButton} onClick={() => requestPrintAction('download')} disabled={exporting}><Download size={16} />{exporting ? 'Preparing PDF…' : 'Download PDF'}</button></div>
-      <div className={styles.printViewport}><EventBudgetPrintDocument ref={printRootRef} eventName={event.name} eventDate={event.date} currency={currency} expenses={data.expenses} summary={summary} generatedAt={generatedAt} /></div>
+      <div className={styles.printViewport} data-budget-print-viewport><EventBudgetPrintDocument ref={setPrintRoot} eventName={event.name} eventDate={event.date} currency={currency} expenses={data.expenses} summary={summary} generatedAt={generatedAt} /></div>
     </DialogContent></Dialog>
   </section>;
 };

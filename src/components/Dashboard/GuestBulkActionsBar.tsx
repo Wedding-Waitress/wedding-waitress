@@ -34,7 +34,7 @@ interface GuestBulkActionsBarProps {
   isOpen: boolean;
   onClose: () => void;
   selectedCount: number;
-  totalCount: number;
+  allDefaultRecipientsSelected: boolean;
   selectedGuests: SelectedGuest[];
   allGuests?: SelectedGuest[];
   onSelectGuests?: (ids: string[]) => void;
@@ -51,7 +51,7 @@ export const GuestBulkActionsBar = ({
   isOpen,
   onClose,
   selectedCount,
-  totalCount,
+  allDefaultRecipientsSelected,
   selectedGuests,
   allGuests = [],
   onSelectGuests,
@@ -63,8 +63,6 @@ export const GuestBulkActionsBar = ({
   onSendSms,
   onMarkManualInvite,
 }: GuestBulkActionsBarProps) => {
-  const allSelected = selectedCount === totalCount;
-
   const [pickerOpen, setPickerOpen] = useState(false);
   const [search, setSearch] = useState("");
   const [draftIds, setDraftIds] = useState<Set<string>>(new Set());
@@ -113,7 +111,7 @@ export const GuestBulkActionsBar = ({
         <DialogHeader>
           <DialogTitle className="text-lg font-semibold text-center mt-6">Manage Selected Guests</DialogTitle>
           <DialogDescription className="text-sm font-medium mt-7 text-[#5C4A36] whitespace-pre-line text-left">
-            1. Send RSVP's / Invites to “All your guests” below.{"\n"}
+            1. Send RSVP's / Invites to all unanswered guests below.{"\n"}
             2. Select one guest only, back in the guest list table.{"\n"}
             3. Add multiple guests to send RSVP / Invites from the search bar below.
           </DialogDescription>
@@ -215,11 +213,11 @@ export const GuestBulkActionsBar = ({
           {/* Select All Guests (styled like action rows; only checkbox is clickable) */}
           <div className="p-3 rounded-lg border-2 border-[#967A59]/70 flex items-center gap-3">
             <Checkbox
-              checked={allSelected}
-              onCheckedChange={() => (allSelected ? onDeselectAll() : onSelectAll())}
+              checked={allDefaultRecipientsSelected}
+              onCheckedChange={() => (allDefaultRecipientsSelected ? onDeselectAll() : onSelectAll())}
               className="cursor-pointer"
             />
-            <span className="text-sm font-medium text-foreground">Select All Guests</span>
+            <span className="text-sm font-medium text-foreground">Select All Unanswered Guests</span>
           </div>
 
           {/* Send Email or SMS via Wedding Waitress (combined) */}

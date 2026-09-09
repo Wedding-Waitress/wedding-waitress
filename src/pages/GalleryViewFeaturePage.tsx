@@ -72,6 +72,9 @@ export const GalleryViewFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelecti
           />
         ) : (
           <div className="space-y-6 sm:space-y-8">
+            <p className={`text-base text-center break-words ${managementStyles.galleryViewFootnote}`}>
+              These appearance settings are shared across your guest facing gallery experiences.
+            </p>
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch">
               <div className="h-full [&>*]:h-full">
                 <GalleryBrandingCard eventId={selectedEventId!} meta={meta} onSave={updateBranding} appearance="espresso-glass" />
@@ -87,9 +90,7 @@ export const GalleryViewFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelecti
               </div>
             </div>
 
-            <p className={`text-sm break-words ${managementStyles.galleryViewFootnote}`}>
-              These appearance settings are shared across your guest-facing gallery experiences.
-            </p>
+
           </div>
         )}
       </FeatureWorkspaceLayout>

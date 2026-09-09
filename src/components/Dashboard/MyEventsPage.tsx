@@ -27,7 +27,6 @@ import { SeoHead } from '@/components/SEO/SeoHead';
 import { Timer, HeartHandshake, PartyPopper, UserRound, CalendarDays, MapPin, Clock3, Users } from 'lucide-react';
 import styles from './MyEventsPage.module.css';
 import { MyEventsHeroLayout } from './MyEventsHeroLayout';
-import { PlanningWorkflowInstruction } from './PlanningWorkflowInstruction';
 
 const LABEL_ICON_CLS = "w-4 h-4 shrink-0 opacity-70";
 interface MyEventsPageProps {
@@ -49,7 +48,6 @@ export const MyEventsPage: React.FC<MyEventsPageProps> = ({
   createEvent,
   updateEvent,
   deleteEvent,
-  onNavigateToTab,
 }) => {
   const {
     profile,
@@ -453,9 +451,9 @@ export const MyEventsPage: React.FC<MyEventsPageProps> = ({
         description="Effortlessly organize all your wedding events in one place—track guest lists, seating, and more with Wedding Waitress."
         noIndex
       />
-      <PlanningWorkflowInstruction stepId="my-events" onContinue={onNavigateToTab} />
       {/* Countdown Section */}
       <Card className={`border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] p-4 sm:p-5 mx-0 ${styles.countdownPanel}`}>
+        <h1 className={styles.pageHeading}><CalendarDays size={25} strokeWidth={1.8} aria-hidden="true" />My Events</h1>
         <MyEventsHeroLayout
           hasCeremony={Boolean(hasCeremony)}
           hasReception={Boolean(hasReception)}

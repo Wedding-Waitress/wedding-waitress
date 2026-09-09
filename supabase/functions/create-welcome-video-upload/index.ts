@@ -1,6 +1,8 @@
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
+import { deleteStreamVideo } from '../_shared/welcomeVideo.ts';
+
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
   "Access-Control-Allow-Headers": "authorization, x-client-info, apikey, content-type",
@@ -90,7 +92,8 @@ serve(async (req) => {
       });
 
     if (dbError) {
-      console.error("Database insert error:", dbError);
+      await deleteStreamVideo(streamMediaId, CLOUDFLARE_ACCOUNT_ID, CLOUDFLARE_STREAM_API_TOKEN);
+      throw dbError;
     }
 
     return new Response(
@@ -103,7 +106,7 @@ serve(async (req) => {
   } catch (error) {
     console.error("Error:", error);
     return new Response(
-      JSON.stringify({ error: error.message || "Internal server error" }),
+      JSON.stringify({ error: error instanceof Error ? error.message : "Internal server error" }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

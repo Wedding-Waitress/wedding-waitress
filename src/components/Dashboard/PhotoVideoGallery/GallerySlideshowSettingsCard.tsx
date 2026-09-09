@@ -5,7 +5,7 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Switch } from '@/components/ui/switch';
 import { Label } from '@/components/ui/label';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Settings2, LoaderCircle, Check, Save } from 'lucide-react';
+import { Settings2, LoaderCircle, Check, Save, CirclePlay } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 import { MANAGEABLE_GALLERY_ALBUMS, normaliseGalleryAlbum } from '@/lib/galleryAlbumOptions';
@@ -75,11 +75,11 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
           <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
             <Settings2 size={22} strokeWidth={1.8} className={cn('text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} /> Slideshow Settings
           </h2>
-          <p className={cn('text-sm mt-1 break-words', isGlass && managementStyles.gallerySecondaryText)} style={isGlass ? undefined : { color: '#1a1a1a' }}>
+          <p className={cn('text-sm mt-1 break-words', isGlass && managementStyles.gallerySecondaryText, isGlass && managementStyles.sharingHeadingDescription)} style={isGlass ? undefined : { color: '#1a1a1a' }}>
             Choose what appears on screen and how it plays. Colours and logo come from your Branding &amp; Theme settings.
           </p>
         </div>
-        <span className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${dirty ? 'bg-amber-100 text-amber-800' : 'bg-emerald-100 text-emerald-800'}`}>
+        <span className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${dirty ? 'bg-amber-100 text-amber-800' : managementStyles.slideshowSavedBadge}`}>
           {dirty ? 'Unsaved changes' : 'All changes saved'}
         </span>
       </div>
@@ -92,7 +92,9 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
         <GallerySlideshowAccessCard meta={meta} appearance={appearance} embedded />
 
         <div className={cn('rounded-xl border border-border p-4 space-y-4', isGlass && managementStyles.galleryViewInsetPanel)} data-slideshow-workspace-card="playback">
-          <p className="text-sm font-semibold text-[#1D1D1F]">Playback</p>
+          <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
+            <CirclePlay size={22} strokeWidth={1.8} className={cn('text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} /> Playback
+          </h2>
           <div className="space-y-3" data-slideshow-playback-controls>
             <div>
               <Label className="text-xs uppercase tracking-wide text-[#6E6E73]">Display order</Label>
@@ -144,7 +146,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
         data-slideshow-secondary-grid
       >
         <div className={cn('rounded-xl border border-border p-4 space-y-3', isGlass && managementStyles.galleryViewInsetPanel)} data-slideshow-workspace-card="albums">
-          <p className="text-sm font-semibold text-[#1D1D1F]">Albums</p>
+          <p className={cn('text-sm font-semibold text-[#1D1D1F] mb-6', isGlass && managementStyles.eventBrandingBorder)}>Albums</p>
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
@@ -179,7 +181,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
         </div>
 
         <div className={cn('rounded-xl border border-border p-4 space-y-4', isGlass && managementStyles.galleryViewInsetPanel)} data-slideshow-workspace-card="media-types">
-          <p className="text-sm font-semibold text-[#1D1D1F]">Media types</p>
+          <p className={cn('text-sm font-semibold text-[#1D1D1F] mb-6', isGlass && managementStyles.eventBrandingBorder)}>Media types</p>
           <div className="flex items-center justify-between gap-3">
             <Label htmlFor="ss-photos" className="text-sm">Include Photos</Label>
             <Switch id="ss-photos" checked={value.include_photos} onCheckedChange={(v) => toggleKind('include_photos', v)} className={cn(isGlass && managementStyles.galleryViewToggle)} />
@@ -192,10 +194,10 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
         </div>
 
         <div className={cn('rounded-xl border border-border p-4 space-y-3', isGlass && managementStyles.galleryViewInsetPanel)} data-slideshow-workspace-card="save-settings">
-          <p className="text-sm font-semibold text-[#1D1D1F]">Save settings</p>
+          <p className={cn('text-sm font-semibold text-[#1D1D1F] mb-6', isGlass && managementStyles.eventBrandingBorder)}>Save settings</p>
           <p className="text-xs text-muted-foreground">Only approved, visible media ever appears in the Live Slideshow.</p>
           <div className="flex flex-wrap items-center gap-3">
-            <Button className={cn('lv-premium-shade h-11', isGlass && managementStyles.galleryViewPrimaryAction)} onClick={save} disabled={saving || !dirty}>
+            <Button className={cn('lv-premium-shade h-11', isGlass && [managementStyles.gallerySaveAction, managementStyles.saveBrandingContentShadow, managementStyles.slideshowSaveAction])} onClick={save} disabled={saving || !dirty}>
               {saving ? <LoaderCircle size={16} strokeWidth={1.8} className="mr-1.5 animate-spin" /> : <Save size={16} strokeWidth={1.8} className="mr-1.5" />} Save Settings
             </Button>
             {dirty && (

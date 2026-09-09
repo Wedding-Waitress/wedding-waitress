@@ -305,7 +305,7 @@
 
 @media (min-width: 1280px) {
   .setupGrid {
-    grid-template-columns: minmax(0, 1.15fr) minmax(0, 1fr) minmax(0, 1fr) minmax(0, 1.15fr);
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 
   .smartSuggestionGrid {
@@ -353,7 +353,7 @@
 
 @media (min-width: 1280px) {
   .managementGrid {
-    grid-template-columns: repeat(4, minmax(0, 1fr));
+    grid-template-columns: repeat(2, minmax(0, 1fr));
   }
 }
 
@@ -505,11 +505,11 @@
 
 @media (min-width: 1280px) {
   .fixturePaletteGrid {
-    grid-template-columns: repeat(14, minmax(0, 1fr)) !important;
+    grid-template-columns: repeat(8, minmax(0, 1fr)) !important;
   }
 
   .fixturePaletteGrid > .fixturePaletteCard {
-    grid-column: span 2;
+    grid-column: span 1;
   }
 
 }
@@ -816,7 +816,7 @@
   background: linear-gradient(180deg, rgba(255, 239, 218, 0.07), rgba(15, 7, 5, 0.86)) !important;
 }
 
-:global(.reception-portal-surface) button:not([role="combobox"]):not([class*="bg-green"]):not([class*="bg-amber"]):not(:global(.reception-primary-action)) {
+:global(.reception-portal-surface) button:not([role="combobox"]):not([class*="bg-green"]):not([class*="bg-amber"]):not(:global(.reception-primary-action)):not(:global(.venue-cancel-action)) {
   color: #fff !important;
   border-color: rgba(239, 220, 196, 0.72) !important;
   background: linear-gradient(180deg, rgba(255, 239, 218, 0.07), rgba(15, 7, 5, 0.86)) !important;
@@ -1016,10 +1016,60 @@
 .portalSurface :global([role="menuitem"]:is(:hover, :focus, [data-highlighted])),
 :global(.reception-portal-surface) :is([role="option"], [role="menuitem"]):is(:hover, :focus, [data-highlighted]) { color: #2b1711 !important; background: #f0e2d1 !important; }
 :global(.reception-portal-surface) :is(input, textarea, button[role="combobox"]) { color: #2b1711 !important; border-color: #cdb99e !important; background: #fffdf8 !important; }
-:global(.reception-portal-surface) button:not([role="combobox"]):not([class*="bg-green"]):not([class*="bg-amber"]):not([class*="967A59"]):not(:global(.reception-primary-action)) { color: #2b1711 !important; border-color: #a98b66 !important; background: linear-gradient(180deg, #fffdf8, #ead8bf) !important; }
+:global(.reception-portal-surface) button:not([role="combobox"]):not([class*="bg-green"]):not([class*="bg-amber"]):not([class*="967A59"]):not(:global(.reception-primary-action)):not(:global(.venue-cancel-action)) { color: #2b1711 !important; border-color: #a98b66 !important; background: linear-gradient(180deg, #fffdf8, #ead8bf) !important; }
 :global(.reception-portal-surface) button[class*="967A59"] { color: #fff !important; border-color: #159447 !important; background: linear-gradient(180deg, #35d06f, #16a34a) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 0 rgba(5,91,37,.34), 0 6px 14px rgba(22,163,74,.22) !important; }
 :global(.reception-portal-surface) button:global(.reception-primary-action) { color: #fff !important; border-color: #159447 !important; background: linear-gradient(180deg, #35d06f, #16a34a) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.5), inset 0 -2px 0 rgba(5,91,37,.34), 0 6px 14px rgba(22,163,74,.22) !important; }
 :global(.reception-portal-surface) button[class*="text-destructive"] { color: #fff !important; border-color: #c92f28 !important; background: linear-gradient(180deg, #f85b53, #d9342c) !important; }
 :global(.reception-portal-surface) :is(p, [class*="text-muted-foreground"]) { color: #684b40 !important; }
 :global(.reception-portal-surface) [class*="bg-card"],
 :global(.reception-portal-surface) [class*="bg-muted"] { border-color: #dccbb4 !important; background: #f5ebdd !important; }
+
+/* Keep fixture palette captions readable over their coloured tiles. */
+:global(#root#root) .fixturePaletteCard,
+:global(#root#root) .fixturePaletteCard :is(svg, span) { color: #fff !important; -webkit-text-fill-color: #fff !important; }
+
+/* Match the established green embossed action buttons and white palette icons. */
+:global(#root#root) .fixturePaletteCard svg,
+:global(#root#root) .fixturePaletteCard svg * {
+  color: #fff !important;
+  stroke: #fff !important;
+}
+:global(#root#root) .headerResetButton {
+  border: 0 !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  background: linear-gradient(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.34), 0 7px 16px rgba(22,101,52,.22) !important;
+}
+:global(#root#root) .headerResetButton svg,
+:global(#root#root) .headerResetButton svg * { color: #fff !important; stroke: #fff !important; }
+:global(#root#root) .headerResetButton:hover:not(:disabled) { filter: brightness(1.04); }
+
+:global(.reception-portal-surface) button:global(.venue-cancel-action) { color: #fff !important; border: 0 !important; background: linear-gradient(180deg,#ef6666,#c62b2b) !important; box-shadow: inset 0 1px 0 #ffffff80, inset 0 -2px 0 #78191966, 0 4px 10px #b91c1c30 !important; }
+:global(.reception-portal-surface) button:global(.venue-cancel-action) svg { color: #fff !important; }
+
+:global(.reception-portal-surface) button:global(.venue-cancel-action):global(.lv-premium-shade):not([role="combobox"]):not(:disabled) { color: #fff !important; border: 0 !important; background: linear-gradient(180deg, #f85b53, #d9342c) !important; box-shadow: inset 0 1px 0 #ffffff80, inset 0 -2px 0 #78191966, 0 4px 10px #b91c1c30 !important; }
+:global(.reception-portal-surface) button:global(.venue-cancel-action):global(.lv-premium-shade) svg, :global(.reception-portal-surface) button:global(.reception-primary-action):global(.lv-premium-shade) svg { color: #fff !important; stroke: #fff !important; }
+
+:global(.reception-portal-surface) button:global(.venue-result-card)[aria-pressed="true"] * { color: #fff !important; }
+
+@media (min-width:1280px) {
+ .fixturePaletteGrid { grid-template-columns:repeat(8,minmax(0,1fr)); }
+ .fixturePaletteGrid > .fixturePaletteCard[data-fixture-option="text"] { grid-column:8; grid-row:1; }
+ .fixturePaletteGrid > .fixturePaletteCard[data-fixture-option="block"] { grid-column:8; grid-row:2; }
+}
+
+/* Keep the cream block's outline visible in the fixture palette. */
+:global(#root#root) .fixturePaletteCard[data-fixture-option="block"] { border-color:#432b1d !important; }
+:global(#root#root) .fixturePaletteCard[data-fixture-option="block"] svg { color:#432b1d !important; }
+:global(#root#root) .fixturePaletteCard[data-fixture-option="block"] svg * { stroke:#432b1d !important; }
+
+:global(#root#root) .fixturePaletteCard[data-fixture-option="block"] span { color:#432b1d !important; -webkit-text-fill-color:#432b1d !important; }
+
+:global(#root#root#root) button.headerResetButton {
+ border:0!important;color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.55);
+ background:linear-gradient(180deg,#f85b53,#d9342c)!important;
+ box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #78191966,0 4px 10px #b91c1c30!important;
+ font:600 14px Manrope,sans-serif!important;border-radius:9999px!important;
+}
+:global(#root#root#root) button.headerResetButton :is(svg,svg *) {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;}

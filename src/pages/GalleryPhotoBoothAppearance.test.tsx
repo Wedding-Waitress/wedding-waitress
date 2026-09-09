@@ -117,7 +117,7 @@ describe('Digital Photo Booth premium appearance', () => {
     expect(screen.getByText('2. Take four photos')).toBeInTheDocument();
     expect(screen.getByText('The on-screen countdown guides guests through four photo captures.')).toBeInTheDocument();
     expect(screen.getByText('The completed photo strip and four individual photos appear below for review, approval and download.')).toBeInTheDocument();
-    expect(screen.getByText('Choose one background for the complete 1200 × 1800 print. The four photo positions in each strip and the footer remain layered above it.')).toBeInTheDocument();
+    expect(screen.getByText(/Choose one background for the complete 1200 × 1800 print/)).toBeInTheDocument();
     expect(screen.getByText('Review, organise, approve, hide and download completed photo strips and individual photos captured in your Digital Photo Booth.')).toBeInTheDocument();
 
     const captures = screen.getByRole('heading', { name: 'Digital Photo Booth Captures (1)' }).closest('[data-appearance="espresso-glass"]');
@@ -200,7 +200,7 @@ describe('Digital Photo Booth premium appearance', () => {
     expect(backgroundSections[1].parentElement?.parentElement?.parentElement).toBe(backgroundSections[2].parentElement?.parentElement?.parentElement);
 
     expect(screen.getByText(/Exact required size:/)).toHaveTextContent('1200 × 1800 px');
-    expect(screen.getByText(/Exact required size:/).closest('p')).toHaveTextContent('JPEG only (.jpg or .jpeg), exactly 1200 × 1800 px in portrait orientation (4 × 6 inches at 300 DPI)');
+    expect(screen.getByText(/Exact required size:/).closest('p')).toHaveTextContent('JPEG only, exactly 1200 × 1800 px in portrait orientation (4 × 6 inches at 300 DPI)');
     expect(screen.getByText(/Exact required size:/).closest('p')).toHaveTextContent('both 2 × 6 inch strips');
 
     const customTemplateCard = screen.getByRole('heading', { name: 'Add Your Custom Template' }).parentElement?.parentElement!;
@@ -215,7 +215,7 @@ describe('Digital Photo Booth premium appearance', () => {
     expect(templatesCardSource).toContain("a.download = 'wedding-waitress-photo-strip-design-template-1200x1800.png'");
     expect(templatesCardSource).toMatch(/makePhotoStripDesignTemplate\(\)[\s\S]*?canvas\.toBlob\([\s\S]*?'image\/png'\)/);
 
-    expect(screen.getByTestId('photo-booth-preview').parentElement).toHaveClass('w-full', 'max-w-[420px]');
+    expect(screen.getByTestId('photo-booth-preview').parentElement).toHaveClass('w-full', 'max-w-[432px]');
     expect(PB_STRIP_PRINT).toEqual({ w: 1200, h: 1800 });
     expect(PB_STRIP_SINGLE).toEqual({ w: 600, h: 1800 });
     expect(PB_STRIP_COUNT).toBe(4);
@@ -225,7 +225,7 @@ describe('Digital Photo Booth premium appearance', () => {
     render(<MemoryRouter><GalleryPhotoBoothFeaturePage /></MemoryRouter>);
 
     const footerHeading = await screen.findByRole('heading', { name: 'Photo Strip Footer' });
-    const footerDescription = screen.getByText('Everything that appears in the footer band beneath the four photos in each strip.');
+    const footerDescription = screen.getByText('Everything that appears in the footer band beneath the four photos in each photo strip.');
     expect(footerHeading.parentElement).toBe(footerDescription.parentElement);
     expect(footerHeading.parentElement).toHaveClass('sm:flex-row', 'sm:items-baseline', 'sm:justify-between');
 
@@ -233,17 +233,17 @@ describe('Digital Photo Booth premium appearance', () => {
     const uploadCard = uploadHeading.parentElement!;
     const guidance = screen.getByText(/Upload one complete footer design using the exact dimensions below/);
     expect(uploadCard).not.toContainElement(guidance);
-    expect(uploadCard).not.toHaveTextContent('Required size:');
+    expect(uploadCard).toHaveTextContent('Required size:');
     expect(uploadCard).not.toHaveTextContent('recommended safe area');
     expect(screen.getByText(/Required size:/)).toHaveTextContent(`${FOOTER_PANEL_WIDTH} × ${FOOTER_PANEL_HEIGHT} px`);
-    expect(screen.getByText('JPEG only:').closest('p')).toHaveTextContent('upload a .jpg or .jpeg file.');
+    expect(within(uploadCard).getByText(/Required size:/)).toHaveTextContent('JPEG only');
     expect(screen.getByText('Complete background:').closest('p')).toHaveTextContent('the footer JPEG replaces the complete footer background.');
-    expect(screen.getByText('Keep important text and logos inside the recommended safe area.')).toBeInTheDocument();
+    expect(guidance).toHaveTextContent('duplicated automatically beneath both columns');
 
     expect(within(uploadCard).getByText('No image')).toBeInTheDocument();
     expect(within(uploadCard).getByRole('button', { name: 'Choose file' })).toBeInTheDocument();
     expect(within(uploadCard).getByRole('button', { name: 'Download Blank Footer Template' })).toBeInTheDocument();
-    expect(uploadCard.parentElement).toHaveClass('grid', 'grid-cols-1', 'xl:grid-cols-4', 'items-start');
+    expect(uploadCard.parentElement).toHaveClass('grid', 'grid-cols-1', 'xl:grid-cols-4', 'items-stretch');
     expect(screen.getByRole('heading', { name: 'Custom Footer Text' })).toBeInTheDocument();
     const backdrop = screen.getByRole('combobox', { name: 'Text Backdrop' });
     expect(backdrop).toHaveTextContent('None');

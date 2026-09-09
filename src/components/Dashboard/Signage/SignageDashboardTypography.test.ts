@@ -28,8 +28,11 @@ describe('Seating Chart Signs dashboard typography contract', () => {
   });
 
   it('covers every supported size and designer tab without global typography', () => {
-    for (const label of ['A1', 'A2', 'A3', 'A4', 'A5', 'DL Card', 'Postcard', 'Business Card']) {
+    for (const label of ['A0', 'A1', 'A2', 'A3']) {
       expect(page).toContain(`label: '${label}'`);
+    }
+    for (const label of ['A4', 'A5', 'DL Card', 'Postcard', 'Business Card']) {
+      expect(page).not.toContain(`label: '${label}'`);
     }
     for (const label of ['Text Zones', 'Background', 'Add QR Code', 'Messages']) {
       expect(customizer).toContain(label);
@@ -44,7 +47,8 @@ describe('Seating Chart Signs dashboard typography contract', () => {
     expect(pageCss).toContain('preview stage is deliberately');
     expect(pageCss).not.toContain('.InvitationCardPreview');
     expect(preview).toContain('PRODUCTION-READY - DO NOT MODIFY WITHOUT APPROVAL');
-    expect(exporter).toContain('function buildOverlayElement');
+    expect(exporter).toContain('assertAuthoritativeMirrorDocument(pageElement');
+    expect(exporter).not.toContain('buildOverlayElement');
     expect(exporter).toContain('export async function exportSignagePDF');
   });
 

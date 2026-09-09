@@ -224,7 +224,7 @@ describe('guest-facing Photo & Video Sharing Upload experience', () => {
   it('uses singular and plural photo-or-video wording and preserves album submission and removal', async () => {
     const { container } = renderPage();
     await screen.findByRole('heading', { name: gallery.event_name });
-    fireEvent.change(screen.getByLabelText(/Your full name/), { target: { value: 'Ken Wilson' } });
+    fireEvent.change(screen.getByLabelText(/Your Full Name/), { target: { value: 'Ken Wilson' } });
     fireEvent.change(screen.getByLabelText(/Album/), { target: { value: 'Reception' } });
 
     const longName = 'a-very-long-mobile-wedding-memory-filename-that-must-not-overflow.jpg';

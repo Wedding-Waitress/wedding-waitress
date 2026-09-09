@@ -11,18 +11,26 @@ const delayed = vi.hoisted(() => ({
   failed: false,
 }));
 
+const navigationTrace = vi.hoisted(() => ({ activeTabs: [] as string[] }));
+
 vi.mock('@/components/ui/sidebar', () => ({
   SidebarProvider: ({ children }: React.PropsWithChildren) => <>{children}</>,
   SidebarTrigger: () => <button type="button">Open menu</button>,
 }));
 vi.mock('@/components/Dashboard/AppSidebar', () => ({
-  AppSidebar: ({ activeTab, onTabChange }: { activeTab: string; onTabChange: (tab: string) => void }) => (
-    <aside data-testid="dashboard-sidebar">
-      <button aria-current={activeTab === 'qr-code' ? 'page' : undefined} onClick={() => onTabChange('qr-code')}>QR Code Seating Chart</button>
-      <button aria-current={activeTab === 'signage' ? 'page' : undefined} onClick={() => onTabChange('signage')}>Seating Chart Signs</button>
-      <span data-testid="active-tab">{activeTab}</span>
-    </aside>
-  ),
+  AppSidebar: ({ activeTab, onTabChange }: { activeTab: string; onTabChange: (tab: string) => void }) => {
+    React.useEffect(() => {
+      navigationTrace.activeTabs.push(activeTab);
+    }, [activeTab]);
+
+    return (
+      <aside data-testid="dashboard-sidebar">
+        <button aria-current={activeTab === 'qr-code' ? 'page' : undefined} onClick={() => onTabChange('qr-code')}>QR Code Seating Chart</button>
+        <button aria-current={activeTab === 'signage' ? 'page' : undefined} onClick={() => onTabChange('signage')}>Seating Chart Signs</button>
+        <span data-testid="active-tab">{activeTab}</span>
+      </aside>
+    );
+  },
 }));
 vi.mock('@/components/Dashboard/GuestListTable', () => ({
   GuestListTable: ({ selectedEventId, onNavigateToTables }: { selectedEventId: string | null; onNavigateToTables: () => void }) => (
@@ -74,12 +82,18 @@ describe('persistent Dashboard navigation shell', () => {
     delayed.promise = null;
     delayed.resolve = null;
     delayed.failed = false;
+    navigationTrace.activeTabs = [];
   });
 
   it('keeps sidebar DOM identity and immediate selection while destination code is slow', async () => {
     const router = renderDashboard('/dashboard?tab=qr-code');
     expect(await screen.findByText('QR content')).toBeInTheDocument();
     const sidebar = screen.getByTestId('dashboard-sidebar');
+    navigationTrace.activeTabs = [];
+    let signageLocationUpdates = 0;
+    const unsubscribe = router.subscribe((state) => {
+      if (state.location.search === '?tab=signage') signageLocationUpdates += 1;
+    });
 
     delayed.pending = true;
     delayed.promise = new Promise<void>((resolve) => { delayed.resolve = resolve; });
@@ -90,6 +104,8 @@ describe('persistent Dashboard navigation shell', () => {
     expect(router.state.location.search).toBe('?tab=signage');
     expect(screen.getByRole('button', { name: 'Seating Chart Signs' })).toHaveAttribute('aria-current', 'page');
     expect(screen.getByTestId('dashboard-sidebar')).toBe(sidebar);
+    expect(signageLocationUpdates).toBe(1);
+    expect(navigationTrace.activeTabs).toEqual(['signage']);
     // Deferred navigation keeps the already rendered page visible while the
     // destination suspends, avoiding a blank/full-page loading takeover.
     expect(screen.getByText('QR content')).toBeInTheDocument();
@@ -114,6 +130,7 @@ describe('persistent Dashboard navigation shell', () => {
     expect(await screen.findByText('Signage content')).toBeInTheDocument();
     const repeatNavigationMs = performance.now() - repeatStart;
     expect(Number.isFinite(repeatNavigationMs)).toBe(true);
+    unsubscribe();
     console.info(`[navigation timing] first-feedback=${firstFeedbackMs.toFixed(2)}ms repeat-content=${repeatNavigationMs.toFixed(2)}ms`);
   });
 
@@ -140,10 +157,12 @@ describe('persistent Dashboard navigation shell', () => {
   it('keeps Guest List on the dashboard-selected event and routes the no-table action to Tables', async () => {
     const router = renderDashboard('/dashboard?tab=guest-list');
     expect(await screen.findByTestId('guest-list-event')).toHaveTextContent('event-1');
+    expect(screen.queryByLabelText('Planning workflow step 4')).not.toBeInTheDocument();
 
     fireEvent.click(screen.getByRole('button', { name: 'Create Tables First' }));
     expect(router.state.location.search).toBe('?tab=table-list');
     expect(await screen.findByText('No tables created yet')).toBeInTheDocument();
+    expect(screen.queryByLabelText('Planning workflow step 3')).not.toBeInTheDocument();
   });
 
   it('keeps navigation usable around a recoverable page-content failure', async () => {

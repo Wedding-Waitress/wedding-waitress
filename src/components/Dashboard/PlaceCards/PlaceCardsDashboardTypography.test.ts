@@ -28,7 +28,7 @@ describe('Name Place Cards dashboard typography contract', () => {
 
   it('keeps responsive tabs exact and portals feature-owned', () => {
     expect(pageCss).toMatch(/@media \(max-width:\s*480px\)[\s\S]*?\[role="tab"\][\s\S]*?font-size:\s*13px\s*!important;/);
-    expect(pageCss).toMatch(/\[role="tab"\]\s*\{[^}]*display:\s*flex\s*!important;[^}]*flex-direction:\s*row\s*!important;[^}]*align-items:\s*center\s*!important;[^}]*justify-content:\s*center\s*!important;[^}]*gap:\s*6px\s*!important;[^}]*white-space:\s*nowrap\s*!important;/);
+    expect(pageCss).toMatch(/\[role="tab"\]\s*\{[^}]*display:\s*flex\s*!important;[^}]*flex-direction:\s*column\s*!important;[^}]*align-items:\s*center\s*!important;[^}]*justify-content:\s*center\s*!important;[^}]*gap:\s*6px\s*!important;[^}]*white-space:\s*nowrap\s*!important;/);
     expect(pageCss).toMatch(/@media \(max-width:767px\)[\s\S]*?\[role="tablist"\][\s\S]*?overflow-x:\s*auto;[\s\S]*?\[role="tab"\][\s\S]*?min-width:\s*max-content\s*!important;/);
     expect(customizer).toMatch(/<Palette[^>]*\/>\s*Design/);
     expect(customizer).toMatch(/<Move[^>]*\/>\s*Text Position/);
@@ -43,6 +43,6 @@ describe('Name Place Cards dashboard typography contract', () => {
     expect(pageCss).toContain(':not([data-page] *)');
     expect(pageCss).not.toContain(':global([data-page');
     expect(preview).toContain('data-page={currentPage - 1}');
-    expect(preview).toContain('data-page={pageIndex}');
+    expect(preview).toContain('data-print-mirror-document="name-place-cards"');
   });
 });

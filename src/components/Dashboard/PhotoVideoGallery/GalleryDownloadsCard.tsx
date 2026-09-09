@@ -213,7 +213,7 @@ export const GalleryDownloadsCard: React.FC<{
         <FolderDown className="h-5 w-5 text-[#967A59] shrink-0 mt-1" />
         <div className="min-w-0">
           <h3 className={cn('text-xl', isGlass ? 'font-semibold tracking-[-0.012em] leading-tight text-white' : 'font-bold text-black')} style={isGlass ? undefined : { color: '#000000' }}>{title || 'Download as ZIP'}</h3>
-          <p className={cn('text-sm mt-1 break-words', isGlass && 'font-normal text-[#e8ddd2]')} style={isGlass ? undefined : { color: '#1a1a1a' }}>{description || 'Bundle uploaded media into a single ZIP file.'}</p>
+          <p className={cn('text-sm mt-1 break-words', isGlass && ['font-normal text-[#e8ddd2]', managementStyles.sharingHeadingDescription])} style={isGlass ? undefined : { color: '#1a1a1a' }}>{description || 'Bundle uploaded media into a single ZIP file.'}</p>
         </div>
       </div>
 

@@ -13,18 +13,19 @@ describe('Reception lower workspace layout', () => {
   const smartPanel = read('src/components/Dashboard/FloorPlan/ReceptionFloorPlan/SmartIntelligencePanel.tsx');
   const sharePanel = read('src/components/Dashboard/FloorPlan/ReceptionFloorPlan/ShareLinkPanel.tsx');
 
-  it('consolidates setup and live status into one responsive four-card master panel', () => {
+  it('consolidates setup and live status into one responsive venue and notes master panel', () => {
     expect(page.match(/data-reception-setup-master=/g)).toHaveLength(1);
     expect(page).toContain('Reception Setup &amp; Status');
-    expect(page.match(/data-reception-setup-card=/g)).toHaveLength(3);
+    expect(page.match(/data-reception-setup-card=/g)).toHaveLength(1);
+    expect(page.match(/<VendorNotesPanel/g)).toHaveLength(1);
     expect(smartPanel.match(/data-reception-setup-card=/g)).toHaveLength(1);
-    expect(page.match(/<ReceptionCapacityBanner/g)).toHaveLength(1);
-    expect(page.match(/<SmartIntelligencePanel/g)).toHaveLength(1);
+    expect(page).toContain('attendingCount={attendingCount}');
+    expect(page).not.toContain('SmartIntelligencePanel');
     expect(page).not.toContain('data-reception-workspace-status');
     expect(theme).not.toContain('.workspaceStatus');
     expect(theme).toMatch(/\.setupGrid\s*\{[\s\S]*?grid-template-columns: minmax\(0, 1fr\)/);
     expect(theme).toMatch(/@media \(min-width: 768px\)[\s\S]*?\.setupGrid[\s\S]*?repeat\(2, minmax\(0, 1fr\)\)/);
-    expect(theme).toMatch(/@media \(min-width: 1280px\)[\s\S]*?\.setupGrid[\s\S]*?1\.15fr/);
+    expect(theme).toMatch(/@media \(min-width: 1280px\)[\s\S]*?\.setupGrid[\s\S]*?repeat\(2, minmax\(0, 1fr\)\)/);
   });
 
   it('keeps Smart Suggestions compact while its open details span the master grid', () => {
@@ -39,12 +40,13 @@ describe('Reception lower workspace layout', () => {
     expect(theme).toMatch(/@media \(min-width: 1280px\)[\s\S]*?\.smartSuggestionGrid[\s\S]*?repeat\(4, minmax\(0, 1fr\)\)/);
   });
 
-  it('renders the four existing management panels once in one responsive grid', () => {
-    expect(page.match(/data-reception-management-grid=/g)).toHaveLength(1);
-    expect(page.match(/<VenueBackgroundPanel/g)).toHaveLength(1);
-    expect(page.match(/<AutoLayoutPanel/g)).toHaveLength(1);
-    expect(page.match(/<RoomShapePanel/g)).toHaveLength(1);
-    expect(page.match(/<ShareLinkPanel/g)).toHaveLength(1);
+  it('renders the remaining sharing panel once in one responsive grid', () => {
+    expect(page.match(/<FloorPlanShareModal/g)).toHaveLength(1);
+    expect(page.match(/<ChooseVenueDialog/g)).toHaveLength(1);
+    expect(page.match(/<SubmitTemplateDialog/g)).toHaveLength(1);
+    expect(page).not.toContain('<AutoLayoutPanel');
+    expect(page).not.toContain('<RoomShapePanel');
+    expect(page).toContain('eventId={selectedEventId} kind="reception"');
     expect(theme).toMatch(/@media \(min-width: 768px\)[\s\S]*?repeat\(2, minmax\(0, 1fr\)\)/);
     expect(theme).toMatch(/@media \(min-width: 1280px\)[\s\S]*?repeat\(4, minmax\(0, 1fr\)\)/);
   });
@@ -63,7 +65,7 @@ describe('Reception lower workspace layout', () => {
     expect(canvas.match(/<ReceptionFloorPlanA4Preview/g)).toHaveLength(1);
     expect(canvas.indexOf('data-reception-fixtures-palette')).toBeLessThan(canvas.indexOf('<ReceptionFloorPlanA4Preview'));
     expect(canvas).not.toContain('lg:w-64');
-    expect(canvas).toContain('sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-7');
+    expect(canvas).toContain('sm:grid-cols-4 lg:grid-cols-5 xl:grid-cols-8');
   });
 
   it('contains the Reception sharing toggle and enabled controls inside the card', () => {
@@ -76,9 +78,9 @@ describe('Reception lower workspace layout', () => {
     expect(theme).toMatch(/\.shareUrlField[\s\S]*?text-overflow: ellipsis/);
   });
 
-  it('keeps the legacy catalogue while showing 13 non-table fixtures, including Wishing Well, as full-card colour with white content', () => {
-    expect(FIXTURE_CATALOG).toHaveLength(14);
-    expect(new Set(FIXTURE_CATALOG.map((fixture) => fixture.color)).size).toBe(14);
+  it('keeps the legacy catalogue while showing 16 non-table fixtures, including Wishing Well, as full-card colour with white content', () => {
+    expect(FIXTURE_CATALOG).toHaveLength(17);
+    expect(new Set(FIXTURE_CATALOG.map((fixture) => fixture.color)).size).toBe(17);
     expect(FIXTURE_CATALOG).toContainEqual(expect.objectContaining({
       type: 'wishing_well',
       label: 'Wishing Well',
@@ -94,7 +96,7 @@ describe('Reception lower workspace layout', () => {
     expect(FIXTURE_PALETTE_CATALOG.map((fixture) => fixture.label)).toEqual([
       'Bar',
       'Cake Table',
-      'Column',
+      'Band Table',
       'Dance Floor',
       'DJ / Band',
       'Door',
@@ -103,8 +105,11 @@ describe('Reception lower workspace layout', () => {
       'Photo Booth',
       'Stage',
       'Toilets',
+      'Wall',
       'Window',
       'Wishing Well',
+      'Add Text',
+      'Add Block',
     ]);
   });
 });

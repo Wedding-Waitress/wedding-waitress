@@ -101,12 +101,15 @@ export const CeremonyFloorPlanA4 = React.forwardRef<HTMLDivElement, CeremonyFloo
     return <section className={styles.party} data-ceremony-party={side}>
       <h3 className={styles.sectionHeading}>{label} ({count})</h3>
       <div className={styles.partyGrid} data-ceremony-party-grid={side} style={{ gridTemplateColumns: `repeat(5, ${layout.seatWidthMm}mm)`, columnGap: `${layout.seatGapMm}mm` }}>
-        {Array.from({ length: count }, (_, index) => {
+        {Array.from({ length: count }, (_, position) => {
+          // Preserve saved name/role indices; display each side from the couple outward.
+          const index = side === 'left' ? count - 1 - position : position;
+          const number = position + 1;
           const name = names?.[index] || '';
           const role = getRole(side, index);
           const editingName = editing?.kind === 'party' && editing.side === side && editing.index === index;
           const editingRole = editing?.kind === 'role' && editing.side === side && editing.index === index;
-          return <div className={styles.partyMember} data-ceremony-party-member={`${side}-${index}`} key={`${side}-party-${index}`} style={{ width: `${layout.seatWidthMm}mm` }}>
+          return <div className={styles.partyMember} data-ceremony-party-member={`${side}-${index}`} key={`${side}-party-${index}`} style={{ width: `${layout.seatWidthMm}mm`, gridColumn: side === 'left' ? 5 - (position % 5) : (position % 5) + 1, gridRow: Math.floor(position / 5) + 1 }}>
             <div
               className={`${styles.seat} ${styles.partySeat} ${onBridalPartyUpdate ? styles.editable : ''}`}
               data-ceremony-party-seat={`${side}-${index}`}
@@ -114,10 +117,10 @@ export const CeremonyFloorPlanA4 = React.forwardRef<HTMLDivElement, CeremonyFloo
               onClick={() => beginEdit({ kind: 'party', side, index }, name)}
               title={name || 'Click to assign'}
             >
-              {editingName ? editInput(`${label} ${index + 1} name`) : <span className={styles.seatText}>{name || index + 1}</span>}
+              {editingName ? editInput(`${label} ${number} name`) : <span className={styles.seatText}>{name || number}</span>}
             </div>
             <div className={`${styles.role} ${onBridalPartyRoleUpdate ? styles.editable : ''}`} data-ceremony-role={role} style={{ width: `${layout.seatWidthMm}mm` }} onClick={() => beginEdit({ kind: 'role', side, index }, role)} title={role}>
-              {editingRole ? editInput(`${label} ${index + 1} role`) : role}
+              {editingRole ? editInput(`${label} ${number} role`) : role}
             </div>
           </div>;
         })}
@@ -127,6 +130,7 @@ export const CeremonyFloorPlanA4 = React.forwardRef<HTMLDivElement, CeremonyFloo
 
   const renderSeat = (side: Side, row: number, seat: number) => {
     const assigned = row <= floorPlan.assigned_rows;
+    const chairNumber = (row - 1) * floorPlan.chairs_per_row + seat;
     const name = floorPlan.seat_assignments.find(item => item.side === side && item.row === row && item.seat === seat)?.name || '';
     const isEditing = editing?.kind === 'seat' && editing.side === side && editing.row === row && editing.seat === seat;
     return <div
@@ -134,12 +138,13 @@ export const CeremonyFloorPlanA4 = React.forwardRef<HTMLDivElement, CeremonyFloo
       data-assigned={assigned}
       data-ceremony-seat={`${side}-${row}-${seat}`}
       data-family-seat="true"
+      data-chair-number={chairNumber}
       key={`${side}-${row}-${seat}`}
       style={{ width: `${layout.seatWidthMm}mm`, height: `${layout.seatHeightMm}mm` }}
       onClick={() => assigned && beginEdit({ kind: 'seat', side, row, seat }, name)}
       title={assigned ? name || 'Click to assign' : 'General seating'}
     >
-      {isEditing ? editInput(`${side} row ${row} seat ${seat}`) : <span className={styles.seatText}>{name || (floorPlan.show_seat_numbers ? seat : '—')}</span>}
+      {isEditing ? editInput(`${side} row ${row} seat ${seat}`) : <span className={styles.seatText}>{name || (floorPlan.show_seat_numbers ? chairNumber : '—')}</span>}
     </div>;
   };
 
@@ -182,7 +187,7 @@ export const CeremonyFloorPlanA4 = React.forwardRef<HTMLDivElement, CeremonyFloo
       <h1 className={styles.eventName}>{event.name}</h1>
       <h2 className={styles.title}>Ceremony Floor Plan</h2>
       <div className={styles.details}>Ceremony: {formatDate(ceremonyDate)} | {ceremonyVenue} | {ceremonyTimes}</div>
-      <div className={styles.total}>Total Attending Ceremony: <strong>{totalAttending}</strong> (This includes Bride &amp; Groom + Celebrant + Bridal Party + all Family &amp; Friends)</div>
+      <div className={styles.total}>Total Attending Ceremony: <strong>{totalAttending}</strong> · Family &amp; guest chairs: <strong data-ceremony-chair-total="true">{familySeats * 2}</strong> ({familySeats} per side) · Couple: 2 · Celebrant: 1 · Bridal party: {leftCount + rightCount}</div>
       <div className={styles.separator} />
     </header>
     <main className={styles.documentBody}>
@@ -211,7 +216,7 @@ export const CeremonyFloorPlanA4 = React.forwardRef<HTMLDivElement, CeremonyFloo
 
 CeremonyFloorPlanA4.displayName = 'CeremonyFloorPlanA4';
 
-export const CeremonyFloorPlanA4Preview: React.FC<CeremonyFloorPlanA4Props & { pageRef: React.RefObject<HTMLDivElement> }> = ({ pageRef, ...props }) => {
+export const CeremonyFloorPlanA4Preview: React.FC<CeremonyFloorPlanA4Props & { pageRef: React.RefObject<HTMLDivElement>; fitViewport?: boolean }> = ({ pageRef, fitViewport = false, ...props }) => {
   const viewportRef = React.useRef<HTMLDivElement>(null);
   const [sheetPixels, setSheetPixels] = React.useState({ width: 1123, height: 794 });
   const [scale, setScale] = React.useState(1);
@@ -223,17 +228,19 @@ export const CeremonyFloorPlanA4Preview: React.FC<CeremonyFloorPlanA4Props & { p
     const resize = () => {
       const width = sheet.offsetWidth || 1123;
       const height = sheet.offsetHeight || 794;
-      const fitScale = Math.min(1, viewport.clientWidth / width);
+      const fitScale = fitViewport
+        ? Math.min(viewport.clientWidth / width, viewport.clientHeight / height)
+        : Math.min(1, viewport.clientWidth / width);
       setSheetPixels({ width, height });
-      setScale(Math.max(0.55, fitScale));
+      setScale(Math.max(fitViewport ? 0.01 : 0.55, fitScale));
     };
     resize();
     const observer = new ResizeObserver(resize);
     observer.observe(viewport);
     return () => observer.disconnect();
-  }, [pageRef]);
+  }, [pageRef, fitViewport]);
 
-  return <div ref={viewportRef} className={styles.previewViewport} data-ceremony-preview-viewport="true">
+  return <div ref={viewportRef} className={styles.previewViewport} style={fitViewport ? { flex: 1, minHeight: 0, overflow: 'hidden' } : undefined} data-ceremony-preview-viewport="true">
     <div className={styles.previewCanvas} style={{ width: `${sheetPixels.width * scale}px`, height: `${sheetPixels.height * scale}px` }}>
       <div
         className={styles.previewSheet}

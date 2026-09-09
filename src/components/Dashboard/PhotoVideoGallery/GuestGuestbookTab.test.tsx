@@ -57,7 +57,7 @@ describe('public Digital Guestbook glass form', () => {
     const panel = heading.closest('.rounded-2xl');
     expect(panel).toHaveClass(publicUploadStyles.uploadPanel, publicUploadStyles.guestbookPanel);
     expect(heading).toHaveClass(publicUploadStyles.sectionHeading);
-    expect(screen.getByText('Leave a written, audio or video message—or any combination.')).toHaveClass(
+    expect(screen.getByText(/Leave a written, audio or video message—or any combination/)).toHaveClass(
       publicUploadStyles.secondaryText,
     );
 
@@ -107,4 +107,68 @@ describe('public Digital Guestbook glass form', () => {
     expect(success).toHaveClass(publicUploadStyles.guestbookSuccess);
     expect(success).toHaveTextContent('your message has been added to the guestbook');
   });
+  it('clears a saved text draft and creates a separate submission for the next message', async () => {
+    renderGuestbook();
+    fireEvent.change(screen.getByLabelText(/Your full name/i), { target: { value: 'QA Guest' } });
+    for (const value of ['First message', 'Second message']) {
+      const input = screen.getByRole('textbox', { name: '' });
+      fireEvent.change(input, { target: { value } });
+      fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+      await screen.findByRole('button', { name: 'Write Another Message' });
+      expect(screen.queryByRole('textbox', { name: '' })).not.toBeInTheDocument();
+      expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument();
+      fireEvent.click(screen.getByRole('button', { name: 'Write Another Message' }));
+    }
+    expect(mocks.rpc.mock.calls.map(call => call[0])).toEqual(['submit_event_guestbook_text', 'submit_event_guestbook_text']);
+  });
+
+  it('retains a rejected text draft for retry', async () => {
+    mocks.rpc.mockResolvedValueOnce({ error: new Error('Save rejected') });
+    renderGuestbook();
+    fireEvent.change(screen.getByLabelText(/Your full name/i), { target: { value: 'QA Guest' } });
+    const input = screen.getByRole('textbox', { name: '' });
+    fireEvent.change(input, { target: { value: 'Keep this draft' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+    expect(await screen.findByRole('alert')).toHaveTextContent('Save rejected');
+    expect(input).toHaveValue('Keep this draft');
+  });
+
+  it.each(['Audio', 'Video'])('allows two separate %s recordings and retains failed uploads', async (kind) => {
+    const stopTrack = vi.fn();
+    navigator.mediaDevices.getUserMedia = vi.fn().mockResolvedValue({ getTracks: () => [{ stop: stopTrack }] });
+    class Recorder {
+      static isTypeSupported() { return true; }
+      mimeType: string; state = 'inactive'; ondataavailable: any; onstop: any;
+      constructor(_stream: any, options: any) { this.mimeType = options.mimeType; }
+      start() { this.state = 'recording'; }
+      stop() { this.state = 'inactive'; this.ondataavailable({ data: new Blob(['qa recording'], { type: this.mimeType }) }); this.onstop(); }
+    }
+    vi.stubGlobal('MediaRecorder', Recorder);
+    const createUrl = vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:qa-recording');
+    const revokeUrl = vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => {});
+    const play = vi.spyOn(HTMLMediaElement.prototype, 'play').mockResolvedValue();
+    try {
+      renderGuestbook();
+      fireEvent.change(screen.getByLabelText(/Your full name/i), { target: { value: 'QA Guest' } });
+      for (let attempt = 0; attempt < 2; attempt++) {
+        fireEvent.click(screen.getByRole('button', { name: attempt === 0 ? 'Start ' + kind + ' Message' : 'Record Again' }));
+        fireEvent.click(await screen.findByRole('button', { name: 'Start recording' }));
+        fireEvent.click(screen.getByRole('button', { name: 'Stop' }));
+        if (attempt === 0) {
+          mocks.upload.mockRejectedValueOnce(new Error('Upload failed'));
+          fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+          expect(await screen.findByRole('alert')).toHaveTextContent('Upload failed');
+          expect(screen.getByRole('button', { name: 'Record again' })).toBeEnabled();
+        }
+        fireEvent.click(screen.getByRole('button', { name: 'Save' }));
+        await screen.findByRole('button', { name: 'Record Again' });
+        expect(screen.queryByRole('button', { name: 'Record again' })).not.toBeInTheDocument();
+        expect(screen.queryByRole('button', { name: 'Remove' })).not.toBeInTheDocument();
+      }
+      expect(mocks.upload).toHaveBeenCalledTimes(3);
+      expect(mocks.rpc).not.toHaveBeenCalled();
+      expect(revokeUrl).toHaveBeenCalledTimes(2);
+    } finally { createUrl.mockRestore(); revokeUrl.mockRestore(); play.mockRestore(); vi.unstubAllGlobals(); }
+  });
+
 });

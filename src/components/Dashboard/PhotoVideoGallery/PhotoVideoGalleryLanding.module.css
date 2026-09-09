@@ -118,9 +118,9 @@
   container-name: photo-video-features;
   container-type: inline-size;
 }
-.featuresHeading { min-width: 0; margin-bottom: 1.25rem; }
-.featuresHeading h2 { display: flex; align-items: center; gap: .5rem; }
-.featuresHeading p { margin-top: .25rem; }
+.featuresHeading { display: flex; align-items: flex-start; gap: .55rem; min-width: 0; margin-bottom: 1.5rem; }
+.featuresHeading h2 { display: flex; align-items: center; gap: .55rem; }
+.featuresHeading p { margin-top: 0; }
 .featureGrid { display: grid; grid-template-columns: minmax(0,1fr); align-items: stretch; gap: 1rem; }
 
 .featureCard {
@@ -256,6 +256,16 @@
 .retryButton.retryButton:focus-visible { outline: 3px solid rgba(150,122,89,.32); outline-offset: 2px; }
 .retryButton.retryButton:disabled { color: #705848 !important; background: #e8d7c0 !important; opacity: 1; }
 
+.upgradeButton.upgradeButton {
+  min-height: 40px;
+  border: 1px solid #176d35 !important;
+  color: #17361f !important;
+  background: linear-gradient(180deg, #72df86 0%, #51bd62 100%) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.45), 0 5px 12px rgba(35,126,61,.2) !important;
+}
+.upgradeButton.upgradeButton:hover:not(:disabled) { background: linear-gradient(180deg, #80e691 0%, #5cc96d 100%) !important; }
+.upgradeButton.upgradeButton:focus-visible { outline: 3px solid rgba(43,126,65,.3); outline-offset: 2px; }
+
 @container photo-video-features (min-width: 28rem) { .featureGrid { grid-template-columns: repeat(2,minmax(0,1fr)); } }
 @container photo-video-features (min-width: 44rem) { .featureGrid { grid-template-columns: repeat(3,minmax(0,1fr)); } }
 @container photo-video-features (min-width: 84rem) { .featureGrid { grid-template-columns: repeat(5,minmax(0,1fr)); } }
@@ -275,3 +285,86 @@
   .manageButton,
   .eventTrigger.eventTrigger { transition: none; }
 }
+/* Keep the light dashboard palette above legacy white control text rules. */
+:global(#root#root) .page :is(.eventTrigger, .eventTrigger span, .manageButton, .manageButton span, .eventLabel) {
+  color: #2f1b14 !important;
+  -webkit-text-fill-color: #2f1b14 !important;
+}
+:global(#root#root) .page :is(.headingIcon, .eventLabel svg, .eventTrigger svg, .featuresHeading svg, .featureCopy > svg, .manageButton svg) {
+  color: #967a59 !important;
+  stroke: currentColor !important;
+  opacity: 1 !important;
+}
+:global(body) .eventMenu.eventMenu :is([role="option"], [role="option"] span) {
+  color: #2f1b14 !important;
+  -webkit-text-fill-color: #2f1b14 !important;
+}
+:global(body) .eventMenu.eventMenu svg { color: #967a59 !important; opacity: 1 !important; }
+:global(#root#root) .page :is(.headingCopy h1, .featuresHeading h2) {
+  font-family: var(--ww-interface-font-family) !important;
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  line-height: 31px !important;
+  color: #2f1b14 !important;
+  -webkit-text-fill-color: #2f1b14 !important;
+}
+:global(#root#root) .page :is(.eventLabel, .eventTrigger, .featuresHeading, .manageButton) svg,
+:global(#root#root) .page :is(.eventLabel, .eventTrigger, .featuresHeading, .manageButton) svg * {
+  color: #967a59 !important;
+  stroke: #967a59 !important;
+  opacity: 1 !important;
+}
+/* Match Run Sheet event choices, including the selected and hover states. */
+:global(body) .eventMenu.eventMenu {
+  background: #fffaf2 !important;
+  border-color: #d1b180 !important;
+  box-shadow: inset 0 1px 0 #fff, 0 16px 34px rgba(57,34,19,.2) !important;
+}
+:global(body) .eventMenu.eventMenu .eventOption {
+  font-family: var(--ww-interface-font-family) !important;
+  font-size: 14px !important;
+  font-weight: 400 !important;
+  line-height: 20px !important;
+  color: #4a3025 !important;
+  background: #fffaf2 !important;
+}
+:global(body) .eventMenu.eventMenu .eventOption:is(:hover, :focus, [data-highlighted]) {
+  color: #2f1b14 !important;
+  background: #f0ddc1 !important;
+}
+:global(body) .eventMenu.eventMenu .eventOption svg { color: #4a3025 !important; }
+:global(#root#root) .page .eventTrigger .eventValue {
+  display: inline-flex !important;
+  flex-direction: row !important;
+  align-items: center !important;
+  gap: .5rem !important;
+  min-width: 0;
+}
+:global(#root#root) .page .eventTrigger .eventValue > span {
+  display: inline !important;
+  min-width: 0;
+  overflow: hidden;
+  text-overflow: ellipsis;
+  white-space: nowrap;
+}
+:global(#root#root) .page .eventTrigger .eventValue > svg { flex-shrink: 0 !important; }
+
+.eventSelectorRow {display:flex;align-items:center;gap:12px;min-width:0;}
+.eventSelectorRow .eventLabel {flex-shrink:0;margin:0;}
+.eventSelectorRow .eventTrigger {flex:1;min-width:0;}
+
+/* Approved espresso navigation treatment across all five feature cards. */
+:global(#root#root#root) .page .manageButton {
+ border:0!important;
+ background:linear-gradient(180deg,#4a3025,#2f1b14)!important;
+ box-shadow:inset 0 1px 0 #ffffff40,inset 0 -2px 0 #170c0980,0 4px 10px #2f1b1430!important;
+}
+:global(#root#root#root) .page .manageButton,
+:global(#root#root#root) .page .manageButton * {
+ color:#fff!important;-webkit-text-fill-color:#fff!important;
+}
+:global(#root#root#root) .page .manageButton :is(svg,svg *) {stroke:#fff!important;}
+
+:global(#root#root#root) .page .manageButton .manageIcon,
+:global(#root#root#root) .page .manageButton .manageIcon * {color:#2f1b14!important;stroke:#2f1b14!important;-webkit-text-fill-color:#2f1b14!important;}
+:global(#root#root#root) .page .manageButton .manageIcon {border-color:#2f1b14!important;}

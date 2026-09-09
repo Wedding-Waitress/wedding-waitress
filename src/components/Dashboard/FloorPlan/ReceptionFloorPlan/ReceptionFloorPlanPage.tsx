@@ -1,30 +1,26 @@
+import { Printer as ExportControlsPrinter } from 'lucide-react';
+import {ReceptionDraftReview} from '../ReceptionDraftReview';
+import {FloorPlanShareModal} from '../FloorPlanShareModal';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Card, CardContent } from '@/components/ui/card';
-import { Input } from '@/components/ui/input';
-import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Loader2, Printer, Download, Building2, UploadCloud, Ruler, Users } from 'lucide-react';
+import { Loader2, Printer, Download, Building2, UploadCloud, Share2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useReceptionTables } from '@/hooks/useReceptionTables';
 import { useReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
 import { useAttendingGuestCount } from '@/hooks/useAttendingGuestCount';
 import type { Event } from '@/hooks/useEvents';
 import { ReceptionFloorPlanCanvas } from './ReceptionFloorPlanCanvas';
-import { ReceptionCapacityBanner } from './ReceptionCapacityBanner';
-import { ResetLayoutDialog } from './ResetLayoutDialog';
-import { VenueBackgroundPanel } from './VenueBackgroundPanel';
+
+import {useReceptionLayoutHistory,resetReceptionLayout} from '@/hooks/useReceptionLayoutHistory';
 import {
   exportReceptionPreviewToPdf,
   type ReceptionPdfPageSize,
 } from '@/lib/receptionFloorPlanPdfExporter';
 import { BackgroundCalibrationOverlay } from './BackgroundCalibrationOverlay';
-import { RoomShapePanel } from './RoomShapePanel';
-import { ShareLinkPanel } from './ShareLinkPanel';
 import { ChooseVenueDialog } from './ChooseVenueDialog';
 import { SubmitTemplateDialog } from './SubmitTemplateDialog';
-import { SmartIntelligencePanel } from './SmartIntelligencePanel';
-import { AutoLayoutPanel } from './AutoLayoutPanel';
 import { VendorNotesPanel } from './VendorNotesPanel';
 import { TableNotePanel } from './TableNotePanel';
 import styles from './ReceptionFloorPlanTheme.module.css';
@@ -51,19 +47,20 @@ export const ReceptionFloorPlanPage = ({
   const {
     plan,
     loading: planLoading,
-    update,
+    saveError,
+    loadError,
+    flush, settle, reload,
+    update: commit,
     backgroundUrl,
     uploadBackground,
-    removeBackground,
     uploadingBackground,
-    generateShareToken,
-    revokeShareToken,
   } = useReceptionFloorPlan(selectedEventId);
   const { count: attendingCount } = useAttendingGuestCount(selectedEventId);
   const { toast } = useToast();
-  const [resetOpen, setResetOpen] = useState(false);
+  const {update,undo,canUndo} = useReceptionLayoutHistory(selectedEventId,commit,tables);
   const [exporting, setExporting] = useState<ReceptionPdfPageSize | null>(null);
   const [calibrating, setCalibrating] = useState(false);
+  const [shareOpen,setShareOpen]=useState(false);
   const [chooseVenueOpen, setChooseVenueOpen] = useState(false);
   const [submitTemplateOpen, setSubmitTemplateOpen] = useState(false);
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
@@ -74,39 +71,36 @@ export const ReceptionFloorPlanPage = ({
 
   useEffect(() => {
     if (!plan || plan.event_id !== selectedEventId || tablesLoading || !tablesReady) return;
-    const reconciled = reconcileReceptionFloorPlan(plan, tables);
-    if (reconciled !== plan) update(() => reconciled);
-  }, [plan, selectedEventId, tables, tablesLoading, tablesReady, update]);
+    commit(current => reconcileReceptionFloorPlan(current, tables));
+  }, [plan, selectedEventId, tables, tablesLoading, tablesReady, commit]);
 
 
-  const handleReset = (scope: 'tables' | 'fixtures' | 'all') => {
-    update((p) => ({
-      ...p,
-      table_positions: scope === 'fixtures' ? p.table_positions : [],
-      fixtures: scope === 'tables' ? p.fixtures : [],
-    }));
-    toast({
-      title: 'Layout reset',
-      description:
-        scope === 'tables'
-          ? 'All placed tables were returned to the unplaced tray.'
-          : scope === 'fixtures'
-          ? 'All fixtures were removed.'
-          : 'The reception floor plan was fully cleared.',
-    });
+  useEffect(() => {
+    const mark = () => receptionA4Ref.current?.closest('[data-reception-document-group]')?.setAttribute('data-reception-print-source', 'true');
+    const clear = () => receptionA4Ref.current?.closest('[data-reception-document-group]')?.removeAttribute('data-reception-print-source');
+    window.addEventListener('beforeprint', mark);
+    window.addEventListener('afterprint', clear);
+    return () => { window.removeEventListener('beforeprint', mark); window.removeEventListener('afterprint', clear); clear(); };
+  }, []);
+
+  const handleReset = () => {
+    update(p => resetReceptionLayout(p,tables));
+    setSelectedTableId(null);
+    toast({title:'Layout reset',description:'Your default room and furniture layout has been restored. Use Undo to go back.'});
   };
 
   const handleExport = async (size: ReceptionPdfPageSize) => {
     if (!plan || !receptionA4Ref.current) return;
     setExporting(size);
     try {
+      toast({ title: 'Generating PDF', description: 'Preparing your reception floor plan...' });
       await exportReceptionPreviewToPdf({
         pageElement: receptionA4Ref.current,
         eventName: selectedEvent.name,
         eventDate: selectedEvent.date,
       });
       toast({
-        title: 'Floor plan exported',
+        title: 'PDF Downloaded',
         description: `${size.toUpperCase()} PDF downloaded successfully.`,
       });
     } catch (err) {
@@ -122,19 +116,20 @@ export const ReceptionFloorPlanPage = ({
   };
 
   const headerControls = plan ? (
-    <div
+    <div data-export-controls-panel
         className={`${headerStyles.exportControls} flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-end`}
         data-floor-plan-export-controls="true"
         data-reception-export-controls="true"
       >
-        <p className={`${headerStyles.featureHeading} text-sm font-bold inline-flex items-center gap-1.5 whitespace-nowrap`}>
-          <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
-          <span>Export Controls</span>
-        </p>
+        <div className={`${styles.setupCardHeading} whitespace-nowrap`}>
+
+          <span data-export-controls-heading><ExportControlsPrinter size={16} strokeWidth={2} aria-hidden="true" />Export Controls</span>
+        </div>
         <span id="reception-floor-plan-export-description" className="sr-only">
           Download your reception floor plan PDF.
         </span>
-        <div className="flex w-full items-center justify-center sm:w-auto">
+        <div className="flex w-full items-center justify-center gap-2 sm:w-auto">
+          <button type="button" className={headerStyles.exportButton+" inline-flex items-center gap-1.5 rounded-full px-3 h-7 text-xs"} onClick={()=>setShareOpen(true)}><Share2 className="w-4 h-4"/>Share</button>
           <button
             type="button"
             onClick={() => handleExport('a4')}
@@ -161,14 +156,16 @@ export const ReceptionFloorPlanPage = ({
           ? createPortal(headerControls, headerControlsContainer)
           : null}
 
-        {loading ? (
+        {saveError && <div role="alert" className="rounded-lg border border-red-600 p-3 text-sm">{saveError} <Button variant="outline" size="sm" onClick={() => void flush().catch(() => undefined)}>Retry save</Button></div>}
+        <h2 className={styles.setupTitle}>Reception Setup &amp; Status</h2>
+        {loadError ? <div role="alert" className="p-4">{loadError}</div> : loading ? (
           <div className={`${headerStyles.interfaceText} flex items-center gap-2 text-sm text-muted-foreground py-8 justify-center`}>
             <Loader2 className="w-4 h-4 animate-spin" /> Loading reception floor plan…
           </div>
         ) : (
           <>
-            <section className={styles.setupMaster} data-reception-setup-master="true" data-reception-panel="true">
-              <h2 className={styles.setupTitle}>Reception Setup &amp; Status</h2>
+            <section data-reception-setup-master="true">
+
               <div className={styles.setupGrid} data-reception-setup-grid="true">
                 <section className={styles.setupCard} data-reception-setup-card="venue-templates" data-reception-panel="true">
                   <div className={styles.setupCardHeading}>
@@ -176,57 +173,26 @@ export const ReceptionFloorPlanPage = ({
                     <h3>Venue Templates</h3>
                   </div>
                   <p className="text-xs text-muted-foreground">
-                    Start from an approved venue, share your own, or browse the public directory.
+                    Look up shared venue templates from Australia and around the world, or add a venue template.
                   </p>
                   <div className={styles.setupActions}>
-                    <Button size="sm" variant="outline" className="lv-premium-shade h-9" onClick={() => setChooseVenueOpen(true)} title="Load an approved venue layout into this floor plan">
-                      <Building2 className="mr-1.5 h-3.5 w-3.5" /> Choose venue
+                    <Button size="sm" variant="outline" className="lv-premium-shade h-9" onClick={() => setChooseVenueOpen(true)} title="Browse the worldwide venue template library">
+                      <Building2 className="mr-1.5 h-3.5 w-3.5" /> Look Up Venue Floor Plan Template
                     </Button>
-                    <Button size="sm" variant="outline" className="lv-premium-shade h-9" onClick={() => setSubmitTemplateOpen(true)} title="Submit your current layout to the public venue directory">
-                      <UploadCloud className="mr-1.5 h-3.5 w-3.5" /> Submit as template
+                    <Button size="sm" variant="outline" className="lv-premium-shade h-9" onClick={() => setSubmitTemplateOpen(true)} title="Save your own venue floor plan template">
+                      <UploadCloud className="mr-1.5 h-3.5 w-3.5" /> Submit Venue Template
                     </Button>
-                    <a href="/venues" target="_blank" rel="noopener noreferrer" className="text-xs underline text-primary hover:text-primary/80">
-                      Browse Public Directory →
-                    </a>
+
                   </div>
                 </section>
+                <VendorNotesPanel plan={plan} onChange={update} />
 
-                <section className={styles.setupCard} data-reception-setup-card="room-dimensions" data-reception-panel="true">
-                  <div className={styles.setupCardHeading}>
-                    <Ruler className="h-4 w-4 text-primary" aria-hidden="true" />
-                    <h3>Room Dimensions</h3>
-                  </div>
-                  <div className={styles.dimensionInputs}>
-                    <div className="space-y-1">
-                      <Label htmlFor="room-width" className="text-xs">Room width (m)</Label>
-                      <Input id="room-width" type="number" min={2} max={50} step={0.5} value={plan.room_width_m} onChange={(e) => update((p) => ({ ...p, room_width_m: Math.max(2, Math.min(50, Number(e.target.value) || p.room_width_m)) }))} className="h-9 w-full" />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="room-length" className="text-xs">Room length (m)</Label>
-                      <Input id="room-length" type="number" min={2} max={50} step={0.5} value={plan.room_length_m} onChange={(e) => update((p) => ({ ...p, room_length_m: Math.max(2, Math.min(50, Number(e.target.value) || p.room_length_m)) }))} className="h-9 w-full" />
-                    </div>
-                    <div className="space-y-1">
-                      <Label htmlFor="grid-size" className="text-xs">Grid (cm)</Label>
-                      <Input id="grid-size" type="number" min={25} max={200} step={25} value={plan.grid_size_cm} onChange={(e) => update((p) => ({ ...p, grid_size_cm: Math.max(25, Math.min(200, Number(e.target.value) || p.grid_size_cm)) }))} className="h-9 w-full" />
-                    </div>
-                  </div>
-                  <p className="text-xs text-muted-foreground">
-                    Drag tables from Tables to Place into the room. Click a table to rotate, lock, or remove it. Chairs render automatically from each table&apos;s seat count.
-                  </p>
-                </section>
 
-                <section className={styles.setupCard} data-reception-setup-card="seating-status" data-reception-panel="true">
-                  <div className={styles.setupCardHeading}>
-                    <Users className="h-4 w-4 text-primary" aria-hidden="true" />
-                    <h3>Seating Status</h3>
-                  </div>
-                  <ReceptionCapacityBanner plan={plan} tables={tables} attendingCount={attendingCount} compact />
-                </section>
 
-                <SmartIntelligencePanel plan={plan} tables={tables} attendingCount={attendingCount} summaryClassName={styles.setupCard} detailsClassName={styles.smartDetails} />
               </div>
             </section>
 
+            <ReceptionDraftReview plan={plan} tables={tables} event={selectedEvent} backgroundUrl={backgroundUrl} settle={settle} reload={reload}/>
             {/* Empty-state hint when no tables exist yet */}
             {tables.length === 0 && (
               <div data-reception-panel="true" className="rounded-lg border border-dashed border-primary/40 bg-primary/5 p-4 text-sm text-foreground/80">
@@ -235,40 +201,6 @@ export const ReceptionFloorPlanPage = ({
                 so you can drag them into the room.
               </div>
             )}
-
-            <div className={styles.managementGrid} data-reception-management-grid="true">
-              <VenueBackgroundPanel
-                plan={plan}
-                uploading={uploadingBackground}
-                onUpload={uploadBackground}
-                onRemove={removeBackground}
-                onChange={update}
-                onCalibrate={
-                  plan.background.path && backgroundUrl
-                    ? () => setCalibrating(true)
-                    : undefined
-                }
-              />
-
-              <AutoLayoutPanel plan={plan} tables={tables} onApply={update} />
-
-              <RoomShapePanel plan={plan} onChange={update} />
-
-              <ShareLinkPanel
-                plan={plan}
-                onGenerate={generateShareToken}
-                onRevoke={revokeShareToken}
-                onApprovalChange={update}
-              />
-            </div>
-
-            <TableNotePanel
-              plan={plan}
-              tables={tables}
-              selectedTableId={selectedTableId}
-              onClose={() => setSelectedTableId(null)}
-              onChange={update}
-            />
 
             <ReceptionFloorPlanCanvas
               plan={plan}
@@ -280,24 +212,25 @@ export const ReceptionFloorPlanPage = ({
               backgroundUrl={backgroundUrl}
               onChange={update}
               onSelectedTableChange={setSelectedTableId}
-              onResetRequest={() => setResetOpen(true)}
-              resetDisabled={plan.table_positions.length === 0 && plan.fixtures.length === 0}
+              onResetRequest={handleReset}
+              onUndo={undo}
+              undoDisabled={!canUndo}
+              resetDisabled={!tablesReady || tablesLoading}
             />
 
-            <VendorNotesPanel plan={plan} onChange={update} />
+            <TableNotePanel
+              plan={plan}
+              tables={tables}
+              selectedTableId={selectedTableId}
+              onClose={() => setSelectedTableId(null)}
+              onChange={update}
+            />
+
+
 
           </>
         )}
 
-        {plan && (
-          <ResetLayoutDialog
-            open={resetOpen}
-            onOpenChange={setResetOpen}
-            onConfirm={handleReset}
-            tableCount={plan.table_positions.length}
-            fixtureCount={plan.fixtures.length}
-          />
-        )}
 
         {plan && calibrating && backgroundUrl && (
           <BackgroundCalibrationOverlay
@@ -309,16 +242,19 @@ export const ReceptionFloorPlanPage = ({
         )}
 
         {plan && (
-          <ChooseVenueDialog
+          <><FloorPlanShareModal open={shareOpen} onOpenChange={setShareOpen} eventId={selectedEventId} kind="reception"/>
+        <ChooseVenueDialog
             open={chooseVenueOpen}
             onOpenChange={setChooseVenueOpen}
             plan={plan}
             onApply={update}
-          />
+          /></>
         )}
 
         {plan && (
           <SubmitTemplateDialog
+            uploading={uploadingBackground}
+            onUpload={uploadBackground}
             open={submitTemplateOpen}
             onOpenChange={setSubmitTemplateOpen}
             plan={plan}

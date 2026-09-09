@@ -4,7 +4,7 @@ export const EVENT_DELETED_EVENT = 'ww:event-deleted';
 
 export class EventDeletionError extends Error {
   constructor(
-    public readonly reason: 'not-authenticated' | 'not-authorized' | 'not-deleted' | 'database',
+    public readonly reason: 'not-authenticated' | 'not-authorized' | 'not-deleted' | 'database' | 'image-cleanup',
     message: string,
     public readonly code?: string,
   ) {
@@ -19,11 +19,7 @@ export interface DeletedEventRow {
 }
 
 export const deleteOwnedEventRow = async (eventId: string, ownerId: string): Promise<DeletedEventRow> => {
-  const deleteRpc = supabase.rpc as unknown as (
-    functionName: 'delete_owned_event_secure',
-    args: { p_event_id: string },
-  ) => Promise<{ data: DeletedEventRow[] | null; error: { code?: string; message?: string } | null }>;
-  const { data, error } = await deleteRpc('delete_owned_event_secure', { p_event_id: eventId });
+  const { data, error } = await supabase.rpc('delete_owned_event_secure', { p_event_id: eventId });
 
   if (error) {
     if (error.code === '42501') {
@@ -52,6 +48,7 @@ export const getEventDeletionMessage = (error: unknown): string => {
     if (error.reason === 'not-authenticated') return 'Please sign in again before deleting this event.';
     if (error.reason === 'not-authorized') return error.message;
     if (error.reason === 'not-deleted') return error.message;
+    if (error.reason === 'image-cleanup') return error.message;
     if (error.code === '23503') return 'This event could not be deleted because related data is preventing deletion.';
   }
   return 'Failed to delete event. Please try again.';

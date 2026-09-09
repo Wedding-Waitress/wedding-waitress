@@ -17,6 +17,8 @@
  */
 
 import React, { lazy, Suspense, useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { readGuestImportFile } from '@/lib/guestImportFile';
+import { normalizeGuestPhone } from '@/lib/guestPhone';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 
@@ -62,7 +64,6 @@ import {
   Heart,
   ListOrdered,
   UsersRound,
-  Settings2,
   CalendarDays,
   HeartHandshake,
   ClipboardCheck,
@@ -92,18 +93,18 @@ import type { TableWithGuestCount } from '@/hooks/useTables';
 
 import { RelationBadge } from './RelationBadge';
 import { supabase } from "@/integrations/supabase/client";
-import { getRsvpBadgeVariant, getRsvpDisplayLabel } from "@/lib/rsvp";
+import { getDefaultRsvpInviteRecipientIds, getRsvpBadgeVariant, getRsvpDisplayLabel, hasGuestResponded } from "@/lib/rsvp";
 import { formatDisplayDate } from '@/lib/utils';
 import { RELATION_ROLE_LABELS, computeRelationDisplay } from "@/lib/relationUtils";
 import { whoIsAnalytics } from '@/lib/analytics';
 import { GuestBulkActionsBar } from './GuestBulkActionsBar';
-import { SmartSmsCreditStatus, getCreditHealth } from './SmartSmsCreditStatus';
+import { getCreditHealth } from './SmartSmsCreditStatus';
 import { useSmsCredits } from '@/hooks/useSmsCredits';
 import { SmartRsvpFeatureStrip } from './SmartRsvpFeatureStrip';
 import { GuestDeliveryBadges } from './GuestDeliveryBadges';
 import { useSearchParams } from 'react-router-dom';
 import { toast as sonnerToast } from 'sonner';
-import { CheckCircle2, ShieldCheck } from 'lucide-react';
+import { CheckCircle2, PartyPopper } from 'lucide-react';
 import { useRsvpInvites } from '@/hooks/useRsvpInvites';
 import { useRsvpPurchase, getTierMaxFromLabel } from '@/hooks/useRsvpPurchase';
 import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
@@ -119,7 +120,18 @@ import {
 } from '@/lib/relationValidation';
 import { getGuestCreationPrerequisite } from '@/lib/guestListPrerequisites';
 import { getGuestEventOwnerId } from '@/lib/guestEventOwner';
-import { getGuidedSetupGuestDesignation } from '@/lib/guidedSetupGuests';
+import {
+  getGuidedSetupGuestDesignation,
+  getGuidedSetupGuestGroupRepairs,
+  normalizeGuidedSetupGuestGroups,
+  repairGuidedSetupGuestGroups,
+} from '@/lib/guidedSetupGuests';
+import {
+  getGuestGroupTypeMap,
+  getGuestTypeStats,
+  inferGuestGroupType,
+} from '@/lib/guestGroupClassification';
+import { useGuestAdditionNotifications } from '@/hooks/useGuestAdditionNotifications';
 
 const AddGuestModal = lazy(() => import('./AddGuestModal').then(module => ({ default: module.AddGuestModal })));
 const GuestDeleteConfirmationModal = lazy(() => import('./GuestDeleteConfirmationModal').then(module => ({ default: module.GuestDeleteConfirmationModal })));
@@ -134,6 +146,10 @@ const RsvpOverageModal = lazy(() => import('./RsvpOverageModal').then(module => 
 const ResendSmartRsvpModal = lazy(() => import('./ResendSmartRsvpModal').then(module => ({ default: module.ResendSmartRsvpModal })));
 const SmartRsvpAnalyticsPanel = lazy(() => import('./SmartRsvpAnalyticsPanel').then(module => ({ default: module.SmartRsvpAnalyticsPanel })));
 const GuestIntelligencePanel = lazy(() => import('./GuestIntelligence/GuestIntelligencePanel').then(module => ({ default: module.GuestIntelligencePanel })));
+const GuestListUtilityDrawer = lazy(() => import('./GuestListUtilityDrawer').then(module => ({ default: module.GuestListUtilityDrawer })));
+const GuestAdditionSmsVerificationDialog = lazy(() => import('./GuestAdditionSmsVerificationDialog').then(module => ({ default: module.GuestAdditionSmsVerificationDialog })));
+
+type GuestListCentre = 'communications' | 'delivery' | 'intelligence' | 'sms' | 'guest-live-view' | null;
 
 type SortOption =
   | 'first_name' | 'last_name' | 'table_name'
@@ -210,7 +226,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   events,
   loading,
   updateEvent,
-  guests,
+  guests: persistedGuests,
   guestsLoading,
   deleteGuest,
   refetchGuests,
@@ -223,6 +239,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   // Dashboard supplies the shared event selection; local state remains a standalone fallback.
   const selectedEventId = propSelectedEventId !== undefined ? propSelectedEventId : localSelectedEventId;
+  const guests = useMemo(
+    () => normalizeGuidedSetupGuestGroups(persistedGuests),
+    [persistedGuests],
+  );
   const [showAddModal, setShowAddModal] = useState(false);
   const [allowGuestPlusOnes, setAllowGuestPlusOnes] = useState(false);
   const [collectGuestAddresses, setCollectGuestAddresses] = useState(false);
@@ -291,6 +311,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   
   // Bulk selection state
   const [selectedGuestIds, setSelectedGuestIds] = useState<Set<string>>(new Set());
+  const [highlightedGuestId, setHighlightedGuestId] = useState<string | null>(null);
   const [bulkModalOpen, setBulkModalOpen] = useState(false);
   const [showBulkTableModal, setShowBulkTableModal] = useState(false);
   const [showBulkRsvpModal, setShowBulkRsvpModal] = useState(false);
@@ -300,9 +321,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [showActivationModal, setShowActivationModal] = useState(false);
   const [showAlreadyPaidModal, setShowAlreadyPaidModal] = useState(false);
   const [showOverageModal, setShowOverageModal] = useState(false);
-  const [showResendModal, setShowResendModal] = useState(false);
-  const [showAnalyticsPanel, setShowAnalyticsPanel] = useState(false);
-  const [showIntelligencePanel, setShowIntelligencePanel] = useState(false);
+  const [showSmsVerification, setShowSmsVerification] = useState(false);
+  const [activeCentre, setActiveCentre] = useState<GuestListCentre>(null);
+  const utilityTileRef = useRef<HTMLButtonElement | null>(null);
   const [sendChannel, setSendChannel] = useState<'email' | 'sms'>('email');
   const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
   const { credits: smsCredits } = useSmsCredits(selectedEventId);
@@ -310,10 +331,69 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const smsEmpty = smsHealth.state === 'empty';
   const smsLowCredit = smsHealth.state === 'critical' || smsHealth.state === 'empty';
   const { hasPurchased: hasRsvpPurchase, purchase: rsvpPurchase, loading: rsvpPurchaseLoading, totalCapacity: rsvpTotalCapacity, refetch: refetchRsvpPurchase } = useRsvpPurchase(selectedEventId);
+  const guestAdditionState = useGuestAdditionNotifications(selectedEventId);
+  const guestAdditionByGuestId = useMemo(
+    () => new Map(guestAdditionState.notifications.map((item) => [item.guest_id, item])),
+    [guestAdditionState.notifications],
+  );
+  const handleSmsVerificationComplete = useCallback(async () => {
+    const enabled = await guestAdditionState.setSmsPreference(true);
+    if (!enabled) {
+      toast({ title: 'SMS alert preference was not saved', variant: 'destructive' });
+      return false;
+    }
+    await guestAdditionState.refresh();
+    toast({ title: 'SMS alerts enabled', description: 'Future guest-addition alerts will go to the verified event-owner mobile.' });
+    return true;
+  }, [guestAdditionState.refresh, guestAdditionState.setSmsPreference]);
+
+  const revealGuestAddition = useCallback((guestId: string, guestName: string) => {
+    setSearchTerm(guestName);
+    setCurrentPage(1);
+    setHighlightedGuestId(guestId);
+    window.setTimeout(() => document.querySelector<HTMLElement>(`[data-guest-id="${guestId}"]`)?.scrollIntoView({ behavior: 'smooth', block: 'center' }), 100);
+    window.setTimeout(() => setHighlightedGuestId((current) => current === guestId ? null : current), 5000);
+  }, []);
+
+  const openUtilityCentre = useCallback((centre: Extract<GuestListCentre, 'sms' | 'guest-live-view'>) => (
+    event: React.MouseEvent<HTMLButtonElement>,
+  ) => {
+    utilityTileRef.current = event.currentTarget;
+    setActiveCentre(centre);
+  }, []);
+
+  const closeUtilityCentre = useCallback(() => {
+    setActiveCentre(null);
+    window.requestAnimationFrame(() => utilityTileRef.current?.focus());
+  }, []);
+
+  const navigateToGuestLiveViewConfiguration = useCallback(() => {
+    setActiveCentre(null);
+    const url = new URL(window.location.href);
+    url.searchParams.set('tab', 'qr-code');
+    url.hash = 'guest-live-view-configuration';
+    window.history.pushState({}, '', url);
+    window.dispatchEvent(new PopStateEvent('popstate'));
+    setTimeout(() => {
+      document
+        .getElementById('guest-live-view-configuration')
+        ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
+    }, 250);
+  }, []);
 
   // RSVP payment-success return handler: close bulk modal, clear selection,
   // fire success toast + inline banner, refresh allowance, and clean URL.
   const [searchParams, setSearchParams] = useSearchParams();
+  useEffect(() => {
+    const guestId = searchParams.get('guest');
+    if (!guestId || guests.length === 0) return;
+    const target = guests.find((guest) => guest.id === guestId);
+    if (!target) return;
+    revealGuestAddition(guestId, `${target.first_name} ${target.last_name}`.trim());
+    const next = new URLSearchParams(searchParams);
+    next.delete('guest');
+    setSearchParams(next, { replace: true });
+  }, [guests, revealGuestAddition, searchParams, setSearchParams]);
   const [rsvpSuccessBanner, setRsvpSuccessBanner] = useState<{
     guestCount: number;
     tierLabel: string;
@@ -387,10 +467,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   };
 
   const handleSelectAll = () => {
-    if (selectedGuestIds.size === sortedGuests.length) {
+    const defaultRecipientIds = getDefaultRsvpInviteRecipientIds(sortedGuests);
+    const allDefaultRecipientsSelected = defaultRecipientIds.length > 0
+      && defaultRecipientIds.every((id) => selectedGuestIds.has(id));
+    if (allDefaultRecipientsSelected && selectedGuestIds.size === defaultRecipientIds.length) {
       setSelectedGuestIds(new Set());
     } else {
-      setSelectedGuestIds(new Set(sortedGuests.map(g => g.id)));
+      setSelectedGuestIds(new Set(defaultRecipientIds));
     }
   };
 
@@ -758,6 +841,37 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   // Get selected event
   const selectedEvent = events.find(event => event.id === selectedEventId);
 
+  // Older Guided Setup couples have an origin label but may predate family_group
+  // persistence. Repair only those exact paired origin records, then let the
+  // canonical family_group field drive grouping, counters, search and export.
+  const guidedGroupRepairs = useMemo(
+    () => getGuidedSetupGuestGroupRepairs(persistedGuests),
+    [persistedGuests],
+  );
+  const guidedGroupRepairSignature = guidedGroupRepairs
+    .map(({ guestId, familyGroup }) => `${guestId}:${familyGroup}`)
+    .join('|');
+  const lastGuidedGroupRepairRef = useRef('');
+  const refetchGuestsRef = useRef(refetchGuests);
+  refetchGuestsRef.current = refetchGuests;
+
+  useEffect(() => {
+    if (!selectedEventId || !guidedGroupRepairSignature) return;
+    const scopedSignature = `${selectedEventId}:${guidedGroupRepairSignature}`;
+    if (lastGuidedGroupRepairRef.current === scopedSignature) return;
+    lastGuidedGroupRepairRef.current = scopedSignature;
+
+    void repairGuidedSetupGuestGroups(selectedEventId, persistedGuests)
+      .then((repairCount) => {
+        if (repairCount > 0) return refetchGuestsRef.current();
+      })
+      .catch((error) => {
+        lastGuidedGroupRepairRef.current = '';
+        console.error('Unable to repair Guided Setup couple grouping:', error);
+      });
+
+  }, [guidedGroupRepairSignature, persistedGuests, selectedEventId]);
+
   // Initialize partner names and relation mode when selected event changes
   useEffect(() => {
     if (selectedEvent) {
@@ -914,6 +1028,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       ? allSortedGuests.filter(guest =>
           guest.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
           guest.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
+          `${guest.first_name || ''} ${guest.last_name || ''}`.trim().toLowerCase().includes(searchTerm.toLowerCase()) ||
           guest.family_group?.toLowerCase().includes(searchTerm.toLowerCase())
         )
       : allSortedGuests;
@@ -938,14 +1053,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         }
       });
 
-      const inferGroupType = (name: string, count: number): 'couple' | 'family' => {
-        if (name.endsWith(' Family')) return 'family';
-        if (name.includes(' & ') || name.endsWith(' Couple')) return 'couple';
-        return count >= 3 ? 'family' : 'couple';
-      };
-
       familyMap.forEach((members, groupName) => {
-        const type = inferGroupType(groupName, members.length);
+        const type = inferGuestGroupType(groupName, members.length);
         groups.push({ type, groupName, members });
       });
 
@@ -1007,18 +1116,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     return result;
   }, [groupedGuests, currentPage]);
 
-  // Create a map of family_group -> type for quick lookup
+  // Create a stable map from all canonical family_group data. This must not
+  // depend on the active search, sort or pagination view.
   const familyGroupTypeMap = useMemo(() => {
-    const map = new Map<string, 'individual' | 'couple' | 'family'>();
-    
-    groupedGuests.forEach(group => {
-      if (group.groupName) {
-        map.set(group.groupName, group.type);
-      }
-    });
-    
-    return map;
-  }, [groupedGuests]);
+    return getGuestGroupTypeMap(guests);
+  }, [guests]);
 
   // Helper function to get the type label for a guest
   const getGuestTypeLabel = (guest: any): string => {
@@ -1117,9 +1219,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       guest.dietary || 'NA',
       guest.mobile || '',
       guest.email || '',
-      guest.family_group || '',
-      guest.relation_display || '',
-      (guest.notes || '').replace(/^\[NEW\+\]/, '').replace(/\n/g, ' ')
+      (guest.notes || '').replace(/^\[NEW\+\]/, ''),
+      guest.relation_partner || '',
+      guest.relation_role || '',
+      guest.relation_display || ''
     ]);
     
     const ws = XLSX.utils.aoa_to_sheet([DISPLAY_EXPORT_HEADERS, ...rows]);
@@ -1175,19 +1278,18 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       const reader = new FileReader();
       reader.onload = async (e) => {
         try {
-          const text = e.target?.result as string;
-          const lines = text.split('\n').filter(line => line.trim());
+          const lines = await readGuestImportFile(e.target?.result as ArrayBuffer, file.name);
           
           if (lines.length < 2) {
             toast({ 
               title: "Import failed", 
-              description: "CSV file appears to be empty or invalid",
+              description: "Import file appears to be empty or invalid",
               variant: "destructive"
             });
             return;
           }
           
-          const rawHeaders = lines[0].split(',').map(h => h.trim().replace(/"/g, ''));
+          const rawHeaders = lines[0];
           const headerNormMap: Record<string, string> = {
             'First Name': 'first_name', 'Last Name': 'last_name', 'Table Name': 'table_name',
             'Seat No': 'seat_no', 'RSVP': 'rsvp', 'Dietary': 'dietary', 'Mobile': 'mobile',
@@ -1243,15 +1345,22 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           const csvNames = new Set<string>();
           
           dataRows.forEach((row, index) => {
-            const values = row.split(',').map(v => v.trim().replace(/"/g, ''));
+            const values = row;
             const rowIndex = index + 2; // +2 because we skip header and arrays are 0-indexed
             
             const rowData: any = {};
             headers.forEach((header, i) => {
-              rowData[header] = values[i] || '';
+              if (IMPORT_TEMPLATE_HEADERS.includes(header)) rowData[header] = values[i] || '';
             });
             
             // Validate required fields
+            try {
+              rowData.mobile = normalizeGuestPhone(rowData.mobile);
+            } catch (error) {
+              allErrors.push({ rowIndex, field: 'mobile', value: rowData.mobile || '', reason: (error as Error).message });
+              return;
+            }
+
             if (!rowData.first_name?.trim()) {
               allErrors.push({
                 rowIndex,
@@ -1317,7 +1426,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             }
             
             // Validate dietary
-            if (rowData.dietary && !DIETARY_OPTIONS.includes(rowData.dietary)) {
+            if (rowData.dietary && rowData.dietary !== 'NA' && !DIETARY_OPTIONS.includes(rowData.dietary)) {
               allErrors.push({
                 rowIndex,
                 field: 'dietary',
@@ -1354,7 +1463,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             }
             
             // Find table
-            const foundTable = tables.find(t => t.name.toLowerCase() === rowData.table_name.toLowerCase());
+            const tableName = rowData.table_name.toLowerCase();
+            const foundTable = tables.find(t => t.name.toLowerCase() === tableName)
+              ?? tables.find(t => `table ${t.name}`.toLowerCase() === tableName);
             if (!foundTable) {
               allErrors.push({
                 rowIndex,
@@ -1367,13 +1478,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             
             // Validate seat number if provided
             if (rowData.seat_no) {
-              const seatNum = parseInt(rowData.seat_no);
-              if (isNaN(seatNum) || seatNum < 1) {
+              const seatNum = Number(rowData.seat_no);
+              if (!Number.isInteger(seatNum) || seatNum < 1 || seatNum > foundTable.limit_seats) {
                 allErrors.push({
                   rowIndex,
                   field: 'seat_no',
                   value: rowData.seat_no,
-                  reason: 'Seat number must be a positive integer'
+                  reason: `Seat number must be a whole number between 1 and ${foundTable.limit_seats}`
                 });
                 return;
               }
@@ -1470,12 +1581,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           console.error('CSV parsing error:', error);
           toast({ 
             title: "Import failed", 
-            description: "Error reading CSV file",
+            description: "Error reading import file",
             variant: "destructive"
           });
         }
       };
-      reader.readAsText(file);
+      reader.readAsArrayBuffer(file);
     };
     input.click();
   };
@@ -1577,49 +1688,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   // Calculate guest type counts for stats badges
   // Count groups (not individual guests) for Couple and Family
-  const guestTypeStats = useMemo(() => {
-    const stats = {
-      individual: 0,
-      couple: 0,
-      family: 0
-    };
-
-    // Build a map of family_group -> members
-    const familyGroups = new Map<string, any[]>();
-    
-    guests.forEach(guest => {
-      if (guest.family_group && guest.family_group.trim()) {
-        if (!familyGroups.has(guest.family_group)) {
-          familyGroups.set(guest.family_group, []);
-        }
-        familyGroups.get(guest.family_group)!.push(guest);
-      } else {
-        // No family_group = Individual
-        stats.individual++;
-      }
-    });
-
-    // Count couple groups and family groups using name-based inference
-    familyGroups.forEach((members, groupName) => {
-      if (members.length === 1) {
-        stats.individual++;
-      } else {
-        const isFamilyName = groupName.endsWith(' Family');
-        const isCoupleName = groupName.includes(' & ') || groupName.endsWith(' Couple');
-        if (isFamilyName) {
-          stats.family++;
-        } else if (isCoupleName) {
-          stats.couple++;
-        } else if (members.length >= 3) {
-          stats.family++;
-        } else {
-          stats.couple++;
-        }
-      }
-    });
-
-    return stats;
-  }, [guests]);
+  const guestTypeStats = useMemo(() => getGuestTypeStats(guests), [guests]);
 
   const { individual: individualCount, couple: coupleCount, family: familyCount } = guestTypeStats;
 
@@ -1721,12 +1790,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           <div className="flex flex-col xl:flex-row xl:items-start xl:justify-between gap-4 sm:gap-6 mb-4 sm:mb-6">
             {/* Left: Title, Description, Event selector and Search */}
             <div className="w-full">
-              <div className="flex items-baseline gap-3 mb-4 flex-wrap">
+              <div className={styles.referenceHeadingGroup}>
                 <h1 className="text-2xl font-bold text-foreground whitespace-nowrap inline-flex items-center gap-2">
                   <UsersRound size={22} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                   Guest List
                 </h1>
-                <p className="text-sm text-muted-foreground hidden sm:block">
+                <p className="text-sm text-muted-foreground">
                   Manage your event guests, track RSVPs, assign tables, and organize seating arrangements
                 </p>
                 {hasRsvpPurchase && rsvpTotalCapacity > 0 && (
@@ -1749,7 +1818,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <div className="mb-4 flex items-center justify-end gap-2 flex-wrap">
                   <button
                     type="button"
-                    onClick={() => setShowAnalyticsPanel(true)}
+                    onClick={() => setActiveCentre('communications')}
                     className="lv-premium-shade inline-flex items-center gap-1.5 rounded-full border-2 border-primary text-primary bg-background px-3 py-1.5 text-xs font-semibold hover:bg-primary/5"
                     title="Open Smart RSVP Analytics"
                   >
@@ -1757,7 +1826,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   </button>
                   <button
                     type="button"
-                    onClick={() => setShowResendModal(true)}
+                    onClick={() => setActiveCentre('delivery')}
                     className="lv-premium-shade inline-flex items-center gap-1.5 rounded-full bg-primary text-primary-foreground px-3 py-1.5 text-xs font-semibold hover:bg-primary/90"
                     title="Resend Smart RSVP to a precise audience"
                   >
@@ -1807,60 +1876,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       .getElementById('smart-rsvp-command-centre')
                       ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
                   }}
-                  onCommunications={() => setShowAnalyticsPanel(true)}
-                  onDelivery={() => setShowResendModal(true)}
-                  onIntelligence={() => setShowIntelligencePanel(true)}
+                  onCommunications={() => setActiveCentre('communications')}
+                  onDelivery={() => setActiveCentre('delivery')}
+                  onIntelligence={() => setActiveCentre('intelligence')}
+                  onSmsCredits={openUtilityCentre('sms')}
+                  onGuestLiveView={openUtilityCentre('guest-live-view')}
                 />
               )}
-
-              {/* Smart SMS Credit Status — premium credit intelligence */}
-              <div className={styles.infoCardsRow}>
-              {selectedEventId && (
-                <SmartSmsCreditStatus
-                  eventId={selectedEventId}
-                  variant="full"
-                  recipientCount={selectedGuestIds.size || undefined}
-                  className={styles.smsPanel}
-                />
-              )}
-
-              {/* Guest Live View APP Protection. You have full control in what your guests see by switching preferences On / Off. — informational banner */}
-              <div className={`${styles.protectionPanel} bg-card border border-border rounded-xl shadow-[0_4px_20px_-4px_rgba(0,0,0,0.10)] p-4`}>
-                <div className="flex items-start gap-3 min-w-0">
-                  <div className="bg-primary/10 text-primary rounded-full p-2.5 shrink-0">
-                    <ShieldCheck size={21} strokeWidth={1.8} aria-hidden="true" />
-                  </div>
-                  <div className="flex-1 min-w-0">
-                    <h3 className="text-base font-bold text-primary mb-1">Guest Live View APP Protection. You have full control in what your guests see by switching preferences On / Off.</h3>
-                    <p className="text-sm text-muted-foreground leading-relaxed">
-                      7 days before your event, RSVP responses, guest edits, and +1 requests are automatically hidden from the Live View app for security and event-day stability.
-                    </p>
-                    <p className="text-sm text-muted-foreground leading-relaxed mt-1">
-                      You still have full control over what guests can view during the final week through your Guest Live View Configuration settings.
-                    </p>
-                    <Button
-                      variant="outline"
-                      className="lv-premium-shade mt-3 w-fit max-w-full"
-                      onClick={() => {
-                        const url = new URL(window.location.href);
-                        url.searchParams.set('tab', 'qr-code');
-                        url.hash = 'guest-live-view-configuration';
-                        window.history.pushState({}, '', url);
-                        window.dispatchEvent(new PopStateEvent('popstate'));
-                        setTimeout(() => {
-                          document
-                            .getElementById('guest-live-view-configuration')
-                            ?.scrollIntoView({ behavior: 'smooth', block: 'start' });
-                        }, 250);
-                      }}
-                    >
-                      <Settings2 size={15} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
-                      Configure Guest Live View →
-                    </Button>
-                  </div>
-                </div>
-              </div>
-              </div>
 
               {/* Event selector + Type of Event + Guest Relations - all on same row */}
                 <div className={`${styles.setupGrid} grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 2xl:grid-cols-[1fr_1.3fr_1fr_1fr_0.7fr] gap-4 items-stretch`}>
@@ -1901,6 +1923,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           size="sm"
                           onClick={() => handleEventTypeChange('two')}
                           aria-pressed={eventType === 'two'}
+                          data-tone={eventType === 'two' ? 'inverse' : undefined}
                           className={cn(
                             "ww-event-type-option h-9 text-sm justify-start transition-all",
                             eventType === 'two'
@@ -1908,13 +1931,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               : "border border-primary bg-primary/10 text-primary hover:bg-primary/15"
                            )}
                         >
-                          💍 Wedding / Engagement
+                          <HeartHandshake size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" /><span>Wedding / Engagement</span>
                         </Button>
                         <Button
                           type="button"
                           size="sm"
                           onClick={() => handleEventTypeChange('single')}
                           aria-pressed={eventType === 'single'}
+                          data-tone={eventType === 'single' ? 'inverse' : undefined}
                           className={cn(
                             "ww-event-type-option h-9 text-sm justify-start transition-all",
                             eventType === 'single'
@@ -1922,7 +1946,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               : "border border-primary bg-primary/10 text-primary hover:bg-primary/15"
                           )}
                         >
-                          🎂 Birthday / Corporate / Other
+                          <PartyPopper size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" /><span>Birthday / Corporate / Other</span>
                         </Button>
                       </div>
                     </div>
@@ -1979,6 +2003,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           {/* Option 1: Default names */}
                           <label
                             data-active={useDefaultNames}
+                            data-tone={useDefaultNames ? 'inverse' : undefined}
                             className={cn(
                              "ww-relationship-option flex items-center gap-2 cursor-pointer rounded-lg border p-2 text-sm font-medium transition-all",
                               useDefaultNames
@@ -1997,6 +2022,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           {/* Option 2: Custom names */}
                           <label
                             data-active={!useDefaultNames}
+                            data-tone={!useDefaultNames ? 'inverse' : undefined}
                             className={cn(
                              "ww-relationship-option flex items-center gap-2 cursor-pointer rounded-lg border p-2 text-sm font-medium transition-all",
                               !useDefaultNames
@@ -2051,7 +2077,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                   size="sm"
                                   onClick={() => { void handleSavePartnerNames(); }}
                                   disabled={isSaving}
-                                  className="h-8 rounded-full px-4 text-sm lv-premium-shade"
+                                  data-tone="inverse"
+                                  className="ww-setup-green-action h-8 rounded-full px-4 text-sm lv-premium-shade"
                                 >
                                   <Save size={15} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
                                   {isSaving ? 'Saving...' : 'Save Names'}
@@ -2168,6 +2195,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           variant="default"
                           size="lg"
                           onClick={onNavigateToTables}
+                          data-tone="inverse"
                           className="bg-green-500 hover:bg-green-600 text-white rounded-full px-8 py-3 text-base lv-premium-shade"
                         >
                           Create Tables First
@@ -2180,7 +2208,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         variant="default"
                         size="lg"
                         onClick={handleAddGuest}
-                        className="bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2 px-8 py-3 text-base lv-premium-shade"
+                        data-tone="inverse"
+                        className="ww-setup-green-action bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2 px-8 py-3 text-base lv-premium-shade"
                       >
                         <UserPlus size={16} strokeWidth={1.8} aria-hidden="true" />
                         + Add Guest
@@ -2209,6 +2238,50 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   ))}
                 </div>
               )}
+              {guestAdditionState.available && guestAdditionState.notifications.length > 0 && (
+                <section className="rounded-2xl border-2 border-[#967A59] bg-[#fff8e8] px-4 py-3 text-sm text-[#2f1b14]" aria-label="Guest additions awaiting review">
+                  <div className="mb-3">
+                    <strong>New guests added by invited guests</strong>
+                    <div className="mt-2 flex min-w-0 flex-col gap-2">
+                      <label className="flex w-full min-w-0 items-center gap-2 text-xs font-medium">
+                        <Mail size={15} strokeWidth={1.8} className="shrink-0 text-[#806344]" aria-hidden="true" />
+                        <span className="min-w-0 flex-1">Receive free new guest added email alerts</span>
+                        <Switch className="shrink-0" checked={guestAdditionState.emailEnabled} disabled={guestAdditionState.saving} onCheckedChange={(checked) => void guestAdditionState.setEmailPreference(checked)} aria-label="Email alerts for guest additions" />
+                      </label>
+                      <label className="flex w-full min-w-0 items-center gap-2 text-xs font-medium" title={guestAdditionState.smsEligible ? 'Send guest-addition alerts to the event owner verified mobile' : 'A verified event-owner mobile is required'}>
+                        <span className="w-[15px] shrink-0 text-[9px] font-bold leading-none text-[#806344]" aria-hidden="true">SMS</span>
+                        <span className="min-w-0 flex-1">
+                          <span className="block">Receive free new guest added SMS alerts</span>
+                          {!guestAdditionState.smsEligible && <span className="block font-normal text-[#6e5a43]">Verification is required when you turn this on.</span>}
+                        </span>
+                        <Switch className="shrink-0" checked={guestAdditionState.smsEnabled} disabled={guestAdditionState.saving} onCheckedChange={(checked) => {
+                          if (checked && !guestAdditionState.smsEligible) {
+                            setShowSmsVerification(true);
+                            return;
+                          }
+                          void guestAdditionState.setSmsPreference(checked).then((saved) => {
+                            if (!saved) toast({ title: 'SMS alert preference was not saved', variant: 'destructive' });
+                          });
+                        }} aria-label="SMS alerts for guest additions" />
+                      </label>
+                    </div>
+                  </div>
+                  <div className="space-y-2">
+                    {guestAdditionState.notifications.map((item) => (
+                      <div key={item.id} className="flex flex-wrap items-center gap-2">
+                        <button type="button" className="text-left underline underline-offset-2" onClick={() => revealGuestAddition(item.guest_id, item.added_guest_name)}>
+                          {item.added_by_name} added {item.added_guest_name} as {item.group_choice === 'group' ? 'part of their group' : 'a separate guest'}
+                        </button>
+                        <span className="text-xs text-[#6e5a43]">{new Date(item.created_at).toLocaleString()}</span>
+                        <Button type="button" size="sm" disabled={guestAdditionState.saving} onClick={async () => {
+                          const reviewed = await guestAdditionState.markReviewed(item.guest_id);
+                          toast(reviewed ? { title: 'Guest addition marked reviewed' } : { title: 'Review was not saved', variant: 'destructive' });
+                        }} className="rounded-full bg-green-600 text-white hover:bg-green-700">Mark reviewed</Button>
+                      </div>
+                    ))}
+                  </div>
+                </section>
+              )}
             </div>
 
             {/* RIGHT SIDE: Sort By, Import/Export, Add Guest */}
@@ -2223,12 +2296,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button 
-                              className="ww-guest-toolbar-button inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                              data-tone="inverse" className="ww-guest-toolbar-button inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                               disabled={!selectedEventId}
                             >
-                              <ArrowUpDown size={16} strokeWidth={1.8} aria-hidden="true" />
+                              <ArrowUpDown size={16} strokeWidth={1.8} aria-hidden="true"  className="text-white" />
                               Sort By
-                              <ChevronDown className="w-3 h-3" />
+                              <ChevronDown className="text-white w-3 h-3" />
                             </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="ww-guest-list-menu w-40">
@@ -2262,12 +2335,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                         <DropdownMenu>
                           <DropdownMenuTrigger asChild>
                             <button 
-                              className="ww-guest-toolbar-button inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                              data-tone="inverse" className="ww-guest-toolbar-button inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                               disabled={!selectedEventId}
                             >
-                              <FileUp size={16} strokeWidth={1.8} aria-hidden="true" />
+                              <FileUp size={16} strokeWidth={1.8} aria-hidden="true" className="text-white" />
                               Import / Export CSV
-                              <ChevronDown className="w-3 h-3" />
+                              <ChevronDown className="text-white w-3 h-3" />
                             </button>
                           </DropdownMenuTrigger>
                           <DropdownMenuContent align="end" className="ww-guest-list-menu w-48">
@@ -2307,13 +2380,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         <div className="lg:hidden mt-3 mb-3 mx-4 flex flex-col gap-3">
           {/* Filter tabs row */}
           <div className="grid grid-cols-3 gap-2">
-            <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-pink-500 text-white lv-premium-shade">
+            <div data-tone="inverse" className={`${styles.guestCountBadge} inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-pink-500 text-white lv-premium-shade`}>
               {individualCount} Individual
             </div>
-            <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-orange-500 text-white lv-premium-shade">
+            <div data-tone="inverse" className={`${styles.guestCountBadge} inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-orange-500 text-white lv-premium-shade`}>
               {coupleCount} Couple
             </div>
-            <div className="inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-blue-600 text-white lv-premium-shade">
+            <div data-tone="inverse" className={`${styles.guestCountBadge} inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-blue-600 text-white lv-premium-shade`}>
               {familyCount} Family
             </div>
           </div>
@@ -2349,13 +2422,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 className="pl-10 w-[180px] sm:w-[200px] border-2 border-primary h-8 sm:h-9 rounded-full text-xs sm:text-sm"
               />
             </div>
-            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-pink-500 text-white flex-shrink-0 lv-premium-shade">
+            <div data-tone="inverse" className={`${styles.guestCountBadge} inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-pink-500 text-white flex-shrink-0 lv-premium-shade`}>
               {individualCount} Individual
             </div>
-            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-orange-500 text-white flex-shrink-0 lv-premium-shade">
+            <div data-tone="inverse" className={`${styles.guestCountBadge} inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-orange-500 text-white flex-shrink-0 lv-premium-shade`}>
               {coupleCount} Couple
             </div>
-            <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-blue-600 text-white flex-shrink-0 lv-premium-shade">
+            <div data-tone="inverse" className={`${styles.guestCountBadge} inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium h-7 px-3 bg-blue-600 text-white flex-shrink-0 lv-premium-shade`}>
               {familyCount} Family
             </div>
             <div className="inline-flex items-center justify-center gap-2 whitespace-nowrap rounded-full text-xs font-medium ring-offset-background h-7 px-3 bg-white border-2 border-primary text-foreground lv-premium-shade">
@@ -2369,12 +2442,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="ww-guest-toolbar-button inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                  data-tone="inverse" className="ww-guest-toolbar-button inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                   disabled={!selectedEventId}
                 >
-                  <ArrowUpDown size={16} strokeWidth={1.8} aria-hidden="true" />
+                  <ArrowUpDown size={16} strokeWidth={1.8} aria-hidden="true"  className="text-white" />
                   Sort By
-                  <ChevronDown className="w-3 h-3" />
+                  <ChevronDown className="text-white w-3 h-3" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="ww-guest-list-menu w-40">
@@ -2394,12 +2467,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
-                  className="ww-guest-toolbar-button inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
+                  data-tone="inverse" className="ww-guest-toolbar-button inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
                   disabled={!selectedEventId}
                 >
-                  <FileUp size={16} strokeWidth={1.8} aria-hidden="true" />
+                  <FileUp size={16} strokeWidth={1.8} aria-hidden="true" className="text-white" />
                   Import / Export CSV
-                  <ChevronDown className="w-3 h-3" />
+                  <ChevronDown className="text-white w-3 h-3" />
                 </button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="ww-guest-list-menu w-48">
@@ -2436,7 +2509,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   {group.type !== 'individual' && (
                     <div
                       className={cn(
-                        "flex items-center gap-2 px-3 py-2 rounded-lg",
+                        styles.groupHeaderWhite, "flex items-center gap-2 px-3 py-2 rounded-lg",
                         group.type === 'family' ? "bg-blue-600" : "bg-orange-500"
                       )}
                     >
@@ -2472,16 +2545,19 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       mail_sent: { label: 'Sent (Mail)', className: 'bg-green-500 text-white' },
                     };
                     const invite = inviteConfig[inviteStatus] || inviteConfig.not_sent;
+                    const hasResponded = hasGuestResponded(guest.rsvp, guest.rsvp_date);
                     const isSelected = selectedGuestIds.has(guest.id);
                     const hasPlusOneAlert =
                       !!guest.notes?.startsWith('[NEW+]') && !ackedPlusOneIds.has(guest.id);
                     return (
                       <div
                         key={`m-${guest.id}`}
+                        data-guest-id={guest.id}
                         className={cn(
                           "bg-white rounded-2xl shadow-sm border-2 border-[#967A59] p-4 transition-all",
                           isSelected && "ring-2 ring-primary",
-                          hasPlusOneAlert && "animate-row-flash"
+                          hasPlusOneAlert && "animate-row-flash",
+                          highlightedGuestId === guest.id && "ring-4 ring-amber-400"
                         )}
                       >
                         {/* Select pill button (top, centered) — matches SMS Sent badge sizing */}
@@ -2504,12 +2580,17 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           </button>
                         </div>
 
-                        {/* Guest name (centered, single line) */}
-                        <div className="mt-3 flex items-center justify-center gap-2 flex-wrap">
+                        {/* Guest name and Guided Setup designation */}
+                        <div className="mt-3 flex flex-col items-center justify-center gap-1">
                           <span className="font-bold text-base text-[#1D1D1F] truncate">
                             {guest.first_name} {guest.last_name}
                           </span>
                           {guidedDesignation && <span className={styles.guidedGuestBadge}>{guidedDesignation}</span>}
+                          {guestAdditionByGuestId.has(guest.id) && (
+                            <span className="inline-flex rounded-full border border-amber-500 bg-amber-100 px-2 py-0.5 text-[11px] font-semibold text-amber-900" title={`${guestAdditionByGuestId.get(guest.id)!.added_by_name} added this guest on ${new Date(guestAdditionByGuestId.get(guest.id)!.created_at).toLocaleString()}`}>
+                              New — added by guest
+                            </span>
+                          )}
                           {hasPlusOneAlert && (
                             <span className="inline-flex items-center rounded-full px-2 py-0.5 text-[11px] font-semibold bg-[#FEF3C7] border border-[#967A59] text-[#1D1D1F]">
                               +1 Added
@@ -2581,7 +2662,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                 partner={guest.relation_partner || ''}
                                 role={guest.relation_role || ''}
                                 partnerName={guest.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name}
-                                onClick={() => handleEditRelation(guest)}
                                 isEmpty={!relationDisplay}
                               />
                             )}
@@ -2592,27 +2672,23 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           </div>
                         </div>
 
-                        {/* Optional notes (expandable via native details) */}
+                        {/* Notes are edited through the Actions button. */}
                         {guest.notes && guest.notes.trim() !== '' && (
-                          <details className="mt-3 text-sm">
-                            <summary className="cursor-pointer text-primary font-semibold text-xs">
-                              View notes
-                            </summary>
-                            <p className="mt-2 text-[#1D1D1F] whitespace-pre-wrap text-xs font-medium">
-                              {guest.notes.replace(/^\[NEW\+\]/, '')}
-                            </p>
-                          </details>
+                          <p className="mt-3 text-primary font-semibold text-xs">Notes: Yes</p>
                         )}
 
                         {/* Bottom: invite status + actions */}
                         <div className="flex items-center justify-between mt-4 pt-3 border-t border-[#EDE5DB]">
                           <div className="flex items-center flex-wrap gap-1.5 min-w-0">
-                            <Badge className={cn("text-xs whitespace-nowrap", invite.className)}>
-                              {invite.label}
-                            </Badge>
+                            {!hasResponded && (
+                              <Badge className={cn("text-xs whitespace-nowrap", invite.className)}>
+                                {invite.label}
+                              </Badge>
+                            )}
                             <GuestDeliveryBadges
                               inviteStatus={guest.rsvp_invite_status}
                               rsvp={guest.rsvp}
+                              rsvpDate={guest.rsvp_date}
                               purchaseDeliveryMethod={(rsvpPurchase as any)?.delivery_method ?? null}
                               lowCredits={smsLowCredit}
                             />
@@ -2671,7 +2747,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               <col style={{ width: '5%' }} />
               <col style={{ width: '6%' }} />
             </colgroup>
-            <TableHeader>
+            <TableHeader data-tone="inverse">
               <TableRow>
                 <TableHead className="bg-primary text-primary-foreground px-1 py-2 text-center align-middle">
                   <button
@@ -2679,7 +2755,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                     title="Send RSVP & Invite"
                     aria-label="Send RSVP & Invite"
                     onClick={() => setBulkModalOpen(true)}
-                    className="mx-auto px-2 py-1 rounded-full border border-white bg-white/10 hover:bg-white/20 text-[11px] font-medium text-white whitespace-nowrap leading-tight transition-colors"
+                    className={`${styles.sendInviteHeaderButton} lv-premium-shade mx-auto px-2 py-1 rounded-full text-[11px] font-medium text-white whitespace-nowrap leading-tight transition-colors`}
                   >
                     <span className="block">Send</span>
                     <span className="block">RSVP &amp; Invite</span>
@@ -2692,42 +2768,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 {collectGuestAddresses && (
                   <TableHead className="px-2 py-2 text-xs text-center align-middle">Address</TableHead>
                 )}
-                <TableHead 
-                  className="px-2 py-2 text-xs text-center align-middle cursor-pointer hover:bg-primary/80 transition-colors select-none"
-                  onClick={async () => {
-                    if (!selectedEventId || sortedGuests.length === 0) return;
-                    const allOn = sortedGuests.every(g => g.allow_plus_one !== false);
-                    const newValue = !allOn;
-                    try {
-                      const { error } = await supabase
-                        .from('guests')
-                        .update({ allow_plus_one: newValue })
-                        .eq('event_id', selectedEventId);
-                      if (error) throw error;
-                      await refetchGuests();
-                      toast({
-                        title: "Success",
-                        description: `+ Guest ${newValue ? 'enabled' : 'disabled'} for all guests`,
-                      });
-                    } catch (err) {
-                      console.error('Error toggling all + Guest:', err);
-                      toast({ title: "Error", description: "Failed to update", variant: "destructive" });
-                    }
-                  }}
-                >
-                  <TooltipProvider>
-                    <Tooltip>
-                      <TooltipTrigger asChild>
-                        <span className="block leading-tight">
-                          + Guest
-                        </span>
-                      </TooltipTrigger>
-                      <TooltipContent>
-                        <p>Click to toggle all guests. Controls whether guests can add extra people via Live View.</p>
-                      </TooltipContent>
-                    </Tooltip>
-                  </TooltipProvider>
-                </TableHead>
+                <TableHead className="px-2 py-2 text-xs text-center align-middle">+ Guest</TableHead>
                 <TableHead className="ww-rsvp-invite-column px-2 py-2 text-xs text-center align-middle">RSVP Invite</TableHead>
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">RSVP Status</TableHead>
                 <TableHead className="px-2 py-2 text-xs text-center align-middle">
@@ -2769,7 +2810,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   <React.Fragment key={`group-${groupIndex}-${group.groupName || 'individual'}`}>
                     {/* Group Header (for couples and families) */}
                     {group.type !== 'individual' && (
-                       <TableRow className={group.type === 'family' ? "bg-blue-600 hover:bg-blue-600" : "bg-orange-500 hover:bg-orange-500"}>
+                       <TableRow data-tone="inverse" className={cn(styles.groupHeaderWhite, group.type === 'family' ? "bg-blue-600 hover:bg-blue-600" : "bg-orange-500 hover:bg-orange-500")}>
                          <TableCell colSpan={collectGuestAddresses ? 16 : 15} className="py-2 px-0">
                            <div className="flex items-center gap-2 pl-[7%]">
                             {group.type === 'couple'
@@ -2778,7 +2819,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                             <span className="font-semibold text-sm text-white">
                               {group.groupName}
                             </span>
-                            <Badge variant="secondary" className="text-xs bg-white/20 text-white border-0">
+                            <Badge variant="secondary" className={`${styles.groupMemberBadge} text-xs bg-white/20 text-white border-0`}>
                               {group.type === 'couple' ? 'Couple' : 'Family'} • {group.members.length} members
                             </Badge>
                           </div>
@@ -2793,58 +2834,63 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       return (
                         <TableRow 
                           key={guest.id}
+                          data-guest-id={guest.id}
                           className={cn(
                             "border-card-border",
                             "hover:bg-[#F5F0EB] dark:hover:bg-[#5A4835]/30",
                             group.type !== 'individual' && "border-l-4 border-l-[#EDE5DB]",
                             group.type !== 'individual' && isLastMember && "border-b-2 border-b-[#967A59]",
-                            guest.notes && guest.notes.startsWith('[NEW+]') && "animate-row-flash"
+                            guest.notes && guest.notes.startsWith('[NEW+]') && "animate-row-flash",
+                            highlightedGuestId === guest.id && "ring-4 ring-inset ring-amber-400"
                           )}
                         >
                           <TableCell className="px-2 py-2 text-center align-middle">
-                            <Checkbox
-                              checked={selectedGuestIds.has(guest.id)}
-                              onCheckedChange={(checked) => handleSelectGuest(guest.id, checked as boolean)}
-                              className="ww-guest-select-checkbox"
-                            />
+                            <span className={styles.inviteSelection}>
+                              <Checkbox
+                                checked={selectedGuestIds.has(guest.id)}
+                                onCheckedChange={(checked) => handleSelectGuest(guest.id, checked as boolean)}
+                                className="ww-guest-select-checkbox"
+                                aria-label={`Send via SMS or email to ${guest.first_name} ${guest.last_name}`}
+                                title="Send via SMS or email"
+                              />
+                              {!selectedGuestIds.has(guest.id) && (
+                                <span className={styles.inviteSelectionContent} aria-hidden="true">
+                                  <span>SMS</span><span>+</span><Mail size={15} strokeWidth={1.8} />
+                                </span>
+                              )}
+                            </span>
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle font-medium">
-                            <span className="inline-flex flex-wrap items-center justify-center gap-1.5">
+                            <span className="inline-flex flex-col items-center justify-center gap-1 leading-tight">
                               <span>{guest.first_name}</span>
                               {guidedDesignation && <span className={styles.guidedGuestBadge}>{guidedDesignation}</span>}
+                              {guestAdditionByGuestId.has(guest.id) && (
+                                <span className="inline-flex rounded-full border border-amber-500 bg-amber-100 px-1.5 py-0.5 text-[9px] font-semibold text-amber-900" title={`${guestAdditionByGuestId.get(guest.id)!.added_by_name} added this guest on ${new Date(guestAdditionByGuestId.get(guest.id)!.created_at).toLocaleString()}`}>
+                                  New — added by guest
+                                </span>
+                              )}
                             </span>
                           </TableCell>
                           <TableCell className="px-2 py-2 text-center align-middle font-medium">{guest.last_name}</TableCell>
-                          <TableCell className="px-2 py-2 text-center align-middle">{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
-                          <TableCell className="px-2 py-2 text-center align-middle">{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
+                          <TableCell data-tone="inverse" className={`${styles.whiteBadgeCell} px-2 py-2 text-center align-middle`}>{renderPill(!!guest.mobile && guest.mobile.trim() !== '')}</TableCell>
+                          <TableCell data-tone="inverse" className={`${styles.whiteBadgeCell} px-2 py-2 text-center align-middle`}>{renderPill(!!guest.email && guest.email.trim() !== '')}</TableCell>
                           {collectGuestAddresses && (
                             <TableCell className="px-2 py-2 text-center align-middle">{renderAddressPill(guest)}</TableCell>
                           )}
                           <TableCell className="px-2 py-2 text-center align-middle">
                             <Badge 
                               className={cn(
-                                "text-white cursor-pointer lv-premium-shade",
+                                styles.whiteBadge,
+                                "text-white cursor-default lv-premium-shade",
                                 guest.notes && /has added:/i.test(guest.notes.replace(/^\[NEW\+\]/, ''))
                                   ? guest.notes.startsWith('[NEW+]')
-                                    ? "bg-green-500 hover:bg-green-600 animate-flash"
-                                    : "bg-green-500 hover:bg-green-600"
+                                    ? "bg-green-500 animate-flash"
+                                    : "bg-green-500"
                                   : guest.allow_plus_one !== false
-                                    ? "bg-green-500 hover:bg-green-600"
-                                    : "bg-red-500 hover:bg-red-600"
+                                    ? "bg-green-500"
+                                    : "bg-red-500"
                               )}
-                              onClick={async () => {
-                                const newValue = guest.allow_plus_one === false;
-                                try {
-                                  await supabase
-                                    .from('guests')
-                                    .update({ allow_plus_one: newValue })
-                                    .eq('id', guest.id);
-                                  await refetchGuests();
-                                } catch (err) {
-                                  console.error('Error toggling + Guest:', err);
-                                  toast({ title: "Error", description: "Failed to update", variant: "destructive" });
-                                }
-                              }}
+                              data-tone="inverse"
                             >
                               {guest.notes && /has added:/i.test(guest.notes.replace(/^\[NEW\+\]/, ''))
                                 ? "+Guest"
@@ -2864,14 +2910,18 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                 'mail_sent': { label: 'Sent (Mail)', className: 'bg-green-500 text-white' },
                               };
                               const config = statusConfig[status] || statusConfig['not_sent'];
+                              const hasResponded = hasGuestResponded(guest.rsvp, guest.rsvp_date);
                               return (
                                 <span className="ww-rsvp-invite-stack inline-flex flex-col items-center justify-center gap-1 whitespace-nowrap">
-                                  <Badge className={`ww-rsvp-invite-primary text-xs whitespace-nowrap break-normal lv-premium-shade ${config.className}`}>
-                                    {config.label}
-                                  </Badge>
+                                  {!hasResponded && (
+                                    <Badge data-tone="inverse" className={`${styles.whiteBadge} ww-rsvp-invite-primary text-xs whitespace-nowrap break-normal lv-premium-shade ${config.className}`}>
+                                      {config.label}
+                                    </Badge>
+                                  )}
                                   <GuestDeliveryBadges
                                     inviteStatus={guest.rsvp_invite_status}
                                     rsvp={guest.rsvp}
+                                    rsvpDate={guest.rsvp_date}
                                     purchaseDeliveryMethod={(rsvpPurchase as any)?.delivery_method ?? null}
                                     lowCredits={smsLowCredit}
                                     className="ww-rsvp-invite-secondary-stack !ml-0 !flex-col !flex-nowrap !gap-1"
@@ -2887,7 +2937,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               return (
                                 <Badge 
                                   variant={getRsvpBadgeVariant(guest.rsvp)} 
-                                  className="text-xs text-white px-2 py-0.5 leading-tight lv-premium-shade"
+                                  data-tone="inverse"
+                                  className={`${styles.whiteBadge} text-xs text-white px-2 py-0.5 leading-tight lv-premium-shade`}
                                 >
                                   {isNotAttending ? (
                                     <>Not<br />Attending</>
@@ -2938,7 +2989,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               partner={guest.relation_partner || ''}
                               role={guest.relation_role || ''}
                               partnerName={guest.relation_partner === 'partner_one' ? selectedEvent?.partner1_name : selectedEvent?.partner2_name}
-                              onClick={() => handleEditRelation(guest)}
                               isEmpty={!relationDisplay}
                             />
                               );
@@ -2962,33 +3012,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                               }
                               
                               return (
-                                <span className={`inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold lv-premium-shade ${colorClasses}`}>
+                                <span data-tone="inverse" className={`${styles.whiteBadge} inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold lv-premium-shade ${colorClasses}`}>
                                   {typeLabel}
                                 </span>
                               );
                             })()}
                           </TableCell>
-                          <TableCell className="px-2 py-2 text-center align-middle">
-                            {guest.notes && guest.notes.trim() !== '' ? (() => {
-                              const hasNewAlert = guest.notes.startsWith('[NEW+]');
-                              const displayNotes = guest.notes.replace(/^\[NEW\+\]/, '');
-                              const hasPlusGuestHistory = /has added:/i.test(displayNotes);
-                              return (
-                                <TooltipProvider delayDuration={100}>
-                                  <Tooltip>
-                                    <TooltipTrigger className="border-0 bg-transparent p-0">
-                                      <span className={cn(
-                                        "inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-white bg-green-500 cursor-pointer lv-premium-shade",
-                                        hasNewAlert && "animate-flash"
-                                      )}>{hasPlusGuestHistory ? "Yes" : "Yes"}</span>
-                                    </TooltipTrigger>
-                                    <TooltipContent side="top" className="max-w-xs z-[9999]">
-                                      <p className="whitespace-pre-wrap">{displayNotes}</p>
-                                    </TooltipContent>
-                                  </Tooltip>
-                                </TooltipProvider>
-                              );
-                            })() : (
+                          <TableCell data-tone="inverse" className={`${styles.whiteBadgeCell} px-2 py-2 text-center align-middle`}>
+                            {guest.notes && guest.notes.trim() !== '' ? (
+                              <span className={cn("inline-flex items-center rounded-full px-2.5 py-0.5 text-xs font-semibold text-white bg-green-500 cursor-default lv-premium-shade", guest.notes.startsWith('[NEW+]') && "animate-flash")}>Yes</span>
+                            ) : (
                               <Badge className="text-white bg-red-500 lv-premium-shade">No</Badge>
                             )}
                           </TableCell>
@@ -3092,6 +3125,12 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       )}
 
       <Suspense fallback={null}>
+      {showSmsVerification && selectedEventId && <GuestAdditionSmsVerificationDialog
+        open={showSmsVerification}
+        onOpenChange={setShowSmsVerification}
+        eventId={selectedEventId}
+        onVerified={handleSmsVerificationComplete}
+      />}
       {showAddModal && <AddGuestModal
         isOpen={showAddModal}
         onClose={() => {
@@ -3124,7 +3163,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           isOpen={bulkModalOpen || selectedGuestIds.size > 0}
           onClose={() => { setBulkModalOpen(false); handleDeselectAll(); }}
           selectedCount={selectedGuestIds.size}
-          totalCount={sortedGuests.length}
+          allDefaultRecipientsSelected={(() => {
+            const ids = getDefaultRsvpInviteRecipientIds(sortedGuests);
+            return ids.length > 0 && selectedGuestIds.size === ids.length
+              && ids.every((id) => selectedGuestIds.has(id));
+          })()}
           selectedGuests={sortedGuests.filter(g => selectedGuestIds.has(g.id)).map(g => ({ id: g.id, first_name: g.first_name, last_name: g.last_name }))}
           allGuests={sortedGuests.map(g => ({ id: g.id, first_name: g.first_name, last_name: g.last_name }))}
           onSelectGuests={(ids) => setSelectedGuestIds(new Set(ids))}
@@ -3187,11 +3230,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           onMarkManualInvite={async (method: string) => {
             try {
               const ids = Array.from(selectedGuestIds);
-              for (const guestId of ids) {
-                await supabase
-                  .from('guests')
-                  .update({ rsvp_invite_status: method, rsvp_invite_sent_at: new Date().toISOString() })
-                  .eq('id', guestId);
+              if (!selectedEventId || ids.length === 0) return;
+              const { data: updatedGuests, error } = await supabase
+                .from('guests')
+                .update({ rsvp_invite_status: method, rsvp_invite_sent_at: new Date().toISOString() })
+                .eq('event_id', selectedEventId)
+                .in('id', ids)
+                .select('id');
+              if (error) throw error;
+              if (updatedGuests?.length !== ids.length) {
+                throw new Error('Some selected guests could not be updated');
               }
               toast({
                 title: "Success",
@@ -3343,9 +3391,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         />}
 
         {/* Resend Smart RSVP — precision re-targeting */}
-        {showResendModal && <ResendSmartRsvpModal
-          isOpen={showResendModal}
-          onClose={() => setShowResendModal(false)}
+        {activeCentre === 'delivery' && <ResendSmartRsvpModal
+          isOpen
+          onClose={() => setActiveCentre(null)}
           eventId={selectedEventId}
           onSend={async (channel, guestIds) => {
             if (!selectedEventId || guestIds.length === 0) return false;
@@ -3358,16 +3406,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         />}
 
         {/* Smart RSVP Analytics — slide-over (Communications Centre) */}
-        {showAnalyticsPanel && <SmartRsvpAnalyticsPanel
+        {activeCentre === 'communications' && <SmartRsvpAnalyticsPanel
           eventId={selectedEventId}
-          open={showAnalyticsPanel}
-          onOpenChange={setShowAnalyticsPanel}
+          open
+          onOpenChange={(open) => setActiveCentre(open ? 'communications' : null)}
         />}
 
         {/* Guest Intelligence Centre — modular insights panel (Phase 1) */}
-        {showIntelligencePanel && <GuestIntelligencePanel
-          open={showIntelligencePanel}
-          onClose={() => setShowIntelligencePanel(false)}
+        {activeCentre === 'intelligence' && <GuestIntelligencePanel
+          open
+          onClose={() => setActiveCentre(null)}
           guests={guests}
           tables={tables}
           event={selectedEvent ? {
@@ -3379,6 +3427,19 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             partner2_name: (selectedEvent as any).partner2_name ?? null,
           } : null}
         />}
+
+        {selectedEventId && (activeCentre === 'sms' || activeCentre === 'guest-live-view') && (
+          <GuestListUtilityDrawer
+            eventId={selectedEventId}
+            kind={activeCentre}
+            open
+            recipientCount={selectedGuestIds.size || undefined}
+            onOpenChange={(open) => {
+              if (!open) closeUtilityCentre();
+            }}
+            onConfigureGuestLiveView={navigateToGuestLiveViewConfiguration}
+          />
+        )}
 
         {showGuestLimitDialog && <GuestLimitDialog
           isOpen={showGuestLimitDialog}

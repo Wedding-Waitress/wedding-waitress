@@ -98,11 +98,11 @@ describe('Photo & Video Gallery View premium appearance', () => {
       expect(card).toHaveClass(managementStyles.glassCard);
     }
     expect(screen.getByRole('heading', { name: 'Branding & Theme' }).closest('.h-full')).toBeInTheDocument();
-    expect(screen.getByText('These appearance settings are shared across your guest-facing gallery experiences.')).toHaveClass(managementStyles.galleryViewFootnote);
+    expect(screen.getByText('These appearance settings are shared across your guest facing gallery experiences.')).toHaveClass(managementStyles.galleryViewFootnote);
 
     expect(screen.getAllByText('No image')[0].parentElement?.parentElement).toHaveClass(managementStyles.galleryViewInsetPanel);
     expect(screen.getByRole('button', { name: 'Choose Image' })).toHaveClass(managementStyles.galleryControl);
-    expect(screen.getByRole('button', { name: 'Reset to default' })).toHaveClass(managementStyles.galleryControl);
+    expect(screen.getByRole('button', { name: 'Reset to default' })).toHaveClass(managementStyles.approvedResetAction);
     expect(screen.getByRole('button', { name: 'Save branding' })).toHaveClass(managementStyles.galleryViewPrimaryAction);
 
     expect(screen.getByDisplayValue(/public-gallery-token/)).toHaveClass(managementStyles.galleryControl);

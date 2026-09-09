@@ -1,3 +1,4 @@
+import { cellValue, type DJMCColumn } from '@/lib/djmcCustomColumns';
 /**
  * PRODUCTION-READY -- LOCKED FOR PRODUCTION
  *
@@ -16,7 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
 import {
   GripVertical, Copy, Eraser, Highlighter, EllipsisVertical,
-  Bold, Italic, Underline, Trash2,
+  Bold, Italic, Underline, Trash2, Undo2,
 } from 'lucide-react';
 import {
   DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger,
@@ -32,6 +33,7 @@ import { DJMCPronunciationRecorder } from './DJMCPronunciationRecorder';
 import theme from './DJMCQuestionnaireTheme.module.css';
 
 interface DJMCSectionRowProps {
+  columns?: DJMCColumn[] | null;
   item: DJMCItem;
   eventId: string;
   shareToken?: string;
@@ -40,20 +42,41 @@ interface DJMCSectionRowProps {
   onDelete: () => void;
   onDuplicate: () => void;
   onClearText?: () => void;
+  onRunUndoable?: (action: () => unknown | Promise<unknown>, recordings?: boolean) => Promise<unknown>;
   disabled?: boolean;
 }
 
 export function DJMCSectionRow({
+  columns,
   item,
   eventId,
   shareToken,
   sectionType,
-  onUpdate,
+  onUpdate: persistUpdate,
   onDelete,
   onDuplicate,
   onClearText,
+  onRunUndoable,
   disabled = false,
 }: DJMCSectionRowProps) {
+  const [rowHistory, setRowHistory] = useState<Partial<DJMCItem>[]>([]);
+  useEffect(() => setRowHistory([]), [item.id]);
+  const onUpdate = (updates: Partial<DJMCItem>) => {
+    // Record editable text and formatting only; recording recovery belongs to full Undo.
+    const previous: Partial<DJMCItem> = {};
+    for (const key of Object.keys(updates) as (keyof DJMCItem)[]) {
+      if (key !== 'pronunciation_audio_path' && key !== 'pronunciation_audio_url' && item[key] !== updates[key]) {
+        Object.assign(previous, { [key]: item[key] });
+      }
+    }
+    if (Object.keys(previous).length) setRowHistory(history => [...history.slice(-19), previous]);
+    persistUpdate(updates);
+  };
+  const undoRow = () => {
+    if (disabled || !rowHistory.length) return;
+    persistUpdate(rowHistory[rowHistory.length - 1]);
+    setRowHistory(history => history.slice(0, -1));
+  };
   const [editingLabel, setEditingLabel] = useState(false);
   const [showClearDialog, setShowClearDialog] = useState(false);
   const [showDeleteDialog, setShowDeleteDialog] = useState(false);
@@ -173,7 +196,7 @@ export function DJMCSectionRow({
   const parentheticalText = labelMatch ? labelMatch[2] : null;
 
   // Build formatting classes based on item flags (matching Running Sheet: highlight = bold + red text)
-  const headerClasses = item.is_section_header ? 'font-bold text-destructive' : '';
+  const headerClasses = item.is_section_header ? theme.redRowText : '';
   const formatClasses = [
     headerClasses,
     item.is_bold ? 'font-bold' : '',
@@ -182,18 +205,18 @@ export function DJMCSectionRow({
   ].filter(Boolean).join(' ');
 
   // Special two-column layout for do_not_play section
-  if (sectionType === 'do_not_play') {
+  if (sectionType === 'do_not_play' && !columns) {
     return (
       <div
         ref={setNodeRef}
         style={style}
-        className={`${theme.row} flex items-center gap-2 py-2 px-1 rounded-md group`}
+        className={`${theme.row} ${headerClasses} flex items-center gap-2 py-2 px-1 rounded-md group`}
       >
         {/* Drag Handle */}
         <div
           {...attributes}
           {...listeners}
-          className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded" title="Drag to reorder" aria-label="Drag to reorder"
+          className="djmc-drag-handle cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded" title="Drag to reorder" aria-label="Drag to reorder"
         >
           <GripVertical size={16} strokeWidth={1.8} className="text-muted-foreground" />
         </div>
@@ -247,14 +270,19 @@ export function DJMCSectionRow({
           <div className="shrink-0">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
-                <Button variant="ghost" size="icon" className="h-7 w-7" title="More actions" aria-label="More row actions">
+                <Button variant="ghost" size="icon" className="h-7 w-7" title="Row actions" aria-label="Row actions" disabled={disabled}>
                   <EllipsisVertical size={16} strokeWidth={1.8} />
                 </Button>
               </DropdownMenuTrigger>
               <DropdownMenuContent align="end" className="w-56 ww-djmc-portal">
+                <DropdownMenuItem onClick={undoRow} disabled={disabled || rowHistory.length === 0}>
+                  <Undo2 size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
+                  Undo
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
                 <DropdownMenuItem onClick={() => onUpdate({ is_section_header: !item.is_section_header })}>
                   <Highlighter size={18} strokeWidth={1.8} className="mr-2" />
-                  Highlight Row
+                  {item.is_section_header ? 'Restore Normal Text Colour' : 'Make Row Text Red'}
                   {item.is_section_header && <span className="ml-auto text-xs text-destructive">✓</span>}
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={onDuplicate}>
@@ -325,17 +353,28 @@ export function DJMCSectionRow({
     <div
       ref={setNodeRef}
       style={style}
-        className={`${theme.row} flex items-center gap-2 py-2 px-1 rounded-md group`}
+        className={`${theme.row} ${headerClasses} flex items-center gap-2 py-2 px-1 rounded-md group`}
     >
       {/* Drag Handle */}
       <div
         {...attributes}
         {...listeners}
-        className="cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded" title="Drag to reorder" aria-label="Drag to reorder"
+        className="djmc-drag-handle cursor-grab active:cursor-grabbing p-1 hover:bg-muted rounded" title="Drag to reorder" aria-label="Drag to reorder"
       >
         <GripVertical size={16} strokeWidth={1.8} className="text-muted-foreground" />
       </div>
 
+      {columns ? columns.map(column=>{
+        const value=cellValue(item,column);
+        const updateValue=(next:string|null)=>onUpdate(column.source
+          ? {[column.source]:next || ''}
+          : {custom_values:{...item.custom_values,[column.id]:next || ''}});
+        return <div key={column.id} className="flex-1 min-w-0">
+          {/^(https?:\/\/)\S+$/i.test(value.trim())
+            ? <DJMCMusicUrlField value={value.trim()} onChange={updateValue} disabled={disabled} ariaLabel={column.label}/>
+            : <Input aria-label={column.label} disabled={disabled} value={value} onChange={event=>updateValue(event.target.value)}/>}
+        </div>;
+      }) : <>
       {/* COLUMN 1: Speaker Status for speeches (narrower to align Speaker Name with other sections) */}
       {sectionType === 'speeches' ? (
         <div className="basis-[31%] min-w-0 shrink-0">
@@ -458,6 +497,7 @@ export function DJMCSectionRow({
           </div>
           <div className="w-10 shrink-0 flex justify-center">
             <DJMCPronunciationRecorder
+              onRunUndoable={onRunUndoable}
               audioPath={item.pronunciation_audio_path || null}
               legacyAudioUrl={item.pronunciation_audio_url}
               eventId={eventId}
@@ -561,6 +601,7 @@ export function DJMCSectionRow({
         {showPronunciation && (
           <div className="w-10 shrink-0 flex justify-center">
             <DJMCPronunciationRecorder
+              onRunUndoable={onRunUndoable}
               audioPath={item.pronunciation_audio_path || null}
               legacyAudioUrl={item.pronunciation_audio_url}
               eventId={eventId}
@@ -638,6 +679,7 @@ export function DJMCSectionRow({
         </div>
         <div className="w-10 shrink-0 flex justify-center">
             <DJMCPronunciationRecorder
+              onRunUndoable={onRunUndoable}
               audioPath={item.pronunciation_audio_path || null}
               legacyAudioUrl={item.pronunciation_audio_url}
               eventId={eventId}
@@ -691,6 +733,7 @@ export function DJMCSectionRow({
       {sectionType === 'speeches' && (
         <div className="w-10 shrink-0 flex justify-center">
           <DJMCPronunciationRecorder
+              onRunUndoable={onRunUndoable}
             audioPath={item.pronunciation_audio_path || null}
             legacyAudioUrl={item.pronunciation_audio_url}
             eventId={eventId}
@@ -714,19 +757,25 @@ export function DJMCSectionRow({
         </div>
       )}
 
+      </>}
       {/* Row actions - 3-dot menu */}
       {(
         <div className="shrink-0 mt-1">
           <DropdownMenu>
             <DropdownMenuTrigger asChild>
-              <Button variant="ghost" size="icon" className="h-7 w-7" title="More actions" aria-label="More row actions">
+              <Button variant="ghost" size="icon" className="h-7 w-7" title="Row actions" aria-label="Row actions" disabled={disabled}>
                 <EllipsisVertical size={16} strokeWidth={1.8} />
               </Button>
             </DropdownMenuTrigger>
             <DropdownMenuContent align="end" className="w-56 ww-djmc-portal">
+                <DropdownMenuItem onClick={undoRow} disabled={disabled || rowHistory.length === 0}>
+                  <Undo2 size={18} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
+                  Undo
+                </DropdownMenuItem>
+                <DropdownMenuSeparator />
               <DropdownMenuItem onClick={() => onUpdate({ is_section_header: !item.is_section_header })}>
                 <Highlighter size={18} strokeWidth={1.8} className="mr-2" />
-                Highlight Row
+                {item.is_section_header ? 'Restore Normal Text Colour' : 'Make Row Text Red'}
                 {item.is_section_header && <span className="ml-auto text-xs text-destructive">✓</span>}
               </DropdownMenuItem>
               <DropdownMenuItem onClick={onDuplicate}>

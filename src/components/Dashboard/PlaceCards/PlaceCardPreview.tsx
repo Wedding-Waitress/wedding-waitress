@@ -1,18 +1,18 @@
 /**
  * ⚠️ PRODUCTION-READY - DO NOT MODIFY WITHOUT APPROVAL ⚠️
- * 
+ *
  * This Place Cards feature is COMPLETE and LOCKED.
  * All functionality has been thoroughly tested and approved.
- * 
+ *
  * DO NOT make changes unless explicitly requested by the project owner.
  * Any modifications could break the carefully calibrated 300 DPI export system.
- * 
+ *
  * LOCKED FEATURES (2026-03-19):
  * - Global text sync / master-slave mirroring architecture
  * - committedOverrides / draftOverrides state pipeline
  * - Re-keying strategy (overlayKey) for post-interaction DOM cleanup
  * - effectiveSettings hierarchy (Saved → Committed → Draft)
- * 
+ *
  * Last completed: 2025-10-04
  * Updated: 2025-10-26 - Added Full Seating Chart-style layout with pagination controls
  * Locked: 2026-03-19 - Text positioning & sync feature locked
@@ -27,11 +27,13 @@ import { InteractiveTextOverlay } from '@/components/ui/InteractiveTextOverlay';
 import { InteractiveQROverlay } from '@/components/ui/InteractiveQROverlay';
 import { useToast } from '@/hooks/use-toast';
 import { weddingFontFamilyStack } from '@/lib/localWeddingFonts';
+import placeCardPrintStyles from './PlaceCardPrint.css?inline';
 
 // Monotonic counter for re-keying interactive overlays after commit
 let _overlayKeyCounter = 0;
 
 interface PlaceCardPreviewProps {
+  backgroundFit?: 'contain' | 'cover';
   settings: PlaceCardSettings | null;
   guests: Guest[];
   event: any;
@@ -43,6 +45,8 @@ interface PlaceCardPreviewProps {
   onOverflowChange?: (overflowing: boolean) => void;
   photoVideoQrDataUrl?: string | null;
   qrEditMode?: boolean;
+  pageIndex?: number;
+  onPageChange?: (page: number) => void;
 }
 
 interface DraftOverrides {
@@ -57,6 +61,7 @@ interface DraftOverrides {
 }
 
 export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps>(({
+  backgroundFit = 'contain',
   settings,
   guests,
   event,
@@ -68,8 +73,15 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
   onOverflowChange,
   photoVideoQrDataUrl = null,
   qrEditMode = false,
+  pageIndex,
+  onPageChange,
 }, ref) => {
-  const [currentPage, setCurrentPage] = useState(1);
+  const [localPage, setLocalPage] = useState(1);
+  const currentPage = pageIndex === undefined ? localPage : pageIndex + 1;
+  const setCurrentPage = (update: (page: number) => number) => {
+    const next = update(currentPage);
+    setLocalPage(next); onPageChange?.(next - 1);
+  };
   const [selectedElement, setSelectedElement] = useState<'guest-name' | 'table-seat' | null>(null);
   const [draftOverrides, setDraftOverrides] = useState<DraftOverrides | null>(null);
   const [committedOverrides, setCommittedOverrides] = useState<Partial<PlaceCardSettings>>({});
@@ -112,7 +124,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
       window.removeEventListener('resize', compute);
     };
   }, []);
-  
+
   const currentSettings = settings || {
     event_id: '',
     user_id: '',
@@ -378,13 +390,25 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
     const individualMessage = currentSettings.individual_messages?.[guest.id];
     const message = individualMessage || currentSettings.mass_message || '';
 
-    const isInteractive = textEditMode && isFirstCard;
-    const isQrInteractive = qrEditMode && isFirstCard && Boolean(currentSettings.photo_video_qr_enabled && photoVideoQrDataUrl);
+    const isInteractive = !isExporting && textEditMode && isFirstCard;
+    const isQrInteractive = !isExporting && qrEditMode && isFirstCard && Boolean(currentSettings.photo_video_qr_enabled && photoVideoQrDataUrl);
     const qrSize = Math.max(12, Math.min(36, Number(currentSettings.photo_video_qr_size ?? 22)));
     const qrHalf = qrSize / 2;
     const qrVerticalHalf = qrSize * CARD_WIDTH_MM / (FRONT_HEIGHT_MM * 2);
     const qrX = Math.max(qrHalf, Math.min(100 - qrHalf, Number(currentSettings.photo_video_qr_x ?? 50)));
     const qrY = Math.max(qrVerticalHalf, Math.min(100 - qrVerticalHalf, Number(currentSettings.photo_video_qr_y ?? 50)));
+    // The message's back face is rotated 180 degrees. Reserve the largest
+    // clear rectangle beside the QR in that same local coordinate system.
+    const qrMm = qrSize * 105 / 100;
+    const qrLeft = (100 - qrX) * 105 / 100 - qrMm / 2;
+    const qrTop = (100 - qrY) * 49.5 / 100 - qrMm / 2;
+    const messageArea = [
+      { left: 4, top: 4, width: qrLeft - 7, height: 41.5 },
+      { left: qrLeft + qrMm + 3, top: 4, width: 98 - qrLeft - qrMm, height: 41.5 },
+      { left: 4, top: 4, width: 97, height: qrTop - 7 },
+      { left: 4, top: qrTop + qrMm + 3, width: 97, height: 42.5 - qrTop - qrMm },
+    ].filter(area => area.width > 0 && area.height > 0)
+      .sort((a, b) => b.width * b.height - a.width * a.height)[0];
     // Passive cards use draft overrides for live mirroring; master card is driven by InteractiveTextOverlay DOM
     const useDraft = !isInteractive;
 
@@ -489,10 +513,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             className="absolute inset-0 pointer-events-none"
             style={{
               backgroundImage: `url(${currentSettings.background_image_url})`,
-              backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
-              backgroundSize: 'cover',
+              backgroundPosition: `${currentSettings.background_image_x_position ?? 50}% ${currentSettings.background_image_y_position ?? 50}%`,
+              backgroundSize: backgroundFit,
               backgroundRepeat: 'no-repeat',
-              opacity: (currentSettings.background_image_opacity || 100) / 100,
+              opacity: (currentSettings.background_image_opacity ?? 100) / 100,
             }}
           />
         )}
@@ -507,10 +531,10 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               right: 0,
               bottom: 0,
               backgroundImage: `url(${currentSettings.background_image_url})`,
-              backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
-              backgroundSize: 'cover',
+              backgroundPosition: `${currentSettings.background_image_x_position ?? 50}% ${currentSettings.background_image_y_position ?? 50}%`,
+              backgroundSize: backgroundFit,
               backgroundRepeat: 'no-repeat',
-              opacity: (currentSettings.background_image_opacity || 100) / 100,
+              opacity: (currentSettings.background_image_opacity ?? 100) / 100,
             }}
           />
         )}
@@ -525,19 +549,19 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               right: 0,
               height: '49.5mm',
               backgroundImage: `url(${currentSettings.background_image_url})`,
-              backgroundPosition: `${currentSettings.background_image_x_position || 50}% ${currentSettings.background_image_y_position || 50}%`,
-              backgroundSize: 'cover',
+              backgroundPosition: `${currentSettings.background_image_x_position ?? 50}% ${currentSettings.background_image_y_position ?? 50}%`,
+              backgroundSize: backgroundFit,
               backgroundRepeat: 'no-repeat',
-              opacity: (currentSettings.background_image_opacity || 100) / 100,
+              opacity: (currentSettings.background_image_opacity ?? 100) / 100,
               transform: 'rotate(180deg)',
             }}
           />
         )}
 
         {/* BACK Half (Top) - MESSAGE ONLY */}
-        <div 
+        <div
           className="relative z-10 flex items-center justify-start"
-          style={{ 
+          style={{
             height: '49.5mm',
             padding: '5mm',
             paddingTop: '6mm',
@@ -548,6 +572,11 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             <div
               className="text-center"
               style={{
+                ...(currentSettings.photo_video_qr_enabled && photoVideoQrDataUrl ? {
+                  position: 'absolute', left: `${messageArea.left}mm`, top: `${messageArea.top}mm`,
+                  width: `${messageArea.width}mm`, height: `${messageArea.height}mm`,
+                  display: 'flex', alignItems: 'center', justifyContent: 'center', overflowWrap: 'anywhere',
+                } as React.CSSProperties : {}),
                 fontFamily: weddingFontFamilyStack(currentSettings.info_font_family),
                 fontSize: `${currentSettings.info_font_size}pt`,
                 fontStyle: 'italic',
@@ -614,9 +643,9 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         )}
 
         {/* CREASE LINE at Y = 49.5mm */}
-        <div 
-          className="absolute left-0 right-0" 
-          style={{ 
+        <div
+          className="absolute left-0 right-0"
+          style={{
             top: '49.5mm',
             borderTop: '0.5px solid #d3d3d3',
             opacity: 0.3,
@@ -625,13 +654,13 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
         />
 
         {/* FRONT Half (Bottom) - GUEST NAME + TABLE/SEAT — unified absolute positioning for all cards */}
-        <div 
+        <div
           ref={(el) => {
             allCardRefs.current[cardIndex] = el;
             if (isFirstCard) firstCardRef.current = el;
           }}
           className={`relative z-10 ${isInteractive && textOverflowing ? 'boundary-warning-pulse' : ''}`}
-          style={{ 
+          style={{
             height: '49.5mm',
             position: 'relative',
             overflow: 'visible',
@@ -670,7 +699,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               {guestNameContent}
             </div>
           )}
-          
+
           {/* Table/Seat Info */}
           {currentSettings.background_image_type === 'decorative' && currentSettings.background_image_url ? (
             /* Three-column layout: Table | Image | Seat — decorative keeps its own layout */
@@ -754,9 +783,9 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
           backgroundColor: currentSettings.background_color,
         }}
       >
-        <div 
-          className="absolute left-0 right-0" 
-          style={{ 
+        <div
+          className="absolute left-0 right-0"
+          style={{
             top: '49.5mm',
             borderTop: '0.5px solid #d3d3d3',
             opacity: 0.3,
@@ -778,8 +807,9 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
 
   return (
     <div className="space-y-6">
+          <style>{placeCardPrintStyles}</style>
           {/* Screen Preview Only */}
-          <div className="print:hidden">
+          <div className="ww-placecards-visible-document">
 
             {/* TOP Pagination Controls + Master Card notice */}
             <div className="ww-placecards-pagination ww-placecards-pagination-top relative flex flex-wrap items-center justify-center gap-4 mb-6">
@@ -790,11 +820,11 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
               >
                 <span className="flex items-start gap-1.5">
                   <Info size={15} strokeWidth={1.8} className="shrink-0 mt-0.5" aria-hidden="true" />
-                  <span>
-                    This is the &quot;Master Card&quot;.
+                  <strong>
+                    This is the &quot;Master Card
                     <br />
-                    Customise this to sync with all other cards.
-                  </span>
+                    Template&quot;. Customise this to sync with all other cards.
+                  </strong>
                 </span>
               </div>
               <Button
@@ -848,42 +878,42 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
                   </div>
                 </div>
               )}
-              <div 
-                style={{ 
-                  width: '210mm', 
+              <div
+                style={{
+                  width: '210mm',
                   height: '297mm',
                   transform: `scale(${previewScale})`,
                   transformOrigin: 'top left',
-                }} 
+                }}
                 className="bg-white shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-hidden"
               >
                 {/* Place Cards Content */}
-                <div ref={ref} data-page={currentPage - 1}>
+                <div ref={ref} data-page={currentPage - 1} data-print-mirror-document="name-place-cards" style={{ width: '210mm', height: '297mm', backgroundColor: '#ffffff' }}>
                   <div className="relative" style={{ height: '297mm' }}>
                     {/* Guide lines for card positioning - precise mm measurements */}
                     <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 50 }}>
                       {/* Vertical divider at 105mm (center) */}
-                      <div 
-                        className="absolute top-0 bottom-0" 
-                        style={{ 
+                      <div
+                        className="absolute top-0 bottom-0"
+                        style={{
                           left: '105mm',
                           borderLeft: '1px dotted #d3d3d3',
                           opacity: 0.7
                         }}
                       />
                       {/* Horizontal divider 1 at 99mm */}
-                      <div 
-                        className="absolute left-0 right-0" 
-                        style={{ 
+                      <div
+                        className="absolute left-0 right-0"
+                        style={{
                           top: '99mm',
                           borderTop: '1px dotted #d3d3d3',
                           opacity: 0.7
                         }}
                       />
                       {/* Horizontal divider 2 at 198mm */}
-                      <div 
-                        className="absolute left-0 right-0" 
-                        style={{ 
+                      <div
+                        className="absolute left-0 right-0"
+                        style={{
                           top: '198mm',
                           borderTop: '1px dotted #d3d3d3',
                           opacity: 0.7
@@ -933,63 +963,7 @@ export const PlaceCardPreview = forwardRef<HTMLDivElement, PlaceCardPreviewProps
             </div>
           </div>
 
-          {/* Print Version - All Pages */}
-          <div className="hidden print:block">
-            {pages.map((pageGuests, pageIndex) => (
-              <div
-                key={pageIndex}
-                data-page={pageIndex}
-                style={{
-                  width: '210mm',
-                  height: '297mm',
-                  pageBreakAfter: pageIndex < pages.length - 1 ? 'always' : 'auto',
-                  backgroundColor: '#FFFFFF'
-                }}
-              >
-                {/* Print Content */}
-                <div className="relative" style={{ height: '297mm' }}>
-                  {/* Cut lines - precise mm measurements */}
-                  <div className="absolute inset-0 pointer-events-none" style={{ zIndex: 50 }}>
-                    {/* Vertical divider at 105mm (center) */}
-                    <div 
-                      className="absolute top-0 bottom-0" 
-                      style={{ 
-                        left: '105mm',
-                        borderLeft: '1px dotted #d3d3d3',
-                        opacity: 0.7
-                      }}
-                    />
-                    {/* Horizontal divider 1 at 99mm */}
-                    <div 
-                      className="absolute left-0 right-0" 
-                      style={{ 
-                        top: '99mm',
-                        borderTop: '1px dotted #d3d3d3',
-                        opacity: 0.7
-                      }}
-                    />
-                    {/* Horizontal divider 2 at 198mm */}
-                    <div 
-                      className="absolute left-0 right-0" 
-                      style={{ 
-                        top: '198mm',
-                        borderTop: '1px dotted #d3d3d3',
-                        opacity: 0.7
-                      }} 
-                    />
-                  </div>
 
-                  {/* Cards Grid - always render all 6 positions */}
-                  <div className="grid grid-cols-2 grid-rows-3" style={{ height: '297mm' }}>
-                    {Array.from({ length: 6 }).map((_, index) => {
-                      const guest = pageGuests[index];
-                      return guest ? renderPlaceCard(guest) : renderEmptyCard(index);
-                    })}
-                  </div>
-                </div>
-              </div>
-            ))}
-          </div>
     </div>
   );
 });

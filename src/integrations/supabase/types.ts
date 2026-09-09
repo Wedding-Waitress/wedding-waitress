@@ -2482,6 +2482,7 @@ export type Database = {
           event_id: string
           font_color: string
           id: string
+          notes: string
           name: string
           orientation: string
           qr_config: Json | null
@@ -2507,6 +2508,7 @@ export type Database = {
           event_id: string
           font_color?: string
           id?: string
+          notes?: string
           name?: string
           orientation?: string
           qr_config?: Json | null
@@ -2532,6 +2534,7 @@ export type Database = {
           event_id?: string
           font_color?: string
           id?: string
+          notes?: string
           name?: string
           orientation?: string
           qr_config?: Json | null
@@ -4782,6 +4785,10 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      convert_event_budget_currency: {
+        Args: { p_event_id: string; p_from: string; p_to: string; p_rate: number; p_rate_date: string; p_expected_updated_at: string | null; p_expense_versions: Json; p_budget: number | null }
+        Returns: Json
+      }
       _hash_upload_token: { Args: { _raw: string }; Returns: string }
       _random_id8: { Args: never; Returns: string }
       account_event_access: {
@@ -5508,6 +5515,7 @@ export type Database = {
         }
         Returns: boolean
       }
+      has_platform_owner_access: { Args: never; Returns: boolean }
       is_account_master: { Args: { _user_id: string }; Returns: boolean }
       is_account_operational: { Args: { p_user_id?: string }; Returns: boolean }
       is_owner_admin: { Args: never; Returns: boolean }

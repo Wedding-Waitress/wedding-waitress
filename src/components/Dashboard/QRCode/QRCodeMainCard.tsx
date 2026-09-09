@@ -37,6 +37,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { AdvancedQRGenerator } from '@/lib/advancedQRGenerator';
 import { buildGuestLookupUrl } from '@/lib/urlUtils';
 import { resolveWelcomeVideoUrl } from '@/lib/liveViewMediaConfig';
+import { linkSavedCeremonyPlan } from '@/lib/ceremonyFloorPlanLink';
+import { createQRSaveQueue, persistQRDesign } from '@/lib/qrDesignPersistence';
 import type { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 import { DEFAULT_QR_SETTINGS } from '@/hooks/useQRCodeSettings';
 import styles from './QRCodeSeatingChart.module.css';
@@ -91,9 +93,12 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
     toast
   } = useToast();
   const { settings: visibilitySettings, updateVisibility } = useLiveViewVisibility(eventId);
-  const { settings: moduleSettings, updateModuleConfig } = useLiveViewModuleSettings(eventId);
+  const { settings: moduleSettings, updateModuleConfig, refreshSettings } = useLiveViewModuleSettings(eventId);
+  const saveModuleConfig = async (...args: Parameters<typeof updateModuleConfig>) => {
+    if (!await updateModuleConfig(...args)) throw new Error('The uploaded content could not be saved. Please try again.');
+  };
   const welcomeVideoUrl = resolveWelcomeVideoUrl(moduleSettings?.welcome_video_config);
-  const { uploadVideo, deleteVideo, uploadProgress, isUploading, isProcessing } = useWelcomeVideoUpload(eventId);
+  const { uploadVideo, deleteVideo, uploadProgress, isUploading, isProcessing } = useWelcomeVideoUpload(eventId, refreshSettings);
   const selectedEvent = event;
   const currentEvent = event;
   const { settings: songRequestSettings, updateSettings: updateSongRequestSettings } = useGuestSongRequestSettings(eventId);
@@ -104,10 +109,61 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const [qrColors, setQrColors] = useState<QRColorsSettings>({ ...defaultColors });
   const [qrShapes, setQrShapes] = useState<QRShapeSettings>({ ...defaultShapes });
   const [qrLogo, setQrLogo] = useState<QRLogoSettings>({ ...defaultLogo });
+  const [loadedSettingsEvent, setLoadedSettingsEvent] = useState<string | null>(null);
+  const saveQueue = React.useRef(createQRSaveQueue());
+  const uploadedLogos = React.useRef(new Set<string>());
+  const currentLogo = React.useRef(qrLogo.url);
+  currentLogo.current = qrLogo.url;
+  const logoUploadVersion = React.useRef(0);
+  const renderVersion = React.useRef(0);
+
+  useEffect(() => {
+    let cancelled = false;
+    setLoadedSettingsEvent(null);
+    const load = async () => {
+      try {
+        const { data, error } = await supabase.from('qr_code_settings').select('*').eq('event_id', eventId).maybeSingle();
+        if (error) throw error;
+        if (cancelled) return;
+        setQrColors({
+          background: data?.background_color ?? defaultColors.background,
+          foreground: data?.foreground_color ?? defaultColors.foreground,
+          dotsColor: data?.dots_color ?? defaultColors.dotsColor,
+          markerBorderColor: data?.marker_border_color ?? defaultColors.markerBorderColor,
+          markerCenterColor: data?.marker_center_color ?? defaultColors.markerCenterColor,
+        });
+        setQrShapes({
+          dotsShape: (data?.dots_shape ?? defaultShapes.dotsShape) as QRShapeSettings['dotsShape'],
+          markerBorderShape: (data?.marker_border_shape ?? defaultShapes.markerBorderShape) as QRShapeSettings['markerBorderShape'],
+          markerCenterShape: (data?.marker_center_shape ?? defaultShapes.markerCenterShape) as QRShapeSettings['markerCenterShape'],
+        });
+        setQrLogo({ url: data?.center_image_url ?? null, size: data?.center_image_size ?? defaultLogo.size });
+        setLoadedSettingsEvent(eventId);
+      } catch (error) {
+        if (!cancelled) toast({ title: 'Could not load QR design', description: 'Reload the page to try again. Your saved design has not been changed.', variant: 'destructive' });
+      }
+    };
+    void load();
+    return () => { cancelled = true; };
+  }, [eventId, toast]);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
   const [downloading, setDownloading] = useState<'png' | 'jpg' | null>(null);
   const [linkingReceptionFloorPlan, setLinkingReceptionFloorPlan] = useState(false);
+  const [linkingCeremonyFloorPlan, setLinkingCeremonyFloorPlan] = useState(false);
+
+  const linkExistingCeremonyFloorPlan = async () => {
+    if (!eventId || linkingCeremonyFloorPlan) return;
+    setLinkingCeremonyFloorPlan(true);
+    try {
+      await linkSavedCeremonyPlan(eventId, moduleSettings?.floor_plan_config,
+        config => saveModuleConfig('floor_plan_config', config));
+    } catch (error) {
+      toast({ title: 'Could not link ceremony floor plan', description: error instanceof Error ? error.message : 'Please try again.', variant: 'destructive' });
+    } finally {
+      setLinkingCeremonyFloorPlan(false);
+    }
+  };
 
   const linkExistingReceptionFloorPlan = useCallback(async () => {
     if (!eventId || linkingReceptionFloorPlan) return;
@@ -137,7 +193,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
         return;
       }
 
-      await updateModuleConfig('reception_floor_plan_config', {
+      await saveModuleConfig('reception_floor_plan_config', {
         ...moduleSettings?.reception_floor_plan_config,
         source: 'existing',
         share_token: data.share_token,
@@ -194,9 +250,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
     const r = parseInt(hex.slice(1, 3), 16) / 255;
     const g = parseInt(hex.slice(3, 5), 16) / 255;
     const b = parseInt(hex.slice(5, 7), 16) / 255;
-    
+
     const toLinear = (c: number) => c <= 0.03928 ? c / 12.92 : Math.pow((c + 0.055) / 1.055, 2.4);
-    
+
     return 0.2126 * toLinear(r) + 0.7152 * toLinear(g) + 0.0722 * toLinear(b);
   }, []);
 
@@ -211,12 +267,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const ensureHighContrast = useCallback((bgColor: string, fgColor: string): string => {
     const ratio = calculateContrastRatio(bgColor, fgColor);
     if (ratio >= 4.5) return fgColor; // Already meets WCAG AA
-    
-    // Determine if background is light or dark
-    const bgLum = getLuminance(bgColor);
-    
-    // If background is light, return dark color; if dark, return light color
-    return bgLum > 0.5 ? '#1a1a1a' : '#f0f0f0';
+
+    return calculateContrastRatio(bgColor, '#000000') >= calculateContrastRatio(bgColor, '#ffffff')
+      ? '#000000' : '#ffffff';
   }, [calculateContrastRatio, getLuminance]);
 
   // Convert local settings to QRCodeSettings format
@@ -261,10 +314,12 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   // Debounced QR render function using AdvancedQRGenerator
   const renderQR = useCallback(async () => {
     if (!eventUrl) return;
+    const version = ++renderVersion.current;
     try {
-      const generator = new AdvancedQRGenerator(512);
+      const generator = new AdvancedQRGenerator(512, true);
       const settings = convertToQRCodeSettings();
       const qrDataURL = await generator.generate(eventUrl, settings);
+      if (version !== renderVersion.current) return;
       setQrDataUrl(qrDataURL);
 
       // Contrast is always ensured via auto-correction
@@ -277,45 +332,52 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   // Debounced render effect
   useEffect(() => {
     const timer = setTimeout(renderQR, 150);
-    return () => clearTimeout(timer);
+    return () => { clearTimeout(timer); renderVersion.current++; };
   }, [renderQR]);
 
   // Reset all QR settings
   const handleResetAll = () => {
+    logoUploadVersion.current++;
     setQrColors({ ...defaultColors });
     setQrShapes({ ...defaultShapes });
     setQrLogo({ ...defaultLogo });
-    toast({ title: "QR settings reset to defaults" });
   };
 
   // Logo upload handler
   const handleLogoUpload = async (file: File) => {
+    const version = ++logoUploadVersion.current;
     try {
       setIsUploadingLogo(true);
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
-      
+
       const fileExt = file.name.split('.').pop();
       const fileName = `${Date.now()}.${fileExt}`;
       const filePath = `${user.id}/${eventId}/qr-logo/${fileName}`;
-      
+
       const { error: uploadError } = await supabase.storage
         .from('qr-assets')
         .upload(filePath, file);
-      
+
       if (uploadError) throw uploadError;
-      
+
       const { data: { publicUrl } } = supabase.storage
         .from('qr-assets')
         .getPublicUrl(filePath);
-      
+
+      uploadedLogos.current.add(publicUrl);
+      if (version !== logoUploadVersion.current) {
+        const { error } = await supabase.storage.from('qr-assets').remove([filePath]);
+        if (error) throw error;
+        uploadedLogos.current.delete(publicUrl);
+        return;
+      }
       setQrLogo(prev => ({ ...prev, url: publicUrl }));
-      toast({ title: 'Logo uploaded successfully' });
     } catch (error: any) {
-      toast({ 
-        title: 'Upload failed', 
+      toast({
+        title: 'Upload failed',
         description: error.message,
-        variant: 'destructive' 
+        variant: 'destructive'
       });
     } finally {
       setIsUploadingLogo(false);
@@ -323,18 +385,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   };
 
   const handleRemoveLogo = async () => {
-    if (qrLogo.url) {
-      try {
-        const path = qrLogo.url.split('/qr-assets/')[1];
-        if (path) {
-          await supabase.storage.from('qr-assets').remove([path]);
-        }
-      } catch (error) {
-        console.error('Error removing logo:', error);
-      }
-    }
+    logoUploadVersion.current++;
     setQrLogo(prev => ({ ...prev, url: null }));
-    toast({ title: 'Logo removed' });
   };
 
   // Action button handlers
@@ -473,12 +525,13 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   }, [qrDataUrl, selectedEvent?.name, toast]);
   // Auto-save QR settings when colors, shapes, or logo changes
   useEffect(() => {
-    const saveTimer = setTimeout(async () => {
+    if (loadedSettingsEvent !== eventId) return;
+    const saveTimer = setTimeout(() => { void saveQueue.current(async () => {
       if (!eventId) return;
-      
+
       try {
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user) return;
+        if (!user) throw new Error('Not authenticated');
 
         const settingsToSave = {
           event_id: eventId,
@@ -496,16 +549,16 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           updated_at: new Date().toISOString()
         };
 
-        await supabase
-          .from('qr_code_settings')
-          .upsert(settingsToSave, { onConflict: 'event_id' });
+        const { cleanupFailed } = await persistQRDesign(settingsToSave, uploadedLogos.current, () => currentLogo.current);
+        if (cleanupFailed) toast({ title: 'QR design saved', description: 'An old logo could not be cleaned up. It will be retried on your next saved change.', variant: 'destructive' });
       } catch (error) {
         console.error('Auto-save QR settings error:', error);
+        toast({ title: 'QR design was not saved', description: 'Please try your change again.', variant: 'destructive' });
       }
-    }, 500);
+    }); }, 500);
 
     return () => clearTimeout(saveTimer);
-  }, [eventId, qrColors, qrShapes, qrLogo]);
+  }, [eventId, loadedSettingsEvent, qrColors, qrShapes, qrLogo, toast]);
   const handleLiveView = () => {
     if (eventUrl) {
       window.open(eventUrl, '_blank');
@@ -540,30 +593,42 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const updateColors = (updates: Partial<QRColorsSettings>) => {
     setQrColors(prev => {
       const newColors = { ...prev, ...updates };
-      
-      // Only auto-correct other colors when the background color was changed
-      if ('background' in updates) {
+
+      // Every colour control must honour the existing auto-optimized contrast promise.
+      {
         const bg = newColors.background;
         newColors.dotsColor = ensureHighContrast(bg, newColors.dotsColor);
         newColors.markerBorderColor = ensureHighContrast(bg, newColors.markerBorderColor);
         newColors.markerCenterColor = ensureHighContrast(bg, newColors.markerCenterColor);
         newColors.foreground = ensureHighContrast(bg, newColors.foreground);
       }
-      
+
       return newColors;
     });
   };
 
-  // Shape change handlers  
+  // Shape change handlers
   const updateShapes = (updates: Partial<QRShapeSettings>) => {
     setQrShapes(prev => ({ ...prev, ...updates }));
   };
   return <Card className={`${styles.generatorPanel} border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-full`}>
       <CardHeader className="pb-2">
-        <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
-          <QrCodeIcon strokeWidth={1.8} className="h-[22px] w-[22px] text-[#856A4C]" />
-          QR Code Generator
-        </CardTitle>
+        <div className={styles.generatorHeaderRow}>
+          <CardTitle className="flex items-center gap-2 text-2xl font-bold text-foreground">
+            <QrCodeIcon strokeWidth={1.8} className="h-[22px] w-[22px] text-[#856A4C]" />
+            QR Code Generator
+          </CardTitle>
+          <div className={styles.generatorConnectionStatus}>
+            <CircleCheck className="w-4 h-4 text-green-600 shrink-0" strokeWidth={1.8} aria-hidden="true" />
+            <span className={styles.statusLabel}>Connected &amp; Synced</span>
+            <span className={styles.statusSeparator} aria-hidden="true">&mdash;</span>
+            <span className={styles.statusDetail}>Linked: <strong>{event.name}</strong></span>
+            <button type="button" className={styles.compactStatus} onClick={handleLiveView}>
+              <ExternalLink className="w-[14px] h-[14px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+              Opens guest lookup
+            </button>
+          </div>
+        </div>
       </CardHeader>
       <CardContent className="space-y-6 pt-4">
         {/* Top Row: QR Preview + Customization + Action Buttons (3 equal columns) */}
@@ -637,8 +702,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           key={shape}
                           onClick={() => updateShapes({ dotsShape: shape })}
                           className={`w-8 h-8 flex items-center justify-center rounded border-2 transition-all ${
-                            qrShapes.dotsShape === shape 
-                              ? 'border-[#856A4C] bg-[#F5F0EB]' 
+                            qrShapes.dotsShape === shape
+                              ? 'border-[#856A4C] bg-[#F5F0EB]'
                               : 'border-gray-200 hover:border-[#C4A882]'
                           }`}
                           title={shape}
@@ -663,8 +728,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             key={shape}
                             onClick={() => updateShapes({ markerBorderShape: shape })}
                             className={`w-8 h-8 flex items-center justify-center rounded border-2 transition-all ${
-                              qrShapes.markerBorderShape === shape 
-                                ? 'border-[#856A4C] bg-[#F5F0EB]' 
+                              qrShapes.markerBorderShape === shape
+                                ? 'border-[#856A4C] bg-[#F5F0EB]'
                                 : 'border-gray-200 hover:border-[#C4A882]'
                             }`}
                             title={shape}
@@ -684,8 +749,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             key={shape}
                             onClick={() => updateShapes({ markerCenterShape: shape })}
                             className={`w-8 h-8 flex items-center justify-center rounded border-2 transition-all ${
-                              qrShapes.markerCenterShape === shape 
-                                ? 'border-[#856A4C] bg-[#F5F0EB]' 
+                              qrShapes.markerCenterShape === shape
+                                ? 'border-[#856A4C] bg-[#F5F0EB]'
                                 : 'border-gray-200 hover:border-[#C4A882]'
                             }`}
                             title={shape}
@@ -756,11 +821,11 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 </AccordionContent>
               </AccordionItem>
             </Accordion>
-            
+
             {/* Reset to Default - at bottom of Design panel */}
             <div className="flex-grow" />
             <div className="pt-4">
-              <Button variant="destructive" onClick={handleResetAll} className="lv-premium-shade w-full rounded-full">
+              <Button variant="destructive" onClick={handleResetAll} className={`lv-premium-shade w-full rounded-full ${styles.resetDefaultButton}`}>
                 <RotateCcw strokeWidth={1.8} className="h-[17px] w-[17px] mr-[7px]" aria-hidden="true" />
                 Reset to Default
               </Button>
@@ -770,35 +835,35 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           {/* Col 3: Action Buttons */}
           <div className={`${styles.actionsPanel} flex flex-col gap-3 justify-start bg-muted/20 rounded-lg border border-primary p-4 min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}>
             {/* Open Live View - Full Width */}
-            <Button variant="default" size="default" onClick={handleLiveView} disabled={!selectedEvent?.slug} className="lv-premium-shade w-full bg-green-500 hover:bg-green-600 text-white border-0">
+            <Button variant="default" size="default" onClick={handleLiveView} disabled={!selectedEvent?.slug} className={`${styles.liveViewButton} ww-emboss-green ww-emboss-green-soft w-full bg-green-500 text-white hover:text-white !border-0`}>
               <ExternalLink strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />
               Open Live View App
             </Button>
-            
+
             {/* Copy Link - Full Width */}
             <Button variant="outline" size="default" onClick={handleCopyLink} disabled={!selectedEvent?.slug} className="lv-premium-shade border-[#C4A882] w-full">
               {copiedLink ? <Check strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" /> : <Copy strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />}
               Copy Link
             </Button>
-            
+
             {/* PNG - Full Width */}
             <Button variant="outline" size="default" onClick={handleDownloadPNG} disabled={downloading === 'png'} className="lv-premium-shade border-[#C4A882] w-full">
               {downloading === 'png' ? <LoaderCircle strokeWidth={1.8} className="h-4 w-4 mr-1.5 animate-spin" aria-hidden="true" /> : <FileImage strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />}
               PNG
             </Button>
-            
+
             {/* JPG - Full Width */}
             <Button variant="outline" size="default" onClick={handleDownloadJPG} disabled={downloading === 'jpg'} className="lv-premium-shade border-[#C4A882] w-full">
               {downloading === 'jpg' ? <LoaderCircle strokeWidth={1.8} className="h-4 w-4 mr-1.5 animate-spin" aria-hidden="true" /> : <ImageDown strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />}
               JPG
             </Button>
-            
+
             {/* Spacer to push Reset to bottom */}
             <div className="flex-grow" />
-            
+
             {/* Reset to Default - Red Destructive, Full Width, Rounded (Like Place Cards) */}
             <div className="pt-4">
-              <Button variant="destructive" onClick={handleResetQR} className="lv-premium-shade w-full rounded-full">
+              <Button variant="destructive" onClick={handleResetQR} className={`lv-premium-shade w-full rounded-full ${styles.resetDefaultButton}`}>
                 <RotateCcw strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />
                 Reset to Default
               </Button>
@@ -815,12 +880,12 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             <p className="text-sm text-muted-foreground">
               Configure which modules your guests can access when they scan the QR code or visit your event page.
             </p>
-            
+
             {/* 2x2 Grid for all modules */}
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
               {/* RSVP Invite Module */}
               <div className="space-y-3 p-4 rounded-lg border border-[#472c1d] bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3 max-lg:flex-col max-lg:items-stretch">
                   <div className="flex items-center gap-3">
                     <MailCheck strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] max-lg:hidden" />
                     <div>
@@ -854,7 +919,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           <div className="p-3 bg-[#F5F0EB]/50 rounded-md space-y-2">
                             <h5 className="text-xs font-semibold">Upload Your Digital Invitation</h5>
                             <p className="text-xs text-muted-foreground">
-                              Create an A4 size digital invitation and upload it as PDF, JPG, or PNG.
+                              Create an A4 size digital invitation and upload it as PDF, JPG, or PNG. Portrait uploads work best on mobile.
                             </p>
                           </div>
 
@@ -872,7 +937,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               <Button
                                 size="sm"
                                 variant="default"
-                                className="lv-premium-shade text-white"
+                                className={`${styles.replaceAssetButton} ${styles.lightButtonText} lv-premium-shade text-white`}
                                 onClick={() => {
                                   const input = document.createElement('input');
                                   input.type = 'file';
@@ -883,34 +948,34 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                       try {
                                         const { data: { user } } = await supabase.auth.getUser();
                                         if (!user) throw new Error('Not authenticated');
-                                        
+
                                         const fileExt = file.name.split('.').pop();
                                         const fileName = `${Date.now()}.${fileExt}`;
                                         const filePath = `${user.id}/${eventId}/rsvp_invite/${fileName}`;
-                                        
+
                                         const { error: uploadError } = await supabase.storage
                                           .from('invitations')
                                           .upload(filePath, file);
-                                        
+
                                         if (uploadError) throw uploadError;
-                                        
+
                                         const { data: { publicUrl } } = supabase.storage
                                           .from('invitations')
                                           .getPublicUrl(filePath);
-                                        
-                                        await updateModuleConfig('rsvp_invite_config', {
+
+                                        await saveModuleConfig('rsvp_invite_config', {
                                           file_url: publicUrl,
                                           file_name: file.name,
                                           file_type: file.type,
                                           uploaded_at: new Date().toISOString()
                                         });
-                                        
+
                                         toast({ title: 'Invitation replaced successfully' });
                                       } catch (error: any) {
-                                        toast({ 
-                                          title: 'Upload failed', 
+                                        toast({
+                                          title: 'Upload failed',
                                           description: error.message,
-                                          variant: 'destructive' 
+                                          variant: 'destructive'
                                         });
                                       }
                                     }
@@ -918,25 +983,23 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   input.click();
                                 }}
                               >
-                                <RotateCcw className="h-3 w-3 mr-1" />
+                                <RotateCcw className={`h-3 w-3 mr-1`} />
                                 Replace
                               </Button>
                               <Button
                                 size="sm"
                                 variant="destructive"
-                                className="lv-premium-shade text-white"
+                                className={`lv-premium-shade text-white ${styles.removeAssetButton}`}
                                 onClick={async () => {
                                   if (eventId && moduleSettings?.rsvp_invite_config?.file_url) {
                                     try {
-                                      const path = moduleSettings.rsvp_invite_config.file_url.split('/invitations/')[1];
-                                      await supabase.storage.from('invitations').remove([path]);
-                                      await updateModuleConfig('rsvp_invite_config', {});
+                                      await saveModuleConfig('rsvp_invite_config', {});
                                       toast({ title: 'Invitation removed successfully' });
                                     } catch (error: any) {
-                                      toast({ 
-                                        title: 'Remove failed', 
+                                      toast({
+                                        title: 'Remove failed',
                                         description: error.message,
-                                        variant: 'destructive' 
+                                        variant: 'destructive'
                                       });
                                     }
                                   }
@@ -959,34 +1022,34 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                     try {
                                       const { data: { user } } = await supabase.auth.getUser();
                                       if (!user) throw new Error('Not authenticated');
-                                      
+
                                       const fileExt = file.name.split('.').pop();
                                       const fileName = `${Date.now()}.${fileExt}`;
                                       const filePath = `${user.id}/${eventId}/rsvp_invite/${fileName}`;
-                                      
+
                                       const { error: uploadError } = await supabase.storage
                                         .from('invitations')
                                         .upload(filePath, file);
-                                      
+
                                       if (uploadError) throw uploadError;
-                                      
+
                                       const { data: { publicUrl } } = supabase.storage
                                         .from('invitations')
                                         .getPublicUrl(filePath);
-                                      
-                                      await updateModuleConfig('rsvp_invite_config', {
+
+                                      await saveModuleConfig('rsvp_invite_config', {
                                         file_url: publicUrl,
                                         file_name: file.name,
                                         file_type: file.type,
                                         uploaded_at: new Date().toISOString()
                                       });
-                                      
+
                                       toast({ title: 'Invitation uploaded successfully' });
                                     } catch (error: any) {
-                                      toast({ 
-                                        title: 'Upload failed', 
+                                      toast({
+                                        title: 'Upload failed',
                                         description: error.message,
-                                        variant: 'destructive' 
+                                        variant: 'destructive'
                                       });
                                     }
                                   }
@@ -1041,7 +1104,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
               {/* Welcome Video Module */}
               <div className="space-y-3 p-4 rounded-lg border border-[#472c1d] bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3 max-lg:flex-col max-lg:items-stretch">
                   <div className="flex items-center gap-3 max-lg:items-start">
                     <Video strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
                     <div>
@@ -1072,10 +1135,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           <div className="space-y-1">
                             <Label className="text-sm font-medium">Welcome Video</Label>
                             <p className="text-xs text-muted-foreground">
-                              Upload a personal video message (max 2 minutes, MP4/MOV/WebM, up to 500MB)
+                              Upload a personal video message (max 2 minutes, MP4/MOV/WebM, up to 500MB). Portrait uploads work best on mobile.
                             </p>
                           </div>
-                          
+
                           {welcomeVideoUrl ? (
                             <div className="space-y-3">
                               <div className="relative rounded-lg overflow-hidden bg-black">
@@ -1087,10 +1150,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                 />
                               </div>
                               <div className="flex gap-2">
-                                <Button 
-                                  variant="default" 
-                                  size="sm" 
-                                  className="lv-premium-shade text-white"
+                                <Button
+                                  variant="default"
+                                  size="sm"
+                                  className={`${styles.replaceAssetButton} ${styles.lightButtonText} lv-premium-shade text-white`}
                                   onClick={() => {
                                     const input = document.createElement('input');
                                     input.type = 'file';
@@ -1104,13 +1167,13 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                     input.click();
                                   }}
                                 >
-                                  <RotateCcw className="w-3 h-3 mr-1" />
+                                  <RotateCcw className={`w-3 h-3 mr-1`} />
                                   Replace
                                 </Button>
-                                <Button 
-                                  variant="destructive" 
-                                  size="sm" 
-                                  className="lv-premium-shade text-white" 
+                                <Button
+                                  variant="destructive"
+                                  size="sm"
+                                  className={`lv-premium-shade text-white ${styles.removeAssetButton}`}
                                   onClick={async () => {
                                     if (confirm('Are you sure you want to remove this video?')) {
                                       await deleteVideo();
@@ -1151,7 +1214,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               <p className="text-xs text-muted-foreground mt-1">MP4, MOV, or WebM (max 2 min, 500MB)</p>
                             </div>
                           )}
-                          
+
                           {(isUploading || isProcessing) && (
                             <div className="space-y-2">
                               {isUploading && (
@@ -1179,12 +1242,12 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
               {/* Ceremony Floor Plan Module */}
               <div className="space-y-3 p-4 rounded-lg border border-[#472c1d] bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3 max-lg:flex-col max-lg:items-stretch">
                   <div className="flex items-center gap-3 max-lg:items-start">
                     <MapPinned strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
                     <div>
                       <h4 className="text-sm font-semibold whitespace-nowrap max-lg:text-[13px]">Ceremony Floor Plan</h4>
-                      <p className="text-xs text-muted-foreground max-lg:mt-1.5">Show your ceremony floor plan to guests</p>
+                      <p className="text-xs text-muted-foreground max-lg:mt-1.5">Show your ceremony floor plan to guests. Choose the orientation that keeps your layout clear.</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 max-lg:justify-between max-lg:w-full">
@@ -1208,7 +1271,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       <AccordionContent>
                         <div className="space-y-3 pt-2">
                           <p className="text-xs text-muted-foreground">Choose how to display your ceremony floor plan to guests. Select one option:</p>
-                          
+
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {/* Upload Image Option */}
                             <button
@@ -1239,12 +1302,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             {/* Use Existing Floor Plan Option */}
                             <button
                               type="button"
-                              onClick={() => {
-                                updateModuleConfig('floor_plan_config', {
-                                  ...moduleSettings?.floor_plan_config,
-                                  source: 'existing'
-                                });
-                              }}
+                              onClick={linkExistingCeremonyFloorPlan}
+                              disabled={linkingCeremonyFloorPlan}
                               className={`p-4 rounded-lg border-2 text-left transition-all ${
                                 moduleSettings?.floor_plan_config?.source === 'existing'
                                   ? 'border-green-500 bg-green-50'
@@ -1279,7 +1338,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   <Button
                                     size="sm"
                                     variant="default"
-                                    className="lv-premium-shade text-white"
+                                    className={`${styles.replaceAssetButton} ${styles.lightButtonText} lv-premium-shade text-white`}
                                     onClick={() => {
                                       const input = document.createElement('input');
                                       input.type = 'file';
@@ -1296,7 +1355,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                             const { error: uploadError } = await supabase.storage.from('live-view-uploads').upload(filePath, file);
                                             if (uploadError) throw uploadError;
                                             const { data: { publicUrl } } = supabase.storage.from('live-view-uploads').getPublicUrl(filePath);
-                                            await updateModuleConfig('floor_plan_config', {
+                                            await saveModuleConfig('floor_plan_config', {
                                               source: 'upload',
                                               file_url: publicUrl,
                                               file_name: file.name,
@@ -1312,19 +1371,17 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                       input.click();
                                     }}
                                   >
-                                    <RotateCcw className="h-3 w-3 mr-1" />
+                                    <RotateCcw className={`h-3 w-3 mr-1`} />
                                     Replace
                                   </Button>
                                   <Button
                                     size="sm"
                                     variant="destructive"
-                                    className="lv-premium-shade text-white"
+                                    className={`lv-premium-shade text-white ${styles.removeAssetButton}`}
                                     onClick={async () => {
                                       if (eventId && moduleSettings?.floor_plan_config?.file_url) {
                                         try {
-                                          const path = moduleSettings.floor_plan_config.file_url.split('/live-view-uploads/')[1];
-                                          if (path) await supabase.storage.from('live-view-uploads').remove([path]);
-                                          await updateModuleConfig('floor_plan_config', { source: 'upload' });
+                                          await saveModuleConfig('floor_plan_config', { source: 'upload' });
                                           toast({ title: 'Ceremony floor plan removed' });
                                         } catch (error: any) {
                                           toast({ title: 'Remove failed', description: error.message, variant: 'destructive' });
@@ -1355,7 +1412,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                           const { error: uploadError } = await supabase.storage.from('live-view-uploads').upload(filePath, file);
                                           if (uploadError) throw uploadError;
                                           const { data: { publicUrl } } = supabase.storage.from('live-view-uploads').getPublicUrl(filePath);
-                                          await updateModuleConfig('floor_plan_config', {
+                                          await saveModuleConfig('floor_plan_config', {
                                             source: 'upload',
                                             file_url: publicUrl,
                                             file_name: file.name,
@@ -1399,12 +1456,12 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
               {/* Reception Floor Plan Module */}
               <div className="space-y-3 p-4 rounded-lg border border-[#472c1d] bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3 max-lg:flex-col max-lg:items-stretch">
                   <div className="flex items-center gap-3 max-lg:items-start">
                     <Building2 strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
                     <div>
                       <h4 className="text-sm font-semibold whitespace-nowrap max-lg:text-[13px]">Reception Floor Plan</h4>
-                      <p className="text-xs text-muted-foreground max-lg:mt-1.5">Show your reception floor plan to guests</p>
+                      <p className="text-xs text-muted-foreground max-lg:mt-1.5">Show your reception floor plan to guests. Choose the orientation that keeps your layout clear.</p>
                     </div>
                   </div>
                   <div className="flex items-center gap-2 max-lg:justify-between max-lg:w-full">
@@ -1428,7 +1485,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       <AccordionContent>
                         <div className="space-y-3 pt-2">
                           <p className="text-xs text-muted-foreground">Choose how to display your reception floor plan to guests. Select one option:</p>
-                          
+
                           <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                             {/* Upload Image Option */}
                             <button
@@ -1496,7 +1553,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   <Button
                                     size="sm"
                                     variant="default"
-                                    className="lv-premium-shade text-white"
+                                    className={`${styles.replaceAssetButton} ${styles.lightButtonText} lv-premium-shade text-white`}
                                     onClick={() => {
                                       const input = document.createElement('input');
                                       input.type = 'file';
@@ -1513,7 +1570,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                             const { error: uploadError } = await supabase.storage.from('live-view-uploads').upload(filePath, file);
                                             if (uploadError) throw uploadError;
                                             const { data: { publicUrl } } = supabase.storage.from('live-view-uploads').getPublicUrl(filePath);
-                                            await updateModuleConfig('reception_floor_plan_config', {
+                                            await saveModuleConfig('reception_floor_plan_config', {
                                               source: 'upload',
                                               file_url: publicUrl,
                                               file_name: file.name,
@@ -1529,19 +1586,17 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                       input.click();
                                     }}
                                   >
-                                    <RotateCcw className="h-3 w-3 mr-1" />
+                                    <RotateCcw className={`h-3 w-3 mr-1`} />
                                     Replace
                                   </Button>
                                   <Button
                                     size="sm"
                                     variant="destructive"
-                                    className="lv-premium-shade text-white"
+                                    className={`lv-premium-shade text-white ${styles.removeAssetButton}`}
                                     onClick={async () => {
                                       if (eventId && moduleSettings?.reception_floor_plan_config?.file_url) {
                                         try {
-                                          const path = moduleSettings.reception_floor_plan_config.file_url.split('/live-view-uploads/')[1];
-                                          if (path) await supabase.storage.from('live-view-uploads').remove([path]);
-                                          await updateModuleConfig('reception_floor_plan_config', { source: 'upload' });
+                                          await saveModuleConfig('reception_floor_plan_config', { source: 'upload' });
                                           toast({ title: 'Reception floor plan removed' });
                                         } catch (error: any) {
                                           toast({ title: 'Remove failed', description: error.message, variant: 'destructive' });
@@ -1572,7 +1627,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                           const { error: uploadError } = await supabase.storage.from('live-view-uploads').upload(filePath, file);
                                           if (uploadError) throw uploadError;
                                           const { data: { publicUrl } } = supabase.storage.from('live-view-uploads').getPublicUrl(filePath);
-                                          await updateModuleConfig('reception_floor_plan_config', {
+                                          await saveModuleConfig('reception_floor_plan_config', {
                                             source: 'upload',
                                             file_url: publicUrl,
                                             file_name: file.name,
@@ -1621,7 +1676,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
               {/* Menu Module */}
               <div className="space-y-3 p-4 rounded-lg border border-[#472c1d] bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3 max-lg:flex-col max-lg:items-stretch">
                   <div className="flex items-center gap-3 max-lg:items-start">
                     <UtensilsCrossed strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] max-lg:mt-0.5 max-lg:shrink-0" />
                     <div>
@@ -1652,7 +1707,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           <div className="p-3 bg-[#F5F0EB]/50 rounded-md space-y-2">
                             <h5 className="text-xs font-semibold">Upload Your Wedding Menu</h5>
                             <p className="text-xs text-muted-foreground">
-                              Upload your menu as a PDF, JPG, or PNG so guests can view it on their phones.
+                              Upload your menu as a PDF, JPG, or PNG so guests can view it on their phones. Portrait uploads work best on mobile.
                             </p>
                           </div>
 
@@ -1670,7 +1725,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               <Button
                                 size="sm"
                                 variant="default"
-                                className="lv-premium-shade text-white"
+                                className={`${styles.replaceAssetButton} ${styles.lightButtonText} lv-premium-shade text-white`}
                                 onClick={() => {
                                   const input = document.createElement('input');
                                   input.type = 'file';
@@ -1687,7 +1742,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                         const { error: uploadError } = await supabase.storage.from('live-view-uploads').upload(filePath, file);
                                         if (uploadError) throw uploadError;
                                         const { data: { publicUrl } } = supabase.storage.from('live-view-uploads').getPublicUrl(filePath);
-                                        await updateModuleConfig('menu_config', {
+                                        await saveModuleConfig('menu_config', {
                                           file_url: publicUrl,
                                           file_name: file.name,
                                           file_type: file.type,
@@ -1702,19 +1757,17 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   input.click();
                                 }}
                               >
-                                <RotateCcw className="h-3 w-3 mr-1" />
+                                <RotateCcw className={`h-3 w-3 mr-1`} />
                                 Replace
                               </Button>
                               <Button
                                 size="sm"
                                 variant="destructive"
-                                className="lv-premium-shade text-white"
+                                className={`lv-premium-shade text-white ${styles.removeAssetButton}`}
                                 onClick={async () => {
                                   if (eventId && moduleSettings?.menu_config?.file_url) {
                                     try {
-                                      const path = moduleSettings.menu_config.file_url.split('/live-view-uploads/')[1];
-                                      if (path) await supabase.storage.from('live-view-uploads').remove([path]);
-                                      await updateModuleConfig('menu_config', {});
+                                      await saveModuleConfig('menu_config', {});
                                       toast({ title: 'Menu removed' });
                                     } catch (error: any) {
                                       toast({ title: 'Remove failed', description: error.message, variant: 'destructive' });
@@ -1745,7 +1798,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                       const { error: uploadError } = await supabase.storage.from('live-view-uploads').upload(filePath, file);
                                       if (uploadError) throw uploadError;
                                       const { data: { publicUrl } } = supabase.storage.from('live-view-uploads').getPublicUrl(filePath);
-                                      await updateModuleConfig('menu_config', {
+                                      await saveModuleConfig('menu_config', {
                                         file_url: publicUrl,
                                         file_name: file.name,
                                         file_type: file.type,
@@ -1800,9 +1853,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                         {moduleSettings?.hero_image_config?.file_url ? (
                           <div className="space-y-3">
                             <div className="relative rounded-md overflow-hidden border">
-                              <img 
-                                src={moduleSettings.hero_image_config.file_url} 
-                                alt="Hero background preview" 
+                              <img
+                                src={moduleSettings.hero_image_config.file_url}
+                                alt="Hero background preview"
                                 className="w-full h-32 object-cover"
                               />
                               <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
@@ -1822,7 +1875,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               <Button
                                 size="sm"
                                 variant="default"
-                                className="lv-premium-shade text-white"
+                                className={`${styles.replaceAssetButton} ${styles.lightButtonText} lv-premium-shade text-white`}
                                 onClick={() => {
                                   const input = document.createElement('input');
                                   input.type = 'file';
@@ -1839,7 +1892,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                         const { error: uploadError } = await supabase.storage.from('live-view-uploads').upload(filePath, file);
                                         if (uploadError) throw uploadError;
                                         const { data: { publicUrl } } = supabase.storage.from('live-view-uploads').getPublicUrl(filePath);
-                                        await updateModuleConfig('hero_image_config', {
+                                        await saveModuleConfig('hero_image_config', {
+                                          source: 'custom',
                                           file_url: publicUrl,
                                           file_name: file.name,
                                           file_type: file.type,
@@ -1854,19 +1908,17 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   input.click();
                                 }}
                               >
-                                <RotateCcw className="h-3 w-3 mr-1" />
+                                <RotateCcw className={`h-3 w-3 mr-1`} />
                                 Replace
                               </Button>
                               <Button
                                 size="sm"
                                 variant="destructive"
-                                className="lv-premium-shade text-white"
+                                className={`lv-premium-shade text-white ${styles.removeAssetButton}`}
                                 onClick={async () => {
                                   if (eventId && moduleSettings?.hero_image_config?.file_url) {
                                     try {
-                                      const path = moduleSettings.hero_image_config.file_url.split('/live-view-uploads/')[1];
-                                      if (path) await supabase.storage.from('live-view-uploads').remove([path]);
-                                      await updateModuleConfig('hero_image_config', {});
+                                      await saveModuleConfig('hero_image_config', { source: 'none' });
                                       toast({ title: 'Hero image removed' });
                                     } catch (error: any) {
                                       toast({ title: 'Remove failed', description: error.message, variant: 'destructive' });
@@ -1898,7 +1950,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                     const { error: uploadError } = await supabase.storage.from('live-view-uploads').upload(filePath, file);
                                     if (uploadError) throw uploadError;
                                     const { data: { publicUrl } } = supabase.storage.from('live-view-uploads').getPublicUrl(filePath);
-                                    await updateModuleConfig('hero_image_config', {
+                                    await saveModuleConfig('hero_image_config', {
+                                          source: 'custom',
                                       file_url: publicUrl,
                                       file_name: file.name,
                                       file_type: file.type,
@@ -1926,7 +1979,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
               {/* Guest Song Requests Module */}
               <div className="space-y-3 p-4 rounded-lg border border-[#472c1d] bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
-                <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-3">
+                <div className="flex flex-wrap items-center justify-between gap-3 max-lg:flex-col max-lg:items-stretch">
                   <div className="flex items-center gap-3">
                     <Music2 strokeWidth={1.8} className="h-5 w-5 text-[#856A4C] max-lg:hidden" />
                     <div>

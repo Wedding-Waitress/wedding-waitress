@@ -14,7 +14,7 @@ import { DeliveryAnalyticsPanel } from './DeliveryAnalyticsPanel';
 import { GuestDeliveryBadges } from './GuestDeliveryBadges';
 import { SmartSmsCreditStatus, getCreditHealth } from './SmartSmsCreditStatus';
 import { useSmsCredits } from '@/hooks/useSmsCredits';
-import { normalizeRsvp } from '@/lib/rsvp';
+import { hasGuestResponded, normalizeRsvp } from '@/lib/rsvp';
 import { Search } from 'lucide-react';
 
 interface Props {
@@ -166,10 +166,7 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
         deliveryStatus = 'Delivered';
       }
       const credits = sms.filter(l => ['sent','delivered'].includes((l.status || '').toLowerCase())).length;
-      const responded = (() => {
-        const r = normalizeRsvp(g.rsvp);
-        return r === 'Attending' || r === 'Not Attending';
-      })();
+      const responded = hasGuestResponded(g.rsvp, g.rsvp_date);
       const sendsCount = sms.length + emails.length;
       const isResend = sendsCount > 1;
       const respondedAt = g.rsvp_date ? new Date(g.rsvp_date).getTime() : null;
@@ -206,6 +203,7 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
         credits,
         inviteStatus: g.rsvp_invite_status,
         rsvpRaw: g.rsvp,
+        rsvpDate: g.rsvp_date,
         twilioErrorCode: lastSms?.twilio_error_code || null,
         twilioErrorMessage: lastSms?.twilio_error_message || lastSms?.error_message || null,
         intel,
@@ -470,6 +468,7 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
                         <GuestDeliveryBadges
                           inviteStatus={r.inviteStatus}
                           rsvp={r.rsvpRaw}
+                          rsvpDate={r.rsvpDate}
                           purchaseDeliveryMethod={purchaseMethod}
                           lowCredits={getCreditHealth(smsCredits.remaining, smsCredits.total).state === 'critical' || smsCredits.remaining === 0}
                           className="ml-0"

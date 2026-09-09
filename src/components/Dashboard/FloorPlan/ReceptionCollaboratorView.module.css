@@ -1,0 +1,37 @@
+
+.shell{display:flex;min-height:100vh;background:#eee7d9;color:#432b1d;font-family:Manrope,Arial,sans-serif}
+.sidebar{width:245px;flex-shrink:0;padding:28px 16px;background:linear-gradient(#201108,#140b07);color:#dbc8a5}
+.sidebar img{width:210px;padding:10px;margin-bottom:20px}
+.sidebar button{display:flex;align-items:center;gap:10px;text-align:left;padding:9px 8px;width:100%;border:1px solid transparent;border-radius:9px;color:inherit;background:none;cursor:default;font-size:14px}
+.sidebar .active{border-color:#b8a17f;background:#543b29}.sidebar p{font-size:12px;line-height:1.5;margin:15px 0}
+.main{flex:1;min-width:0;padding:24px;max-width:1700px;margin:auto}
+.panel{background:#faf7ef;border:1px solid #bca387;border-radius:18px;padding:24px;margin-bottom:20px;min-width:0}
+.panel > h1{font-size:24px;font-weight:700}.panel > h2,.toolbar h2,.inset h2,.offer h2{font-size:20px;font-weight:700;color:#432b1d;display:flex;gap:8px;align-items:center;margin-bottom:12px}
+.panel > p,.inset > p,.draft p{font-size:14px;margin:8px 0 16px}.toolbar{display:flex;justify-content:space-between;gap:20px;align-items:center;margin-top:20px}
+.columns{display:grid;grid-template-columns:1fr 1fr;gap:16px;align-items:stretch;margin:20px 0}
+.inset,.notes{padding:16px;background:#f4ecde;border:1px solid #d4c2a7;border-radius:12px;min-width:0}
+.notes textarea{background:#fffaf2;color:#432b1d;width:100%}.notes h3{color:#432b1d!important}
+.actions{display:flex;gap:8px;flex-wrap:wrap;align-items:center}.actions button{gap:8px}
+.green{background:linear-gradient(#7acd7c,#4b9d48)!important;color:white!important;border:0!important;border-radius:999px;box-shadow:inset 0 1px #ffffff80,inset 0 -2px #315f3a66,0 4px 10px #355c2920;gap:8px}
+.draft{display:flex;align-items:center;justify-content:space-between;flex-wrap:wrap;gap:12px;border-block:1px solid #d4c2a7;padding:16px 0;margin-bottom:20px}
+.offer{display:flex;align-items:center;gap:20px;padding:24px;background:#432619;color:#fff5e4;border-radius:16px}.offer h2{color:inherit}.offer p{font-size:14px}.offer button{flex-shrink:0}
+@media(max-width:1100px){.sidebar{width:205px}.columns{grid-template-columns:1fr}.main{padding:14px}}
+@media(max-width:700px){.sidebar{display:none}.panel{padding:14px}.toolbar,.offer{align-items:flex-start;flex-direction:column}}
+
+/* The invitation belongs only to the shared Reception workspace. */
+@property --reception-offer-angle { syntax: '<angle>'; initial-value: 0deg; inherits: false; }
+.headerPanel{display:grid;grid-template-columns:minmax(190px,1fr) minmax(300px,640px) minmax(190px,1fr);gap:24px;align-items:center}
+.headerDetails{min-width:0}.headerDetails h1{font-size:24px;font-weight:700}.headerDetails p{font-size:14px;margin:8px 0 16px}
+.exportControls h2{font-size:20px;font-weight:700;color:#432b1d;margin-bottom:12px}
+.offer{position:relative;display:grid;grid-template-columns:minmax(0,1fr);gap:16px;text-align:center;justify-items:center;padding:22px;background:#f4e8d3;color:#432b1d;border:4px solid transparent;box-shadow:0 6px 20px #43261926;align-items:start}
+.offer::before{content:'';position:absolute;inset:-4px;border-radius:inherit;padding:4px;background:conic-gradient(from var(--reception-offer-angle),#4b9d48 0deg 180deg,transparent 180deg 360deg);-webkit-mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);-webkit-mask-composite:xor;mask:linear-gradient(#fff 0 0) content-box,linear-gradient(#fff 0 0);mask-composite:exclude;pointer-events:none;animation:receptionOfferBorder 6s linear infinite}
+.offer h2{font-size:20px;line-height:1.35;margin-bottom:12px;color:#432b1d;justify-content:center;display:block}.offer h2 svg{display:inline-block;vertical-align:middle;margin-right:8px}.offer p{line-height:1.6}.offer p + p{margin-top:10px}.offer > button{grid-column:1/-1;justify-self:center;max-width:100%;height:auto;min-height:40px;white-space:normal;text-align:center;padding:10px 18px}
+@keyframes receptionOfferBorder{to{--reception-offer-angle:360deg}}
+@media(max-width:1200px){.headerPanel{grid-template-columns:minmax(170px,1fr) minmax(260px,1.5fr);gap:18px}.exportControls{grid-column:1/-1}.offer{padding:18px}}
+@media(max-width:700px){.headerPanel{grid-template-columns:1fr}.exportControls{grid-column:auto}.offer{width:100%}}
+@media(prefers-reduced-motion:reduce){.offer::before{animation:none}}
+
+.offer > div{width:100%;text-align:center!important}.offer h2,.offer p{width:100%;text-align:center!important}.offer h2{justify-content:center!important}.offer > button{justify-self:center!important;margin-inline:auto!important}
+
+.headerPanel > .exportControls{justify-self:end}
+@media(max-width:1200px){.headerPanel > .exportControls{justify-self:start}}

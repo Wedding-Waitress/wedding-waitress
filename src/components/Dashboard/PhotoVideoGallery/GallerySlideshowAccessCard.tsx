@@ -65,18 +65,8 @@ export const GallerySlideshowAccessCard: React.FC<{ meta: GalleryMeta; appearanc
 
       <div className={cn(
         'grid grid-cols-1 items-start',
-        embedded ? 'gap-4 min-[1440px]:grid-cols-[180px_minmax(0,1fr)]' : 'gap-5 sm:grid-cols-[180px_1fr] sm:gap-6',
+        embedded ? 'gap-4' : 'gap-5 sm:gap-6',
       )} data-slideshow-access-layout={embedded ? true : undefined}>
-        <div className="flex justify-center">
-          <div className={cn(isGlass && managementStyles.galleryViewQrFrame)}>
-            {qrDataUrl ? (
-              <img src={qrDataUrl} alt="Live Slideshow QR code" className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-border" />
-            ) : (
-              <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-dashed border-border bg-white" />
-            )}
-          </div>
-        </div>
-
         <div className="space-y-4 min-w-0">
           {!meta.primary_token ? (
             <div className={cn('flex items-start gap-2 p-3 rounded-md border border-destructive/40 bg-destructive/5', isGlass && managementStyles.guestbookStatePanel)}>
@@ -104,10 +94,17 @@ export const GallerySlideshowAccessCard: React.FC<{ meta: GalleryMeta; appearanc
             </Button>
           </div>
 
-          <p className={cn('text-xs text-muted-foreground', isGlass && managementStyles.gallerySecondaryText)}>
-            Uses your existing event gallery token — approved, visible media only.
-          </p>
         </div>
+        <div className="flex justify-center">
+          <div className={cn(isGlass && managementStyles.galleryViewQrFrame)}>
+            {qrDataUrl ? (
+              <img src={qrDataUrl} alt="Live Slideshow QR code" className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-border" />
+            ) : (
+              <div className="w-40 h-40 sm:w-44 sm:h-44 rounded-lg border border-dashed border-border bg-white" />
+            )}
+          </div>
+        </div>
+
       </div>
     </Card>
   );

@@ -117,6 +117,10 @@ describe('Reception fixture palette and scaled-room interactions', () => {
       Object.defineProperty(dropEvent, 'dataTransfer', { value: transfer });
       fireEvent(room, dropEvent);
       await waitFor(() => expect(latestPlan.fixtures).toHaveLength(index + 1));
+      if (spec.type === 'text') {
+        fireEvent.change(screen.getByRole('textbox', { name: 'Floor plan text' }), { target: { value: 'Reception welcome' } });
+        fireEvent.click(screen.getByRole('button', { name: 'Save Text' }));
+      }
     }
 
     expect(latestPlan.fixtures.map((fixture) => fixture.type)).toEqual(
@@ -138,7 +142,7 @@ describe('Reception fixture palette and scaled-room interactions', () => {
     }
 
     const placedWindow = container.querySelector<HTMLElement>('[data-reception-placed-fixture="window"] > div')!;
-    expect(container.querySelectorAll('[data-reception-upright-label="fixture"]')).toHaveLength(FIXTURE_PALETTE_CATALOG.length);
+    expect(container.querySelectorAll('[data-reception-upright-label="fixture"]')).toHaveLength(FIXTURE_PALETTE_CATALOG.filter(spec => !['window', 'text', 'block'].includes(spec.type)).length);
     fireEvent.pointerDown(placedWindow, { pointerId: 1, clientX: 351, clientY: 388.5 });
     fireEvent.pointerMove(placedWindow, { pointerId: 1, clientX: 476, clientY: 451 });
     fireEvent.pointerUp(placedWindow, { pointerId: 1 });
@@ -146,8 +150,14 @@ describe('Reception fixture palette and scaled-room interactions', () => {
       x: 5,
       y: 15,
     })));
-    fireEvent.click(await screen.findByTitle('Rotate 15°'));
+    const turn=await screen.findByTitle('Drag left or right to rotate');
+    fireEvent.pointerDown(turn,{pointerId:2,clientX:100,clientY:100});
+    fireEvent.pointerMove(turn,{pointerId:2,clientX:130,clientY:100});
+    fireEvent.pointerUp(turn,{pointerId:2});
     await waitFor(() => expect(latestPlan.fixtures.find((fixture) => fixture.type === 'window')?.rotation).toBe(15));
+    expect(container.querySelectorAll('[data-reception-fixture-resize-handle]')).toHaveLength(4);
+    fireEvent.click(screen.getByTitle('Reset to starting position and size'));
+    expect(latestPlan.fixtures.find(f=>f.type==='window')).toMatchObject({x:7.5,y:10,rotation:0});
     fireEvent.click(screen.getByTitle('Lock'));
     await waitFor(() => expect(latestPlan.fixtures.find((fixture) => fixture.type === 'window')?.locked).toBe(true));
     fireEvent.click(screen.getByTitle('Remove'));
@@ -162,6 +172,21 @@ describe('Reception fixture palette and scaled-room interactions', () => {
       x: 7.5,
       y: 10,
     }));
+  });
+
+  it('removes every palette fixture using its Remove control',()=>{
+    const Harness=()=>{const [plan,setPlan]=useState(makePlan());return <ReceptionFloorPlanCanvas plan={plan} tables={[]} event={{name:'Fixture controls'}} attendingCount={0} generatedAt={new Date()} a4Ref={createRef<HTMLDivElement>()} backgroundUrl={null} onChange={setPlan}/>};
+    const {container}=render(<Harness/>);
+    for(const spec of FIXTURE_PALETTE_CATALOG){
+      fireEvent.click(screen.getByRole('button',{name:`Add or drag ${spec.label} onto the reception floor plan`}));
+      if(spec.type === 'text'){fireEvent.change(screen.getByRole('textbox',{name:'Floor plan text'}),{target:{value:'Welcome'}});fireEvent.click(screen.getByRole('button',{name:'Save Text'}));}
+      expect(container.querySelector(`[data-reception-placed-fixture="${spec.type}"]`)).not.toBeNull();
+      const placed=container.querySelector(`[data-reception-placed-fixture="${spec.type}"] > div`)!;
+      fireEvent.pointerDown(placed,{pointerId:1,clientX:100,clientY:100});
+      fireEvent.pointerUp(placed,{pointerId:1});
+      fireEvent.click(screen.getByTitle('Remove'));
+      expect(container.querySelector(`[data-reception-placed-fixture="${spec.type}"]`)).toBeNull();
+    }
   });
 
   it('retains rendering support for persisted legacy Bridal Table fixtures without offering a duplicate palette action', () => {
@@ -241,5 +266,25 @@ describe('Reception fixture palette and scaled-room interactions', () => {
       transform: 'translate(-50%, -50%) rotate(-90deg)',
     });
     expect(JSON.stringify(plan.background)).toBe(original);
+  });
+  it('resizes an uploaded template from every corner and resets its transform',()=>{
+    let latest=makePlan();latest.background={...latest.background,path:'saved.png',width:4,height:6,x:3,y:4};
+    const initial={...latest.background};
+    const Harness=()=>{const [plan,setPlan]=useState(latest);latest=plan;return <ReceptionFloorPlanCanvas plan={plan} tables={[]} event={{name:'Image controls'}} attendingCount={0} generatedAt={new Date()} a4Ref={createRef<HTMLDivElement>()} backgroundUrl="/saved.png" onChange={setPlan}/>};
+    const {container}=render(<Harness/>);
+    const room=container.querySelector<HTMLElement>('[data-reception-room-canvas]')!;
+    Object.defineProperties(room,{offsetWidth:{configurable:true,value:1000},clientLeft:{configurable:true,value:0},clientTop:{configurable:true,value:0}});
+    room.getBoundingClientRect=()=>({x:0,y:0,left:0,top:0,width:1000,height:750,right:1000,bottom:750,toJSON:()=>({})});
+    const image=screen.getByAltText('Venue floor plan background');fireEvent.pointerDown(image,{pointerId:1,clientX:350,clientY:500});fireEvent.pointerUp(image,{pointerId:1});
+    for(const corner of ['nw','ne','se','sw']){
+      const handle=screen.getByRole('button',{name:'Resize floor plan image '+corner});
+      fireEvent.pointerDown(handle,{pointerId:2,clientX:300,clientY:300});fireEvent.pointerMove(handle,{pointerId:2,clientX:300+(corner.includes('e')?30:-30),clientY:300+(corner.includes('s')?20:-20)});fireEvent.pointerUp(handle,{pointerId:2});
+      expect(latest.background.width).toBeGreaterThan(4);expect(latest.background.width!/latest.background.height!).toBeCloseTo(4/6);
+      fireEvent.click(screen.getByTitle('Reset to starting position and size'));expect(latest.background).toEqual(initial);
+    }
+    const move=screen.getByTitle('Drag to move');fireEvent.pointerDown(move,{pointerId:3,clientX:300,clientY:300});fireEvent.pointerMove(move,{pointerId:3,clientX:350,clientY:350});fireEvent.pointerUp(move,{pointerId:3});expect(latest.background.x).not.toBe(initial.x);
+    const turn=screen.getByTitle('Drag left or right to rotate');fireEvent.pointerDown(turn,{pointerId:4,clientX:100});fireEvent.pointerMove(turn,{pointerId:4,clientX:40});fireEvent.pointerUp(turn,{pointerId:4});expect(latest.background.rotation).toBe(330);
+    fireEvent.click(screen.getByTitle('Lock'));expect(screen.queryByTitle('Drag to move')).not.toBeInTheDocument();expect(screen.queryByRole('button',{name:'Resize floor plan image nw'})).not.toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button',{name:'Delete selected item'}));expect(latest.background.path).toBeNull();
   });
 });

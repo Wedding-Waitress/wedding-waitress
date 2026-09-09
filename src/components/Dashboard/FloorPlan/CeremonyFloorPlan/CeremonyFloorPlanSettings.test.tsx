@@ -68,7 +68,7 @@ describe('Ceremony Floor Plan settings layout', () => {
     expect(screen.getByText("Groom's Family · Bride's Family")).toBeInTheDocument();
     expect(screen.getByText('Rows shown · Seats hidden')).toBeInTheDocument();
     expect(screen.getByText('12 rows · 6 chairs each side · 12 family rows')).toBeInTheDocument();
-    expect(screen.getByRole('status')).toHaveTextContent('Total Attending: 167 (Bride & Groom + Celebrant + Bridal Party + Family & Friends)');
+    for (const text of ['Total Attending: 167', 'Family & guest chairs: 144 (72 per side)', 'Couple: 2', 'Celebrant: 1', 'Bridal party: 20']) expect(screen.getByRole('status')).toHaveTextContent(text);
   });
 
   it('opens only one detail panel, supports arrow-key selection, and retains edited values', () => {

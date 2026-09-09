@@ -1,0 +1,20 @@
+import React from 'react';
+import {render,screen,fireEvent} from '@testing-library/react';
+import {it,expect,vi} from 'vitest';
+vi.mock('@dnd-kit/sortable',()=>({useSortable:()=>({attributes:{},listeners:{},setNodeRef:vi.fn(),transform:null,transition:null,isDragging:false})}));
+vi.mock('@/components/ui/dropdown-menu',()=>({DropdownMenu:({children}:any)=><div>{children}</div>,DropdownMenuTrigger:({children}:any)=><>{children}</>,DropdownMenuContent:({children}:any)=><div>{children}</div>,DropdownMenuItem:({children,onClick,disabled}:any)=><button disabled={disabled} onClick={onClick}>{children}</button>,DropdownMenuSeparator:()=>null}));
+import {RunningSheetRow} from './RunningSheetRow';
+import styles from './RunningSheetTheme.module.css';
+it('toggles red text on all three fields and offers a clear way to restore the normal colour',()=>{
+ const item:any={id:'row',sheet_id:'sheet',order_index:0,time_text:'5 PM',description_rich:{text:'Ceremony'},responsible:'MC',is_section_header:false};
+ const onUpdate=vi.fn();const props={onUpdate,onDuplicate:vi.fn(),onDelete:vi.fn()};
+ const {rerender}=render(<RunningSheetRow {...props} item={item}/>);
+ fireEvent.click(screen.getByRole('button',{name:'Make Row Text Red'}));
+ expect(onUpdate).toHaveBeenCalledWith('row',{is_section_header:true});
+ rerender(<RunningSheetRow {...props} item={{...item,is_section_header:true}}/>);
+ for(const field of screen.getAllByRole('textbox'))expect(field).toHaveClass(styles.redRowText);
+ fireEvent.click(screen.getByRole('button',{name:/Restore Normal Text Colour/}));
+ expect(onUpdate).toHaveBeenLastCalledWith('row',{is_section_header:false});
+ rerender(<RunningSheetRow {...props} item={item}/>);
+ for(const field of screen.getAllByRole('textbox'))expect(field).not.toHaveClass(styles.redRowText);
+});

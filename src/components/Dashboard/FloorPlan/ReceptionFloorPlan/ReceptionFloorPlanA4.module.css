@@ -156,3 +156,16 @@
 
   .sheet { page: reception-floor-plan; break-after: avoid; }
 }
+
+.notesBody { flex: 1 1 auto; min-height: 0; padding: 2mm 4mm; font-size: 10pt; line-height: 15px; white-space: pre-wrap; overflow-wrap: anywhere; }
+.notesSheetGap { margin-top: 16px; }
+@media print {
+  :global([data-reception-print-source="true"] [data-reception-a4-renderer="true"]),
+  :global([data-reception-print-source="true"] [data-reception-a4-renderer="true"] *) { visibility: visible !important; }
+  .previewViewport, .previewCanvas, .previewSheet { height: auto !important; }
+  .notesSheetGap { margin-top: 0; }
+  .sheet { break-after: page; break-inside: avoid; }
+  .sheet:last-child { break-after: auto; }
+}
+
+@media print { .notesSheetGap { break-before: page; } }

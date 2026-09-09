@@ -1,0 +1,4 @@
+:global(#root#root) .message :is(h2, p) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}

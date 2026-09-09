@@ -1,24 +1,26 @@
+import { Printer as ExportControlsPrinter } from 'lucide-react';
+import {FloorPlanShareModal} from './FloorPlanShareModal';
 /**
  * ⚠️ WARNING: PRODUCTION LOCKED - DO NOT MODIFY ⚠️
- * 
+ *
  * This file is part of the Ceremony Floor Plan feature which has been
  * finalized and locked for production use as of 2025-12-21.
- * 
+ *
  * ANY MODIFICATIONS require explicit written approval from the project owner.
- * 
+ *
  * See CEREMONY_FLOOR_PLAN_SPECS.md for complete technical specifications.
  */
 
 import { useState, useEffect, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { LayoutGrid, CalendarDays, LayoutTemplate, HeartHandshake, PartyPopper, Printer, Download, LoaderCircle } from 'lucide-react';
+import { LayoutGrid, CalendarDays, LayoutTemplate, HeartHandshake, PartyPopper, Printer, Download, LoaderCircle, Share2 } from 'lucide-react';
 import type { Event } from '@/hooks/useEvents';
 import { useCeremonyFloorPlan } from '@/hooks/useCeremonyFloorPlan';
 import { CeremonyFloorPlanA4Preview } from './CeremonyFloorPlan/CeremonyFloorPlanA4';
 import { CeremonyFloorPlanSettings } from './CeremonyFloorPlan/CeremonyFloorPlanSettings';
 import { ReceptionFloorPlanPage } from './ReceptionFloorPlan/ReceptionFloorPlanPage';
-import { toast } from 'sonner';
+import { toast } from '@/hooks/use-toast';
 import styles from './FloorPlanPage.module.css';
 import receptionStyles from './ReceptionFloorPlan/ReceptionFloorPlanTheme.module.css';
 
@@ -37,6 +39,7 @@ export const FloorPlanPage = ({
   events,
   eventsLoading,
 }: FloorPlanPageProps) => {
+  const [shareOpen,setShareOpen]=useState(false);
   const [floorPlanType, setFloorPlanType] = useState<FloorPlanType>('ceremony');
   const [isExporting, setIsExporting] = useState(false);
   const [receptionHeaderControlsContainer, setReceptionHeaderControlsContainer] = useState<HTMLDivElement | null>(null);
@@ -44,11 +47,11 @@ export const FloorPlanPage = ({
   const [generatedAt] = useState(() => new Date());
 
 
-  const { 
-    floorPlan, 
+  const {
+    floorPlan,
     loading: floorPlanLoading,
     initialLoadComplete,
-    createFloorPlan, 
+    createFloorPlan,
     updateFloorPlan,
     updateSeatAssignment,
     updateBridalPartyMember,
@@ -92,17 +95,17 @@ export const FloorPlanPage = ({
 
     setIsExporting(true);
     try {
-      toast.info('Generating PDF...');
+      toast({ title: 'Generating PDF', description: 'Preparing your ceremony floor plan...' });
       const { exportCeremonyPreviewToPdf } = await import('@/lib/ceremonyFloorPlanPdfExporter');
       await exportCeremonyPreviewToPdf({
         pageElement: ceremonyA4Ref.current,
         eventName: selectedEvent.name,
         eventDate: selectedEvent.ceremony_date || selectedEvent.date,
       });
-      toast.success('PDF downloaded successfully!');
+      toast({ title: 'PDF Downloaded', description: 'Your ceremony floor plan has been saved' });
     } catch (error) {
       console.error('PDF export error:', error);
-      toast.error('Failed to generate PDF');
+      toast({ title: 'Export Failed', description: error instanceof Error ? error.message : 'Failed to generate PDF. Please try again.', variant: 'destructive' });
     } finally {
       setIsExporting(false);
     }
@@ -149,12 +152,12 @@ export const FloorPlanPage = ({
                 Choose Event:
               </label>
               <Select
-                value={selectedEventId || 'no-event'} 
+                value={selectedEventId || 'no-event'}
                 onValueChange={(value) => {
                   if (value === 'no-event') return;
                   onEventSelect(value);
                 }}
-                disabled={eventsLoading}
+                disabled={eventsLoading || isExporting}
               >
                 <SelectTrigger id="floor-plan-event" className={`${styles.interfaceControl} ${floorPlanType === 'ceremony' ? styles.control : receptionStyles.control} w-full min-w-0 border-primary focus:ring-primary font-bold text-[#967A59] xl:flex-1`}>
                   <SelectValue placeholder="Choose Event" />
@@ -184,8 +187,8 @@ export const FloorPlanPage = ({
                 <LayoutTemplate className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Floor Plan Type:
               </label>
-              <Select 
-                value={floorPlanType} 
+              <Select
+                value={floorPlanType}
                 onValueChange={(value) => setFloorPlanType(value as FloorPlanType)}
               >
                 <SelectTrigger id="floor-plan-type" className={`${styles.interfaceControl} ${floorPlanType === 'ceremony' ? styles.control : receptionStyles.control} w-full min-w-0 border-primary focus:ring-primary xl:w-[180px]`}>
@@ -218,14 +221,16 @@ export const FloorPlanPage = ({
 
             {/* Export Controls */}
             {isDataReady && floorPlanType === 'ceremony' && (
-              <div
+              <div data-export-controls-panel
                 className={`${styles.exportControls} flex min-w-0 flex-col gap-2 sm:col-span-2 sm:flex-row sm:items-center sm:justify-end xl:col-span-1 xl:justify-self-end`}
                 data-floor-plan-export-controls="true"
               >
-                <p className={`${styles.featureHeading} text-sm font-bold inline-flex items-center gap-1.5 whitespace-nowrap`}>
-                <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
-                  <span>Export Controls</span>
-                </p>
+                <div className={`${receptionStyles.setupCardHeading} whitespace-nowrap`}>
+
+                  <span data-export-controls-heading><ExportControlsPrinter size={16} strokeWidth={2} aria-hidden="true" />Export Controls</span>
+                </div>
+                <div className="flex items-center justify-center gap-2">
+                <button type="button" className={styles.exportButton+" inline-flex items-center gap-1.5 rounded-full px-3 h-7 text-xs"} onClick={()=>setShareOpen(true)}><Share2 className="w-4 h-4"/>Share</button>
                 <span id="floor-plan-export-description" className="sr-only">Download your floor plan for venue staff.</span>
                 <button
                   onClick={handleDownloadPdf}
@@ -241,12 +246,14 @@ export const FloorPlanPage = ({
                   )}
                   {isExporting ? 'Exporting...' : 'Download PDF'}
                 </button>
+                </div>
               </div>
             )}
           </div>
         </CardContent>
       </Card>
 
+      {selectedEventId&&<FloorPlanShareModal open={shareOpen} onOpenChange={setShareOpen} eventId={selectedEventId} kind="ceremony"/>}
       {/* Empty States */}
       {!selectedEventId && (
         <Card className={`${floorPlanType === 'ceremony' ? styles.emptyPanel : 'ww-box'} p-8 text-center`}>

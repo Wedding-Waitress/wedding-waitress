@@ -38,7 +38,8 @@
  * ============================================================================
  */
 
-import React, { useEffect, useMemo, useRef, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState, useImperativeHandle, forwardRef } from 'react';
+import { flushSync } from 'react-dom';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 // Checkbox replaced with SVG circle to match PDF output
 import { Guest } from '@/hooks/useGuests';
@@ -57,7 +58,14 @@ import { getFullSeatingChartGuestDetails } from '@/lib/fullSeatingChartDisplaySe
 import { FULL_SEATING_CHART_GUEST_TEXT_SIZES } from '@/lib/fullSeatingChartDisplaySettings';
 import { A4_PAGE_STYLE, A4_PX } from '@/lib/a4';
 
+export interface FullSeatingChartPreviewHandle {
+  getPageElement: () => HTMLDivElement | null;
+  getCurrentPage: () => number;
+  getTotalPages: () => number;
+  renderPage: (page: number) => Promise<void>;
+}
 interface FullSeatingChartPreviewProps {
+  disabled?: boolean;
   event: any;
   guests: Guest[];
   settings: FullSeatingChartSettings;
@@ -65,15 +73,20 @@ interface FullSeatingChartPreviewProps {
   tableIdNameMap?: Record<string, string>;
 }
 
-export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = ({
+export const FullSeatingChartPreview = forwardRef<FullSeatingChartPreviewHandle, FullSeatingChartPreviewProps>(({
   event,
   guests,
   settings,
   tableNameMap = {},
   tableIdNameMap = {},
-}) => {
+  disabled = false,
+}, ref) => {
   const [checkedGuests, setCheckedGuests] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
+  const pageRef = useRef<HTMLDivElement>(null);
+  const printHostRef = useRef<HTMLDivElement>(null);
+  const printParentRef = useRef<Node | null>(null);
+  const generatedAt = useMemo(() => new Date(), [event?.id, guests, settings]);
   const previewWrapperRef = useRef<HTMLDivElement>(null);
   const [previewScale, setPreviewScale] = useState(1);
 
@@ -113,7 +126,41 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     return { pages, guestsPerColumn, guestsPerPage: guestsPerColumn * 2 };
   }, [guests, settings.fontSize]);
 
-  const totalPages = paginationInfo.pages.length;
+  const totalPages = Math.max(1, paginationInfo.pages.length);
+  useEffect(() => { setCurrentPage(1); setCheckedGuests(new Set()); }, [event?.id]);
+  useEffect(() => { setCurrentPage(page => Math.min(page, totalPages)); }, [totalPages]);
+  useImperativeHandle(ref, () => ({
+    getPageElement: () => pageRef.current,
+    getCurrentPage: () => currentPage,
+    getTotalPages: () => totalPages,
+    renderPage: async page => { flushSync(() => setCurrentPage(Math.max(1, Math.min(page, totalPages)))); },
+  }), [currentPage, totalPages]);
+  useEffect(() => {
+    const before = () => {
+      const host = printHostRef.current;
+      if (!host || disabled) return;
+      printParentRef.current = host.parentNode;
+      host.replaceChildren();
+      for (let page = 1; page <= totalPages; page++) {
+        flushSync(() => setCurrentPage(page));
+        if (pageRef.current) {
+          const clone = pageRef.current.cloneNode(true) as HTMLElement;
+          clone.style.border = 'none'; clone.style.boxShadow = 'none';
+          clone.dataset.fullSeatingPrintPage = 'true';
+          host.appendChild(clone);
+        }
+      }
+      document.body.appendChild(host);
+      flushSync(() => setCurrentPage(currentPage));
+    };
+    const after = () => {
+      const host = printHostRef.current;
+      if (host) { host.replaceChildren(); printParentRef.current?.appendChild(host); }
+    };
+    window.addEventListener('beforeprint', before);
+    window.addEventListener('afterprint', after);
+    return () => { window.removeEventListener('beforeprint', before); window.removeEventListener('afterprint', after); };
+  }, [currentPage, totalPages, disabled]);
   const currentPageInfo = paginationInfo.pages[currentPage - 1] || { guests: [], col1Count: 0 };
   const currentGuests = currentPageInfo.guests;
   const col1Guests = currentGuests.slice(0, currentPageInfo.col1Count);
@@ -121,8 +168,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
 
   // Format table display - use name from map if available
   const formatTableDisplay = (guest: Guest) => {
-    if (guest.table_no) return tableNameMap[guest.table_no] || `Table ${guest.table_no}`;
     if (guest.table_id && tableIdNameMap[guest.table_id]) return tableIdNameMap[guest.table_id];
+    if (guest.table_no != null) return tableNameMap[guest.table_no] || `Table ${guest.table_no}`;
     return 'Unassigned';
   };
 
@@ -174,7 +221,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
   };
 
   const formatGeneratedTimestamp = () => {
-    const now = new Date();
+    const now = generatedAt;
     const dateStr = now.toLocaleDateString('en-GB');
     const timeStr = now.toLocaleTimeString('en-US', { 
       hour: 'numeric', 
@@ -236,7 +283,9 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
           paddingBottom: '3.5pt',
           borderBottom: `1px solid ${settings.guestListColor}`,
         }}
-        onClick={() => handleGuestCheck(guest.id, !checkedGuests.has(guest.id))}
+        role="checkbox" aria-label={`Check off ${formatGuestName(guest)}`} aria-checked={checkedGuests.has(guest.id)} aria-disabled={disabled} tabIndex={disabled ? -1 : 0}
+        onKeyDown={e => { if (!disabled && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); handleGuestCheck(guest.id, !checkedGuests.has(guest.id)); } }}
+        onClick={() => { if (!disabled) handleGuestCheck(guest.id, !checkedGuests.has(guest.id)); }}
       >
         {/* Black check-off circle; field colour controls never recolour it. */}
         <svg width="14" height="14" viewBox="0 0 14 14" className="flex-shrink-0">
@@ -264,199 +313,19 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
     );
   };
 
-  // Print version guest row - single-line with inline brackets
-  const PrintGuestRow = ({ guest }: { guest: Guest }) => {
-    return (
-      <div data-full-seating-guest-row="true" className="print-guest-item" style={{ borderBottom: `1px solid ${settings.guestListColor}` }}>
-        <span className="print-checkbox">☐</span>
-        <div className="print-guest-content" style={{ display: 'flex', flexDirection: 'row', alignItems: 'baseline', flex: 1, minWidth: 0, overflow: 'hidden', whiteSpace: 'nowrap', textOverflow: 'ellipsis' }}>
-          {settings.showGuestNames && <span className="print-guest-name" style={{ color: settings.guestNameColor }}>{formatGuestName(guest)}</span>}
-          <GuestDetails guest={guest} print />
-        </div>
-        {settings.showSeatNumbers && <span className="print-table" style={{ color: settings.seatNumberColor }}>
-          {formatTableDisplay(guest)}
-        </span>}
-      </div>
-    );
-  };
-
   return (
     <>
-      {/* Print Styles - Must be at component root */}
       <style>{`
-        @page {
-          size: A4 portrait;
-          margin: 0; /* Remove browser headers/footers */
-        }
-        
+        @page { size: A4 portrait; margin: 0; }
         @media print {
-          * {
-            -webkit-print-color-adjust: exact !important;
-            print-color-adjust: exact !important;
-          }
-          
-          html, body {
-            margin: 0;
-            padding: 0;
-            background: white !important;
-          }
-          
-          .print-page {
-            position: relative;
-            width: 210mm;
-            height: 297mm;
-            padding: 10mm;
-            display: flex;
-            flex-direction: column;
-            background-color: white !important;
-            color: #000000;
-            box-sizing: border-box;
-          }
-          
-        .print-header {
-          text-align: center;
-          margin-bottom: 3mm;
-        }
-
-        .print-footer-section {
-          position: absolute;
-          left: 12.7mm;
-          right: 12.7mm;
-          bottom: 10mm;
-          min-height: 12mm;
-          display: grid;
-          grid-template-columns: 1fr auto 1fr;
-          align-items: center;
-          color: #000;
-          font-size: 8pt;
-          line-height: 1;
-        }
-
-        .print-footer-section img {
-          width: 36mm;
-          height: 10mm;
-          object-fit: contain;
-        }
-
-        .print-event-name {
-          font-size: 22px;
-          font-weight: bold;
-          margin: 0 0 4px 0;
-          color: #000000;
-        }
-
-        .print-chart-subtitle {
-          font-size: 16px;
-          font-weight: normal;
-          margin: 0 0 4px 0;
-          color: #000;
-        }
-
-        .print-detail-line {
-          font-size: 12px;
-          color: #000000;
-          margin: 2px 0;
-        }
-          
-          .print-divider {
-            border-top: 2px solid #000000;
-            margin: 8px 0 14px 0;
-          }
-
-          .print-column-header-bar {
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            column-gap: 12mm;
-            background: #f3f3f3;
-            border-bottom: 2px solid #000000;
-            padding: 4px 2px;
-            margin-bottom: 4px;
-          }
-
-          .print-column-header {
-            font-size: 10pt;
-            font-weight: bold;
-            color: #000;
-            text-transform: uppercase;
-            padding: 0 2px;
-          }
-          
-          .print-guest-list {
-            flex: 1;
-            display: grid;
-            grid-template-columns: 1fr 1fr;
-            column-gap: 12mm;
-            align-items: start;
-            margin-top: 0;
-            overflow: hidden;
-          }
-          
-          .print-guest-column {
-            display: flex;
-            flex-direction: column;
-          }
-          
-          .print-guest-item {
-            display: flex;
-            align-items: center;
-            gap: 6px;
-            break-inside: avoid;
-            font-size: ${guestTextSizePt}pt;
-            line-height: 1.15;
-            height: ${rowHeightMm}mm;
-            box-sizing: border-box;
-            color: #000;
-            padding: 3.5pt 2px;
-          }
-          
-          .print-guest-content {
-            display: flex;
-            flex-direction: row;
-            align-items: center;
-            flex: 1;
-            min-width: 0;
-            overflow: hidden;
-            white-space: nowrap;
-            text-overflow: ellipsis;
-          }
-          
-          .print-checkbox {
-            font-family: monospace;
-            font-size: 9pt;
-            flex-shrink: 0;
-          }
-          
-          .print-guest-name {
-            font-weight: ${settings.isBold ? '700' : '400'};
-            font-style: ${settings.isItalic ? 'italic' : 'normal'};
-            text-decoration: ${settings.isUnderline ? 'underline' : 'none'};
-            color: #000;
-          }
-          
-          .print-guest-info {
-            font-size: ${guestTextSizePt}pt;
-            color: #000000;
-            overflow: hidden;
-            text-overflow: ellipsis;
-            white-space: nowrap;
-          }
-          
-          .print-table {
-            font-weight: ${settings.isBold ? '700' : '400'};
-            font-style: ${settings.isItalic ? 'italic' : 'normal'};
-            text-decoration: ${settings.isUnderline ? 'underline' : 'none'};
-            white-space: nowrap;
-            flex-shrink: 0;
-            color: #000000;
-          }
-          
-          .print-table-unassigned {
-            color: #967A59;
-          }
-          
+          html, body { margin:0 !important; padding:0 !important; background:white !important; }
+          body > :not(#full-seating-print-content) { display:none !important; }
+          #full-seating-print-content#full-seating-print-content { display:block !important; position:static !important; width:210mm !important; height:auto !important; min-height:0 !important; padding:0 !important; margin:0 !important; overflow:visible !important; }
+          #full-seating-print-content * { -webkit-print-color-adjust:exact !important; print-color-adjust:exact !important; }
+          [data-full-seating-print-page] { break-after:page; }
+          [data-full-seating-print-page]:last-child { break-after:auto; }
         }
       `}</style>
-
       {/* Screen Version - A4 Paper Preview */}
       <div className="print:hidden">
         {/* Page Navigation Controls */}
@@ -467,7 +336,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               size="sm"
               className="border border-[#472c1d] text-[#472c1d]"
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
+              disabled={disabled || currentPage === 1}
             >
               <ChevronLeft className="w-4 h-4 mr-1" strokeWidth={1.8} aria-hidden="true" />
               Previous
@@ -480,7 +349,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               size="sm"
               className="border border-[#472c1d] text-[#472c1d]"
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
+              disabled={disabled || currentPage === totalPages}
             >
               Next
               <ChevronRight className="w-4 h-4 ml-1" strokeWidth={1.8} aria-hidden="true" />
@@ -501,6 +370,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
             }
           >
             <div
+              data-full-seating-presentation="true"
               style={
                 previewScale < 1
                   ? { transform: `scale(${previewScale})`, transformOrigin: 'top center', width: A4_PAGE_STYLE.width, margin: '0 auto' }
@@ -508,7 +378,8 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               }
             >
               <div
-                data-a4-preview-page="true"
+                ref={pageRef}
+                data-a4-preview-page="true" data-print-mirror-document="full-seating-chart"
                 className="bg-white border border-gray-300 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] mx-auto"
                 style={{
                   ...A4_PAGE_STYLE,
@@ -640,7 +511,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               size="sm"
               className="border border-[#472c1d] text-[#472c1d]"
               onClick={() => setCurrentPage(prev => Math.max(1, prev - 1))}
-              disabled={currentPage === 1}
+              disabled={disabled || currentPage === 1}
             >
               <ChevronLeft className="w-4 h-4 mr-1" strokeWidth={1.8} aria-hidden="true" />
               Previous
@@ -653,7 +524,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
               size="sm"
               className="border border-[#472c1d] text-[#472c1d]"
               onClick={() => setCurrentPage(prev => Math.min(totalPages, prev + 1))}
-              disabled={currentPage === totalPages}
+              disabled={disabled || currentPage === totalPages}
             >
               Next
               <ChevronRight className="w-4 h-4 ml-1" strokeWidth={1.8} aria-hidden="true" />
@@ -662,71 +533,7 @@ export const FullSeatingChartPreview: React.FC<FullSeatingChartPreviewProps> = (
         )}
       </div>
 
-      {/* Print Version - Multi-page with proper pagination */}
-      <div id="full-seating-print-content" className="hidden print:block">
-        {paginationInfo.pages.map((pageInfo, pageIndex) => (
-          <div 
-            key={pageIndex}
-            className="print-page"
-            style={{ pageBreakAfter: pageIndex < paginationInfo.pages.length - 1 ? 'always' : 'auto' }}
-          >
-            <div className="print-header">
-              <h1 className="print-event-name">{event.name}</h1>
-              <p className="print-chart-subtitle">Full Seating Chart - Total Guests: {guests.length}</p>
-              {event.ceremony_date && (
-                <p className="print-detail-line">
-                  Ceremony: {formatDateWithOrdinal(event.ceremony_date)} | {event.ceremony_venue || 'Venue TBD'} | {formatTimeDisplay(event.ceremony_start_time)} – {formatTimeDisplay(event.ceremony_finish_time)}
-                </p>
-              )}
-              <p className="print-detail-line">
-                Reception: {event.date && formatDateWithOrdinal(event.date)} | {event.venue || 'Venue TBD'} | {formatTimeDisplay(event.start_time)} – {formatTimeDisplay(event.finish_time)}
-              </p>
-              <div className="print-divider"></div>
-            </div>
-            
-            {/* Column Headers Bar */}
-            <div className="print-column-header-bar">
-              <div className="print-column-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                <span>GUESTS {pageInfo.startIndex + 1}-{pageInfo.startIndex + pageInfo.col1Count}</span>
-                <span>TABLE</span>
-              </div>
-              {pageInfo.guests.length > pageInfo.col1Count && (
-                <div className="print-column-header" style={{ display: 'flex', justifyContent: 'space-between', alignItems: 'center' }}>
-                  <span>GUESTS {pageInfo.startIndex + pageInfo.col1Count + 1}-{pageInfo.endIndex}</span>
-                  <span>TABLE</span>
-                </div>
-              )}
-            </div>
-            
-            <div className="print-guest-list">
-              <div className="print-guest-column">
-                {settings.showGuestList && pageInfo.guests.slice(0, pageInfo.col1Count).map((guest) => (
-                  <PrintGuestRow key={guest.id} guest={guest} />
-                ))}
-              </div>
-              <div className="print-guest-column">
-                {settings.showGuestList && pageInfo.guests.length > pageInfo.col1Count && (
-                  <>
-                    {pageInfo.guests.slice(pageInfo.col1Count).map((guest) => (
-                      <PrintGuestRow key={guest.id} guest={guest} />
-                    ))}
-                  </>
-                )}
-              </div>
-            </div>
-            
-            {/* Print Footer */}
-            <div className="print-footer-section">
-              <div data-footer-generated="true" style={{ justifySelf: 'start', whiteSpace: 'nowrap' }}>Generated: {formatGeneratedTimestamp()}</div>
-              {settings.showLogo
-                ? <img src="/wedding-waitress-logo-brown.png?v=2" alt="Wedding Waitress" />
-                : <div style={{ width: '36mm', height: '10mm' }} />}
-              <div data-footer-page-number="true" style={{ justifySelf: 'end', whiteSpace: 'nowrap' }}>Page {pageIndex + 1} of {paginationInfo.pages.length}</div>
-            </div>
-            
-          </div>
-        ))}
-      </div>
+      <div ref={printHostRef} id="full-seating-print-content" className="hidden" />
     </>
   );
-};
+});

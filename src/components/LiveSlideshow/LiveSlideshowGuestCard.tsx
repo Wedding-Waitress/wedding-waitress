@@ -63,10 +63,10 @@ export const LiveSlideshowGuestCard: React.FC<LiveSlideshowGuestCardProps> = ({ 
 
   return (
     <Card className="bg-white shadow-xl border-2 hover:shadow-2xl transition-all duration-300 hover:scale-[1.02]">
-      <CardContent className="p-8">
+      <CardContent className="p-4 sm:p-8 min-w-0 break-words">
         {/* Guest Name */}
-        <div className="flex items-center mb-6">
-          <div className="p-3 bg-primary/10 rounded-full mr-4">
+        <div className="flex items-center mb-6 min-w-0">
+          <div className="p-3 bg-primary/10 rounded-full mr-4 shrink-0">
             <User className="w-8 h-8 text-primary" />
           </div>
           <div>
@@ -118,7 +118,7 @@ export const LiveSlideshowGuestCard: React.FC<LiveSlideshowGuestCardProps> = ({ 
 
         {/* RSVP Status */}
         {showRsvp && (
-          <div className="flex items-center justify-between mb-4">
+          <div className="flex flex-wrap gap-2 items-center justify-between mb-4">
             <div className="flex items-center">
               <RSVPIcon className="w-5 h-5 mr-2" />
               <span data-live-slideshow-label className="text-lg font-medium text-foreground">RSVP Status:</span>
@@ -130,7 +130,7 @@ export const LiveSlideshowGuestCard: React.FC<LiveSlideshowGuestCardProps> = ({ 
         )}
 
         {/* Dietary Requirements */}
-        {showDietary && guest.dietary && guest.dietary !== 'NA' && guest.dietary !== 'None' && (
+        {showDietary && guest.dietary && !['na', 'n/a', 'none', ''].includes(guest.dietary.trim().toLowerCase()) && (
           <div className="flex items-start p-3 bg-blue-50 rounded-lg border border-blue-200">
             <Utensils className="w-5 h-5 text-blue-500 mr-3 mt-1 flex-shrink-0" />
             <div>

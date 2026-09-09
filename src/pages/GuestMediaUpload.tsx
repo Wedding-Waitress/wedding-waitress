@@ -7,7 +7,7 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useGuestMediaUpload } from '@/hooks/useGuestMediaUpload';
-import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info, Image as ImageIcon, Images, BookOpen, Video, Sparkles, ArrowLeft, ChevronDown } from 'lucide-react';
+import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info, Images, BookOpen, Sparkles, ArrowLeft, ChevronDown } from 'lucide-react';
 import { formatBytes, validateFile, ValidationResult, ValidationStage } from '@/lib/mediaValidation';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { formatDisplayDate } from '@/lib/utils';
@@ -79,6 +79,8 @@ const LEATHER_STYLE: React.CSSProperties = {
   backgroundBlendMode: 'normal, overlay, soft-light, normal, normal',
   backgroundSize: 'cover',
 };
+
+
 
 
 interface GalleryPublic {
@@ -719,31 +721,6 @@ export const GuestMediaUpload: React.FC = () => {
         {current === 'upload' && (
         <section className={`p-6 sm:p-7 space-y-7 rounded-2xl ${publicUploadStyles.uploadPanel}`} data-public-upload-surface="form">
 
-          <div className="space-y-3">
-            <Label htmlFor="g-name" className={`text-lg font-bold block ${publicUploadStyles.sectionHeading}`}>
-              Your full name <span className={publicUploadStyles.requiredMark} aria-hidden="true">*</span>
-            </Label>
-            <p className={`text-sm ${publicUploadStyles.secondaryText}`}>So the couple knows who shared these memories</p>
-            <Input id="g-name" className={`h-14 text-base mt-1 rounded-xl px-4 ${publicUploadStyles.field}`} value={name} onChange={e => setName(e.target.value)} placeholder="Enter your full name" />
-          </div>
-
-          <div className="space-y-3">
-            <Label htmlFor="g-album" className={`text-lg font-bold block ${publicUploadStyles.sectionHeading}`}>
-              Album <span className={`text-sm font-normal ${publicUploadStyles.secondaryText}`}>(optional)</span>
-            </Label>
-            <p className={`text-sm ${publicUploadStyles.secondaryText}`}>Help the couple organise these memories</p>
-            <select
-              id="g-album"
-              value={album}
-              onChange={event => setAlbum(normaliseGalleryAlbum(event.target.value))}
-              className={`h-14 w-full rounded-xl border px-4 text-base outline-none ${publicUploadStyles.field}`}
-            >
-              {MANAGEABLE_GALLERY_ALBUMS.map(option => (
-                <option key={option} value={option}>{option}</option>
-              ))}
-            </select>
-          </div>
-
           {(() => {
             const photosFull = !!usage && usage.photos_used >= usage.max_photos;
             const videosFull = !!usage && usage.videos_used >= usage.max_videos;
@@ -756,18 +733,7 @@ export const GuestMediaUpload: React.FC = () => {
             return (
           <div className="space-y-3">
             <Label className={`text-lg font-bold block ${publicUploadStyles.sectionHeading}`}>Upload Photos and Videos</Label>
-
-            <div className={`mt-1 mb-4 rounded-xl p-4 border space-y-2.5 ${publicUploadStyles.innerPanel}`}>
-              <p className={`text-sm font-semibold ${publicUploadStyles.sectionHeading}`}>Upload limits</p>
-              <div className={`flex items-start gap-2 text-sm ${publicUploadStyles.secondaryText}`}>
-                <ImageIcon className={`h-4 w-4 mt-0.5 shrink-0 ${publicUploadStyles.innerPanelIcon}`} />
-                <span>Photos: JPG, PNG, WebP up to {formatBytes(gallery.max_photo_bytes)}</span>
-              </div>
-              <div className={`flex items-start gap-2 text-sm ${publicUploadStyles.secondaryText}`}>
-                <Video className={`h-4 w-4 mt-0.5 shrink-0 ${publicUploadStyles.innerPanelIcon}`} />
-                <span>Videos: MP4, MOV up to {formatBytes(gallery.max_video_bytes)} and {Math.floor(gallery.max_video_duration_sec / 60)} minutes</span>
-              </div>
-            </div>
+            <p className={`text-sm ${publicUploadStyles.secondaryText}`}>Help the couple or host capture special memories.</p>
 
             {anyFull && (
               <div className={`mb-4 flex items-start gap-2 rounded-xl border p-4 text-sm ${publicUploadStyles.capacityNotice}`}>
@@ -900,6 +866,31 @@ export const GuestMediaUpload: React.FC = () => {
             );
           })()}
 
+
+          <div className="space-y-3">
+            <Label htmlFor="g-album" className={`text-lg font-bold block ${publicUploadStyles.sectionHeading}`}>
+              Album <span className={`text-sm font-normal ${publicUploadStyles.secondaryText}`}>(optional)</span>
+            </Label>
+            <p className={`text-sm ${publicUploadStyles.secondaryText}`}>Help the couple organise these memories</p>
+            <select
+              id="g-album"
+              value={album}
+              onChange={event => setAlbum(normaliseGalleryAlbum(event.target.value))}
+              className={`h-14 w-full rounded-xl border px-4 text-base outline-none ${publicUploadStyles.field}`}
+            >
+              {MANAGEABLE_GALLERY_ALBUMS.map(option => (
+                <option key={option} value={option}>{option}</option>
+              ))}
+            </select>
+          </div>
+
+          <div className="space-y-3">
+            <Label htmlFor="g-name" className={`text-lg font-bold block ${publicUploadStyles.sectionHeading}`}>
+              Your Full Name <span className={publicUploadStyles.requiredMark} aria-hidden="true">*</span>
+            </Label>
+            <p className={`text-sm ${publicUploadStyles.secondaryText}`}>So the couple knows who shared these memories</p>
+            <Input id="g-name" className={`h-14 text-base mt-1 rounded-xl px-4 ${publicUploadStyles.field}`} value={name} onChange={e => setName(e.target.value)} placeholder="Enter your full name" />
+          </div>
 
           <div className="pt-1">
             <Button

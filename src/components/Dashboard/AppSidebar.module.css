@@ -18,16 +18,16 @@
   display: flex;
   width: 100%;
   align-items: center;
-  gap: 0.5rem;
-  padding: 0 0.25rem;
+  justify-content: space-between;
+  gap: 0.75rem;
+  padding: 0 0 0 0.5rem;
 }
 
 .logoWrap {
   display: flex;
   min-width: 0;
   flex: 1;
-  justify-content: center;
-  padding-right: 2.625rem;
+  justify-content: flex-start;
 }
 
 .sidebarToggle {
@@ -38,32 +38,24 @@
   align-items: center;
   justify-content: center;
   color: #f4e9dc;
-  border: 1px solid rgba(231, 200, 157, 0.32);
-  border-radius: 0.625rem;
-  background: rgba(49, 25, 18, 0.58);
-  box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.08);
-  transition:
-    color 160ms ease,
-    border-color 160ms ease,
-    background-color 160ms ease,
-    box-shadow 160ms ease,
-    transform 90ms ease;
+  border: 0;
+  border-radius: 0.375rem;
+  background: transparent;
+  box-shadow: none;
+  cursor: pointer;
+  transform: translateX(0.5rem);
 }
 
 .sidebarToggle:hover {
-  color: #ffffff;
-  border-color: rgba(239, 211, 172, 0.7);
-  background: rgba(111, 63, 44, 0.68);
+  color: #f4e9dc;
+  background: transparent;
+  box-shadow: none;
 }
 
 .sidebarToggle:focus-visible {
-  outline: 2px solid rgba(242, 221, 189, 0.9);
-  outline-offset: 2px;
-  box-shadow: 0 0 0 3px rgba(220, 174, 113, 0.18);
-}
-
-.sidebarToggle:active {
-  transform: scale(0.96);
+  outline: 1px solid rgba(244, 233, 220, 0.58);
+  outline-offset: 1px;
+  box-shadow: none;
 }
 
 .sidebarToggle svg {
@@ -73,14 +65,16 @@
 }
 
 :global(.group[data-collapsible="icon"]) .brandRow {
-  flex-direction: column;
-  gap: 0.625rem;
+  justify-content: center;
   padding: 0;
 }
 
+:global(.group[data-collapsible="icon"]) .sidebarToggle {
+  transform: none;
+}
+
 :global(.group[data-collapsible="icon"]) .logoWrap {
-  width: 100%;
-  padding-right: 0;
+  display: none;
 }
 
 .logo {
@@ -271,4 +265,30 @@
     animation-duration: 0.01ms !important;
     animation-iteration-count: 1 !important;
   }
+}
+
+:global(#root#root) .startHereBadge {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  background: linear-gradient(180deg, #7bd880, #55a447) !important;
+  border: 0 !important;
+  box-shadow: inset 0 1px 0 #ffffff80, inset 0 -2px 0 #37652d66, 0 4px 10px #426a2a30 !important;
+}
+
+:global(#root#root) .startHereBadge {
+  text-shadow: 0 1px 2px rgba(20, 55, 16, 0.65);
+}
+
+.startHereBadge.startHereBadge {border-radius:6px!important;}
+
+/* Start Here now follows the supplied outlined saved-status reference. */
+:global(#root#root#root) .startHereBadge {
+ border:2px solid #9ccc8c!important;
+ border-radius:7px!important;
+ background:#4b3428!important;
+ color:#9ccc8c!important;
+ -webkit-text-fill-color:#9ccc8c!important;
+ box-shadow:none!important;
+ text-shadow:none!important;
+ font-weight:600!important;
 }

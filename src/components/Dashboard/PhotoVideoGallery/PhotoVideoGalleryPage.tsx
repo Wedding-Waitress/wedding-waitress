@@ -1,5 +1,6 @@
 // Photo & Video Sharing dashboard page (parent module)
 import React from 'react';
+import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Button } from '@/components/ui/enhanced-button';
@@ -9,7 +10,7 @@ import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { GalleryGuestFeaturesCard } from './GalleryGuestFeaturesCard';
 import managementStyles from './photoVideoSharingManagement.module.css';
 import styles from './PhotoVideoGalleryLanding.module.css';
-import { Camera, LoaderCircle, TriangleAlert, RotateCcw, CalendarDays } from 'lucide-react';
+import { Camera, LoaderCircle, TriangleAlert, RotateCcw, CalendarDays, Sparkles } from 'lucide-react';
 
 interface Props {
   selectedEventId: string | null;
@@ -19,6 +20,7 @@ interface Props {
 }
 
 const MANROPE_FONT = "'Manrope', ui-sans-serif, system-ui, sans-serif";
+const PLANNING_ACCESS_ENDED_ERROR = 'Paid planning access has ended. This account is download-only.';
 
 export const PhotoVideoGalleryPage: React.FC<Props> = ({
   selectedEventId,
@@ -26,10 +28,12 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({
   events,
   eventsLoading = false,
 }) => {
+  const navigate = useNavigate();
   const {
     meta, loading, error, refresh, setGuestbookEnabled, setPhotoBoothEnabled,
     setSlideshowEnabled, setGuestFeature,
   } = useEventMediaGallery(selectedEventId);
+  const planningAccessEnded = error === PLANNING_ACCESS_ENDED_ERROR;
 
   return (
     <div
@@ -37,6 +41,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({
       className={`${managementStyles.photoVideoLandingContent} ${styles.page}`}
       style={{ fontFamily: MANROPE_FONT }}
     >
+      <Card className={styles.eventCard}>
       <div className={styles.pageHeading}>
         <Camera size={25} strokeWidth={1.8} className={styles.headingIcon} aria-hidden="true" />
         <div className={styles.headingCopy}>
@@ -44,14 +49,13 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({
           <p>Let guests upload photos and short videos via QR code.</p>
         </div>
       </div>
-
-      <Card className={styles.eventCard}>
+        <div className={styles.eventSelectorRow}>
         <label className={styles.eventLabel}>
           <CalendarDays size={18} strokeWidth={1.8} aria-hidden="true" />
-          Select event
+          Choose Event
         </label>
         <Select value={selectedEventId || 'no-event'} onValueChange={onEventSelect}>
-          <SelectTrigger className={styles.eventTrigger} aria-label="Select event">
+          <SelectTrigger className={styles.eventTrigger} aria-label="Choose Event">
             <span className={styles.eventValue}>
               <CalendarDays size={17} strokeWidth={1.8} aria-hidden="true" />
               <SelectValue placeholder="Select an event…" />
@@ -67,6 +71,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({
             ))}
           </SelectContent>
         </Select>
+        </div>
       </Card>
 
       {!selectedEventId ? (
@@ -83,12 +88,22 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({
         <Card className={`${styles.stateCard} ${styles.errorState}`} role="alert">
           <span className={styles.errorIcon}><TriangleAlert strokeWidth={1.8} /></span>
           <div>
-            <p className={styles.stateTitle}>Could not load gallery</p>
-            <p className={styles.stateDetail}>{error}</p>
+            <p className={styles.stateTitle}>{planningAccessEnded ? 'Planning access has ended' : 'Could not load gallery'}</p>
+            <p className={styles.stateDetail}>
+              {planningAccessEnded
+                ? 'Upgrade your plan to create and manage this event gallery.'
+                : error}
+            </p>
           </div>
-          <Button variant="outline" className={styles.retryButton} onClick={() => refresh()} disabled={loading}>
-            <RotateCcw strokeWidth={1.8} className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} /> Retry
-          </Button>
+          {planningAccessEnded ? (
+            <Button className={styles.upgradeButton} onClick={() => navigate('/account/plans-upgrades')}>
+              <Sparkles strokeWidth={1.8} className="h-4 w-4 mr-1" /> View Plans &amp; Upgrades
+            </Button>
+          ) : (
+            <Button variant="outline" className={styles.retryButton} onClick={() => refresh()} disabled={loading}>
+              <RotateCcw strokeWidth={1.8} className={`h-4 w-4 mr-1 ${loading ? 'animate-spin' : ''}`} /> Retry
+            </Button>
+          )}
         </Card>
       ) : meta ? (
         <PinchZoomContainer>

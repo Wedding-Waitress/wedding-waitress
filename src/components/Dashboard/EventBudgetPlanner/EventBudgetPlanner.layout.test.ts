@@ -9,25 +9,32 @@ const dashboard = fs.readFileSync(path.resolve(process.cwd(), 'src/components/Da
 const drawer = fs.readFileSync(path.resolve(process.cwd(), 'src/components/Dashboard/EventBudgetPlanner/ExpenseDrawer.tsx'), 'utf8');
 
 describe('Event Budget Planner layout contract', () => {
-  it('is placed after the unchanged overview grid and only renders for the selected loaded event', () => {
-    expect(dashboard.indexOf('<EventBudgetPlanner event={selectedEvent} />')).toBeGreaterThan(dashboard.indexOf('className={styles.cardGrid}'));
-    expect(dashboard).toContain('{selectedEvent && data && !loading && <EventBudgetPlanner event={selectedEvent} />}');
-    expect(dashboard.match(/Event Overview|Guest List|Tables &amp; Seating|Dietary Requirements|Needs Attention|Wedding Setup Progress/g)?.length).toBeGreaterThanOrEqual(6);
+  it('is placed immediately after the event selector and only renders for the selected event', () => {
+    expect(dashboard.indexOf('<EventBudgetPlanner key={selectedEvent.id} event={selectedEvent} exportTarget={exportTarget} />')).toBeGreaterThan(dashboard.indexOf('className={styles.eventPanel}'));
+    expect(dashboard).toContain('{selectedEvent && <EventBudgetPlanner key={selectedEvent.id} event={selectedEvent} exportTarget={exportTarget} />}');
+    expect(dashboard).not.toMatch(/Your Event at a Glance|Event Overview|Tables &amp; Seating|Needs Attention|Wedding Setup Progress/);
   });
 
   it('matches the Dashboard heading typography and provides six summary cards', () => {
     expect(css).toMatch(/\.plannerHeading h2 \{[^}]*font-size: 24px;[^}]*font-weight: 600;[^}]*line-height: 1\.25/);
+    expect(component).toContain('<h2 id="event-budget-heading">Your Event Budget</h2>');
     expect(component).toContain('Plan your event spending, track payments and stay on budget.');
     expect(component).toContain("['Total Budget', summary.totalBudget");
     expect(component).toContain("['Amount Outstanding', summary.amountOutstanding");
     expect(component).toContain("summary.budgetRemaining < 0 ? 'Over Budget' : 'Budget Remaining'");
+    expect(component.indexOf('className={styles.summaryGrid}')).toBeGreaterThan(component.indexOf('data-budget-panel'));
+    expect(component.indexOf('className={styles.summaryGrid}')).toBeLessThan(component.indexOf('className={styles.budgetControls}'));
+    expect(css).toMatch(/\.budgetPanel \{[^}]*height: 7rem;[^}]*grid-template-columns: minmax\(11rem,.7fr\) minmax\(25\.5rem,1\.3fr\) auto/);
+    expect(css).toMatch(/\.budgetPanel \{[^}]*border: 0;[^}]*border-radius: 0;[^}]*outline: 0;[^}]*background: transparent;[^}]*box-shadow: none/);
+    expect(css).toMatch(/\.expensePanel \{[^}]*border: 1px solid var\(--dashboard-border\);[^}]*background: var\(--dashboard-panel\)/);
+    expect(css).toMatch(/\.summaryGrid \{[^}]*grid-template-columns: repeat\(3,minmax\(0,1fr\)\);[^}]*grid-template-rows: repeat\(2,minmax\(0,1fr\)\)/);
   });
 
   it('uses a parent section card, green heading actions, compact separate budget controls and toolbar Add action', () => {
     expect(css).toMatch(/\.planner \{[^}]*padding: 1rem;[^}]*border: 1px solid var\(--dashboard-border\);[^}]*background: var\(--dashboard-panel\)/);
-    expect(component).toContain('className={styles.successButton} onClick={() => requestPrintAction(\'print\')}');
-    expect(component).toContain('className={styles.successButton} onClick={() => requestPrintAction(\'download\')}');
-    expect(css).toMatch(/\.amountControl \{[^}]*width: clamp\(15rem,22vw,20rem\)/);
+    expect(component).toContain('className={`${styles.successButton} ${styles.exportAction}`} onClick={() => requestPrintAction(\'print\')}');
+    expect(component).toContain('className={`${styles.successButton} ${styles.exportAction}`} onClick={() => requestPrintAction(\'download\')}');
+    expect(css).toMatch(/\.amountControl \{[^}]*grid-column:5;[^}]*grid-row:1;[^}]*width:100%;[^}]*height:100%/);
     expect(component.indexOf('id="event-budget-currency"')).toBeGreaterThan(component.indexOf('id="anticipated-event-budget"'));
     expect(component.indexOf('ref={addButtonRef}')).toBeGreaterThan(component.indexOf('Sort expenses'));
   });
@@ -85,6 +92,6 @@ describe('Event Budget Planner layout contract', () => {
     expect(printCss).toContain('@page event-budget { size: A4 landscape; margin: 0; }');
     expect(printCss).toMatch(/\.table \{[^}]*font-size: 8pt/);
     expect(printCss).toMatch(/\.table tbody tr \{[^}]*break-inside: avoid;[^}]*page-break-inside: avoid/);
-    expect(component).toContain('EventBudgetPrintDocument ref={printRootRef}');
+    expect(component).toMatch(/EventBudgetPrintDocument ref=\{/);
   });
 });

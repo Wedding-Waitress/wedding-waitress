@@ -1,3 +1,5 @@
+import { isInitialSearchAvailable, matchesGuestSearch } from '@/lib/guestNameSearch';
+import { ResponsiveWelcomeVideo } from '@/components/GuestLookup/ResponsiveWelcomeVideo';
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { loadGoogleFont } from '@/lib/googleFonts';
 import { useParams } from 'react-router-dom';
@@ -7,11 +9,11 @@ import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import { Separator } from '@/components/ui/separator';
 import { Tabs, TabsContent, TabsList, TabsTrigger } from '@/components/ui/tabs';
-import { 
-  Search, 
-  Users, 
-  MapPin, 
-  Calendar, 
+import {
+  Search,
+  Users,
+  MapPin,
+  Calendar,
   AlertCircle,
   CheckCircle2,
   User,
@@ -24,6 +26,7 @@ import {
   MailOpen,
   PlayCircle,
   LayoutGrid,
+  Home,
   Hourglass
 } from 'lucide-react';
 import weddingWaitressFooterLogo from '@/assets/wedding-waitress-brown-logo.png';
@@ -124,6 +127,12 @@ const ExistingFloorPlanView: React.FC<{
 export const GuestLookup: React.FC = () => {
   const { eventSlug } = useParams<{ eventSlug: string }>();
   const [searchTerm, setSearchTerm] = useState('');
+  const [selectedSearchGuestId, setSelectedSearchGuestId] = useState<string | null>(null);
+  const [searchClock, setSearchClock] = useState(() => Date.now());
+  useEffect(() => {
+    const timer = window.setInterval(() => setSearchClock(Date.now()), 30000);
+    return () => window.clearInterval(timer);
+  }, []);
   const [guests, setGuests] = useState<Guest[]>([]);
   const [event, setEvent] = useState<Event | null>(null);
   const [loading, setLoading] = useState(true);
@@ -159,6 +168,20 @@ export const GuestLookup: React.FC = () => {
   const [showFloorPlanModal, setShowFloorPlanModal] = useState(false);
   const [showReceptionFloorPlanModal, setShowReceptionFloorPlanModal] = useState(false);
   const [showMenuModal, setShowMenuModal] = useState(false);
+  const goHome = () => {
+    setShowRsvpInviteModal(false);
+    setShowWelcomeVideoModal(false);
+    setShowFloorPlanModal(false);
+    setShowReceptionFloorPlanModal(false);
+    setShowMenuModal(false);
+    returnToSearch();
+  };
+  const homeButton = (
+    <Button type="button" onClick={goHome} className={styles.guestHomeButton}>
+      <Home aria-hidden="true" className="h-4 w-4" />
+      Home
+    </Button>
+  );
   const [ceremonyFloorPlan, setCeremonyFloorPlan] = useState<any>(null);
   const [ceremonyFloorPlanLoading, setCeremonyFloorPlanLoading] = useState(false);
   const [ceremonyFloorPlanFetched, setCeremonyFloorPlanFetched] = useState(false);
@@ -168,15 +191,15 @@ export const GuestLookup: React.FC = () => {
 
   // Load Great Vibes font for event name
   useEffect(() => { loadGoogleFont('Great Vibes'); }, []);
-  
+
   // Compute is_editable based on rsvp_deadline (inclusive through end-of-day)
   const isEditable = useMemo(() => {
     if (!event?.rsvp_deadline) return true; // NULL deadline = always editable
-    
+
     // Parse the deadline and set to end of day (23:59:59.999)
     const deadline = new Date(event.rsvp_deadline);
     deadline.setHours(23, 59, 59, 999);
-    
+
     const now = new Date();
     return now <= deadline;
   }, [event?.rsvp_deadline]);
@@ -212,15 +235,12 @@ export const GuestLookup: React.FC = () => {
     return todayStr === event.date;
   }, [event?.date, event?.event_timezone]);
 
-  // Privacy gate: open partial-search only on the wedding day and after.
-  // Before the event date, search is strict full-name match only (no suggestions).
-  const isOpenSearchMode = useMemo(() => {
-    if (!event?.date) return true; // fail-open
-    const tz = event.event_timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: tz });
-    return todayStr >= event.date;
-  }, [event?.date, event?.event_timezone]);
-
+  // First-name plus surname-prefix search starts seven local calendar days before the event.
+  const isOpenSearchMode = useMemo(() => isInitialSearchAvailable(
+    event?.date,
+    event?.event_timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
+    new Date(searchClock),
+  ), [event?.date, event?.event_timezone, searchClock]);
   // Check for tab parameter in URL - default to search
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -236,16 +256,16 @@ export const GuestLookup: React.FC = () => {
   // Handle deep-link for editing a specific guest (?edit=<guest_id>)
   useEffect(() => {
     if (guests.length === 0 || !isEditable || !showUpdateDetails) return;
-    
+
     const params = new URLSearchParams(window.location.search);
     const editGuestId = params.get('edit');
-    
+
     if (editGuestId) {
       const guestToEdit = guests.find(g => g.id === editGuestId);
       if (guestToEdit) {
         setSelectedGuest(guestToEdit);
         setIsUpdateModalOpen(true);
-        
+
         // Clean up URL parameter after opening modal
         const newUrl = new URL(window.location.href);
         newUrl.searchParams.delete('edit');
@@ -392,33 +412,12 @@ export const GuestLookup: React.FC = () => {
   // Normalise input for strict matching (trim, lowercase, collapse whitespace)
   const normalize = (str: string) => str.trim().toLowerCase().replace(/\s+/g, ' ');
 
-  // Filter guests based on search term
-  const filteredGuests = useMemo(() => {
-    // OPEN MODE: existing partial-search behaviour (kept verbatim)
-    if (isOpenSearchMode) {
-      if (searchTerm.length < 2) return [];
-
-      const term = searchTerm.toLowerCase();
-      return guests.filter(guest => {
-        const fullName = `${guest.first_name} ${guest.last_name}`.toLowerCase();
-        const firstName = guest.first_name.toLowerCase();
-        const lastName = guest.last_name.toLowerCase();
-
-        return firstName.includes(term) ||
-               lastName.includes(term) ||
-               fullName.includes(term);
-      });
-    }
-
-    // STRICT MODE (before event date): exact full-name match only
-    const input = normalize(searchTerm || '');
-    if (!input.includes(' ')) return [];
-    return guests.filter((guest) => {
-      const fullName = normalize(`${guest.first_name} ${guest.last_name}`);
-      return fullName === input;
-    });
-  }, [guests, searchTerm, isOpenSearchMode]);
-
+  const searchCandidates = useMemo(() => guests.filter(guest =>
+    matchesGuestSearch(guest, searchTerm, isOpenSearchMode)
+  ), [guests, searchTerm, isOpenSearchMode]);
+  const filteredGuests = useMemo(() => isOpenSearchMode
+    ? searchCandidates.filter(guest => guest.id === selectedSearchGuestId)
+    : searchCandidates, [searchCandidates, selectedSearchGuestId, isOpenSearchMode]);
   // Dedicated fetch for Guest Song Request settings, keyed on event.id so the
   // public Live View always loads it reliably (decoupled from the main event RPC).
   useEffect(() => {
@@ -463,6 +462,7 @@ export const GuestLookup: React.FC = () => {
 
   const handleSearchChange = (value: string) => {
     setSearchTerm(value);
+    setSelectedSearchGuestId(null);
     if (value.length >= 2) {
       setSearching(true);
       // Simulate search delay for better UX
@@ -472,7 +472,7 @@ export const GuestLookup: React.FC = () => {
 
   const refreshGuestData = async () => {
     if (!eventSlug) return;
-    
+
     try {
       console.log('🔄 Live View: Manually refreshing guest data...');
       // Use the same public RPC function for refreshing data
@@ -536,9 +536,9 @@ export const GuestLookup: React.FC = () => {
         },
         (payload) => {
           console.log('QR Code App realtime guest update received:', payload);
-          
+
           const { eventType, new: newRecord, old: oldRecord } = payload;
-          
+
           setGuests(currentGuests => {
             switch (eventType) {
               case 'INSERT':
@@ -568,8 +568,8 @@ export const GuestLookup: React.FC = () => {
               case 'UPDATE':
                 if (newRecord) {
                   console.log('QR Code App processing UPDATE for guest:', newRecord.id, 'RSVP:', newRecord.rsvp, 'Normalized:', normalizeRsvp(newRecord.rsvp));
-                  return currentGuests.map(g => 
-                    g.id === newRecord.id 
+                  return currentGuests.map(g =>
+                    g.id === newRecord.id
                       ? {
                           ...g,
                           first_name: newRecord.first_name,
@@ -604,7 +604,7 @@ export const GuestLookup: React.FC = () => {
       )
       .subscribe((status) => {
         console.log(`Live View realtime subscription status: ${status} for kiosk-guests:event:${event.id}`);
-        
+
         if (status === 'SUBSCRIBED') {
           console.log(`✅ Live View successfully subscribed to kiosk-guests:event:${event.id}`);
         } else if (status === 'CHANNEL_ERROR') {
@@ -630,9 +630,9 @@ export const GuestLookup: React.FC = () => {
         refreshGuestData();
       }
     };
-    
+
     document.addEventListener('visibilitychange', handleVisibilityChange);
-    
+
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
@@ -652,14 +652,14 @@ export const GuestLookup: React.FC = () => {
   // Install PWA prompt
   useEffect(() => {
     let deferredPrompt: any;
-    
+
     const handleBeforeInstallPrompt = (e: any) => {
       e.preventDefault();
       deferredPrompt = e;
     };
 
     window.addEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
-    
+
     return () => {
       window.removeEventListener('beforeinstallprompt', handleBeforeInstallPrompt);
     };
@@ -667,11 +667,11 @@ export const GuestLookup: React.FC = () => {
 
   if (loading) {
     return (
-      <div className={`${styles.mainSurface} ${styles.statePage} ww-application-background min-h-screen flex items-center justify-center p-4`}>
+      <div className={`${styles.mainSurface} ${styles.statePage} ww-application-background ww-dark-surface min-h-screen flex items-center justify-center p-4`}>
         <Card className={`${styles.stateCard} ww-box w-full max-w-md`}>
           <CardContent className="p-8 text-center">
             <div className="animate-spin w-8 h-8 border-2 border-primary border-t-transparent rounded-full mx-auto mb-4"></div>
-            <p className="text-muted-foreground">Loading event details...</p>
+            <p className="text-white">Loading event details...</p>
           </CardContent>
         </Card>
       </div>
@@ -680,7 +680,7 @@ export const GuestLookup: React.FC = () => {
 
   if (!event) {
     return (
-      <div className={`${styles.mainSurface} ${styles.statePage} ww-application-background min-h-screen flex items-center justify-center p-4`}>
+      <div className={`${styles.mainSurface} ${styles.statePage} ww-application-background ww-dark-surface min-h-screen flex items-center justify-center p-4`}>
         <Card className={`${styles.stateCard} ww-box w-full max-w-md`}>
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-16 h-16 mx-auto text-destructive mb-4" />
@@ -698,14 +698,14 @@ export const GuestLookup: React.FC = () => {
   const welcomeVideoUrl = resolveWelcomeVideoUrl(moduleSettings?.welcome_video_config);
 
   return (
-    <div className={`${styles.mainSurface} ${styles.page} ww-application-background min-h-screen font-inter`}>
+    <div className={`${styles.mainSurface} ${styles.page} ww-application-background ww-dark-surface min-h-screen font-inter`}>
       {/* Hero Section */}
-      <div className="relative">
+      <div data-has-hero-photo={!!heroImageUrl} className={`${styles.heroShell} relative`}>
         {heroImageUrl ? (
           <div className="relative">
-            <img 
-              src={heroImageUrl} 
-              alt="Event hero" 
+            <img
+              src={heroImageUrl}
+              alt="Event hero"
               className="w-full h-auto block"
             />
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
@@ -720,7 +720,7 @@ export const GuestLookup: React.FC = () => {
             </div>
           </div>
         ) : (
-          <div className={`${styles.fallbackHero} bg-gradient-hero text-white`}>
+          <div className={`${styles.fallbackHero} text-white`}>
             <div className="w-full px-4 pt-16 pb-16 md:pt-24 md:pb-24">
               <div className={`${styles.heroTitleGroup} text-center`}>
                 <p className="text-white/90 text-lg md:text-xl font-medium mb-2">
@@ -803,7 +803,7 @@ export const GuestLookup: React.FC = () => {
             const now = new Date();
             const diff = eventDate.getTime() - now.getTime();
             if (diff <= 0) return null;
-            
+
             const totalHours = Math.floor(diff / (1000 * 60 * 60));
             const days = Math.floor(totalHours / 24);
             const hours = totalHours % 24;
@@ -821,7 +821,7 @@ export const GuestLookup: React.FC = () => {
             return (
               <p className="text-foreground font-medium text-sm md:text-base mt-1 flex items-center justify-center gap-1.5">
                 <Hourglass className="h-4 w-4 text-primary" />
-                
+
                 {parts.join(', ')} to go
               </p>
             );
@@ -854,8 +854,8 @@ export const GuestLookup: React.FC = () => {
                     <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Welcome Video</span>
                   </button>
                 )}
-                <TabsTrigger 
-                  value="visualization" 
+                <TabsTrigger
+                  value="visualization"
                   className="flex flex-col items-center justify-center h-[72px] py-2 px-1 rounded-xl border border-primary bg-transparent text-primary data-[state=active]:border-green-400 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-md transition-all duration-200"
                 >
                   <LayoutGrid className="w-5 h-5 mb-1" />
@@ -900,16 +900,17 @@ export const GuestLookup: React.FC = () => {
             </div>
 
             <div className="pt-3">
-            <TabsContent value="search" className="mt-0">
-              <p className={`${styles.sectionHeading} text-center text-base md:text-lg font-semibold text-foreground mb-3`}>Update & Confirm Your Details</p>
-              <Card className={`${styles.searchCard} ww-box card-elevated`}>
-                <CardContent className={`${styles.searchCardContent} pt-3`}>
+            <TabsContent value="search" className="mt-0 pt-[18px]">
+
+              <Card data-search-empty={!searchTerm.trim()} className={`${styles.searchCard} ww-box card-elevated pt-2 md:pt-2`}>
+                <CardContent className={`${styles.searchCardContent} pt-2`}>
                   <div className={styles.searchArea}>
+                    <p data-live-section-heading data-guest-details-heading className={`${styles.sectionHeading} text-center text-base md:text-lg font-semibold text-foreground mb-[17px]`}>Update & Confirm Your Details</p>
                     {/* Search Input */}
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                       <Input
-                        ref={searchInputRef}
+                        ref={searchInputRef} data-guest-name-search
                         type="text"
                         placeholder={moduleSettings?.update_details_config?.search_placeholder || "Type your full name here..."}
                         value={searchTerm}
@@ -933,21 +934,23 @@ export const GuestLookup: React.FC = () => {
                     const normalizedInput = normalize(searchTerm || '');
                     const isFullNameAttempt = normalizedInput.includes(' ');
                     // Strict mode: hide everything until a full-name attempt
-                    if (!isOpenSearchMode && !isFullNameAttempt) return null;
+                    if (!isFullNameAttempt) return null;
                     // Open mode: keep original 2+ char gate
                     if (isOpenSearchMode && searchTerm.length < 2) return null;
 
                     return (
-                      <div ref={searchResultsRef}>
-                        {filteredGuests.length > 0 && (
-                          <div className="text-center mb-5 animate-fade-in">
-                            <div data-live-section-heading className="text-lg md:text-xl font-semibold text-primary">
-                              Welcome, {filteredGuests[0].first_name} 👋
-                            </div>
-                          </div>
-                        )}
+                      <div ref={searchResultsRef} className="pt-6">
                         <div className="space-y-4 animate-fade-in">
-                          {filteredGuests.length > 0 ? (
+                          {isOpenSearchMode && !selectedSearchGuestId && searchCandidates.length > 0 ? (
+                            <div className="space-y-3 text-center">
+                              <p>Choose your name to view your details.</p>
+                              {searchCandidates.map(guest => (
+                                <Button key={guest.id} className="lv-premium-btn w-full whitespace-normal h-auto min-h-10" onClick={() => setSelectedSearchGuestId(guest.id)}>
+                                  {guest.first_name} {guest.last_name}
+                                </Button>
+                              ))}
+                            </div>
+                          ) : filteredGuests.length > 0 ? (
                             filteredGuests.map((guest) => (
                               <EnhancedGuestCard
                                 key={guest.id}
@@ -958,8 +961,8 @@ export const GuestLookup: React.FC = () => {
                                 onAddGuest={(event as any)?.allow_guest_plus_ones ? () => handleAddGuest(guest) : undefined}
                                 rsvpDeadline={event?.rsvp_deadline}
                                 additionalGuestCount={guests.filter(g => (g as any).added_by_guest_id === guest.id).length}
-                                showRsvpButtons={showRsvpButtons}
-                                showAddPlusOne={showAddPlusOne}
+                                showRsvpButtons={false}
+                                showAddPlusOne={false}
                                 showUpdateDetails={showUpdateDetails}
                               />
                             ))
@@ -984,9 +987,24 @@ export const GuestLookup: React.FC = () => {
                     })()}
                   </div>
 
+                  {/* Wedding Waitress Logo - Footer */}
+                  <div className={`${styles.footerLogo} flex justify-center`}>
+                    <a
+                      href="https://www.weddingwaitress.com.au/"
+                      target="_blank"
+                      rel="noopener noreferrer"
+                    >
+                      <img
+                        src={weddingWaitressFooterLogo}
+                        alt="Wedding Waitress"
+                        className="h-12 md:h-14 w-auto"
+                      />
+                    </a>
+                  </div>
+
                   {/* Share Button */}
                   <div className={`${styles.shareInvite} flex justify-center`}>
-                    <button 
+                    <button
                       onClick={() => {
                         if (navigator.share) {
                           navigator.share({
@@ -1002,21 +1020,6 @@ export const GuestLookup: React.FC = () => {
                     </button>
                   </div>
 
-                  {/* Wedding Waitress Logo - Footer */}
-                  <div className={`${styles.footerLogo} flex justify-center`}>
-                    <a 
-                      href="https://www.weddingwaitress.com.au/" 
-                      target="_blank" 
-                      rel="noopener noreferrer"
-                    >
-                      <img 
-                        src={weddingWaitressFooterLogo} 
-                        alt="Wedding Waitress" 
-                        className="h-12 md:h-14 w-auto"
-                      />
-                    </a>
-                  </div>
-
                 </CardContent>
               </Card>
             </TabsContent>
@@ -1027,11 +1030,12 @@ export const GuestLookup: React.FC = () => {
                   <>
                     {/* Show table visualization if guest has table assignment */}
                     {filteredGuests.some(g => g.table_id) ? (
-                      <div className="grid gap-6 md:grid-cols-2 lg:grid-cols-1 xl:grid-cols-2">
+                      <div className="grid gap-6">
                         {Array.from(new Set(filteredGuests.map(g => g.table_id))).filter(Boolean).map((tableId) => {
                           const tableGuest = filteredGuests.find(g => g.table_id === tableId);
                           return (tableGuest?.table_no || tableGuest?.table_id) ? (
                             <TableVisualization
+                              navigation={homeButton}
                               key={tableId}
                               tableId={tableId!}
                               tableNumber={tableGuest.table_no || 0}
@@ -1043,6 +1047,7 @@ export const GuestLookup: React.FC = () => {
                     ) : (
                       /* Guest found but not assigned to a table */
                       <Card className="ww-box card-elevated border-2 border-warning/30">
+                        {homeButton}
                         <CardContent className="p-8 text-center">
                           <MapPin className="w-16 h-16 mx-auto text-warning mb-4" />
                           <CardTitle className={`${styles.sectionHeading} mb-2 text-lg`}>No Table Assigned Yet</CardTitle>
@@ -1055,8 +1060,9 @@ export const GuestLookup: React.FC = () => {
                   </>
                 )}
 
-                {searchTerm.length < 2 && (
+                {(searchTerm.length < 2 || (isOpenSearchMode && searchCandidates.length > 0 && !selectedSearchGuestId)) && (
                   <Card className="ww-box card-elevated">
+                    {homeButton}
                     <CardContent className="p-8 text-center">
                       <Eye className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                       <CardTitle className={`${styles.sectionHeading} mb-2`}>Table View</CardTitle>
@@ -1073,8 +1079,9 @@ export const GuestLookup: React.FC = () => {
                   </Card>
                 )}
 
-                {searchTerm.length >= 2 && filteredGuests.length === 0 && !searching && (
+                {searchTerm.length >= 2 && searchCandidates.length === 0 && !searching && (
                   <Card className="ww-box card-elevated">
+                    {homeButton}
                     <CardContent className="p-8 text-center">
                       <AlertCircle className="w-12 h-12 mx-auto text-muted-foreground mb-4" />
                       <CardTitle className={`${styles.sectionHeading} mb-2`}>Guest Not Found</CardTitle>
@@ -1117,6 +1124,7 @@ export const GuestLookup: React.FC = () => {
         showMessageField={moduleSettings?.update_details_config?.show_message_field ?? true}
         isEditable={isEditable && showUpdateDetails}
         allGuests={guests}
+        allowRsvp={showRsvpButtons}
         songRequestsEnabled={!!songRequestSettings?.enabled}
         songRequestsMax={songRequestSettings?.enabled ? (songRequestSettings.max_requests_per_guest || 0) : 0}
       />
@@ -1162,29 +1170,30 @@ export const GuestLookup: React.FC = () => {
 
       {/* RSVP Invite Modal */}
       <Dialog open={showRsvpInviteModal} onOpenChange={setShowRsvpInviteModal}>
-        <DialogContent className="ww-public-live-dialog max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
-          <DialogHeader>
+        <DialogContent className="ww-public-live-dialog ww-rsvp-invite-viewer max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <DialogHeader className={styles.guestViewerHeader}>
+            {homeButton}
             <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-foreground">
               <Mail className="w-6 h-6 text-foreground" />
               You're invited
             </DialogTitle>
           </DialogHeader>
-          <div className="mt-4">
+          <div className={styles.inviteViewport}>
             {moduleSettings?.rsvp_invite_config?.file_url ? (
-              <div className="text-center">
+              <div className={styles.inviteMedia}>
                 {moduleSettings.rsvp_invite_config.file_type?.includes('pdf') ? (
-                  <div className="aspect-[210/297] w-full border rounded-lg overflow-hidden">
-                    <iframe 
+                  <div className={styles.invitePdf}>
+                    <iframe
                       src={moduleSettings.rsvp_invite_config.file_url}
                       className="w-full h-full"
                       title="RSVP Invitation"
                     />
                   </div>
                 ) : (
-                  <img 
-                    src={moduleSettings.rsvp_invite_config.file_url} 
+                  <img
+                    src={moduleSettings.rsvp_invite_config.file_url}
                     alt="RSVP Invitation"
-                    className="max-w-full h-auto mx-auto rounded-lg shadow-lg"
+                    className={styles.inviteImage}
                   />
                 )}
               </div>
@@ -1202,24 +1211,17 @@ export const GuestLookup: React.FC = () => {
 
       {/* Welcome Video Modal */}
       <Dialog open={showWelcomeVideoModal} onOpenChange={setShowWelcomeVideoModal}>
-        <DialogContent className="ww-public-live-dialog max-w-3xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
-          <DialogHeader>
+        <DialogContent className="ww-public-live-dialog ww-rsvp-invite-viewer max-w-3xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <DialogHeader className={styles.guestViewerHeader}>
+            {homeButton}
             <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-foreground">
               <Video className="w-6 h-6 text-foreground" />
               Welcome Video
             </DialogTitle>
           </DialogHeader>
-          <div className="mt-4">
+          <div className={styles.inviteViewport}>
             {welcomeVideoUrl ? (
-              <div className="aspect-video w-full rounded-lg overflow-hidden bg-black">
-                <iframe
-                  src={welcomeVideoUrl}
-                  className="w-full h-full"
-                  title="Welcome Video"
-                  allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
-                  allowFullScreen
-                />
-              </div>
+              <div className={`${styles.inviteMedia} ${styles.welcomeVideoMedia}`}><ResponsiveWelcomeVideo src={welcomeVideoUrl} /></div>
             ) : (
               <div className="aspect-video w-full rounded-lg bg-muted flex items-center justify-center">
                 <div className="text-center">
@@ -1241,19 +1243,20 @@ export const GuestLookup: React.FC = () => {
 
       {/* Ceremony Floor Plan Modal */}
       <Dialog open={showFloorPlanModal} onOpenChange={setShowFloorPlanModal}>
-        <DialogContent className="ww-public-live-dialog max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
-          <DialogHeader>
+        <DialogContent className={`${moduleSettings?.floor_plan_config?.source === 'upload' ? 'ww-rsvp-invite-viewer' : ''} ww-public-live-dialog max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6`} style={{ WebkitOverflowScrolling: 'touch' }}>
+          <DialogHeader className={styles.guestViewerHeader}>
+            {homeButton}
             <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-foreground">
               <MapPin className="w-6 h-6 text-primary" />
               Ceremony Floor Plan
             </DialogTitle>
           </DialogHeader>
-          <div className="mt-4">
+          <div className={moduleSettings?.floor_plan_config?.source === 'upload' ? styles.inviteViewport : 'mt-4'}>
             {moduleSettings?.floor_plan_config?.source === 'upload' && moduleSettings?.floor_plan_config?.file_url ? (
-              <img 
-                src={moduleSettings.floor_plan_config.file_url} 
+              <img
+                src={moduleSettings.floor_plan_config.file_url}
                 alt="Ceremony Floor Plan"
-                className="max-w-full h-auto mx-auto rounded-lg shadow-lg"
+                className={styles.inviteImage}
               />
             ) : moduleSettings?.floor_plan_config?.source === 'existing' ? (
               <ExistingFloorPlanView
@@ -1279,19 +1282,20 @@ export const GuestLookup: React.FC = () => {
 
       {/* Reception Floor Plan Modal */}
       <Dialog open={showReceptionFloorPlanModal} onOpenChange={setShowReceptionFloorPlanModal}>
-        <DialogContent className="ww-public-live-dialog max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
-          <DialogHeader>
+        <DialogContent className={`${moduleSettings?.reception_floor_plan_config?.source === 'upload' ? 'ww-rsvp-invite-viewer' : ''} ww-public-live-dialog max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6`} style={{ WebkitOverflowScrolling: 'touch' }}>
+          <DialogHeader className={styles.guestViewerHeader}>
+            {homeButton}
             <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-foreground">
               <MapPin className="w-6 h-6 text-foreground" />
               Reception Floor Plan
             </DialogTitle>
           </DialogHeader>
-          <div className="mt-4">
+          <div className={moduleSettings?.reception_floor_plan_config?.source === 'upload' ? styles.inviteViewport : 'mt-4'}>
             {moduleSettings?.reception_floor_plan_config?.source === 'upload' && moduleSettings?.reception_floor_plan_config?.file_url ? (
-              <img 
-                src={moduleSettings.reception_floor_plan_config.file_url} 
+              <img
+                src={moduleSettings.reception_floor_plan_config.file_url}
                 alt="Reception Floor Plan"
-                className="max-w-full h-auto mx-auto rounded-lg shadow-lg"
+                className={styles.inviteImage}
               />
             ) : moduleSettings?.reception_floor_plan_config?.source === 'existing' ? (
               <ReadOnlyReceptionFloorPlan
@@ -1311,29 +1315,30 @@ export const GuestLookup: React.FC = () => {
 
       {/* Menu Modal */}
       <Dialog open={showMenuModal} onOpenChange={setShowMenuModal}>
-        <DialogContent className="ww-public-live-dialog max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
-          <DialogHeader>
+        <DialogContent className="ww-public-live-dialog ww-rsvp-invite-viewer max-w-2xl max-h-[90vh] overflow-y-auto overscroll-contain touch-pan-y bg-background [&>button]:rounded-full [&>button]:border-2 [&>button]:border-primary [&>button]:w-10 [&>button]:h-10 [&>button]:flex [&>button]:items-center [&>button]:justify-center [&>button]:opacity-100 [&>button]:text-primary [&>button:hover]:text-primary/80 [&>button:hover]:border-primary/80 [&>button>svg]:w-6 [&>button>svg]:h-6" style={{ WebkitOverflowScrolling: 'touch' }}>
+          <DialogHeader className={styles.guestViewerHeader}>
+            {homeButton}
             <DialogTitle className="flex items-center gap-2 text-2xl font-inter text-foreground">
               <UtensilsCrossed className="w-6 h-6 text-foreground" />
               Wedding Menu
             </DialogTitle>
           </DialogHeader>
-          <div className="mt-4">
+          <div className={styles.inviteViewport}>
             {moduleSettings?.menu_config?.file_url ? (
               <div className="text-center">
                 {moduleSettings.menu_config.file_type?.includes('pdf') ? (
-                  <div className="aspect-[210/297] w-full border rounded-lg overflow-hidden">
-                    <iframe 
+                  <div className={styles.invitePdf}>
+                    <iframe
                       src={moduleSettings.menu_config.file_url}
                       className="w-full h-full"
                       title="Wedding Menu"
                     />
                   </div>
                 ) : (
-                  <img 
-                    src={moduleSettings.menu_config.file_url} 
+                  <img
+                    src={moduleSettings.menu_config.file_url}
                     alt="Wedding Menu"
-                    className="max-w-full h-auto mx-auto rounded-lg shadow-lg"
+                    className={styles.inviteImage}
                   />
                 )}
               </div>

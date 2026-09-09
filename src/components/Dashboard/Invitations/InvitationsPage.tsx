@@ -1,4 +1,5 @@
-import React, { useState, useMemo, useEffect, useCallback } from 'react';
+import { Printer as ExportControlsPrinter } from 'lucide-react';
+import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Event } from '@/hooks/useEvents';
@@ -15,6 +16,8 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import styles from './InvitationsPage.module.css';
+import { useSignageImageFit } from '../Signage/useSignageImageFit';
+import { INVITATION_CARD_SIZES, ALLOWED_INVITATION_SIZES, DEFAULT_INVITATION_SIZES, type InvitationCardSize } from '@/lib/invitationCardSizes';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -55,7 +58,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
 }) => {
   const {
     artworks,
-    activeArtwork,
+    activeArtwork: storedActiveArtwork,
     activeArtworkId,
     setActiveArtwork,
     createArtwork,
@@ -67,6 +70,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   } = useInvitationCardSettings(selectedEventId);
 
   const [activeCardType, setActiveCardType] = useState<CardType>('invitation');
+  const activeArtwork = storedActiveArtwork?.card_type === activeCardType ? storedActiveArtwork : null;
   const [createDialogOpen, setCreateDialogOpen] = useState(false);
   const [newArtworkName, setNewArtworkName] = useState('');
   const [newArtworkSize, setNewArtworkSize] = useState('A4');
@@ -75,6 +79,30 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const previewDocumentRef = useRef<HTMLDivElement | null>(null);
+
+  const { confirmFit, rememberFit, dialog: imageFitDialog } = useSignageImageFit();
+  const approvedUpload = useRef<{ label: string; widthMm: number; heightMm: number } | null>(null);
+  const cardPaper = useMemo(() => {
+    const dimensions = INVITATION_CARD_SIZES[activeArtwork?.card_size as InvitationCardSize] || INVITATION_CARD_SIZES.A5;
+    return { label: activeArtwork?.card_size || 'A5', widthMm: activeArtwork?.orientation === 'landscape' ? dimensions.h : dimensions.w, heightMm: activeArtwork?.orientation === 'landscape' ? dimensions.w : dimensions.h };
+  }, [activeArtwork?.card_size, activeArtwork?.orientation]);
+  const beforeBackgroundUpload = async (file: File) => {
+    const url = URL.createObjectURL(file);
+    try {
+      const approved = await confirmFit(url, cardPaper);
+      approvedUpload.current = approved ? cardPaper : null;
+      return approved;
+    } finally { URL.revokeObjectURL(url); }
+  };
+  const updateCardSettings = async (updates: Partial<import('@/hooks/useInvitationCardSettings').InvitationCardSettings>) => {
+    if (updates.background_image_url && updates.background_image_url !== activeArtwork?.background_image_url) {
+      if (approvedUpload.current) { rememberFit(updates.background_image_url, approvedUpload.current); approvedUpload.current = null; }
+      if (!await confirmFit(updates.background_image_url, cardPaper)) return false;
+      updates = { ...updates, background_image_type: 'full', background_image_x_position: 50, background_image_y_position: 50 };
+    }
+    return updateSettings(updates);
+  };
 
   // Generate QR when qr_config changes
   useEffect(() => {
@@ -89,6 +117,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
       return;
     }
     let cancelled = false;
+    setQrDataUrl(null);
     generateInvitationQR(qrEvent.slug, qrEvent.id).then(url => {
       if (!cancelled) setQrDataUrl(url);
     }).catch(() => {
@@ -125,61 +154,33 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
     };
   }, [selectedEvent]);
 
-  const CARD_SIZE_MM: Record<string, { w: number; h: number }> = {
-    A4: { w: 210, h: 297 },
-    A5: { w: 148, h: 210 },
-    A6: { w: 105, h: 148 },
-  };
+  const CARD_SIZE_MM = INVITATION_CARD_SIZES;
 
   const handleDownloadPDF = useCallback(async () => {
     if (!activeArtwork) return;
-    setExporting(true);
     try {
-      const size = CARD_SIZE_MM[activeArtwork.card_size] || CARD_SIZE_MM.A4;
+      const size = CARD_SIZE_MM[activeArtwork.card_size as InvitationCardSize] || CARD_SIZE_MM.A4;
       const isLandscape = activeArtwork.orientation === 'landscape';
       const widthMm = isLandscape ? size.h : size.w;
       const heightMm = isLandscape ? size.w : size.h;
 
-      const textZones = (activeArtwork.text_zones || []) as any[];
-      const customText: Record<string, string> = {};
-      const customStyles: Record<string, any> = {};
-      textZones.forEach((z: any) => {
-        if (z.id) {
-          if (z.text) {
-            customText[z.id] = z.text;
-          } else if (z.type === 'preset' && z.preset_field && (eventData as any)[z.preset_field]) {
-            customText[z.id] = (eventData as any)[z.preset_field];
-          } else if (z.default_text) {
-            customText[z.id] = z.default_text;
-          }
-          customStyles[z.id] = {};
-        }
-      });
-
-      const eventName = selectedEvent?.name || 'Event';
-      const pdfFileName = `Invitations-WeddingWaitress-${eventName}.pdf`;
-
-      const { exportInvitationPDF } = await import('@/lib/invitationExporter');
-      await exportInvitationPDF({
-        backgroundUrl: activeArtwork.background_image_url || '',
-        orientation: activeArtwork.orientation,
-        widthMm,
-        heightMm,
-        textZones,
-        customText,
-        customStyles,
-        eventData: eventData as Record<string, string>,
-        qrConfig: activeArtwork.qr_config as any,
-        qrDataUrl: qrDataUrl || undefined,
-      }, undefined, pdfFileName);
+      if (activeArtwork.qr_config?.enabled && !qrDataUrl) throw new Error('Wait for the QR code to finish loading before exporting.');
+      if (activeArtwork.background_image_type === 'full' && activeArtwork.background_image_url && !await confirmFit(activeArtwork.background_image_url, cardPaper, activeArtwork.background_image_x_position, activeArtwork.background_image_y_position)) return;
+      setExporting(true);
+      setSelectedZoneId(null);
+      await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      if (!previewDocumentRef.current) throw new Error('The card preview is not ready.');
+      const { exportInvitationPreviewPDF } = await import('@/lib/invitationPreviewPdfExporter');
+      await exportInvitationPreviewPDF({ pageElement: previewDocumentRef.current, widthMm, heightMm },
+        CARD_TYPE_LABELS[activeArtwork.card_type] + '-WeddingWaitress-' + (selectedEvent?.name || 'Event') + '.pdf');
       toast({ title: 'PDF downloaded', description: 'Your invitation PDF has been saved.' });
     } catch (err) {
       console.error('PDF export error:', err);
-      toast({ title: 'Export failed', description: 'Could not generate the PDF. Please try again.', variant: 'destructive' });
+      toast({ title: 'Export failed', description: err instanceof Error ? err.message : 'Could not generate the PDF. Please try again.', variant: 'destructive' });
     } finally {
       setExporting(false);
     }
-  }, [activeArtwork, eventData, qrDataUrl]);
+  }, [activeArtwork, qrDataUrl, selectedEvent?.name, confirmFit, cardPaper]);
 
 
   const filteredArtworks = useMemo(
@@ -187,34 +188,40 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
     [artworks, activeCardType]
   );
 
-  const ALLOWED_SIZES: Record<CardType, string[]> = {
-    invitation: ['A4'],
-    save_the_date: ['A4', 'A5'],
-    thank_you: ['A4', 'A5', 'A6'],
+  const ALLOWED_SIZES = ALLOWED_INVITATION_SIZES;
+  const [preferredSizes, setPreferredSizes] = useState(DEFAULT_INVITATION_SIZES);
+  const selectedSize = activeArtwork?.card_type === activeCardType ? activeArtwork.card_size : preferredSizes[activeCardType];
+  const chooseSize = async (size: InvitationCardSize) => {
+    if (activeArtwork?.card_type === activeCardType && activeArtwork.background_image_type === 'full' && activeArtwork.background_image_url) {
+      const d = INVITATION_CARD_SIZES[size];
+      const paper = { label: size, widthMm: activeArtwork.orientation === 'landscape' ? d.h : d.w, heightMm: activeArtwork.orientation === 'landscape' ? d.w : d.h };
+      if (!await confirmFit(activeArtwork.background_image_url, paper, activeArtwork.background_image_x_position, activeArtwork.background_image_y_position)) return;
+    }
+    setPreferredSizes(prev => ({ ...prev, [activeCardType]: size }));
+    if (activeArtwork?.card_type === activeCardType) void updateSettings({ card_size: size });
   };
-
-  const DEFAULT_SIZE: Record<CardType, string> = {
-    invitation: 'A4',
-    save_the_date: 'A5',
-    thank_you: 'A6',
+  const chooseCardType = (kind: CardType) => {
+    setSelectedZoneId(null);
+    setActiveCardType(kind);
+    setActiveArtwork(artworks.find(a => a.card_type === kind)?.id || null);
   };
 
   const handleOpenCreateDialog = () => {
     const sizes = ALLOWED_SIZES[activeCardType];
     if (sizes.length === 1) {
-      // Auto-create for invitation (A4 only)
+      // One supported size needs no size dialog
       createArtwork(activeCardType, `New ${CARD_TYPE_LABELS[activeCardType]}`, sizes[0]);
       return;
     }
     setNewArtworkName(`New ${CARD_TYPE_LABELS[activeCardType]}`);
-    setNewArtworkSize(DEFAULT_SIZE[activeCardType]);
+    setNewArtworkSize(preferredSizes[activeCardType]);
     setCreateDialogOpen(true);
   };
 
   const handleConfirmCreate = async () => {
     const name = newArtworkName.trim() || `New ${CARD_TYPE_LABELS[activeCardType]}`;
-    await createArtwork(activeCardType, name, newArtworkSize);
-    setCreateDialogOpen(false);
+    const created = await createArtwork(activeCardType, name, newArtworkSize);
+    if (created) setCreateDialogOpen(false);
   };
 
   const handleEventChange = (eventId: string) => {
@@ -258,36 +265,17 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   }
 
   return (
-    <div className={`${styles.page} space-y-6 ww-invitations-light`}>
+    <div {...(exporting ? { inert: "" } as any : {})} className={`${styles.page} space-y-6 ww-invitations-light`}>
+      {imageFitDialog}
       {/* Combined Header Box */}
       <Card className={`${styles.headerPanel} border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}>
         <CardContent className="space-y-4 pt-6">
           <div className="text-left">
             <h1 className="flex items-center gap-2 text-2xl font-bold text-foreground"><MailOpen className="h-6 w-6 text-primary shrink-0" strokeWidth={1.8} aria-hidden="true" />Invitations, Save the Date & Thank You Cards</h1>
             <p className="text-sm text-muted-foreground mt-1">
-              Create professional invitations (A4), save the dates (A4/A5), and thank you cards (A4/A5/A6) to send digitally or download to print
+              Create invitations and save the dates (A4/A5), and thank you cards (A6) to send digitally or download to print
             </p>
           </div>
-
-          {selectedEvent && (
-            <div className="flex flex-wrap items-start justify-between gap-4">
-              <div className={`${styles.guidelinesPanel} flex-1 border border-primary rounded-xl p-4 text-sm space-y-2`}>
-                <p className="flex items-center gap-2 font-medium text-green-600">
-                  <BadgeCheck className="h-[18px] w-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
-                  Manage your A4-A5 invitations and cards
-                </p>
-                <div className="text-muted-foreground space-y-1 mt-3">
-                  <p>• All exports are 300 DPI for professional quality</p>
-                  <p>• PDF exports maintain exact A4/A5 dimensions</p>
-                  <p>• Image exports are 2480×3508 pixels (A4 @ 300 DPI)</p>
-                  <p>• Send digitally or download to print at home or your local printer</p>
-                  <p>• Background images must be smaller than 5MB</p>
-                </div>
-              </div>
-            </div>
-          )}
-
-          <div className={styles.divider} />
 
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-8 lg:flex-nowrap pt-2">
             <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4 w-full lg:w-auto">
@@ -318,10 +306,10 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             </div>
 
             {selectedEvent && (
-              <div className={`${styles.exportPanel} border border-primary rounded-xl p-3 flex flex-col gap-2 w-full lg:w-auto lg:whitespace-nowrap`}>
+              <div data-export-controls-panel className={`${styles.exportPanel} border border-primary rounded-xl p-3 flex flex-col gap-2 w-full lg:w-auto lg:whitespace-nowrap`}>
                 <div className="text-sm">
-                  <span className="inline-flex items-center gap-1.5 font-medium"><Printer className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />Export Controls</span>
-                  <span className="text-muted-foreground ml-2">Download your invitations as PDF ready for printing.</span>
+                  <span data-export-controls-heading><ExportControlsPrinter size={16} strokeWidth={2} aria-hidden="true" />Export Controls</span>
+
                 </div>
                 <div className="flex items-center gap-2">
                   <button
@@ -336,25 +324,43 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
               </div>
             )}
           </div>
-        </CardContent>
-      </Card>
 
-      {!selectedEventId && (
-        <Card className="ww-box p-12 text-center">
-          <MailOpen className="w-16 h-16 mx-auto text-muted-foreground mb-4" strokeWidth={1.8} aria-hidden="true" />
-          <CardTitle className="text-xl mb-2 text-muted-foreground">Select an Event</CardTitle>
-          <CardDescription className="text-base">
-            Choose an event above to start designing your invitations
-          </CardDescription>
-        </Card>
-      )}
+
+          {selectedEvent && (
+            <div className={`${styles.guidelinesRow} flex flex-wrap items-start justify-between gap-4`}>
+              <div className={`${styles.guidelinesPanel} flex-1 border border-primary rounded-xl p-4 text-sm grid md:grid-cols-2 gap-4`}><div>
+                <p className={`${styles.manageHeading} flex items-center gap-2 font-medium text-green-600`}>
+                  <BadgeCheck className="h-[18px] w-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
+                  Manage your invitations and cards
+                </p>
+                <div className="text-muted-foreground space-y-1 mt-3">
+                  <p>• All exports are 300 DPI for professional quality</p>
+                  <p>• PDFs use your selected A4, A5 or A6 dimensions</p>
+                  <p>• The downloaded PDF matches your card preview</p>
+                  <p>• Download a PDF to share digitally or print</p>
+                  <p>• Background images must be smaller than 5MB</p>
+                </div>
+                </div>
+                <div className={styles.sizeOptions} role="group" aria-label={CARD_TYPE_LABELS[activeCardType] + ' card size'}>
+                  {ALLOWED_SIZES[activeCardType].map(size => (
+                    <button key={size} type="button" aria-pressed={selectedSize === size}
+                      className={styles.sizeOption} onClick={() => chooseSize(size)} disabled={exporting}>
+                      <strong>{size}</strong>
+                      <span>{INVITATION_CARD_SIZES[size].w} × {INVITATION_CARD_SIZES[size].h} mm</span>
+                      <span>{size === 'A6' ? 'Thank You · fits a C6 envelope' : size === 'A5' ? 'Compact invitation or save the date' : 'Larger invitation or save the date'}</span>
+                    </button>
+                  ))}
+                </div>
+              </div>
+            </div>
+          )}
 
       {/* Artwork Management Bar */}
       {selectedEventId && selectedEvent && !settingsLoading && (
-        <Card className={`${styles.managementPanel} border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}>
-          <CardContent className="pt-6 space-y-4">
+        <div className={styles.managementPanel}>
+          <div className="space-y-4">
             {/* Card Type Tabs */}
-            <Tabs value={activeCardType} onValueChange={(v) => setActiveCardType(v as CardType)}>
+            <Tabs value={activeCardType} onValueChange={(v) => chooseCardType(v as CardType)}>
               <TabsList className="grid w-full grid-cols-3 max-sm:h-auto max-sm:gap-1 max-sm:p-1">
                 <TabsTrigger value="invitation" className="max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5 gap-1.5"><MailOpen className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Invitation</TabsTrigger>
                 <TabsTrigger value="save_the_date" className="max-sm:text-[13px] max-sm:px-1 max-sm:py-1.5 gap-1.5"><CalendarHeart className="h-[17px] w-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />Save the Date</TabsTrigger>
@@ -455,7 +461,29 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                 No {CARD_TYPE_LABELS[activeCardType].toLowerCase()} designs yet. Click the button above to create one.
               </p>
             )}
-          </CardContent>
+          </div>
+        </div>
+      )}
+
+      {/* Premium info bar — mirrors Seating Chart Signs */}
+      {selectedEventId && selectedEvent && !settingsLoading && activeArtwork && (
+        <div className={`${styles.infoStrip} rounded-xl shadow-soft px-5 py-4 flex items-center justify-center`}>
+          <p className="text-sm text-foreground/85 font-medium text-center">
+            Card layouts match the selected print size. <span className="mx-1">•</span> 300 DPI • Australian standard print sizes • Print-shop ready PDFs
+          </p>
+        </div>
+      )}
+
+        </CardContent>
+      </Card>
+
+      {!selectedEventId && (
+        <Card className="ww-box p-12 text-center">
+          <MailOpen className="w-16 h-16 mx-auto text-muted-foreground mb-4" strokeWidth={1.8} aria-hidden="true" />
+          <CardTitle className="text-xl mb-2 text-muted-foreground">Select an Event</CardTitle>
+          <CardDescription className="text-base">
+            Choose an event above to start designing your invitations
+          </CardDescription>
         </Card>
       )}
 
@@ -498,22 +526,18 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
         </DialogContent>
       </Dialog>
 
-      {/* Premium info bar — mirrors Seating Chart Signs */}
-      {selectedEventId && selectedEvent && !settingsLoading && activeArtwork && (
-        <div className={`${styles.infoStrip} rounded-xl shadow-soft px-5 py-4 flex items-center justify-center`}>
-          <p className="text-sm text-foreground/85 font-medium text-center">
-            Portrait print layouts optimised for professional wedding signage. <span className="mx-1">•</span> 300 DPI • Australian standard print sizes • Print-shop ready PDFs
-          </p>
-        </div>
-      )}
-
       {/* Bottom Section - Grid Layout */}
       {selectedEventId && selectedEvent && !settingsLoading && activeArtwork && (
-        <div className={`${styles.editorLayout} grid grid-cols-1 2xl:grid-cols-5 gap-6 items-start`}>
+        <div {...(exporting ? { inert: "" } as any : {})} className={`${styles.editorLayout} grid grid-cols-1 2xl:grid-cols-5 gap-6 items-start`}>
           <div className={`${styles.designerShell} 2xl:col-span-2`}>
             <InvitationCardCustomizer
+              headerTitle={"Invitations, Save the Date &\nThank You Cards Designer"}
+              key={activeArtwork.id}
               settings={activeArtwork}
-              onSettingsChange={updateSettings}
+              notes={activeArtwork.notes || ''}
+              onNotesChange={notes => updateSettings({ notes })}
+              onSettingsChange={updateCardSettings}
+              beforeBackgroundUpload={beforeBackgroundUpload}
               eventData={eventData}
               events={events}
               qrDataUrl={qrDataUrl}
@@ -525,9 +549,14 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             />
           </div>
           <div className={`${styles.previewStage} ww-invitations-preview 2xl:col-span-3 2xl:mt-12 w-full max-w-full mx-auto pb-6 max-sm:pb-2 max-sm:px-0 max-sm:overflow-x-auto max-sm:overflow-y-hidden md:max-2xl:overflow-hidden md:max-2xl:flex md:max-2xl:justify-center`}>
-            <div className="max-sm:w-max md:max-2xl:w-[210mm]">
-            <div className="max-sm:origin-top-left md:max-2xl:origin-top max-sm:w-[210mm] md:max-2xl:scale-[0.75] md:max-2xl:w-[210mm] md:max-2xl:-mb-[30%] mx-auto">
+            <div className="w-full min-w-0">
+            <div className="w-full min-w-0 mx-auto">
             <InvitationCardPreview
+              documentRef={previewDocumentRef}
+              documentId="invitation-card"
+              fitToContainer
+              fitToWidth
+              qrWhitePlate
               settings={activeArtwork}
               eventData={eventData}
               selectedZoneId={selectedZoneId}
@@ -584,7 +613,6 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                 setSelectedZoneId(newZone.id);
               }}
               qrDataUrl={qrDataUrl}
-              qrWhitePlate
               onQrConfigUpdate={(updates) => {
                 const current = activeArtwork?.qr_config || { enabled: false, x_percent: 50, y_percent: 90, size_percent: 15, rotation: 0, event_id: null };
                 updateSettings({ qr_config: { ...current, ...updates } });

@@ -15,7 +15,7 @@ import { orderPhotoBoothItems } from '@/lib/photoBoothSessions';
 
 export interface BrowseItem {
   id: string;
-  kind: 'photo' | 'video';
+  kind: 'photo' | 'video' | 'audio';
   mime_type: string;
   uploader_name: string | null;
   caption: string | null;
@@ -60,6 +60,7 @@ interface Props {
 }
 
 export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refreshKey = 0, eventName }) => {
+  const [messages, setMessages] = useState<Array<{id: string; uploader_name: string; message: string}>>([]);
   const [items, setItems] = useState<BrowseItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -99,6 +100,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
       const rows = (((data as any)?.items || []) as BrowseItem[]);
       if (!mounted.current) return;
       // Newest memories first for browsing, with each Photo Booth session shown strip-first.
+      setMessages(data?.guestbook_messages || []);
       setItems(orderBoothSessionsInPlace([...rows].reverse()));
       setError(null);
     } catch (e) {
@@ -193,7 +195,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
       downloadSignedUrl(current.signed_url, shared);
       return;
     }
-    const ext = current.kind === 'video' ? 'mp4' : 'jpg';
+    const ext = current.kind === 'audio' ? (current.mime_type.includes('mp4') ? 'm4a' : 'webm') : current.kind === 'video' ? 'mp4' : 'jpg';
     downloadSignedUrl(current.signed_url, `memory-${current.id.slice(0, 8)}.${ext}`);
   };
 
@@ -249,7 +251,13 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
         <p className={`text-sm mt-1 ${theme.mutedClass}`}>Tap a photo to view it full screen</p>
       </div>
 
-      {count === 0 ? (
+      {messages.length > 0 && <section aria-label="Shared Guestbook messages" className="grid gap-4 sm:grid-cols-2 mb-6">
+        {messages.map(message => <article key={message.id} className={`rounded-xl border p-4 ${theme.textClass}`}>
+          <p className="whitespace-pre-wrap break-words">{message.message}</p>
+          <p className="mt-3 text-sm">From {fullNameOf(message.uploader_name)}</p>
+        </article>)}
+      </section>}
+      {count === 0 && messages.length === 0 ? (
         <div className={`rounded-2xl border border-dashed p-10 text-center ${theme.isDark ? 'border-white/15 bg-white/5' : 'border-[#E0D3B8] bg-white/70'}`}>
           <ImageIcon className="h-8 w-8 mx-auto mb-3" style={{ color: accent }} />
           <p className={`text-sm font-medium ${theme.textClass}`}>No memories yet</p>
@@ -266,7 +274,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAt(i); } }}
                 className={`relative aspect-square w-full overflow-hidden rounded-xl border cursor-pointer group ${theme.isDark ? 'border-white/10 bg-white/5' : 'border-[#E8E1D6] bg-[#F6F1E9]'}`}
               >
-                {it.kind === 'video' ? (
+                {it.kind === 'audio' ? <span className="flex h-full items-center justify-center text-white">▶ Audio message</span> : it.kind === 'video' ? (
                   <>
                     <video
                       src={`${it.signed_url}#t=0.1`}
@@ -297,7 +305,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
       {current && createPortal(
         <div ref={lightboxRef} className="fixed inset-0 z-[100] bg-black" role="dialog" aria-modal="true">
           {/* Full-bleed media */}
-          {current.kind === 'video' ? (
+          {current.kind === 'audio' ? <audio src={current.signed_url} controls autoPlay className="absolute top-1/2 left-[10%] w-[80%]" /> : current.kind === 'video' ? (
             <video
               key={current.id}
               src={current.signed_url}

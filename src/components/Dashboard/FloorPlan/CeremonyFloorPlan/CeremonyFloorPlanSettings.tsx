@@ -99,8 +99,10 @@ export const CeremonyFloorPlanSettings = ({ floorPlan, totalAttending, onUpdate 
             <UsersRound aria-hidden="true" />
             Total Attending: <strong>{totalAttending}</strong>
           </span>
-          {' '}
-          <span className={styles.totalContext}>(Bride &amp; Groom + Celebrant + Bridal Party + Family &amp; Friends)</span>
+          <span className={styles.totalLabel}><Armchair aria-hidden="true" />Family &amp; guest chairs: <strong>{floorPlan.total_rows * floorPlan.chairs_per_row * 2}</strong> ({floorPlan.total_rows * floorPlan.chairs_per_row} per side)</span>
+          <span className={styles.totalLabel}><Heart aria-hidden="true" />Couple: <strong>2</strong></span>
+          <span className={styles.totalLabel}><UserRound aria-hidden="true" />Celebrant: <strong>1</strong></span>
+          <span className={styles.totalLabel}><HeartHandshake aria-hidden="true" />Bridal party: <strong>{floorPlan.bridal_party_count_left + floorPlan.bridal_party_count_right}</strong></span>
         </p>
       </CardHeader>
       <CardContent className="space-y-5">

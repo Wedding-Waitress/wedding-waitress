@@ -12,7 +12,12 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
-import { X } from 'lucide-react';
+import { X, Smile, Frown } from 'lucide-react';
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogAction, AlertDialogCancel } from '@/components/ui/alert-dialog';
+import { normalizeRsvp } from '@/lib/rsvp';
+import { GuestRelationField } from './GuestRelationField';
+import { GuestAdditionalFields, AdditionalGuestDraft } from './GuestAdditionalFields';
+import { guestDietaryOptions } from './guestDietaryOptions';
 import {
   Select,
   SelectContent,
@@ -22,7 +27,8 @@ import {
 } from '@/components/ui/select';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { Loader2, Users } from 'lucide-react';
+import { Loader2 } from 'lucide-react';
+import styles from './GuestUpdateModal.module.css';
 
 interface Guest {
   id: string;
@@ -62,6 +68,7 @@ interface GuestUpdateModalProps {
   allGuests?: any[];
   songRequestsEnabled?: boolean;
   songRequestsMax?: number;
+  allowRsvp?: boolean;
 }
 
 interface SongRequestEntry {
@@ -70,19 +77,6 @@ interface SongRequestEntry {
   music_link: string;
   note: string;
 }
-
-const dietaryOptions = [
-  'NA',
-  'Vegetarian',
-  'Vegan',
-  'Gluten Free',
-  'Dairy Free',
-  'Nut Allergy',
-  'Shellfish Allergy',
-  'Halal',
-  'Kosher',
-  'Other'
-];
 
 export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   guest,
@@ -97,9 +91,15 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   allGuests = [],
   songRequestsEnabled = false,
   songRequestsMax = 0,
+  allowRsvp = true,
 }) => {
   const isMobile = useIsMobile();
   const [saving, setSaving] = useState(false);
+  const [context, setContext] = useState<any>(null);
+  const [contextError, setContextError] = useState('');
+  const [additional, setAdditional] = useState<AdditionalGuestDraft[]>([]);
+  const [relation, setRelation] = useState({relation_partner:'',relation_role:'',custom_relation:''});
+  const [confirmRsvp,setConfirmRsvp]=useState(false);
   const [initialRsvp, setInitialRsvp] = useState('Pending');
   const [formData, setFormData] = useState({
     rsvp: 'Pending',
@@ -157,95 +157,39 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
 
 
   useEffect(() => {
-    if (guest) {
-      const currentRsvp = guest.rsvp || 'Pending';
-      setInitialRsvp(currentRsvp);
-      setFormData({
-        rsvp: currentRsvp,
-        first_name: guest.first_name || '',
-        last_name: guest.last_name || '',
-        mobile: guest.mobile || '',
-        email: guest.email || '',
-        dietary: guest.dietary || 'NA',
-        notes: guest.notes || '',
-        mailing_address: guest.mailing_address || '',
-        mailing_suburb: guest.mailing_suburb || '',
-        mailing_state: guest.mailing_state || '',
-        mailing_postcode: guest.mailing_postcode || ''
-      });
+    let cancelled=false;
+    if (!open || !guest) return;
+    setContext(null); setContextError(''); setAdditional([]); setConfirmRsvp(false);
+    (supabase as any).rpc('get_guest_details_form',{_event_id:guest.event_id||event?.id,_guest_id:guest.id}).then(({data,error}:any)=>{
+      if(cancelled)return;
+      if(error||!data){setContextError('Unable to load your details. Close this form and try again.');return;}
+      setContext(data);
+      const g=data.guest;
+      setInitialRsvp(g.rsvp||'Pending');
+      setFormData(prev=>Object.fromEntries(Object.keys(prev).map(k=>[k,g[k]??(k==='dietary'?'NA':'')])) as typeof prev);
+      setRelation({relation_partner:g.relation_partner||'',relation_role:g.relation_role||'',custom_relation:''});
+    });
+    return ()=>{cancelled=true;};
+  },[open,guest?.id,event?.id]);
+
+  const handleSave = async (confirmed = false) => {
+    if (!guest || !context?.can_edit) return;
+    if (context.allow_name_edit && (!formData.first_name.trim() || !formData.last_name.trim())) {
+      toast({title:'First and last name are required',variant:'destructive'});return;
     }
-}, [guest, open]);
-
-  // Fetch the freshest guest row when the modal opens to avoid stale data
-  useEffect(() => {
-    const fetchLatestGuest = async () => {
-      if (!open || !guest?.id) return;
-      const { data, error } = await supabase
-        .from('guests')
-        .select('first_name, last_name, mobile, email, dietary, notes, rsvp, mailing_address, mailing_suburb, mailing_state, mailing_postcode')
-        .eq('id', guest.id)
-        .maybeSingle();
-      if (!error && data) {
-        const currentRsvp = data.rsvp || 'Pending';
-        setInitialRsvp(currentRsvp);
-        setFormData({
-          rsvp: currentRsvp,
-          first_name: data.first_name || '',
-          last_name: data.last_name || '',
-          mobile: data.mobile || '',
-          email: data.email || '',
-          dietary: data.dietary || 'NA',
-          notes: data.notes || '',
-          mailing_address: (data as any).mailing_address || '',
-          mailing_suburb: (data as any).mailing_suburb || '',
-          mailing_state: (data as any).mailing_state || '',
-          mailing_postcode: (data as any).mailing_postcode || ''
-        });
-      }
-    };
-    fetchLatestGuest();
-  }, [open, guest?.id]);
-
-  const handleSave = async () => {
-    if (!guest) return;
-
+    if (additional.some(g=>!g.first_name.trim()||!g.last_name.trim()||!g.group_choice)) {
+      toast({title:'Complete each additional guest’s name and group choice',variant:'destructive'});return;
+    }
+    if (!confirmed && normalizeRsvp(initialRsvp)!=='Pending' && normalizeRsvp(formData.rsvp)!==normalizeRsvp(initialRsvp)) {setConfirmRsvp(true);return;}
+    setConfirmRsvp(false);
     setSaving(true);
     try {
-      console.log('🔄 [Guest Update] Starting update for guest:', guest.id);
-      console.log('📝 [Guest Update] Form data:', {
-        rsvp: formData.rsvp,
-        dietary: formData.dietary,
-        mobile: formData.mobile,
-        email: formData.email,
-        notes: formData.notes
+      const {data,error}=await (supabase as any).rpc('save_guest_details_form',{
+        _event_id:guest.event_id||event?.id,_guest_id:guest.id,
+        _details:{...formData,...relation},_additional:additional,
       });
-
-      // Use RPC function to bypass RLS for public updates
-      const addressesEnabled = !!event?.collect_guest_addresses;
-      const { data, error } = await supabase.rpc('update_guest_rsvp_public', {
-        _guest_id: guest.id,
-        _event_id: guest.event_id || event?.id,
-        _rsvp: formData.rsvp !== initialRsvp ? formData.rsvp : null,
-        _dietary: formData.dietary,
-        _mobile: formData.mobile?.trim() || null,
-        _email: formData.email?.trim() || null,
-        _notes: formData.notes?.trim() || null,
-        _mailing_address: addressesEnabled ? (formData.mailing_address?.trim() || null) : null,
-        _mailing_suburb: addressesEnabled ? (formData.mailing_suburb?.trim() || null) : null,
-        _mailing_state: addressesEnabled ? (formData.mailing_state?.trim() || null) : null,
-        _mailing_postcode: addressesEnabled ? (formData.mailing_postcode?.trim() || null) : null
-      });
-
-      if (error) {
-        console.error('❌ [Guest Update] RPC error:', error);
-        throw error;
-      }
-      if (!data) {
-        console.error('❌ [Guest Update] No data returned - event may not allow public updates');
-        throw new Error('Update failed - event may not allow public updates');
-      }
-
-      console.log('✅ [Guest Update] Successfully updated guest data');
+      if(error)throw error;
+      if(!data)throw new Error('Unable to save guest details');
 
       // Submit song requests if feature enabled
       if (songRequestsEnabled && songRequestsMax > 0 && guest) {
@@ -276,8 +220,43 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
       console.error('❌ [Guest Update] Fatal error:', error);
       toast({
         title: 'Error',
-        description: 'Failed to update information. Please try again.',
+        description: error instanceof Error ? error.message : (error as any)?.message || 'Failed to update information. Please try again.',
         variant: 'destructive'
+      });
+    } finally {
+      setSaving(false);
+    }
+  };
+
+  const handleConfirmDecline = async () => {
+    if (!guest || !context?.can_edit || !context?.can_rsvp) return;
+    setSaving(true);
+    try {
+      const declineDetails: Record<string, string> = { rsvp: 'Not Attending' };
+      if (context.allow_name_edit) {
+        declineDetails.first_name = context.guest.first_name || '';
+        declineDetails.last_name = context.guest.last_name || '';
+      }
+      const { data, error } = await (supabase as any).rpc('save_guest_details_form', {
+        _event_id: guest.event_id || event?.id,
+        _guest_id: guest.id,
+        _details: declineDetails,
+        _additional: [],
+      });
+      if (error) throw error;
+      if (!data) throw new Error('Unable to confirm your RSVP decline');
+      toast({
+        title: 'RSVP decline confirmed',
+        description: 'Your response has been sent to the event organiser.',
+      });
+      onUpdate();
+      onOpenChange(false);
+    } catch (error) {
+      console.error('❌ [Guest RSVP Decline] Fatal error:', error);
+      toast({
+        title: 'Unable to confirm decline',
+        description: error instanceof Error ? error.message : (error as any)?.message || 'Please try again.',
+        variant: 'destructive',
       });
     } finally {
       setSaving(false);
@@ -290,11 +269,31 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   const headerSubtitle = (
     <div data-live-body className="text-sm text-foreground space-y-1">
       <span className="block">{helperText || "Please update, edit your details & save below."}</span>
-      <span className="block">You're info will automatically be sent to the event organiser</span>
+      <span className="block">Your response will be sent to the event organiser when you save your details or confirm your decline.</span>
     </div>
   );
 
-  const formBody = !isEditable ? (
+  const groupedGuestCount = context?.guest?.family_group
+    ? allGuests.filter((candidate) => (
+        candidate.id !== guest.id
+        && candidate.family_group === context.guest.family_group
+      )).length
+    : 0;
+  const categoryCount = 1
+    + groupedGuestCount
+    + additional.filter((candidate) => candidate.group_choice === 'group').length;
+  const selectedCategoryIndex = categoryCount > 2 ? 2 : categoryCount === 2 ? 1 : 0;
+  const categoryOptions = [
+    { label: 'Individual', value: 'individual' as const, className: styles.categoryIndividual },
+    { label: 'Couple', value: 'couple' as const, className: styles.categoryCouple },
+    { label: 'Family', value: 'family' as const, className: styles.categoryFamily },
+  ];
+  const activeCategory = categoryOptions[selectedCategoryIndex];
+  const currentRsvp = normalizeRsvp(formData.rsvp);
+  const canChangeRsvp = Boolean(allowRsvp && context?.can_rsvp);
+  const detailsUnlocked = !allowRsvp || !context?.can_rsvp || currentRsvp === 'Attending';
+
+  const formBody = contextError ? <p role="alert">{contextError}</p> : !context ? <p>Loading your details…</p> : (!isEditable || !context.can_edit) ? (
     <div className="text-center space-y-2">
       <p className="text-sm font-medium text-destructive">
         RSVP date has passed. Please contact the organiser to make changes.
@@ -302,6 +301,72 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
     </div>
   ) : (
     <div className="space-y-4">
+      {allowRsvp && (
+        <section className="space-y-3">
+          <div className={styles.rsvpStatusPanel}>
+            <Label className={styles.rsvpStatusLabel}>RSVP Status: {formData.rsvp}</Label>
+            {context.can_rsvp && <div className={styles.rsvpActionRow}>
+            <Button
+              type="button"
+              aria-pressed={normalizeRsvp(formData.rsvp) === 'Attending'}
+              className={`w-full bg-green-500 text-white ${styles.actionButton} ${styles.saveButton}`}
+              onClick={() => setFormData({ ...formData, rsvp: 'Attending' })}
+            >
+              <Smile aria-hidden="true" className="mr-2 shrink-0 text-white" />
+              Accept
+            </Button>
+            <Button
+              type="button"
+              variant="destructive"
+              aria-pressed={normalizeRsvp(formData.rsvp) === 'Not Attending'}
+              className={`w-full bg-red-500 text-white ${styles.actionButton} ${styles.cancelButton}`}
+              onClick={() => setFormData({ ...formData, rsvp: 'Not Attending' })}
+            >
+              <Frown aria-hidden="true" className="mr-2 shrink-0 text-white" />
+              Decline
+            </Button>
+            </div>}
+          </div>
+          {!context.can_rsvp && <p className="text-sm">RSVP changes are currently closed by the organiser. You can still review and update the available details below.</p>}
+        </section>
+      )}
+      {canChangeRsvp && currentRsvp === 'Pending' && <p className="text-center text-sm font-medium">Please choose Accept or Decline to continue.</p>}
+      {canChangeRsvp && currentRsvp === 'Not Attending' && (
+        <section className="space-y-3 rounded-xl border border-red-500/60 p-4">
+          {normalizeRsvp(initialRsvp) === 'Not Attending' ? (
+            <p className="text-sm">Your decline is confirmed. Choose Accept if you need to change your response.</p>
+          ) : (
+            <>
+              <p className="text-sm">Confirming will update only your RSVP. It will not change other guests, your group, or seating.</p>
+              <Button type="button" variant="destructive" disabled={saving} onClick={handleConfirmDecline} className={`w-full bg-red-500 text-white ${styles.actionButton} ${styles.cancelButton}`}>
+                {saving ? <Loader2 className="mr-2 animate-spin text-white" /> : <Frown aria-hidden="true" className="mr-2 shrink-0 text-white" />}
+                Confirm decline
+              </Button>
+            </>
+          )}
+        </section>
+      )}
+      {detailsUnlocked && <>
+      <div className="space-y-4 rounded-xl border border-primary/40 bg-background p-3">
+      {context.allow_name_edit && (
+        <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+          <div className="space-y-2">
+            <Label htmlFor="first_name">First Name *</Label>
+            <Input id="first_name" type="text" required maxLength={100} value={formData.first_name}
+              onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
+              disabled={!isEditable}
+              className="border-primary w-full" />
+          </div>
+          <div className="space-y-2">
+            <Label htmlFor="last_name">Last Name *</Label>
+            <Input id="last_name" type="text" required maxLength={100} value={formData.last_name}
+              onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
+              disabled={!isEditable}
+              className="border-primary w-full" />
+          </div>
+        </div>
+      )}
+      <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
       <div className="space-y-2">
         <Label htmlFor="email">Email Address</Label>
         <Input id="email" type="email" value={formData.email}
@@ -316,25 +381,44 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
           placeholder="0411569505" disabled={!isEditable}
           className="border-primary w-full" />
       </div>
+      </div>
+      <GuestRelationField context={context} value={relation} onChange={setRelation}/>
+      <div className="space-y-2">
+        <Label htmlFor="dietary">Dietary Requirements</Label>
+        <Select value={formData.dietary}
+          onValueChange={(value) => setFormData({ ...formData, dietary: value })}
+          disabled={!isEditable}>
+          <SelectTrigger id="dietary" className="border-primary w-full">
+            <SelectValue />
+          </SelectTrigger>
+          <SelectContent className="ww-public-live-menu">
+            {guestDietaryOptions.map((option) => (
+              <SelectItem key={option} value={option}>{option}</SelectItem>
+            ))}
+          </SelectContent>
+        </Select>
+      </div>
       {event?.collect_guest_addresses && (
-        <>
-          <div className="space-y-2">
-            <Label htmlFor="mailing_address">Mailing Address</Label>
-            <Input id="mailing_address" type="text" value={formData.mailing_address}
-              onChange={(e) => setFormData({ ...formData, mailing_address: e.target.value })}
-              placeholder="14 Somerville Road" disabled={!isEditable}
-              maxLength={200}
-              className="border-primary w-full" />
+        <div className="space-y-3">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
+            <div className="space-y-2">
+              <Label htmlFor="mailing_address">Mailing Address</Label>
+              <Input id="mailing_address" type="text" value={formData.mailing_address}
+                onChange={(e) => setFormData({ ...formData, mailing_address: e.target.value })}
+                placeholder="14 Somerville Road" disabled={!isEditable}
+                maxLength={200}
+                className="border-primary w-full" />
+            </div>
+            <div className="space-y-2">
+              <Label htmlFor="mailing_suburb">Suburb</Label>
+              <Input id="mailing_suburb" type="text" value={formData.mailing_suburb}
+                onChange={(e) => setFormData({ ...formData, mailing_suburb: e.target.value })}
+                placeholder="Sunshine West" disabled={!isEditable}
+                maxLength={100}
+                className="border-primary w-full" />
+            </div>
           </div>
-          <div className="space-y-2">
-            <Label htmlFor="mailing_suburb">Suburb</Label>
-            <Input id="mailing_suburb" type="text" value={formData.mailing_suburb}
-              onChange={(e) => setFormData({ ...formData, mailing_suburb: e.target.value })}
-              placeholder="Sunshine West" disabled={!isEditable}
-              maxLength={100}
-              className="border-primary w-full" />
-          </div>
-          <div className="grid grid-cols-2 gap-4">
+          <div className="grid grid-cols-1 sm:grid-cols-2 gap-4">
             <div className="space-y-2">
               <Label htmlFor="mailing_state">State</Label>
               <Input id="mailing_state" type="text" value={formData.mailing_state}
@@ -352,23 +436,26 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
                 className="border-primary w-full" />
             </div>
           </div>
-        </>
+        </div>
       )}
-      <div className="space-y-2">
-        <Label htmlFor="dietary">Dietary Requirements</Label>
-        <Select value={formData.dietary}
-          onValueChange={(value) => setFormData({ ...formData, dietary: value })}
-          disabled={!isEditable}>
-          <SelectTrigger id="dietary" className="border-primary w-full">
-            <SelectValue />
-          </SelectTrigger>
-          <SelectContent className="ww-public-live-menu">
-            {dietaryOptions.map((option) => (
-              <SelectItem key={option} value={option}>{option}</SelectItem>
-            ))}
-          </SelectContent>
-        </Select>
       </div>
+      <GuestAdditionalFields
+        members={[guest,...allGuests.filter(g=>g.id!==guest.id&&g.family_group&&g.family_group===context.guest.family_group)]}
+        drafts={additional}
+        onChange={setAdditional}
+        canAdd={context.can_add}
+        category={activeCategory.value}
+        className={styles.groupSection}
+        headingClassName={styles.groupSectionHeading}
+        categorySelector={<div className="space-y-2">
+          <Label>Guest Category</Label>
+          <div className={`flex rounded-full border border-primary p-1 ${styles.categorySelector}`}>
+            {categoryOptions.map((option, index) => (
+              <span key={option.label} data-selected={index === selectedCategoryIndex} className={`flex-1 rounded-full py-2 text-center ${styles.categoryOption} ${option.className}`}>{option.label}</span>
+            ))}
+          </div>
+        </div>}
+      />
       {songRequestsEnabled && songRequestsMax > 0 && isEditable && (
         <div className="space-y-3">
           <div className="space-y-1">
@@ -421,63 +508,25 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
             rows={3} disabled={!isEditable} className="border-primary w-full" />
         </div>
       )}
+      </>}
 
-      {allowNameEdit && (
-        <div className="grid grid-cols-2 gap-4">
-          <div className="space-y-2">
-            <Label htmlFor="first_name">First Name</Label>
-            <Input id="first_name" value={formData.first_name}
-              onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-              placeholder="First name" />
-          </div>
-          <div className="space-y-2">
-            <Label htmlFor="last_name">Last Name</Label>
-            <Input id="last_name" value={formData.last_name}
-              onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-              placeholder="Last name" />
-          </div>
-        </div>
-      )}
-      {(() => {
-        if (!guest?.family_group || allGuests.length === 0) return null;
-        const groupMembers = allGuests.filter(
-          (g: any) => g.family_group === guest.family_group && g.id !== guest.id
-        );
-        if (groupMembers.length === 0) return null;
-        const guestFullName = `${guest.first_name} ${guest.last_name || ''}`.trim();
-        const groupType = groupMembers.length === 1 ? 'Couple' : 'Family';
-        return (
-          <div className="border border-primary rounded-xl p-3 space-y-2 bg-primary/5">
-            <div className="flex items-center gap-2">
-              <Users className="w-4 h-4 text-primary" />
-              <p className="text-sm font-medium text-foreground">
-                {guestFullName} is part of a {groupType}
-              </p>
-            </div>
-            <ul className="space-y-1 pl-6">
-              {groupMembers.map((m: any) => (
-                <li key={m.id} className="text-sm text-foreground">
-                  • {m.first_name} {m.last_name || ''}
-                </li>
-              ))}
-            </ul>
-          </div>
-        );
-      })()}
+      <AlertDialog open={confirmRsvp} onOpenChange={setConfirmRsvp}><AlertDialogContent className="ww-public-live-dialog z-[11000]"><AlertDialogHeader><AlertDialogTitle>RSVP Already Submitted</AlertDialogTitle><AlertDialogDescription>You have already responded to this invitation. Changing your RSVP may affect seating arrangements, catering, and event planning. Are you sure you want to send this update to the organiser?</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogAction onClick={()=>handleSave(true)} disabled={saving}>Yes, Update RSVP</AlertDialogAction><AlertDialogCancel onClick={()=>setFormData({...formData,rsvp:initialRsvp})}>Keep Current RSVP</AlertDialogCancel></AlertDialogFooter></AlertDialogContent></AlertDialog>
+
     </div>
   );
 
   const footerButtons = (
     <>
       {isEditable && (
-        <Button onClick={handleSave} disabled={saving}
-          className="flex-1 bg-green-500 hover:bg-green-600 text-white rounded-full py-2">
-          {saving && <Loader2 className="mr-2 h-4 w-4 animate-spin" />}
+        <Button onClick={()=>handleSave()} disabled={saving || !context?.can_edit || (canChangeRsvp && currentRsvp !== 'Attending')}
+          className={`flex-1 bg-green-500 text-white ${styles.actionButton} ${styles.saveButton}`}>
+          {saving ? <Loader2 className="mr-2 animate-spin text-white" /> : <Smile aria-hidden="true" className="mr-2 shrink-0 text-white" />}
           Save Changes
         </Button>
       )}
       <Button variant="destructive" onClick={() => onOpenChange(false)} disabled={saving}
-        className={`${isEditable ? 'flex-1' : 'w-full'} bg-red-500 hover:bg-red-600 text-white rounded-full py-2`}>
+        className={`${isEditable ? 'flex-1' : 'w-full'} bg-red-500 text-white ${styles.actionButton} ${styles.cancelButton}`}>
+        <Frown aria-hidden="true" className="mr-2 shrink-0 text-white" />
         Cancel
       </Button>
     </>
@@ -531,7 +580,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   // DESKTOP / TABLET (>=1024px): unchanged dialog
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className="ww-public-live-dialog sm:max-w-[500px] sm:max-h-[90vh] flex flex-col p-0 gap-0">
+      <DialogContent className="ww-public-live-dialog sm:max-w-[720px] sm:max-h-[90vh] flex flex-col p-0 gap-0">
         <DialogHeader className="px-6 pt-6 pb-4 shrink-0">
           <DialogTitle className="text-primary">{headerTitle}</DialogTitle>
           <DialogDescription asChild>{headerSubtitle}</DialogDescription>

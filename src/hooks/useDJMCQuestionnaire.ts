@@ -39,6 +39,19 @@ export function useDJMCQuestionnaire(eventId: string | null) {
 
   // Self-save guard: tracks last local save timestamp
   const lastSaveRef = useRef<number>(0);
+  const undoWrites = useRef(new Set<Promise<unknown>>());
+  const trackUndoWrite = async <T,>(request: PromiseLike<T>): Promise<T> => {
+    const promise=Promise.resolve(request);undoWrites.current.add(promise);
+    try{return await promise;}finally{undoWrites.current.delete(promise);}
+  };
+  const prepareUndo = async () => {
+    itemSaveTimers.current.forEach(clearTimeout);sectionSaveTimers.current.forEach(clearTimeout);
+    itemSaveTimers.current.clear();sectionSaveTimers.current.clear();pendingItems.current.clear();pendingSections.current.clear();
+    await Promise.allSettled([...undoWrites.current]);
+    lastSaveRef.current=Date.now();
+  };
+  const pendingItems = useRef(new Map<string, Partial<DJMCItem>>());
+  const pendingSections = useRef(new Map<string, Partial<DJMCSection>>());
 
   // Per-item debounce timers
   const itemSaveTimers = useRef<Map<string, NodeJS.Timeout>>(new Map());
@@ -143,7 +156,6 @@ export function useDJMCQuestionnaire(eventId: string | null) {
         value_text: null,
         music_url: null,
         pronunciation_audio_url: null,
-        pronunciation_audio_path: null,
         duration: null,
         order_index: itemIndex,
         is_default: true,
@@ -215,18 +227,21 @@ export function useDJMCQuestionnaire(eventId: string | null) {
 
   // Per-section debounced save (300ms)
   const saveSectionToDb = useCallback((sectionId: string, updates: Partial<DJMCSection>) => {
+    pendingSections.current.set(sectionId, { ...pendingSections.current.get(sectionId), ...updates });
     const existing = sectionSaveTimers.current.get(sectionId);
     if (existing) clearTimeout(existing);
 
     const timer = setTimeout(async () => {
       sectionSaveTimers.current.delete(sectionId);
+      const combinedUpdates = pendingSections.current.get(sectionId) || updates;
+      pendingSections.current.delete(sectionId);
       lastSaveRef.current = Date.now();
       setSaving(true);
       try {
-        const { error } = await supabase
+        const { error } = await trackUndoWrite(supabase
           .from('dj_mc_sections')
-          .update(updates)
-          .eq('id', sectionId);
+          .update(combinedUpdates)
+          .eq('id', sectionId));
         if (error) throw error;
       } catch (error) {
         console.error('Error saving section:', error);
@@ -256,18 +271,21 @@ export function useDJMCQuestionnaire(eventId: string | null) {
 
   // Per-item debounced save (300ms)
   const saveItemToDb = useCallback((itemId: string, updates: Partial<DJMCItem>) => {
+    pendingItems.current.set(itemId, { ...pendingItems.current.get(itemId), ...updates });
     const existing = itemSaveTimers.current.get(itemId);
     if (existing) clearTimeout(existing);
 
     const timer = setTimeout(async () => {
       itemSaveTimers.current.delete(itemId);
+      const combinedUpdates = pendingItems.current.get(itemId) || updates;
+      pendingItems.current.delete(itemId);
       lastSaveRef.current = Date.now();
       setSaving(true);
       try {
-        const { error } = await supabase
+        const { error } = await trackUndoWrite(supabase
           .from('dj_mc_items')
-          .update(updates)
-          .eq('id', itemId);
+          .update(combinedUpdates)
+          .eq('id', itemId));
         if (error) throw error;
       } catch (error) {
         console.error('Error updating item:', error);
@@ -310,7 +328,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
     const section = questionnaire.sections.find(s => s.id === sectionId);
     if (!section) return;
 
-    const newOrderIndex = section.items.length;
+    const newOrderIndex = Math.max(-1, ...section.items.map(item => item.order_index)) + 1;
 
     try {
       const { data: newItem, error } = await supabase
@@ -387,12 +405,12 @@ export function useDJMCQuestionnaire(eventId: string | null) {
         .insert({
           section_id: item.section_id,
           row_label: item.row_label,
+          ...(item.custom_values ? {custom_values:item.custom_values} : {}),
           value_text: item.value_text,
           song_title_artist: item.song_title_artist,
           music_url: item.music_url,
           // A duplicate must never share a private storage object with its source.
           pronunciation_audio_url: null,
-          pronunciation_audio_path: null,
           duration: item.duration,
           order_index: item.order_index + 1,
           is_default: false,
@@ -455,9 +473,12 @@ export function useDJMCQuestionnaire(eventId: string | null) {
           .update({ order_index: index })
           .eq('id', item.id)
       );
-      await Promise.all(updates);
+      const results = await Promise.all(updates);
+      const failed = results.find(result => result.error);
+      if (failed?.error) throw failed.error;
     } catch (error) {
       console.error('Error reordering items:', error);
+      toast({ title: 'Order not saved', description: 'Please retry moving the row.', variant: 'destructive' });
     }
   }, []);
 
@@ -496,7 +517,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
       // Reset section label and notes
       await supabase
         .from('dj_mc_sections')
-        .update({ section_label: template.section_label, notes: null })
+        .update({ section_label: template.section_label, notes: null, ...(section.custom_columns ? {custom_columns:null} : {}) })
         .eq('id', sectionId);
 
       // Update local state
@@ -506,7 +527,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
           ...prev,
           sections: prev.sections.map(s =>
             s.id === sectionId
-              ? { ...s, section_label: template.section_label, notes: null, items: newItems as DJMCItem[] }
+              ? { ...s, section_label: template.section_label, notes: null, custom_columns:null, items: newItems as DJMCItem[] }
               : s
           ),
         };
@@ -556,6 +577,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
           section_label: `${section.section_label} (Copy)`,
           order_index: newOrderIndex,
           notes: section.notes,
+          ...(section.custom_columns ? {custom_columns:section.custom_columns} : {}),
           is_collapsed: false,
         })
         .select()
@@ -569,11 +591,16 @@ export function useDJMCQuestionnaire(eventId: string | null) {
         const itemsToInsert = section.items.map((item, index) => ({
           section_id: newSection.id,
           row_label: item.row_label,
+          ...(item.custom_values ? {custom_values:item.custom_values} : {}),
           value_text: item.value_text,
+          song_title_artist: item.song_title_artist,
+          is_bold: item.is_bold,
+          is_italic: item.is_italic,
+          is_underline: item.is_underline,
+          is_section_header: item.is_section_header,
           music_url: item.music_url,
           // A duplicate must never share a private storage object with its source.
           pronunciation_audio_url: null,
-          pronunciation_audio_path: null,
           duration: item.duration,
           order_index: index,
           is_default: false,
@@ -627,9 +654,7 @@ const deleteSection = useCallback(async (sectionId: string) => {
   if (!section) return;
 
   try {
-    // Delete all items in the section first
-    await supabase.from('dj_mc_items').delete().eq('section_id', sectionId);
-
+    // The foreign key cascades item deletion only after the section delete succeeds.
     // Delete the section
     const { error } = await supabase.from('dj_mc_sections').delete().eq('id', sectionId);
     if (error) throw error;
@@ -712,7 +737,7 @@ const deleteSection = useCallback(async (sectionId: string) => {
 
       if (error) throw error;
 
-      setShareTokens(prev => prev.filter(t => t.id !== tokenId));
+      setShareTokens(prev => { const next = prev.filter(t => t.id !== tokenId); if (eventId) shareTokensCache.set(eventId, next); return next; });
 
       toast({
         title: 'Access Revoked',
@@ -726,7 +751,7 @@ const deleteSection = useCallback(async (sectionId: string) => {
         variant: 'destructive',
       });
     }
-  }, [toast]);
+  }, [toast, eventId]);
 
   // Calculate progress
   const calculateProgress = useCallback(() => {
@@ -787,6 +812,7 @@ const deleteSection = useCallback(async (sectionId: string) => {
 
   return {
     questionnaire,
+    prepareUndo,
     loading,
     saving,
     shareTokens,

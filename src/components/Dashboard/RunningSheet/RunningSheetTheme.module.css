@@ -816,244 +816,191 @@
   .greenAction { width: 100%; min-height: 2.75rem; }
 }
 
-/* Public Run Sheet share page: screen-only espresso liquid-glass presentation.
-   This final, public-rooted layer intentionally follows the authenticated light
-   workspace rules above so those shared component selectors cannot leak cream
-   surfaces into the public recipient view. It never participates in print/PDF. */
-@media screen {
-  .publicPage {
-    --rs-panel: rgba(29, 13, 10, 0.84);
-    --rs-card: linear-gradient(145deg, rgba(91, 47, 32, 0.9) 0%, rgba(53, 26, 19, 0.92) 50%, rgba(26, 12, 9, 0.96) 100%);
-    --rs-inset: linear-gradient(180deg, rgba(60, 30, 22, 0.96), rgba(22, 10, 8, 0.98));
-    --rs-field: linear-gradient(180deg, rgba(68, 34, 25, 0.99), rgba(26, 12, 9, 1));
-    --rs-border: rgba(207, 157, 96, 0.5);
-    --rs-border-strong: rgba(236, 194, 137, 0.84);
-    --rs-white: #fff;
-    --rs-cream: rgba(255, 246, 236, 0.78);
-    --rs-muted: #fff;
-    --rs-gold: #ddb77b;
-    color-scheme: dark;
-    width: 100%;
-    max-width: 100vw;
-    color: var(--rs-white);
-    background:
-      radial-gradient(circle at 50% 8%, rgba(123, 64, 42, 0.5) 0%, rgba(67, 32, 24, 0.25) 29rem, transparent 58rem),
-      radial-gradient(circle at 15% 48%, rgba(82, 39, 28, 0.28), transparent 40rem),
-      radial-gradient(circle at 86% 62%, rgba(73, 33, 24, 0.2), transparent 36rem),
-      linear-gradient(135deg, #110705 0%, #2b130e 48%, #140806 100%) !important;
-    background-attachment: fixed !important;
-  }
-
-  .publicPage .statusCard {
-    min-width: 0;
-    max-width: calc(100vw - 2rem) !important;
-  }
-
-  .publicHeader {
-    border-bottom-color: rgba(222, 176, 116, 0.58) !important;
-    background:
-      linear-gradient(110deg, rgba(52, 25, 18, 0.96), rgba(23, 10, 8, 0.92) 68%, rgba(61, 29, 20, 0.9)) !important;
-    box-shadow: inset 0 -1px 0 rgba(255, 232, 200, 0.08), 0 14px 34px rgba(3, 1, 1, 0.46) !important;
-  }
-
-  .publicHeaderIcon {
-    color: var(--rs-gold) !important;
-    border: 1px solid rgba(207, 157, 96, 0.38);
-    background: rgba(95, 49, 33, 0.44) !important;
-    box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12);
-  }
-
-  .publicHeader h1,
-  .publicPage .sectionHeading,
-  .publicPage .notesHeading {
-    color: var(--rs-white) !important;
-  }
-
-  .publicHeader p,
-  .publicHeader span,
-  .publicFooter p {
-    color: var(--rs-cream) !important;
-  }
-
-  .permissionBadge[data-permission="can-edit"] {
-    color: #c7f9d7 !important;
-    border-color: rgba(74, 222, 128, 0.72) !important;
-    background: rgba(18, 87, 48, 0.42);
-  }
-
-  .permissionBadge[data-permission="view-only"] {
-    color: #ffd2cc !important;
-    border-color: rgba(255, 129, 120, 0.72) !important;
-    background: rgba(145, 40, 32, 0.36);
-  }
-
-  .publicPage .eventBanner,
-  .publicPage .scheduleCard,
-  .publicPage .statusCard {
-    color: var(--rs-white) !important;
-    border-color: var(--rs-border) !important;
-    background: var(--rs-card) !important;
-    box-shadow:
-      inset 0 1px 0 rgba(255, 239, 218, 0.18),
-      inset 0 -1px 0 rgba(77, 35, 24, 0.42),
-      0 18px 42px rgba(3, 1, 1, 0.4) !important;
-    backdrop-filter: blur(20px) saturate(1.12);
-    -webkit-backdrop-filter: blur(20px) saturate(1.12);
-  }
-
-  .publicPage .eventBanner {
-    background:
-      radial-gradient(circle at 50% 0%, rgba(151, 82, 51, 0.28), transparent 32rem),
-      linear-gradient(145deg, rgba(79, 40, 29, 0.92), rgba(30, 14, 11, 0.95)) !important;
-  }
-
-  .publicPage .eventBanner h2 {
-    color: var(--rs-white) !important;
-  }
-
-  .publicPage .eventBanner [class*="font-semibold"] {
-    color: var(--rs-gold) !important;
-  }
-
-  .publicPage .eventBanner :is(span, div) {
-    color: var(--rs-cream) !important;
-  }
-
-  .publicPage .columnHeader {
-    color: var(--rs-gold) !important;
-    border-color: var(--rs-border) !important;
-    background: linear-gradient(180deg, rgba(125, 68, 45, 0.88), rgba(54, 27, 20, 0.92)) !important;
-    box-shadow: inset 0 1px 0 rgba(255, 235, 207, 0.13) !important;
-  }
-
-  .publicPage .columnHeader div {
-    color: var(--rs-gold) !important;
-  }
-
-  .publicPage .scheduleRow,
-  .publicPage .scheduleRow:nth-child(even) {
-    border-color: rgba(201, 151, 94, 0.24);
-    background: rgba(31, 15, 11, 0.36) !important;
-    box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.06), 0 4px 12px rgba(3, 1, 1, 0.2);
-  }
-
-  .publicPage .scheduleRow:nth-child(even) {
-    background: rgba(79, 40, 29, 0.26) !important;
-  }
-
-  .publicPage .scheduleRow:hover {
-    border-color: rgba(225, 183, 132, 0.44);
-    background: rgba(115, 61, 41, 0.38) !important;
-    box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.1), 0 6px 16px rgba(3, 1, 1, 0.26);
-  }
-
-  .publicPage .scheduleCard :is(textarea, input),
-  .publicPage .notesTextarea {
-    color: var(--rs-white) !important;
-    -webkit-text-fill-color: var(--rs-white) !important;
-    border-color: var(--rs-border) !important;
-    background: var(--rs-field) !important;
-    box-shadow: inset 0 1px 0 rgba(255, 242, 224, 0.1) !important;
-    caret-color: var(--rs-gold);
-    opacity: 1 !important;
-  }
-
-  .publicPage .scheduleCard :is(textarea, input)::placeholder,
-  .publicPage .notesTextarea::placeholder {
-    color: var(--rs-muted) !important;
-    -webkit-text-fill-color: var(--rs-muted) !important;
-    opacity: 1 !important;
-  }
-
-  .publicPage .scheduleCard :is(textarea, input):focus-visible,
-  .publicPage .notesTextarea:focus-visible,
-  .publicPage :is(button, [role="button"]):focus-visible {
-    outline: none !important;
-    border-color: var(--rs-border-strong) !important;
-    box-shadow: 0 0 0 2px #1c0d09, 0 0 0 4px rgba(221, 183, 123, 0.72) !important;
-  }
-
-  .publicPage .notesEditor {
-    color: var(--rs-white);
-    border-color: var(--rs-border);
-    background: var(--rs-inset);
-    box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.11), 0 8px 20px rgba(3, 1, 1, 0.24);
-  }
-
-  .publicPage .mobileFieldLabel {
-    color: var(--rs-gold);
-  }
-
-  .publicPage .dragHandle,
-  .publicPage .rowActions button,
-  .publicPage .scheduleCard button:not([class*="greenAction"]) {
-    color: var(--rs-gold) !important;
-    border-color: var(--rs-border) !important;
-    background: var(--rs-inset) !important;
-    box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.12), 0 4px 10px rgba(3, 1, 1, 0.2);
-  }
-
-  .publicPage .greenAction.greenAction {
-    color: #fff !important;
-    border-color: #128d41 !important;
-    background: linear-gradient(180deg, #32d66f 0%, #18b957 54%, #109140 100%) !important;
-    box-shadow: inset 0 1px 0 rgba(255, 255, 255, 0.42), inset 0 -2px 0 rgba(5, 91, 38, 0.24), 0 8px 18px rgba(14, 145, 64, 0.28) !important;
-  }
-
-  .publicFooter {
-    border-top-color: rgba(211, 162, 103, 0.44) !important;
-    background: linear-gradient(180deg, rgba(30, 14, 10, 0.74), rgba(16, 7, 5, 0.94)) !important;
-    box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.06);
-  }
+/* Shared Run Sheet uses the same light workspace classes as the owner page. */
+.publicPage.page {
+  margin: 0; padding: 24px; width: 100%; min-height: 100dvh;
+  color-scheme: light; background-attachment: scroll !important;
+}
+.publicPage .publicHeader {
+  position: static; border: 1px solid #d9bf98; border-radius: 1rem;
+  background: #fffdf8 !important;
+  box-shadow: inset 0 1px 0 #fff, 0 12px 30px rgba(91,58,29,.12);
+}
+.publicHeaderIcon { color:#8b673d; border:1px solid #dec7a5; background:#f8ead5 !important; }
+.publicPage .publicHeader p, .publicPage .publicHeader span { color:#6c5040 !important; }
+.publicPage .publicHeader .exportHeading { color:#2b1711 !important; }
+.publicPage .publicHeader .greenAction, .publicPage .publicHeader .greenAction span { color:#fff !important; }
+.publicPage .publicHeader > div, .publicPage > main { max-width:100%; padding:16px 20px; }
+.publicPage > div { padding:0; margin-top:16px; }
+.publicPage > main { padding:0; margin-top:16px; }
+.publicPage .publicFooter { background:transparent !important; border-color:#d9bf98; box-shadow:none; margin-top:24px; }
+.publicPage .publicFooter p { color:#6c5040 !important; }
+.publicPage .permissionBadge[data-permission="can-edit"] { color:#246734 !important; border-color:#7bab79; background:#edf7eb; }
+.publicPage .permissionBadge[data-permission="view-only"] { color:#8f382d !important; border-color:#c9978c; background:#fff2ec; }
+.publicPage .statusCard { background:#fffdf8; color:#2f1b14; max-width:calc(100vw - 2rem); }
+@media screen and (max-width:1023px) {
+ .publicPage .tableViewport { overflow:visible !important; }
+ .publicPage .tableCanvas { min-width:0 !important; }
+ .publicPage .scheduleRow * { min-width:0; }
+}
+@media screen and (max-width:767px) {
+ .publicPage.page { padding:12px; }
+ .publicPage .publicHeader > div { padding:16px; }
+ .publicPage .eventBanner > div { align-items:stretch; gap:1rem; }
+ .publicPage .eventBanner > div > div { min-width:0 !important; width:100%; }
+ .publicPage .scheduleCard button { min-height:2.5rem; }
 }
 
-@media screen and (max-width: 1023px) {
-  .publicPage .tableViewport {
-    overflow: visible !important;
-  }
+/* Match questionnaire and Full Seating Chart export controls. */
+:global(#root#root) .page .exportPanel .exportHeading {
+ font-family: inherit; font-size:20px !important; font-weight:500 !important;
+ color:#2b1711 !important; -webkit-text-fill-color:#2b1711 !important;
+}
+:global(#root#root) .page .exportPanel .exportHeading svg { color:#2b1711 !important; stroke:#2b1711 !important; }
+:global(#root#root) .page .exportPanel .greenAction {
+ border:0 !important; min-height:40px; height:auto; padding:10px 16px !important;
+ font-size:14px !important; font-weight:600 !important; justify-content:center;
+ color:#fff !important; -webkit-text-fill-color:#fff !important;
+ background:linear-gradient(180deg,#7bd880,#55a447) !important;
+ box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30 !important;
+}
+:global(#root#root) .page .exportPanel .greenAction:hover:not(:disabled) { filter:brightness(1.04); }
 
-  .publicPage .tableCanvas {
-    min-width: 0 !important;
-  }
+.publicPage .permissionBadge { justify-content:center; }
 
-  .publicPage .scheduleRow {
-    border-color: var(--rs-border);
-    background: rgba(44, 21, 15, 0.78) !important;
-  }
-
-  .publicPage .scheduleRow * {
-    min-width: 0;
-  }
+/* Shared by owner and recipient rows: keep drag handles visually consistent. */
+.page .scheduleCard .dragHandle { border-radius: 0.5rem !important; }
+/* Match questionnaire row controls in both owner and shared Run Sheets. */
+.page .scheduleCard .scheduleRow :is(textarea, input, .dragHandle) {
+  border: 1px solid #6f5342 !important;
+}
+.page .scheduleCard .dragHandle,
+.page .scheduleCard .dragHandle:hover {
+  color: #6f5342 !important;
+  border-radius: 4px !important;
+}
+.page .scheduleCard .scheduleRow :is(textarea, input, .dragHandle):focus {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(154, 114, 71, .28) !important;
+}
+:global(#root#root) .page .scheduleCard .dragHandle,
+:global(#root#root) .page .scheduleCard .dragHandle:hover,
+:global(#root#root) .page .scheduleCard .dragHandle svg {
+  color: #6f5342 !important;
+  border-color: #6f5342 !important;
+}
+:global(#root#root) .page .scheduleCard .dragHandle:focus {
+  outline: none !important;
+  box-shadow: 0 0 0 3px rgba(154, 114, 71, .28) !important;
+}
+/* Match the DJ/MC 26px square, with a centred 16px grip and 4px padding. */
+:global(#root#root) .page .scheduleCard .dragHandle {
+  box-sizing: border-box !important;
+  display: inline-flex !important;
+  align-items: center !important;
+  justify-content: center !important;
+  width: 26px !important;
+  height: 26px !important;
+  min-width: 26px !important;
+  min-height: 26px !important;
+  max-width: 26px !important;
+  max-height: 26px !important;
+  padding: 4px !important;
+  margin: 0 !important;
+  flex-shrink: 0 !important;
+  border-radius: 4px !important;
+  background: #fffaf2 !important;
+  box-shadow: none !important;
+}
+:global(#root#root) .page .scheduleCard .dragHandle svg {
+  width: 16px !important;
+  height: 16px !important;
+  flex-shrink: 0;
+}
+:global(#root#root) .page .scheduleCard .dragHandle:focus {
+  box-shadow: 0 0 0 3px rgba(154, 114, 71, .28) !important;
 }
 
-@media screen and (max-width: 767px) {
-  .publicHeader > div,
-  .publicPage > main,
-  .publicPage > div > div,
-  .publicFooter > div {
-    max-width: 100%;
-    padding-inline: 0.75rem;
-  }
+:global(#root#root) .page .scheduleCard .dragHandle { align-self: center !important; }
 
-  .publicPage .eventBanner > div {
-    align-items: stretch;
-    gap: 1rem;
-  }
-
-  .publicPage .eventBanner > div > div {
-    min-width: 0 !important;
-    width: 100%;
-  }
-
-  .publicPage .scheduleCard {
-    border-radius: 0.9rem;
-  }
-
-  .publicPage .scheduleCard button {
-    min-height: 2.5rem;
-  }
-
-  .publicFooter {
-    margin-top: 2rem !important;
-  }
+/* Match the approved DJ/MC column header in owner and shared Run Sheets. */
+:global(#root#root) .page .columnHeader {
+  border: 1px solid #d8bc91 !important;
+  border-radius: 0 !important;
+  background: linear-gradient(180deg, #f1e1c9, #ead6b8) !important;
+  box-shadow: none !important;
 }
+
+/* Approved dashboard heading reference; shared schedule uses the same heading. */
+:global(#root#root) .page .pageHeader h1,
+:global(#root#root) :is(.page, .publicPage) .scheduleCard .sectionHeading {
+ font-family:var(--ww-interface-font-family) !important; font-size:24px !important;
+ font-weight:600 !important; line-height:31px !important; letter-spacing:normal !important;
+ color:#2f1b14 !important; margin:0 !important; padding:0 !important;
+}
+:global(#root#root) .page .topCard { padding-top:0 !important; padding-left:0 !important; }
+:global(#root#root) .page .topCard > div { padding-top:16px !important; padding-left:16px !important; }
+:global(#root#root) .page .pageHeader { min-height:0; padding:0; margin-bottom:4px; }
+:global(#root#root) .page .pageHeader > div:first-child { align-items:flex-start; gap:.55rem; }
+:global(#root#root) .page .headingIcon { padding:0; margin-top:.16rem; background:transparent; box-shadow:none; }
+:global(#root#root) .page .headingIcon svg,
+:global(#root#root) :is(.page, .publicPage) .scheduleCard > div > div:first-child > div > div:first-child > svg { width:25px; height:25px; color:#967a59 !important; stroke:#967a59 !important; }
+:global(#root#root) .page .pageHeader .supportingText { font-size:13px !important; line-height:18px !important; margin:0 !important; }
+:global(#root#root) :is(.page, .publicPage) .scheduleCard { padding-top:0 !important; }
+:global(#root#root) :is(.page, .publicPage) .scheduleCard > div > div:first-child { padding-top:16px !important; padding-bottom:24px !important; }
+
+/* Centered event heading matches the Run Sheet heading reference. */
+:global(#root#root) .page .eventBanner { padding-top:16px !important; }
+:global(#root#root) .page .eventBanner > h2 {
+ font-family:var(--ww-interface-font-family) !important; font-size:24px !important;
+ font-weight:600 !important; line-height:31px !important; letter-spacing:normal !important;
+ color:#2f1b14 !important; margin-top:0 !important;
+}
+
+/* Row emphasis uses a local class so CSS Modules cannot disconnect the saved state. */
+:global(#root#root) :is(.page, .publicPage) .scheduleCard .scheduleRow textarea.redRowText {
+  color: #dc2626 !important;
+  -webkit-text-fill-color: #dc2626 !important;
+}
+
+
+/* Temporary save locks keep the menu anchor visible and in place. */
+:global(#root#root) :is(.page, .publicPage) .rowActions button:disabled {
+  opacity: 1 !important;
+  visibility: visible !important;
+}
+
+/* One-step row size increase; headings and controls retain their existing size. */
+:global(#root#root) :is(.page, .publicPage) .scheduleCard[data-row-text-size="larger"] .scheduleRow textarea {
+  font-size: 14.4444px !important;
+  line-height: 20px !important;
+}
+
+/* Match the questionnaire's centred Add Row control. */
+:global(#root#root) :is(.page, .publicPage) .scheduleCard button.greenAction {
+ width:50% !important;
+ margin-inline:auto;
+ border-color:transparent !important;
+ color:#fff !important;
+ -webkit-text-fill-color:#fff !important;
+ background:linear-gradient(180deg,#42dc78 0%,#1fc35b 52%,#109242 100%) !important;
+ box-shadow:inset 0 1px 0 rgba(255,255,255,.42),0 7px 15px rgba(16,146,66,.25) !important;
+}
+:global(#root#root) :is(.page, .publicPage) .scheduleCard button.greenAction:hover:not(:disabled) {
+ background:linear-gradient(180deg,#3bd070 0%,#1bb354 52%,#0e853c 100%) !important;
+ filter:none !important;
+}
+
+/* Approved action reference for Run Sheet exports, sharing and Add Bottom Row. */
+:global(#root#root#root) .exportPanel .greenAction,
+:global(#root#root#root) .scheduleCard button.greenAction,
+:global(body) .shareModal.shareModal button.primaryAction {
+ min-height:40px!important;height:auto!important;padding:10px 16px!important;border:0!important;border-radius:9999px!important;
+ font:600 14px Manrope,sans-serif!important;color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.55);
+ background:linear-gradient(180deg,#7bd880,#55a447)!important;
+ box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30!important;
+}
+:global(#root#root#root) .exportPanel .greenAction :is(svg,svg *),
+:global(#root#root#root) .scheduleCard button.greenAction :is(svg,svg *),
+:global(body) .shareModal.shareModal button.primaryAction :is(svg,svg *) {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;}
+:global(#root#root#root) .scheduleCard button.greenAction:hover:not(:disabled) {background:linear-gradient(180deg,#70c573,#4c933f)!important;filter:none!important;}

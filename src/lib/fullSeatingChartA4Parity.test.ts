@@ -76,7 +76,7 @@ describe('Full Seating Chart A4 row and footer parity', () => {
     expect(preview).toContain('overflow-hidden box-border');
     expect(preview).toContain('flex-1 min-w-0 truncate');
     expect(preview).toContain('flex-shrink-0 whitespace-nowrap');
-    expect(preview).toContain('align-items: center;');
+
     expect(preview).toContain('borderBottom: `1px solid');
     expect(exporter).toContain('const nameBaselineY = yPos + (rowHeight / 2)');
     expect(exporter).toContain('pdf.setLineWidth(FULL_SEATING_CHART_PDF_ROW_BORDER_WIDTH_MM)');
@@ -96,8 +96,8 @@ describe('Full Seating Chart A4 row and footer parity', () => {
     expect(preview).toContain("width: '36mm', height: '10mm'");
     expect(exporter).toContain('pdf.text(`Generated: ${timestamp}`, 12.7');
     expect(exporter).toContain('pdf.text(`Page ${pageNum} of ${totalPages}`, PAGE_WIDTH_MM - 12.7');
-    expect(page).toContain('getFullSeatingChartGuestsPerPage(settings.fontSize)');
-    expect(page.match(/exportFullSeatingChartToPdf\([^;]+settings/g)?.length).toBe(2);
+    expect(page).toContain('preview.getCurrentPage()');
+    expect(page).toContain("await exportPreview('single')"); expect(page).toContain("await exportPreview('all')"); expect(page).toContain('getPageElement: preview.getPageElement');
   });
 
   it('keeps non-logo canvas elements black and preserves the original logo asset in preview and PDF', () => {

@@ -42,7 +42,7 @@ describe('Name Place Cards Photo & Video Sharing QR', () => {
     expect(save).toHaveBeenCalledWith({ photo_video_qr_enabled: false });
   });
 
-  it('renders the same QR on the back of every populated preview and print card', () => {
+  it('renders the same QR on the back of every populated card in the authoritative preview', () => {
     render(
       <PlaceCardPreview
         settings={settings}
@@ -52,6 +52,6 @@ describe('Name Place Cards Photo & Video Sharing QR', () => {
         photoVideoQrDataUrl={qr.dataUrl}
       />,
     );
-    expect(screen.getAllByRole('img', { name: 'Photo & Video Sharing QR code' })).toHaveLength(2);
+    expect(screen.getAllByRole('img', { name: 'Photo & Video Sharing QR code' })).toHaveLength(1);
   });
 });

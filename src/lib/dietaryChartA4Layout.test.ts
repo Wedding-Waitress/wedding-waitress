@@ -37,7 +37,7 @@ describe('dietary chart A4 header and footer', () => {
     expect(previewSource).toContain('data-footer-layout="three-column"');
     expect(previewSource).toContain('Generated: {formatGeneratedTimestamp()}');
     expect(previewSource).toContain('Page {currentPage} of {totalPages}');
-    expect(previewSource).toContain('Page {pageIndex + 1} of {totalPages}');
+    expect(previewSource).toContain('a4PreviewRef.current.cloneNode(true)');
     expect(previewSource).toContain('data-dietary-a4-preview="true"');
     expect(pdfSource).toContain('const pageElement = getPageElement()');
     expect(pdfSource).toContain('await html2canvas(pageElement');

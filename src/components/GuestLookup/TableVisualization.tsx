@@ -29,6 +29,7 @@ interface TableData {
 }
 
 interface TableVisualizationProps {
+  navigation?: React.ReactNode;
   tableId: string;
   tableNumber: number;
   eventId: string;
@@ -37,6 +38,7 @@ interface TableVisualizationProps {
 export const TableVisualization: React.FC<TableVisualizationProps> = ({
   tableId,
   tableNumber,
+  navigation,
   eventId
 }) => {
   const [tableData, setTableData] = useState<TableData | null>(null);
@@ -101,7 +103,8 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
   if (loading) {
     return (
       <Card className="w-full">
-        <CardContent className="p-6">
+        {navigation}
+        <CardContent className={tableData?.table_purpose === 'head' || !tableData ? 'p-6' : 'p-0 md:p-6'}>
           <div className="animate-pulse space-y-4">
             <div className="h-4 bg-muted rounded w-1/4"></div>
             <div className="h-20 bg-muted rounded"></div>
@@ -114,6 +117,7 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
   if (!tableData) {
     return (
       <Card className="w-full">
+        {navigation}
         <CardContent className="p-6 text-center text-muted-foreground">
           <MapPin className="w-12 h-12 mx-auto mb-2 opacity-50" />
           <p>Table information not available</p>
@@ -140,6 +144,7 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
   
   return (
     <Card className="w-full card-elevated">
+      {navigation}
       <CardHeader className="text-center">
         {tableData.notes && (
           <div className="flex items-center justify-center mt-1">
@@ -150,7 +155,7 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
         )}
       </CardHeader>
       
-      <CardContent className="p-6">
+      <CardContent className={tableData?.table_purpose === 'head' || !tableData ? 'p-6' : 'p-0 md:p-6'}>
         {tableData.table_purpose === 'head' ? (
           <div data-head-table-order="left-to-right-as-viewed-by-guests" className="mx-auto mt-4 w-full max-w-3xl overflow-x-auto pb-2">
             <p className="mb-3 text-center text-xs text-muted-foreground">Left to right, as viewed by the guests.</p>
@@ -162,28 +167,28 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
                 </div>
               ))}
             </div>
-            <div data-live-section-heading className="mt-2 flex h-24 min-w-[560px] items-center justify-center rounded-xl border-2 border-primary/30 bg-gradient-card text-xl font-bold text-primary">{tableData.name}</div>
+            <div data-live-section-heading className="mt-2 flex h-24 min-w-[560px] items-center justify-center rounded-xl border-2 border-primary/30 bg-gradient-card text-xl font-bold text-white">{tableData.name}</div>
           </div>
-        ) : <div className="relative mx-auto w-[180px] h-[180px] md:w-[280px] md:h-[280px] mt-4">
+        ) : <div data-round-guest-table className="relative mx-auto mt-4">
           {/* Table Surface */}
           <div 
-            className="absolute inset-0 bg-gradient-card border-2 border-primary/30 rounded-full flex items-center justify-center"
+            data-round-table-surface className="absolute bg-gradient-card border-2 border-primary/30 rounded-full flex items-center justify-center"
             style={{ 
               boxShadow: 'inset 0 2px 8px rgba(0,0,0,0.1), 0 4px 12px rgba(126, 110, 255, 0.15)' 
             }}
           >
-            <div className="text-center px-2">
+            <div data-live-table-centre className="text-center px-2">
               {/* Line 1: "Table" - permanent label */}
-              <div data-live-section-heading className="text-base md:text-xl font-bold text-primary">
+              <div data-live-section-heading className="text-base md:text-xl font-bold text-white">
                 Table
               </div>
               {/* Line 2: Table number or name */}
-              <div data-live-section-heading className="text-base md:text-xl font-bold text-primary leading-tight">
+              <div data-live-section-heading className="text-base md:text-xl font-bold text-white leading-tight">
                 {tableData.name || tableData.table_no}
               </div>
               {/* Line 3: Seated count in brackets */}
               <div data-live-body className="text-xs md:text-sm font-normal text-muted-foreground mt-1">
-                ({tableData.guests.length} of {tableData.limit_seats} seated)
+                ({tableData.guests.length} of {tableData.limit_seats})
               </div>
             </div>
           </div>
@@ -192,34 +197,34 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
           {seats.map((seat, index) => {
             const angle = (index * 360) / seats.length;
             const radian = (angle - 90) * (Math.PI / 180);
-            // Use percentage-based positioning (58% from center = seats positioned outside table)
-            const seatDistancePercent = 58;
+            // Seat centres follow the outer ring, leaving four pixels clear of the table.
+            const seatDistancePercent = 50;
             const x = 50 + seatDistancePercent * Math.cos(radian);
             const y = 50 + seatDistancePercent * Math.sin(radian);
             
             return (
               <div
-                key={seat.position}
-                className={`absolute w-10 h-10 md:w-16 md:h-16 rounded-full border-2 flex items-center justify-center text-xs font-medium transition-all ${
+                data-round-guest-seat key={seat.position}
+                className={`absolute rounded-full border-2 flex items-center justify-center text-xs font-medium transition-all ${
                   seat.guest 
                     ? normalizeRsvp(seat.guest.rsvp) === 'Attending'
                       ? 'bg-green-500/10 border-green-500 text-green-700'
                       : normalizeRsvp(seat.guest.rsvp) === 'Not Attending'
                       ? 'bg-red-500/10 border-red-500 text-red-700'
                       : 'bg-warning/10 border-warning text-warning-foreground'
-                    : 'bg-muted border-muted-foreground/30 text-muted-foreground'
+                    : 'bg-[#2a1711] border-[#967A59] text-white'
                 }`}
                 style={{
-                  left: `${x}%`,
-                  top: `${y}%`,
+                  left: `calc(${x}% - var(--guest-seat-size) * ${Math.cos(radian) / 2})`,
+                  top: `calc(${y}% - var(--guest-seat-size) * ${Math.sin(radian) / 2})`,
                   transform: 'translate(-50%, -50%)'
                 }}
                 title={seat.guest ? `${seat.guest.first_name} ${seat.guest.last_name}` : `Seat ${seat.position}`}
               >
                 {seat.guest ? (
                   <div className="text-center leading-tight">
-                    <div className="text-xs font-semibold text-black">
-                      {seat.guest.first_name.charAt(0)}{seat.guest.last_name.charAt(0)}
+                    <div className="text-[9px] md:text-xs font-semibold text-white break-words px-0.5">
+                      {seat.guest.first_name}<br />{seat.guest.last_name}
                     </div>
                   </div>
                 ) : (
@@ -231,8 +236,8 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
         </div>}
 
         {/* Guest List */}
-        <div className="mt-6 space-y-2">
-          <h4 className="font-medium text-sm text-muted-foreground mb-3">Seated Guests</h4>
+        <div className={tableData.table_purpose === 'head' ? 'mt-6 space-y-2' : 'mt-6 space-y-2'}>
+          <h4 className="text-center font-medium text-sm text-muted-foreground mb-3">Seated Guests</h4>
           {tableData.guests.length > 0 ? (
             <div className="space-y-2">
               {tableData.guests.map((guest) => (

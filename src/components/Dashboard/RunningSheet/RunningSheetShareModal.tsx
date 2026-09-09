@@ -64,22 +64,31 @@ export function RunningSheetShareModal({
 
   const handleGenerate = useCallback(async () => {
     setGenerating(true);
-    const token = await onGenerateToken(permission, recipientName || undefined, 90);
-    setGenerating(false);
-    if (token) {
-      const url = buildRunningSheetUrl(token, eventSlug);
-      await navigator.clipboard.writeText(url);
-      toast({ title: 'Share Link Created', description: 'Link copied to clipboard' });
-      setRecipientName('');
-    }
+    try {
+      const token = await onGenerateToken(permission, recipientName || undefined, 90);
+      if (token) {
+        setRecipientName('');
+        try {
+          await navigator.clipboard.writeText(buildRunningSheetUrl(token, eventSlug));
+          toast({ title: 'Share Link Created', description: 'Link copied to clipboard' });
+        } catch {
+          toast({ title: 'Link created', description: 'Copying failed. Find the link in Manage and try again.' });
+        }
+      }
+    } catch {
+      toast({ title: 'Link not created', description: 'Please try again.', variant: 'destructive' });
+    } finally { setGenerating(false); }
   }, [permission, recipientName, onGenerateToken, toast, eventSlug]);
 
   const copyLink = useCallback(async (token: string) => {
-    const url = buildRunningSheetUrl(token, eventSlug);
-    await navigator.clipboard.writeText(url);
-    setCopiedId(token);
-    setTimeout(() => setCopiedId(null), 2000);
-    toast({ title: 'Link Copied', description: 'Share link copied to clipboard' });
+    try {
+      await navigator.clipboard.writeText(buildRunningSheetUrl(token, eventSlug));
+      setCopiedId(token);
+      setTimeout(() => setCopiedId(null), 2000);
+      toast({ title: 'Link Copied', description: 'Share link copied to clipboard' });
+    } catch {
+      toast({ title: 'Could not copy link', description: 'Please try again.', variant: 'destructive' });
+    }
   }, [toast, eventSlug]);
 
   const openLink = useCallback((token: string) => {

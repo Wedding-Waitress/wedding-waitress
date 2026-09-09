@@ -5,9 +5,14 @@ import { PLANNING_WORKFLOW_BY_ID, type PlanningWorkflowTabId } from '@/config/pl
 interface PlanningWorkflowInstructionProps {
   stepId: PlanningWorkflowTabId;
   onContinue: (tabId: string) => void;
+  showStepNumber?: boolean;
 }
 
-export const PlanningWorkflowInstruction: React.FC<PlanningWorkflowInstructionProps> = ({ stepId, onContinue }) => {
+export const PlanningWorkflowInstruction: React.FC<PlanningWorkflowInstructionProps> = ({
+  stepId,
+  onContinue,
+  showStepNumber = true,
+}) => {
   const step = PLANNING_WORKFLOW_BY_ID[stepId];
   return (
     <section
@@ -16,7 +21,14 @@ export const PlanningWorkflowInstruction: React.FC<PlanningWorkflowInstructionPr
       data-workflow-step={step.number}
     >
       <div className="flex min-w-0 flex-1 items-start gap-3">
-        <span className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#412419] text-sm font-bold text-[#fff8ee]">{step.number}</span>
+        {showStepNumber && (
+          <span
+            className="inline-flex h-8 w-8 shrink-0 items-center justify-center rounded-full bg-[#412419] text-sm font-bold text-[#fff8ee]"
+            data-workflow-step-number
+          >
+            {step.number}
+          </span>
+        )}
         <div className="min-w-0">
           <div className="flex flex-wrap items-center gap-2">
             <strong>{step.label}</strong>

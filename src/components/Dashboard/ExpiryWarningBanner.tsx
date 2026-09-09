@@ -7,11 +7,12 @@ import { useUserPlan } from '@/hooks/useUserPlan';
 const ELIGIBLE_PLANS = ['Essential', 'Premium', 'Unlimited'];
 
 export const ExpiryWarningBanner: React.FC = () => {
-  const { plan } = useUserPlan();
+  const { plan, hasPlatformOwnerAccess } = useUserPlan();
   const [dismissed, setDismissed] = useState(false);
   const [showExtendModal, setShowExtendModal] = useState(false);
 
   const warningInfo = useMemo(() => {
+    if (hasPlatformOwnerAccess) return null;
     if (!plan?.expires_at || !plan?.plan_name) return null;
     if (!ELIGIBLE_PLANS.includes(plan.plan_name)) return null;
 
@@ -54,7 +55,7 @@ export const ExpiryWarningBanner: React.FC = () => {
       bgClass: 'bg-amber-500 text-white',
       animate: false,
     };
-  }, [plan]);
+  }, [hasPlatformOwnerAccess, plan]);
 
   if (!warningInfo || dismissed) return null;
 

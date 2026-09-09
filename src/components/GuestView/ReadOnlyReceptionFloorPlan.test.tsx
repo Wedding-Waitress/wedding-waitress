@@ -10,8 +10,8 @@ vi.mock('@/hooks/useReceptionFloorPlanShare', () => ({
 }));
 
 vi.mock('@/components/Dashboard/FloorPlan/ReceptionFloorPlan/ReceptionFloorPlanCanvas', () => ({
-  ReceptionFloorPlanCanvas: ({ readOnly, plan }: { readOnly: boolean; plan: { id: string } }) => (
-    <div data-testid="reception-plan" data-read-only={String(readOnly)}>{plan.id}</div>
+  ReceptionFloorPlanCanvas: ({ readOnly, plan, attendingCount }: { readOnly: boolean; plan: { id: string }; attendingCount: number }) => (
+    <div data-testid="reception-plan" data-read-only={String(readOnly)} data-attending={attendingCount}>{plan.id}</div>
   ),
 }));
 
@@ -26,6 +26,7 @@ describe('ReadOnlyReceptionFloorPlan', () => {
         plan: { id: 'plan-1' },
         tables: [],
         event: { name: 'QA Event' },
+        attendingCount: 12,
       },
       backgroundUrl: null,
       loading: false,
@@ -36,6 +37,7 @@ describe('ReadOnlyReceptionFloorPlan', () => {
 
     expect(useReceptionFloorPlanShare).toHaveBeenCalledWith('secure-share-token');
     expect(screen.getByTestId('reception-plan')).toHaveAttribute('data-read-only', 'true');
+    expect(screen.getByTestId('reception-plan')).toHaveAttribute('data-attending', '12');
   });
 
   it('explains when the organiser has not provided a valid share token', () => {

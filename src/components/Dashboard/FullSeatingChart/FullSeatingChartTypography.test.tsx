@@ -60,7 +60,7 @@ describe('Full Seating Chart guest typography', () => {
     expect(hook).toContain('font_size: settingsToSave.fontSize');
     expect(hook).toContain(".eq('event_id', eventId)");
     expect(hook).toContain("onConflict: 'event_id,user_id'");
-    expect(page.match(/exportFullSeatingChartToPdf\([^;]+settings/g)?.length).toBe(2);
+    expect(page).toContain("await exportPreview('single')"); expect(page).toContain("await exportPreview('all')"); expect(page).toContain('getPageElement: preview.getPageElement');
     expect(exporter).toContain('FULL_SEATING_CHART_GUEST_TEXT_SIZES[settings.fontSize]');
     expect(exporter).toContain('pdf.setFontSize(fontSize)');
   });

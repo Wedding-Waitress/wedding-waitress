@@ -299,7 +299,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
       const success = await onSave({
         name: trimmedName,
         limit_seats: limitSeats,
-        notes: notes.trim() || undefined,
+        notes: notes.trim() || (editingTable ? '' : undefined),
         table_no: tableNo,
         table_type: isHeadTable ? 'long' : tableType,
         table_purpose: tablePurpose,

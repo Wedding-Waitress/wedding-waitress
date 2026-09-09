@@ -9,7 +9,7 @@
  * See CEREMONY_FLOOR_PLAN_SPECS.md for complete technical specifications.
  */
 
-import { useState, useEffect, useCallback } from 'react';
+import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Json } from '@/integrations/supabase/types';
@@ -110,17 +110,34 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
   const [initialLoadComplete, setInitialLoadComplete] = useState(!!cached);
   const { toast } = useToast();
 
+  const activeEvent = useRef(eventId);
+  activeEvent.current = eventId;
+  const currentPlan = useRef(floorPlan);
+  currentPlan.current = floorPlan?.event_id === eventId ? floorPlan : null;
+  const saveQueue = useRef<Promise<unknown>>(Promise.resolve());
+  const pendingSaves = useRef(new Map<string, { confirmed: CeremonyFloorPlan; patches: Partial<CeremonyFloorPlan>[] }>());
+  const fetchVersion = useRef(0);
+  const editVersion = useRef(0);
+  const creatingEvents = useRef(new Set<string>());
+
   // Keep cache in sync
   useEffect(() => {
-    if (eventId && floorPlan) floorPlanCache.set(eventId, floorPlan);
+    if (eventId && floorPlan?.event_id === eventId) floorPlanCache.set(eventId, floorPlan);
   }, [eventId, floorPlan]);
 
   const fetchFloorPlan = useCallback(async () => {
+    const request = ++fetchVersion.current;
+    const edits = editVersion.current;
+    let loaded = false;
     if (!eventId) {
       setFloorPlan(null);
+      setLoading(false);
+      setInitialLoadComplete(false);
       return;
     }
 
+    setFloorPlan(floorPlanCache.get(eventId) ?? null);
+    setInitialLoadComplete(false);
     if (!floorPlanCache.has(eventId)) setLoading(true);
     try {
       const { data, error } = await supabase
@@ -130,6 +147,8 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
         .maybeSingle();
 
       if (error) throw error;
+      loaded = true;
+      if (activeEvent.current !== eventId || request !== fetchVersion.current || edits !== editVersion.current) return;
 
       if (data) {
         // Parse seat_assignments from Json to SeatAssignment[]
@@ -172,13 +191,16 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
     } catch (error) {
       console.error('Error fetching ceremony floor plan:', error);
     } finally {
-      setLoading(false);
-      setInitialLoadComplete(true);
+      if (activeEvent.current === eventId && request === fetchVersion.current) {
+        setLoading(false);
+        setInitialLoadComplete(loaded);
+      }
     }
   }, [eventId]);
 
   const createFloorPlan = useCallback(async () => {
-    if (!eventId) return null;
+    if (!eventId || creatingEvents.current.has(eventId)) return null;
+    creatingEvents.current.add(eventId);
 
     try {
       const { data: { user } } = await supabase.auth.getUser();
@@ -223,7 +245,8 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
         person_right_name: data.person_right_name ?? 'Bride',
       };
 
-      setFloorPlan(newPlan);
+      floorPlanCache.set(eventId, newPlan);
+      if (activeEvent.current === eventId) setFloorPlan(newPlan);
       return newPlan;
     } catch (error: any) {
       console.error('Error creating ceremony floor plan:', error);
@@ -233,51 +256,49 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
         variant: 'destructive',
       });
       return null;
-    }
+    } finally { creatingEvents.current.delete(eventId); }
   }, [eventId, toast, fetchFloorPlan, floorPlan]);
 
-  const updateFloorPlan = useCallback(async (updates: Partial<Omit<CeremonyFloorPlan, 'id' | 'event_id' | 'user_id' | 'created_at' | 'updated_at'>>) => {
-    if (!floorPlan) return false;
-
-    // Optimistic local update — instant UI feedback (zero delay for sliders)
-    setFloorPlan(prev => prev ? { ...prev, ...updates } : null);
-
-    try {
-      // Convert arrays to Json for Supabase
-      const dbUpdates: Record<string, unknown> = { ...updates };
-      if (updates.seat_assignments) {
-        dbUpdates.seat_assignments = updates.seat_assignments as unknown as Json;
-      }
-      if (updates.bridal_party_left) {
-        dbUpdates.bridal_party_left = updates.bridal_party_left as unknown as Json;
-      }
-      if (updates.bridal_party_right) {
-        dbUpdates.bridal_party_right = updates.bridal_party_right as unknown as Json;
-      }
-      if (updates.bridal_party_roles_left) {
-        dbUpdates.bridal_party_roles_left = updates.bridal_party_roles_left as unknown as Json;
-      }
-      if (updates.bridal_party_roles_right) {
-        dbUpdates.bridal_party_roles_right = updates.bridal_party_roles_right as unknown as Json;
-      }
-
-      const { error } = await supabase
-        .from('ceremony_floor_plans')
-        .update(dbUpdates)
-        .eq('id', floorPlan.id);
-
-      if (error) throw error;
-      return true;
-    } catch (error: any) {
-      console.error('Error updating ceremony floor plan:', error);
-      toast({
-        title: 'Error',
-        description: error.message || 'Failed to save changes',
-        variant: 'destructive',
-      });
-      return false;
+  const updateFloorPlan = useCallback((updates: Partial<Omit<CeremonyFloorPlan, 'id' | 'event_id' | 'user_id' | 'created_at' | 'updated_at'>>) => {
+    const before = currentPlan.current;
+    if (!before || before.event_id !== eventId) return Promise.resolve(false);
+    editVersion.current++;
+    let pending = pendingSaves.current.get(before.id);
+    if (!pending) {
+      pending = { confirmed: before, patches: [] };
+      pendingSaves.current.set(before.id, pending);
     }
-  }, [floorPlan, toast]);
+    const batch = pending;
+    batch.patches.push(updates);
+    const publish = () => {
+      const next = batch.patches.reduce((plan, patch) => ({ ...plan, ...patch }), batch.confirmed);
+      floorPlanCache.set(before.event_id, next);
+      if (activeEvent.current === before.event_id) {
+        currentPlan.current = next;
+        setFloorPlan(next);
+      }
+    };
+    publish();
+    const task = saveQueue.current.then(async () => {
+      try {
+        const { data, error } = await supabase.from('ceremony_floor_plans')
+          .update(updates as unknown as Record<string, Json>)
+          .eq('id', before.id).eq('event_id', before.event_id).select('id').single();
+        if (error || !data) throw error || new Error('The floor plan could not be saved');
+        batch.confirmed = { ...batch.confirmed, ...updates };
+        return true;
+      } catch (error) {
+        toast({ title: 'Changes not saved', description: error instanceof Error ? error.message : 'Please try again.', variant: 'destructive' });
+        return false;
+      } finally {
+        batch.patches.splice(batch.patches.indexOf(updates), 1);
+        publish();
+        if (!batch.patches.length) pendingSaves.current.delete(before.id);
+      }
+    });
+    saveQueue.current = task;
+    return task;
+  }, [eventId, toast]);
 
   const updateSeatAssignment = useCallback(async (
     side: 'left' | 'right',
@@ -287,7 +308,7 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
   ) => {
     if (!floorPlan) return false;
 
-    const existingAssignments = floorPlan.seat_assignments || [];
+    const existingAssignments = currentPlan.current?.seat_assignments || [];
     
     // Find existing assignment for this seat
     const existingIndex = existingAssignments.findIndex(
@@ -321,7 +342,7 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
     if (!floorPlan) return false;
 
     const key = side === 'left' ? 'bridal_party_left' : 'bridal_party_right';
-    const currentArray = [...(floorPlan[key] || [])];
+    const currentArray = [...(currentPlan.current?.[key] || [])];
     
     // Ensure array is large enough
     while (currentArray.length <= index) {
@@ -355,7 +376,7 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
     if (!floorPlan) return false;
 
     const key = side === 'left' ? 'bridal_party_roles_left' : 'bridal_party_roles_right';
-    const currentArray = [...(floorPlan[key] || [])];
+    const currentArray = [...(currentPlan.current?.[key] || [])];
     
     // Ensure array is large enough
     while (currentArray.length <= index) {
@@ -393,9 +414,9 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
   }, [fetchFloorPlan]);
 
   return {
-    floorPlan,
-    loading,
-    initialLoadComplete,
+    floorPlan: floorPlan?.event_id === eventId ? floorPlan : null,
+    loading: loading || Boolean(eventId && floorPlan && floorPlan.event_id !== eventId),
+    initialLoadComplete: initialLoadComplete && (!floorPlan || floorPlan.event_id === eventId),
     createFloorPlan,
     updateFloorPlan,
     updateSeatAssignment,

@@ -12,6 +12,20 @@ vi.mock('@/hooks/use-toast', () => ({
 afterEach(cleanup);
 
 describe('Seating Chart Signs designer tabs', () => {
+  it('keeps a hidden QR available to show again', () => {
+    const save = vi.fn().mockResolvedValue(true);
+    render(<InvitationCardCustomizer settings={{ background_color: '#ffffff', text_zones: [], qr_config: { enabled: false, event_id: 'test-event' } } as any} onSettingsChange={save} eventData={{}} signageTypography />);
+    fireEvent.mouseDown(screen.getByRole('tab', { name: 'Add QR Code' }), { button: 0, ctrlKey: false });
+    fireEvent.click(screen.getByRole('switch'));
+    expect(save).toHaveBeenCalledWith({ qr_config: { enabled: true, event_id: 'test-event' } });
+  });
+
+  it('shows the saved zero opacity instead of replacing it with 100%', () => {
+    render(<InvitationCardCustomizer settings={{ background_color: '#ffffff', background_image_type: 'full', background_image_url: '/test.png', background_image_opacity: 0, text_zones: [] } as any} onSettingsChange={vi.fn()} eventData={{}} signageTypography />);
+    fireEvent.mouseDown(screen.getByRole('tab', { name: 'Background' }), { button: 0, ctrlKey: false });
+    expect(screen.getByRole('combobox')).toHaveTextContent('0%');
+  });
+
   it('opens the correct content and moves the active state across all four tabs', () => {
     render(
       <InvitationCardCustomizer
@@ -52,7 +66,7 @@ describe('Seating Chart Signs designer tabs', () => {
 
     expect(css).toMatch(/ww-signage-premium-designer\) \[role="tablist"\][^{]*\{[\s\S]*?display:\s*grid\s*!important;[\s\S]*?grid-template-columns:\s*repeat\(4, minmax\(0, 1fr\)\);[\s\S]*?padding:\s*0\.25rem\s*!important;[\s\S]*?border-radius:\s*999px\s*!important;/);
     expect(css).toMatch(/ww-signage-premium-designer\) \[role="tab"\][^{]*\{[\s\S]*?flex-direction:\s*row\s*!important;[\s\S]*?border:\s*0\s*!important;[\s\S]*?box-shadow:\s*none\s*!important;[\s\S]*?white-space:\s*nowrap\s*!important;/);
-    expect(css).toMatch(/\[role="tab"\]\[data-state="active"\][^{]*\{[\s\S]*?background:\s*linear-gradient\(180deg, #15803d 0%, #166534 100%\)\s*!important;[\s\S]*?0 7px 16px rgba\(22, 101, 52, 0\.22\)\s*!important;/);
-    expect(css).toMatch(/@media \(max-width: 480px\)[\s\S]*?ww-signage-premium-designer\) \[role="tab"\][^{]*\{[\s\S]*?min-height:\s*2\.75rem\s*!important;[\s\S]*?flex-direction:\s*row\s*!important;[\s\S]*?font-size:\s*clamp\(10px, 3vw, 13px\)\s*!important;/);
+    expect(css).toMatch(/\[role="tab"\]\[data-state="active"\][^{]*\{[\s\S]*?background:\s*linear-gradient\(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%\)\s*!important;[\s\S]*?0 7px 16px rgba\(22, 101, 52, 0\.22\)\s*!important;/);
+    expect(css).toMatch(/@media \(max-width: 480px\)[\s\S]*?ww-signage-premium-designer\) \[role="tab"\][^{]*\{[\s\S]*?min-height:\s*2\.75rem\s*!important;[\s\S]*?flex-direction:\s*row\s*!important;[\s\S]*?font-size:\s*clamp\(8px, 2\.3vw, 11px\)\s*!important;/);
   });
 });

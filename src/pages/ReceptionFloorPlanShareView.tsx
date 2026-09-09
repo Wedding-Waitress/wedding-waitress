@@ -1,4 +1,5 @@
 /** Public read-only view powered by the same authoritative Reception A4 renderer. */
+import {ReceptionCollaboratorView} from '@/components/Dashboard/FloorPlan/ReceptionCollaboratorView';
 import { useCallback, useRef, useState } from 'react';
 import { useParams } from 'react-router-dom';
 import { ChevronDown, ClipboardList, FileDown, LayoutGrid, Loader2, StickyNote } from 'lucide-react';
@@ -73,6 +74,7 @@ export const ReceptionFloorPlanShareView = () => {
     );
   }
 
+  if(data.permission === "can_edit" && token) return <ReceptionCollaboratorView token={token} data={data} backgroundUrl={backgroundUrl}/>;
   const { plan, event, tables } = data;
   const couple = [event.partner1_name, event.partner2_name].filter(Boolean).join(' & ');
   const tableNotes = plan.table_positions
@@ -88,7 +90,7 @@ export const ReceptionFloorPlanShareView = () => {
   return (
     <div className={`${styles.page} ww-application-background`}>
       <header className={styles.header}>
-        <div className={`${styles.headerInner} max-w-6xl mx-auto px-4 py-4 flex items-center justify-between gap-3 flex-wrap`}>
+        <div className={`${styles.headerInner} w-full mx-auto px-4 py-3 flex items-center justify-between gap-3 flex-wrap`}>
           <div className="flex items-center gap-3 min-w-0">
             <LayoutGrid className={`${styles.icon} w-6 h-6 shrink-0`} />
             <div className="min-w-0">
@@ -123,7 +125,7 @@ export const ReceptionFloorPlanShareView = () => {
         </div>
       </header>
 
-      <main className="max-w-6xl mx-auto px-4 py-6">
+      <main className="w-full mx-auto px-3 py-3">
         <ReceptionFloorPlanCanvas
           plan={plan}
           tables={tables}
@@ -133,6 +135,7 @@ export const ReceptionFloorPlanShareView = () => {
           a4Ref={receptionA4Ref}
           backgroundUrl={backgroundUrl}
           onChange={preserveReadOnlyPlan}
+          fitViewport
           readOnly
         />
 

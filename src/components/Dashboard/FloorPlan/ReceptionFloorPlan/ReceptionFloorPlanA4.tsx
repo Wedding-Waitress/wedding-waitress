@@ -1,3 +1,4 @@
+import {receptionHeaderStats} from '@/lib/receptionHeaderStats';
 import React from 'react';
 
 import type { ReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
@@ -26,13 +27,18 @@ export interface ReceptionA4Event {
 
 export interface ReceptionFloorPlanA4Props {
   pageRef: React.RefObject<HTMLDivElement>;
+  fitViewport?: boolean;
   event: ReceptionA4Event;
   plan: ReceptionFloorPlan;
   attendingCount: number;
+  tables?: {id:string; table_purpose?: string; guest_count: number}[];
   generatedAt: Date;
   roomWidthPx: number;
   roomHeightPx: number;
   children: React.ReactNode;
+  noteLines?: string[];
+  pageNumber?: number;
+  pageCount?: number;
 }
 
 const formatDate = (value?: string | null): string => {
@@ -80,15 +86,20 @@ export const ReceptionFloorPlanA4 = ({
   event,
   plan,
   attendingCount,
+  tables = [],
   generatedAt,
   roomWidthPx,
   roomHeightPx,
   children,
+  noteLines,
+  pageNumber = 1,
+  pageCount = 1,
 }: ReceptionFloorPlanA4Props) => {
   const roomFit = React.useMemo(
     () => getReceptionRoomFit(roomWidthPx, roomHeightPx),
     [roomHeightPx, roomWidthPx],
   );
+  const stats = receptionHeaderStats(tables, plan.table_positions);
   const times = [formatTime(event.start_time), formatTime(event.finish_time)]
     .filter(Boolean)
     .join(' – ');
@@ -117,13 +128,14 @@ export const ReceptionFloorPlanA4 = ({
         <h2>Reception Floor Plan</h2>
         <p>{details}</p>
         <p>
-          Attending: <strong>{attendingCount}</strong> · Room: {plan.room_width_m}m ×{' '}
-          {plan.room_length_m}m · Grid: {plan.grid_size_cm}cm
+          Head table: <strong>{stats.headPlaced}/{stats.headTotal}</strong>
+          {' · '}Tables: <strong>{stats.tablesPlaced}/{stats.tablesTotal}</strong>
+          {' · '}Total Attending Reception: <strong>{stats.guestsPlaced}/{stats.guestsTotal}</strong>
         </p>
         <div className={styles.separator} />
       </header>
 
-      <main className={styles.documentBody} data-reception-a4-room-stage="true">
+      {noteLines ? <div className={styles.notesBody} data-reception-notes-page="true">{noteLines.map((line, index) => <div key={index}>{line || '\u00a0'}</div>)}</div> : <main className={styles.documentBody} data-reception-a4-room-stage="true">
         <div
           className={styles.roomFrame}
           data-reception-room-fit="true"
@@ -145,12 +157,12 @@ export const ReceptionFloorPlanA4 = ({
             {children}
           </div>
         </div>
-      </main>
+      </main>}
 
       <footer className={styles.footer} data-reception-a4-footer="true">
         <span>Generated: {generated}</span>
         <img src={logo} alt="Wedding Waitress" />
-        <span>Page 1 of 1</span>
+        <span>Page {pageNumber} of {pageCount}</span>
       </footer>
     </div>
   );
@@ -162,6 +174,7 @@ export interface ReceptionFloorPlanA4PreviewProps extends Omit<ReceptionFloorPla
 
 export const ReceptionFloorPlanA4Preview = ({
   pageRef,
+  fitViewport = false,
   ...props
 }: ReceptionFloorPlanA4PreviewProps) => {
   const viewportRef = React.useRef<HTMLDivElement>(null);
@@ -179,19 +192,24 @@ export const ReceptionFloorPlanA4Preview = ({
     const resize = () => {
       const width = sheet.offsetWidth || RECEPTION_A4.widthPx;
       const height = sheet.offsetHeight || RECEPTION_A4.heightPx;
-      const fitScale = Math.min(1, viewport.clientWidth / width);
+      const availableHeight = Math.max(180, window.innerHeight - (viewport.getBoundingClientRect().top + window.scrollY) - 52);
+      const fitScale = fitViewport ? Math.min(viewport.clientWidth / width, availableHeight / height) : Math.min(1, viewport.clientWidth / width);
       setSheetPixels({ width, height });
-      setScale(Math.max(0.45, fitScale));
+      setScale(Math.max(fitViewport ? 0.1 : 0.45, fitScale));
     };
 
     resize();
     const observer = new ResizeObserver(resize);
     observer.observe(viewport);
-    return () => observer.disconnect();
-  }, [pageRef]);
+    window.addEventListener('resize', resize);
+    return () => { observer.disconnect(); window.removeEventListener('resize', resize); };
+  }, [pageRef, fitViewport]);
 
+  const notes = paginateReceptionNotes(props.plan);
+  const pageCount = 1 + notes.length;
   return (
     <div
+      data-reception-document-group="true"
       ref={viewportRef}
       className={styles.previewViewport}
       data-reception-a4-preview-viewport="true"
@@ -200,7 +218,7 @@ export const ReceptionFloorPlanA4Preview = ({
         className={styles.previewCanvas}
         style={{
           width: sheetPixels.width * scale,
-          height: sheetPixels.height * scale,
+          height: (sheetPixels.height * pageCount + 16 * notes.length) * scale,
         }}
       >
         <div
@@ -208,13 +226,26 @@ export const ReceptionFloorPlanA4Preview = ({
           data-print-mirror-presentation="true"
           style={{
             width: sheetPixels.width,
-            height: sheetPixels.height,
+            height: sheetPixels.height * pageCount + 16 * notes.length,
             transform: `scale(${scale})`,
           }}
         >
-          <ReceptionFloorPlanA4 pageRef={pageRef} {...props} />
+          <ReceptionFloorPlanA4 pageRef={pageRef} {...props} pageCount={1} />
+          {notes.map((lines, index) => <div key={index} className={styles.notesSheetGap}><ReceptionFloorPlanA4 {...props} pageRef={{ current: null }} noteLines={lines} pageNumber={index + 1} pageCount={notes.length} /></div>)}
         </div>
       </div>
     </div>
   );
 };
+
+/** Wrap notes before pagination so no entered lines are clipped in print. */
+export function paginateReceptionNotes(plan: ReceptionFloorPlan): string[][] {
+  const sections: string[] = [];
+  if (plan.vendor_notes?.trim()) sections.push('Vendor setup notes', plan.vendor_notes);
+  for (const table of plan.table_positions) if (table.note?.trim()) sections.push((table.table_name || 'Table ' + (table.table_no ?? '')) + ':', table.note);
+  const lines = sections.join('\n\n').split('\n').flatMap(line => line.match(/.{1,100}/gu) || ['']);
+  if (!sections.length) return [];
+  const pages: string[][] = [];
+  for (let index = 0; index < lines.length; index += 38) pages.push(lines.slice(index, index + 38));
+  return pages;
+}

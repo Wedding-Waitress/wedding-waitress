@@ -176,7 +176,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
               value={settings.fontSize}
               onValueChange={(value: DietaryChartSettings['fontSize']) => onSettingsChange({ fontSize: value })}
             >
-              <SelectTrigger className={`${styles.selectTrigger} w-full`}>
+              <SelectTrigger aria-label="Guest Text Size" className={`${styles.selectTrigger} w-full`}>
                 <SelectValue />
               </SelectTrigger>
               <SelectContent className={styles.portalSurface}>

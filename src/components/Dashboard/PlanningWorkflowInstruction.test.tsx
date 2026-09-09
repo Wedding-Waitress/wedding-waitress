@@ -13,7 +13,21 @@ describe('planning workflow instruction strips', () => {
     const onContinue = vi.fn();
     const { container } = render(<PlanningWorkflowInstruction stepId={stepId} onContinue={onContinue} />);
     expect(container.querySelector(`[data-workflow-step="${number}"]`)).toBeInTheDocument();
+    expect(container.querySelector('[data-workflow-step-number]')).toHaveTextContent(number);
     fireEvent.click(screen.getByRole('button', { name: `Continue to ${nextLabel}` }));
+    expect(onContinue).toHaveBeenCalledTimes(1);
+  });
+
+  it('can hide only the My Events number badge while retaining its introduction card', () => {
+    const onContinue = vi.fn();
+    const { container } = render(
+      <PlanningWorkflowInstruction stepId="my-events" onContinue={onContinue} showStepNumber={false} />,
+    );
+
+    expect(container.firstElementChild).toHaveAttribute('data-workflow-step');
+    expect(container.querySelector('[data-workflow-step-number]')).not.toBeInTheDocument();
+    expect(screen.getByText('My Events')).toBeInTheDocument();
+    fireEvent.click(screen.getByRole('button', { name: 'Continue to Event Budget Planner' }));
     expect(onContinue).toHaveBeenCalledTimes(1);
   });
 

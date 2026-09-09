@@ -26,7 +26,7 @@ describe('universal solid-text colour system', () => {
 
     expect(publicCss).toContain('--ww-muted: var(--ww-text-on-light, #412419);');
     expect(publicCss).toContain('var(--ww-text-on-dark, #ffffff)');
-    expect(dashboard).toContain('data-solid-text-surface={isPhotoVideoWorkspace ? \'dark\' : \'light\'}');
+    expect(dashboard).toContain('data-solid-text-surface={contentTab === \'photo-video-gallery\' ? \'dark\' : \'light\'}');
   });
 
   it('keeps protected printable preview renderers outside broad text overrides', () => {

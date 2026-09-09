@@ -1,3 +1,4 @@
+import { Printer as ExportControlsPrinter } from 'lucide-react';
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -9,7 +10,7 @@ import {
 } from '../Invitations/InvitationCardCustomizer';
 import { InvitationCardPreview } from '../Invitations/InvitationCardPreview';
 import { SignageGalleryModal } from './SignageGalleryModal';
-import { checkPrintFit, useOptimizedPreview } from '@/lib/imagePipeline';
+import { checkPrintFit } from '@/lib/imagePipeline';
 import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
 import { Loader2, LoaderCircle, FileText, CalendarDays, Printer, LayoutTemplate, BadgeCheck, CircleCheck, Star, Download, Contact, PanelsTopLeft, Mail } from 'lucide-react';
@@ -18,6 +19,7 @@ import { generateInvitationQR } from '@/lib/invitationQR';
 import { toast } from '@/hooks/use-toast';
 import type { TextZone, QrConfig } from '@/hooks/useInvitationCardSettings';
 import styles from './SignagePage.module.css';
+import { useSignageImageFit } from './useSignageImageFit';
 
 interface SignagePageProps {
   selectedEventId: string | null;
@@ -55,7 +57,7 @@ const SIGNAGE_PRESET_STYLES: Record<string, { font_family: string; font_size: nu
   qr_instructions: { font_family: 'Lora', font_size: 18 },
 };
 
-// Australian print sizes (portrait). UI-only — does not affect canvas/exporter yet.
+// Selected paper dimensions drive both the visible document and PDF.
 const PRINT_SIZES: ReadonlyArray<{
   id: string;
   label: string;
@@ -64,27 +66,19 @@ const PRINT_SIZES: ReadonlyArray<{
   recommended?: boolean;
   icon: LucideIcon;
 }> = [
-  
+
+  { id: 'a0', label: 'A0', dims: '841 × 1189 mm', best: 'Best for extra-large foyer seating charts', icon: FileText },
   { id: 'a1', label: 'A1', dims: '594 × 841 mm', best: 'Best for foyer seating charts & easels', recommended: true, icon: FileText },
   { id: 'a2', label: 'A2', dims: '420 × 594 mm', best: 'Best for entry-table signs', icon: FileText },
   { id: 'a3', label: 'A3', dims: '297 × 420 mm', best: 'Best for welcome signs', icon: FileText },
-  { id: 'a4', label: 'A4', dims: '210 × 297 mm', best: 'Best for table signage', icon: FileText },
-  { id: 'a5', label: 'A5', dims: '148 × 210 mm', best: 'Best for small table cards', icon: FileText },
-  { id: 'dl', label: 'DL Card', dims: '99 × 210 mm', best: 'Best for upload QR cards', icon: PanelsTopLeft },
-  { id: 'postcard', label: 'Postcard', dims: '105 × 148 mm', best: 'Best for keepsake QR cards', icon: Mail },
-  { id: 'business', label: 'Business Card', dims: '90 × 55 mm', best: 'Best for guest QR handouts', icon: Contact },
 ];
 
 const PRINT_DIMENSIONS: Record<string, { widthMm: number; heightMm: number }> = {
-  
+
+  a0: { widthMm: 841, heightMm: 1189 },
   a1: { widthMm: 594, heightMm: 841 },
   a2: { widthMm: 420, heightMm: 594 },
   a3: { widthMm: 297, heightMm: 420 },
-  a4: { widthMm: 210, heightMm: 297 },
-  a5: { widthMm: 148, heightMm: 210 },
-  dl: { widthMm: 99, heightMm: 210 },
-  postcard: { widthMm: 105, heightMm: 148 },
-  business: { widthMm: 90, heightMm: 55 },
 };
 
 // QR safety: enforce ≥35mm rendered size (real venue scannability).
@@ -101,12 +95,27 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
   } = useSignageSettings(selectedEventId);
 
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
+  const signDocumentRef = useRef<HTMLDivElement | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [exporting, setExporting] = useState<null | 'pdf' | 'png'>(null);
   const [printSize, setPrintSize] = useState<string | null>(() => {
     const rec = PRINT_SIZES.find(p => p.recommended) || PRINT_SIZES[0];
     return rec ? rec.id : null;
   });
+  const { confirmFit, rememberFit, dialog: imageFitDialog } = useSignageImageFit();
+  const selectedPaper = useMemo(() => ({ label: (printSize || 'a1').toUpperCase(), ...PRINT_DIMENSIONS[printSize || 'a1'] }), [printSize]);
+  const paperRef = useRef(selectedPaper);
+  paperRef.current = selectedPaper;
+  const approvedUploadPaper = useRef<typeof selectedPaper | null>(null);
+  const beforeBackgroundUpload = useCallback(async (file: File) => {
+    const url = URL.createObjectURL(file);
+    const paper = paperRef.current;
+    try {
+      const approved = await confirmFit(url, paper);
+      approvedUploadPaper.current = approved ? paper : null;
+      return approved;
+    } finally { URL.revokeObjectURL(url); }
+  }, [confirmFit]);
 
   // Tracks the lightweight preview URL last chosen from the gallery so we can detect
   // when the user switches to a non-gallery source (Choose File / Remove) and drop
@@ -126,19 +135,22 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
       <SignageGalleryModal
         open={adapterProps.open}
         onOpenChange={adapterProps.onOpenChange}
-        onSelectImage={(previewUrl, printUrl) => {
+        onSelectImage={async (previewUrl, printUrl) => {
+          if (!(await confirmFit(printUrl || previewUrl, paperRef.current))) return;
           lastGalleryPreviewRef.current = previewUrl;
           updateSettings({
             background_image_url: previewUrl,
             background_image_print_url: printUrl ?? null,
             background_image_type: 'full',
+            background_image_x_position: 50,
+            background_image_y_position: 50,
           });
           adapterProps.onOpenChange(false);
         }}
       />
     );
     return Adapter;
-  }, [updateSettings]);
+  }, [updateSettings, confirmFit]);
 
 
   const selectedEvent = useMemo(() => events.find(e => e.id === selectedEventId), [events, selectedEventId]);
@@ -146,22 +158,18 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
   const orientation: 'portrait' | 'landscape' = settings?.orientation || 'portrait';
 
 
-  // Editor preview: derive a LIGHTWEIGHT display URL from the master.
-  // Print export still uses the untouched master for full 300 DPI quality.
-  // Target ~1400px JPEG q=70 — visually crisp inside the A4 preview frame
-  // but small enough to decode/paint instantly with zero scroll lag.
+  // Preview and print capture use the same image and selected paper document.
   const editorMasterUrl = settings?.background_image_print_url || settings?.background_image_url || null;
-  const { url: lightweightBgUrl } = useOptimizedPreview(
-    editorMasterUrl,
-    (settings as any)?.background_image_preview_url ?? null,
-  );
-
-  // Editor-facing settings: identical to asInvitationSettings but with the
-  // background image swapped for the lightweight version.
+  const handlePrintSizeChange = async (next: string) => {
+    if (next === printSize || exporting) return;
+    const paper = { label: next.toUpperCase(), ...PRINT_DIMENSIONS[next] };
+    if (editorMasterUrl && settings?.background_image_type === 'full' && !(await confirmFit(editorMasterUrl, paper, settings.background_image_x_position, settings.background_image_y_position))) return;
+    setPrintSize(next);
+  };
   const editorSettings = useMemo(() => {
     if (!asInvitationSettings) return null;
-    return { ...asInvitationSettings, background_image_url: lightweightBgUrl };
-  }, [asInvitationSettings, lightweightBgUrl]);
+    return { ...asInvitationSettings, background_image_url: editorMasterUrl };
+  }, [asInvitationSettings, editorMasterUrl]);
 
   const eventData = useMemo(() => {
     if (!selectedEvent) return {} as Record<string, string>;
@@ -322,16 +330,24 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
         lastGalleryPreviewRef.current = null;
       } else if (incoming !== lastGalleryPreviewRef.current) {
         mapped.background_image_print_url = null;
+        mapped.background_image_type = 'full';
+        mapped.background_image_x_position = 50;
+        mapped.background_image_y_position = 50;
+        if (approvedUploadPaper.current) {
+          rememberFit(incoming, approvedUploadPaper.current);
+          approvedUploadPaper.current = null;
+        }
       }
     }
     if (Object.keys(mapped).length === 0) return true;
     return updateSettings(mapped);
-  }, [updateSettings]);
+  }, [updateSettings, rememberFit]);
 
   const handleDownloadPDF = useCallback(async () => {
     if (!settings || !selectedEvent || !printSize) return;
     const dims = PRINT_DIMENSIONS[printSize];
     if (!dims) return;
+    if (editorMasterUrl && settings.background_image_type === 'full' && !(await confirmFit(editorMasterUrl, selectedPaper, settings.background_image_x_position, settings.background_image_y_position))) return;
 
     // Auto-upscale check: warn if the master image is too small for the selected print size.
     const fit = checkPrintFit(
@@ -348,6 +364,9 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
     setExporting('pdf');
     try {
+      if (settings.qr_config?.enabled && !qrDataUrl) {
+        throw new Error('The QR code is not ready. Please wait for it to appear on the sign and try again.');
+      }
       const { widthMm, heightMm } = dims;
 
       const exportBgUrl = settings.background_image_print_url || settings.background_image_url || '';
@@ -355,30 +374,16 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
         throw new Error('Add a background image or color before exporting.');
       }
 
-      const customText: Record<string, string> = {};
-      const customStyles: Record<string, any> = {};
-      (settings.text_zones || []).forEach((z: any) => {
-        if (z.id) {
-          if (z.text) customText[z.id] = z.text;
-          else if (z.preset_field && (eventData as any)[z.preset_field]) customText[z.id] = (eventData as any)[z.preset_field];
-          customStyles[z.id] = {};
-        }
-      });
-
       const sizeLabel = PRINT_SIZES.find(p => p.id === printSize)?.label || 'Print';
-      const fileName = `WW-Sign-${selectedEvent.name}-${sizeLabel}-Portrait.pdf`;
+      const fileName = `WW-Sign-${selectedEvent.name}-${sizeLabel}-${widthMm > heightMm ? 'Landscape' : 'Portrait'}.pdf`;
       const { exportSignagePDF } = await import('@/lib/signagePdfExporter');
+      setSelectedZoneId(null);
+      await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
+      if (!signDocumentRef.current) throw new Error('The sign preview is still loading. Please try again.');
       await exportSignagePDF({
-        backgroundUrl: exportBgUrl,
-        backgroundColor: settings.background_color,
+        pageElement: signDocumentRef.current,
         widthMm,
         heightMm,
-        textZones: settings.text_zones as any,
-        customText,
-        customStyles,
-        eventData: eventData as Record<string, string>,
-        qrConfig: settings.qr_config,
-        qrDataUrl: qrDataUrl || undefined,
       }, fileName);
       toast({ title: 'PDF downloaded', description: `Your ${sizeLabel} print-ready PDF has been saved.` });
     } catch (err: any) {
@@ -391,7 +396,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
     } finally {
       setExporting(null);
     }
-  }, [settings, selectedEvent, printSize, eventData, qrDataUrl]);
+  }, [settings, selectedEvent, printSize, eventData, qrDataUrl, editorMasterUrl, selectedPaper, confirmFit]);
 
   const handleDownloadPNG = useCallback(async () => {
     if (!settings || !selectedEvent) return;
@@ -529,7 +534,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                   <div>
                     <p className="ww-signage-guidelines-title flex items-center gap-2 font-semibold text-primary text-base">
                       <BadgeCheck className="h-[18px] w-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
-                      Professional Wedding Print Guidelines
+                      <span>Professional Wedding<br />Print Guidelines</span>
                     </p>
                     <p className="text-sm text-muted-foreground mt-1">
                       ​
@@ -551,7 +556,8 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                         <button
                           key={size.id}
                           type="button"
-                          onClick={() => setPrintSize(size.id)}
+                          onClick={() => void handlePrintSizeChange(size.id)}
+                          disabled={!!exporting}
                           className={`${styles.printSizeCard} ${active ? styles.printSizeActive : ''} lv-premium-shade text-left rounded-xl border p-3 min-h-[88px] flex flex-col gap-1 transition-all duration-200 ease-out hover:-translate-y-[1px] ${
                             active
                               ? 'border-green-500 bg-green-50 ring-2 ring-green-200 shadow-md'
@@ -625,10 +631,10 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                   if (settings && !hasBackground) missing.push('Choose a background image or color');
                   const disabled = exporting !== null || missing.length > 0;
                   return (
-                    <div className={`${styles.exportPanel} border border-primary rounded-xl p-3 flex flex-col gap-2 w-full lg:w-auto lg:whitespace-nowrap`}>
+                    <div data-export-controls-panel className={`${styles.exportPanel} border border-primary rounded-xl p-3 flex flex-col gap-2 w-full lg:w-auto lg:whitespace-nowrap`}>
                       <div className="text-sm">
-                        <span className="inline-flex items-center gap-1.5 font-medium"><Printer className="h-4 w-4" strokeWidth={1.8} aria-hidden="true" />Export Controls</span>
-                        <span className="text-muted-foreground ml-2">Download your sign as a print-ready PDF.</span>
+                        <span data-export-controls-heading><ExportControlsPrinter size={16} strokeWidth={2} aria-hidden="true" />Export Controls</span>
+
                       </div>
                       <div className="flex items-center gap-2">
                         <button
@@ -673,7 +679,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
       {/* Editor + Preview — sibling clone of InvitationsPage */}
       {selectedEventId && settings && !settingsLoading && editorSettings && (
-        <div className={`${styles.editorLayout} grid grid-cols-1 2xl:grid-cols-5 gap-6 items-start 2xl:items-stretch`}>
+        <div {...(exporting ? { inert: '' } : {})} aria-busy={!!exporting} className={`${styles.editorLayout} grid grid-cols-1 2xl:grid-cols-5 gap-6 items-start 2xl:items-stretch`}>
           <div className={`${styles.designerShell} ww-signage-brown 2xl:col-span-2 h-full`}>
             <InvitationCardCustomizer
               settings={editorSettings}
@@ -681,7 +687,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
               eventData={eventData}
               events={events}
               qrDataUrl={qrDataUrl}
-              headerTitle="QR Code Seating Chart & Wedding Sign Designer"
+              headerTitle={"QR Code Seating Chart &\nWedding Sign Designer"}
               presetZones={SIGNAGE_PRESET_ZONES}
               presetYPositions={SIGNAGE_PRESET_Y_POSITIONS}
               presetStyles={SIGNAGE_PRESET_STYLES}
@@ -690,6 +696,9 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
               qrTabTitle="Add QR Code to Sign"
               notesPlaceholder="Add any notes or captions for this QR code seating chart sign design…"
               notesHelper="This is for your reference only and won't appear on the sign."
+              notes={settings?.notes ?? ''}
+              onNotesChange={notes => updateSettings({ notes })}
+              beforeBackgroundUpload={beforeBackgroundUpload}
               imageUploadFolder="signage"
               storageBucket="invitations"
               galleryButtonLabel="Template Library"
@@ -700,14 +709,17 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
             />
           </div>
           {/* Preview area: extra padding for landscape breathing room */}
-          <div className={`${styles.previewStage} 2xl:col-span-3 2xl:h-full 2xl:flex 2xl:flex-col w-full max-w-full mx-auto max-sm:px-0 max-sm:overflow-x-auto max-sm:overflow-y-hidden md:max-lg:overflow-hidden md:max-lg:flex md:max-lg:justify-center ${
+          <div className={`${styles.previewStage} 2xl:col-span-3 w-full min-w-0 max-w-full mx-auto ${
             orientation === 'landscape' ? 'px-4 2xl:px-8' : ''
           }`}>
-            <div className="max-sm:w-max md:max-lg:w-[210mm] 2xl:h-full 2xl:flex 2xl:flex-col">
-              <div className="max-sm:origin-top-left md:max-lg:origin-top max-sm:w-[210mm] md:max-lg:scale-[0.75] md:max-lg:w-[210mm] md:max-lg:-mb-[30%] mx-auto 2xl:h-full 2xl:flex-1 2xl:min-h-0">
-                <PinchZoomContainer className="h-full" naturalWidth={orientation === 'portrait' ? 794 : 1123}>
+            <div className="w-full min-w-0">
+              <div className="w-full min-w-0 mx-auto">
+                <PinchZoomContainer className="h-full">
                   <InvitationCardPreview
                     fitToContainer
+                    backgroundFit="cover"
+                    paperSize={PRINT_DIMENSIONS[printSize]}
+                    documentRef={signDocumentRef}
                     settings={editorSettings}
                     eventData={eventData}
                     selectedZoneId={selectedZoneId}
@@ -718,6 +730,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                     onZoneDuplicate={handleZoneDuplicate}
                     qrDataUrl={qrDataUrl}
                     onQrConfigUpdate={handleQrConfigUpdate}
+                    normaliseQrControls
                     qrWhitePlate
                   />
                 </PinchZoomContainer>
@@ -726,6 +739,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
           </div>
         </div>
       )}
+      {imageFitDialog}
     </div>
   );
 };

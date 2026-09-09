@@ -5,14 +5,19 @@ import { describe, expect, it } from 'vitest';
 const read = (file: string) => fs.readFileSync(path.resolve(process.cwd(), file), 'utf8');
 
 describe('My Events typography', () => {
+  const page = read('src/components/Dashboard/MyEventsPage.tsx');
   const pageCss = read('src/components/Dashboard/MyEventsPage.module.css');
   const modalCss = read('src/components/Dashboard/EventCreateModal.module.css');
   const eventsTable = read('src/components/Dashboard/EventsTable.tsx');
 
   it('keeps the page and selected-event headings at 24px and 600 at every width', () => {
+    expect(page).toContain('<h1 className={styles.pageHeading}><CalendarDays size={25} strokeWidth={1.8} aria-hidden="true" />My Events</h1>');
+    expect(page.indexOf('className={`border border-primary')).toBeLessThan(page.indexOf('<h1 className={styles.pageHeading}><CalendarDays size={25} strokeWidth={1.8} aria-hidden="true" />My Events</h1>'));
+    expect(page).not.toContain('PlanningWorkflowInstruction');
+    expect(pageCss).toMatch(/\.pageHeading \{[\s\S]*?font-size: 24px;[\s\S]*?font-weight: 600;[\s\S]*?line-height: 1\.25;/);
     expect(pageCss).toMatch(/\.countdownMessage \{[\s\S]*?font-size: 24px !important;[\s\S]*?font-weight: 600 !important;/);
     expect(pageCss).toMatch(/\.eventTitle,[\s\S]*?\.ww-events-title[\s\S]*?font-size: 24px !important;[\s\S]*?font-weight: 600 !important;/);
-    expect(pageCss).not.toMatch(/@media[\s\S]*?\.eventTitle[\s\S]*?font-size:/);
+    expect([...pageCss.matchAll(/\.eventTitle\s*\{[^}]*?font-size:\s*([^;]+);/g)].map(match => match[1].replace(/\s*!important$/, ''))).toEqual(['24px']);
   });
 
   it('uses the approved card, form, label, body, table, button, and badge hierarchy', () => {

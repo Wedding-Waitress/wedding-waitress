@@ -598,3 +598,37 @@
     justify-self: start;
   }
 }
+
+:global(#root#root) .exportPanel .exportButton { border:0 !important; min-height:40px; height:auto; padding:10px 16px; font-size:14px !important; font-weight:600 !important; justify-content:center; background:linear-gradient(180deg,#7bd880,#55a447) !important; box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30 !important; }
+:global(#root#root) .exportPanel .exportButton:hover:not(:disabled) { filter:brightness(1.04); }
+
+@media (max-width:1023px) { .colorSwatch { min-width:24px; min-height:24px; } }
+
+/* Saved dashboard heading reference; excludes the printable seating chart. */
+:global(#root#root) .headerPanel .pageHeading,
+:global(#root#root) .settingsPanel .majorHeading {
+  font-family: var(--ww-interface-font-family) !important;
+  font-size: 24px !important; font-weight: 600 !important; line-height: 31px !important;
+  letter-spacing: normal !important; color: #2f1b14 !important; margin: 0 !important;
+}
+:global(#root#root) .headerPanel,
+:global(#root#root) .settingsPanel { padding-left: 0 !important; padding-top: 0 !important; }
+:global(#root#root) .headerPanel > div:first-child,
+:global(#root#root) .settingsPanel > div:first-child { padding-left: 16px !important; padding-top: 16px !important; }
+:global(#root#root) .settingsPanel > div { padding-left: 16px !important; }
+:global(#root#root) .headerPanel > div:first-child > div > div:first-child > div:first-child,
+:global(#root#root) .settingsPanel > div:first-child > div:first-child { gap: .55rem !important; margin-bottom: 24px !important; }
+:global(#root#root) .headerPanel > div:first-child > div > div:first-child > div:first-child > svg,
+:global(#root#root) .settingsPanel > div:first-child > div:first-child > svg {
+  width: 25px !important; height: 25px !important; flex-shrink: 0;
+  color: #967a59 !important; stroke: #967a59 !important;
+}
+:global(#root#root) .headerPanel .pageDescription { margin: 0 !important; font-size: 13px !important; line-height: 18px !important; }
+
+:global(#root#root#root) button.exportButton {
+ min-height:40px!important;height:auto!important;padding:10px 16px!important;border:0!important;border-radius:9999px!important;
+ font:600 14px Manrope,sans-serif!important;color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.55);
+ background:linear-gradient(180deg,#7bd880,#55a447)!important;
+ box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30!important;
+}
+:global(#root#root#root) button.exportButton :is(svg,svg *) {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;}

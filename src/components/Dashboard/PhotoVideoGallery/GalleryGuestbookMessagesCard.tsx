@@ -3,6 +3,7 @@
 // Written messages come from public.event_guestbook_messages (plus notes attached to recordings).
 // Audio / video recordings come from event_media_items (source_category = 'guestbook_recording').
 // Recordings stay PRIVATE unless the organiser deliberately clicks "Add to Gallery".
+import { GuestbookAutoShare } from './GuestbookAutoShare';
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
@@ -302,7 +303,9 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
               <Play className="h-4 w-4 text-[#1D1D1F] ml-0.5" />
             </span>
           </span>
-          {selectMode && (
+
+
+      {selectMode && (
             <span
               className="absolute top-1.5 left-1.5 z-10"
               onClick={(e) => {
@@ -362,17 +365,12 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
 
   return (
     <Card className={cn('p-5 sm:p-6 space-y-5', isGlass && managementStyles.galleryPanel, isGlass && managementStyles.guestbookMessagesPanel)} data-appearance={isGlass ? appearance : undefined}>
-      <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
-        <div className="min-w-0">
+      <div className="flex flex-col gap-3 lg:flex-row lg:items-center lg:justify-between">
           <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
             <MessageSquareText className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} strokeWidth={1.8} />
             <span className="min-w-0 break-words">Guestbook Messages ({allWritten.length + recordings.length})</span>
           </h2>
-          <p className={cn('text-sm mt-1 break-words', isGlass && managementStyles.gallerySecondaryText)} style={isGlass ? undefined : { color: '#1a1a1a' }}>
-            Written, audio and video messages your guests have left — private unless you add them to the gallery.
-          </p>
-        </div>
-        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:w-auto sm:flex-wrap sm:items-center lg:flex-nowrap lg:justify-end" data-guestbook-toolbar="actions">
+        <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end lg:w-auto lg:shrink-0" data-guestbook-toolbar="actions">
           <Button variant="outline" size="sm" className={cn('lv-premium-shade h-10', isGlass && managementStyles.galleryControl)} onClick={() => load()} disabled={textLoading}>
             {textLoading ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <RotateCcw className="h-4 w-4 mr-1" strokeWidth={1.8} />} Refresh
           </Button>
@@ -386,11 +384,12 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
             {selectMode ? 'Cancel' : 'Select'}
           </Button>
           <GuestbookDownloadAllButton className="!h-10 min-w-0" items={recordings} eventName={eventName} appearance={appearance} />
-          <Button className={cn('ww-emboss-green ww-emboss-green-soft h-10 min-w-0 text-white border-0', isGlass && managementStyles.galleryViewPrimaryAction)} onClick={exportCsv} disabled={writtenRows.length === 0}>
+          <Button className={cn('ww-emboss-green ww-emboss-green-soft h-10 min-w-0 text-white border-0', isGlass && [managementStyles.galleryViewPrimaryAction, managementStyles.guestbookCsvAction])} onClick={exportCsv} disabled={writtenRows.length === 0}>
             <Download className="h-4 w-4 mr-1 text-white" strokeWidth={1.8} /> Export CSV
           </Button>
         </div>
       </div>
+      <GuestbookAutoShare key={eventId} eventId={eventId} />
 
       <div
         className="grid grid-cols-2 items-center gap-3 xl:grid-cols-[minmax(220px,1fr)_repeat(3,max-content)_140px_140px]"
@@ -441,6 +440,8 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
           </SelectContent>
         </Select>
       </div>
+
+
 
 
 
@@ -498,7 +499,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
             : <Video className="h-10 w-10 mx-auto mb-3 text-muted-foreground" strokeWidth={1.8} />}
           <p className="text-sm text-muted-foreground break-words">
             {totalForTab === 0
-              ? 'No messages here yet — share the QR code or link with your guests.'
+              ? 'No messages here yet, share the QR code or link with your guests.'
               : 'No messages match your search or filters.'}
           </p>
         </div>
@@ -518,7 +519,9 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
                   <span className={`absolute bottom-1.5 right-1.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${r.status === 'hidden' ? 'bg-white/90 text-[#6E6E73]' : 'bg-green-100 text-green-800'}`}>
                     {r.status === 'hidden' ? 'Hidden' : 'Approved'}
                   </span>
-                  {selectMode && (
+
+
+      {selectMode && (
                     <span
                       className="absolute top-1.5 left-1.5 z-10"
                       onClick={(e) => {

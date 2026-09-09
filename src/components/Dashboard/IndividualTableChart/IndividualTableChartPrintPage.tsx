@@ -171,7 +171,7 @@ export const getSquarePosition = (index: number, count: number, centerY: number)
 };
 
 const RadialTable = ({ settings, table, guests }: { settings: IndividualChartSettings; table: TableWithGuestCount; guests: Guest[] }) => {
-  const fontSizePt = getGuestTextPt(settings);
+  const fontSizePt = guests.length > 12 ? 8 : getGuestTextPt(settings);
   const diagramHeight = RADIAL_DIAGRAM_HEIGHT_PX[settings.guestTextSize || 'standard'];
   const centerY = diagramHeight / 2;
   return (
@@ -190,6 +190,17 @@ const RadialTable = ({ settings, table, guests }: { settings: IndividualChartSet
         const position = settings.tableShape === 'round'
           ? getRoundPosition(index, guests.length, centerY)
           : getSquarePosition(index, guests.length, centerY);
+        if (guests.length > 12) {
+          if (settings.tableShape === 'round' && position.align !== 'center') {
+            const sameSide = guests.map((_, i) => ({ i, p: getRoundPosition(i, guests.length, centerY) }))
+              .filter(item => item.p.align === position.align).sort((a,b) => a.p.seatY-b.p.seatY);
+            const rank = sameSide.findIndex(item => item.i === index);
+            position.labelY = 60 + rank * (diagramHeight - 120) / Math.max(1, sameSide.length - 1);
+            position.labelX = position.align === 'left' ? 484 : 176;
+          } else if (settings.tableShape === 'square' && position.align !== 'center') {
+            position.labelY = position.seatY;
+          }
+        }
         return (
           <React.Fragment key={guest.id}>
             <div style={{ position: 'absolute', left: `${position.seatX}px`, top: `${position.seatY}px`, transform: 'translate(-50%, -50%)' }}>
@@ -289,7 +300,7 @@ const HeadTable = ({ settings, table, guests, event }: {
       <div style={{ display: 'grid', gridTemplateColumns: `repeat(${Math.max(1, positions.length)}, minmax(0, 1fr))`, alignItems: 'end', gap: '3px' }}>
         {positions.map((occupant, index) => (
           <div key={occupant?.key ?? `available-${index}`} style={{ minWidth: 0, textAlign: 'center' }}>
-            <div style={{ minHeight: '34px', fontSize: `${fontSizePt}pt`, lineHeight: 1.1, overflowWrap: 'anywhere' }}>{settings.includeNames ? occupant?.name ?? '' : ''}</div>
+            <div data-head-guest-name="true" style={{ color: settings.guestNameColor, ...getTextStyle(settings), minHeight: '34px', fontSize: `${fontSizePt}pt`, lineHeight: 1.1, overflowWrap: 'anywhere' }}>{settings.includeNames ? occupant?.name ?? '' : ''}</div>
             <div style={{ display: 'flex', justifyContent: 'center', marginTop: '5px' }}><Seat number={index + 1} show={settings.showSeatNumbers} color={settings.seatNumberColor} /></div>
           </div>
         ))}

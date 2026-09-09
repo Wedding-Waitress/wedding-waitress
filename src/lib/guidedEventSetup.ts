@@ -1,4 +1,5 @@
 import { supabase } from '@/integrations/supabase/client';
+import { syncEventHeroImage } from '@/lib/eventHeroImage';
 import {
   getDatabaseEventCreationError,
   getEventAllowanceSnapshot,
@@ -17,7 +18,7 @@ export type CelebrationType = 'wedding' | 'engagement' | 'birthday' | 'corporate
 export type DateChoice = 'exact' | 'month' | 'undecided';
 export type EventFormat = 'seated' | 'cocktail' | 'combined' | 'undecided';
 export type BudgetChoice = 'under-5000' | '5000-10000' | '10000-15000' | '15000-20000' | '20000-25000' | '25000-30000' | 'over-30000' | 'undecided' | 'exact';
-export type GuidedSetupCreationStage = 'draft-start' | 'event-recovery' | 'event-insert' | 'draft-link' | 'budget' | 'tables-read' | 'tables-insert' | 'guests-read' | 'guests-insert' | 'draft-completion';
+export type GuidedSetupCreationStage = 'draft-start' | 'event-recovery' | 'event-insert' | 'draft-link' | 'budget' | 'tables-read' | 'tables-insert' | 'guests-read' | 'guests-insert' | 'event-image-sync' | 'draft-completion';
 
 export class GuidedSetupCreationError extends Error {
   constructor(public readonly stage: GuidedSetupCreationStage, message: string) {
@@ -384,6 +385,7 @@ export const getGuidedTableSummary = (answers: GuidedSetupAnswers) => {
 };
 
 const creationFailureMessages: Record<GuidedSetupCreationStage, string> = {
+  'event-image-sync': 'Your event was saved, but its guest-app photo could not be prepared. Please retry to finish setup.',
   'draft-start': 'Your setup could not be prepared for completion. Your answers and photo are safe. Please try again.',
   'event-recovery': 'We could not safely resume event creation. Your answers and photo are safe. Please try again.',
   'event-insert': 'Your event could not be saved right now. Your answers and photo are safe. Please try again.',
@@ -569,6 +571,10 @@ export const completeGuidedSetup = async (draft: GuidedSetupDraft, guestEntryLim
     throwCreationFailure(error instanceof GuidedSetupGuestError ? error.stage : 'guests-insert', error);
   }
 
+  if (answers.eventImagePath) {
+    try { await syncEventHeroImage(eventId); }
+    catch (error) { throwCreationFailure('event-image-sync', error); }
+  }
   const completedAt = new Date().toISOString();
   const { error: completionError } = await supabase.from('onboarding_drafts').update({ created_event_id: eventId, current_step: 10, completed_at: completedAt }).eq('id', draft.id);
   if (completionError) throwCreationFailure('draft-completion', completionError);

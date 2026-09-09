@@ -1,3 +1,4 @@
+import { columnsFor, cellValue, type DJMCColumn } from '@/lib/djmcCustomColumns';
 /**
  * PRODUCTION-READY -- LOCKED FOR PRODUCTION
  *
@@ -91,6 +92,7 @@ interface DJMCQuestionnaireSectionProps {
   onDuplicateSection: () => void;
   onDeleteSection: () => void;
   onDownloadSectionPDF?: () => void;
+  onRunUndoable?: (action: () => unknown | Promise<unknown>, recordings?: boolean) => Promise<unknown>;
   disabled?: boolean;
 }
 
@@ -108,8 +110,11 @@ export function DJMCQuestionnaireSection({
   onDuplicateSection,
   onDeleteSection,
   onDownloadSectionPDF,
+  onRunUndoable = async action => action(),
   disabled = false,
 }: DJMCQuestionnaireSectionProps) {
+  const [editingColumns, setEditingColumns] = useState(false);
+  const [draftColumns, setDraftColumns] = useState<DJMCColumn[]>([]);
   const [editingLabel, setEditingLabel] = useState(false);
   const [localLabel, setLocalLabel] = useState(section.section_label);
   const [showNotes, setShowNotes] = useState(!!section.notes);
@@ -141,8 +146,10 @@ export function DJMCQuestionnaireSection({
 
   const clearItem = useCallback(async (item: DJMCItem) => {
     try {
+      await onRunUndoable(async () => {
       await removeItemRecording(item);
       onUpdateItem(item.id, {
+        ...(item.custom_values ? {custom_values:{}} : {}),
         value_text: null,
         song_title_artist: null,
         music_url: null,
@@ -150,19 +157,22 @@ export function DJMCQuestionnaireSection({
         pronunciation_audio_url: null,
         pronunciation_audio_path: null,
       });
+      }, true);
     } catch (error) {
       reportRecordingCleanupFailure(error);
     }
-  }, [onUpdateItem, removeItemRecording, reportRecordingCleanupFailure]);
+  }, [onUpdateItem, removeItemRecording, reportRecordingCleanupFailure, onRunUndoable]);
 
   const deleteItem = useCallback(async (item: DJMCItem) => {
     try {
+      await onRunUndoable(async () => {
       await removeItemRecording(item);
-      onDeleteItem(item.id);
+      await onDeleteItem(item.id);
+      }, true);
     } catch (error) {
       reportRecordingCleanupFailure(error);
     }
-  }, [onDeleteItem, removeItemRecording, reportRecordingCleanupFailure]);
+  }, [onDeleteItem, removeItemRecording, reportRecordingCleanupFailure, onRunUndoable]);
 
   const removeSectionRecordings = useCallback(async () => {
     for (const item of section.items) await removeItemRecording(item);
@@ -349,7 +359,21 @@ export function DJMCQuestionnaireSection({
                 )}
               </div>
 
-              <div className="flex items-center gap-2 max-sm:justify-end">
+              <div className="ml-auto flex flex-wrap items-center justify-end gap-2">
+                <Button variant="ghost" size="sm" disabled={disabled} onClick={onDuplicateSection}>Duplicate Section</Button>
+                <Button variant="ghost" size="sm" disabled={disabled} onClick={()=>setEditingLabel(true)}>Rename Section</Button>
+                <Button variant="ghost" size="sm" disabled={disabled || !("custom_columns" in section)} title={"custom_columns" in section ? "Edit column headings and count" : "Available after the database update"} onClick={()=>{setDraftColumns(columnsFor(section));setEditingColumns(true);}}>Edit Columns</Button>
+
+                <Button
+                  variant="ghost"
+                  size="icon"
+                  className="h-8 w-8"
+                  onClick={() => onDownloadSectionPDF?.()}
+                  title="Download Section PDF"
+                  aria-label="Download Section PDF"
+                >
+                  <Download size={16} strokeWidth={1.8} className="text-muted-foreground" />
+                </Button>
                 <Button
                   variant="ghost"
                   size="icon"
@@ -363,7 +387,7 @@ export function DJMCQuestionnaireSection({
 
                 <DropdownMenu>
                   <DropdownMenuTrigger asChild>
-                    <Button variant="ghost" size="icon" className="h-8 w-8" title="More actions" aria-label="More section actions">
+                    <Button variant="ghost" size="icon" className="h-8 w-8" title="More actions" aria-label="More section actions" disabled={disabled}>
                       <EllipsisVertical size={16} strokeWidth={1.8} />
                     </Button>
                   </DropdownMenuTrigger>
@@ -390,20 +414,26 @@ export function DJMCQuestionnaireSection({
                 </DropdownMenuContent>
                 </DropdownMenu>
 
-                <Button
-                  variant="ghost"
-                  size="icon"
-                  className="h-8 w-8"
-                  onClick={() => onDownloadSectionPDF?.()}
-                  title="Download Section PDF"
-                  aria-label="Download Section PDF"
-                >
-                  <Download size={16} strokeWidth={1.8} className="text-muted-foreground" />
-                </Button>
+
               </div>
             </div>
 
-            {/* Notes field */}
+            <AlertDialog open={editingColumns} onOpenChange={setEditingColumns}>
+        <AlertDialogContent className="ww-djmc-portal">
+          <AlertDialogHeader><AlertDialogTitle>Edit Columns</AlertDialogTitle><AlertDialogDescription>Choose the text columns for this section. Existing values are preserved.</AlertDialogDescription></AlertDialogHeader>
+          <label>Number of columns<Input type="number" min={1} max={12} value={draftColumns.length} onChange={event=>{
+            const count=Math.max(1,Math.min(12,Number(event.target.value)||1));
+            setDraftColumns(current=>Array.from({length:count},(_,i)=>current[i]||{id:crypto.randomUUID(),label:`Column ${i+1}`}));
+          }}/></label>
+          {draftColumns.map((column,index)=><Input key={column.id} aria-label={`Heading ${index+1}`} value={column.label} onChange={event=>setDraftColumns(current=>current.map(c=>c.id===column.id?{...c,label:event.target.value}:c))} />)}
+          <AlertDialogFooter><AlertDialogCancel>Cancel</AlertDialogCancel><Button onClick={()=>{
+            const removed=columnsFor(section).filter(c=>!draftColumns.some(d=>d.id===c.id));
+            if(removed.some(c=>section.items.some(item=>cellValue(item,c).trim())) && !window.confirm('Hide columns containing information? Their values will be retained, and you can Undo this change.'))return;
+            onUpdateSection({custom_columns:draftColumns.map((c,i)=>({...c,label:c.label.trim()||`Column ${i+1}`}))});setEditingColumns(false);
+          }}>Save Columns</Button></AlertDialogFooter>
+        </AlertDialogContent>
+      </AlertDialog>
+      {/* Notes field */}
             {showNotes && (
               <div className="mt-3">
                 <div className={`${theme.notesPanel} rounded-md px-3 py-2`}>
@@ -415,7 +445,7 @@ export function DJMCQuestionnaireSection({
                     value={section.notes || ''}
                     onChange={(e) => onUpdateSection({ notes: e.target.value || null })}
                     placeholder="e.g., special instructions, timing, etc."
-                    className={`${theme.bodyText} resize-y border-0 p-0 focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px]`}
+                    className={`${theme.bodyText} resize-y border-0 px-3 py-2 focus-visible:ring-0 focus-visible:ring-offset-0 min-h-[40px]`}
                     rows={2}
                     disabled={disabled}
                   />
@@ -436,6 +466,13 @@ export function DJMCQuestionnaireSection({
             )}
             
             {/* Column headers - 3 equal columns */}
+            {section.custom_columns ? <div className={`${theme.columnHeader} flex items-center gap-2 px-1 py-2 text-xs font-medium uppercase tracking-wide`}>
+              <div className="w-6 shrink-0"/>
+              {section.custom_columns.map(column=><input key={column.id} aria-label={`Column heading: ${column.label}`} disabled={disabled}
+                className="flex-1 min-w-0 bg-transparent text-center uppercase" defaultValue={column.label}
+                onBlur={event=>{const label=event.target.value.trim()||column.label;onUpdateSection({custom_columns:section.custom_columns!.map(c=>c.id===column.id?{...c,label}:c)});}}/>)}
+              <div className="w-7 shrink-0"/>
+            </div> : <>
             <div className={`${theme.columnHeader} flex items-center gap-2 px-1 py-2 text-xs font-medium uppercase tracking-wide`}>
               <div className="w-6 shrink-0" /> {/* Drag handle space */}
               
@@ -553,6 +590,7 @@ export function DJMCQuestionnaireSection({
               <div className="w-7 shrink-0" /> {/* Actions space - matches row's 28px action button */}
             </div>
 
+            </>}
               {/* Items */}
               <DndContext
                 sensors={sensors}
@@ -566,9 +604,11 @@ export function DJMCQuestionnaireSection({
                   {section.items.map((item) => (
                     <DJMCSectionRow
                       key={item.id}
+                      columns={section.custom_columns}
                       item={item}
                       eventId={eventId}
                       shareToken={shareToken}
+                      onRunUndoable={onRunUndoable}
                       sectionType={section.section_type}
                       onUpdate={(updates) => onUpdateItem(item.id, updates)}
                       onDelete={() => { void deleteItem(item); }}
@@ -584,12 +624,12 @@ export function DJMCQuestionnaireSection({
               <Button
                 variant="ghost"
                 size="sm"
-                className={`${theme.primaryAction} w-full mt-2`}
+                className={`${theme.primaryAction} w-1/2 mx-auto flex mt-2`}
                 onClick={onAddItem}
                 disabled={disabled}
               >
                 <Plus size={15} strokeWidth={1.8} className="mr-[5px]" aria-hidden="true" />
-                Add Row
+                Add Bottom Row
               </Button>
               </div>
             </div>
@@ -605,7 +645,7 @@ export function DJMCQuestionnaireSection({
             <AlertDialogTitle>Reset Section to Default?</AlertDialogTitle>
             <AlertDialogDescription>
               This will restore the section title and all rows to the original template.
-              All your current entries will be lost. This action cannot be undone.
+              Use the top Undo button to recover the previous questionnaire while this page is open.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -613,8 +653,10 @@ export function DJMCQuestionnaireSection({
             <AlertDialogAction
               onClick={async () => {
                 try {
+                  await onRunUndoable(async () => {
                   await removeSectionRecordings();
-                  onResetToDefault();
+                  await onResetToDefault();
+                  }, true);
                   setShowResetDialog(false);
                 } catch (error) {
                   reportRecordingCleanupFailure(error);
@@ -634,7 +676,7 @@ export function DJMCQuestionnaireSection({
           <AlertDialogHeader>
             <AlertDialogTitle>Delete Section?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will delete this entire section and all its rows. Once deleted, it cannot be retrieved.
+              This will delete this entire section and all its rows. Use the top Undo button to recover it while this page is open.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -642,8 +684,10 @@ export function DJMCQuestionnaireSection({
             <AlertDialogAction
               onClick={async () => {
                 try {
+                  await onRunUndoable(async () => {
                   await removeSectionRecordings();
-                  onDeleteSection();
+                  await onDeleteSection();
+                  }, true);
                   setShowDeleteDialog(false);
                 } catch (error) {
                   reportRecordingCleanupFailure(error);
@@ -663,7 +707,7 @@ export function DJMCQuestionnaireSection({
           <AlertDialogHeader>
             <AlertDialogTitle>Clear Section?</AlertDialogTitle>
             <AlertDialogDescription>
-              This will clear all text in every row of this section. The rows will remain but all content will be erased. Once cleared, it cannot be retrieved.
+              This will clear all text in every row of this section. The rows will remain but all content will be erased. Use the top Undo button to recover it while this page is open.
             </AlertDialogDescription>
           </AlertDialogHeader>
           <AlertDialogFooter>
@@ -671,10 +715,12 @@ export function DJMCQuestionnaireSection({
             <AlertDialogAction
               onClick={async () => {
                 try {
+                  await onRunUndoable(async () => {
                   await removeSectionRecordings();
                   section.items.forEach(item => {
-                    onUpdateItem(item.id, { value_text: null, song_title_artist: null, music_url: null, duration: null, pronunciation_audio_url: null, pronunciation_audio_path: null });
+                    onUpdateItem(item.id, { ...(item.custom_values ? {custom_values:{}} : {}), value_text: null, song_title_artist: null, music_url: null, duration: null, pronunciation_audio_url: null, pronunciation_audio_path: null });
                   });
+                  }, true);
                   setShowClearSectionDialog(false);
                 } catch (error) {
                   reportRecordingCleanupFailure(error);

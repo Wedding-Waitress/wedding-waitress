@@ -5,8 +5,9 @@ export class AdvancedQRGenerator {
   private canvas: HTMLCanvasElement;
   private ctx: CanvasRenderingContext2D;
   private renderScale: number;
+  private reservedModules: boolean[][] = [];
   
-  constructor(size: number = 512) {
+  constructor(size: number = 512, private preserveFunctionPatterns = false) {
     // Render at 2x resolution internally for smoother curves and anti-aliased edges
     this.renderScale = 2;
     const renderSize = size * this.renderScale;
@@ -87,11 +88,14 @@ export class AdvancedQRGenerator {
     const modules = qr.modules.data;
     
     const matrix: boolean[][] = [];
+    this.reservedModules = [];
     for (let y = 0; y < moduleCount; y++) {
       matrix[y] = [];
+      this.reservedModules[y] = [];
       for (let x = 0; x < moduleCount; x++) {
         // modules.data is a Uint8Array where each element is a module
         matrix[y][x] = modules[y * moduleCount + x] === 1;
+        this.reservedModules[y][x] = !!qr.modules.isReserved(y, x);
       }
     }
     
@@ -186,7 +190,11 @@ export class AdvancedQRGenerator {
     for (let y = 0; y < moduleCount; y++) {
       for (let x = 0; x < moduleCount; x++) {
         if (matrix[y][x] && !this.isFinderPatternCell(x, y, moduleCount)) {
-          this.drawDotsModule(x * cellSize, y * cellSize, cellSize, settings);
+          // Timing, alignment and format information must remain solid modules.
+          // Decorative data shapes must not damage the scanner's reference grid.
+          const moduleSettings = this.preserveFunctionPatterns && this.reservedModules[y]?.[x]
+            ? { ...settings, dots_shape: 'square' as const } : settings;
+          this.drawDotsModule(x * cellSize, y * cellSize, cellSize, moduleSettings);
         }
       }
     }

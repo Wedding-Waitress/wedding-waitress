@@ -201,3 +201,28 @@
 .portalItem, .portalSurface [role="option"] { color: #2b1711 !important; }
 .portalItem svg, .portalSurface [role="option"] svg { color: #806344 !important; }
 .portalItem:is(:hover, :focus, [data-highlighted]), .portalSurface [role="option"]:is(:hover, :focus, [data-highlighted]) { color: #2b1711 !important; background: #f0e2d1 !important; }
+
+/* Match the Photo and Video Sharing heading reference. */
+:global(#root#root) .settingsPanel .majorHeading {
+  font-family: var(--ww-interface-font-family) !important;
+  font-size: 24px !important; font-weight: 600 !important; line-height: 31px !important;
+  letter-spacing: normal !important; color: #2f1b14 !important; margin: 0 !important; gap: .55rem;
+}
+:global(#root#root) .settingsPanel .majorHeading svg { width: 25px !important; height: 25px !important; color: #967a59 !important; stroke: #967a59 !important; }
+:global(#root#root) .settingsHeader { padding-top: 16px !important; padding-left: 16px !important; padding-bottom: 24px !important; }
+
+/* Matching, individually framed attendance statistics. */
+:global(#root#root) .settingsPanel .totalAttending { gap: .5rem .8rem; align-items: center; }
+:global(#root#root) .settingsPanel .totalLabel {
+  border: 1px solid #2f1b14; border-radius: 8px; padding: 4px 8px;
+  font-family: var(--ww-interface-font-family); font-size: 13px !important;
+  font-weight: 600 !important; line-height: 18px; max-width: 100%; white-space: normal; flex-wrap: wrap;
+}
+:global(#root#root) .settingsPanel .totalLabel strong { font-weight: 800 !important; }
+
+/* Align the settings content with its heading at the reference inset. */
+:global(#root#root) .settingsPanel { padding-left: 0 !important; }
+:global(#root#root) .settingsPanel > div { padding-left: 16px !important; }
+
+/* Header supplies the full 16px top inset. */
+:global(#root#root) .settingsPanel { padding-top: 0 !important; }

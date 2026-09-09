@@ -319,12 +319,12 @@ describe('individual table chart A4 architecture', () => {
     expect(pageSource).toContain('aria-label="Download single page PDF"');
     expect(pageSource).toContain('aria-label="Download all pages PDF"');
     expect(pageSource).toContain('data-individual-chart-top-layout="true"');
-    expect(pageSource).toContain('grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_minmax(380px,520px)]');
+    expect(pageSource).toContain('grid grid-cols-1 gap-4 xl:grid-cols-[minmax(0,1fr)_300px]');
     expect(pageSource).toContain('data-individual-chart-existing-controls="true"');
     expect(pageSource).toContain('data-export-controls-card="true"');
     expect(pageSource).toContain('styles.exportPanel');
     expect(pageSource).not.toContain('bg-white border border-[#472c1d] rounded-xl');
-    expect(pageSource).toContain('flex flex-wrap items-center gap-2 max-sm:flex-col max-sm:items-stretch');
+    expect(pageSource).toContain('flex flex-col items-end gap-2 [&>button]:justify-center [&>button]:w-full');
     expect(pageSource.indexOf('data-individual-chart-existing-controls="true"')).toBeLessThan(pageSource.indexOf('data-export-controls-card="true"'));
     expect(pageSource).toContain('onClick={handleDownloadPdf}');
     expect(pageSource).toContain('onClick={handleDownloadAllPdf}');
@@ -340,4 +340,27 @@ describe('individual table chart A4 architecture', () => {
     expect(interfaceStyles).toContain('.portalSurface');
     expect(interfaceStyles).toContain('border-color: #22c55e !important');
   });
+});
+
+it('applies guest name colour and text styles to head-table occupants',()=>{
+ const markup=renderToStaticMarkup(<IndividualTableChartPrintPage settings={{...settings,guestNameColor:'#C62828',isBold:true,isItalic:true,isUnderline:true}} table={{...table,table_purpose:'head',limit_seats:2,head_seating_order:[{kind:'guest',guest_id:guest.id}]}} guests={[guest]} event={{name:'Event'}} />);
+ const doc=new DOMParser().parseFromString(markup,'text/html');
+ const name=[...doc.querySelectorAll('[data-head-guest-name]')].find(e=>e.textContent?.includes('Ada')) as HTMLElement;
+ expect(name.style.color).toBe('rgb(198, 40, 40)');expect(name.style.fontWeight).toBe('700');expect(name.style.fontStyle).toBe('italic');expect(name.style.textDecoration).toBe('underline');
+});
+it('disables controls that do not apply to Long and Head Table layouts',()=>{
+ const markup=renderToStaticMarkup(<IndividualTableChartCustomizer settings={{...settings,tableShape:'long'}} onSettingsChange={()=>{}} />);
+ const doc=new DOMParser().parseFromString(markup,'text/html');
+ expect(doc.querySelector('#show-guest-list')?.closest('fieldset')?.hasAttribute('disabled')).toBe(true);
+ const head=new DOMParser().parseFromString(renderToStaticMarkup(<IndividualTableChartCustomizer isHeadTable settings={settings} onSettingsChange={()=>{}} />),'text/html');
+ expect(head.querySelector('[aria-label="Table Shape"]')?.hasAttribute('disabled')).toBe(true);
+ expect(head.querySelector('#show-dietary')?.closest('fieldset')?.hasAttribute('disabled')).toBe(true);
+});
+
+it.each(['round','square'] as const)('uses compact labels for a full 20-seat %s chart without losing guests',tableShape=>{
+ const guests=Array.from({length:20},(_,i)=>({...guest,id:'dense-'+i,seat_no:i+1}));
+ const doc=new DOMParser().parseFromString(renderToStaticMarkup(<IndividualTableChartPrintPage settings={{...settings,tableShape,guestTextSize:'large'}} table={table} guests={guests} event={{name:'Event'}} />),'text/html');
+ const labels=doc.querySelectorAll('[data-guest-label]');expect(labels).toHaveLength(20);
+ for(const label of labels)expect((label as HTMLElement).style.fontSize).toBe('8pt');
+ expect(doc.querySelectorAll('[data-seat]')).toHaveLength(20);expect(doc.querySelectorAll('[data-guest-list-text]')).toHaveLength(20);
 });

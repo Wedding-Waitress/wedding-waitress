@@ -63,6 +63,58 @@
   font-weight: 600 !important;
 }
 
+.generatorHeaderRow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 12px 20px;
+}
+
+.generatorConnectionStatus {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 6px 10px;
+  max-width: 100%;
+  margin-left: auto;
+  padding: 7px 9px;
+  color: #166534;
+  border: 1px solid #86d49e;
+  border-radius: 8px;
+  background: #e8f7ec;
+}
+
+.generatorConnectionStatus :is(span, strong) {
+  color: #166534 !important;
+}
+
+.statusSeparator {
+  color: #4d8b60 !important;
+}
+
+.compactStatus {
+  display: inline-flex;
+  align-items: center;
+  gap: 6px;
+  padding: 2px 7px;
+  color: #166534;
+  border: 0;
+  border-radius: 5px;
+  background: #d7f2df;
+  cursor: pointer;
+}
+
+.compactStatus:hover {
+  background: #c9ebd3;
+}
+
+.compactStatus:focus-visible {
+  outline: 2px solid #166534 !important;
+  outline-offset: 2px;
+  box-shadow: none !important;
+}
+
 :global(.ww-qr-select-menu) [role="option"] {
   font-size: 13px !important;
   font-weight: 400 !important;
@@ -398,6 +450,19 @@
   .configPanel > :last-child > :global(.grid) > div {
     overflow: hidden;
   }
+
+  .generatorHeaderRow {
+    align-items: flex-start;
+  }
+
+  .generatorConnectionStatus {
+    width: 100%;
+    margin-left: 0;
+  }
+
+  .statusSeparator {
+    display: none;
+  }
 }
 
 /* Approved light champagne theme. These overrides are presentation-only: the
@@ -644,3 +709,63 @@
 :global(.ww-qr-color-popover) p {
   color: #684b40 !important;
 }
+
+/* Explicitly requested contrast for the existing cream action buttons. */
+:global(#root) .page button.lightButtonText,
+:global(#root) .page button.lightButtonText :is(span, svg) {
+  color: var(--qr-text, #2b1711) !important;
+  -webkit-text-fill-color: var(--qr-text, #2b1711) !important;
+}
+
+/* Green action keeps its label white and the existing icon colour. */
+:global(#root) .page button.liveViewButton {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+  border: 0 !important;
+}
+
+:global(#root) .page button.liveViewButton svg {
+  color: var(--qr-text, #2b1711) !important;
+  -webkit-text-fill-color: var(--qr-text, #2b1711) !important;
+}
+
+/* Approved heading reference, limited to the three section headers. */
+:global(#root#root) .page :is(.eventPanel,.generatorPanel,.configPanel) > div:first-child h3 {
+ font-family:var(--ww-interface-font-family) !important; font-size:24px !important;
+ font-weight:600 !important; line-height:31px !important; letter-spacing:normal !important;
+ color:#2f1b14 !important; margin:0 !important; gap:.55rem;
+}
+:global(#root#root) .page :is(.eventPanel,.generatorPanel,.configPanel) > div:first-child h3 svg,
+:global(#root#root) .page .eventPanel > div:first-child svg {
+ width:25px !important; height:25px !important; flex-shrink:0;
+ color:#967a59 !important; stroke:#967a59 !important;
+}
+:global(#root#root) .page :is(.eventPanel,.generatorPanel) > div:first-child { padding-top:16px !important; padding-bottom:24px !important; }
+:global(#root#root) .page .configPanel > div:first-child { padding-top:16px !important; padding-bottom:0 !important; }
+:global(#root#root) .page .configPanel > div:nth-child(2) > p:first-child {
+ margin:0 0 32px calc(25px + .55rem) !important;
+}
+/* The header supplies the full 16px top inset, without outer card padding. */
+:global(#root#root) .page :is(.eventPanel, .generatorPanel, .configPanel) { padding-top: 0 !important; }
+
+.liveViewButton {text-shadow:0 1px 2px rgba(0,0,0,.55);}
+
+:global(#root#root) .actionsPanel > button[class*="border-[#C4A882]"] {border:1px solid #cdb99e !important;}
+
+:global(#root#root) .generatorPanel button.resetDefaultButton {
+ border:0!important;color:#fff!important;-webkit-text-fill-color:#fff!important;
+ text-shadow:0 1px 2px rgba(0,0,0,.55);
+ background:linear-gradient(180deg,#f85b53,#d9342c)!important;
+ box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #78191966,0 4px 10px #b91c1c30!important;
+}
+:global(#root#root) .generatorPanel button.resetDefaultButton svg {
+ color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;
+}
+
+:global(#root#root) .configPanel button:is(.replaceAssetButton,.removeAssetButton) {
+ min-height:40px!important;height:auto!important;padding:10px 16px!important;border:0!important;border-radius:9999px!important;
+ font:600 14px Manrope,sans-serif!important;color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.55);
+}
+:global(#root#root) .configPanel button.replaceAssetButton {background:linear-gradient(180deg,#7bd880,#55a447)!important;box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30!important;}
+:global(#root#root) .configPanel button.removeAssetButton {background:linear-gradient(180deg,#f85b53,#d9342c)!important;box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #78191966,0 4px 10px #b91c1c30!important;}
+:global(#root#root) .configPanel button:is(.replaceAssetButton,.removeAssetButton) svg {width:16px!important;height:16px!important;stroke-width:1.8;color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;}

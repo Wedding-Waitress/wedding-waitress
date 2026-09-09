@@ -1,4 +1,5 @@
 import React from 'react';
+import styles from './AppErrorBoundary.module.css';
 
 interface AppErrorBoundaryProps {
   fallback?: React.ReactNode;
@@ -26,7 +27,7 @@ export class AppErrorBoundary extends React.Component<AppErrorBoundaryProps, App
   render() {
     if (this.state.hasError) {
       return this.props.fallback ?? (
-        <div style={{ padding: 16, textAlign: 'center', marginTop: 50 }}>
+        <div className={styles.message} style={{ padding: 16, textAlign: 'center', marginTop: 50 }}>
           <h2 style={{ marginBottom: 10 }}>Something went wrong</h2>
           <p>Please refresh the page to continue.</p>
           <button 

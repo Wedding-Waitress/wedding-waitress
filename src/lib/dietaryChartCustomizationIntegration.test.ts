@@ -52,8 +52,8 @@ describe('dietary chart customisation integration', () => {
     expect(pdfSource).toContain('await html2canvas(pageElement');
   });
 
-  it('uses direct 25-guest preview groups for all three text sizes', () => {
-    expect(pageSource).toContain('const pages = chunkDietaryGuests(dietaryGuests, 25)');
+  it('caps pages at 25 guests while fitting wrapped rows above the footer', () => {
+    expect(pageSource).toContain('const pages = packDietaryGuestPages(dietaryGuests, rowHeightsPx, safeRowsHeightPx, exclusionPx, 25)');
     expect(pageSource).toContain('data-page-guest-count={paginatedGuests.length}');
     expect(pageSource).toContain('pageNumbers: [currentPage]');
     expect(pageSource).toContain('pageNumbers: pagination.pages.map((_, index) => index + 1)');

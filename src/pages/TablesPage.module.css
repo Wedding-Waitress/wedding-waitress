@@ -108,6 +108,8 @@
 :global(#root) .mainSurface .stats :global(.ww-stat-label) {
   font-size: 13px !important;
   font-weight: 600 !important;
+  max-width: 100%;
+  overflow-wrap: anywhere;
 }
 
 :global(#root) .mainSurface .stats :global(.ww-stat-value) {
@@ -116,7 +118,7 @@
 }
 
 :global(#root) .mainSurface .page :global(.ww-table-card) :is([class*="rounded-full"][class*="font-bold"], [class*="rounded-full"][class*="font-semibold"]),
-:global(#root) .mainSurface .page :global(.ww-table-name) > span,
+:global(#root) .mainSurface .page :global(.ww-head-table-badge),
 :global(#root) .mainSurface .page :global(.ww-table-card) > * [class*="text-xs"][class*="font-bold"] {
   font-size: 13px !important;
   font-weight: 600 !important;
@@ -163,6 +165,10 @@
 
 .stats :global(.ww-stats-divider) {
   background: var(--tables-border) !important;
+}
+
+@media (max-width: 400px) {
+  .stats :global(.grid-cols-5) { grid-template-columns: repeat(3, minmax(0, 1fr)); }
 }
 
 :global(#root) .mainSurface .page .sectionHeading,
@@ -350,6 +356,18 @@
   color: var(--tables-text) !important;
 }
 
+:global(#root) .mainSurface .page .tablesPanel :global(.ww-head-table-badge),
+:global(#root) .mainSurface .page .tablesPanel :global(.ww-regular-table-number) {
+  color: var(--tables-text) !important;
+  border-color: var(--tables-text) !important;
+  background: transparent !important;
+}
+
+:global(#root) .mainSurface .page .tablesPanel :global(.ww-head-table-badge) svg {
+  color: currentColor !important;
+  stroke: currentColor !important;
+}
+
 :global(#root) .mainSurface .page .tablesPanel :global(.ww-table-card) [class*="text-muted-foreground"] {
   color: var(--tables-text-soft) !important;
   opacity: 1 !important;
@@ -490,4 +508,124 @@
     width: min(100%, 20rem);
     min-height: 3rem;
   }
+}
+
+/* Photo & Video Sharing heading reference, scoped to Tables. */
+:global(#root#root) .mainSurface .sectionHeading,
+:global(#root#root) .mainSurface .tablesHeading,
+:global(#root#root) .stats :global(.ww-stats-overview) h2 {
+  font-family: var(--ww-interface-font-family) !important;
+  font-size: 24px !important;
+  font-weight: 600 !important;
+  line-height: 31px !important;
+  letter-spacing: normal !important;
+  color: #2f1b14 !important;
+}
+:global(#root#root) .mainSurface .setupIcon,
+:global(#root#root) .mainSurface .tablesHeading svg,
+:global(#root#root) .stats :global(.ww-stats-overview) > svg {
+  width: 25px !important; height: 25px !important;
+  color: #967a59 !important; stroke: #967a59 !important;
+  flex-shrink: 0;
+}
+:global(#root#root) .stats :global(.ww-stats-overview) { gap:.55rem; margin-bottom:24px !important; }
+:global(#root#root) .stats :global(.ww-stats-overview) p { margin-top:0 !important; }
+:global(#root#root) .stats :global(.ww-stats-bar) > div { padding-top:16px !important; }
+:global(#root#root) .mainSurface .setupPanel > div:first-child { padding-top:16px !important; padding-bottom:24px !important; }
+:global(#root#root) .mainSurface .sectionHeading { margin-bottom:0 !important; }
+:global(#root#root) .mainSurface .tablesHeading { gap:.55rem; margin-top:0 !important; margin-bottom:24px !important; }
+:global(#root#root) .mainSurface .tablesPanel > div:first-child { padding-top:16px !important; }
+/* Shift only the overview heading; preserve the balanced statistics grid. */
+:global(#root#root) .stats :global(.ww-stats-bar) { padding-top: 0 !important; }
+:global(#root#root) .stats :global(.ww-stats-overview) { margin-left: -12px !important; }
+@media (min-width: 640px) { :global(#root#root) .stats :global(.ww-stats-overview) { margin-left: -16px !important; } }
+@media (min-width: 768px) { :global(#root#root) .stats :global(.ww-stats-overview) { margin-left: -32px !important; } }
+
+:global(#root#root) .mainSurface .setupPanel,
+:global(#root#root) .mainSurface .tablesPanel { padding-top: 0 !important; }
+:global(#root#root) .mainSurface .setupPanel > div:first-child,
+:global(#root#root) .mainSurface .tablesPanel > div:first-child { padding-top: 16px !important; }
+:global(#root#root) .mainSurface .setupPanel > div:first-child > div:first-child,
+:global(#root#root) .mainSurface .tablesHeading { margin-left: -8px !important; }
+@media (min-width: 768px) {
+ :global(#root#root) .mainSurface .setupPanel > div:first-child > div:first-child { margin-left: -24px !important; }
+ :global(#root#root) .mainSurface .tablesHeading { margin-left: -32px !important; }
+}
+@media (min-width: 1024px) {
+ :global(#root#root) .mainSurface .setupPanel > div:first-child > div:first-child { margin-left: -8px !important; }
+}
+
+/* Give the table grid the full card width with balanced reference insets. */
+:global(#root#root) .mainSurface .tablesPanel { padding-left: 16px !important; padding-right: 16px !important; }
+:global(#root#root) .mainSurface .tablesPanel > div:first-child { padding-left: 0 !important; padding-right: 0 !important; }
+:global(#root#root) .mainSurface .tablesHeading { margin-left: 0 !important; }
+
+/* Compact table-card insets; the 12px shell plus 8px content inset halves the
+   former 40px border-to-content gap while keeping top and bottom symmetrical. */
+:global(#root#root) .mainSurface .tablesPanel :global(.ww-table-card) {
+  padding: 12px 0 !important;
+}
+:global(#root#root) .mainSurface .tablesPanel :global(.ww-table-card) > div:first-child { padding-left: 12px !important; padding-right: 12px !important; }
+
+/* Approved Create Tables action style. */
+:global(#root#root) .mainSurface .page .setupPanel button[class*="bg-green"] {
+  min-height:40px !important;
+  height:auto !important;
+  padding:10px 16px !important;
+  border:0 !important;
+  border-radius:9999px !important;
+  font-family:Manrope,ui-sans-serif,system-ui,sans-serif;
+  font-size:14px !important;
+  font-weight:600 !important;
+  color:#fff !important;
+  -webkit-text-fill-color:#fff !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.55);
+  background:linear-gradient(180deg,#7bd880,#55a447) !important;
+  box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30 !important;
+}
+:global(#root#root) .mainSurface .page .setupPanel button[class*="bg-green"] svg {
+  width:16px;
+  height:16px;
+  color:#2f1b14 !important;
+  stroke:#2f1b14 !important;
+  stroke-width:1.8;
+  filter:none !important;
+  text-shadow:none;
+}
+:global(#root#root) .mainSurface .page .setupPanel button[class*="bg-green"]:hover:not(:disabled) { filter:brightness(1.04); }
+
+/* Table-card Edit/Delete actions use the approved pill treatment. */
+:global(#root#root) .mainSurface .page .tablesPanel button:is([aria-label="Edit table"],[aria-label="Delete table"]) {
+  min-height:40px !important;
+  height:auto !important;
+  padding:10px 16px !important;
+  border:0 !important;
+  border-radius:9999px !important;
+  font-family:Manrope,ui-sans-serif,system-ui,sans-serif;
+  font-size:14px !important;
+  font-weight:600 !important;
+  color:#fff !important;
+  text-shadow:0 1px 2px rgba(0,0,0,.55);
+}
+:global(#root#root) .mainSurface .page .tablesPanel button[aria-label="Edit table"] {
+  background:linear-gradient(180deg,#7bd880,#55a447) !important;
+  box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30 !important;
+}
+:global(#root#root) .mainSurface .page .tablesPanel button[aria-label="Delete table"] {
+  background:linear-gradient(180deg,#f85b53,#d9342c) !important;
+  box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #78191966,0 4px 10px #b91c1c30 !important;
+}
+:global(#root#root) .mainSurface .page .tablesPanel button:is([aria-label="Edit table"],[aria-label="Delete table"]) span { color:#fff !important; font-weight:600 !important; }
+:global(#root#root) .mainSurface .page .tablesPanel button:is([aria-label="Edit table"],[aria-label="Delete table"]) svg {
+  width:16px;
+  height:16px;
+  color:#2f1b14 !important;
+  stroke:#2f1b14 !important;
+  stroke-width:1.8;
+  filter:none !important;
+  text-shadow:none;
+}
+/* The table text theme also sets text-fill independently of color. */
+:global(#root#root) .mainSurface .page .tablesPanel button:is([aria-label="Edit table"],[aria-label="Delete table"]) span {
+  -webkit-text-fill-color:#fff !important;
 }

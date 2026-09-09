@@ -1,17 +1,20 @@
-import { useMemo, useState } from 'react';
+import {supabase} from '@/integrations/supabase/client';
+import {RequestVenueFloorPlanDialog} from './RequestVenueFloorPlanDialog';
+import {venueCountries,venueRegions,matchesVenueLocation} from '@/lib/venueLocations';
+import { AlertDialog, AlertDialogContent, AlertDialogHeader, AlertDialogTitle, AlertDialogDescription, AlertDialogFooter, AlertDialogCancel, AlertDialogAction } from '@/components/ui/alert-dialog';
+import { useEffect, useMemo, useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogFooter } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Loader2, Search, MapPin, Users, Ruler, Sparkles, Building2 } from 'lucide-react';
+
+
+import { Loader2, Building2, X, Check, CircleArrowRight, Trash2 } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import {
   useApprovedVenueTemplates,
-  venueTemplateBackgroundUrl,
   applyVenueTemplateToPlan,
-  type VenueTemplate,
+
 } from '@/hooks/useVenueTemplates';
 import type { ReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
 
@@ -23,41 +26,29 @@ interface Props {
 }
 
 export const ChooseVenueDialog = ({ open, onOpenChange, plan, onApply }: Props) => {
-  const { templates, loading } = useApprovedVenueTemplates();
+  const { templates, loading, refresh } = useApprovedVenueTemplates();
+  useEffect(() => { if (open) void refresh(); }, [open, refresh]);
   const { toast } = useToast();
+  const [owner,setOwner]=useState(false);
+  const [deleteTarget,setDeleteTarget]=useState<{id:string;venue_name:string;room_name:string;background_image_path:string|null}|null>(null);
+  const [deleting,setDeleting]=useState(false);
+  useEffect(()=>{let active=true;setOwner(false);if(open)void supabase.rpc('has_platform_owner_access').then(({data,error})=>{if(active)setOwner(!error&&data===true)});return()=>{active=false}},[open]);
+  const deleteVenue=async()=>{if(!owner||!deleteTarget)return;setDeleting(true);try{const {data,error}=await supabase.from('venue_floor_plan_templates').delete().eq('id',deleteTarget.id).select('id');if(error)throw error;if(!data?.length)throw Error('Only the platform owner can delete this template.');if(deleteTarget.background_image_path){const {error:storageError}=await supabase.storage.from('venue-template-backgrounds').remove([deleteTarget.background_image_path]);if(storageError)console.warn('Template removed; image cleanup pending',storageError.message);}setSelectedId(null);setDeleteTarget(null);await refresh();toast({title:'Venue template deleted',description:'Removed from the shared venue library.'});}catch(e){toast({title:'Could not delete template',description:e instanceof Error?e.message:'Please try again.',variant:'destructive'});}finally{setDeleting(false)}};
   const [query, setQuery] = useState('');
-  const [country, setCountry] = useState('all');
-  const [capacityBand, setCapacityBand] = useState('all');
-  const [featuredOnly, setFeaturedOnly] = useState(false);
+  const [requestOpen,setRequestOpen]=useState(false);
+  const [country, setCountry] = useState('');
+  const [region, setRegion] = useState('');
+  const [suburb, setSuburb] = useState('');
   const [selectedId, setSelectedId] = useState<string | null>(null);
   const [applying, setApplying] = useState(false);
+  const [confirmOpen, setConfirmOpen] = useState(false);
 
-  const countries = useMemo(() => {
-    const s = new Set<string>();
-    templates.forEach((t) => { if (t.country) s.add(t.country); });
-    return Array.from(s).sort();
-  }, [templates]);
-
-  const filtered = useMemo(() => {
-    const q = query.trim().toLowerCase();
-    return templates.filter((t) => {
-      if (featuredOnly && !t.featured) return false;
-      if (country !== 'all' && (t.country ?? '') !== country) return false;
-      if (capacityBand !== 'all') {
-        const c = t.capacity;
-        if (capacityBand === 's' && !(c > 0 && c <= 80)) return false;
-        if (capacityBand === 'm' && !(c > 80 && c <= 200)) return false;
-        if (capacityBand === 'l' && !(c > 200)) return false;
-      }
-      if (!q) return true;
-      const hay = `${t.venue_name} ${t.room_name} ${t.city ?? ''} ${t.country ?? ''} ${t.capacity}`.toLowerCase();
-      return hay.includes(q);
-    });
-  }, [templates, query, country, capacityBand, featuredOnly]);
-
+  const regions = useMemo(()=>venueRegions(country),[country]);
+  const searchReady = !!country.trim() && !!region.trim();
+  const filtered = useMemo(()=>!country.trim() || !region.trim() ? [] : templates.filter(t=>matchesVenueLocation(t,country,region,query,suburb)),[templates,country,region,query,suburb]);
   const selected = useMemo(
-    () => filtered.find((t) => t.id === selectedId) || templates.find((t) => t.id === selectedId) || null,
-    [filtered, templates, selectedId]
+    () => filtered.find((t) => t.id === selectedId) || null,
+    [filtered, selectedId]
   );
 
   const handleApply = async () => {
@@ -72,6 +63,7 @@ export const ChooseVenueDialog = ({ open, onOpenChange, plan, onApply }: Props) 
       });
       onOpenChange(false);
       setSelectedId(null);
+      setConfirmOpen(false);
     } catch (e) {
       console.error('apply template', e);
       toast({
@@ -90,120 +82,61 @@ export const ChooseVenueDialog = ({ open, onOpenChange, plan, onApply }: Props) 
         <DialogHeader className="px-6 max-lg:px-4 pt-6 max-lg:pt-5 pb-3 border-b">
           <DialogTitle className="text-lg max-lg:text-center flex items-center gap-2 max-lg:justify-center">
             <Building2 className="w-5 h-5 text-primary" />
-            Choose a venue template
+            Lookup Venue Floor Plan Template
           </DialogTitle>
           <p className="text-xs text-muted-foreground max-lg:text-center pt-1">
-            Load an approved venue layout. Your tables stay in your event — only the room shape,
-            fixtures, and venue background are applied.
+            Browse venue templates from Australia and around the world. Select a template, then click Use This Floor Plan Template to replace the current layout with an empty venue floor plan. Add tables and fixtures manually; your Tables page and guest assignments remain saved.
           </p>
         </DialogHeader>
 
         <div className="px-6 max-lg:px-4 pt-3 pb-2 space-y-2">
-          <div className="relative">
-            <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
-            <Input
-              value={query}
-              onChange={(e) => setQuery(e.target.value)}
-              placeholder="Search by venue, room, or city…"
-              className="pl-9 h-10 max-lg:h-11 max-lg:text-base"
-            />
+          <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
+            <div><Label className="block mb-2" htmlFor="lookup-country">Country</Label><Input id="lookup-country" list="lookup-countries" placeholder="Choose or type a country" value={country} onChange={e=>{setCountry(e.target.value);setRegion('');setSuburb('');setQuery('');setSelectedId(null);}} /><datalist id="lookup-countries">{venueCountries.map(c=><option key={c.code} value={c.name}/>)}</datalist></div>
+            <div><Label className="block mb-2" htmlFor="lookup-region">State / Region</Label><Input id="lookup-region" list="lookup-regions" disabled={!country} placeholder="Choose or type a state / region" value={region} onChange={e=>{setRegion(e.target.value);setSuburb('');setQuery('');setSelectedId(null);}} /><datalist id="lookup-regions">{regions.map(s=><option key={s} value={s}/>)}</datalist></div>
+            <div><Label className="block mb-2" htmlFor="lookup-suburb">Suburb / City (optional)</Label><Input id="lookup-suburb" disabled={!searchReady} value={suburb} onChange={e=>{setSuburb(e.target.value);setSelectedId(null);}} placeholder="Search by suburb or city…" /></div>
           </div>
-          <div className="flex flex-wrap gap-2 max-lg:grid max-lg:grid-cols-2">
-            <Select value={country} onValueChange={setCountry}>
-              <SelectTrigger className="h-9 max-lg:h-11 max-lg:text-base flex-1 min-w-[140px]"><SelectValue placeholder="Country" /></SelectTrigger>
-              <SelectContent className="reception-portal-surface">
-                <SelectItem value="all">All countries</SelectItem>
-                {countries.map((c) => <SelectItem key={c} value={c}>{c}</SelectItem>)}
-              </SelectContent>
-            </Select>
-            <Select value={capacityBand} onValueChange={setCapacityBand}>
-              <SelectTrigger className="h-9 max-lg:h-11 max-lg:text-base flex-1 min-w-[140px]"><SelectValue placeholder="Capacity" /></SelectTrigger>
-              <SelectContent className="reception-portal-surface">
-                <SelectItem value="all">Any capacity</SelectItem>
-                <SelectItem value="s">Up to 80</SelectItem>
-                <SelectItem value="m">81–200</SelectItem>
-                <SelectItem value="l">200+</SelectItem>
-              </SelectContent>
-            </Select>
-            <Button
-              type="button"
-              variant={featuredOnly ? 'default' : 'outline'}
-              size="sm"
-              onClick={() => setFeaturedOnly((v) => !v)}
-              className="lv-premium-shade h-9 max-lg:h-11 max-lg:text-base"
-            >
-              <Sparkles className="w-3.5 h-3.5 mr-1.5" /> Featured only
-            </Button>
-          </div>
+          <div className="flex flex-col sm:flex-row sm:items-end gap-3"><div className="flex-1 min-w-0"><Label className="block mb-2" htmlFor="lookup-venue">Venue name</Label><Input id="lookup-venue" disabled={!searchReady} value={query} onChange={e=>{setQuery(e.target.value);setSelectedId(null);}} placeholder="Search by venue name…" /></div><Button variant="outline" className="lv-premium-shade !rounded-full shrink-0" onClick={()=>setRequestOpen(true)}>Request Your Venue Floor Plan</Button></div>
         </div>
 
-        <div className="flex-1 overflow-y-auto px-6 max-lg:px-4 pb-3">
+        <div className="flex-1 min-h-0 max-h-[280px] overflow-y-auto px-6 max-lg:px-4 pb-3">
           {loading ? (
             <div className="flex items-center justify-center py-12 text-sm text-muted-foreground gap-2">
-              <Loader2 className="w-4 h-4 animate-spin" /> Loading venue directory…
+              <Loader2 className="w-4 h-4 animate-spin" /> Loading venue templates…
             </div>
-          ) : filtered.length === 0 ? (
+          ) : !searchReady || filtered.length === 0 ? (
             <div className="text-center text-sm text-muted-foreground py-12">
-              No approved venues match your search yet.
+              {!searchReady ? 'Choose a country and state / region to find venue floor plan templates.' : 'No venue templates match your search yet.'}
             </div>
           ) : (
-            <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-3">
+            <div className="grid grid-cols-1 auto-rows-[44px] gap-3">
               {filtered.map((t) => {
                 const isSelected = selectedId === t.id;
-                const thumb = venueTemplateBackgroundUrl(t.background_image_path);
                 return (
+                  <div key={t.id} className="relative min-w-0">
                   <button
-                    key={t.id}
                     type="button"
+                    aria-pressed={isSelected}
                     onClick={() => setSelectedId(t.id)}
-                    className={`text-left rounded-xl border bg-card overflow-hidden transition-all lv-premium-shade ${
+                    className={`${owner ? 'pr-36' : ''} venue-result-card w-full h-full text-left rounded-xl border bg-card overflow-hidden transition-all lv-premium-shade ${
                       isSelected
-                        ? 'border-primary ring-2 ring-primary/40 shadow-md'
+                        ? 'reception-primary-action border-0 shadow-md'
                         : 'border-border hover:border-primary/60 hover:shadow-sm'
                     }`}
                   >
-                    <div className="aspect-[4/3] bg-muted/40 flex items-center justify-center overflow-hidden">
-                      {thumb ? (
-                        <img
-                          src={thumb}
-                          alt={`${t.venue_name} ${t.room_name}`}
-                          className="w-full h-full object-cover"
-                          loading="lazy"
-                        />
-                      ) : (
-                        <Building2 className="w-10 h-10 text-muted-foreground/40" />
-                      )}
-                    </div>
-                    <div className="p-3 space-y-1.5">
-                      <div className="flex items-start justify-between gap-2">
-                        <div className="min-w-0">
+                    <div className="px-3 py-1.5">
+                      <div className="flex items-center gap-3"><CircleArrowRight aria-hidden="true" className="w-6 h-6 shrink-0" />
+                        <div className="min-w-0 flex flex-wrap items-baseline gap-x-8 gap-y-1">
                           <div className="font-semibold text-sm text-foreground truncate">
                             {t.venue_name}
                           </div>
                           <div className="text-xs text-muted-foreground truncate">{t.room_name}</div>
+                          {t.state_region && <div className="text-xs text-muted-foreground">{t.state_region}</div>}
                         </div>
-                        {t.featured && (
-                          <Badge variant="secondary" className="shrink-0 gap-1">
-                            <Sparkles className="w-3 h-3" /> Featured
-                          </Badge>
-                        )}
-                      </div>
-                      <div className="flex flex-wrap gap-x-3 gap-y-1 text-[11px] text-muted-foreground pt-1">
-                        {t.city && (
-                          <span className="inline-flex items-center gap-1">
-                            <MapPin className="w-3 h-3" /> {t.city}
-                            {t.country ? `, ${t.country}` : ''}
-                          </span>
-                        )}
-                        <span className="inline-flex items-center gap-1">
-                          <Users className="w-3 h-3" /> {t.capacity} cap
-                        </span>
-                        <span className="inline-flex items-center gap-1">
-                          <Ruler className="w-3 h-3" /> {t.room_width_m}×{t.room_length_m}m
-                        </span>
                       </div>
                     </div>
                   </button>
+                  {owner&&<Button type="button" aria-label={`Admin Delete ${t.venue_name} ${t.room_name}`} className="venue-cancel-action lv-premium-shade !rounded-full absolute right-2 top-1/2 -translate-y-1/2 h-8 px-3 gap-1 border-0 !text-white" onClick={e=>{e.stopPropagation();setDeleteTarget(t)}}><Trash2 className="w-4 h-4 !text-white"/>Admin Delete</Button>}
+                  </div>
                 );
               })}
             </div>
@@ -211,22 +144,43 @@ export const ChooseVenueDialog = ({ open, onOpenChange, plan, onApply }: Props) 
         </div>
 
         <DialogFooter className="px-6 max-lg:px-4 py-3 border-t bg-muted/30 gap-2 max-lg:gap-3 flex-row max-lg:flex-row">
+            <Button
+              type="button"
+              size="sm"
+              className="reception-primary-action lv-premium-shade !rounded-full h-9 max-lg:h-11 max-lg:text-base border-0 text-white max-lg:flex-1 order-1"
+              onClick={() => setConfirmOpen(true)}
+              disabled={!selected || applying}
+            >
+              {applying ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : <Check className="w-4 h-4 mr-2 !text-white" />}
+              {applying ? 'Applying…' : 'Use This Floor Plan Template'}
+            </Button>
           <Button
             variant="outline"
-            className="lv-premium-shade h-9 max-lg:h-11 max-lg:flex-1 max-lg:text-base order-2 max-lg:order-2 bg-white text-destructive border-destructive/40 hover:bg-destructive/10 hover:text-destructive"
+            className="venue-cancel-action lv-premium-shade h-9 max-lg:h-11 max-lg:flex-1 max-lg:text-base order-2 border-0 text-white"
             onClick={() => onOpenChange(false)}
           >
-            Cancel
+            <X className="w-4 h-4 mr-2 !text-white" /> Cancel
           </Button>
-          <Button
-            className="reception-primary-action lv-premium-shade h-9 max-lg:h-11 max-lg:flex-1 max-lg:text-base bg-[#967A59] hover:bg-[#7a6347] text-white order-1 max-lg:order-1 ml-auto max-lg:ml-0"
-            onClick={handleApply}
-            disabled={!selected || applying}
-          >
-            {applying ? <Loader2 className="w-4 h-4 mr-2 animate-spin" /> : null}
-            {applying ? 'Applying…' : selected ? `Use ${selected.venue_name}` : 'Select a venue'}
-          </Button>
+
         </DialogFooter>
+        <AlertDialog open={confirmOpen} onOpenChange={(value) => { if (!applying) setConfirmOpen(value); }}>
+          <AlertDialogContent className="reception-portal-surface max-w-[calc(100vw-2rem)] sm:max-w-lg rounded-xl">
+            <AlertDialogHeader>
+              <AlertDialogTitle>Replace your current floor plan?</AlertDialogTitle>
+              <AlertDialogDescription>
+                Using {selected?.venue_name || 'this venue template'} will override your existing floor plan, including the default layout and any changes you have made. Only the venue floor plan template will remain. You will need to add and position all tables, the dance floor, DJ / band and every other fixture again. Your saved tables and guest assignments on the Tables page will remain unchanged.
+              </AlertDialogDescription>
+            </AlertDialogHeader>
+            <AlertDialogFooter className="flex-row justify-end gap-2">
+              <AlertDialogAction disabled={applying || !selected} className="reception-primary-action lv-premium-shade !rounded-full border-0 text-white" onClick={(event) => { event.preventDefault(); void handleApply(); }}>
+                <Check className="w-4 h-4 mr-2 !text-white" />{applying ? 'Applying…' : 'Use This Floor Plan Template'}
+              </AlertDialogAction>
+              <AlertDialogCancel disabled={applying} className="venue-cancel-action lv-premium-shade !rounded-full mt-0 border-0"><X className="w-4 h-4 mr-2 !text-white" />Cancel</AlertDialogCancel>
+            </AlertDialogFooter>
+          </AlertDialogContent>
+        </AlertDialog>
+        <AlertDialog open={!!deleteTarget} onOpenChange={v=>{if(!v&&!deleting)setDeleteTarget(null)}}><AlertDialogContent className="reception-portal-surface"><AlertDialogHeader><AlertDialogTitle>Delete this venue template?</AlertDialogTitle><AlertDialogDescription>{deleteTarget?.venue_name} — {deleteTarget?.room_name} will be removed from the shared library. Floor plans already applied to events will remain unchanged.</AlertDialogDescription></AlertDialogHeader><AlertDialogFooter><AlertDialogCancel disabled={deleting}>Cancel</AlertDialogCancel><AlertDialogAction disabled={deleting} className="venue-cancel-action lv-premium-shade !rounded-full" onClick={e=>{e.preventDefault();void deleteVenue()}}><Trash2 className="mr-2 w-4 h-4"/>{deleting?'Deleting…':'Admin Delete'}</AlertDialogAction></AlertDialogFooter></AlertDialogContent></AlertDialog>
+        <RequestVenueFloorPlanDialog open={requestOpen} onOpenChange={setRequestOpen} />
       </DialogContent>
     </Dialog>
   );

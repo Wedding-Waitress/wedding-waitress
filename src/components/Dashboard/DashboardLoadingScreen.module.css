@@ -38,3 +38,7 @@
     background-position: 48% center;
   }
 }
+:global(#root#root [data-dashboard-loading-card]) :is(h1, h2, h3, p) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
