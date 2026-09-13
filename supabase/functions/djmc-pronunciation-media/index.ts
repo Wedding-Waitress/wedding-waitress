@@ -1,3 +1,4 @@
+import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const BUCKET='djmc-pronunciations';
@@ -13,6 +14,8 @@ const extensionFor=(type:string)=>type==='audio/ogg'?'ogg':(type==='audio/mp4'||
 const sha256=async(value:string)=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(value)))).map(v=>v.toString(16).padStart(2,'0')).join('');
 
 Deno.serve(async(req)=>{
+  const suspensionResponse = await guardSuspendedCustomer(req);
+  if (suspensionResponse) return suspensionResponse;
   if(req.method==='OPTIONS') return new Response('ok',{headers:corsHeaders});
   if(req.method!=='POST') return json({error:'Method not allowed'},405);
   try{

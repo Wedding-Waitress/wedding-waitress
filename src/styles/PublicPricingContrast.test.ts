@@ -25,4 +25,20 @@ describe('public Pricing dark-surface contrast', () => {
       /\.ww-pricing-page\s+\[data-pricing-dark-surface="wedding-waitress-value"\][\s\S]*?color: #ffffff !important;\s*-webkit-text-fill-color: #ffffff !important;\s*opacity: 1 !important;/,
     );
   });
+
+  it('keeps the Premium pricing CTA and badge on the established embossed green treatment', () => {
+    expect(styles).toMatch(
+      /\.ww-pricing-button-green\s*\{[\s\S]*?linear-gradient\(180deg, #7bd880, #55a447\)[\s\S]*?inset 0 1px 0 #ffffff80[\s\S]*?inset 0 -2px 0 #37652d66/,
+    );
+    expect(styles).toMatch(
+      /#root#root \.ww-pricing-button-green[\s\S]*?color: #fff !important;[\s\S]*?-webkit-text-fill-color: #fff !important;/,
+    );
+  });
+
+  it('keeps the approved compact comparison-table copy', () => {
+    expect(comparison).toContain("const comparisonPriceLabel = 'Estimated $149 - $299';");
+    expect(comparison).toContain('Included in Wedding Waitress');
+    expect(comparison).not.toContain('In Wedding Waitress');
+    expect(comparison).toContain("maxWidth: '1020px'");
+  });
 });

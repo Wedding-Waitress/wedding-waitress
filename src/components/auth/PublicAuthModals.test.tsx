@@ -9,6 +9,7 @@ const mocks = vi.hoisted(() => ({
   signInWithOtp: vi.fn(),
   verifyOtp: vi.fn(),
   upsert: vi.fn(),
+  invoke: vi.fn(),
 }));
 
 vi.mock('@/integrations/supabase/client', () => ({
@@ -18,6 +19,7 @@ vi.mock('@/integrations/supabase/client', () => ({
       verifyOtp: mocks.verifyOtp,
     },
     from: vi.fn(() => ({ upsert: mocks.upsert })),
+    functions: { invoke: mocks.invoke },
   },
 }));
 
@@ -28,6 +30,7 @@ describe('shared public authentication modals', () => {
     mocks.signInWithOtp.mockReset().mockResolvedValue({ error: null });
     mocks.verifyOtp.mockReset().mockResolvedValue({ data: { user: null }, error: null });
     mocks.upsert.mockReset().mockResolvedValue({ error: null });
+    mocks.invoke.mockReset().mockResolvedValue({ data: { saved: true }, error: null });
     sessionStorage.clear();
   });
 
@@ -41,9 +44,8 @@ describe('shared public authentication modals', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Open sign up' }));
 
     expect(await screen.findByRole('heading', { name: 'Create your free account' })).toBeInTheDocument();
-    expect(screen.getByText('No credit card required')).toBeInTheDocument();
-    expect(screen.getByText('7-day free trial · Up to 20 guests')).toBeInTheDocument();
-    expect(screen.getByText('Start planning your wedding in one connected place.')).toBeInTheDocument();
+    expect(screen.queryByText('7-day free trial · Up to 20 guests')).not.toBeInTheDocument();
+    expect(screen.getByText('Register your interest. Planning access will open when Wedding Waitress launches.')).toBeInTheDocument();
     expect(screen.getByLabelText('First name *')).toHaveAttribute('autocomplete', 'given-name');
     expect(screen.getByLabelText('Last name *')).toHaveAttribute('autocomplete', 'family-name');
     expect(screen.getByLabelText('Email *')).toHaveAttribute('autocomplete', 'email');
@@ -53,7 +55,7 @@ describe('shared public authentication modals', () => {
     expect(screen.queryByText(/google/i)).not.toBeInTheDocument();
   });
 
-  it('retains pricing intent and advances sign-up to the shared OTP experience', async () => {
+  it('durably saves pricing and promo intent without creating Auth or a trial', async () => {
     renderInRouter(
       <SignUpModal selectedPlan={{ key: 'premium', name: 'Premium', currency: 'USD' }}>
         <button type="button">Choose Premium</button>
@@ -64,21 +66,17 @@ describe('shared public authentication modals', () => {
     fireEvent.change(screen.getByLabelText('Last name *'), { target: { value: 'Taylor' } });
     fireEvent.change(screen.getByLabelText('Email *'), { target: { value: 'alex@example.com' } });
     fireEvent.change(screen.getByLabelText('Mobile *'), { target: { value: '0412 345 678' } });
+    fireEvent.change(screen.getByLabelText('Promo code (optional)'), { target: { value: 'VENUE50' } });
     fireEvent.click(screen.getByRole('button', { name: 'Create Free Account & Continue' }));
 
-    await waitFor(() => expect(mocks.signInWithOtp).toHaveBeenCalledWith({
-      email: 'alex@example.com',
-      options: {
-        shouldCreateUser: true,
-        data: expect.objectContaining({ mobile: '0412 345 678', intended_plan: 'premium', intended_currency: 'AUD' }),
-      },
-    }));
-    expect(await screen.findByRole('heading', { name: 'Check your email' })).toBeInTheDocument();
-    expect(screen.getAllByText(/alex@example\.com/)).toHaveLength(2);
-    expect(screen.getByRole('button', { name: /Resend available in/ })).toBeDisabled();
-    expect(screen.getByRole('button', { name: 'Correct email' })).toBeInTheDocument();
-    expect(sessionStorage.getItem('ww_intended_plan')).toBe('premium');
-    expect(sessionStorage.getItem('ww_intended_currency')).toBe('AUD');
+    await waitFor(() => expect(mocks.invoke).toHaveBeenCalledWith('register-prelaunch-interest', { body: {
+      first_name: 'Alex', last_name: 'Taylor', email: 'alex@example.com', mobile: '0412345678', promo_code: 'VENUE50', intended_plan: 'premium',
+    } }));
+    expect(await screen.findByRole('heading', { name: 'Thank you — you’re on our launch list' })).toBeInTheDocument();
+    expect(mocks.signInWithOtp).not.toHaveBeenCalled();
+    expect(mocks.verifyOtp).not.toHaveBeenCalled();
+    expect(mocks.upsert).not.toHaveBeenCalled();
+    expect(sessionStorage.getItem('ww_intended_plan')).toBeNull();
   });
 
   it('uses the approved sign-in wording and can return to sign-up', async () => {
@@ -92,6 +90,17 @@ describe('shared public authentication modals', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Create a free account' }));
     expect(backToSignUp).toHaveBeenCalledTimes(1);
     expect(screen.queryByLabelText(/password/i)).not.toBeInTheDocument();
+  });
+
+  it('keeps the registration form open on failed durable save without showing a launch success', async () => {
+    mocks.invoke.mockResolvedValue({ data: null, error: { message: 'Private error' } });
+    renderInRouter(<SignUpModal><button type="button">Register interest</button></SignUpModal>);
+    fireEvent.click(screen.getByRole('button', { name: 'Register interest' }));
+    for (const [label,value] of [['First name *','Alex'],['Last name *','Taylor'],['Email *','alex@example.com'],['Mobile *','0412345678']]) fireEvent.change(await screen.findByLabelText(label),{target:{value}});
+    fireEvent.click(screen.getByRole('button',{name:'Create Free Account & Continue'}));
+    expect(await screen.findByRole('alert')).toHaveTextContent('We couldn’t confirm your registration');
+    expect(screen.queryByRole('heading',{name:'Thank you — you’re on our launch list'})).not.toBeInTheDocument();
+    expect(mocks.signInWithOtp).not.toHaveBeenCalled();
   });
 
   it('shows existing email validation without requesting a sign-in code', async () => {

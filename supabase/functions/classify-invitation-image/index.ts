@@ -1,3 +1,4 @@
+import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 // Smart auto-categorization for invitation gallery images.
 // Admin-only. Uses Lovable AI Gateway (Gemini) with vision input + filename hint.
 
@@ -41,6 +42,8 @@ const fallbackFromFilename = (filename: string): string => {
 };
 
 Deno.serve(async (req: Request) => {
+  const suspensionResponse = await guardSuspendedCustomer(req);
+  if (suspensionResponse) return suspensionResponse;
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {

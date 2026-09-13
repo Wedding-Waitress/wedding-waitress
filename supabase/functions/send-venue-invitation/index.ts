@@ -1,3 +1,4 @@
+import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2';
 
 const corsHeaders = {
@@ -6,6 +7,8 @@ const corsHeaders = {
 };
 
 Deno.serve(async (req) => {
+  const suspensionResponse = await guardSuspendedCustomer(req);
+  if (suspensionResponse) return suspensionResponse;
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }

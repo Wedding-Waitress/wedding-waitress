@@ -1,4 +1,6 @@
+import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { beginOperationalEmail, acceptOperationalEmail, failOperationalEmail } from '../_shared/customer-email-data.ts';
 
 const corsHeaders = {
   'Access-Control-Allow-Origin': '*',
@@ -6,6 +8,8 @@ const corsHeaders = {
 };
 
 Deno.serve(async (req) => {
+  const suspensionResponse = await guardSuspendedCustomer(req);
+  if (suspensionResponse) return suspensionResponse;
   if (req.method === 'OPTIONS') {
     return new Response(null, { headers: corsHeaders });
   }
@@ -118,12 +122,15 @@ Deno.serve(async (req) => {
 </body>
 </html>`;
 
+      const deliveryId = crypto.randomUUID();
       try {
+        await beginOperationalEmail(adminClient, deliveryId, 'invitation-email', guest.email, userId, event_id);
         const emailRes = await fetch('https://api.resend.com/emails', {
           method: 'POST',
           headers: {
             'Authorization': `Bearer ${resendApiKey}`,
             'Content-Type': 'application/json',
+            'Idempotency-Key': deliveryId,
           },
           body: JSON.stringify({
             from: "Wedding Waitress <support@weddingwaitress.com.au>",
@@ -137,6 +144,7 @@ Deno.serve(async (req) => {
         const emailResult = await emailRes.json();
 
         if (emailRes.ok) {
+          await acceptOperationalEmail(adminClient, deliveryId, emailResult?.id);
           const newStatus = guest.rsvp_invite_status === 'sms_sent' ? 'both_sent' : 'email_sent';
           await adminClient.from('guests').update({
             rsvp_invite_status: newStatus,
@@ -153,17 +161,19 @@ Deno.serve(async (req) => {
 
           sent++;
         } else {
+          await failOperationalEmail(adminClient, deliveryId);
           await adminClient.from('rsvp_invite_logs').insert({
             event_id,
             guest_id: guest.id,
             user_id: userId,
             channel: 'email',
             status: 'failed',
-            error_message: JSON.stringify(emailResult),
+            error_message: `Email provider rejected request (${emailRes.status})`,
           });
           failed++;
         }
       } catch (err) {
+        await failOperationalEmail(adminClient, deliveryId);
         await adminClient.from('rsvp_invite_logs').insert({
           event_id,
           guest_id: guest.id,

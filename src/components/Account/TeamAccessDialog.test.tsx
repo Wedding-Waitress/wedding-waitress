@@ -28,6 +28,13 @@ describe('TeamAccessDialog', () => {
     expect(screen.getByText(/pending@example\.com/)).toBeInTheDocument();
     expect(screen.getByText('5 / 5')).toBeInTheDocument();
     expect(screen.queryByText(/promote/i)).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Send Invite' })).not.toBeInTheDocument();
+  });
+
+  it('shows the invitation form only in invite mode', () => {
+    render(<TeamAccessDialog open mode="invite" onOpenChange={vi.fn()} />);
+    expect(screen.getByRole('heading', { name: 'Invite a team member' })).toBeInTheDocument();
+    expect(screen.getByLabelText('First name')).toBeDisabled();
     expect(screen.getByRole('button', { name: 'Send Invite' })).toBeDisabled();
   });
 

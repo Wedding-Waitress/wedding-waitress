@@ -8,21 +8,28 @@ import { useDashboardSession } from '@/hooks/useDashboardSession';
 import { ProfileAvatar } from '@/components/Account/ProfileAvatar';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { clearAllCaches } from '@/lib/cacheRegistry';
-import { AdminOverviewPage, AdminCustomersPage, AdminSubscriptionsPaymentsPage, AdminEventsPage, AdminAccountLifecyclePage } from '@/components/Admin/AdminCentrePages';
+import { AdminOverviewPage, AdminCustomersPage, AdminSubscriptionsPaymentsPage, AdminAccountLifecyclePage } from '@/components/Admin/AdminCentrePages';
+import { AdminSupportPage, AdminMessagesCreditsPage, AdminSystemHealthPage, AdminActivityPage } from '@/components/Admin/AdminOperationsPages';
 import logoImage from '@/assets/wedding-waitress-full-logo.png';
 import styles from './Admin.module.css';
+import { AdminCustomerAccountPreview } from '@/components/Admin/AdminCustomerAccountPreview';
 
-export type AdminSection = 'overview' | 'customers' | 'subscriptions-payments' | 'events' | 'account-lifecycle';
+export type AdminSection = 'overview' | 'customers' | 'subscriptions-payments' | 'account-lifecycle' | 'support' | 'messages-credits' | 'system-health' | 'admin-activity';
 type Item = { id: AdminSection; label: string; description: string; icon: LucideIcon };
 const groups: Array<{ label: string; items: Item[] }> = [
   { label: 'Management', items: [
     { id: 'overview', label: 'Overview', description: 'Operational health and recent activity', icon: LayoutDashboard },
     { id: 'customers', label: 'Customers', description: 'Customer records, access and activity', icon: Users },
     { id: 'subscriptions-payments', label: 'Subscriptions & Payments', description: 'Plans, purchases and payment status', icon: CreditCard },
-    { id: 'events', label: 'Events', description: 'Event activity, ownership and usage', icon: CalendarDays },
   ] },
   { label: 'Account Control', items: [
     { id: 'account-lifecycle', label: 'Account Lifecycle', description: 'Closures, recovery and permanent deletion', icon: RotateCcw },
+  ] },
+  { label: 'Operations', items: [
+    { id: 'support', label: 'Support', description: 'Customer enquiries and status', icon: Users },
+    { id: 'messages-credits', label: 'Messages & Credits', description: 'Delivery records and communication allowances', icon: CreditCard },
+    { id: 'system-health', label: 'System Health', description: 'Queues and integration configuration', icon: ShieldCheck },
+    { id: 'admin-activity', label: 'Admin Activity', description: 'Recorded owner and lifecycle actions', icon: RotateCcw },
   ] },
 ];
 const items = groups.flatMap((group) => group.items);
@@ -31,11 +38,14 @@ const legacy: Record<string, AdminSection> = {
   users: 'customers', venues: 'customers', subscriptions: 'subscriptions-payments', payments: 'subscriptions-payments',
   'closed-accounts': 'account-lifecycle', invitations: 'overview', settings: 'overview', notifications: 'overview', logs: 'overview',
   'feature-flags': 'overview', maintenance: 'overview', 'data-tools': 'overview',
+  events: 'customers',
 };
 const content: Record<AdminSection, React.ReactNode> = {
   overview: <AdminOverviewPage />, customers: <AdminCustomersPage />,
-  'subscriptions-payments': <AdminSubscriptionsPaymentsPage />, events: <AdminEventsPage />,
+  'subscriptions-payments': <AdminSubscriptionsPaymentsPage />,
   'account-lifecycle': <AdminAccountLifecyclePage />,
+  support: <AdminSupportPage />, 'messages-credits': <AdminMessagesCreditsPage />,
+  'system-health': <AdminSystemHealthPage />, 'admin-activity': <AdminActivityPage />,
 };
 
 export const Admin: React.FC = () => {
@@ -81,6 +91,7 @@ export const Admin: React.FC = () => {
   const definition = items.find((item) => item.id === active)!;
   const name = useMemo(() => [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || 'Administrator', [profile]);
   if (location.pathname === '/admin') { const oldTab = params.get('tab'); return <Navigate to={`/admin/${oldTab ? legacy[oldTab] || 'overview' : 'overview'}`} replace />; }
+  if (section === 'events') return <Navigate to="/admin/customers#customer-events" replace />;
   if (section && legacy[section]) return <Navigate to={`/admin/${legacy[section]}`} replace />;
   if (section && !valid.has(section as AdminSection)) return <Navigate to="/admin/overview" replace />;
   if (adminLoading || authLoading || !grantChecked) return <div className={`${styles.loading} ww-application-background`} role="status"><span />Opening Admin Centre…</div>;
@@ -98,7 +109,7 @@ export const Admin: React.FC = () => {
     <aside className={`${styles.desktop} ww-sidebar-background`}>{sidebar}</aside>
     <button type="button" className={styles.mobileTrigger} onClick={() => setMobileOpen(true)} aria-expanded={mobileOpen} aria-controls="admin-mobile-nav"><Menu />Admin Centre</button>
     {mobileOpen && <div className={styles.mobileLayer}><button type="button" className={styles.backdrop} onClick={() => setMobileOpen(false)} aria-label="Close Admin Centre navigation" /><aside id="admin-mobile-nav" className={`${styles.drawer} ww-sidebar-background`} role="dialog" aria-modal="true" aria-label="Admin Centre navigation"><button type="button" className={styles.close} onClick={() => setMobileOpen(false)} aria-label="Close navigation"><X /></button>{sidebar}</aside></div>}
-    <main className={styles.main}><header className={styles.pageHeader}><span>Admin Centre</span><h1>{definition.label}</h1><p>{definition.description}</p></header><div className={styles.content}>{content[active]}</div></main>
+    <main className={styles.main}><header className={styles.pageHeader}><span>Admin Centre</span><h1>{definition.label}</h1><p>{definition.description}</p></header><div className={styles.content}>{active==='customers'&&params.get('preview')?<AdminCustomerAccountPreview key={params.get('preview')} customerId={params.get('preview')!}/>:content[active]}</div></main>
   </div>;
 };
 export default Admin;

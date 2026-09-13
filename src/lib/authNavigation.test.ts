@@ -11,7 +11,7 @@ describe('authenticated navigation', () => {
     '/dashboard?tab=guest-list',
     '/dashboard/photo-video-gallery/gallery-view',
     '/account',
-    '/account/plans-upgrades',
+    '/account/plan-billing',
     '/account#billing',
     '/admin/overview',
   ])('allows the protected destination %s', (destination) => {

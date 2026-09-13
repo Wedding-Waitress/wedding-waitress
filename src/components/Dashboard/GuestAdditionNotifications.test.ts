@@ -7,7 +7,7 @@ const deliveryMigration = readFileSync('supabase/migrations/20260909015000_guest
 const deliveryRollback = readFileSync('supabase/rollback/20260909015000_guest_addition_email_delivery_claim.rollback.sql', 'utf8');
 const smsMigration = readFileSync('supabase/migrations/20260909020000_guest_addition_sms_notifications.sql', 'utf8');
 const smsRollback = readFileSync('supabase/rollback/20260909020000_guest_addition_sms_notifications.rollback.sql', 'utf8');
-const schedulerMigration = readFileSync('supabase/migrations/20260909023000_guest_addition_notification_scheduler.sql', 'utf8');
+const schedulerMigration = readFileSync('supabase/migrations/20260909023000_guest_addition_notification_scheduler.sql', 'utf8').replace(/\r\n/g, '\n');
 const schedulerRollback = readFileSync('supabase/rollback/20260909023000_guest_addition_notification_scheduler.rollback.sql', 'utf8');
 const guestList = readFileSync('src/components/Dashboard/GuestListTable.tsx', 'utf8');
 const processor = readFileSync('supabase/functions/process-guest-addition-notifications/index.ts', 'utf8');
@@ -124,7 +124,7 @@ describe('guest-added organiser notification contract', () => {
 
   it('enrols the saved signup mobile with a dedicated, rate-limited owner OTP flow', () => {
     expect(signup).toContain('mobile: formData.mobile.trim()');
-    expect(embeddedSignup).toContain('mobile: formData.mobile || null');
+    expect(embeddedSignup).toContain('mobile: normalizeGuestPhone(formData.mobile)');
     expect(smsDialog).toContain("action: 'status'");
     expect(smsDialog).toContain("action: 'request'");
     expect(smsDialog).toContain("action: 'verify'");

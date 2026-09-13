@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, SUPABASE_URL } from '@/integrations/supabase/client';
 import { retiredLiveViewAsset } from './liveViewAssetCleanup';
 
 export function usesEventHero(config: Record<string, any> | null | undefined) {
@@ -60,7 +60,7 @@ export async function syncEventHeroImage(eventId: string) {
   }
   const otherUrls = Object.entries(result.data ?? {}).filter(([key]) => key !== 'hero_image_config')
     .map(([, value]) => value && typeof value === 'object' && !Array.isArray(value) ? (value as Record<string, any>).file_url : undefined);
-  const retired = retiredLiveViewAsset(previous?.file_url, config.file_url, otherUrls, eventId, supabase.supabaseUrl);
+  const retired = retiredLiveViewAsset(previous?.file_url, config.file_url, otherUrls, eventId, SUPABASE_URL || '');
   if (retired) {
     const cleanup = await supabase.storage.from(retired.bucket).remove([retired.path]);
     if (cleanup.error) throw cleanup.error;

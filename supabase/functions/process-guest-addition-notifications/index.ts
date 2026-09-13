@@ -2,6 +2,7 @@ import { createClient } from 'npm:@supabase/supabase-js@2'
 import { buildGuestAdditionEmail, guestAdditionEmailIdempotencyKey } from '../_shared/guestAdditionEmail.ts'
 import { buildGuestAdditionSms } from '../_shared/guestAdditionSms.ts'
 import { sendPlatformSms } from '../_shared/platformSms.ts'
+import { beginOperationalEmail, acceptOperationalEmail, failOperationalEmail } from '../_shared/customer-email-data.ts'
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
   status,
@@ -74,6 +75,7 @@ Deno.serve(async (req) => {
     const idempotencyKey = guestAdditionEmailIdempotencyKey(item.id)
 
     try {
+      await beginOperationalEmail(db, idempotencyKey, 'guest-addition-notification', owner.user.email, event.user_id, item.event_id)
       const response = await fetch('https://api.resend.com/emails', {
         method: 'POST',
         headers: {
@@ -91,6 +93,7 @@ Deno.serve(async (req) => {
       })
 
       if (!response.ok) {
+        await failOperationalEmail(db, idempotencyKey)
         await db.from('guest_addition_notifications').update({
           email_status: 'failed',
           email_error: await providerError(response),
@@ -100,6 +103,7 @@ Deno.serve(async (req) => {
       }
 
       const result = await response.json().catch(() => ({}))
+      await acceptOperationalEmail(db, idempotencyKey, result?.id)
       await db.from('guest_addition_notifications').update({
         // Resend accepted the request. This does not claim inbox delivery.
         email_status: 'queued',
@@ -110,6 +114,7 @@ Deno.serve(async (req) => {
       }).eq('id', item.id).eq('email_status', 'processing')
       accepted++
     } catch {
+      await failOperationalEmail(db, idempotencyKey)
       await db.from('guest_addition_notifications').update({
         email_status: 'failed',
         email_error: 'Resend request failed before acceptance was confirmed',

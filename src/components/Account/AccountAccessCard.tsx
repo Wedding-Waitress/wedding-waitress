@@ -39,13 +39,19 @@ export const AccountAccessCard: React.FC<Props> = ({ icon }) => {
       <SectionCard icon={icon} title="Team & Access" description="Account holders, team members and permissions">
         <div className={teamStyles.peopleTable} role="table" aria-label="People with account access">
           <div data-team-roster-header className={teamStyles.tableHeader} role="row"><span data-team-roster-label role="columnheader">Full Name</span><span data-team-roster-label role="columnheader">Email</span><span data-team-roster-label role="columnheader">Phone Number</span><span data-team-roster-label role="columnheader">Account Role</span></div>
-          <div className={teamStyles.list}>{visibleMembers.map((member) => <div className={teamStyles.personRow} role="row" key={member.id}>
+            <div className={teamStyles.list}>{visibleMembers.map((member) => <div className={teamStyles.personRow} role="row" key={member.id}>
             <div role="cell" data-label="Full Name"><strong>{[member.first_name,member.last_name].filter(Boolean).join(' ') || 'Name not provided'}</strong></div>
             <div role="cell" data-label="Email"><span>{member.member_email}</span></div>
             <div role="cell" data-label="Phone Number"><span>{member.mobile || '—'}</span></div>
             <div className={teamStyles.roleCell} role="cell" data-label="Account Role">{member.role === 'master' ? <span data-master-account-badge className={teamStyles.badge}><Crown /> Master Account Holder</span> : <span className={teamStyles.memberBadge}>Team Member</span>}</div>
-          </div>)}{visibleMembers.length === 0 && <div className={teamStyles.emptyRoster}>Loading account holder…</div>}</div>
+          </div>)}{visibleMembers.length === 0 && !team.error && <div className={teamStyles.emptyRoster}>{team.loading ? 'Loading account holder…' : 'No account members were returned.'}</div>}</div>
         </div>
+        {TEAM_ACCESS_ENABLED && team.error && (
+          <div className={teamStyles.error} role="alert">
+            <span>Team access could not load: {team.error}</span>
+            <Button type="button" className={controlStyles.secondaryButton} onClick={() => void team.refresh()}>Try Again</Button>
+          </div>
+        )}
 
         {/* Stat grid */}
         {TEAM_ACCESS_ENABLED && (
@@ -87,12 +93,12 @@ const Stat: React.FC<{ label: string; value: string; sub?: string; className?: s
 }) => (
   <div
     className={
-      'rounded-xl bg-gradient-to-b from-[#FBF7F0] to-white border border-[#E8E1D6]/70 p-3.5 ' +
+      'rounded-xl bg-gradient-to-b from-[#FBF8F2] to-[#F5EBDD] border border-[#CDB99E] p-3.5 ' +
       (className ?? '')
     }
   >
     <div className="text-[11px] uppercase tracking-wide font-medium text-muted-foreground">{label}</div>
-    <div className="mt-1 text-base sm:text-lg font-semibold text-[#1D1D1F] break-words">{value}</div>
+    <div className="mt-1 text-base sm:text-lg font-semibold text-[#2B1711] break-words">{value}</div>
     {sub && <div className="mt-0.5 text-xs text-muted-foreground">{sub}</div>}
   </div>
 );

@@ -66,6 +66,7 @@ export interface FullSeatingChartPreviewHandle {
 }
 interface FullSeatingChartPreviewProps {
   disabled?: boolean;
+  readOnly?: boolean;
   event: any;
   guests: Guest[];
   settings: FullSeatingChartSettings;
@@ -80,6 +81,7 @@ export const FullSeatingChartPreview = forwardRef<FullSeatingChartPreviewHandle,
   tableNameMap = {},
   tableIdNameMap = {},
   disabled = false,
+  readOnly = false,
 }, ref) => {
   const [checkedGuests, setCheckedGuests] = useState<Set<string>>(new Set());
   const [currentPage, setCurrentPage] = useState(1);
@@ -283,9 +285,9 @@ export const FullSeatingChartPreview = forwardRef<FullSeatingChartPreviewHandle,
           paddingBottom: '3.5pt',
           borderBottom: `1px solid ${settings.guestListColor}`,
         }}
-        role="checkbox" aria-label={`Check off ${formatGuestName(guest)}`} aria-checked={checkedGuests.has(guest.id)} aria-disabled={disabled} tabIndex={disabled ? -1 : 0}
-        onKeyDown={e => { if (!disabled && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); handleGuestCheck(guest.id, !checkedGuests.has(guest.id)); } }}
-        onClick={() => { if (!disabled) handleGuestCheck(guest.id, !checkedGuests.has(guest.id)); }}
+        role="checkbox" aria-label={`Check off ${formatGuestName(guest)}`} aria-checked={checkedGuests.has(guest.id)} aria-disabled={disabled || readOnly} tabIndex={disabled || readOnly ? -1 : 0}
+        onKeyDown={e => { if (!disabled && !readOnly && (e.key === ' ' || e.key === 'Enter')) { e.preventDefault(); handleGuestCheck(guest.id, !checkedGuests.has(guest.id)); } }}
+        onClick={() => { if (!disabled && !readOnly) handleGuestCheck(guest.id, !checkedGuests.has(guest.id)); }}
       >
         {/* Black check-off circle; field colour controls never recolour it. */}
         <svg width="14" height="14" viewBox="0 0 14 14" className="flex-shrink-0">

@@ -12,7 +12,7 @@ import { publicHeroForRoute } from '@/config/publicHeroManifest';
 
 const publicWorkflowPaths: Record<PlanningWorkflowTabId, string> = {
   'my-events': '/my-events',
-  dashboard: '/dashboard?tab=dashboard',
+  dashboard: '/event-budget-planner',
   'table-list': '/tables',
   'guest-list': '/guest-list',
 };

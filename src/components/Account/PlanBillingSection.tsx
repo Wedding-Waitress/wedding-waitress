@@ -4,11 +4,12 @@ import { SubscriptionCard } from './SubscriptionCard';
 import { BillingCard } from './BillingCard';
 import { HistoryCard } from './HistoryCard';
 import styles from './PlanBillingSection.module.css';
+import { MasterOnly } from '@/components/permissions/MasterOnly';
 
 export const PlanBillingSection: React.FC = () => (
   <div className={styles.layout} data-plan-billing>
     <SubscriptionCard icon={CreditCard} />
-    <BillingCard icon={Receipt} />
-    <HistoryCard icon={History} />
+    <MasterOnly fallback="hide"><BillingCard icon={Receipt} /></MasterOnly>
+    <MasterOnly fallback="hide"><HistoryCard icon={History} /></MasterOnly>
   </div>
 );

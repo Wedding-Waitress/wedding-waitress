@@ -1,3 +1,4 @@
+import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import {
   DEFAULT_ACCOUNT_SEATS, isTeamAction, isValidEmail, normalizeEmail,
@@ -16,6 +17,8 @@ const json = (body: unknown, status = 200) => new Response(JSON.stringify(body),
 })
 
 Deno.serve(async (request) => {
+  const suspensionResponse = await guardSuspendedCustomer(request);
+  if (suspensionResponse) return suspensionResponse;
   if (request.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
   if (request.method !== 'POST') return json({ error: 'Method not allowed' }, 405)
   if (Deno.env.get('TEAM_ACCESS_ENABLED') !== 'true') {

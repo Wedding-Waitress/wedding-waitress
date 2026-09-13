@@ -36,6 +36,7 @@ import {
   TooltipTrigger,
 } from "@/components/ui/tooltip";
 import { Input } from "@/components/ui/input";
+import { Badge } from "@/components/ui/badge";
 import { Pencil, Trash2, Users, CircleCheck, AlertTriangle, Crown } from "lucide-react";
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { Guest } from '@/hooks/useGuests';
@@ -44,6 +45,8 @@ import { HeadTableSeatingDialog } from './Tables/HeadTableSeatingDialog';
 import type { HeadSeatEntry } from '@/lib/headTable';
 
 interface TableCardProps {
+  /** Saved seating only; no drag targets or editing dialogs. */
+  readOnly?: boolean;
   table: TableWithGuestCount;
   onEdit: (table: TableWithGuestCount) => void;
   onDelete: (tableId: string) => Promise<boolean>;
@@ -56,6 +59,7 @@ interface TableCardProps {
 }
 
 export const TableCard: React.FC<TableCardProps> = ({
+  readOnly = false,
   table,
   onEdit,
   onDelete,
@@ -135,7 +139,7 @@ export const TableCard: React.FC<TableCardProps> = ({
 
 
   const handleDelete = async () => {
-    if (deleteConfirmText !== 'DELETE') return;
+    if (readOnly || deleteConfirmText !== 'DELETE') return;
     
     setIsDeleting(true);
     const success = await onDelete(table.id);
@@ -155,7 +159,7 @@ export const TableCard: React.FC<TableCardProps> = ({
   };
 
   // Check if this table is currently being hovered during a drag operation
-  const isOver = isOverTable === table.id;
+  const isOver = !readOnly && isOverTable === table.id;
 
   return (
     <>
@@ -334,6 +338,14 @@ export const TableCard: React.FC<TableCardProps> = ({
                   return guest ? [<span key={guest.id} className="rounded-full border border-[#C4A882] px-3 py-1 text-xs">{guest.first_name} {guest.last_name}</span>] : [];
                 })}
               </div>
+            ) : readOnly ? (
+              <div className="flex flex-col gap-1.5">
+                {sortedGuests.map((guest) => (
+                  <Badge key={guest.id} variant="secondary" className="ww-table-guest-chip min-w-0 justify-start text-xs max-lg:py-0.5 lg:py-1 leading-tight px-2">
+                    <span className="truncate min-w-0 whitespace-nowrap">{guest.first_name} {guest.last_name || ''}{guest.seat_no ? ` (Seat ${guest.seat_no})` : ''}</span>
+                  </Badge>
+                ))}
+              </div>
             ) : <TableGuestList
               tableId={table.id}
               guests={sortedGuests}
@@ -343,9 +355,10 @@ export const TableCard: React.FC<TableCardProps> = ({
 
         {/* Actions - Fixed at bottom */}
         <div className="flex flex-wrap justify-center items-center gap-2 mt-4">
-          {isHeadTable && <Button onClick={() => setShowHeadSeating(true)} className="lv-premium-shade w-full rounded-full bg-[#967A59] hover:bg-[#7e664b] text-white min-h-7 h-auto whitespace-nowrap py-1 px-1 text-[10px] tracking-tight">Arrange Head Table Seating</Button>}
+          {isHeadTable && <Button disabled={readOnly} onClick={() => { if (!readOnly) setShowHeadSeating(true); }} className="lv-premium-shade w-full rounded-full bg-[#967A59] hover:bg-[#7e664b] text-white min-h-7 h-auto whitespace-nowrap py-1 px-1 text-[10px] tracking-tight">Arrange Head Table Seating</Button>}
           <Button
-            onClick={() => onEdit(table)}
+            disabled={readOnly}
+            onClick={() => { if (!readOnly) onEdit(table); }}
             title="Edit table"
             aria-label="Edit table"
             className="lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white h-7 px-4 text-xs flex items-center gap-[5px]"
@@ -354,7 +367,8 @@ export const TableCard: React.FC<TableCardProps> = ({
             <span className="text-white font-medium">Edit</span>
           </Button>
           <Button
-            onClick={() => setShowDeleteDialog(true)}
+            disabled={readOnly}
+            onClick={() => { if (!readOnly) setShowDeleteDialog(true); }}
             title="Delete table"
             aria-label="Delete table"
             className="lv-premium-shade rounded-full bg-red-500 hover:bg-red-600 text-white h-7 px-4 text-xs flex items-center gap-[5px]"
@@ -367,7 +381,7 @@ export const TableCard: React.FC<TableCardProps> = ({
       </Card>
 
       {/* Delete Confirmation Dialog */}
-      <AlertDialog open={showDeleteDialog} onOpenChange={handleDeleteDialogClose}>
+      {!readOnly && <AlertDialog open={showDeleteDialog} onOpenChange={handleDeleteDialogClose}>
         <AlertDialogContent className="ww-tables-dialog">
           <AlertDialogHeader>
             <AlertDialogTitle className="flex items-center gap-2">
@@ -401,8 +415,8 @@ export const TableCard: React.FC<TableCardProps> = ({
             </AlertDialogAction>
           </AlertDialogFooter>
         </AlertDialogContent>
-      </AlertDialog>
-      {isHeadTable && <HeadTableSeatingDialog open={showHeadSeating} onOpenChange={setShowHeadSeating} table={table} guests={allGuests} participant1={participant1} participant2={participant2} onSave={onSaveHeadSeating} />}
+      </AlertDialog>}
+      {isHeadTable && !readOnly && <HeadTableSeatingDialog open={showHeadSeating} onOpenChange={setShowHeadSeating} table={table} guests={allGuests} participant1={participant1} participant2={participant2} onSave={onSaveHeadSeating} />}
     </>
   );
 };

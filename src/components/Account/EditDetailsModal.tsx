@@ -13,6 +13,7 @@ import controlStyles from './AccountControls.module.css';
 interface Props {
   open: boolean;
   onOpenChange: (open: boolean) => void;
+  initialEmail?: string;
 }
 
 type ModalStep = 'edit' | 'review' | 'email-pending' | 'complete';
@@ -28,7 +29,7 @@ interface ReviewedChange {
 const displayedValue = (value: string) => value || 'Not provided';
 const normalEmail = (value: string) => value.trim().toLowerCase();
 
-export const EditDetailsModal: React.FC<Props> = ({ open, onOpenChange }) => {
+export const EditDetailsModal: React.FC<Props> = ({ open, onOpenChange, initialEmail = '' }) => {
   const { profile, updateCachedProfile } = useProfile();
   const { toast } = useToast();
   const [firstName, setFirstName] = useState('');
@@ -47,18 +48,21 @@ export const EditDetailsModal: React.FC<Props> = ({ open, onOpenChange }) => {
     setFirstName(profile.first_name || '');
     setLastName(profile.last_name || '');
     setMobile(profile.mobile || '');
+    const knownEmail = initialEmail || profile.email || '';
+    setCurrentAuthEmail(knownEmail);
+    setEmail(knownEmail);
     setStep('edit');
     setErrorMessage('');
 
     void supabase.auth.getUser().then(({ data }) => {
       if (cancelled) return;
-      const authEmail = data.user?.email || profile.email || '';
+      const authEmail = data.user?.email || initialEmail || profile.email || '';
       setCurrentAuthEmail(authEmail);
       setEmail(authEmail);
     });
 
     return () => { cancelled = true; };
-  }, [open, profile]);
+  }, [initialEmail, open, profile]);
 
   const changes = useMemo<ReviewedChange[]>(() => {
     if (!profile) return [];
@@ -166,7 +170,7 @@ export const EditDetailsModal: React.FC<Props> = ({ open, onOpenChange }) => {
   const close = () => onOpenChange(false);
 
   return (
-    <Dialog open={open} onOpenChange={onOpenChange}>
+    <Dialog open={open} onOpenChange={(next) => !saving && onOpenChange(next)}>
       <DialogContent data-appearance="espresso-glass" className={`sm:max-w-md ${styles.dialog}`} overlayClassName={styles.overlay}>
         <DialogHeader>
           <DialogTitle className={styles.title}>

@@ -1,3 +1,4 @@
+import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 // 🔒 PRODUCTION-LOCKED — Account billing data fetcher (2026-04-18)
 // Returns Stripe payment method, last invoice, next billing, history, and portal URL.
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
@@ -11,6 +12,8 @@ const corsHeaders = {
 };
 
 serve(async (req) => {
+  const suspensionResponse = await guardSuspendedCustomer(req);
+  if (suspensionResponse) return suspensionResponse;
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }

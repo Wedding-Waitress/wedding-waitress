@@ -156,11 +156,12 @@ export const TermsOfService = () => {
                 </div>
 
                 <div className="border-t pt-4">
-                  <h4 className="font-bold text-foreground mb-2">Plan Expiry & Grace Period</h4>
+                  <h4 className="font-bold text-foreground mb-2">Plan Expiry & Recovery Period</h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground">
-                    <li>All paid plans are valid for 12 months from purchase date</li>
-                    <li>After expiry, users receive 6 months read-only access</li>
-                    <li>After the grace period, access may be restricted or removed</li>
+                    <li>Paid packages provide 12 months of access from their confirmed term start; a promotional package purchased during the free trial starts after that trial ends</li>
+                    <li>Planning, data and download access ends when the paid access period expires</li>
+                    <li>Expiry alone does not automatically delete your saved account or event content</li>
+                    <li>You may choose Essential, Premium or Ultimate and explicitly complete a new 12-month package purchase; packages do not auto-renew</li>
                     <li>Wedding Waitress reserves the right to modify plan limits, pricing, or features at any time, with reasonable notice to users</li>
                   </ul>
                 </div>
@@ -176,14 +177,15 @@ export const TermsOfService = () => {
                 <li>Additional packs of 100 Email &amp; SMS credits may be purchased for A$49</li>
               </ul>
 
-              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">C. Plan Extensions (Optional Add-On)</h3>
+              <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">C. Package Renewal</h3>
               <p className="text-muted-foreground leading-relaxed mb-2">
-                Users may purchase extensions to extend their plan duration.
+                Customers may choose a new package when their paid access expires.
               </p>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
                 <li>Available for Essential, Premium, and Ultimate plans</li>
-                <li>Duration options may vary (e.g., monthly or yearly extensions)</li>
-                <li>Pricing varies depending on plan type and extension length</li>
+                <li>A renewal requires your explicit package selection and successful checkout</li>
+                <li>Renewals provide a new 12-month term and do not auto-renew</li>
+                <li>The price and package allowances are displayed before you confirm checkout</li>
               </ul>
 
               <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">Promotional Codes</h3>
@@ -269,7 +271,7 @@ export const TermsOfService = () => {
 
               <h3 className="text-xl font-semibold text-foreground mb-3 mt-6">7.2 Plan Access</h3>
               <ul className="list-disc pl-6 space-y-2 text-muted-foreground">
-                <li>Essential (A$150), Premium (A$200) and Ultimate (A$300) are one-time purchases providing 12 months of access and do not auto-renew</li>
+                <li>Essential (A$199), Premium (A$249) and Ultimate (A$299) are one-time purchases providing 12 months of access and do not auto-renew</li>
                 <li>Advertised Australian prices exclude GST; Australian GST is added once at checkout where applicable</li>
                 <li>Access to features is granted instantly upon successful payment</li>
               </ul>

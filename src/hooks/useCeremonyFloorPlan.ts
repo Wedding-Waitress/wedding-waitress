@@ -271,7 +271,7 @@ export const useCeremonyFloorPlan = (eventId: string | null) => {
     const batch = pending;
     batch.patches.push(updates);
     const publish = () => {
-      const next = batch.patches.reduce((plan, patch) => ({ ...plan, ...patch }), batch.confirmed);
+      const next = batch.patches.reduce<CeremonyFloorPlan>((plan, patch) => ({ ...plan, ...patch }), batch.confirmed);
       floorPlanCache.set(before.event_id, next);
       if (activeEvent.current === before.event_id) {
         currentPlan.current = next;

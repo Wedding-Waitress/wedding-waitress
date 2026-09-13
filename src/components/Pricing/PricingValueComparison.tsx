@@ -7,6 +7,8 @@ import { PACKAGE_PRICES_AUD } from '@/lib/packagePricing';
 const aud = (value: number) =>
   `A$${new Intl.NumberFormat('en-AU', { maximumFractionDigits: 0 }).format(value)}`;
 
+const comparisonPriceLabel = 'Estimated $149 - $299';
+
 export const PricingValueComparison: React.FC = () => {
   const weddingWaitressPrice = formatPublicPricingPrice('AUD', PACKAGE_PRICES_AUD.essential);
   let lastCategory = '';
@@ -24,9 +26,9 @@ export const PricingValueComparison: React.FC = () => {
             event-day coordination and shared memories together. See what comparable standalone
             tools and services may cost when purchased separately.
           </p>
-          <p className="mx-auto mt-6 max-w-3xl rounded-xl border border-[#d7b985]/65 bg-[#f6efe5] px-5 py-4 text-sm font-semibold leading-6 text-[#412419]">
-            All couple plans include the complete platform. You choose your plan by guest
-            capacity—not by features.
+          <p className="ww-lead mx-auto mt-6 max-w-4xl rounded-xl border border-[#d7b985]/65 bg-[#f6efe5] px-5 py-4 font-semibold text-[#412419]">
+            More tools included. More value in one plan. See how Wedding Waitress compares with
+            buying separate tools below.
           </p>
         </header>
         <p className="mt-10 text-sm text-[#6f625b] md:hidden">
@@ -36,20 +38,19 @@ export const PricingValueComparison: React.FC = () => {
 
       <div
         className="mx-auto mt-5 hidden overflow-x-auto overflow-y-hidden rounded-2xl border border-[#d7b985]/65 bg-white shadow-[0_8px_35px_rgba(43,23,17,.08)] md:block"
-        style={{ width: 'calc(100% - 2rem)', maxWidth: '1320px' }}
+        style={{ width: 'calc(100% - 2rem)', maxWidth: '1020px' }}
         aria-label="Pricing comparison table"
       >
-        <table className="w-full min-w-[1040px] border-collapse text-left text-[13px] leading-[18px]">
+        <table className="w-full table-fixed border-collapse text-left text-[13px] leading-[18px]">
           <caption className="sr-only">
             Comparison of Wedding Waitress capabilities with estimated separate tools
           </caption>
-          <thead className="bg-[#412419] text-[#fff8ee]">
+          <thead data-solid-text-surface="dark" className="bg-[#412419] text-[#fff8ee]">
             <tr>
-              <th scope="col" className="w-[27%] px-5 py-4 font-semibold">Product or feature</th>
-              <th scope="col" className="w-[26%] px-5 py-4 font-semibold">What it replaces</th>
-              <th scope="col" className="w-[24%] px-5 py-4 font-semibold">Estimated separate cost</th>
-              <th scope="col" className="w-[23%] whitespace-nowrap px-5 py-4 font-semibold">
-                Included with Wedding Waitress
+              <th scope="col" className="w-[46%] px-4 py-4 font-semibold">Planning Tools</th>
+              <th scope="col" className="w-[27%] border-l border-[#d7b985]/30 px-4 py-4 font-semibold">Other Online Tools \ Average Prices</th>
+              <th scope="col" className="w-[27%] border-l border-[#d7b985]/30 px-4 py-4 font-semibold">
+                Included in Wedding Waitress
               </th>
             </tr>
           </thead>
@@ -62,9 +63,9 @@ export const PricingValueComparison: React.FC = () => {
                   {showCategory && (
                     <tr>
                       <th
-                        colSpan={4}
+                        colSpan={3}
                         scope="colgroup"
-                        className="border-y border-[#d7b985]/50 bg-[#f6efe5] px-5 py-3 text-xs font-bold uppercase tracking-[.11em] text-[#70452f]"
+                        className="border-y border-[#d7b985]/50 bg-[#f6efe5] px-4 py-3 text-xs font-bold uppercase tracking-[.11em] text-[#70452f]"
                       >
                         {row.category}
                       </th>
@@ -73,14 +74,14 @@ export const PricingValueComparison: React.FC = () => {
                   <tr className="border-b border-[#e7d8c7]/75 align-top">
                     <th
                       scope="row"
-                      className={`px-5 py-3.5 font-medium text-[#412419] ${row.indent ? 'pl-10' : ''}`}
+                      className={`px-4 py-3.5 font-medium text-[#412419] ${row.indent ? 'pl-8' : ''}`}
                     >
                       {row.indent && <span aria-hidden="true" className="mr-2 text-[#a88558]">↳</span>}
                       {row.product}
+                      <span className="mt-1 block font-normal text-[#6f625b]">{row.replaces}</span>
                     </th>
-                    <td className="px-5 py-3.5 text-[#6f625b]">{row.replaces}</td>
-                    <td className="px-5 py-3.5 text-[#412419]">{row.cost.display}</td>
-                    <td className="px-5 py-3.5">
+                    <td className="border-l border-[#e7d8c7]/60 px-4 py-3.5 text-[#412419]">{comparisonPriceLabel}</td>
+                    <td className="border-l border-[#e7d8c7]/60 px-4 py-3.5">
                       <span className="inline-flex items-center gap-2 font-semibold text-[#412419]">
                         <CircleCheck size={16} strokeWidth={1.8} aria-hidden="true" />
                         Included
@@ -112,7 +113,7 @@ export const PricingValueComparison: React.FC = () => {
                 </div>
                 <div>
                   <dt className="font-semibold text-[#412419]">Estimated separate cost</dt>
-                  <dd className="mt-1 text-[#6f625b]">{row.cost.display}</dd>
+                  <dd className="mt-1 text-[#6f625b]">{comparisonPriceLabel}</dd>
                 </div>
               </dl>
               <p className="mt-4 inline-flex items-center gap-2 text-[13px] font-semibold text-[#412419]">
@@ -147,7 +148,7 @@ export const PricingValueComparison: React.FC = () => {
               One event · 12 months of access · Complete platform included
             </p>
             <p className="mt-4 text-sm leading-6 text-[#fff8ee]">
-              Plus a 30-day download-only window after your access period ends.
+              Planning and download access ends when the paid period expires. Your saved account remains recoverable for six months, and access can be extended for A$20 per prepaid month.
             </p>
           </div>
         </div>

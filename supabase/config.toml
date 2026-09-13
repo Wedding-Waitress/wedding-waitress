@@ -45,7 +45,7 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.send-transactional-email]
-verify_jwt = true
+verify_jwt = false
 
 [functions.process-guest-addition-notifications]
 verify_jwt = true
@@ -60,6 +60,10 @@ verify_jwt = false
 verify_jwt = false
 
 [functions.handle-email-suppression]
+verify_jwt = false
+
+# External provider, authenticated by Svix signature and timestamp in-function.
+[functions.email-delivery-webhook]
 verify_jwt = false
 
 [functions.twilio-delivery-webhook]
@@ -93,14 +97,58 @@ verify_jwt = true
 [functions.manage-account-members]
 verify_jwt = true
 
+[functions.process-transactional-email-queue]
+verify_jwt = true
+
+
+
+[functions.purge-expired-access-accounts]
+verify_jwt = true
+
 [functions.purge-closed-accounts]
 verify_jwt = false
 
 [functions.admin-account-action]
 verify_jwt = true
 
+# Prepared owner-only, recent-OTP read API; deployment needs separate approval.
+[functions.admin-operations-snapshot]
+verify_jwt = true
+
 [functions.djmc-pronunciation-media]
 verify_jwt = false
 
 [functions.venue-floor-plan-request]
+verify_jwt = false
+
+# Prepared only: owner + recent verification enforced in handler; feature off by default.
+[functions.admin-payment-refund]
+verify_jwt = true
+
+# Signature/timestamp verification enforced in handler. Not registered or activated yet.
+[functions.stripe-refund-webhook]
+verify_jwt = false
+
+# Local preparation only. Handlers also verify current, non-revoked sessions.
+[functions.admin-promotions]
+verify_jwt = true
+
+[functions.validate-promotion]
+verify_jwt = true
+
+[functions.create-promotion-checkout]
+verify_jwt = true
+
+[functions.verify-promotion-payment]
+verify_jwt = true
+
+[functions.get-promotion-state]
+verify_jwt = true
+
+# Signed raw-body verification in handler; not registered or deployed.
+[functions.stripe-promotion-webhook]
+verify_jwt = false
+
+# Anonymous interest registration; private service-only persistence and throttling.
+[functions.register-prelaunch-interest]
 verify_jwt = false

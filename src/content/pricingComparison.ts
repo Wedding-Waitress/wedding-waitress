@@ -20,6 +20,7 @@ const standaloneEstimate = (): ComparisonCost => ({
 
 export const pricingComparisonRows: PricingComparisonRow[] = [
   { category: 'Planning and organisation', product: 'Create and manage your event', replaces: 'Event planning workspace', cost: standaloneEstimate() },
+  { category: 'Planning and organisation', product: 'Wedding & Event Budget Planner', replaces: 'Wedding and event budgeting tool', cost: { display: '—' } },
   { category: 'Planning and organisation', product: 'Build your guest list and track RSVPs', replaces: 'Guest-list and RSVP software', cost: standaloneEstimate() },
   { category: 'Planning and organisation', product: 'Create tables and assign seats', replaces: 'Seating-chart software', cost: standaloneEstimate() },
   { category: 'Planning and organisation', product: 'Plan your ceremony floor layout', replaces: 'Floor-plan design software', cost: standaloneEstimate() },

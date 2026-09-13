@@ -5,6 +5,13 @@ import { beforeEach, describe, expect, it, vi } from 'vitest';
 const pendingSettingsRequest = new Promise(() => undefined);
 let settingsRequest: Promise<unknown> = pendingSettingsRequest;
 
+// The page normally inherits the authenticated dashboard provider. These
+// isolated navigation fixtures deliberately have no actor and must not query
+// or save synchronized crop decisions before owned settings are available.
+vi.mock('@/contexts/AuthenticatedSessionContext', () => ({
+  useAuthenticatedSession: () => ({ session: null }),
+}));
+
 vi.mock('@/integrations/supabase/client', () => {
   const query = {
     select: vi.fn(() => query),

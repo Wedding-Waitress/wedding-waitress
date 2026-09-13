@@ -30,7 +30,7 @@ type Status = 'approved' | 'hidden';
 type TabKey = 'written' | 'audio' | 'video';
 type Source = 'text' | 'recording';
 
-interface TextRow {
+export interface GuestbookTextPreviewRow {
   id: string;
   name: string | null;
   message: string;
@@ -39,6 +39,7 @@ interface TextRow {
   source: Source;
   seq: number | null;
 }
+type TextRow = GuestbookTextPreviewRow;
 
 interface Props {
   eventId: string | null;
@@ -50,6 +51,9 @@ interface Props {
   onSetItemModeration: (id: string, status: Status) => Promise<void>;
   onSetGuestbookShare: (id: string, shared: boolean) => Promise<void>;
   appearance?: 'default' | 'espresso-glass';
+  readOnly?: boolean;
+  readOnlyTextRows?: TextRow[];
+  readOnlyRecordingPlayer?: (item: GalleryItem) => React.ReactNode;
 }
 
 function fmtDate(at: string | null) {
@@ -71,7 +75,7 @@ function csvCell(v: string) {
 const GRID = 'grid gap-3 grid-cols-1 min-[420px]:grid-cols-2 md:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8';
 
 export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
-  eventId, items, eventName, loading, error, onSetItemModeration, onSetGuestbookShare, appearance = 'default',
+  eventId, items, eventName, loading, error, onSetItemModeration, onSetGuestbookShare, appearance = 'default', readOnly = false, readOnlyTextRows, readOnlyRecordingPlayer,
 }) => {
   const isGlass = appearance === 'espresso-glass';
   const { toast } = useToast();
@@ -89,6 +93,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
   const [preview, setPreview] = useState<GalleryItem | null>(null);
 
   const load = useCallback(async () => {
+    if (readOnly) { setTextRows(readOnlyTextRows ?? []); setTextLoading(false); setTextError(readOnlyTextRows ? null : 'Saved read-only messages are unavailable.'); return; }
     if (!eventId) { setTextRows([]); return; }
     setTextLoading(true);
     setTextError(null);
@@ -108,7 +113,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
       seq: typeof r.guestbook_seq === 'number' ? r.guestbook_seq : null,
     })));
     setTextLoading(false);
-  }, [eventId]);
+  }, [eventId,readOnly,readOnlyTextRows]);
 
   useEffect(() => { load(); }, [load]);
 
@@ -169,6 +174,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
 
   // ---- Written message moderation ----
   const setTextStatus = useCallback(async (r: TextRow, status: Status) => {
+    if (readOnly) return;
     if (r.source === 'recording') {
       await onSetItemModeration(r.id, status);
       return;
@@ -183,7 +189,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
       setTextRows(curr => curr.map(x => (x.id === r.id ? { ...x, status: prev } : x)));
       throw new Error(err.message || 'Could not update message');
     }
-  }, [onSetItemModeration]);
+  }, [onSetItemModeration,readOnly]);
 
   const handleWrittenSingle = async (r: TextRow, status: Status) => {
     try { await setTextStatus(r, status); }
@@ -206,6 +212,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
 
   // ---- Recording actions ----
   const handleShare = async (item: GalleryItem, shared: boolean) => {
+    if (readOnly) return;
     try {
       await onSetGuestbookShare(item.id, shared);
       toast({ title: shared ? 'Added to gallery' : 'Removed from gallery' });
@@ -215,6 +222,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
   };
 
   const handleShareBulk = async (shared: boolean) => {
+    if (readOnly) return;
     const list = tab === 'audio' ? audioRows : videoRows;
     const targets = list.filter(i => selected.has(i.id));
     if (targets.length === 0) return;
@@ -305,7 +313,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
           </span>
 
 
-      {selectMode && (
+      {!readOnly && selectMode && (
             <span
               className="absolute top-1.5 left-1.5 z-10"
               onClick={(e) => {
@@ -340,9 +348,9 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
           {item.kind !== 'video' && item.signed_url && (
             <audio src={item.signed_url} controls preload="none" className="w-full h-8 mt-1" />
           )}
-          {!item.signed_url && <p className={cn('text-[11px] text-muted-foreground', isGlass && managementStyles.gallerySecondaryText)}>Still processing.</p>}
+          {!item.signed_url && <p className={cn('text-[11px] text-muted-foreground', isGlass && managementStyles.gallerySecondaryText)}>{readOnly ? 'Open to verify recording.' : 'Still processing.'}</p>}
           <div className="flex gap-1 pt-1 mt-auto">
-            {shared ? (
+            {!readOnly && (shared ? (
               <Button size="sm" variant="outline" className={cn('lv-premium-shade flex-1 h-8 px-1 text-[11px]', isGlass && managementStyles.galleryControl)} onClick={() => handleShare(item, false)}>
                 <ImageMinus className="h-3.5 w-3.5 mr-1" strokeWidth={1.8} /> Remove
               </Button>
@@ -350,7 +358,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
               <Button size="sm" variant="outline" className={cn('lv-premium-shade flex-1 h-8 px-1 text-[11px]', isGlass && managementStyles.galleryControl)} onClick={() => handleShare(item, true)}>
                 <ImagePlus className="h-3.5 w-3.5 mr-1" strokeWidth={1.8} /> Add to Gallery
               </Button>
-            )}
+            ))}
             <Button size="sm" variant="outline" className={cn('lv-premium-shade h-8 px-2', isGlass && managementStyles.galleryControl)} title="Download" aria-label="Download recording" onClick={() => handleDownload(item)} disabled={!item.signed_url}>
               <Download className="h-3.5 w-3.5" strokeWidth={1.8} />
             </Button>
@@ -379,7 +387,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
             size="sm"
             className={cn('lv-premium-shade h-10', isGlass && managementStyles.galleryControl)}
             onClick={() => { setSelectMode(s => !s); resetSelection(); }}
-            disabled={visibleCount === 0}
+            disabled={readOnly || visibleCount === 0}
           >
             {selectMode ? 'Cancel' : 'Select'}
           </Button>
@@ -389,7 +397,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
           </Button>
         </div>
       </div>
-      <GuestbookAutoShare key={eventId} eventId={eventId} />
+      {!readOnly && <GuestbookAutoShare key={eventId} eventId={eventId} />}
 
       <div
         className="grid grid-cols-2 items-center gap-3 xl:grid-cols-[minmax(220px,1fr)_repeat(3,max-content)_140px_140px]"
@@ -445,7 +453,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
 
 
 
-      {selectMode && (
+      {!readOnly && selectMode && (
         <div className={cn('flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/40 p-3', isGlass && managementStyles.galleryViewInsetPanel)}>
           <label className={cn('flex items-center gap-2 text-sm text-[#1D1D1F]', isGlass && managementStyles.galleryViewHeading)}>
             <Checkbox
@@ -521,7 +529,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
                   </span>
 
 
-      {selectMode && (
+      {!readOnly && selectMode && (
                     <span
                       className="absolute top-1.5 left-1.5 z-10"
                       onClick={(e) => {
@@ -544,7 +552,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
                     <p className="text-[10px] font-semibold text-[#967A59]">Note with recording</p>
                   )}
                   <div className="flex gap-1 pt-1 mt-auto">
-                    {r.status === 'approved' ? (
+                    {!readOnly && (r.status === 'approved' ? (
                       <Button size="sm" variant="outline" className={cn('lv-premium-shade flex-1 h-8 px-1 text-[11px]', isGlass && managementStyles.galleryControl)} onClick={() => handleWrittenSingle(r, 'hidden')}>
                         <EyeOff className="h-3.5 w-3.5 mr-1" strokeWidth={1.8} /> Hide
                       </Button>
@@ -552,7 +560,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
                       <Button size="sm" variant="outline" className={cn('lv-premium-shade flex-1 h-8 px-1 text-[11px]', isGlass && managementStyles.galleryControl)} onClick={() => handleWrittenSingle(r, 'approved')}>
                         <CircleCheck className="h-3.5 w-3.5 mr-1" strokeWidth={1.8} /> Show
                       </Button>
-                    )}
+                    ))}
                     {r.source === 'text' && (
                       <Button size="sm" variant="outline" className={cn('lv-premium-shade h-8 px-2', isGlass && managementStyles.galleryControl)} title="Download message" aria-label="Download message" onClick={() => downloadTxt(r)}>
                         <Download className="h-3.5 w-3.5" strokeWidth={1.8} />
@@ -596,7 +604,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
               <p className={cn('text-xs text-[#6E6E73]', isGlass && managementStyles.gallerySecondaryText)}>
                 {fmtDate(preview.uploaded_at)} · {fmtDuration(preview.duration_sec)} · {preview.kind === 'video' ? 'Video message' : 'Voice message'}
               </p>
-              {preview.signed_url ? (
+              {readOnly && readOnlyRecordingPlayer ? readOnlyRecordingPlayer(preview) : preview.signed_url ? (
                 preview.kind === 'video' ? (
                   <video src={preview.signed_url} controls autoPlay playsInline className="w-full max-h-[60vh] rounded-lg bg-black" />
                 ) : (

@@ -88,13 +88,18 @@ describe('dashboard sidebar navigation control', () => {
     );
 
     const collapseControl = screen.getByRole('button', { name: 'Collapse sidebar' });
-    const sidebarHeader = collapseControl.closest('[data-sidebar="header"]');
-    expect(sidebarHeader).toBeInTheDocument();
+    const sidebarHeader = document.querySelector('[data-sidebar="header"]');
+    const toggleDock = collapseControl.closest('[data-sidebar-toggle-dock]');
+    const sidebarFooter = document.querySelector('[data-sidebar="footer"]');
+    expect(toggleDock).toBeInTheDocument();
+    expect(collapseControl.closest('[data-sidebar="header"]')).toBeNull();
+    expect(sidebarFooter).toBeInTheDocument();
+    expect(toggleDock?.compareDocumentPosition(sidebarFooter as Node) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     const logo = sidebarHeader?.querySelector('img[alt="Wedding Waitress"]');
     expect(logo).toBeInTheDocument();
-    expect((logo as HTMLElement).compareDocumentPosition(collapseControl) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     fireEvent.click(collapseControl);
-    expect(await screen.findByRole('button', { name: 'Expand sidebar' })).toBeInTheDocument();
+    const expandControl = await screen.findByRole('button', { name: 'Expand sidebar' });
+    expect(expandControl.closest('[data-sidebar-toggle-dock]')).toBe(toggleDock);
     await waitFor(() => expect(document.cookie).toContain('sidebar:state=false'));
 
     fireEvent.click(screen.getByRole('button', { name: 'Photo & Video Sharing' }));

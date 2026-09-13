@@ -67,6 +67,12 @@ vi.mock('@/components/Dashboard/StatsBar', () => ({ StatsBar: () => null }));
 vi.mock('@/components/Dashboard/CreateTableModal', () => ({ CreateTableModal: () => null }));
 vi.mock('@/components/Dashboard/PlanExpiredModal', () => ({ PlanExpiredModal: () => null }));
 vi.mock('@/components/Dashboard/ExpiryWarningBanner', () => ({ ExpiryWarningBanner: () => null }));
+// This navigation unit suite does not exercise background account downloads.
+// Keep its idle preloader local to the test so it cannot outlive teardown.
+vi.mock('@/lib/authenticatedRoutePreload', () => ({
+  loadAccountRoute: vi.fn(async () => ({})),
+  scheduleIdleWork: () => () => undefined,
+}));
 
 import { Dashboard } from './Dashboard';
 

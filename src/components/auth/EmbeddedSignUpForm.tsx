@@ -14,15 +14,27 @@ import { useTranslation } from 'react-i18next';
 import { SignInModal } from './SignInModal';
 import { AuthError, AuthLegal, VerificationCodeForm, authModalStyles as styles } from './AuthModalParts';
 import { beginGuidedSetup, GUIDED_SETUP_ROUTE } from '@/lib/guidedEventSetup';
+import { normalizeGuestPhone } from '@/lib/guestPhone';
+import { SignUpModal } from './SignUpModal';
+import { PRELAUNCH_SIGNUP_HOLD } from '@/lib/prelaunch';
 
 interface FormData {
   first_name: string;
   last_name: string;
   email: string;
   mobile?: string;
+  promo_code?: string;
 }
 
-export const EmbeddedSignUpForm: React.FC = () => {
+export const EmbeddedSignUpForm: React.FC = () => PRELAUNCH_SIGNUP_HOLD ? (
+  <div className={styles.dialog}>
+    <h2 className={styles.title}>Create your free account</h2>
+    <p className={styles.description}>Register your interest and we’ll let you know when Wedding Waitress launches.</p>
+    <SignUpModal><button type="button" className={styles.primaryButton}>Create Free Account & Continue</button></SignUpModal>
+  </div>
+) : <LiveEmbeddedSignUpForm />;
+
+const LiveEmbeddedSignUpForm: React.FC = () => {
   const { t } = useTranslation('common');
   const [step, setStep] = useState<'form' | 'verify'>('form');
   const [loading, setLoading] = useState(false);
@@ -62,7 +74,8 @@ export const EmbeddedSignUpForm: React.FC = () => {
           data: {
             first_name: formData.first_name,
             last_name: formData.last_name,
-            mobile: formData.mobile || null
+            mobile: normalizeGuestPhone(formData.mobile),
+            ...(formData.promo_code?.trim() ? { pending_promo_code: formData.promo_code.trim() } : {}),
           }
         }
       });
@@ -102,7 +115,7 @@ export const EmbeddedSignUpForm: React.FC = () => {
           first_name: formData.first_name,
           last_name: formData.last_name,
           email: formData.email,
-          mobile: formData.mobile || null
+          mobile: normalizeGuestPhone(formData.mobile)
         });
         const createdAt = Date.parse(data.user.created_at || '');
         const isGenuinelyNew = signupRequestStartedAtRef.current !== null && Number.isFinite(createdAt) && createdAt >= signupRequestStartedAtRef.current - 60_000;
@@ -165,7 +178,8 @@ export const EmbeddedSignUpForm: React.FC = () => {
           data: {
             first_name: formData.first_name,
             last_name: formData.last_name,
-            mobile: formData.mobile || null
+            mobile: normalizeGuestPhone(formData.mobile),
+            ...(formData.promo_code?.trim() ? { pending_promo_code: formData.promo_code.trim() } : {}),
           }
         }
       });
@@ -206,7 +220,8 @@ export const EmbeddedSignUpForm: React.FC = () => {
         </div>
       )}
       {step === 'verify' && (
-        <p className={styles.description}>We sent a 6-digit verification code to {formData.email}.</p>
+        <><p className={styles.description}>We sent a 6-digit verification code to {formData.email}.</p>
+        {formData.promo_code?.trim() && <p role="status" className={styles.description}>Your promo code is saved for checking at your first package checkout. Eligible new accounts still receive the seven-day free trial. Entering a code does not activate paid access.</p>}</>
       )}
 
       {step === 'form' ? (
@@ -227,6 +242,11 @@ export const EmbeddedSignUpForm: React.FC = () => {
             <div className={styles.fieldGroup}>
               <Label htmlFor="feat_mobile" className={styles.label}><Phone aria-hidden />Mobile *</Label>
               <Input id="feat_mobile" type="tel" placeholder="04XX XXX XXX" value={formData.mobile} onChange={(e) => setFormData({ ...formData, mobile: e.target.value })} className={styles.input} autoComplete="tel" required disabled={loading} />
+            </div>
+            <div className={styles.fieldGroup}>
+              <Label htmlFor="feat_promo_code" className={styles.label}>Promo code (optional)</Label>
+              <Input id="feat_promo_code" placeholder="Enter your promo code" value={formData.promo_code ?? ''} onChange={e => setFormData({ ...formData, promo_code: e.target.value })} className={styles.input} maxLength={64} autoComplete="off" aria-describedby="feat_promo_help" disabled={loading} />
+              <p id="feat_promo_help" className="text-sm">Your seven-day trial stays free. Any valid discount applies when you choose your first package.</p>
             </div>
           </div>
 

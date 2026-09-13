@@ -1,8 +1,6 @@
-// 🔒 PRODUCTION-LOCKED — Subscription Card (2026-04-25) — Stripe upgrade flow
+// 🔒 PRODUCTION-LOCKED — Subscription Card (2026-04-25) — plan and usage summary
 import React, { useEffect, useState } from 'react';
-import { useNavigate } from 'react-router-dom';
-import { Loader2, LucideIcon } from 'lucide-react';
-import { Button } from '@/components/ui/button';
+import { LucideIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
 import { SectionCard } from './SectionCard';
 import { useUserPlan } from '@/hooks/useUserPlan';
@@ -11,7 +9,9 @@ import { useEventLimits } from '@/hooks/useEventLimits';
 import { useAccountSeats } from '@/hooks/useAccountSeats';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { MasterOnly } from '@/components/permissions/MasterOnly';
+import { Button } from '@/components/ui/button';
+import { ExtendPlanModal } from '@/components/Dashboard/ExtendPlanModal';
+import { useAccountRole } from '@/hooks/useAccountRole';
 import controlStyles from './AccountControls.module.css';
 
 interface Props {
@@ -43,9 +43,9 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
   } = useEventLimits();
   const { usedSeats, maxSeats } = useAccountSeats();
   const { toast } = useToast();
-  const navigate = useNavigate();
+  const { isMaster } = useAccountRole();
   const [startDate, setStartDate] = useState<string | null>(null);
-  const [busy] = useState(false);
+  const [extensionOpen, setExtensionOpen] = useState(false);
 
   useEffect(() => {
     let active = true;
@@ -68,6 +68,9 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
 
   const planName = plan?.plan_name || 'Free';
   const isFreeOrStarter = !plan || /^(free|starter)$/i.test(planName);
+  // Prepaid monthly extensions are excluded from this release. Existing
+  // expiry/renewal gates provide the approved three-package renewal flow.
+  const canExtend = false;
 
   // Compute days left for free/starter trial.
   const trialExpiry = plan?.expires_at
@@ -109,10 +112,6 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
     statusLabel = 'Cancelled';
   }
 
-  const handleUpgrade = () => {
-    navigate('/account/plans-upgrades');
-  };
-
   return (
     <SectionCard icon={icon} title="Current Plan" description="Plan status, allowances and usage">
       <div className="space-y-3 text-sm">
@@ -126,6 +125,13 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
         </div>
         <Row label="Start date" value={formatDate(startDate)} />
         <Row label="Expiry date" value={formatDate(plan?.expires_at ?? null)} />
+        {canExtend && (
+          <div className="rounded-xl border border-amber-300/60 bg-amber-50/70 p-3 text-sm text-amber-950">
+            <p>Extend access for one month or any number of whole months at A$20 per month, paid upfront.</p>
+            {isExpired && <p className="mt-1">Your planning and download access is paused. Your saved account remains recoverable for six months after expiry.</p>}
+            <Button className={`${controlStyles.primaryButton} mt-3`} size="sm" onClick={() => setExtensionOpen(true)}>Extend Access</Button>
+          </div>
+        )}
         <div className="pt-3 mt-1 border-t border-border/50">
           <div className="text-[11px] uppercase tracking-wide font-medium text-muted-foreground mb-1">
             Plan inclusions
@@ -138,19 +144,9 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
           <Row label="User seats" value={`${usedSeats} / ${maxSeats}`} />
         </div>
       </div>
-      <div className="mt-6">
-        <MasterOnly>
-          <Button
-            onClick={handleUpgrade}
-            disabled={busy}
-            className={controlStyles.primaryButton}
-            size="sm"
-          >
-            {busy && <Loader2 className="w-4 h-4 mr-2 animate-spin" />}
-            Change Plan
-          </Button>
-        </MasterOnly>
-      </div>
+      {canExtend && plan?.expires_at && (
+        <ExtendPlanModal isOpen={extensionOpen} onClose={() => setExtensionOpen(false)} planName={planName} expiresAt={plan.expires_at} />
+      )}
     </SectionCard>
   );
 };

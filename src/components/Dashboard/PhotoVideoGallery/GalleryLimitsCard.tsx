@@ -10,12 +10,12 @@ import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 
 // Sensible bounds — keep upload enforcement constraints intact.
 const BOUNDS = {
-  photos:   { min: 1,   max: 100000 },
-  videos:   { min: 0,   max: 10000  },
-  totalGb:  { min: 1,   max: 2000   }, // 1 GB – 2 TB
+  photos:   { min: 1,   max: 5000 },
+  videos:   { min: 0,   max: 100  },
+  totalGb:  { min: 1,   max: 10   },
   photoMb:  { min: 1,   max: 100    },
   videoMb:  { min: 1,   max: 600    },
-  videoSec: { min: 5,   max: 180    },
+  videoSec: { min: 5,   max: 300    },
 };
 
 interface FormState {
@@ -138,10 +138,10 @@ export const GalleryLimitsCard: React.FC<{
             <FieldNum label="Total storage (GB)"          value={form.totalGb}  onChange={set('totalGb')}  bounds={BOUNDS.totalGb}  step={0.5} error={errors.totalGb} />
             <FieldNum label="Max photo size (MB)"         value={form.photoMb}  onChange={set('photoMb')}  bounds={BOUNDS.photoMb}  error={errors.photoMb} />
             <FieldNum label="Max video size (MB, ≤600)"   value={form.videoMb}  onChange={set('videoMb')}  bounds={BOUNDS.videoMb}  error={errors.videoMb} />
-            <FieldNum label="Max video duration (s, ≤180)" value={form.videoSec} onChange={set('videoSec')} bounds={BOUNDS.videoSec} error={errors.videoSec} />
+            <FieldNum label="Max video duration (s, ≤300)" value={form.videoSec} onChange={set('videoSec')} bounds={BOUNDS.videoSec} error={errors.videoSec} />
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            Videos MP4/MOV up to 600&nbsp;MB and 180&nbsp;s. Changes apply to new uploads immediately.
+            Videos MP4/MOV up to 600&nbsp;MB and 300&nbsp;s (5 minutes). All plans allow up to 5,000 images (including photo booth images) and 100 videos within 10 GB shared media storage per event. Storage may fill before these counts are reached. Changes apply to new uploads immediately.
           </p>
         </>
       ) : (

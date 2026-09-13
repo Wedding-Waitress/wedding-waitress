@@ -1,3 +1,4 @@
+import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 // Public edge function for the gallery Live View.
 // Returns approved+uploaded items for a valid, open gallery token,
 // each with a short-lived signed URL from the private event-media bucket.
@@ -12,6 +13,8 @@ const corsHeaders = {
 const SIGNED_URL_TTL_SECONDS = 600; // 10 minutes
 
 Deno.serve(async (req) => {
+  const suspensionResponse = await guardSuspendedCustomer(req);
+  if (suspensionResponse) return suspensionResponse;
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {

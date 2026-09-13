@@ -1,6 +1,9 @@
+import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import { PAID_PLAN_CATALOGUE_VERSION, PAID_PLAN_LIVE_CHECKOUT_ENABLED } from '../_shared/paidPlanFulfillmentEvidence.ts';
+import { isMinimalConsentedRenewalRequest, isVerifiedClosedRenewalDecision } from '../_shared/renewalRecoveryRules.ts';
 
 const PUBLIC_PLAN_CATALOG = {
   essential: { product: "prod_UOQhHcOhFdrhOs", baseAud: 199, mode: "payment" },
@@ -52,6 +55,12 @@ const logStep = (step: string, details?: unknown) => {
 };
 
 serve(async (req) => {
+  let billingRecovery = false;
+  if (req.method === 'POST') {
+    try { billingRecovery = isMinimalConsentedRenewalRequest(await req.clone().json()); } catch { /* Normal validation below. */ }
+  }
+  const suspensionResponse = await guardSuspendedCustomer(req, { allowEntitlementRecovery: billingRecovery });
+  if (suspensionResponse) return suspensionResponse;
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -82,8 +91,25 @@ serve(async (req) => {
       );
     }
     const user = data.user;
+    if (!user?.email) return new Response(JSON.stringify({ error: 'Authentication required' }), {
+      status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+    });
     const { data: operational } = await supabaseClient.rpc("is_account_operational", { p_user_id: user.id });
-    if (operational !== true) return new Response(JSON.stringify({ error: "Account access is closed" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
+    let verifiedClosedRenewal = false;
+    if (billingRecovery) {
+      const { data: entitlement, error: entitlementError } = await supabaseClient.rpc('get_my_customer_entitlement');
+      if (entitlementError || !entitlement || !['paid_expired', 'trial_expired', 'closed'].includes(entitlement.status)) {
+        return new Response(JSON.stringify({ error: 'A renewal is available only after your original access term ends.' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+      if (entitlement.status === 'closed') {
+        const { data: decision, error: decisionError } = await supabaseClient.rpc('get_my_account_return_eligibility');
+        verifiedClosedRenewal = !decisionError && isVerifiedClosedRenewalDecision(decision);
+        if (!verifiedClosedRenewal) return new Response(JSON.stringify({ error: 'Reopen remaining original access or contact Wedding Waitress.' }),
+          { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+      }
+    }
+    if (operational !== true && !verifiedClosedRenewal) return new Response(JSON.stringify({ error: "Account access is closed" }), { status: 403, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     if (!user?.email) {
       return new Response(
         JSON.stringify({ error: "Not authenticated. Please sign in again." }),
@@ -95,7 +121,19 @@ serve(async (req) => {
     // Master-only guard for billing/checkout flows.
     {
       const { data: isMaster } = await supabaseClient.rpc("is_account_master", { _user_id: user.id });
-      if (isMaster === false) {
+      let retainedMaster = false;
+      if (verifiedClosedRenewal) {
+        // Ordinary closure disables the master membership too. This narrowly
+        // scoped read checks the ORIGINAL accepted own-master row; it does not
+        // restore membership or grant event access before payment succeeds.
+        const service = createClient(Deno.env.get('SUPABASE_URL') || '', Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '',
+          { auth: { persistSession: false } });
+        const { data: member, error: memberError } = await service.from('account_members').select('id')
+          .eq('account_owner_id', user.id).eq('member_user_id', user.id).eq('role', 'master')
+          .not('accepted_at', 'is', null).maybeSingle();
+        retainedMaster = !memberError && !!member;
+      }
+      if (isMaster !== true && !retainedMaster) {
         logStep("Blocked non-master checkout attempt", { userId: user.id });
         return new Response(
           JSON.stringify({ error: "Only the Master Account Holder can manage billing." }),
@@ -118,7 +156,17 @@ serve(async (req) => {
       delivery_method,
       upgrade_from_plan,
       pricing_currency,
+      purchase_consent,
+      plan_purchase_purpose,
+      promo_code,
     } = await req.json();
+    // Until the separate promotional fulfillment path is complete, never ignore
+    // a supplied code and silently start an undiscounted checkout.
+    if (promo_code != null && String(promo_code).trim() !== '') {
+      return new Response(JSON.stringify({ error: 'Promotional checkout is not yet activated. No payment was started.' }), {
+        status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' },
+      });
+    }
     const isCommunicationTopup = purchase_type === 'communication_topup';
     const isGuestCapacityTopup = purchase_type === 'guest_capacity_topup';
     const isAdditionalEvent = purchase_type === 'additional_event';
@@ -131,8 +179,8 @@ serve(async (req) => {
     const communicationPackKey = typeof communication_topup_pack === 'string'
       ? communication_topup_pack as CommunicationCreditPackKey
       : '';
-    const communicationPack = isCommunicationTopup && communicationPackKey in COMMUNICATION_CREDIT_PACKS
-      ? COMMUNICATION_CREDIT_PACKS[communicationPackKey]
+    const communicationPack = isCommunicationTopup && Object.prototype.hasOwnProperty.call(COMMUNICATION_CREDIT_PACKS, communicationPackKey)
+      ? COMMUNICATION_CREDIT_PACKS[communicationPackKey as CommunicationCreditPackKey]
       : null;
     if (isCommunicationTopup && !communicationPack) {
       return new Response(JSON.stringify({ error: 'Select an approved communication credit pack.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
@@ -145,6 +193,13 @@ serve(async (req) => {
     const publicPlan = !upgrade_from_plan && typeof plan_type === "string" && plan_type in PUBLIC_PLAN_CATALOG
       ? PUBLIC_PLAN_CATALOG[plan_type as keyof typeof PUBLIC_PLAN_CATALOG]
       : null;
+    const isCouplePlan = typeof plan_type === 'string' && Object.hasOwn(PUBLIC_PLAN_CATALOG, plan_type) && !purchase_type;
+    const planPurpose = upgrade_from_plan ? 'upgrade' : plan_purchase_purpose;
+    if (isCouplePlan && (purchase_consent !== true || !['new_plan', 'renewal', 'upgrade'].includes(planPurpose)
+      || (!upgrade_from_plan && planPurpose === 'upgrade'))) {
+      return new Response(JSON.stringify({ error: 'Choose a package and explicitly confirm checkout before continuing.' }),
+        { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
     if (publicPlan && pricing_currency !== 'AUD') {
       return new Response(JSON.stringify({ error: "Wedding Waitress checkout is available in Australian dollars (AUD) only" }), { status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" } });
     }
@@ -222,6 +277,10 @@ serve(async (req) => {
     });
 
     const stripeKey = Deno.env.get("STRIPE_SECRET_KEY") || "";
+    if (isCouplePlan && !PAID_PLAN_LIVE_CHECKOUT_ENABLED && !/^(sk|rk)_test_/.test(stripeKey)) {
+      return new Response(JSON.stringify({ error: 'Live package checkout is disabled pending the separately approved Stripe activation.' }),
+        { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    }
     const stripe = new Stripe(stripeKey, {
       apiVersion: "2025-08-27.basil",
     });
@@ -298,10 +357,11 @@ serve(async (req) => {
       // Verify the user actually owns the source plan.
       const { data: sub } = await supabaseClient
         .from("user_subscriptions")
-        .select("plan_id, status")
+        .select("plan_id, status, expires_at, is_read_only")
         .eq("user_id", user.id)
         .maybeSingle();
-      if (!sub || sub.plan_id !== SOURCE_PLAN_DB_ID[fromKey]) {
+      if (!sub || sub.plan_id !== SOURCE_PLAN_DB_ID[fromKey] || sub.status !== 'active' || sub.is_read_only === true
+        || !Number.isFinite(Date.parse(sub.expires_at)) || Date.parse(sub.expires_at) <= Date.now()) {
         return new Response(JSON.stringify({ error: "Source plan not found on account" }), {
           status: 400, headers: { ...corsHeaders, "Content-Type": "application/json" },
         });
@@ -319,7 +379,9 @@ serve(async (req) => {
       const targetProductId = typeof targetPrice.product === "string"
         ? targetPrice.product
         : targetPrice.product?.id;
-      if (!targetProductId || !targetPrice.unit_amount || targetCurrency !== 'aud') {
+      const targetCatalogue = PUBLIC_PLAN_CATALOG[toKey as keyof typeof PUBLIC_PLAN_CATALOG];
+      if (!targetCatalogue || targetProductId !== targetCatalogue.product
+        || targetPrice.unit_amount !== targetCatalogue.baseAud * 100 || targetCurrency !== 'aud') {
         throw new Error("Target price is missing product or amount");
       }
       resolvedProductId = targetProductId;
@@ -330,7 +392,10 @@ serve(async (req) => {
       for (const pid of SOURCE_PRICE_IDS[fromKey]) {
         try {
           const sp = await stripe.prices.retrieve(pid);
-          if (sp.currency === targetCurrency && sp.unit_amount) {
+          const sourceCatalogue = PUBLIC_PLAN_CATALOG[fromKey as keyof typeof PUBLIC_PLAN_CATALOG];
+          const sourceProduct = typeof sp.product === 'string' ? sp.product : sp.product?.id;
+          if (sourceCatalogue && sp.currency === targetCurrency && sp.unit_amount === sourceCatalogue.baseAud * 100
+            && sourceProduct === sourceCatalogue.product) {
             sourceUnitAmount = sp.unit_amount;
             break;
           }
@@ -355,7 +420,7 @@ serve(async (req) => {
           currency: targetCurrency,
           product: targetProductId,
           unit_amount: diff,
-          tax_behavior: "inclusive",
+          tax_behavior: "exclusive",
         },
       };
       upgradeDiffMeta = String(diff);
@@ -416,7 +481,6 @@ serve(async (req) => {
           product: resolvedProductId,
           unit_amount: originalAmountCents,
           tax_behavior: "exclusive",
-          ...(publicPlan.mode === "subscription" ? { recurring: { interval: "month" as const } } : {}),
         } }
       : upgradeLineItem ?? { price: price_id, quantity: lineQuantity };
     const isBaseRsvp = plan_type === "rsvp" && price_id === "price_1TSzPs5GzTmqOxGK4Ca8kAAz";
@@ -433,6 +497,8 @@ serve(async (req) => {
       customer_update: { address: "auto" },
       metadata: {
         user_id: user.id,
+        ...(isCouplePlan ? { catalogue_version: PAID_PLAN_CATALOGUE_VERSION,
+          purchase_consent: 'explicit-v1', plan_purchase_purpose: planPurpose } : {}),
         plan_type: plan_type || "",
         event_id: event_id || "",
         purchase_type: purchaseTypeMeta,

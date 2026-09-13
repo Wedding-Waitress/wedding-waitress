@@ -1,76 +1,16 @@
 import React, { useEffect, useMemo, useState } from 'react';
 import { Send } from 'lucide-react';
-import { useNavigate } from 'react-router-dom';
 import { toast } from 'sonner';
 import { z } from 'zod';
-import { PricingSection, type PlanKey } from '@/components/Pricing/PricingSection';
 import { Button } from '@/components/ui/button';
-import { RsvpOverageModal } from '@/components/Dashboard/RsvpOverageModal';
 import { useProfile } from '@/hooks/useProfile';
 import { useUserPlan } from '@/hooks/useUserPlan';
 import { supabase } from '@/integrations/supabase/client';
-import { getPlanByName, PLAN_REGISTRY } from '@/lib/planRegistry';
-import { PACKAGE_CHECKOUT_AVAILABLE, PACKAGE_CHECKOUT_NOTICE } from '@/lib/packagePricing';
 import controlStyles from './AccountControls.module.css';
 import styles from './AccountDestinations.module.css';
 
 const CATEGORIES = ['Report a Bug', 'Request a Feature', 'Billing Question', 'Urgent Wedding Day Support', 'General Help', 'Technical Problem', 'Account Access Issue', 'SMS/Email Delivery Issue'] as const;
 const helpSchema = z.object({ category: z.enum(CATEGORIES), fullName: z.string().trim().min(1, 'Name is required').max(100), email: z.string().trim().email('Valid email required').max(255), message: z.string().trim().min(1, 'Please describe your issue').max(2000) });
-
-export const PlansUpgradesSection = () => {
-  const navigate = useNavigate();
-  const { plan, hasPlatformOwnerAccess } = useUserPlan();
-  const [guestCount, setGuestCount] = useState(0);
-  const [overagePackGuests, setOveragePackGuests] = useState(0);
-  const [overageEventId, setOverageEventId] = useState<string | null>(null);
-  const [overageOpen, setOverageOpen] = useState(false);
-  const current = getPlanByName(plan?.plan_name);
-  const name = hasPlatformOwnerAccess
-    ? 'Platform Owner Access'
-    : !plan?.plan_name || /^(free|starter)$/i.test(plan.plan_name)
-      ? 'Free Trial'
-      : current?.name ?? plan.plan_name;
-  const guestLimit = current?.limits.guests ?? plan?.guest_limit ?? null;
-  const totalGuestCapacity = guestLimit == null ? null : guestLimit + overagePackGuests;
-  const approachingCap = totalGuestCapacity != null && guestCount >= Math.max(1, Math.floor(totalGuestCapacity * .8));
-
-  useEffect(() => {
-    let cancelled = false;
-    void (async () => {
-      const { data: { user } } = await supabase.auth.getUser();
-      if (!user) return;
-      const { data: latestEvent } = await supabase.from('events').select('id').eq('user_id', user.id).order('created_at', { ascending: false }).limit(1).maybeSingle();
-      const eventId = latestEvent?.id ?? null;
-      if (!eventId) return;
-      const [{ count: guests }, { data: overageRows }] = await Promise.all([
-        supabase.from('guests').select('id', { count: 'exact', head: true }).eq('event_id', eventId),
-        supabase.from('rsvp_invite_purchases').select('overage_blocks').eq('event_id', eventId).in('purchase_type', ['rsvp_overage', 'guest_capacity_topup']).eq('status', 'completed'),
-      ]);
-      if (cancelled) return;
-      setGuestCount(guests ?? 0);
-      setOveragePackGuests((overageRows ?? []).reduce((sum, row) => sum + (row.overage_blocks ?? 0), 0) * 10);
-      setOverageEventId(eventId);
-    })();
-    return () => { cancelled = true; };
-  }, []);
-  const selectPlan = (target: PlanKey) => {
-    if (!PACKAGE_CHECKOUT_AVAILABLE) {
-      toast.info(PACKAGE_CHECKOUT_NOTICE);
-      return;
-    }
-    const from = current && current.mode === 'payment' && PLAN_REGISTRY[target].mode === 'payment' ? `&from=${current.key}` : '';
-    navigate(`/dashboard/upgrade/checkout?plan=${target}${from}`);
-  };
-  return <div className={styles.destination} data-account-section>
-    <div className={styles.currentPlan}>
-      <div><span>Your current plan</span><strong>{name}</strong></div><span className={styles.goldBadge}>Active</span>
-      {overagePackGuests > 0 && <p className={styles.positiveNote}>+{overagePackGuests} guest spaces added through capacity add-ons</p>}
-      {overageEventId && current && current.key !== 'vendor_pro' && <div className={styles.capacityNotice}><div><strong>{approachingCap ? 'Approaching your guest capacity' : 'Need more guest spaces?'}</strong><p>Add whole blocks of 10 guest spaces for A$10 per block.</p></div><Button onClick={() => setOverageOpen(true)} className={controlStyles.secondaryButton}>Add guest capacity</Button></div>}
-    </div>
-    <div className={styles.pricing}><PricingSection onPlanSelect={selectPlan} /></div>
-    {overageEventId && <RsvpOverageModal isOpen={overageOpen} onClose={() => setOverageOpen(false)} eventId={overageEventId} currentGuestCount={guestCount} totalCapacity={totalGuestCapacity ?? guestCount} tierLabel={name} />}
-  </div>;
-};
 
 export const HelpSupportSection = () => {
   const { profile } = useProfile();
@@ -103,9 +43,13 @@ export const HelpSupportSection = () => {
     setErrors({}); setSubmitting(true);
     try {
       const { data } = await supabase.auth.getUser();
-      const { error } = await supabase.functions.invoke('send-transactional-email', { body: { templateName: 'contact-form-message', recipientEmail: 'support@weddingwaitress.com.au', idempotencyKey: `support-${crypto.randomUUID()}`, templateData: { name: result.data.fullName, email: result.data.email, eventType: `Support Request — ${result.data.category}`, message: `[Support Category] ${result.data.category}\n[Source] Account Centre Help & Support\n[User ID] ${data.user?.id ?? '—'}\n[Plan] ${planName}\n\n${result.data.message}`, date: new Date().toISOString() } } });
-      if (error) throw error;
-      toast.success("Your support request has been sent. We'll reply within 24 hours."); setCategory(null); setMessage('');
+      const { data: receipt, error } = await supabase.functions.invoke('send-transactional-email', { body: {
+        templateName: 'contact-form-message', recipientEmail: 'support@weddingwaitress.com.au', idempotencyKey: `support-${crypto.randomUUID()}`,
+        supportContext: { source: 'account_support', category: result.data.category, eventId: profile?.display_countdown_event_id || null },
+        templateData: { name: result.data.fullName, email: result.data.email, eventType: `Support Request — ${result.data.category}`, message: result.data.message, date: new Date().toISOString() },
+      } });
+      if (error || receipt?.success === false) throw error || new Error('Request not accepted');
+      toast.success(receipt?.recorded && !receipt?.accepted ? "Your support request has been recorded. We'll reply within 24 hours." : "Your support request has been sent. We'll reply within 24 hours."); setCategory(null); setMessage('');
     } catch { toast.error('Something went wrong. Please try again or email support@weddingwaitress.com.au'); }
     finally { setSubmitting(false); }
   };

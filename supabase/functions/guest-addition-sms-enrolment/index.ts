@@ -1,3 +1,4 @@
+import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { parsePhoneNumberFromString } from 'npm:libphonenumber-js@1.13.12'
 import { sendPlatformSms } from '../_shared/platformSms.ts'
@@ -27,6 +28,8 @@ const maskPhone = (phone: string) => phone.length < 6
   : `${phone.slice(0, 3)}••••${phone.slice(-3)}`
 
 Deno.serve(async (req) => {
+  const suspensionResponse = await guardSuspendedCustomer(req);
+  if (suspensionResponse) return suspensionResponse;
   if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
   if (req.method !== 'POST') return respond({ error: 'Method not allowed' }, 405)
 

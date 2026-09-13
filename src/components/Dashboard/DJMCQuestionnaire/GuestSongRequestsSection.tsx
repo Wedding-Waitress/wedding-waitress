@@ -11,7 +11,7 @@ import {
   AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle, AlertDialogTrigger,
 } from '@/components/ui/alert-dialog';
 import { useGuestSongRequests, type SongRequestStatus, type GuestSongRequestRow } from '@/hooks/useGuestSongRequests';
-import { useGuestSongRequestSettings } from '@/hooks/useGuestSongRequestSettings';
+import { useGuestSongRequestSettings, type GuestSongRequestSettings } from '@/hooks/useGuestSongRequestSettings';
 import theme from './DJMCQuestionnaireTheme.module.css';
 
 interface Props {
@@ -37,6 +37,17 @@ const statusLabel: Record<SongRequestStatus, string> = {
 export const GuestSongRequestsSection: React.FC<Props> = ({ eventId, eventName, eventDate, disabled=false, onRunUndoable }) => {
   const { settings } = useGuestSongRequestSettings(eventId);
   const { rows, loading, updateStatus, deleteRequest } = useGuestSongRequests(eventId);
+  return <GuestSongRequestsView eventName={eventName} eventDate={eventDate} disabled={disabled} onRunUndoable={onRunUndoable}
+    settings={settings} rows={rows} loading={loading} updateStatus={updateStatus} deleteRequest={deleteRequest}/>;
+};
+
+export const GuestSongRequestsView: React.FC<Omit<Props,'eventId'> & {
+  settings: GuestSongRequestSettings|null|undefined;
+  rows: GuestSongRequestRow[];
+  loading: boolean;
+  updateStatus: (id:string,status:SongRequestStatus)=>Promise<void>;
+  deleteRequest: (id:string)=>Promise<void>;
+}> = ({eventName,eventDate,disabled=false,onRunUndoable,settings,rows,loading,updateStatus,deleteRequest}) => {
   const [exporting, setExporting] = useState(false);
 
   const counts = useMemo(() => {

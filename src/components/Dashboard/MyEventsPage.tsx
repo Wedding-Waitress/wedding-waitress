@@ -27,6 +27,8 @@ import { SeoHead } from '@/components/SEO/SeoHead';
 import { Timer, HeartHandshake, PartyPopper, UserRound, CalendarDays, MapPin, Clock3, Users } from 'lucide-react';
 import styles from './MyEventsPage.module.css';
 import { MyEventsHeroLayout } from './MyEventsHeroLayout';
+import {calculateCustomerTimeRemaining} from '@/lib/customerEventCountdown';
+import {CustomerCountdownCircle} from './CustomerCountdownCircle';
 
 const LABEL_ICON_CLS = "w-4 h-4 shrink-0 opacity-70";
 interface MyEventsPageProps {
@@ -75,103 +77,7 @@ export const MyEventsPage: React.FC<MyEventsPageProps> = ({
     });
     return map;
   }, [events]);
-  const calculateTimeRemaining = (event: Event | null) => {
-    if (!event?.date) {
-      return {
-        months: 0,
-        weeks: 0,
-        hours: 0,
-        seconds: 0,
-        eventState: 'no_event' as const,
-        targetEnd: null
-      };
-    }
-    const eventDate = new Date(event.date);
-
-    // Calculate target start time
-    const targetStart = new Date(eventDate);
-    if (event.start_time) {
-      const [hours, minutes] = event.start_time.split(':');
-      targetStart.setHours(parseInt(hours), parseInt(minutes), 0, 0);
-    } else {
-      targetStart.setHours(0, 0, 0, 0);
-    }
-
-    // Calculate target end time
-    let targetEnd: Date | null = null;
-    if (event.finish_time) {
-      targetEnd = new Date(eventDate);
-      const [endHours, endMinutes] = event.finish_time.split(':');
-      const endHour = parseInt(endHours);
-      const endMinute = parseInt(endMinutes);
-
-      // If finish time is before start time, assume it's next day
-      const startHour = event.start_time ? parseInt(event.start_time.split(':')[0]) : 0;
-      const startMinute = event.start_time ? parseInt(event.start_time.split(':')[1]) : 0;
-      if (endHour < startHour || endHour === startHour && endMinute <= startMinute) {
-        targetEnd.setDate(targetEnd.getDate() + 1);
-      }
-      targetEnd.setHours(endHour, endMinute, 0, 0);
-    }
-    const now = new Date();
-
-    // Determine event state and target time
-    let targetTime: Date;
-    let eventState: 'upcoming' | 'in_progress' | 'finished';
-    if (now < targetStart) {
-      // Event hasn't started yet
-      targetTime = targetStart;
-      eventState = 'upcoming';
-    } else if (targetEnd && now < targetEnd) {
-      // Event is in progress
-      targetTime = targetEnd;
-      eventState = 'in_progress';
-    } else {
-      // Event has finished or no end time
-      eventState = 'finished';
-      return {
-        months: 0,
-        weeks: 0,
-        hours: 0,
-        seconds: 0,
-        eventState,
-        targetEnd
-      };
-    }
-    const timeDiff = targetTime.getTime() - now.getTime();
-    if (timeDiff <= 0) {
-      return {
-        months: 0,
-        weeks: 0,
-        hours: 0,
-        seconds: 0,
-        eventState: 'finished',
-        targetEnd
-      };
-    }
-
-    // Calculate time units
-    const totalSeconds = Math.floor(timeDiff / 1000);
-    const totalMinutes = Math.floor(totalSeconds / 60);
-    const totalHours = Math.floor(totalMinutes / 60);
-    const totalDays = Math.floor(totalHours / 24);
-    const totalWeeks = Math.floor(totalDays / 7);
-    const totalMonths = Math.floor(totalDays / 30); // Approximate month
-
-    // Calculate remaining units
-    const months = totalMonths;
-    const weeks = Math.floor((totalDays - months * 30) / 7);
-    const hours = totalHours - totalDays * 24;
-    const seconds = totalSeconds % 60;
-    return {
-      months,
-      weeks,
-      hours,
-      seconds,
-      eventState,
-      targetEnd
-    };
-  };
+  const calculateTimeRemaining = calculateCustomerTimeRemaining;
   const updateCountdown = (event: Event | null) => {
     const timeResult = calculateTimeRemaining(event);
     setCountdownValues({
@@ -272,30 +178,6 @@ export const MyEventsPage: React.FC<MyEventsPageProps> = ({
     }
     return `Start ${startTime}`;
   };
-  const getProgressPercentage = (value: number, max: number, type: string) => {
-    const now = new Date();
-    switch (type) {
-      case 'months':
-        // Progress within current month
-        const dayOfMonth = now.getDate();
-        const daysInMonth = new Date(now.getFullYear(), now.getMonth() + 1, 0).getDate();
-        return dayOfMonth / daysInMonth * 100;
-      case 'weeks':
-        // Progress within current week
-        const dayOfWeek = now.getDay();
-        return dayOfWeek / 7 * 100;
-      case 'hours':
-        // Progress within current hour
-        const minutes = now.getMinutes();
-        const seconds = now.getSeconds();
-        return (minutes * 60 + seconds) / 3600 * 100;
-      case 'seconds':
-        // Progress within current minute
-        return now.getSeconds() / 60 * 100;
-      default:
-        return 0;
-    }
-  };
 
   // B) Handle radio change for countdown selection
   const handleCountdownEventSelect = (eventId: string) => {
@@ -387,39 +269,7 @@ export const MyEventsPage: React.FC<MyEventsPageProps> = ({
           </div>}
       </div>;
   };
-  const CountdownCircle = ({
-    value,
-    label,
-    type
-  }: {
-    value: number | string;
-    label: string;
-    type: string;
-  }) => {
-    const isPlaceholder = value === '--';
-    const progress = isPlaceholder ? 0 : getProgressPercentage(Number(value), 100, type);
-    const circumference = 2 * Math.PI * 45; // radius = 45
-    const strokeDashoffset = circumference - progress / 100 * circumference;
-    return <div className={styles.countdownCircleSlot}>
-        <div className={`relative rounded-full lv-premium-shade ${styles.countdownCircle}`}>
-          {/* SVG Ring */}
-          <svg className={`w-full h-full transform -rotate-90 ${styles.countdownRing}`} viewBox="0 0 100 100">
-            {/* Base ring */}
-            <circle cx="50" cy="50" r="45" fill="none" stroke="hsl(var(--muted))" strokeWidth="6" />
-            {/* Progress ring */}
-            <circle cx="50" cy="50" r="45" fill="none" stroke="#472c1d" strokeWidth="6" strokeDasharray={circumference} strokeDashoffset={strokeDashoffset} className="transition-all duration-300 ease-out" strokeLinecap="round" />
-          </svg>
-          
-          {/* Content */}
-          <div className="absolute inset-0 flex flex-col items-center justify-center">
-            <span className={`text-xl sm:text-2xl md:text-3xl lg:text-4xl font-bold text-foreground animate-fade-in ${styles.countdownNumber}`}>{value}</span>
-            <span className={`text-xs uppercase tracking-wide text-muted-foreground font-medium ${styles.countdownLabel}`}>
-              {label}
-            </span>
-          </div>
-        </div>
-      </div>;
-  };
+  const CountdownCircle = CustomerCountdownCircle;
   // Helper to format date for ceremony/reception boxes
   const formatBoxDate = (dateStr: string | null) => {
     if (!dateStr) return 'TBD';

@@ -160,7 +160,7 @@ export const publicProducts: PublicProduct[] = [
     h1: 'Turn guest moments into one shared wedding experience', lead: 'Invite guests to upload photos and short videos by QR code, browse the gallery, leave guestbook messages, use the photo booth and enjoy a live slideshow.',
     demonstration: 'The five connected experiences can be enabled for your event and shared with guests through simple browser-based links and QR access.',
     benefits: [
-      { title: 'Simple guest uploads', text: 'Let guests contribute photos and short videos from their phones through a QR code.' },
+      { title: 'Simple guest uploads', text: 'Let guests contribute photos and short videos from their phones through a QR code. All three plans allow up to 5,000 images, including photo booth images, and 100 videos per event. Videos can be up to 5 minutes and 600 MB each, within 10 GB shared media storage. Storage may fill before the count limits are reached.' },
       { title: 'Memories in one gallery', text: 'Bring shared media into an event gallery for guests and the couple to enjoy.' },
       { title: 'More ways to participate', text: 'Add a digital guestbook, on-screen photo booth and live slideshow to the celebration.' },
     ],

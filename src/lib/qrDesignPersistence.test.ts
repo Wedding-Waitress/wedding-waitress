@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 const m = vi.hoisted(() => ({ read: vi.fn(), save: vi.fn(), remove: vi.fn() }));
-vi.mock('@/integrations/supabase/client', () => ({ supabase: {
+vi.mock('@/integrations/supabase/client', () => ({ SUPABASE_URL: 'https://test.supabase.co', supabase: {
   supabaseUrl: 'https://test.supabase.co',
   from: () => ({ select: () => ({ eq: () => ({ maybeSingle: m.read }) }), upsert: m.save }),
   storage: { from: () => ({ remove: m.remove }) },

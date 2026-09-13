@@ -67,7 +67,10 @@ export const GalleryGrid: React.FC<{
   toolbarRight?: React.ReactNode;
   /** Hide album filtering and per-item album actions (Photo Booth workspace). */
   hideAlbumFeature?: boolean;
-}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, appearance = 'default', eventName, hideCardActions, boothSetOrder, headerRight, toolbarRight, hideAlbumFeature }) => {
+  /** Owner-support mode: local browsing only; no moderation, sharing or deletion. */
+  readOnly?: boolean;
+  readOnlyMediaRenderer?: (item: GalleryItem, photoFit: 'cover' | 'contain') => React.ReactNode;
+}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, appearance = 'default', eventName, hideCardActions, boothSetOrder, headerRight, toolbarRight, hideAlbumFeature, readOnly = false, readOnlyMediaRenderer }) => {
   // Defence in depth: private Guestbook content is never rendered in a gallery grid.
   const items = React.useMemo(() => publicGalleryItems(itemsProp), [itemsProp]);
   const [lightboxId, setLightboxId] = useState<string | null>(null);
@@ -178,6 +181,7 @@ export const GalleryGrid: React.FC<{
   };
 
   const toggleModeration = async (it: GalleryItem) => {
+    if (readOnly) return;
     const next = it.moderation_status === 'approved' ? 'hidden' : 'approved';
     try {
       await onSetModeration(it.id, next);
@@ -216,6 +220,7 @@ export const GalleryGrid: React.FC<{
    * Cards stay visible until the backend confirms deletion.
    */
   const runDelete = async (ids: string[]) => {
+    if (readOnly) return;
     if (ids.length === 0) return;
     setBulkBusy(true);
     try {
@@ -306,6 +311,7 @@ export const GalleryGrid: React.FC<{
   };
 
   const moveSingleToAlbum = async (id: string, album: GalleryAlbum | null) => {
+    if (readOnly) return;
     try {
       await onSetAlbum(id, album);
       toast({ title: album ? `Moved to ${album}` : 'Removed from album' });
@@ -462,7 +468,7 @@ export const GalleryGrid: React.FC<{
             <SelectItem className={isEspressoGallery ? managementStyles.gallerySelectItem : undefined} value="oldest">Oldest first</SelectItem>
           </SelectContent>
         </Select>
-        <div className="shrink-0">{selectControls}</div>
+        {!readOnly && <div className="shrink-0">{selectControls}</div>}
         {toolbarRight && <div className="shrink-0 w-full sm:w-auto">{toolbarRight}</div>}
       </div>
 
@@ -495,7 +501,7 @@ export const GalleryGrid: React.FC<{
 
 
 
-      {selectMode && (
+      {!readOnly && selectMode && (
         <div className={`flex items-center justify-between gap-3 flex-wrap mb-4 p-3 rounded-md border border-border bg-muted/40 ${isEspressoGallery ? managementStyles.galleryViewInsetPanel : ''}`}>
           <div className="flex items-center gap-3 flex-wrap">
             <button
@@ -612,7 +618,7 @@ export const GalleryGrid: React.FC<{
                 {/* Photo Booth cards retain their original overall height while
                     transferring space from the compact footer to this preview. */}
                 <div className={`relative w-full overflow-hidden ${boothSetOrder ? managementStyles.boothCapturePreview : 'aspect-square'}`}>
-                  <MediaThumb
+                  {readOnly && readOnlyMediaRenderer ? readOnlyMediaRenderer(it,isCompletedPhotoBoothStrip ? 'contain' : 'cover') : <MediaThumb
                     item={it}
                     photoFit={isCompletedPhotoBoothStrip ? 'contain' : 'cover'}
                     appearance={isEspressoGallery ? 'espresso-glass' : 'default'}
@@ -620,7 +626,7 @@ export const GalleryGrid: React.FC<{
                       if (selectMode) { toggleOne(it.id); return; }
                       if (it.signed_url) setLightboxId(it.id);
                     }}
-                  />
+                  />}
 
                   {selectMode && (
                     <button
@@ -644,7 +650,7 @@ export const GalleryGrid: React.FC<{
                     </span>
                   </div>
 
-                  {!selectMode && !hideCardActions && (
+                  {!readOnly && !selectMode && !hideCardActions && (
                     <div className="absolute top-1 right-1 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10">
                       {it.signed_url && (
                         <button
@@ -708,6 +714,7 @@ export const GalleryGrid: React.FC<{
                       </span>
                       {showAlbumControls && (
                         <Select
+                          disabled={readOnly}
                           value={normaliseGalleryAlbum(it.album)}
                           onValueChange={(value) => moveSingleToAlbum(it.id, value as ManageableGalleryAlbum)}
                         >

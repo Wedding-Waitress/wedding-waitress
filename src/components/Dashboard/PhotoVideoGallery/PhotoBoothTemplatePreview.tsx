@@ -14,9 +14,11 @@ interface Props {
   opts: ComposeOpts;
   /** Preview orientation for the single-photo template */
   portrait?: boolean;
+  /** Optional bounded rendering for owner-audited read-only previews. */
+  timeoutMs?: number;
 }
 
-export const PhotoBoothTemplatePreview: React.FC<Props> = ({ kind, opts, portrait = true }) => {
+export const PhotoBoothTemplatePreview: React.FC<Props> = ({ kind, opts, portrait = true, timeoutMs }) => {
   const [url, setUrl] = useState<string | null>(null);
   const [busy, setBusy] = useState(true);
   const [failed, setFailed] = useState(false);
@@ -28,6 +30,7 @@ export const PhotoBoothTemplatePreview: React.FC<Props> = ({ kind, opts, portrai
     let cancelled = false;
     setBusy(true);
     setFailed(false);
+    const timer=timeoutMs===undefined?undefined:setTimeout(()=>{if(!cancelled){cancelled=true;setUrl(null);setFailed(true);setBusy(false);}},timeoutMs);
     (async () => {
       try {
         const canvas =
@@ -41,12 +44,13 @@ export const PhotoBoothTemplatePreview: React.FC<Props> = ({ kind, opts, portrai
       } catch {
         if (!cancelled) setFailed(true);
       } finally {
+        if(timer!==undefined)clearTimeout(timer);
         if (!cancelled) setBusy(false);
       }
     })();
-    return () => { cancelled = true; };
+    return () => { cancelled = true;if(timer!==undefined)clearTimeout(timer); };
     // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [key]);
+  }, [key,timeoutMs]);
 
   return (
     <div className="flex items-center justify-center min-h-[280px] py-3 px-1.5">

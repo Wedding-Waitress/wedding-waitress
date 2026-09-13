@@ -321,6 +321,11 @@ export const EventImageEditor: React.FC<EventImageEditorProps> = ({ heading, con
   );
 };
 
+/** Pure authoritative saved-image frame; support views provide a separately
+ * verified URL without invoking the customer's storage/session workflow. */
+export const EventImageFrame: React.FC<{value:EventImageValue;url:string;alt?:string;onError?:()=>void}> = ({value,url,alt='Event photo or logo',onError}) =>
+ <div className={styles.reviewFrame}><img className={styles.reviewImage} src={url} alt={alt} onError={onError} style={{ objectFit: value.fit, objectPosition: `${value.positionX}% ${value.positionY}%`, transform: eventImageCropTransform({ ...value, zoom: value.zoom ?? EVENT_IMAGE_MIN_ZOOM }) }} /></div>;
+
 export const EventImagePreview: React.FC<{ value: EventImageValue; alt?: string }> = ({ value, alt = 'Event photo or logo' }) => {
   const [url, setUrl] = React.useState('');
   const [unavailable, setUnavailable] = React.useState(false);
@@ -331,5 +336,5 @@ export const EventImagePreview: React.FC<{ value: EventImageValue; alt?: string 
   }, [value.path]);
   if (unavailable) return <p className={styles.reviewUnavailable}>Photo or logo preview is temporarily unavailable.</p>;
   if (!url) return <div className={styles.reviewLoading} aria-label="Loading event photo or logo" />;
-  return <div className={styles.reviewFrame}><img className={styles.reviewImage} src={url} alt={alt} style={{ objectFit: value.fit, objectPosition: `${value.positionX}% ${value.positionY}%`, transform: eventImageCropTransform({ ...value, zoom: value.zoom ?? EVENT_IMAGE_MIN_ZOOM }) }} /></div>;
+  return <EventImageFrame value={value} url={url} alt={alt}/>;
 };

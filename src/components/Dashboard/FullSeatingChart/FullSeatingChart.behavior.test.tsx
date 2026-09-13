@@ -6,6 +6,15 @@ const settings:any={sortBy:'firstName',fontSize:'standard',showDietary:true,show
 const guests:any[]=Array.from({length:78},(_,i)=>({id:String(i),first_name:`Guest ${i+1}`,last_name:'Family',table_id:'table1',table_no:99,dietary:' N/A '}));
 const event={id:'one',name:'Wedding',date:'2027-09-05'};
 describe('Full Seating Chart preview, export and print state',()=>{
+ it('allows read-only pagination and printing while preventing mouse and keyboard check-off changes',()=>{
+  const ref=createRef<FullSeatingChartPreviewHandle>();render(<FullSeatingChartPreview ref={ref} readOnly event={event} guests={guests} settings={settings}/>);
+  const check=screen.getByRole('checkbox',{name:'Check off Guest 1 Family'});expect(check).toHaveAttribute('aria-disabled','true');
+  fireEvent.click(check);fireEvent.keyDown(check,{key:' '});expect(check).toHaveAttribute('aria-checked','false');
+  fireEvent.click(screen.getAllByRole('button',{name:'Next'})[0]);expect(ref.current!.getCurrentPage()).toBe(2);
+  expect(ref.current!.getPageElement()!.textContent).toContain('Guest 78 Family');
+  act(()=>window.dispatchEvent(new Event('beforeprint')));expect(document.querySelectorAll('[data-full-seating-print-page]')).toHaveLength(2);
+  act(()=>window.dispatchEvent(new Event('afterprint')));
+ });
  it('keeps one document and exports the selected page with global guest ranges',async()=>{
   const ref=createRef<FullSeatingChartPreviewHandle>();const {container}=render(<FullSeatingChartPreview ref={ref} event={event} guests={guests} settings={settings}/>);
   expect(container.querySelectorAll('[data-a4-preview-page]')).toHaveLength(1);

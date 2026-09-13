@@ -13,10 +13,10 @@ const faqItems = [
   ['What is included?', 'Couple plans include access to the complete Wedding Waitress platform. You choose a plan according to the guest capacity you need.'],
   ['How does the seven-day free trial work?', 'The trial gives you seven days to explore the platform with up to 20 guests.'],
   ['Do I need a credit card for the trial?', 'No. A credit card is not required to start the seven-day trial.'],
-  ['How long does a couple plan last?', 'Each couple plan covers one event and provides 12 months of active planning access, followed by a 30-day download-only window for available photos, videos and exports.'],
+  ['How long does a couple plan last?', 'Each couple plan covers one event and provides exactly 12 months of active planning access. You can extend for one month or any number of whole months at A$20 per month, paid upfront.'],
   ['Is the couple-plan price a subscription?', 'No. Essential, Premium and Ultimate are one-event plans with 12 months of access, not monthly couple subscriptions.'],
   ['Is GST added?', 'Prices are shown in Australian dollars and exclude GST. GST is calculated at checkout.'],
-  ['How do the guest limits work?', 'Essential supports up to 100 guests, Premium up to 200 and Ultimate up to 500. The trial supports up to 20 guests.'],
+  ['How do the guest limits work?', 'Essential supports up to 100 guests, Premium up to 200 and Ultimate up to 400. The trial supports up to 20 guests.'],
   ['Can I upgrade?', 'Available upgrade options are shown through the account and checkout flow. If you are unsure which plan you need, contact Wedding Waitress before purchasing.'],
   ['Do guests need an app?', 'No. Guest-facing QR, gallery and lookup experiences open in a compatible web browser.'],
   ['How does QR seating work?', 'You create a unique event QR code. Guests scan it, search their name and view the table or seat information you have assigned and chosen to display.'],
@@ -26,7 +26,7 @@ const faqItems = [
   ['How does Live Slideshow work at a wedding?', 'Open the Live Slideshow on a venue touchscreen, tablet, laptop or desktop display. Guests can approach the device, search their name and find their table or seat.'],
   ['What is included in Photo & Video Sharing?', 'It brings together guest photo and short-video uploads, a gallery, digital guestbook, digital photo booth and live slideshow in one principal product.'],
   ['Can I share my Run Sheet and DJ & MC Questionnaire?', 'Both products include their own supported sharing and PDF controls so you can prepare information for the relevant venue and suppliers.'],
-  ['What happens to access after 12 months?', 'Active planning access ends after 12 months. You then receive a 30-day download-only window to save available photos, videos and platform exports. This does not add another month of editing or event-management access; normal retention and account policies apply afterwards.'],
+  ['What happens to access after 12 months?', 'Planning, data and download access ends when your paid period expires. Your saved account, including photos and videos, remains recoverable for six calendar months. A paid extension during that recovery period restores access from payment time. If you do not extend by the recovery deadline, the recoverable account and content are permanently removed from Wedding Waitress.'],
   ['What is the refund policy?', 'Paid plans are generally non-refundable once activated. Please review the current Terms of Service for the complete approved policy and contact support if you believe there has been an error.'],
 ];
 

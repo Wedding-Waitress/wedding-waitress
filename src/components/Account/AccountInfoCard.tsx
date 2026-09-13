@@ -9,24 +9,32 @@ import { ProfileImageEditor } from './ProfileImageEditor';
 import controlStyles from './AccountControls.module.css';
 import { useAccountRole } from '@/hooks/useAccountRole';
 import { supabase } from '@/integrations/supabase/client';
+import { MarketingPreferences } from './MarketingPreferences';
+import { AccountInfoDetails } from './AccountInfoDetails';
 
 interface Props {
   icon: LucideIcon;
+  loginEmail?: string;
 }
 
-export const AccountInfoCard: React.FC<Props> = ({ icon }) => {
+export const AccountInfoCard: React.FC<Props> = ({ icon, loginEmail = '' }) => {
   const { profile } = useProfile();
   const { role } = useAccountRole();
   const [open, setOpen] = useState(false);
   const [authDetails, setAuthDetails] = useState<{ verified: boolean; createdAt: string | null; email: string | null; pendingEmail: string | null } | null>(null);
+  const [authError, setAuthError] = useState(false);
 
   useEffect(() => {
     const loadAuthDetails = () => {
-      void supabase.auth.getUser().then(({ data }) => {
-        if (!data.user) return;
+      setAuthError(false);
+      void supabase.auth.getUser().then(({ data, error }) => {
+        if (error || !data.user) {
+          setAuthError(true);
+          return;
+        }
         const pendingEmail = (data.user as typeof data.user & { new_email?: string | null }).new_email || null;
         setAuthDetails({ verified: !!data.user.email_confirmed_at, createdAt: data.user.created_at || null, email: data.user.email || null, pendingEmail });
-      });
+      }).catch(() => setAuthError(true));
     };
     loadAuthDetails();
     window.addEventListener('account-auth-updated', loadAuthDetails);
@@ -38,17 +46,12 @@ export const AccountInfoCard: React.FC<Props> = ({ icon }) => {
   return (
     <SectionCard icon={icon} title="Account Info" description="Your personal details">
       <ProfileImageEditor />
-      <dl className="space-y-3 text-sm">
-        <Row label="Account ID" value={profile?.account_id || '—'} />
-        <Row label="Name" value={fullName} />
-        <Row label="Login email" value={authDetails?.email || profile?.email || '—'} />
-        {authDetails?.pendingEmail && <Row label="Pending login email" value={`${authDetails.pendingEmail} — awaiting verification`} />}
-        <Row label="Phone" value={profile?.mobile || '—'} />
-        <Row label="Account role" value={role === 'master' ? 'Account Holder' : role === 'standard' ? 'Team Member' : 'Unavailable'} />
-        <Row label="Email verification" value={authDetails?.verified ? 'Verified' : 'Not verified'} />
-        {authDetails?.createdAt && <Row label="Member since" value={new Date(authDetails.createdAt).toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' })} />}
-      </dl>
-      <div className="mt-6">
+      <AccountInfoDetails accountId={profile?.account_id||'—'} fullName={fullName}
+        email={authDetails?.email||loginEmail||profile?.email||'—'} pendingEmail={authDetails?.pendingEmail}
+        mobile={profile?.mobile||'—'} role={role==='master'?'Account Holder':role==='standard'?'Team Member':'Unavailable'}
+        verification={authDetails?(authDetails.verified?'Verified':'Not verified'):authError?'Unavailable':'Loading…'}
+        createdAt={authDetails?.createdAt}/>
+      <div className="mt-8">
         <Button
           onClick={() => setOpen(true)}
           className={controlStyles.secondaryButton}
@@ -57,14 +60,8 @@ export const AccountInfoCard: React.FC<Props> = ({ icon }) => {
           Edit Details
         </Button>
       </div>
-      <EditDetailsModal open={open} onOpenChange={setOpen} />
+      <EditDetailsModal open={open} onOpenChange={setOpen} initialEmail={authDetails?.email || loginEmail || profile?.email || ''} />
+      <MarketingPreferences />
     </SectionCard>
   );
 };
-
-const Row: React.FC<{ label: string; value: string }> = ({ label, value }) => (
-  <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 py-2 border-b border-border/50 last:border-0">
-    <dt className="text-muted-foreground font-medium">{label}</dt>
-    <dd className="text-foreground font-medium break-all">{value}</dd>
-  </div>
-);

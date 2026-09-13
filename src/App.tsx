@@ -89,6 +89,7 @@ import {
 } from "@/components/Dashboard/DashboardLoadingScreen";
 import { AuthenticatedSessionProvider } from '@/contexts/AuthenticatedSessionContext';
 import { AuthenticatedRouteGate } from '@/components/auth/AuthenticatedRouteGate';
+import { PrelaunchAccessGate } from '@/components/auth/PrelaunchAccessGate';
 import { getAnalyticsPagePath } from '@/lib/analyticsPath';
 import { scrollPageToTop } from '@/lib/pageScroll';
 import {
@@ -110,11 +111,14 @@ const queryClient = new QueryClient({
 // Lightweight skeleton fallback for lazy routes — never a blank screen.
 const RouteFallback = () => {
   const { pathname, search } = useLocation();
+  const isAccountCentre = pathname === '/account' || pathname.startsWith('/account/');
 
-  if (pathname.startsWith('/dashboard')) {
+  if (pathname.startsWith('/dashboard') || isAccountCentre) {
     return (
       <DashboardLoadingScreen
-        appearance={getDashboardLoadingAppearance(pathname, search)}
+        appearance={isAccountCentre ? 'core' : getDashboardLoadingAppearance(pathname, search)}
+        title={isAccountCentre ? 'Opening Account Centre…' : undefined}
+        description={isAccountCentre ? 'Please wait while we prepare your account.' : undefined}
       />
     );
   }
@@ -139,9 +143,11 @@ const GlobalPaymentOverlay = () => {
 };
 
 const AuthenticatedRouteScope = () => (
+  <PrelaunchAccessGate>
   <AuthenticatedSessionProvider>
     <AuthenticatedRouteGate />
   </AuthenticatedSessionProvider>
+  </PrelaunchAccessGate>
 );
 
 // Scroll to top on route change
@@ -208,10 +214,14 @@ const App = () => {
             <Route path="/dashboard/photo-video-gallery/photo-booth" element={<Navigate to="/dashboard/photo-video-gallery/digital-photo-booth" replace />} />
             <Route path="/dashboard/photo-video-gallery/guestbook-text-message" element={<Navigate to="/dashboard/photo-video-gallery/digital-guestbook" replace />} />
             <Route path="/dashboard/photo-video-gallery/guestbook-voice-message" element={<Navigate to="/dashboard/photo-video-gallery/digital-guestbook" replace />} />
-            <Route path="/dashboard/upgrade" element={<Navigate to="/account/plans-upgrades" replace />} />
+            <Route path="/dashboard/upgrade" element={<Navigate to="/account/plan-billing" replace />} />
             <Route path="/dashboard/upgrade/checkout" element={<UpgradeCheckout />} />
           </Route>
-          <Route path="/account-recovery" element={<AccountRecovery />} />
+          <Route path="/account-recovery" element={<PrelaunchAccessGate><AccountRecovery /></PrelaunchAccessGate>} />
+          {/* Minimal checkout only; backend verifies Auth/master/holds/expiry.
+              Kept outside planning scope so an expired account can renew without
+              mounting customer planning data or bypassing its access gates. */}
+          <Route path="/account-renewal-checkout" element={<PrelaunchAccessGate><UpgradeCheckout /></PrelaunchAccessGate>} />
           {/* Running Sheet is now a dashboard tab, no standalone route */}
           <Route path="/reset-password" element={<ResetPassword />} />
           <Route path="/privacy" element={<PrivacyPolicy />} />

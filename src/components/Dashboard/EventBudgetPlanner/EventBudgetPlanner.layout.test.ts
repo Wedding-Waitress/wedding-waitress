@@ -37,8 +37,25 @@ describe('Event Budget Planner layout contract', () => {
     expect(component).toContain('className={`${styles.successButton} ${styles.exportAction}`} onClick={() => requestPrintAction(\'download\')}');
     expect(css).toMatch(/\.summaryBudgetInput \{[^}]*display:grid;[^}]*grid-template-columns:auto minmax\(0,1fr\)/);
     expect(component).not.toContain('id="event-budget-currency"');
-    expect(component).toContain('id="anticipated-event-budget"');
+    expect(component).toContain('className={`${styles.borderlessBudgetInput} border-0`} id="anticipated-event-budget"');
     expect(component.indexOf('ref={addButtonRef}')).toBeGreaterThan(component.indexOf('Sort expenses'));
+  });
+
+  it('uses the dedicated money-bag icon for the budget save action', () => {
+    expect(component).toContain('const MoneyBagIcon: React.FC<{ size?: number }>');
+    expect(component).toContain('className={styles.moneyBagIcon}');
+    expect(component).toContain('<MoneyBagIcon />{saveBudget.isPending');
+    expect(component).not.toContain('<Save size={16} aria-hidden="true" />{saveBudget.isPending');
+    expect(css).toMatch(/button\.exportAction svg\.moneyBagIcon \{ width:32px!important; height:32px!important; flex:0 0 32px; \}/);
+  });
+
+  it('keeps the editable Total Budget amount visually borderless with an accessible focus underline', () => {
+    expect(component).toContain('className={`${styles.borderlessBudgetInput} border-0`} id="anticipated-event-budget"');
+    expect(fs.readFileSync(path.resolve(process.cwd(), 'src/index.css'), 'utf8')).toContain(':not([class*="border-0"])');
+    expect(css).toMatch(/\.summaryBudgetInput > input \{[^}]*appearance:none;[^}]*border:0;[^}]*background:transparent;[^}]*box-shadow:none;[^}]*outline:none/);
+    expect(css).toMatch(/:global\(#root#root#root\) \.planner \.summaryBudgetInput > input\.borderlessBudgetInput \{[^}]*border:0 !important;[^}]*border-style:none !important;[^}]*border-color:transparent !important;[^}]*box-shadow:none !important/);
+    expect(css).toMatch(/input\.borderlessBudgetInput:focus-visible \{[^}]*border:0 !important;[^}]*outline:none !important;[^}]*box-shadow:inset 0 -2px 0 #55a447 !important/);
+    expect(css).toMatch(/\.borderlessBudgetInput\[aria-invalid="true"\]:focus-visible \{[^}]*#dc2626 !important/);
   });
 
   it('fits the complete desktop table without horizontal scrolling and switches to cards before tablet widths become cramped', () => {

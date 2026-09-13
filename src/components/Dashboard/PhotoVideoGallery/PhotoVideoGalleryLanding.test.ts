@@ -49,12 +49,12 @@ describe('Photo & Video Sharing overview light theme', () => {
     expect(css).toContain('background: linear-gradient(180deg, #35d878 0%, #13ad56 100%) !important');
   });
 
-  it('presents expired planning access as a plan state with an upgrade action', () => {
+  it('presents expired planning access as a plan state with a billing-details action', () => {
     const page = read('PhotoVideoGalleryPage.tsx');
 
-    expect(page).toContain("const PLANNING_ACCESS_ENDED_ERROR = 'Paid planning access has ended. This account is download-only.'");
+    expect(page).toContain("const PLANNING_ACCESS_ENDED_ERROR = 'Paid planning access has ended. Extend access in Account Centre to continue.'");
     expect(page).toContain("planningAccessEnded ? 'Planning access has ended' : 'Could not load gallery'");
-    expect(page).toContain('Upgrade your plan to create and manage this event gallery.');
-    expect(page).toContain("navigate('/account/plans-upgrades')");
+    expect(page).toContain('Review your plan details to restore access to this event gallery.');
+    expect(page).toContain("navigate('/account/plan-billing')");
   });
 });

@@ -8,7 +8,6 @@ import {
 } from '@/components/Dashboard/FloorPlan/ReceptionFloorPlan/fixtures';
 import type { ReceptionTableType } from '@/hooks/useReceptionTables';
 import type { HeadSeatEntry, TablePurpose } from '@/lib/headTable';
-import { pdfFirstPageToPng } from '@/lib/pdfFirstPageToPng';
 
 export interface TablePosition {
   table_id: string;
@@ -105,7 +104,7 @@ export interface ReceptionFloorPlan {
 }
 
 
-const fromRow = (row: Row): ReceptionFloorPlan => {
+export const receptionFloorPlanFromRow = (row: Omit<Row,'share_token'> & {share_token?:string|null}): ReceptionFloorPlan => {
   const rawPoly = (row as unknown as { room_polygon?: unknown }).room_polygon;
   let polygon: RoomPolygon | null = null;
   if (rawPoly && typeof rawPoly === 'object') {
@@ -213,7 +212,7 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
         return;
       }
       if (data) {
-        publish(fromRow(data as Row));
+        publish(receptionFloorPlanFromRow(data as Row));
       } else {
         const roomWidth = RECEPTION_DEFAULT_ROOM.width;
         const roomLength = RECEPTION_DEFAULT_ROOM.length;
@@ -230,7 +229,7 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
           .select('*')
           .single();
         if (cancelled) return;
-        if (!insErr && created) publish(fromRow(created as Row));
+        if (!insErr && created) publish(receptionFloorPlanFromRow(created as Row));
         else { console.error('create reception plan', insErr); setLoadError('Could not create the reception floor plan. Please refresh to retry.'); }
       }
       setLoading(false);
@@ -376,6 +375,7 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
         let ext = file.name.split('.').pop()?.toLowerCase() || 'png';
         let contentType = file.type;
         if (file.type === 'application/pdf') {
+          const {pdfFirstPageToPng}=await import('@/lib/pdfFirstPageToPng');
           uploadBlob = await pdfFirstPageToPng(file, 2);
           ext = 'png';
           contentType = 'image/png';
@@ -499,7 +499,7 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
   const reload = useCallback(async () => {
     const {data,error} = await supabase.from('reception_floor_plans').select('*').eq('event_id',eventId!).single();
     if(error) throw error;
-    publish(fromRow(data as Row));
+    publish(receptionFloorPlanFromRow(data as Row));
   }, [eventId,publish]);
   return {
     settle, reload,

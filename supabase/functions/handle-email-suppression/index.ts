@@ -1,5 +1,6 @@
 import { createClient } from 'npm:@supabase/supabase-js@2'
 import { WebhookError, verifyWebhookRequest } from 'npm:@lovable.dev/webhooks-js'
+import { stableEmailMessageId } from '../_shared/customer-email-data.ts'
 
 // Suppression event payload sent by the Go API when Mailgun reports
 // a bounce, complaint, or unsubscribe.
@@ -18,7 +19,7 @@ function parseSuppressionPayload(body: string): SuppressionPayload {
     throw new Error('Missing data field in payload')
   }
   const data = parsed.data as SuppressionPayload
-  if (!data.email || !data.reason) {
+  if (!data.email || !['bounce', 'complaint', 'unsubscribe'].includes(data.reason)) {
     throw new Error('Missing required fields: email, reason')
   }
   return data
@@ -83,16 +84,7 @@ Deno.serve(async (req) => {
   const normalizedEmail = payload.email.toLowerCase()
 
   // 1. Upsert to suppressed_emails (idempotent — safe for retries)
-  const { error: suppressError } = await supabase
-    .from('suppressed_emails')
-    .upsert(
-      {
-        email: normalizedEmail,
-        reason: payload.reason,
-        metadata: payload.metadata ?? null,
-      },
-      { onConflict: 'email' },
-    )
+  const { error: suppressError } = await supabase.rpc('record_email_suppression', { p_email: normalizedEmail, p_reason: payload.reason })
 
   if (suppressError) {
     console.error('Failed to upsert suppressed email', {
@@ -108,14 +100,14 @@ Deno.serve(async (req) => {
 
   const { error: insertError } = await supabase
     .from('email_send_log')
-    .insert({
-      message_id: payload.message_id ?? null,
+    .upsert({
+      message_id: await stableEmailMessageId(`suppression:${normalizedEmail}:${payload.reason}:${payload.message_id || 'no-reference'}`),
       template_name: 'system',
       recipient_email: normalizedEmail,
       status: sendLogStatus,
       error_message: sendLogMessage,
-      metadata: payload.metadata ?? null,
-    })
+      metadata: { source: 'verified_suppression_webhook' },
+    }, { onConflict: 'message_id', ignoreDuplicates: true })
 
   if (insertError) {
     // Non-fatal — log and continue. The suppression was already recorded.

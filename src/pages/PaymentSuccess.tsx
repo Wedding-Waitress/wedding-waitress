@@ -4,11 +4,14 @@ import { supabase } from "@/integrations/supabase/client";
 import { Check, AlertCircle, Clock } from "lucide-react";
 import { Button } from "@/components/ui/button";
 import { usePaymentProcessing } from "@/contexts/PaymentProcessingContext";
+import { clearAllCaches } from '@/lib/cacheRegistry';
 
 export const PaymentSuccess = () => {
   const [searchParams] = useSearchParams();
   const navigate = useNavigate();
   const sessionId = searchParams.get("session_id");
+  // Routing hint only: the backend still verifies identity and provider evidence.
+  const isPromotion = searchParams.get("promotion") === "1";
   const { startProcessing, stopProcessing } = usePaymentProcessing();
 
   const [status, setStatus] = useState<"loading" | "success" | "approval" | "pending" | "error">("loading");
@@ -19,6 +22,10 @@ export const PaymentSuccess = () => {
     credits_added?: number;
     expires_at?: string;
     requires_approval?: boolean;
+    status?: string;
+    starts_at?: string;
+    included_credits?: number;
+    percent_off?: number;
   }>({});
   const [error, setError] = useState("");
 
@@ -37,7 +44,7 @@ export const PaymentSuccess = () => {
 
     const verify = async () => {
       try {
-        const { data, error: fnError } = await supabase.functions.invoke("verify-payment", {
+        const { data, error: fnError } = await supabase.functions.invoke(isPromotion ? "verify-promotion-payment" : "verify-payment", {
           body: { session_id: sessionId },
         });
 
@@ -48,6 +55,12 @@ export const PaymentSuccess = () => {
           return;
         }
 
+        if (isPromotion && (data?.success !== true || data?.type !== 'promotion' || !['active', 'scheduled'].includes(data?.status))) {
+          setStatus("pending");
+          return;
+        }
+
+        if (data?.type === 'extension') clearAllCaches();
         setDetails(data);
         setStatus(data?.requires_approval ? "approval" : "success");
       } catch {
@@ -58,9 +71,10 @@ export const PaymentSuccess = () => {
     };
 
     verify();
-  }, [sessionId, stopProcessing]);
+  }, [sessionId, isPromotion, stopProcessing]);
 
   // Determine where to send the user back to (preserve originating dashboard tab).
+  const isExtension = details.type === 'extension';
   const isRsvp = details.type === 'rsvp' || details.type === 'rsvp_overage' || details.type === 'guest_capacity_topup' || details.type === 'communication_topup';
   const returnTab = (() => {
     try {
@@ -70,8 +84,8 @@ export const PaymentSuccess = () => {
     }
   })();
   const returnDest = (() => {
-    if (!isRsvp && returnTab === 'account') {
-      const params = new URLSearchParams({ success: 'true' });
+    if (isExtension || (!isRsvp && returnTab === 'account')) {
+      const params = new URLSearchParams(isExtension ? { extension: 'success' } : { success: 'true' });
       return `/account/plan-billing?${params.toString()}`;
     }
     const params = new URLSearchParams();
@@ -115,16 +129,23 @@ export const PaymentSuccess = () => {
             <div className="w-16 h-16 bg-green-100 rounded-full flex items-center justify-center mx-auto">
               <Check className="w-8 h-8 text-green-600" />
             </div>
-            <h1 className="text-2xl font-bold">Payment Successful! 🎉</h1>
+            <h1 className="text-2xl font-bold">{isPromotion ? 'Promotional checkout confirmed' : 'Payment Successful! 🎉'}</h1>
             <p className="text-muted-foreground">
-              {details.type === "guest_capacity_topup"
+              {isPromotion
+                ? details.status === 'scheduled'
+                  ? `Your seven-day trial stays unchanged. Your ${details.plan_name} package starts after your trial and lasts twelve months.`
+                  : `Your ${details.plan_name} promotional package is now active for twelve months.`
+                : details.type === "guest_capacity_topup"
                 ? 'Your additional guest capacity is now available.'
                 : details.type === "communication_topup"
                 ? `${details.credits_added ?? ''} shared Email & SMS credits are now available.`
                 : details.type === "rsvp"
                 ? `Your RSVP Invite Bundle (${details.plan_name}) has been activated.`
+                : details.type === 'extension'
+                ? 'Your paid access has been extended and your saved account is available again.'
                 : `Your ${details.plan_name} plan is now active.`}
             </p>
+            {isPromotion && <p className="text-sm text-muted-foreground">{details.included_credits === 0 ? 'No new included Email & SMS credits. Purchased credits remain available, and you can buy top-ups.' : `${details.included_credits} shared Email & SMS credits included.`}</p>}
             {details.expires_at && (
               <p className="text-sm text-muted-foreground">
                 Valid until {new Date(details.expires_at).toLocaleDateString("en-AU", { year: "numeric", month: "long", day: "numeric" })}
@@ -162,9 +183,9 @@ export const PaymentSuccess = () => {
             <div className="w-16 h-16 bg-amber-100 rounded-full flex items-center justify-center mx-auto">
               <Clock className="w-8 h-8 text-amber-600" />
             </div>
-            <h1 className="text-2xl font-bold">Payment received</h1>
+            <h1 className="text-2xl font-bold">{isPromotion ? 'Awaiting checkout verification' : 'Payment received'}</h1>
             <p className="text-muted-foreground">
-              We're finalizing your setup. Your purchase is confirmed with Stripe — please give us a moment.
+              {isPromotion ? 'We have not yet confirmed this checkout. No promotional access is being claimed; please check your account before trying again.' : "We're finalizing your setup. Your purchase is confirmed with Stripe — please give us a moment."}
             </p>
             <Button onClick={() => { try { sessionStorage.removeItem("ww:returnTab"); } catch { /* storage may be unavailable */ } navigate(returnDest, { replace: true }); }} className="rounded-full">
               Go to Dashboard

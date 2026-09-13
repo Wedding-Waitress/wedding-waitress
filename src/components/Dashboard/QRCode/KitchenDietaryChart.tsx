@@ -28,7 +28,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { ChefHat, ChevronLeft, ChevronRight, CalendarDays, UtensilsCrossed, Printer, FileDown, Files, LoaderCircle, TriangleAlert } from 'lucide-react';
 import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { useTables } from '@/hooks/useTables';
-import { useDietaryChartSettings } from '@/hooks/useDietaryChartSettings';
+import { useDietaryChartSettings, type DietaryChartSettings } from '@/hooks/useDietaryChartSettings';
+import type { Guest } from '@/hooks/useGuests';
+import type { TableWithGuestCount } from '@/hooks/useTables';
 import { DietaryChartCustomizer } from './DietaryChartCustomizer';
 import { useToast } from '@/hooks/use-toast';
 import { format } from 'date-fns';
@@ -65,6 +67,27 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
   const { guests, loading: guestsLoading } = useRealtimeGuests(eventId);
   const { tables, loading: tablesLoading } = useTables(eventId);
   const { settings, loading: settingsLoading, updateSettings } = useDietaryChartSettings(eventId);
+  return <KitchenDietaryChartView eventId={eventId} onEventSelect={onEventSelect} events={events}
+    guests={guests} tables={tables} settings={settings} guestsLoading={guestsLoading}
+    tablesLoading={tablesLoading} settingsLoading={settingsLoading} updateSettings={updateSettings} />;
+};
+
+interface KitchenDietaryChartViewProps extends KitchenDietaryChartProps {
+  guests: Guest[];
+  tables: TableWithGuestCount[];
+  settings: DietaryChartSettings;
+  guestsLoading?: boolean;
+  tablesLoading?: boolean;
+  settingsLoading?: boolean;
+  updateSettings?: (settings: Partial<DietaryChartSettings>) => void;
+  readOnly?: boolean;
+}
+/** One authoritative document/UI renderer; audited snapshots use no customer
+ * data hooks, subscriptions, settings writes, default seeding or impersonation.
+ */
+export const KitchenDietaryChartView: React.FC<KitchenDietaryChartViewProps> = ({ eventId, onEventSelect, events,
+  guests, tables, settings, guestsLoading = false, tablesLoading = false, settingsLoading = false,
+  updateSettings = () => {}, readOnly = false }) => {
   const [isExporting, setIsExporting] = useState(false);
   const [exportTarget, setExportTarget] = useState<'single' | 'all' | null>(null);
   const [currentPage, setCurrentPage] = useState(1);
@@ -427,7 +450,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
                       <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                       Choose Event:
                     </label>
-                    <Select value={eventId || "no-event"} disabled={isExporting} onValueChange={handleEventSelect}>
+                    <Select value={eventId || "no-event"} disabled={isExporting || readOnly} onValueChange={handleEventSelect}>
                       <SelectTrigger aria-label="Choose Event" className={`${styles.selectTrigger} w-full sm:w-[300px] font-bold`}>
                         <SelectValue placeholder="Choose Event" />
                       </SelectTrigger>
@@ -523,7 +546,7 @@ export const KitchenDietaryChart: React.FC<KitchenDietaryChartProps> = ({ eventI
         <div className="grid grid-cols-1 lg:grid-cols-[minmax(0,1.35fr)_minmax(0,3fr)] gap-6 bg-transparent">
           {/* Settings Panel (Left - 1 column) */}
           <div className="min-w-0 print:hidden">
-            <fieldset disabled={isExporting || settingsLoading} className="min-w-0">
+            <fieldset disabled={isExporting || settingsLoading || readOnly} className="min-w-0">
             <DietaryChartCustomizer
               settings={settings}
               onSettingsChange={updateSettings}

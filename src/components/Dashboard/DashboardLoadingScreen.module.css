@@ -1,6 +1,6 @@
 .coreSurface {
-  background-color: var(--ww-application-background-color);
-  background-image: var(--ww-application-background-image);
+  background-color: var(--ww-application-background-color) !important;
+  background-image: var(--ww-application-background-image) !important;
   color: #f3e7d8;
   font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif;
 }
@@ -17,6 +17,7 @@
 }
 
 .coreSpinner {
+  color: #d9b77f !important;
   border-color: rgba(217, 183, 127, 0.24) !important;
   border-top-color: #d9b77f !important;
 }
@@ -41,4 +42,16 @@
 :global(#root#root [data-dashboard-loading-card]) :is(h1, h2, h3, p) {
   color: #fff !important;
   -webkit-text-fill-color: #fff !important;
+}
+
+/* Keep transient loading cards dark even inside a light dashboard canvas.
+   Match the existing Photo & Video Sharing loader; never restyle page content. */
+:global(#root#root [data-dashboard-loading-screen]) {
+  background-color: var(--ww-application-background-color) !important;
+  background-image: var(--ww-application-background-image) !important;
+}
+
+:global(#root#root [data-dashboard-loading-card]) {
+  background: linear-gradient(180deg, rgba(101, 57, 40, 0.72) 0%, rgba(42, 23, 17, 0.76) 100%) !important;
+  border: 1px solid rgba(201, 151, 93, 0.38) !important;
 }

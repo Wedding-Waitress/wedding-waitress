@@ -62,6 +62,29 @@ type PendingSave = {
 
 const SAVE_DEBOUNCE_MS = 200;
 
+/** Exact organizer saved-row interpretation, also used by audited previews.
+ * Only call for an actual saved row; absence is not a default customer design.
+ */
+export const dietaryChartSettingsFromRow = (row: any): DietaryChartSettings => ({
+  sortBy: row.sort_by as DietaryChartSettings['sortBy'],
+  fontSize: normalizeDietaryGuestTextSize(row.font_size),
+  guestNameColor: normalizeDietaryAccentColor(row.guest_name_color),
+  guestListColor: normalizeDietaryAccentColor(row.guest_list_color),
+  dietaryColor: normalizeDietaryAccentColor(row.dietary_color),
+  relationshipColor: normalizeDietaryAccentColor(row.relationship_color),
+  seatNumberColor: normalizeDietaryAccentColor(row.seat_number_color),
+  showGuestNames: row.show_guest_names ?? true,
+  showGuestList: row.show_guest_list ?? true,
+  showDietary: row.show_dietary ?? true,
+  showRelation: row.show_relation,
+  showSeatNumbers: row.show_seat_numbers ?? row.show_seat_no,
+  showLogo: row.show_logo,
+  paperSize: row.paper_size as DietaryChartSettings['paperSize'],
+  isBold: row.is_bold ?? false,
+  isItalic: row.is_italic ?? false,
+  isUnderline: row.is_underline ?? false,
+});
+
 export const useDietaryChartSettings = (eventId: string | null) => {
   const cached = eventId ? settingsCache.get(eventId) : undefined;
   const [settings, setSettings] = useState<DietaryChartSettings>(cached ?? DEFAULT_SETTINGS);
@@ -122,25 +145,7 @@ export const useDietaryChartSettings = (eventId: string | null) => {
 
         if (data) {
           const row = data;
-          const loadedSettings: DietaryChartSettings = {
-            sortBy: row.sort_by as DietaryChartSettings['sortBy'],
-            fontSize: normalizeDietaryGuestTextSize(row.font_size),
-            guestNameColor: normalizeDietaryAccentColor(row.guest_name_color),
-            guestListColor: normalizeDietaryAccentColor(row.guest_list_color),
-            dietaryColor: normalizeDietaryAccentColor(row.dietary_color),
-            relationshipColor: normalizeDietaryAccentColor(row.relationship_color),
-            seatNumberColor: normalizeDietaryAccentColor(row.seat_number_color),
-            showGuestNames: row.show_guest_names ?? true,
-            showGuestList: row.show_guest_list ?? true,
-            showDietary: row.show_dietary ?? true,
-            showRelation: row.show_relation,
-            showSeatNumbers: row.show_seat_numbers ?? row.show_seat_no,
-            showLogo: row.show_logo,
-            paperSize: row.paper_size as DietaryChartSettings['paperSize'],
-            isBold: row.is_bold ?? false,
-            isItalic: row.is_italic ?? false,
-            isUnderline: row.is_underline ?? false,
-          };
+          const loadedSettings = dietaryChartSettingsFromRow(row);
           if (loadGeneration !== loadGenerationRef.current) return;
           settingsRef.current = loadedSettings;
           settingsCache.set(eventId, loadedSettings);

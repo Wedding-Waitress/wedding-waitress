@@ -20,7 +20,7 @@ interface Props {
 }
 
 const MANROPE_FONT = "'Manrope', ui-sans-serif, system-ui, sans-serif";
-const PLANNING_ACCESS_ENDED_ERROR = 'Paid planning access has ended. This account is download-only.';
+const PLANNING_ACCESS_ENDED_ERROR = 'Paid planning access has ended. Extend access in Account Centre to continue.';
 
 export const PhotoVideoGalleryPage: React.FC<Props> = ({
   selectedEventId,
@@ -91,13 +91,13 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({
             <p className={styles.stateTitle}>{planningAccessEnded ? 'Planning access has ended' : 'Could not load gallery'}</p>
             <p className={styles.stateDetail}>
               {planningAccessEnded
-                ? 'Upgrade your plan to create and manage this event gallery.'
+                ? 'Review your plan details to restore access to this event gallery.'
                 : error}
             </p>
           </div>
           {planningAccessEnded ? (
-            <Button className={styles.upgradeButton} onClick={() => navigate('/account/plans-upgrades')}>
-              <Sparkles strokeWidth={1.8} className="h-4 w-4 mr-1" /> View Plans &amp; Upgrades
+            <Button className={styles.upgradeButton} onClick={() => navigate('/account/plan-billing')}>
+              <Sparkles strokeWidth={1.8} className="h-4 w-4 mr-1" /> View Plan &amp; Billing
             </Button>
           ) : (
             <Button variant="outline" className={styles.retryButton} onClick={() => refresh()} disabled={loading}>

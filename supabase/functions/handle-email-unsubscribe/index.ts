@@ -89,42 +89,9 @@ Deno.serve(async (req) => {
     return jsonResponse({ valid: true })
   }
 
-  // POST: Process the unsubscribe
-  // Atomic check-and-update to avoid TOCTOU race
-  const { data: updated, error: updateError } = await supabase
-    .from('email_unsubscribe_tokens')
-    .update({ used_at: new Date().toISOString() })
-    .eq('token', token)
-    .is('used_at', null)
-    .select()
-    .maybeSingle()
-
-  if (updateError) {
-    console.error('Failed to mark token as used', { error: updateError, token })
-    return jsonResponse({ error: 'Failed to process unsubscribe' }, 500)
-  }
-
-  if (!updated) {
-    return jsonResponse({ success: false, reason: 'already_unsubscribed' })
-  }
-
-  // Add email to suppressed list (upsert to handle duplicates)
-  const { error: suppressError } = await supabase
-    .from('suppressed_emails')
-    .upsert(
-      { email: tokenRecord.email.toLowerCase(), reason: 'unsubscribe' },
-      { onConflict: 'email' },
-    )
-
-  if (suppressError) {
-    console.error('Failed to suppress email', {
-      error: suppressError,
-      email: tokenRecord.email,
-    })
-    return jsonResponse({ error: 'Failed to process unsubscribe' }, 500)
-  }
-
-  console.log('Email unsubscribed', { email: tokenRecord.email })
-
+  // Atomic token use + durable preference/history update. Marketing opt-out
+  // does not disable transactional account or security messages.
+  const { data: unsubscribed, error } = await supabase.rpc('unsubscribe_marketing_email', { p_token: token })
+  if (error || unsubscribed !== true) return jsonResponse({ error: 'Failed to process unsubscribe' }, 503)
   return jsonResponse({ success: true })
 })

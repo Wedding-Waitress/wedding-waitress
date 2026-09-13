@@ -33,6 +33,7 @@ import { useRealtimeGuests } from '@/hooks/useRealtimeGuests';
 import { format } from 'date-fns';
 import { IndividualTableChartPreview } from './IndividualTableChartPreview';
 import { IndividualTableChartCustomizer } from './IndividualTableChartCustomizer';
+import { IndividualChartStyleSync } from './IndividualChartStyleSync';
 import { toast } from '@/hooks/use-toast';
 import { normalizeDietaryAccentColor } from '@/lib/dietaryChartSettings';
 import type { DietaryAccentColor } from '@/lib/dietaryChartSettings';
@@ -70,6 +71,8 @@ interface IndividualTableSeatingChartPageProps {
   onEventSelect: (eventId: string) => void;
   events: Event[];
   eventsLoading: boolean;
+  /** Activate only after the matching scoped-save backend is installed and verified. */
+  scopedSettingsEnabled?: boolean;
 }
 
 const readSession = (key: string) => { try { return sessionStorage.getItem(key); } catch { return null; } };
@@ -105,6 +108,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   onEventSelect,
   events,
   eventsLoading,
+  scopedSettingsEnabled = false,
 }) => {
   const [selectedTableId, setSelectedTableId] = useState<string | null>(() => {
     return readSession('ww:individual_table_chart_selected_table') || null;
@@ -130,6 +134,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
     return defaultSettings;
   });
   const [preparedPdf, setPreparedPdf] = useState<{ url: string; name: string } | null>(null);
+  const [settingsEditRevision, setSettingsEditRevision] = useState(0);
   useEffect(() => () => { if (preparedPdf) URL.revokeObjectURL(preparedPdf.url); }, [preparedPdf]);
   const [isExporting, setIsExporting] = useState(false);
   const [isExportingAll, setIsExportingAll] = useState(false);
@@ -199,6 +204,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
   }, [selectedEvent, selectedTableId, tables]);
 
   const handleSettingsChange = (newSettings: Partial<IndividualChartSettings>) => {
+    setSettingsEditRevision(value => value + 1);
     setSettings(prev => ({ ...prev, ...newSettings }));
   };
 
@@ -444,6 +450,14 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       </Card>
 
       {/* Main Content */}
+      {scopedSettingsEnabled && selectedEvent && <IndividualChartStyleSync
+        key={`${selectedEvent.user_id}:${selectedEvent.id}`}
+        ownerId={selectedEvent.user_id}
+        eventId={selectedEvent.id}
+        settings={settings}
+        editRevision={settingsEditRevision}
+        onVerifiedLoad={style => setSettings(previous => ({ ...previous, ...style }))}
+      />}
       {!selectedEventId && (
         <Card className={`${styles.emptyPanel} p-8 text-center`}>
           <Users className="w-16 h-16 mx-auto text-primary mb-4" />

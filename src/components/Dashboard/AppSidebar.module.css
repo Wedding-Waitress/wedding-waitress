@@ -64,6 +64,15 @@
   stroke: currentColor;
 }
 
+.sidebarToggleDock {
+  display: flex;
+  width: 100%;
+  flex: 0 0 auto;
+  align-items: center;
+  justify-content: flex-end;
+  padding: 0 0.5rem 0.25rem;
+}
+
 :global(.group[data-collapsible="icon"]) .brandRow {
   justify-content: center;
   padding: 0;
@@ -71,6 +80,12 @@
 
 :global(.group[data-collapsible="icon"]) .sidebarToggle {
   transform: none;
+}
+
+:global(.group[data-collapsible="icon"]) .sidebarToggleDock {
+  justify-content: center;
+  padding-right: 0;
+  padding-left: 0;
 }
 
 :global(.group[data-collapsible="icon"]) .logoWrap {

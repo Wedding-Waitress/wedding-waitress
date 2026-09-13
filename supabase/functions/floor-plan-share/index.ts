@@ -1,9 +1,12 @@
+import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 
 import {createClient} from 'npm:@supabase/supabase-js@2';
 import {requireEditor,sanitizeDraft} from './policy.ts';
 import {contribute} from './contribution.ts';
 const headers={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization, apikey, x-client-info, content-type','Content-Type':'application/json'};
 Deno.serve(async req=>{
+  const suspensionResponse = await guardSuspendedCustomer(req);
+  if (suspensionResponse) return suspensionResponse;
  const reply=(data:unknown,status=200)=>new Response(JSON.stringify(data),{headers,status});
  if(req.method==='OPTIONS')return new Response(null,{headers});
  try{

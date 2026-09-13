@@ -52,6 +52,20 @@ describe('useDashboardSession', () => {
   afterEach(() => {
     vi.useRealTimers();
   });
+  it('fails closed while the optional check is enabled and clears only its stale state when disabled',async()=>{
+    let enabled=true;
+    mocks.getSession.mockResolvedValue({data:{session},error:null});
+    mocks.rpc.mockImplementation(async(name:string)=>name==='get_my_account_access'
+      ? {data:null,error:{code:'PGRST202',message:'Missing unreleased RPC'}}
+      : {data:{status:'active'},error:null});
+    const optionalWrapper=({children}:React.PropsWithChildren)=><AuthenticatedSessionProvider suspensionAccessEnabled={enabled}>{children}</AuthenticatedSessionProvider>;
+    const {result,rerender}=renderHook(()=>useDashboardSession(),{wrapper:optionalWrapper});
+    await waitFor(()=>expect(result.current.error).toBe('Unable to verify account access. Please try again.'));
+    enabled=false;rerender();
+    await waitFor(()=>expect(result.current.loading).toBe(false));
+    expect(result.current.error).toBeNull();expect(result.current.session).toBe(session);
+    expect(mocks.rpc).toHaveBeenCalledWith('get_my_account_lifecycle');
+  });
 
   it('blocks normal application access for an account awaiting deletion', async () => {
     mocks.getSession.mockResolvedValue({ data: { session }, error: null });

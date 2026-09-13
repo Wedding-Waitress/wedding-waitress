@@ -16,6 +16,7 @@ interface Props {
   showAlbumInfo?: boolean;
   /** Simplified management view: render legacy/missing albums as Other. */
   normaliseAlbumInfo?: boolean;
+  readOnly?: boolean;
 }
 
 const fmtDate = (iso: string | null) => {
@@ -25,7 +26,7 @@ const fmtDate = (iso: string | null) => {
   return d.toLocaleString(undefined, { day: '2-digit', month: 'short', year: 'numeric', hour: '2-digit', minute: '2-digit' });
 };
 
-export const GalleryLightbox: React.FC<Props> = ({ items, eventName, index, onIndexChange, onClose, showAlbumInfo, normaliseAlbumInfo = false }) => {
+export const GalleryLightbox: React.FC<Props> = ({ items, eventName, index, onIndexChange, onClose, showAlbumInfo, normaliseAlbumInfo = false, readOnly = false }) => {
   const [showInfo, setShowInfo] = useState(false);
   const { toast } = useToast();
   const item = items[index];
@@ -53,6 +54,7 @@ export const GalleryLightbox: React.FC<Props> = ({ items, eventName, index, onIn
   if (!item) return null;
 
   const share = async () => {
+    if (readOnly) return;
     const url = item.signed_url;
     if (!url) return;
     try {
@@ -98,7 +100,7 @@ export const GalleryLightbox: React.FC<Props> = ({ items, eventName, index, onIn
               <Download className="h-5 w-5" />
             </button>
           )}
-          {item.signed_url && (
+          {!readOnly && item.signed_url && (
             <button type="button" className={iconBtn} title="Share" aria-label="Share" onClick={share}>
               <Share2 className="h-5 w-5" />
             </button>

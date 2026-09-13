@@ -1,0 +1,22 @@
+<svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 1200 600">
+  <defs>
+    <clipPath id="canton"><path d="M0 0h600v300H0z"/></clipPath>
+    <polygon id="seven" points="0.00000,-1.00000 0.19525,-0.40544 0.78183,-0.62349 0.43872,-0.10013 0.97493,0.22252 0.35182,0.28057 0.43388,0.90097 0.00000,0.45000 -0.43388,0.90097 -0.35182,0.28057 -0.97493,0.22252 -0.43872,-0.10013 -0.78183,-0.62349 -0.19525,-0.40544"/>
+    <polygon id="five" points="0.00000,-1.00000 0.26450,-0.36406 0.95106,-0.30902 0.42798,0.13906 0.58779,0.80902 0.00000,0.45000 -0.58779,0.80902 -0.42798,0.13906 -0.95106,-0.30902 -0.26450,-0.36406"/>
+  </defs>
+  <path fill="#012169" d="M0 0h1200v600H0z"/>
+  <g clip-path="url(#canton)">
+    <path stroke="#fff" stroke-width="60" d="m0 0 600 300m0-300L0 300"/>
+    <path stroke="#c8102e" stroke-width="20" d="m0 0 600 300m0-300L0 300"/>
+    <path stroke="#fff" stroke-width="100" d="M300 0v300M0 150h600"/>
+    <path stroke="#c8102e" stroke-width="60" d="M300 0v300M0 150h600"/>
+  </g>
+  <g fill="#fff">
+    <use href="#seven" transform="translate(300 450) scale(90)"/>
+    <use href="#seven" transform="translate(900 500) scale(42.86)"/>
+    <use href="#seven" transform="translate(750 237.5) scale(42.86)"/>
+    <use href="#seven" transform="translate(900 100) scale(42.86)"/>
+    <use href="#seven" transform="translate(1033.33 212.5) scale(42.86)"/>
+    <use href="#five" transform="translate(960 325) scale(25)"/>
+  </g>
+</svg>

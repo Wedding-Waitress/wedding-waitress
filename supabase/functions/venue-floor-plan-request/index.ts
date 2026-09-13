@@ -1,3 +1,4 @@
+import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 import {notifyTrialInterest} from './trialNotification.ts';
 import {createClient} from 'npm:@supabase/supabase-js@2';
 import {logo} from './logo.ts';
@@ -7,6 +8,8 @@ const esc=(s:string)=>s.replace(/[&<>"']/g,c=>({'&':'&amp;','<':'&lt;','>':'&gt;
 const hash=async(s:string)=>Array.from(new Uint8Array(await crypto.subtle.digest('SHA-256',new TextEncoder().encode(s)))).map(b=>b.toString(16).padStart(2,'0')).join('');
 const email=(s:string)=>/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(s);
 Deno.serve(async req=>{
+  const suspensionResponse = await guardSuspendedCustomer(req);
+  if (suspensionResponse) return suspensionResponse;
  if(req.method==='OPTIONS')return new Response(null,{headers:cors});
  try{
  const db=createClient(Deno.env.get('SUPABASE_URL')!,Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!);

@@ -1,4 +1,4 @@
-import { supabase } from '@/integrations/supabase/client';
+import { supabase, SUPABASE_URL } from '@/integrations/supabase/client';
 import type { TablesInsert } from '@/integrations/supabase/types';
 
 /** Keep older requests from overwriting a later choice, including after a failure. */
@@ -39,7 +39,7 @@ export async function persistQRDesign(
   let cleanupFailed = false;
   for (const url of candidates) {
     if (url === settings.center_image_url || url === currentLogo()) continue;
-    const path = ownedQRLogoPath(url, settings.user_id, settings.event_id, supabase.supabaseUrl);
+    const path = ownedQRLogoPath(url, settings.user_id, settings.event_id, SUPABASE_URL || '');
     if (!path) continue;
     // Keep failed cleanup candidates for retry on the next saved change.
     uploadedLogos.add(url);

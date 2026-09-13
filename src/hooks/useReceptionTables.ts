@@ -22,31 +22,8 @@ export interface ReceptionTable {
  * Read-only hook that loads synced tables for an event.
  * The Reception editor uses these as the source of truth — never duplicates them.
  */
-export const useReceptionTables = (eventId: string | null) => {
-  const [tables, setTables] = useState<ReceptionTable[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [readyEventId, setReadyEventId] = useState<string | null>(null);
-
-  const fetchTables = useCallback(async () => {
-    if (!eventId) return [] as ReceptionTable[];
-
-    const [{ data: tableRows, error: tablesError }, { data: guestRows, error: guestsError }] =
-      await Promise.all([
-        supabase
-          .from('tables')
-          .select('id, name, table_no, limit_seats, table_type, notes, table_purpose, head_seating_order')
-          .eq('event_id', eventId)
-          .order('table_no', { ascending: true }),
-        supabase
-          .from('guests')
-          .select('table_id, seat_no')
-          .eq('event_id', eventId)
-          .not('table_id', 'is', null),
-      ]);
-
-    if (tablesError) throw tablesError;
-    if (guestsError) throw guestsError;
-
+export type ReceptionTableSource={id:string;name:string|null;table_no:number|null;limit_seats:number;table_type:string;notes:string|null;table_purpose:string;head_seating_order:unknown};
+export function receptionTablesFromRecords(tableRows:ReceptionTableSource[],guestRows:{table_id:string|null;seat_no:number|null}[]):ReceptionTable[] {
     const occupancy = new Map<string, { count: number; seats: number[] }>();
     for (const guest of guestRows ?? []) {
       if (!guest.table_id) continue;
@@ -76,6 +53,34 @@ export const useReceptionTables = (eventId: string | null) => {
           .sort((a, b) => a - b),
       } satisfies ReceptionTable;
     });
+}
+
+export const useReceptionTables = (eventId: string | null) => {
+  const [tables, setTables] = useState<ReceptionTable[]>([]);
+  const [loading, setLoading] = useState(false);
+  const [readyEventId, setReadyEventId] = useState<string | null>(null);
+
+  const fetchTables = useCallback(async () => {
+    if (!eventId) return [] as ReceptionTable[];
+
+    const [{ data: tableRows, error: tablesError }, { data: guestRows, error: guestsError }] =
+      await Promise.all([
+        supabase
+          .from('tables')
+          .select('id, name, table_no, limit_seats, table_type, notes, table_purpose, head_seating_order')
+          .eq('event_id', eventId)
+          .order('table_no', { ascending: true }),
+        supabase
+          .from('guests')
+          .select('table_id, seat_no')
+          .eq('event_id', eventId)
+          .not('table_id', 'is', null),
+      ]);
+
+    if (tablesError) throw tablesError;
+    if (guestsError) throw guestsError;
+
+    return receptionTablesFromRecords(tableRows??[],guestRows??[]);
   }, [eventId]);
 
   useEffect(() => {

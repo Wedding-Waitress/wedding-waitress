@@ -1,3 +1,4 @@
+import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 // Public, rate-limited verification of a gallery password.
 // The browser can no longer call verify_event_media_password directly:
 // that RPC is service-role only and is reached exclusively through here.
@@ -22,6 +23,8 @@ const json = (body: unknown, status = 200) =>
 
 
 Deno.serve(async (req) => {
+  const suspensionResponse = await guardSuspendedCustomer(req);
+  if (suspensionResponse) return suspensionResponse;
   if (req.method === 'OPTIONS') return new Response('ok', { headers: corsHeaders });
 
   try {

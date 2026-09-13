@@ -6,7 +6,7 @@ import {
   Search,
   ShieldAlert,
 } from "lucide-react";
-import { Link } from "react-router-dom";
+import { Link,useNavigate } from "react-router-dom";
 import {
   Dialog,
   DialogContent,
@@ -15,10 +15,23 @@ import {
   DialogTitle,
 } from "@/components/ui/dialog";
 import { supabase } from "@/integrations/supabase/client";
+import { AdminAccountAccessDetail } from './AdminAccountAccessDetail';
+import { AdminCustomerTeamMembers } from './AdminCustomerTeamMembers';
+import { AdminCustomerAccountStatus } from './AdminCustomerAccountStatus';
+import { AdminRefundButton, AdminRefundHistory } from './AdminPaymentRefund';
+import { AdminPromotions } from './AdminPromotions';
+import { useAdminCustomerActivity } from '@/hooks/useCustomerActivity';
+import { customerCountryLabel } from '@/lib/adminCustomerContact';
+import { effectiveCustomerActivity } from '@/lib/customerActivityDate';
+import { adminPlanLabel, adminPlanOptions, CURRENT_ADMIN_PLANS } from '@/lib/adminPlanDisplay';
 import { getCacheGeneration, registerCache } from "@/lib/cacheRegistry";
 import styles from "./AdminCentrePages.module.css";
 
 type Customer = {
+  account_id?: string | null;
+  country_code?: string | null;
+  last_active_at?: string | null;
+  admin_deleted_at?: string | null;
   id: string;
   full_name: string;
   email: string | null;
@@ -94,6 +107,7 @@ type EventRow = {
   feature_count?: number;
 };
 type Lifecycle = {
+  admin_deleted_at?: string | null;
   account_owner_id: string;
   customer_name: string;
   email: string | null;
@@ -120,6 +134,10 @@ type Payment = {
   payment_method: string | null;
 };
 type Snapshot = {
+  customer_activity_ready?: boolean;
+  admin_customer_preview_ready?: boolean;
+  admin_team_roster_ready?: boolean;
+  admin_logical_deletion_ready?: boolean;
   reporting_version?: number;
   generated_at: string;
   platform_totals?: {
@@ -184,12 +202,21 @@ const requestAdminSnapshot = () => {
   const generation = getCacheGeneration();
   snapshotRequest = (async () => {
       let { data: result, error } = await supabase.rpc("get_admin_platform_snapshot" as never);
-      if (error && (error as { code?: string }).code === "42883") {
+      // PostgREST reports an absent RPC as PGRST202; direct SQL uses 42883.
+      // Never retry a permissions/authentication error via another RPC.
+      if (error && ["42883", "PGRST202"].includes((error as { code?: string }).code || "")) {
         ({ data: result, error } = await supabase.rpc("get_admin_centre_snapshot" as never));
       }
       if (error) throw error;
       if (generation !== getCacheGeneration()) throw new Error("Admin request superseded by an account change.");
-      snapshotCache = (result || empty) as unknown as Snapshot;
+      const recorded = (result || empty) as unknown as Snapshot;
+      snapshotCache = {
+        ...recorded,
+        customers: recorded.customers.map(c => ({ ...c, plan_name: adminPlanLabel(c.plan_name) })),
+        subscriptions: recorded.subscriptions.map(s => ({ ...s, plan_name: adminPlanLabel(s.plan_name)! })),
+        events: recorded.events.map(e => ({ ...e, plan_name: adminPlanLabel(e.plan_name) })),
+        lifecycle: recorded.lifecycle.map(l => ({ ...l, previous_plan: adminPlanLabel(l.previous_plan) })),
+      };
       snapshotCachedAt = Date.now();
       return snapshotCache;
     })()
@@ -208,6 +235,9 @@ const money = (value: number) =>
   new Intl.NumberFormat("en-AU", { style: "currency", currency: "AUD" }).format(
     value || 0,
   );
+const activityDate=(value:string|null|undefined)=>value
+ ? new Date(value).toLocaleString('en-AU',{timeZone:'Australia/Sydney',day:'2-digit',month:'short',year:'numeric',hour:'numeric',minute:'2-digit',second:'2-digit',timeZoneName:'short'})
+ : 'Not available';
 const tone = (value: string) =>
   ["active", "succeeded", "completed", "reactivated", "recorded"].includes(
     value,
@@ -227,6 +257,8 @@ const tone = (value: string) =>
         ? "warn"
         : "neutral";
 const words = (value: string) => value.split("_").join(" ");
+const customerStatus = (value: string) => ["scheduled_for_deletion", "permanently_deleted"].includes(value)
+  ? "Deleted" : value === "suspended" ? "Suspended" : "Active";
 const Badge = ({ children }: { children: React.ReactNode }) => (
   <span
     className={styles.badge}
@@ -270,7 +302,7 @@ function useAdminSnapshot() {
     } catch (error) {
       console.error("[Admin Centre] snapshot unavailable", {
         code: (error as { code?: string }).code,
-        message: error instanceof Error ? error.message : String(error),
+        message: error instanceof Error ? error.message : (error as { message?: string }).message || String(error),
       });
       setUnavailable(true);
     }
@@ -280,7 +312,8 @@ function useAdminSnapshot() {
   useEffect(() => {
     void load();
   }, [load]);
-  return { data, loading, unavailable, refreshing, reload: () => void load(true) };
+  const reload=useCallback(()=>void load(true),[load]);
+  return { data, loading, unavailable, refreshing, reload };
 }
 const State = ({
   loading,
@@ -335,13 +368,16 @@ const SnapshotFreshness = ({
   generatedAt,
   refreshing,
   reload,
+  enhanced,
 }: {
   generatedAt: string;
   refreshing: boolean;
   reload: () => void;
+  enhanced?: boolean;
 }) => (
   <div className={styles.freshness} role="status">
     <span>Reporting snapshot {generatedAt ? `updated ${date(generatedAt)}` : "ready"}</span>
+    {!enhanced && <span>Basic reporting — enhanced usage metrics are not yet available.</span>}
     <button className={styles.button} type="button" onClick={reload} disabled={refreshing}>
       <RefreshCw size={14} className={refreshing ? styles.spinning : undefined} />
       {refreshing ? "Refreshing…" : "Refresh"}
@@ -366,12 +402,14 @@ function AdminActionDialog({
   onSuccess: () => void;
 }) {
   const [reason, setReason] = useState("");
+  const [customerReason, setCustomerReason] = useState("");
   const [confirmed, setConfirmed] = useState(false);
   const [typed, setTyped] = useState("");
   const [busy, setBusy] = useState(false);
   const [error, setError] = useState("");
   useEffect(() => {
     setReason("");
+    setCustomerReason("");
     setConfirmed(false);
     setTyped("");
     setError("");
@@ -379,10 +417,13 @@ function AdminActionDialog({
   if (!value) return null;
   const ready =
     reason.trim().length >= 5 &&
+    (value.action !== 'suspend' || customerReason.trim().length >= 5) &&
     (!value.strong || (confirmed && typed === "PERMANENTLY DELETE"));
   const submit = async () => {
+    if (!ready || busy) return;
     setBusy(true);
     setError("");
+    try {
     const { data, error: invokeError } = await supabase.functions.invoke(
       "admin-account-action",
       {
@@ -390,12 +431,14 @@ function AdminActionDialog({
           action: value.action,
           target_id: value.targetId,
           reason: reason.trim(),
+          ...(value.action === 'suspend' ? { customer_reason: customerReason.trim() } : {}),
           admin_grant: sessionStorage.getItem("ww_admin_grant"),
           admin_grant_signature: sessionStorage.getItem("ww_admin_grant_sig"),
         },
       },
     );
-    if (invokeError || (data as { error?: string } | null)?.error) {
+    if (invokeError || (data as { error?: string } | null)?.error || data?.success !== true) {
+      if (data?.state_changed === true) onSuccess();
       setError(
         (data as { error?: string } | null)?.error ||
           "The action could not be confirmed. No success was recorded.",
@@ -406,18 +449,35 @@ function AdminActionDialog({
     setBusy(false);
     onClose();
     onSuccess();
+    } catch {
+      setError("The action could not be confirmed. No success was recorded. Check the record before retrying.");
+    } finally {
+      setBusy(false);
+    }
   };
   return (
     <Dialog open onOpenChange={(open) => !open && onClose()}>
-      <DialogContent>
+      <DialogContent className={styles.dialog} overlayClassName={styles.overlay}>
         <DialogHeader>
-          <DialogTitle>{words(value.action)}</DialogTitle>
+          <DialogTitle>{value.action === "close_account" ? "Delete Account" : words(value.action)}</DialogTitle>
           <DialogDescription>
             Target: {value.targetName}. This action runs only through the
             protected administrator service and creates an audit entry.
           </DialogDescription>
         </DialogHeader>
         <div className={styles.dialogText}>
+          {value.action === "close_account" && (
+            <p className={styles.warning}>
+              This deactivates customer access and retains account information
+              indefinitely for administration. Only the Wedding Waitress
+              platform owner may restore access; the customer cannot reactivate
+              it themselves. This does not permanently erase information.
+              Existing subscriptions are cancelled by the account-closure process.
+              Existing login sessions are revoked and planning access is blocked.
+            </p>
+          )}
+          {value.action === 'suspend' && <p>Existing login sessions are revoked and planning access is blocked until the owner restores access.
+            The customer may sign in to the limited suspension notice and private reply view only.</p>}
           {value.destructive && (
             <p className={styles.warning}>
               <ShieldAlert size={16} /> This changes customer access. Confirm
@@ -451,15 +511,17 @@ function AdminActionDialog({
               placeholder="Required for the secure audit record"
             />
           </label>
+          {value.action === 'suspend' && <label>
+            Reason shown to the customer (required)
+            <textarea maxLength={2000} value={customerReason} onChange={e => setCustomerReason(e.target.value)} placeholder="Explain why access is suspended and how the customer can respond" />
+            <small>This reason appears in My Events. The administrator reason above stays internal.</small>
+          </label>}
           {error && (
             <p role="alert" className={styles.warning}>
               {error}
             </p>
           )}
           <div className={styles.actionRow}>
-            <button className={styles.button} onClick={onClose}>
-              Cancel
-            </button>
             <button
               className={`${styles.button} ${value.destructive ? styles.danger : styles.green}`}
               disabled={!ready || busy}
@@ -467,12 +529,22 @@ function AdminActionDialog({
             >
               {busy ? "Confirming…" : "Confirm action"}
             </button>
+            <button className={styles.button} onClick={onClose}>
+              Cancel
+            </button>
           </div>
         </div>
       </DialogContent>
     </Dialog>
   );
 }
+
+const isAdminRetained = (record: Snapshot['lifecycle'][number]) =>
+  record.status === 'scheduled_for_deletion' &&
+  (!!record.admin_deleted_at || record.purge_status === 'admin_retained' || record.purge_after === 'infinity');
+const isAwaitingDeletion = (record: Snapshot['lifecycle'][number]) =>
+  record.status === 'scheduled_for_deletion' && !isAdminRetained(record) &&
+  !!record.purge_after && Number.isFinite(Date.parse(record.purge_after));
 
 export const AdminOverviewPage = () => {
   const { data, loading, unavailable, refreshing, reload } = useAdminSnapshot();
@@ -504,12 +576,6 @@ export const AdminOverviewPage = () => {
         text: `Payment attention: ${s.customer_name}`,
         to: "/admin/subscriptions-payments",
       })),
-    ...data.subscriptions
-      .filter((s) => s.subscription_status === "pending_approval")
-      .map((s) => ({
-        text: `Vendor Pro approval: ${s.customer_name}`,
-        to: "/admin/subscriptions-payments",
-      })),
     ...data.customers
       .filter((c) => c.account_status === "suspended")
       .map((c) => ({
@@ -531,9 +597,9 @@ export const AdminOverviewPage = () => {
     (p) => p.status === "completed" || p.status === "succeeded",
   );
   return (
-    <div className={styles.page} data-admin-page>
+    <div className={`${styles.page} ${styles.overviewPage}`} data-admin-page>
       <State loading={loading} unavailable={unavailable} reload={reload} />
-      {!loading && !unavailable && <SnapshotFreshness generatedAt={data.generated_at} refreshing={refreshing} reload={reload} />}
+      {!loading && !unavailable && <SnapshotFreshness generatedAt={data.generated_at} refreshing={refreshing} reload={reload} enhanced={data.reporting_version === 2} />}
       {!loading && !unavailable && (
         <>
           <Section title="Customer overview">
@@ -541,9 +607,8 @@ export const AdminOverviewPage = () => {
               <Metric
                 label="Total registered customers"
                 value={
-                  data.customers.length +
-                  data.lifecycle.filter((l) => l.status !== "reactivated")
-                    .length
+                  new Set([...data.customers.map(c => c.id),
+                    ...data.lifecycle.filter(l => l.status !== 'reactivated').map(l => l.account_owner_id)]).size
                 }
               />
               <Metric
@@ -583,8 +648,9 @@ export const AdminOverviewPage = () => {
               <Metric label="Closed customers" value={closed.length} />
               <Metric
                 label="Awaiting permanent deletion"
-                value={closed.length}
+                value={data.lifecycle.filter(isAwaitingDeletion).length}
               />
+              <Metric label="Indefinitely retained accounts" value={closed.filter(isAdminRetained).length} />
             </div>
           </Section>
           <Section
@@ -622,7 +688,7 @@ export const AdminOverviewPage = () => {
           </Section>
           <Section title="Plan overview">
             <div className={styles.metrics}>
-              {["Essential", "Premium", "Unlimited", "Vendor Pro"].map(
+              {CURRENT_ADMIN_PLANS.map(
                 (plan) => (
                   <Metric
                     key={plan}
@@ -637,14 +703,6 @@ export const AdminOverviewPage = () => {
                   />
                 ),
               )}
-              <Metric
-                label="Pending Vendor Pro approvals"
-                value={
-                  data.subscriptions.filter(
-                    (s) => s.vendor_approval_status === "pending",
-                  ).length
-                }
-              />
               <Metric
                 label="Cancelled plans"
                 value={
@@ -847,19 +905,50 @@ export const AdminOverviewPage = () => {
   );
 };
 
-export const AdminCustomersPage = () => {
+export const AdminCustomerAccessReview = ({customerId,targetName}:{customerId:string;targetName:string}) => {
+  const [open,setOpen]=useState(false);
+  const [revision,setRevision]=useState(0);
+  const [action,setAction]=useState<Action|null>(null);
+  return <section aria-label="Owner access review"><h3>Owner access review</h3><p>Owner-only access administration; customer planning records remain read-only.</p><details onToggle={event=>setOpen(event.currentTarget.open)}>
+    <summary>Access &amp; replies</summary>
+    {open&&<AdminAccountAccessDetail key={`${customerId}:${revision}`} customerId={customerId} onApproveReview={()=>setAction({action:'approve_signup_review',targetId:customerId,targetName,destructive:false})}/>}
+  </details><AdminActionDialog value={action} onClose={()=>setAction(null)} onSuccess={()=>setRevision(value=>value+1)}/></section>;
+};
+
+export const AdminCustomersPage = ({activityTrackingEnabled=false}:{activityTrackingEnabled?:boolean}={}) => {
+  const navigate=useNavigate();
   const { data, loading, unavailable, refreshing, reload } = useAdminSnapshot();
+  const activity=useAdminCustomerActivity(activityTrackingEnabled||data.customer_activity_ready===true);
+  useEffect(()=>{if(activity.snapshotRevision>0)reload();},[activity.snapshotRevision,reload]);
   const [search, setSearch] = useState("");
   const [type, setType] = useState("all");
   const [plan, setPlan] = useState("all");
   const [status, setStatus] = useState("all");
   const [verified, setVerified] = useState("all");
   const [page, setPage] = useState(0);
-  const [selected, setSelected] = useState<Customer | null>(null);
   const [action, setAction] = useState<Action | null>(null);
+  const customers = useMemo(() => {
+    const records = new Map(data.customers.map(customer => [customer.id, customer]));
+    for (const lifecycle of data.lifecycle) {
+      if (!["scheduled_for_deletion", "permanently_deleted"].includes(lifecycle.status)) continue;
+      const existing = records.get(lifecycle.account_owner_id);
+      records.set(lifecycle.account_owner_id, existing
+        ? {...existing, account_status: lifecycle.status, admin_deleted_at: lifecycle.admin_deleted_at}
+        : {
+          id: lifecycle.account_owner_id, full_name: lifecycle.customer_name,
+          email: lifecycle.email, mobile: null, signup_date: null,
+          email_confirmed_at: null, last_sign_in_at: null, customer_type: "unknown",
+          account_status: lifecycle.status, plan_name: null, plan_status: null,
+          admin_deleted_at: lifecycle.admin_deleted_at,
+          plan_started_at: null, plan_expires_at: null,
+          event_count: data.events.filter(event => event.user_id === lifecycle.account_owner_id).length,
+        });
+    }
+    return [...records.values()];
+  }, [data.customers, data.lifecycle, data.events]);
   const rows = useMemo(
     () =>
-      data.customers
+      customers
         .filter(
           (c) =>
             (!search ||
@@ -868,7 +957,7 @@ export const AdminCustomersPage = () => {
                 .includes(search.toLowerCase())) &&
             (type === "all" || c.customer_type === type) &&
             (plan === "all" || c.plan_name === plan) &&
-            (status === "all" || c.account_status === status) &&
+            (status === "all" || customerStatus(c.account_status) === status) &&
             (verified === "all" ||
               (verified === "verified") === !!c.email_confirmed_at),
         )
@@ -877,15 +966,21 @@ export const AdminCustomersPage = () => {
             new Date(b.signup_date || 0).getTime() -
             new Date(a.signup_date || 0).getTime(),
         ),
-    [data.customers, search, type, plan, status, verified],
+    [customers, search, type, plan, status, verified],
   );
-  const slice = rows.slice(page * 25, page * 25 + 25);
+  useEffect(() => { setPage(0); }, [search, type, plan, status, verified]);
+  const currentPage = Math.min(page, Math.max(0, Math.ceil(rows.length / 25) - 1));
+  useEffect(() => { if (page !== currentPage) setPage(currentPage); }, [page, currentPage]);
+  const slice = rows.slice(currentPage * 25, currentPage * 25 + 25);
   return (
-    <div className={styles.page} data-admin-page>
+    <div className={styles.customerLayout}>
       <State loading={loading} unavailable={unavailable} reload={reload} />
-      {!loading && !unavailable && <SnapshotFreshness generatedAt={data.generated_at} refreshing={refreshing} reload={reload} />}
+      {!loading && !unavailable && <SnapshotFreshness generatedAt={data.generated_at} refreshing={refreshing} reload={reload} enhanced={data.reporting_version === 2} />}
       {!loading && !unavailable && (
         <>
+          <AdminCustomerEventSummary data={data}/>
+          <section className={`${styles.page} ${styles.customerCard}`} data-admin-page aria-label="Customer database">
+          <div className={styles.sectionHeader}><h2>Customer database</h2></div>
           <div className={styles.toolbar}>
             <input
               className={styles.input}
@@ -914,11 +1009,7 @@ export const AdminCustomersPage = () => {
               onChange={(e) => setPlan(e.target.value)}
             >
               <option value="all">All plans</option>
-              {[
-                ...new Set(
-                  data.customers.map((c) => c.plan_name).filter(Boolean),
-                ),
-              ].map((p) => (
+              {adminPlanOptions(customers.map((c) => c.plan_name)).map((p) => (
                 <option key={p!}>{p}</option>
               ))}
             </select>
@@ -929,8 +1020,9 @@ export const AdminCustomersPage = () => {
               onChange={(e) => setStatus(e.target.value)}
             >
               <option value="all">All access states</option>
-              <option value="active">Active</option>
-              <option value="suspended">Suspended</option>
+              <option value="Active">Active</option>
+              <option value="Suspended">Suspended</option>
+              <option value="Deleted">Deleted</option>
             </select>
             <select
               className={styles.select}
@@ -944,17 +1036,21 @@ export const AdminCustomersPage = () => {
             </select>
           </div>
           <div className={styles.tableWrap}>
-            <table className={styles.table}>
+            <table className={`${styles.table} ${styles.customersTable}`} data-admin-customers-table>
               <thead>
                 <tr>
                   <th>Customer</th>
+                  <th>Customer ID</th>
                   <th>Email verification</th>
+                  <th>Mobile number</th>
                   <th>Type</th>
                   <th>Sign-up / Last active</th>
                   <th>Plan</th>
                   <th>Events</th>
                   <th>Account</th>
                   <th>Actions</th>
+                  <th>Account preview</th>
+                  <th>Country</th>
                 </tr>
               </thead>
               <tbody>
@@ -962,49 +1058,51 @@ export const AdminCustomersPage = () => {
                   <tr key={c.id}>
                     <td>
                       <strong>{c.full_name || "No name"}</strong>
-                      <span className={styles.subtle}>{c.email}</span>
                     </td>
-                    <td>
+                    <td>{c.account_id || "Not available"}</td>
+                    <td className={styles.customerReferenceText}>
                       <Badge>
                         {c.email_confirmed_at ? "verified" : "unverified"}
                       </Badge>
+                      <span className={`${styles.subtle} ${styles.customerEmail}`}>{c.email}</span>
                     </td>
                     <td>
+                      {c.mobile?.trim() || 'Not provided'}
+                    </td>
+                    <td className={styles.customerReferenceText}>
                       {c.customer_type === "vendor"
                         ? "Vendor / Venue"
-                        : "Couple / Event Host"}
+                        : c.customer_type === "host" ? "Couple / Event Host" : "Recorded account"}
                     </td>
-                    <td>
-                      {date(c.signup_date)}
+                    <td className={styles.customerReferenceText}>
+                      <span className={styles.subtle}>Signed up {date(c.signup_date)}</span>
                       <span className={styles.subtle}>
-                        Last active {date(c.last_sign_in_at)}
+                        Last active {activityDate(effectiveCustomerActivity(activity.records[c.id]?.last_active_at,c.last_active_at,activity.records[c.id]?.last_sign_in_at,c.last_sign_in_at,c.signup_date))}
                       </span>
                     </td>
-                    <td>
-                      {c.plan_name || "No plan"}
+                    <td className={styles.customerReferenceText}>
+                      {c.plan_name || "Free trial"}
                       <span className={styles.subtle}>
                         {c.plan_status || "—"}
                       </span>
                     </td>
-                    <td>{c.event_count}</td>
+                    <td className={styles.customerReferenceText}>{c.event_count}</td>
                     <td>
-                      <Badge>{c.account_status}</Badge>
+                      <AdminCustomerAccountStatus status={customerStatus(c.account_status)} customerName={c.full_name||c.email||c.id}
+                       detail={c.admin_deleted_at?'Account information is retained indefinitely. Only the platform owner may restore access.':
+                        c.account_status==='scheduled_for_deletion'?`Deletion is scheduled for ${date(data.lifecycle.find(record=>record.account_owner_id===c.id)?.purge_after)}. This account can be restored before that deadline.`:undefined}/>
                     </td>
                     <td>
                       <div className={styles.actionRow}>
                         <button
-                          className={styles.button}
-                          onClick={() => setSelected(c)}
-                        >
-                          <Eye size={13} />
-                          View
-                        </button>
-                        <button
-                          className={`${styles.button} ${c.account_status === "suspended" ? styles.green : styles.danger}`}
+                          disabled={!data.admin_logical_deletion_ready || c.account_status === "permanently_deleted"}
+                          aria-label={['suspended','scheduled_for_deletion'].includes(c.account_status)?'Restore account':'Suspend'}
+                          title={!data.admin_logical_deletion_ready ? "This action will be available after the planned update is released." : undefined}
+                          className={`${styles.button} ${c.account_status === "suspended" ? styles.green : styles.danger} ${c.account_status === 'active' ? styles.retainedDelete : ''}`}
                           onClick={() =>
                             setAction({
                               action:
-                                c.account_status === "suspended"
+                                c.account_status === "scheduled_for_deletion" ? "reactivate_account" : c.account_status === "suspended"
                                   ? "restore"
                                   : "suspend",
                               targetId: c.id,
@@ -1013,12 +1111,13 @@ export const AdminCustomersPage = () => {
                             })
                           }
                         >
-                          {c.account_status === "suspended"
-                            ? "Restore"
-                            : "Suspend"}
+                          {['scheduled_for_deletion','suspended'].includes(c.account_status)?<span>Restore<br/>account</span>:'Suspend'}
                         </button>
                         <button
-                          className={`${styles.button} ${styles.danger}`}
+                          disabled={!data.admin_logical_deletion_ready || ["scheduled_for_deletion", "permanently_deleted"].includes(c.account_status)}
+                          aria-label="Deleted"
+                          title={!data.admin_logical_deletion_ready ? "This action will be available after the planned update is released." : undefined}
+                          className={`${styles.button} ${styles.danger} ${styles.retainedDelete}`}
                           onClick={() =>
                             setAction({
                               action: "close_account",
@@ -1028,24 +1127,12 @@ export const AdminCustomersPage = () => {
                             })
                           }
                         >
-                          Close Account
-                        </button>
-                        <button
-                          className={styles.button}
-                          onClick={() =>
-                            setAction({
-                              action: "force_sign_out",
-                              targetId: c.id,
-                              targetName: c.full_name || c.email || c.id,
-                              destructive: true,
-                            })
-                          }
-                        >
-                          Force Sign-Out
+                          Deleted
                         </button>
                         {!c.email_confirmed_at && (
                           <button
                             className={styles.button}
+                            aria-label="Resend Verification"
                             onClick={() =>
                               setAction({
                                 action: "resend_email_verification",
@@ -1054,16 +1141,20 @@ export const AdminCustomersPage = () => {
                               })
                             }
                           >
-                            Resend Verification
+                            <span>Resend<br/>verification</span>
                           </button>
                         )}
                       </div>
                     </td>
+                    <td><button className={styles.button} aria-label="Open account" disabled={!data.admin_customer_preview_ready}
+                      title={!data.admin_customer_preview_ready?'This action will be available after the planned update is released.':undefined}
+                      onClick={()=>navigate(`/admin/customers?preview=${encodeURIComponent(c.id)}`)}><span>Open<br/>account</span></button></td>
+                    <td title="Recorded account country; not verified residence.">{customerCountryLabel(c.country_code)}</td>
                   </tr>
                 ))}
                 {!slice.length && (
                   <tr>
-                    <td colSpan={8} className={styles.empty}>
+                    <td colSpan={12} className={styles.empty}>
                       No customers match these filters.
                     </td>
                   </tr>
@@ -1072,74 +1163,28 @@ export const AdminCustomersPage = () => {
             </table>
           </div>
           <div className={styles.pagination}>
+            {activity.connection!=='off'&&<span role="status">Activity updates: {activity.connection}. Network delays may apply.</span>}
             <button
               className={styles.button}
-              disabled={page === 0}
-              onClick={() => setPage((p) => p - 1)}
+              disabled={currentPage === 0}
+              onClick={() => setPage(currentPage - 1)}
             >
               Previous
             </button>
             <span>
-              Page {page + 1} · {rows.length} records
+              Page {currentPage + 1} · {rows.length} records
             </span>
             <button
               className={styles.button}
-              disabled={(page + 1) * 25 >= rows.length}
-              onClick={() => setPage((p) => p + 1)}
+              disabled={(currentPage + 1) * 25 >= rows.length}
+              onClick={() => setPage(currentPage + 1)}
             >
               Next
             </button>
           </div>
+          </section>
+          <AdminCustomerEventsPanel data={data} customers={customers} />
         </>
-      )}
-      {selected && (
-        <Dialog open onOpenChange={(o) => !o && setSelected(null)}>
-          <DialogContent>
-            <DialogHeader>
-              <DialogTitle>
-                {selected.full_name || "Customer record"}
-              </DialogTitle>
-              <DialogDescription>{selected.email}</DialogDescription>
-            </DialogHeader>
-            <div className={styles.dialogText}>
-              <p>
-                <strong>Account ID:</strong> {selected.id}
-              </p>
-              <p>
-                <strong>Phone:</strong> {selected.mobile || "Not provided"}
-              </p>
-              <p>
-                <strong>Type:</strong> {selected.customer_type}
-              </p>
-              <p>
-                <strong>Plan:</strong> {selected.plan_name || "No plan"} ·{" "}
-                {selected.plan_status || "—"}
-              </p>
-              <p>
-                <strong>Plan dates:</strong> {date(selected.plan_started_at)} –{" "}
-                {date(selected.plan_expires_at)}
-              </p>
-              <p>
-                <strong>Events:</strong> {selected.event_count}
-              </p>
-              <p>
-                <strong>Platform usage:</strong> {selected.table_count ?? 0} tables · {selected.guest_count ?? 0} guests · {selected.seated_guest_count ?? 0} seated
-              </p>
-              <p>
-                <strong>Configured features:</strong> {selected.feature_usage_count ?? 0} across this customer's events
-              </p>
-              <p>
-                <strong>Media:</strong> {selected.media_item_count ?? 0} uploaded items
-              </p>
-              <p>
-                <strong>Team access:</strong> {selected.active_team_member_count ?? 0} active of {selected.team_member_count ?? 0} recorded seats
-              </p>
-              <p>
-                <strong>Last sign-in:</strong> {date(selected.last_sign_in_at)}
-              </p>
-            </div>
-          </DialogContent>
-        </Dialog>
       )}
       <AdminActionDialog
         value={action}
@@ -1155,11 +1200,10 @@ export const AdminSubscriptionsPaymentsPage = () => {
   const [search, setSearch] = useState("");
   const [plan, setPlan] = useState("all");
   const [status, setStatus] = useState("all");
-  const [action, setAction] = useState<Action | null>(null);
   const rows = data.subscriptions.filter(
     (s) =>
       (!search ||
-        `${s.customer_name} ${s.email}`
+        `${s.customer_name || ''} ${s.email || ''} ${s.user_id}`
           .toLowerCase()
           .includes(search.toLowerCase())) &&
       (plan === "all" || s.plan_name === plan) &&
@@ -1168,7 +1212,7 @@ export const AdminSubscriptionsPaymentsPage = () => {
   return (
     <div className={styles.page} data-admin-page>
       <State loading={loading} unavailable={unavailable} reload={reload} />
-      {!loading && !unavailable && <SnapshotFreshness generatedAt={data.generated_at} refreshing={refreshing} reload={reload} />}
+      {!loading && !unavailable && <SnapshotFreshness generatedAt={data.generated_at} refreshing={refreshing} reload={reload} enhanced={data.reporting_version === 2} />}
       {!loading && !unavailable && (
         <>
           <Section title="Subscription summary">
@@ -1229,14 +1273,6 @@ export const AdminSubscriptionsPaymentsPage = () => {
                 }
                 attention
               />
-              <Metric
-                label="Pending Vendor Pro"
-                value={
-                  data.subscriptions.filter(
-                    (s) => s.vendor_approval_status === "pending",
-                  ).length
-                }
-              />
             </div>
           </Section>
           <Section title="Subscriptions">
@@ -1255,7 +1291,7 @@ export const AdminSubscriptionsPaymentsPage = () => {
                 onChange={(e) => setPlan(e.target.value)}
               >
                 <option value="all">All plans</option>
-                {[...new Set(data.subscriptions.map((s) => s.plan_name))].map(
+                {adminPlanOptions(data.subscriptions.map((s) => s.plan_name)).map(
                   (p) => (
                     <option key={p}>{p}</option>
                   ),
@@ -1295,8 +1331,10 @@ export const AdminSubscriptionsPaymentsPage = () => {
                   {rows.map((s) => (
                     <tr key={s.id}>
                       <td>
-                        {s.customer_name}
-                        <span className={styles.subtle}>{s.email}</span>
+                        {s.customer_name?.trim() || s.email?.trim() || 'Profile unavailable'}
+                        {s.email?.trim() && <span className={styles.subtle}>{s.email}</span>}
+                        {!s.customer_name?.trim() && !s.email?.trim() &&
+                          <span className={styles.subtle}>Account ID: {s.user_id}</span>}
                       </td>
                       <td>{s.plan_name}</td>
                       <td>
@@ -1312,39 +1350,10 @@ export const AdminSubscriptionsPaymentsPage = () => {
                         <div className={styles.actionRow}>
                           <Link
                             className={styles.button}
-                            to={`/admin/customers?customer=${s.user_id}`}
+                            to={`/admin/customers?preview=${encodeURIComponent(s.user_id)}`}
                           >
                             View Customer
                           </Link>
-                          {s.vendor_approval_status === "pending" && (
-                            <>
-                              <button
-                                className={`${styles.button} ${styles.green}`}
-                                onClick={() =>
-                                  setAction({
-                                    action: "approve_vendor",
-                                    targetId: s.id,
-                                    targetName: `${s.customer_name} · ${s.plan_name}`,
-                                  })
-                                }
-                              >
-                                Approve
-                              </button>
-                              <button
-                                className={`${styles.button} ${styles.danger}`}
-                                onClick={() =>
-                                  setAction({
-                                    action: "reject_vendor",
-                                    targetId: s.id,
-                                    targetName: `${s.customer_name} · ${s.plan_name}`,
-                                    destructive: true,
-                                  })
-                                }
-                              >
-                                Reject
-                              </button>
-                            </>
-                          )}
                         </div>
                       </td>
                     </tr>
@@ -1375,6 +1384,7 @@ export const AdminSubscriptionsPaymentsPage = () => {
                     <th>Date</th>
                     <th>Payment method</th>
                     <th>Reference</th>
+                    <th>Actions</th>
                   </tr>
                 </thead>
                 <tbody>
@@ -1402,11 +1412,12 @@ export const AdminSubscriptionsPaymentsPage = () => {
                           "—"
                         )}
                       </td>
+                      <td><AdminRefundButton payment={p}/></td>
                     </tr>
                   ))}
                   {!data.payments.length && (
                     <tr>
-                      <td colSpan={7} className={styles.empty}>
+                      <td colSpan={8} className={styles.empty}>
                         No recorded payments.
                       </td>
                     </tr>
@@ -1422,55 +1433,18 @@ export const AdminSubscriptionsPaymentsPage = () => {
               </p>
             )}
           </Section>
+          <AdminRefundHistory/>
+          <AdminPromotions/>
         </>
       )}
-      <AdminActionDialog
-        value={action}
-        onClose={() => setAction(null)}
-        onSuccess={reload}
-      />
     </div>
   );
 };
 
-export const AdminEventsPage = () => {
-  const { data, loading, unavailable, refreshing, reload } = useAdminSnapshot();
-  const [search, setSearch] = useState("");
-  const [status, setStatus] = useState("all");
-  const [type, setType] = useState("all");
-  const [sort, setSort] = useState("date");
-  const [selected, setSelected] = useState<EventRow | null>(null);
-  const rows = useMemo(
-    () =>
-      data.events
-        .filter(
-          (e) =>
-            (!search ||
-              `${e.name} ${e.owner_name} ${e.owner_email}`
-                .toLowerCase()
-                .includes(search.toLowerCase())) &&
-            (status === "all" || e.event_status === status) &&
-            (type === "all" || e.event_type === type),
-        )
-        .sort((a, b) =>
-          sort === "guests"
-            ? b.guest_count - a.guest_count
-            : sort === "created"
-              ? new Date(b.created_at).getTime() -
-                new Date(a.created_at).getTime()
-              : new Date(a.effective_date || "9999").getTime() -
-                new Date(b.effective_date || "9999").getTime(),
-        ),
-    [data.events, search, status, type, sort],
-  );
-  const guests = data.events.reduce((a, e) => a + e.guest_count, 0);
-  return (
-    <div className={styles.page} data-admin-page>
-      <State loading={loading} unavailable={unavailable} reload={reload} />
-      {!loading && !unavailable && <SnapshotFreshness generatedAt={data.generated_at} refreshing={refreshing} reload={reload} />}
-      {!loading && !unavailable && (
-        <>
-          <Section title="Event summary">
+export const AdminCustomerEventSummary = ({data}:{data:Snapshot}) => {
+ const guests=data.events.reduce((total,event)=>total+event.guest_count,0);
+ return <div className={`${styles.page} ${styles.customerCard}`} data-admin-page aria-label="Event summary">
+<Section title="Event summary">
             <div className={styles.metrics}>
               <Metric label="Total events" value={data.events.length} />
               <Metric
@@ -1504,6 +1478,61 @@ export const AdminEventsPage = () => {
               />
             </div>
           </Section>
+ </div>;
+};
+
+function CustomerAccountDetails({customer,data}:{customer:Snapshot['customers'][number];data:Snapshot}) {
+ const [open,setOpen]=useState(false);
+ const eventCount=data.events.filter(event=>event.user_id===customer.id).length;
+ return <details className={styles.accountDetailCard} onToggle={event=>setOpen(event.currentTarget.open)}>
+  <summary><span>{customer.full_name||customer.email||'Name not recorded'}</span> — {eventCount} {eventCount===1?'event':'events'} · Account details</summary>
+  {open&&<div><p>These are account-level details, not details of an individual event.</p>
+   <dl><dt>Plan dates</dt><dd>{date(customer.plan_started_at)} – {date(customer.plan_expires_at)}</dd>
+    <dt>Platform usage</dt><dd>{customer.table_count??'Not available'} tables · {customer.guest_count??'Not available'} guests · {customer.seated_guest_count??'Not available'} seated</dd>
+    <dt>Configured features</dt><dd>{customer.feature_usage_count??'Not available'} across this customer's events</dd>
+    <dt>Media</dt><dd>{customer.media_item_count??'Not available'} uploaded items</dd>
+   </dl><h3>Team members</h3><AdminCustomerTeamMembers customerId={customer.id} revision={data.generated_at}
+    ready={data.admin_team_roster_ready===true} activeCount={customer.active_team_member_count} recordedCount={customer.team_member_count}/>
+   <AdminCustomerAccessReview customerId={customer.id} targetName={customer.full_name||customer.email||customer.id}/>
+  </div>}
+ </details>;
+}
+export const AdminCustomerEventsPanel = ({data,customers=data.customers}:{data:Snapshot;customers?:Snapshot['customers']}) => {
+  const [search, setSearch] = useState("");
+  const [status, setStatus] = useState("all");
+  const [type, setType] = useState("all");
+  const [sort, setSort] = useState("date");
+  const [selected, setSelected] = useState<EventRow | null>(null);
+  useEffect(() => {
+    setSelected(current => current ? data.events.find(event => event.id === current.id) || null : null);
+  }, [data.events]);
+  const rows = useMemo(
+    () =>
+      data.events
+        .filter(
+          (e) =>
+            (!search ||
+              `${e.name} ${e.owner_name} ${e.owner_email}`
+                .toLowerCase()
+                .includes(search.toLowerCase())) &&
+            (status === "all" || e.event_status === status) &&
+            (type === "all" || e.event_type === type),
+        )
+        .sort((a, b) =>
+          sort === "guests"
+            ? b.guest_count - a.guest_count
+            : sort === "created"
+              ? new Date(b.created_at).getTime() -
+                new Date(a.created_at).getTime()
+              : new Date(a.effective_date || "9999").getTime() -
+                new Date(b.effective_date || "9999").getTime(),
+        ),
+    [data.events, search, status, type, sort],
+  );
+  return (
+    <div className={styles.page} data-admin-page id="customer-events" aria-label="Customer events">
+      {(
+        <>
           <Section
             title="Events"
             description="Operational and primarily read-only."
@@ -1615,11 +1644,14 @@ export const AdminEventsPage = () => {
               </table>
             </div>
           </Section>
+          <Section title="Account details" description="Grouped once per customer, including customers with no events.">
+           {[...new Map(customers.map(customer=>[customer.id,customer])).values()].map(customer=><CustomerAccountDetails key={customer.id} customer={customer} data={data}/>)}
+          </Section>
         </>
       )}
       {selected && (
         <Dialog open onOpenChange={(o) => !o && setSelected(null)}>
-          <DialogContent>
+          <DialogContent className={styles.dialog} overlayClassName={styles.overlay}>
             <DialogHeader>
               <DialogTitle>{selected.name}</DialogTitle>
               <DialogDescription>Operational event details</DialogDescription>
@@ -1669,6 +1701,13 @@ export const AdminEventsPage = () => {
   );
 };
 
+// Compatibility wrapper for focused aggregate tests; there is no standalone Admin route.
+export const AdminEventsPage = () => {
+  const {data,loading,unavailable,reload}=useAdminSnapshot();
+  return <><State loading={loading} unavailable={unavailable} reload={reload}/>
+    {!loading&&!unavailable&&<AdminCustomerEventsPanel data={data}/>}</>;
+};
+
 export const AdminAccountLifecyclePage = () => {
   const { data, loading, unavailable, refreshing, reload } = useAdminSnapshot();
   const [search, setSearch] = useState("");
@@ -1685,7 +1724,7 @@ export const AdminAccountLifecyclePage = () => {
   return (
     <div className={styles.page} data-admin-page>
       <State loading={loading} unavailable={unavailable} reload={reload} />
-      {!loading && !unavailable && <SnapshotFreshness generatedAt={data.generated_at} refreshing={refreshing} reload={reload} />}
+      {!loading && !unavailable && <SnapshotFreshness generatedAt={data.generated_at} refreshing={refreshing} reload={reload} enhanced={data.reporting_version === 2} />}
       {!loading && !unavailable && (
         <>
           <Section title="Lifecycle summary">
@@ -1704,7 +1743,7 @@ export const AdminAccountLifecyclePage = () => {
                   data.lifecycle.filter(
                     (l) =>
                       l.status === "scheduled_for_deletion" &&
-                      new Date(l.purge_after || 0).getTime() > Date.now(),
+                      !isAdminRetained(l) && new Date(l.purge_after || 0).getTime() > Date.now(),
                   ).length
                 }
               />
@@ -1718,11 +1757,10 @@ export const AdminAccountLifecyclePage = () => {
               <Metric
                 label="Awaiting permanent deletion"
                 value={
-                  data.lifecycle.filter(
-                    (l) => l.status === "scheduled_for_deletion",
-                  ).length
+                  data.lifecycle.filter(isAwaitingDeletion).length
                 }
               />
+              <Metric label="Indefinitely retained accounts" value={data.lifecycle.filter(l => l.status === 'scheduled_for_deletion' && isAdminRetained(l)).length} />
               <Metric
                 label="Failed Stripe cancellations"
                 value={
@@ -1802,7 +1840,7 @@ export const AdminAccountLifecyclePage = () => {
                         <Badge>{l.status}</Badge>
                       </td>
                       <td>{date(l.deletion_requested_at)}</td>
-                      <td>{date(l.purge_after)}</td>
+                      <td>{isAdminRetained(l) ? 'Retained indefinitely' : date(l.purge_after)}</td>
                       <td>{date(l.reactivated_at)}</td>
                       <td>
                         <Badge>
@@ -1814,7 +1852,7 @@ export const AdminAccountLifecyclePage = () => {
                         </Badge>
                       </td>
                       <td>
-                        <Badge>{l.purge_status}</Badge>
+                        <Badge>{isAdminRetained(l) ? 'admin_retained' : l.purge_status}</Badge>
                         {l.deletion_processing_error && (
                           <span className={styles.subtle}>
                             Attention required
@@ -1855,7 +1893,7 @@ export const AdminAccountLifecyclePage = () => {
                               Retry Stripe
                             </button>
                           )}
-                          {l.status === "scheduled_for_deletion" && (
+                          {l.status === "scheduled_for_deletion" && !isAdminRetained(l) && (
                             <button
                               className={styles.button}
                               onClick={() =>
@@ -1883,7 +1921,7 @@ export const AdminAccountLifecyclePage = () => {
                           >
                             Add note
                           </button>
-                          {l.status === "scheduled_for_deletion" && (
+                          {l.status === "scheduled_for_deletion" && !isAdminRetained(l) && (
                             <button
                               className={`${styles.button} ${styles.danger}`}
                               onClick={() =>

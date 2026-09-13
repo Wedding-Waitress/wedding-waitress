@@ -138,7 +138,8 @@ interface EventsTableProps {
   onEventEdit?: (eventId: string) => void;
   onEventDelete?: (eventId: string) => void;
   selectedEvent?: Event | null;
-  eventLimits: EventLimitsState;
+  eventLimits?: EventLimitsState;
+  readOnly?: boolean;
 }
 export const EventsTable: React.FC<EventsTableProps> = ({
   events,
@@ -153,6 +154,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   onEventDelete,
   selectedEvent: selectedEventProp,
   eventLimits,
+  readOnly = false,
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -177,7 +179,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   const [deletingEventId, setDeletingEventId] = useState<string | null>(null);
   const deleteInFlightRef = useRef(false);
   const handleCreateClick = () => {
-    if (eventLimits.loading) return;
+    if (readOnly || !eventLimits || eventLimits.loading) return;
     if (!eventLimits.atCap) {
       setCreateModal(true);
       return;
@@ -197,6 +199,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     });
   };
   const handleEventSelect = (eventId: string) => {
+    if (readOnly) return;
     // The page callback owns selection and countdown persistence when supplied.
     if (onEventSelect) {
       onEventSelect(eventId);
@@ -205,6 +208,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     }
   };
   const handleEdit = (event: Event) => {
+    if (readOnly) return;
     setEditModal({
       isOpen: true,
       event
@@ -212,6 +216,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   };
 
   const handleSaveEdit = async (id: string, eventData: any) => {
+    if (readOnly) return;
     await updateEvent(id, eventData);
     setEditModal({
       isOpen: false,
@@ -221,13 +226,14 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     handleEventSelect(id);
   };
   const handleDeleteClick = (event: any) => {
+    if (readOnly) return;
     setDeleteModal({
       isOpen: true,
       event
     });
   };
   const handleDeleteConfirm = async () => {
-    if (!deleteModal.event || deleteInFlightRef.current) return;
+    if (readOnly || !deleteModal.event || deleteInFlightRef.current) return;
     const eventId = deleteModal.event.id;
     deleteInFlightRef.current = true;
     setDeletingEventId(eventId);
@@ -243,6 +249,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     }
   };
   const handleCreateEvent = async (eventData: any) => {
+    if (readOnly) return;
     // Let the form display failures and retain its draft for retry.
     const newEvent = await createEvent(eventData);
     setCreateModal(false);
@@ -255,6 +262,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
     return event.guests_count >= event.guest_limit;
   };
   const handleImageChange = async (id: string, value: EventImageValue | null) => {
+    if (readOnly) return;
     const imageFields = {
       event_image_path: value?.path ?? null,
       event_image_fit: value?.fit ?? 'cover',
@@ -267,7 +275,9 @@ export const EventsTable: React.FC<EventsTableProps> = ({
       ? { ...current, event: { ...current.event, ...imageFields } }
       : current);
   };
-  const eventAllowanceLabel = eventLimits.loading
+  const eventAllowanceLabel = readOnly
+    ? `Events: ${events.length} saved · Read-only`
+    : !eventLimits ? 'Event allowance unavailable' : eventLimits.loading
     ? `Events: ${events.length} created \u00b7 Checking allowance`
     : eventLimits.eventsError || eventLimits.additionalEventsError
       ? `Events: ${events.length} created \u00b7 Allowance unavailable`
@@ -294,11 +304,11 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 <CalendarCheck2 size={16} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
                 {eventAllowanceLabel}
               </Badge>
-              <Button variant="default" size="sm" className="ww-events-button lv-premium-shade rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white touch-target sm:max-lg:w-48 max-lg:h-9 max-lg:justify-center" onClick={handleCreateClick}>
+              <Button disabled={readOnly} variant="default" size="sm" className="ww-events-button lv-premium-shade rounded-full flex items-center gap-2 bg-green-500 hover:bg-green-600 text-white touch-target sm:max-lg:w-48 max-lg:h-9 max-lg:justify-center" onClick={handleCreateClick}>
                 <Plus size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                 {isMobile ? "Create" : "Create Event"}
               </Button>
-              <Button variant="outline" size="sm" className="ww-events-button rounded-full flex items-center gap-2 border-primary bg-white text-primary touch-target sm:max-lg:w-48 max-lg:h-9 max-lg:justify-center" onClick={() => navigate('/onboarding/event-setup?mode=additional&new=1')}>
+              <Button disabled={readOnly} variant="outline" size="sm" className="ww-events-button rounded-full flex items-center gap-2 border-primary bg-white text-primary touch-target sm:max-lg:w-48 max-lg:h-9 max-lg:justify-center" onClick={() => {if(!readOnly)navigate('/onboarding/event-setup?mode=additional&new=1');}}>
                 <Sparkles size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                 {isMobile ? 'Guided' : 'Guided Setup'}
               </Button>
@@ -309,7 +319,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         {/* Mobile Card View */}
         {isMobile ? (
           <div className="p-4 space-y-3">
-            <RadioGroup value={activeEventId || ''} onValueChange={handleEventSelect}>
+            <RadioGroup disabled={readOnly} value={activeEventId || ''} onValueChange={handleEventSelect}>
               {events.map(event => {
                 const isSelected = activeEventId === event.id;
                 const atCapacity = isAtCapacity(event);
@@ -370,6 +380,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                       {/* Action buttons: centered tablet-shape buttons */}
                       <div className="flex flex-wrap items-center justify-center gap-3 mt-3">
                         <Button 
+                          disabled={readOnly}
                           size="sm" 
                           onClick={(e) => { e.stopPropagation(); handleEdit(event); }} 
                           className="ww-events-button lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white h-9 px-4 flex items-center gap-2"
@@ -378,6 +389,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                           <span>Edit Event</span>
                         </Button>
                         <Button 
+                          disabled={readOnly}
                           size="sm" 
                           onClick={(e) => { e.stopPropagation(); handleDeleteClick(event); }} 
                           className="ww-events-button lv-premium-shade rounded-full bg-red-500 hover:bg-red-600 text-white h-9 px-4 flex items-center gap-2"
@@ -401,7 +413,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
         ) : (
           /* Desktop / Tablet Table View */
           <div className="overflow-x-auto">
-            <RadioGroup value={activeEventId || ''} onValueChange={handleEventSelect}>
+            <RadioGroup disabled={readOnly} value={activeEventId || ''} onValueChange={handleEventSelect}>
               <Table>
               <TableHeader>
                 <TableRow className="border-b-0">
@@ -503,6 +515,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Button 
+                                  disabled={readOnly}
                                   variant="ghost" 
                                   size="sm" 
                                   onClick={() => handleEdit(event)} 
@@ -520,6 +533,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                             <Tooltip>
                               <TooltipTrigger asChild>
                                 <Button 
+                                  disabled={readOnly}
                                   variant="ghost" 
                                   size="sm" 
                                   onClick={() => handleDeleteClick(event)} 
@@ -560,23 +574,23 @@ export const EventsTable: React.FC<EventsTableProps> = ({
       </Card>
 
       <Suspense fallback={null}>
-        {editModal.isOpen && <EventEditModal
+        {!readOnly && editModal.isOpen && <EventEditModal
           isOpen
           onClose={() => setEditModal({ isOpen: false, event: null })}
           event={editModal.event}
           onSave={handleSaveEdit}
           onImageChange={handleImageChange}
         />}
-        {createModal && <EventCreateModal
+        {!readOnly && createModal && <EventCreateModal
           isOpen
           onClose={() => setCreateModal(false)}
           onCreate={handleCreateEvent}
         />}
-        {deleteModal.isOpen && <DeleteConfirmationModal isOpen onClose={() => setDeleteModal({
+        {!readOnly && deleteModal.isOpen && <DeleteConfirmationModal isOpen onClose={() => setDeleteModal({
           isOpen: false,
           event: null
         })} onConfirm={handleDeleteConfirm} eventName={deleteModal.event?.name || ''} isLoading={deletingEventId === deleteModal.event?.id} />}
-        {addEventModal && eventLimits.canPurchaseAdditionalEvents && <AdditionalEventModal
+        {!readOnly && addEventModal && eventLimits && eventLimits.canPurchaseAdditionalEvents && <AdditionalEventModal
           isOpen
           onClose={() => setAddEventModal(false)}
           includedEvents={eventLimits.includedEvents}

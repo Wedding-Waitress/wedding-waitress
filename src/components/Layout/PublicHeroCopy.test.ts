@@ -6,6 +6,7 @@ import { normalisePublicHeroHeading } from './PublicPageHero';
 
 const WORD_JOINING_HYPHEN = /\p{L}[-‑–]\p{L}/u;
 const homepageHeroSource = readFileSync('src/components/Layout/PublicCinematicHero.tsx', 'utf8');
+const pricingPageSource = readFileSync('src/pages/Pricing.tsx', 'utf8');
 
 const staticPageHeroHeadings = [
   'Six stages from first plan to wedding day',
@@ -36,6 +37,11 @@ const translatedBlogHeroHeadings = readdirSync('src/i18n/locales', { withFileTyp
   });
 
 describe('public hero H1 copy contract', () => {
+  it('keeps the approved pricing hero subtitle', () => {
+    expect(pricingPageSource).toContain('description="Everything you need to plan your wedding and event with confidence, all in one place."');
+    expect(pricingPageSource).not.toContain('Every couple plan includes the complete platform for one event with 12 months of access.');
+  });
+
   it('keeps the homepage H1 free of word-joining hyphens', () => {
     const homepageHeading = homepageHeroSource.match(
       /<h1 className="ww-display max-w-4xl">([^<]+)<\/h1>/,

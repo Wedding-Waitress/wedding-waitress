@@ -87,5 +87,10 @@ export function usePlaceCardImageFit(settings: PlaceCardSettings | null, save: (
     if (saved === false) setApprovedKey(approvedKey);
     return saved;
   };
-  return { dialog, beforeBackgroundUpload, updateSettings, ensureFit, backgroundFit: approvedKey === currentKey ? 'cover' as const : 'contain' as const };
+  const applyRecordedFit = (fit: 'cover' | 'contain') => {
+    // Caller must prove the exact owner/event/artwork snapshot before calling.
+    decisions.current.set(currentKey, fit === 'cover');
+    setApprovedKey(fit === 'cover' ? currentKey : null);
+  };
+  return { dialog, beforeBackgroundUpload, updateSettings, ensureFit, applyRecordedFit, backgroundFit: approvedKey === currentKey ? 'cover' as const : 'contain' as const };
 }

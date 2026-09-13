@@ -470,6 +470,8 @@ export interface ComposeOpts {
   /** Reports a genuine template load failure before using the safe colour fallback. */
   onTemplateLoadError?: (error: Error, templateUrl: string) => void;
   showBranding: boolean;
+  /** Owner-audited read-only previews must never hide missing saved artwork. */
+  strictAssets?: boolean;
   /** Photo strip styling (colours, fonts) */
   style?: PhotoBoothStripStyle | null;
 }
@@ -508,7 +510,7 @@ async function drawBrandingStrip(ctx: CanvasRenderingContext2D, opts: {
       const lw = Math.min(lh * ratio, width - 60 * scale);
       ctx.drawImage(logoImg, cx - lw / 2, y + 18 * scale, lw, lh);
       logoH = lh + 14 * scale;
-    } catch { /* ignore logo failures */ }
+    } catch { if(o.strictAssets)throw new Error('Saved Photo Booth footer artwork could not be loaded.'); }
   }
 
   const main = (o.bottomText && o.bottomText.trim()) || defaultBottomText(o.title, o.dateText);
@@ -763,7 +765,7 @@ export async function composeStrip(photos: PhotoSource[], opts: ComposeOpts): Pr
   // Custom footer design (one complete footer panel, duplicated under both columns)
   let footerPanelImg: HTMLImageElement | null = null;
   if (opts.logoUrl) {
-    try { footerPanelImg = await loadImageEl(opts.logoUrl); } catch { footerPanelImg = null; }
+    try { footerPanelImg = await loadImageEl(opts.logoUrl); } catch { if(opts.strictAssets)throw new Error('Saved Photo Booth footer artwork could not be loaded.');footerPanelImg = null; }
   }
 
 
@@ -849,6 +851,7 @@ export function assertStripBitmapDimensions(width: number, height: number): void
 }
 
 const reportTemplateLoadFailure = (opts: ComposeOpts, error: unknown) => {
+  if(opts.strictAssets)throw new Error('Saved Photo Booth background artwork could not be loaded.');
   const reported = error instanceof Error ? error : new Error(String(error));
   const templateUrl = opts.templateUrl || '';
   console.error('[Photo Booth] Saved background template could not be loaded; using the configured colour fallback.', {

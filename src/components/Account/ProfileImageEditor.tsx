@@ -129,6 +129,7 @@ export const ProfileImageEditor: React.FC = () => {
 
   const removeImage = async () => {
     if (!profile?.profile_image_path) return;
+    if (!window.confirm('Remove your current profile photo or business logo?')) return;
     setBusy(true);
     try {
       const { data: { user }, error: userError } = await supabase.auth.getUser();

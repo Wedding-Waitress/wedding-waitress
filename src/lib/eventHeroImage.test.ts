@@ -1,6 +1,6 @@
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 const mock = vi.hoisted(() => ({ results: [] as any[], upload: vi.fn(), remove: vi.fn(), download: vi.fn() }));
-vi.mock('@/integrations/supabase/client', () => ({ supabase: {
+vi.mock('@/integrations/supabase/client', () => ({ SUPABASE_URL: 'https://test.supabase.co', supabase: {
   supabaseUrl: 'https://test.supabase.co',
   from: () => {
     const query: any = {};

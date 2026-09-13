@@ -109,28 +109,26 @@ export const GetHelpModal: React.FC<GetHelpModalProps> = ({ open, onOpenChange }
       const { data: userRes } = await supabase.auth.getUser();
       const userId = userRes.user?.id ?? null;
 
-      const { error } = await supabase.functions.invoke('send-transactional-email', {
+      const { data: receipt, error } = await supabase.functions.invoke('send-transactional-email', {
         body: {
           templateName: 'contact-form-message',
           recipientEmail: 'support@weddingwaitress.com.au',
           idempotencyKey: `support-${crypto.randomUUID()}`,
+          supportContext: { source: 'get_help', category: result.data.category, eventId: profile?.display_countdown_event_id || null },
           templateData: {
             name: result.data.fullName,
             email: result.data.email,
             eventType: `Support Request — ${result.data.category}`,
-            message:
-              `[Support Category] ${result.data.category}\n` +
-              `[Source] In-app Get Help modal\n` +
-              `[User ID] ${userId ?? '—'}\n` +
-              `[Plan] ${planDisplayName}\n\n` +
-              result.data.message,
+            message: result.data.message,
             date: new Date().toISOString(),
           },
         },
       });
-      if (error) throw error;
+      if (error || receipt?.success === false) throw error || new Error('Request not accepted');
 
-      toast.success("Your support request has been sent. We'll reply within 24 hours.");
+      toast.success(receipt?.recorded && !receipt?.accepted
+        ? "Your support request has been recorded. We'll reply within 24 hours."
+        : "Your support request has been sent. We'll reply within 24 hours.");
       onOpenChange(false);
       setTimeout(reset, 200);
     } catch (err) {

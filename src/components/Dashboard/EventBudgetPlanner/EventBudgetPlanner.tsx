@@ -3,11 +3,11 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import {
   AlertCircle, CheckCircle2, Clock3, Download, Edit3, Plus, Printer,
-  Save, Search, WalletCards,
+  Search, WalletCards,
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
-import { useEventBudget } from '@/hooks/useEventBudget';
+import { useEventBudget,type EventBudgetData } from '@/hooks/useEventBudget';
 import {
   calculateBudgetSummary, EVENT_BUDGET_CATEGORIES, type BudgetPaymentStatus,
   type EventBudgetExpense, type EventBudgetExpenseInput, expenseOutstanding,
@@ -22,7 +22,13 @@ import { EventBudgetPrintDocument } from './EventBudgetPrintDocument';
 import styles from './EventBudgetPlanner.module.css';
 import { BUDGET_LABELS, type BudgetChoice } from '@/lib/guidedEventSetup';
 
-interface BudgetPlannerEvent { id: string; name: string; date?: string | null }
+export interface BudgetPlannerEvent { id: string; name: string; date?: string | null }
+export interface BudgetPlannerController {
+ query:{data?:EventBudgetData;isLoading:boolean;isError:boolean;refetch:()=>Promise<unknown>};
+ saveBudget:{isPending:boolean;mutateAsync:(input:{anticipatedBudget:number;currency:CurrencyCode})=>Promise<unknown>};
+ saveExpense:{isPending:boolean;mutateAsync:(input:{id?:string;input:EventBudgetExpenseInput})=>Promise<unknown>};
+ deleteExpense:{isPending:boolean;mutateAsync:(id:string)=>Promise<unknown>};
+}
 type SortKey = 'category' | 'expense' | 'estimated' | 'actual' | 'paid' | 'outstanding' | 'due';
 
 const STATUS_OPTIONS: Array<'All Statuses' | BudgetPaymentStatus> = ['All Statuses', 'Unpaid', 'Part Paid', 'Paid', 'Due Soon', 'Overdue'];
@@ -36,9 +42,33 @@ const expenseTitle = (expense: EventBudgetExpense): string => expense.vendor_nam
 const formatBudgetDisplay = (currency: CurrencyCode, value: number): string =>
   currency === 'AUD' ? formatBudgetCurrency(currency, value).replace(/^A\$/, '$') : formatBudgetCurrency(currency, value);
 
+const MoneyBagIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
+  <svg
+    width={size}
+    height={size}
+    viewBox="0 0 24 24"
+    fill="none"
+    stroke="currentColor"
+    strokeWidth="1.8"
+    strokeLinecap="round"
+    strokeLinejoin="round"
+    className={styles.moneyBagIcon}
+    aria-hidden="true"
+    focusable="false"
+  >
+    <path d="M8.25 6.5h7.5l1.5-3h-10.5l1.5 3Z" />
+    <path d="M8.5 6.5c-2.75 2.1-4.5 5.25-4.5 8.1 0 3.9 3.05 5.9 8 5.9s8-2 8-5.9c0-2.85-1.75-6-4.5-8.1" />
+    <path d="M9.25 11.25c0-1 1.1-1.75 2.75-1.75s2.75.75 2.75 1.75-1.1 1.75-2.75 1.75-2.75.75-2.75 1.75 1.1 1.75 2.75 1.75 2.75-.75 2.75-1.75M12 8v10" />
+  </svg>
+);
+
 export const EventBudgetPlanner: React.FC<{ event: BudgetPlannerEvent; exportTarget?: HTMLElement | null }> = ({ event, exportTarget }) => {
+  const controller=useEventBudget(event.id);
+  return <EventBudgetPlannerView event={event} exportTarget={exportTarget} controller={controller}/>;
+};
+export const EventBudgetPlannerView: React.FC<{event:BudgetPlannerEvent;exportTarget?:HTMLElement|null;controller:BudgetPlannerController;readOnly?:boolean}> = ({event,exportTarget,controller,readOnly=false}) => {
   const { toast } = useToast();
-  const { query, saveBudget, saveExpense, deleteExpense } = useEventBudget(event.id);
+  const { query, saveBudget, saveExpense, deleteExpense } = controller;
   const data = query.data ?? { settings: null, expenses: [] };
   const [budgetInput, setBudgetInput] = React.useState('');
   const [budgetState, setBudgetState] = React.useState<'idle' | 'saved' | 'error'>('idle');
@@ -93,6 +123,7 @@ export const EventBudgetPlanner: React.FC<{ event: BudgetPlannerEvent; exportTar
   }, [category, data.expenses, search, sort, status]);
 
   const saveAnticipatedBudget = async () => {
+    if(readOnly)return;
     const value = parseCurrencyInput(budgetInput);
     if (value === null || value <= 0) { setBudgetState('error'); setBudgetError(`Enter a valid positive ${currency} amount with up to two decimal places.`); return; }
     setBudgetError(''); setBudgetState('idle');
@@ -106,15 +137,17 @@ export const EventBudgetPlanner: React.FC<{ event: BudgetPlannerEvent; exportTar
     }
   };
 
-  const openAdd = (source: React.RefObject<HTMLButtonElement>) => { if (hasLegacyCurrency) return; drawerReturnRef.current = source.current; setEditingExpense(null); setDrawerOpen(true); };
-  const openEdit = (expense: EventBudgetExpense, button: HTMLButtonElement) => { if (hasLegacyCurrency) return; drawerReturnRef.current = button; setEditingExpense(expense); setDrawerOpen(true); };
+  const openAdd = (source: React.RefObject<HTMLButtonElement>) => { if (readOnly||hasLegacyCurrency) return; drawerReturnRef.current = source.current; setEditingExpense(null); setDrawerOpen(true); };
+  const openEdit = (expense: EventBudgetExpense, button: HTMLButtonElement) => { if (readOnly||hasLegacyCurrency) return; drawerReturnRef.current = button; setEditingExpense(expense); setDrawerOpen(true); };
 
   const handleSaveExpense = async (input: EventBudgetExpenseInput) => {
+    if(readOnly)return;
     await saveExpense.mutateAsync({ id: editingExpense?.id, input });
     toast({ title: editingExpense ? 'Expense updated' : 'Expense added', description: `${input.vendor_name || input.expense_name || input.custom_category || input.category} was saved to ${event.name}.` });
     setDrawerOpen(false); setEditingExpense(null);
   };
   const handleDeleteExpense = async () => {
+    if(readOnly)return;
     if (!editingExpense) return;
     await deleteExpense.mutateAsync(editingExpense.id);
     toast({ title: 'Expense deleted', description: `${expenseTitle(editingExpense)} was removed from ${event.name}.` });
@@ -153,7 +186,7 @@ export const EventBudgetPlanner: React.FC<{ event: BudgetPlannerEvent; exportTar
     {exportTarget && createPortal(exportControls, exportTarget)}
     <div className={styles.plannerHeading}>
       <div className={styles.headingGroup}><WalletCards size={25} strokeWidth={1.8} className={styles.headingIcon} aria-hidden="true" /><div><h2 id="event-budget-heading">Your Event Budget</h2><p>Plan your event spending, track payments and stay on budget.</p></div></div>
-          <button type="button" className={`${styles.successButton} ${styles.exportAction}`} onClick={() => void saveAnticipatedBudget()} disabled={saveBudget.isPending || hasLegacyCurrency}><Save size={16} aria-hidden="true" />{saveBudget.isPending ? 'Saving…' : data.settings ? 'Update Budget' : 'Save Budget'}</button>
+          <button type="button" className={`${styles.successButton} ${styles.exportAction}`} onClick={() => void saveAnticipatedBudget()} disabled={readOnly || saveBudget.isPending || hasLegacyCurrency}><MoneyBagIcon />{saveBudget.isPending ? 'Saving…' : data.settings ? 'Update Budget' : 'Save Budget'}</button>
       {!exportTarget && exportControls}
     </div>
 
@@ -173,7 +206,7 @@ export const EventBudgetPlanner: React.FC<{ event: BudgetPlannerEvent; exportTar
           <span>{label}</span>
           {label === 'Total Budget' ? <label className={styles.summaryBudgetInput}>
             <span aria-hidden="true">{currency === 'AUD' ? '$' : CURRENCY_PREFIX[currency]}</span>
-            <input id="anticipated-event-budget" aria-label="Total Anticipated Event Budget" disabled={hasLegacyCurrency} inputMode="decimal" value={budgetInput} onChange={event => { setBudgetInput(event.target.value); setBudgetState('idle'); setBudgetError(''); }} onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); void saveAnticipatedBudget(); } }} aria-invalid={budgetState === 'error'} />
+            <input className={`${styles.borderlessBudgetInput} border-0`} id="anticipated-event-budget" aria-label="Total Anticipated Event Budget" disabled={readOnly || hasLegacyCurrency} inputMode="decimal" value={budgetInput} onChange={event => { setBudgetInput(event.target.value); setBudgetState('idle'); setBudgetError(''); }} onKeyDown={event => { if (event.key === 'Enter') { event.preventDefault(); void saveAnticipatedBudget(); } }} aria-invalid={budgetState === 'error'} />
           </label> : <strong>{formatBudgetDisplay(currency, Number(value))}</strong>}
           {label === 'Over Budget' && <small>Committed costs exceed the saved budget</small>}
         </article>)}
@@ -187,12 +220,12 @@ export const EventBudgetPlanner: React.FC<{ event: BudgetPlannerEvent; exportTar
         <label><span className="sr-only">Filter by category</span><select value={category} onChange={event => setCategory(event.target.value)}><option>All Categories</option>{EVENT_BUDGET_CATEGORIES.map(item => <option key={item}>{item}</option>)}</select></label>
         <label><span className="sr-only">Filter by payment status</span><select value={status} onChange={event => setStatus(event.target.value as typeof status)}>{STATUS_OPTIONS.map(item => <option key={item}>{item}</option>)}</select></label>
         <label><span className="sr-only">Sort expenses</span><select value={sort} onChange={event => setSort(event.target.value as SortKey)}>{SORT_OPTIONS.map(([value, label]) => <option key={value} value={value}>Sort: {label}</option>)}</select></label>
-        <button ref={addButtonRef} type="button" className={styles.successButton} onClick={() => openAdd(addButtonRef)}><Plus size={17} aria-hidden="true" />Add Expense</button>
+        <button ref={addButtonRef} type="button" className={styles.successButton} disabled={readOnly} onClick={() => openAdd(addButtonRef)}><Plus size={17} aria-hidden="true" />Add Expense</button>
       </div>
 
       {query.isLoading && <div className={styles.loadingState} aria-live="polite"><span className={styles.spinner} />Loading {event.name}'s budget…</div>}
       {query.isError && <div className={styles.errorState} role="alert"><AlertCircle size={18} />The budget could not be loaded. <button onClick={() => void query.refetch()}>Try again</button></div>}
-      {!query.isLoading && !query.isError && data.expenses.length === 0 && <div className={styles.emptyState}><WalletCards size={30} /><h3>No expenses added yet</h3><p>Add your first anticipated cost, vendor or payment to begin planning your event budget.</p><button ref={drawerReturnRef} type="button" className={styles.successButton} onClick={() => openAdd(drawerReturnRef)}><Plus size={17} />Add Expense</button></div>}
+      {!query.isLoading && !query.isError && data.expenses.length === 0 && <div className={styles.emptyState}><WalletCards size={30} /><h3>No expenses added yet</h3><p>Add your first anticipated cost, vendor or payment to begin planning your event budget.</p><button ref={drawerReturnRef} type="button" className={styles.successButton} disabled={readOnly} onClick={() => openAdd(drawerReturnRef)}><Plus size={17} />Add Expense</button></div>}
       {!query.isLoading && !query.isError && data.expenses.length > 0 && visibleExpenses.length === 0 && <div className={styles.emptyState}><Search size={28} /><h3>No matching expenses</h3><p>Try changing your search, category or payment-status filters.</p></div>}
 
       {visibleExpenses.length > 0 && <>
@@ -205,19 +238,19 @@ export const EventBudgetPlanner: React.FC<{ event: BudgetPlannerEvent; exportTar
               <td className={styles.money}>{formatBudgetDisplay(currency, expense.amount_paid)}</td><td className={styles.money}>{formatBudgetDisplay(currency, expenseOutstanding(expense))}</td>
               <td>{formatAustralianDate(expense.payment_date)}</td><td>{formatAustralianDate(expense.balance_due_date)}</td>
               <td><span className={styles.statusPill} data-status={paymentStatus}>{statusIcon(paymentStatus)}{paymentStatus}</span></td>
-              <td><button type="button" className={`${styles.successButton} ${styles.tableEditButton}`} aria-label={`Edit ${expenseTitle(expense)}`} onClick={event => openEdit(expense, event.currentTarget)}><Edit3 size={14} aria-hidden="true" />Edit</button></td>
+              <td><button type="button" disabled={readOnly} className={`${styles.successButton} ${styles.tableEditButton}`} aria-label={`Edit ${expenseTitle(expense)}`} onClick={event => openEdit(expense, event.currentTarget)}><Edit3 size={14} aria-hidden="true" />Edit</button></td>
             </tr>; })}</tbody></table>
         </div>
         <div className={styles.mobileExpenses}>{visibleExpenses.map(expense => { const paymentStatus = getBudgetPaymentStatus(expense); return <article key={expense.id} className={styles.mobileExpenseCard}>
           <div className={styles.mobileCardHeading}><div><span>{expenseCategory(expense)}</span><h3>{expenseTitle(expense)}</h3>{expense.vendor_name && expense.vendor_name !== expenseTitle(expense) && <p>{expense.vendor_name}</p>}</div><span className={styles.statusPill} data-status={paymentStatus}>{statusIcon(paymentStatus)}{paymentStatus}</span></div>
           <dl><div><dt>Budgeted Cost</dt><dd>{formatBudgetDisplay(currency, expense.estimated_cost ?? 0)}</dd></div><div><dt>Paid</dt><dd>{formatBudgetDisplay(currency, expense.amount_paid)}</dd></div><div><dt>Outstanding</dt><dd>{formatBudgetDisplay(currency, expenseOutstanding(expense))}</dd></div><div><dt>Balance Due</dt><dd>{formatAustralianDate(expense.balance_due_date)}</dd></div></dl>
           <details><summary>View Details</summary><p>{[expense.contact_person, expense.phone, expense.email, expense.address, expense.notes].filter(Boolean).join(' · ') || 'No additional details.'}</p></details>
-          <button type="button" className={`${styles.successButton} ${styles.tableEditButton}`} aria-label={`Edit ${expenseTitle(expense)}`} onClick={event => openEdit(expense, event.currentTarget)}><Edit3 size={15} aria-hidden="true" />Edit Expense</button>
+          <button type="button" disabled={readOnly} className={`${styles.successButton} ${styles.tableEditButton}`} aria-label={`Edit ${expenseTitle(expense)}`} onClick={event => openEdit(expense, event.currentTarget)}><Edit3 size={15} aria-hidden="true" />Edit Expense</button>
         </article>; })}</div>
       </>}
     </div>
 
-    <ExpenseDrawer open={drawerOpen} eventId={event.id} currency={currency} expense={editingExpense} saving={saveExpense.isPending} deleting={deleteExpense.isPending} returnFocusRef={drawerReturnRef} onSave={handleSaveExpense} onDelete={handleDeleteExpense} onClose={() => { setDrawerOpen(false); setEditingExpense(null); }} />
+    {!readOnly&&<ExpenseDrawer open={drawerOpen} eventId={event.id} currency={currency} expense={editingExpense} saving={saveExpense.isPending} deleting={deleteExpense.isPending} returnFocusRef={drawerReturnRef} onSave={handleSaveExpense} onDelete={handleDeleteExpense} onClose={() => { setDrawerOpen(false); setEditingExpense(null); }} />}
 
 
 

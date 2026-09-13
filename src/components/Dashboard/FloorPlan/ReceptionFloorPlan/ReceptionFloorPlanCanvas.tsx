@@ -1404,12 +1404,14 @@ const FixtureResizeHandles = ({
   onPointerDown,
   onPointerMove,
   onPointerUp,
+  onPointerCancel=onPointerUp,
 }: {
   cornersOnly?: boolean;
   label?: string;
   onPointerDown: (event: React.PointerEvent, handle: ResizeHandle) => void;
   onPointerMove: (event: React.PointerEvent) => void;
   onPointerUp: (event: React.PointerEvent) => void;
+  onPointerCancel?: (event: React.PointerEvent) => void;
 }) => (
   <>
     {RESIZE_HANDLES.filter(h=>!cornersOnly||h.handle.length===2).map(({ handle, style, cursor }) => (
@@ -1422,7 +1424,7 @@ const FixtureResizeHandles = ({
         onPointerDown={(event) => onPointerDown(event, handle)}
         onPointerMove={onPointerMove}
         onPointerUp={onPointerUp}
-        onPointerCancel={onPointerUp}
+        onPointerCancel={onPointerCancel}
         className="absolute z-[6] h-4 w-4 rounded-sm border-2 border-white bg-primary shadow"
         style={{ ...style, cursor, touchAction: 'none' }}
       />

@@ -1,4 +1,5 @@
 import React from 'react';
+import { readFileSync } from 'node:fs';
 import { render, screen } from '@testing-library/react';
 import { describe, expect, it } from 'vitest';
 import managementStyles from './PhotoVideoGallery/photoVideoSharingManagement.module.css';
@@ -9,6 +10,17 @@ import {
 } from './DashboardLoadingScreen';
 
 describe('DashboardLoadingScreen', () => {
+  it('keeps white loading text on the approved dark surface despite light ancestor themes', () => {
+    const css = readFileSync('src/components/Dashboard/DashboardLoadingScreen.module.css', 'utf8');
+    const sharingCss = readFileSync('src/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css', 'utf8');
+    const background = 'linear-gradient(180deg, rgba(101, 57, 40, 0.72) 0%, rgba(42, 23, 17, 0.76) 100%)';
+    expect(sharingCss).toContain(background);
+    expect(css).toContain(`${background} !important;`);
+    expect(css).toContain(':global(#root#root [data-dashboard-loading-screen])');
+    expect(css).toContain(':global(#root#root [data-dashboard-loading-card])');
+    expect(css).toContain('background-color: var(--ww-application-background-color) !important;');
+    expect(css).toContain('-webkit-text-fill-color: #fff !important;');
+  });
   it('uses the shared chocolate surface and solid-white title only when requested', () => {
     const { container } = render(<DashboardLoadingScreen appearance="photo-video-sharing" />);
     const screenSurface = container.querySelector('[data-dashboard-loading-screen]');
@@ -83,20 +95,41 @@ describe('DashboardLoadingScreen', () => {
       'sm:p-7',
       managementStyles.glassCard,
       managementStyles.loadingGlassPanel,
+      coreStyles.coreCard,
     );
     expect(card?.querySelector('svg')).toHaveClass(
       'h-6',
       'w-6',
       'mb-3',
       managementStyles.loadingGlassSpinner,
+      coreStyles.coreSpinner,
     );
     expect(screen.getByText('Loading Dashboard...')).toHaveClass(
       'text-lg',
       'font-medium',
       'text-white',
       managementStyles.loadingGlassTitle,
+      coreStyles.coreTitle,
     );
-    expect(screen.getByText('Please wait while we set up your workspace')).toHaveClass('mt-1', 'text-sm');
+    expect(screen.getByText('Please wait while we set up your workspace')).toHaveClass('mt-1', 'text-sm', coreStyles.coreDescription);
+  });
+
+  it('keeps the core dashboard treatment while allowing an accurate Account Centre label', () => {
+    const { container } = render(
+      <DashboardLoadingScreen
+        appearance="core"
+        title="Opening Account Centre…"
+        description="Please wait while we prepare your account."
+      />,
+    );
+
+    expect(container.querySelector('[data-dashboard-loading-screen]')).toHaveClass(coreStyles.coreSurface);
+    expect(screen.getByText('Opening Account Centre…')).toHaveClass(
+      'text-white',
+      managementStyles.loadingGlassTitle,
+    );
+    expect(screen.getByText('Please wait while we prepare your account.')).toBeInTheDocument();
+    expect(screen.queryByText('Loading Dashboard...')).not.toBeInTheDocument();
   });
 
   it('keeps the core loading surface inside the content region for tab transitions', () => {

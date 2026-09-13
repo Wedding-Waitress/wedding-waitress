@@ -32,7 +32,7 @@
   margin: 16px 14px 7px;
   padding: 12px;
   border: 1px solid rgba(229, 190, 136, .22);
-  border-radius: 14px;
+  border-radius: 10px;
   background: rgba(111, 61, 42, .28);
   box-shadow: inset 0 1px rgba(255, 244, 228, .08);
 }
@@ -82,27 +82,47 @@
 
 .sidebarActions { padding: 12px; border-top: 1px solid rgba(227, 187, 132, .2); background: rgba(15, 7, 5, .26); }
 .backAction, .logoutAction { font-weight: var(--ww-auth-nav-font-weight); }
-.sidebarActions .backAction { height: var(--ww-auth-nav-row-height) !important; min-height: var(--ww-auth-nav-row-height) !important; padding: var(--ww-auth-nav-padding-block) var(--ww-auth-nav-padding-inline); border-radius: var(--ww-auth-nav-radius) !important; font-family: var(--ww-auth-nav-font-family); font-size: var(--ww-auth-nav-font-size); font-weight: var(--ww-auth-nav-font-weight); }
+.sidebarActions .backAction { height: var(--ww-auth-nav-row-height) !important; min-height: var(--ww-auth-nav-row-height) !important; padding: var(--ww-auth-nav-padding-block) var(--ww-auth-nav-padding-inline); border: 1px solid rgba(229, 191, 139, .62) !important; border-radius: var(--ww-auth-nav-radius) !important; color: #fff !important; background: linear-gradient(180deg, rgba(255,244,225,.16) 0%, transparent 38%), linear-gradient(180deg, #70452f 0%, #4a2a20 55%, #2b1712 100%) !important; box-shadow: inset 0 1px rgba(255,244,225,.24), inset 0 -2px rgba(12,4,2,.38), 0 6px 14px rgba(13,5,3,.25) !important; font-family: var(--ww-auth-nav-font-family); font-size: var(--ww-auth-nav-font-size); font-weight: var(--ww-auth-nav-font-weight); }
 .backAction { border-color: var(--ww-auth-nav-active-border) !important; background: rgba(108, 60, 42, .34); }
 .logoutAction { margin-top: var(--ww-auth-nav-row-gap); color: #f3aaa5; cursor: pointer; }
 .logoutAction svg { color: #ed8580; }
 .logoutAction:hover { border-color: rgba(235, 112, 106, .38); background: rgba(126, 36, 32, .24); }
 
-.main { position: relative; z-index: 1; width: calc(100% - var(--ww-sidebar-width, 16rem)); min-height: 100dvh; margin-left: var(--ww-sidebar-width, 16rem); padding: clamp(36px, 5vw, 74px) clamp(28px, 5vw, 84px) 64px; }
-.pageHeader, .contentPanel { max-width: 1180px; margin-right: auto; margin-left: auto; }
+.main {
+  --account-workspace: #f2e9dc;
+  --account-panel: #fbf8f2;
+  --account-card: #f5ebdd;
+  --account-card-deep: #ede0d0;
+  --account-text: #2b1711;
+  --account-text-soft: #684b40;
+  --account-gold: #a18764;
+  --account-gold-strong: #806344;
+  --account-border: #cdb99e;
+  --account-focus: #755332;
+  position: relative;
+  z-index: 1;
+  width: calc(100% - var(--ww-sidebar-width, 16rem));
+  min-height: 100dvh;
+  margin-left: var(--ww-sidebar-width, 16rem);
+  padding: clamp(36px, 5vw, 74px) 32px 64px;
+  color: var(--account-text);
+  background: var(--account-workspace);
+}
+.pageHeader, .contentPanel { width: 100%; max-width: none; margin-right: 0; margin-left: 0; }
+.accountInfoStack { display: grid; grid-template-columns: minmax(0, 7fr) minmax(0, 3fr); align-items: stretch; gap: 24px; }
+.accountInfoStack > :global([data-account-section]) { min-width: 0; height: 100%; }
 .pageHeader { margin-bottom: 24px; }
-.pageHeader > span { color: #ffffff; font-size: .72rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
-.pageHeading { margin: 8px 0 4px; color: #fff; font-family: var(--ww-interface-font-family); font-size: 20px; font-weight: 700; line-height: 1.3; letter-spacing: -.025em; text-shadow: 0 3px 16px rgba(20, 7, 3, .44); }
-.pageHeader p { margin: 0; color: #ffffff; font-size: .98rem; }
+.pageHeader > span { color: var(--account-gold-strong); font-size: .72rem; font-weight: 700; letter-spacing: .16em; text-transform: uppercase; }
+.pageHeading { margin: 8px 0 4px; color: var(--account-text); font-family: var(--ww-interface-font-family); font-size: 20px; font-weight: 700; line-height: 1.3; letter-spacing: -.025em; text-shadow: none; }
+.pageHeader p { margin: 0; color: var(--account-text-soft); font-size: .98rem; }
 
 .contentPanel :global([data-account-section]) {
   min-height: 360px;
-  border: 1px solid rgba(222, 174, 112, .34) !important;
-  border-radius: 24px !important;
-  color: #ffffff;
-  background: radial-gradient(circle at 12% 0%, rgba(226, 173, 111, .13), transparent 30%), linear-gradient(145deg, rgba(91, 50, 35, .87), rgba(31, 15, 11, .91)) !important;
-  box-shadow: inset 0 1px rgba(255, 244, 229, .14), inset 0 -1px rgba(18, 7, 4, .48), 0 28px 62px -38px rgba(5, 2, 1, .92) !important;
-  backdrop-filter: blur(22px) saturate(1.08);
+  border: 1px solid var(--account-border) !important;
+  border-radius: 10px !important;
+  color: var(--account-text);
+  background: var(--account-panel) !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.74), 0 10px 25px rgba(79,48,30,.1) !important;
   font-family: var(--ww-auth-nav-font-family);
 }
 
@@ -112,13 +132,13 @@
 .contentPanel :global([data-account-section] :where(.font-semibold, .font-bold)) { font-weight: var(--ww-auth-nav-active-weight) !important; }
 .contentPanel :global([data-account-section] :where(h1, h2, h3)) { font-weight: 600 !important; }
 
-.contentPanel :global([data-account-section] .text-foreground), .contentPanel :global([data-account-section] .text-\[\#1D1D1F\]) { color: #ffffff !important; }
-.contentPanel :global([data-account-section] .text-muted-foreground) { color: #ffffff !important; opacity: 1 !important; }
-.contentPanel :global([data-account-section] [class*="border-border"]) { border-color: rgba(225, 180, 122, .22) !important; }
-.contentPanel :global([data-account-section] [class*="bg-gradient-to-b"][class*="to-white"]) { border-color: rgba(225, 180, 122, .24) !important; background: linear-gradient(145deg, rgba(71, 37, 27, .68), rgba(35, 17, 13, .72)) !important; box-shadow: inset 0 1px rgba(255, 241, 220, .07); }
-.contentPanel :global([data-account-section] button) { border-color: rgba(229, 190, 136, .44); }
+.contentPanel :global([data-account-section] .text-foreground), .contentPanel :global([data-account-section] .text-\[\#1D1D1F\]) { color: var(--account-text) !important; }
+.contentPanel :global([data-account-section] .text-muted-foreground) { color: var(--account-text-soft) !important; opacity: 1 !important; }
+.contentPanel :global([data-account-section] [class*="border-border"]) { border-color: rgba(161,135,100,.3) !important; }
+.contentPanel :global([data-account-section] [class*="bg-gradient-to-b"][class*="to-white"]) { border-color: rgba(161,135,100,.42) !important; background: linear-gradient(145deg, var(--account-panel), var(--account-card)) !important; box-shadow: inset 0 1px 0 rgba(255,255,255,.72), 0 3px 8px rgba(79,48,30,.08); }
+.contentPanel :global([data-account-section] button) { border-color: var(--account-gold-strong); }
 .contentPanel :global([data-account-section] table) { min-width: 560px; }
-.contentPanel :global([data-account-section] a) { color: #ffffff !important; }
+.contentPanel :global([data-account-section] a) { color: var(--account-gold-strong) !important; }
 
 .mobileMenuButton, .mobileNavLayer { display: none; }
 
@@ -126,13 +146,14 @@
 .loadingMark { width: 18px; height: 18px; border: 2px solid rgba(239, 201, 151, .3); border-top-color: #efc997; border-radius: 50%; animation: accountSpin 800ms linear infinite; }
 @keyframes accountSpin { to { transform: rotate(360deg); } }
 .sectionSkeleton { display: grid; min-height: 18rem; gap: 14px; align-content: start; padding: 4px; }
-.sectionSkeleton span { display: block; height: 4.5rem; border: 1px solid rgba(216, 188, 145, .2); border-radius: 16px; background: rgba(42, 22, 15, .42); animation: accountSectionPulse 1.5s ease-in-out infinite; }
+.sectionSkeleton span { display: block; height: 4.5rem; border: 1px solid var(--account-border); border-radius: 16px; background: var(--account-card); animation: accountSectionPulse 1.5s ease-in-out infinite; }
 .sectionSkeleton span:nth-child(2) { height: 7rem; }
 @keyframes accountSectionPulse { 50% { opacity: .58; } }
 
 @media (max-width: 1023px) {
+  .accountInfoStack { grid-template-columns: minmax(0, 1fr); }
   .desktopSidebar { display: none; }
-  .main { width: 100%; margin-left: 0; padding: 92px clamp(20px, 5vw, 48px) 48px; }
+  .main { width: 100%; margin-left: 0; padding: 92px 24px 48px; }
   .mobileMenuButton { position: fixed; top: 16px; left: 16px; z-index: 18; display: flex; min-height: 46px; align-items: center; gap: 10px; padding: 0 15px; border: 1px solid rgba(232, 196, 146, .48); border-radius: 999px; color: #ffffff; background: rgba(40, 19, 14, .88); box-shadow: inset 0 1px rgba(255, 244, 229, .12), 0 12px 28px rgba(9, 3, 2, .3); backdrop-filter: blur(18px); }
   .mobileMenuButton svg { width: 19px; height: 19px; color: var(--gold); }
   .mobileNavLayer { position: fixed; inset: 0; z-index: 50; display: block; }
@@ -143,11 +164,15 @@
   .mobileDrawer .navItem, .mobileDrawer .backAction, .mobileDrawer .logoutAction { min-height: var(--ww-compact-button-mobile-height); height: var(--ww-compact-button-mobile-height); }
 }
 
+@media (max-width: 767px) {
+  .main { padding-right: 16px; padding-left: 16px; }
+}
+
 @media (max-width: 639px) {
   .accountCentre::before { background-position: 45% center; }
-  .main { padding: 84px 14px 30px; }
+  .main { padding: 84px 12px 30px; }
   .pageHeader { margin-bottom: 17px; }
-  .contentPanel :global([data-account-section]) { min-height: 0; padding: 20px 16px !important; border-radius: 19px !important; }
+  .contentPanel :global([data-account-section]) { min-height: 0; padding: 20px 16px !important; border-radius: 10px !important; }
   .contentPanel :global([data-account-section] table) { min-width: 520px; }
 }
 
@@ -155,16 +180,24 @@
   .accountCentre *, .accountCentre *::before, .accountCentre *::after { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; }
 }
 
-/* Account Centre is an intentionally dark application surface. */
-.accountCentre :where(p, span, strong, em, small, label, legend, li, dt, dd, th, td, a, button, input, textarea, select, h1, h2, h3, h4, h5, h6):not(.logoutAction):not([class*="success" i]):not([class*="error" i]):not([class*="warning" i]):not([class*="danger" i]):not([class*="text-green"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-rose"]):not([class*="text-orange"]):not([class*="text-amber"]):not([class*="text-yellow"]):not([class*="text-destructive"]) {
+/* Preserve the approved dark Account Centre navigation while the workspace is light. */
+.desktopSidebar :where(p, span, strong, em, small, label, legend, li, dt, dd, th, td, a, button, input, textarea, select, h1, h2, h3, h4, h5, h6):not(.logoutAction),
+.mobileDrawer :where(p, span, strong, em, small, label, legend, li, dt, dd, th, td, a, button, input, textarea, select, h1, h2, h3, h4, h5, h6):not(.logoutAction) {
   color: #ffffff !important;
   -webkit-text-fill-color: #ffffff !important;
   --tw-text-opacity: 1 !important;
 }
-.accountCentre :where(input, textarea)::placeholder { color: #ffffff !important; opacity: 1 !important; }
+.desktopSidebar :where(input, textarea)::placeholder,
+.mobileDrawer :where(input, textarea)::placeholder { color: #ffffff !important; opacity: 1 !important; }
 
-/* The roster heading is an espresso surface within the Account Centre. */
+.accountCentre .main :where(p, span, strong, em, small, label, legend, li, dt, dd, th, td, a, button, input, textarea, select, h1, h2, h3, h4, h5, h6):not([class*="primary" i]):not([class*="secondary" i]):not([class*="text-green"]):not([class*="text-emerald"]):not([class*="text-red"]):not([class*="text-rose"]):not([class*="text-orange"]):not([class*="text-amber"]):not([class*="text-yellow"]):not([class*="text-destructive"]) {
+  color: var(--account-text) !important;
+  -webkit-text-fill-color: var(--account-text) !important;
+}
+.accountCentre .main :where(input, textarea)::placeholder { color: var(--account-text-soft) !important; opacity: .82 !important; }
+
+/* The roster heading follows the light dashboard table-heading surface. */
 .accountCentre :global([data-team-roster-header] > span) {
-  color: #fffaf3 !important;
-  -webkit-text-fill-color: #fffaf3 !important;
+  color: var(--account-text) !important;
+  -webkit-text-fill-color: var(--account-text) !important;
 }

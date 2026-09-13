@@ -13,6 +13,8 @@ import React, { useState, useRef, useCallback, useEffect } from 'react';
 import { Button } from '@/components/ui/button';
 import { Mic, Square, Play, Trash2, LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
+import { useReadOnlyAccountPreview,useReadOnlyPreviewCustomer } from '@/contexts/ReadOnlyAccountPreviewContext';
+import { useAdminPreviewMedia } from '@/hooks/useAdminPreviewMedia';
 import {
   createDJMCPronunciationSignedUrl,
   deleteDJMCPronunciation,
@@ -40,6 +42,9 @@ export function DJMCPronunciationRecorder({
   onRunUndoable = async action => action(),
   disabled = false,
 }: DJMCPronunciationRecorderProps) {
+  const readOnlyPreview=useReadOnlyAccountPreview();
+  const previewCustomer=useReadOnlyPreviewCustomer();
+  const previewMedia=useAdminPreviewMedia(previewCustomer,eventId,'questionnaire_audio',itemId,readOnlyPreview&&!!(audioPath||legacyAudioUrl));
   const [isRecording, setIsRecording] = useState(false);
   const [isPlaying, setIsPlaying] = useState(false);
   const [uploading, setUploading] = useState(false);
@@ -52,6 +57,7 @@ export function DJMCPronunciationRecorder({
   useEffect(() => {
     let cancelled = false;
     setSignedUrl(null);
+    if(readOnlyPreview)return()=>{cancelled=true;};
     if (!audioPath) {
       // Legacy public recordings remain available to authenticated organisers
       // until the service-role copy/relink sweep has migrated them. They are
@@ -69,9 +75,15 @@ export function DJMCPronunciationRecorder({
       });
 
     return () => { cancelled = true; };
-  }, [audioPath, eventId, itemId, legacyAudioUrl, shareToken]);
+  }, [audioPath, eventId, itemId, legacyAudioUrl, shareToken,readOnlyPreview]);
+
+  useEffect(()=>{
+    if(!readOnlyPreview)return;
+    return()=>{audioRef.current?.pause();audioRef.current=null;setIsPlaying(false);};
+  },[readOnlyPreview,previewCustomer,eventId,itemId,previewMedia.url]);
 
   const uploadAudio = useCallback(async (blob: Blob) => {
+    if (readOnlyPreview) return;
     setUploading(true);
     try {
       await onRunUndoable(async () => {
@@ -95,9 +107,10 @@ export function DJMCPronunciationRecorder({
     } finally {
       setUploading(false);
     }
-  }, [eventId, itemId, onChange, shareToken, toast, onRunUndoable]);
+  }, [eventId, itemId, onChange, shareToken, toast, onRunUndoable, readOnlyPreview]);
 
   const startRecording = useCallback(async () => {
+    if (readOnlyPreview) return;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({ audio: true });
       const mediaRecorder = new MediaRecorder(stream);
@@ -127,7 +140,7 @@ export function DJMCPronunciationRecorder({
         variant: 'destructive',
       });
     }
-  }, [toast, uploadAudio]);
+  }, [toast, uploadAudio, readOnlyPreview]);
 
   const stopRecording = useCallback(() => {
     if (mediaRecorderRef.current && isRecording) {
@@ -146,8 +159,12 @@ export function DJMCPronunciationRecorder({
       return;
     }
 
-    let playbackUrl = signedUrl;
-    if (!playbackUrl && audioPath) {
+    let playbackUrl = readOnlyPreview?previewMedia.url:signedUrl;
+    if(readOnlyPreview&&!playbackUrl){
+      toast({className:'ww-djmc-toast',title:'Playback unavailable',description:'The saved recording requires verified read-only media access.',variant:'destructive'});
+      return;
+    }
+    if (!readOnlyPreview && !playbackUrl && audioPath) {
       try {
         playbackUrl = await createDJMCPronunciationSignedUrl(audioPath, { eventId, itemId, shareToken });
         setSignedUrl(playbackUrl);
@@ -180,9 +197,10 @@ export function DJMCPronunciationRecorder({
       setIsPlaying(false);
       console.error('Error playing pronunciation recording:', error);
     }
-  }, [audioPath, eventId, itemId, legacyAudioUrl, shareToken, signedUrl, toast]);
+  }, [audioPath, eventId, itemId, legacyAudioUrl, shareToken, signedUrl, toast,readOnlyPreview,previewMedia.url]);
 
   const deleteRecording = useCallback(async () => {
+    if (readOnlyPreview) return;
     const storedReference = audioPath || legacyAudioUrl;
     if (!storedReference) return;
     if (audioRef.current) {
@@ -208,7 +226,7 @@ export function DJMCPronunciationRecorder({
     } finally {
       setUploading(false);
     }
-  }, [audioPath, eventId, itemId, legacyAudioUrl, onChange, shareToken, toast, onRunUndoable]);
+  }, [audioPath, eventId, itemId, legacyAudioUrl, onChange, shareToken, toast, onRunUndoable, readOnlyPreview]);
 
   if (audioPath || (legacyAudioUrl && !shareToken)) {
     return (
@@ -219,7 +237,7 @@ export function DJMCPronunciationRecorder({
           size="icon"
           className="h-8 w-8"
           onClick={playRecording}
-          disabled={disabled || uploading}
+          disabled={(!readOnlyPreview && disabled) || uploading}
           title={isPlaying ? 'Stop' : 'Play'}
           aria-label={isPlaying ? 'Stop playback' : 'Play recording'}
         >
@@ -229,7 +247,7 @@ export function DJMCPronunciationRecorder({
             <Play size={17} strokeWidth={1.8} className="text-primary" />
           )}
         </Button>
-        <Button
+        {!readOnlyPreview&&<Button
           type="button"
           variant="ghost"
           size="icon"
@@ -240,11 +258,12 @@ export function DJMCPronunciationRecorder({
           aria-label="Delete recording"
         >
           <Trash2 size={17} strokeWidth={1.8} className="text-destructive" />
-        </Button>
+        </Button>}
       </div>
     );
   }
 
+  if (readOnlyPreview) return <span>No pronunciation recording</span>;
   return (
     <Button
       type="button"

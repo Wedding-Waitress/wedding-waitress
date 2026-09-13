@@ -11,7 +11,7 @@ describe('Slideshow media removal',()=>{
   const update=vi.fn().mockResolvedValue(false);
   render(<LiveSlideshowConfig eventId="event" moduleState={{settings:{event_id:'event',rsvp_invite_config:{file_url:'https://example.com/invite.png',file_name:'Invite',rsvp_override_auto_lock:true}},loading:false,saving:false,updateModuleConfig:update} as any}/>);
   fireEvent.click(screen.getByText('Configure RSVP Invite Settings'));
-  fireEvent.click(await screen.findByRole('button',{name:'Remove',exact:true}));
+  fireEvent.click(await screen.findByRole('button',{name:/^Remove$/}));
   await waitFor(()=>expect(update).toHaveBeenCalledWith('rsvp_invite_config',{rsvp_override_auto_lock:true}));
   expect(mocks.remove).not.toHaveBeenCalled();expect(mocks.toast).not.toHaveBeenCalledWith({title:'Removed'});
  });

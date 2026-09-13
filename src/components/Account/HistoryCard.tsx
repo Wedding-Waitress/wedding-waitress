@@ -19,13 +19,15 @@ const formatMoney = (a: number, c: string) => {
 };
 
 export const HistoryCard: React.FC<Props> = ({ icon }) => {
-  const { data, loading } = useAccountBilling();
+  const { data, loading, error } = useAccountBilling();
   const history = data.history;
 
   return (
     <SectionCard icon={icon} title="Invoices & Payment History" description="Past payments and invoice records">
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading history…</p>
+      ) : error ? (
+        <p role="alert" className="text-sm text-red-700">Invoice and payment history is temporarily unavailable. Please try again later.</p>
       ) : history.length === 0 ? (
         <p className="text-sm text-muted-foreground py-4">No transactions yet.</p>
       ) : (

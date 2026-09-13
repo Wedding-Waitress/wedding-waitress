@@ -25,11 +25,12 @@ interface Props {
   onChange: (s: SlideshowSettings) => void;
   onSave: (s: SlideshowSettings) => Promise<void>;
   appearance?: 'default' | 'espresso-glass';
+  readOnly?: boolean;
 }
 
 const SETTINGS_ROW_GRID_CLASS = 'grid grid-cols-1 items-stretch gap-5 md:grid-cols-2 min-[1440px]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.78fr)]';
 
-export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onChange, onSave, appearance = 'default' }) => {
+export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onChange, onSave, appearance = 'default', readOnly = false }) => {
   const isGlass = appearance === 'espresso-glass';
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
@@ -40,7 +41,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
     [value, saved],
   );
 
-  const set = <K extends keyof SlideshowSettings>(k: K, v: SlideshowSettings[K]) => onChange({ ...value, [k]: v });
+  const set = <K extends keyof SlideshowSettings>(k: K, v: SlideshowSettings[K]) => {if(!readOnly)onChange({ ...value, [k]: v });};
 
   const toggleKind = (kind: 'include_photos' | 'include_videos', next: boolean) => {
     const other = kind === 'include_photos' ? value.include_videos : value.include_photos;
@@ -57,6 +58,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
   };
 
   const save = async () => {
+    if(readOnly)return;
     setSaving(true);
     try {
       await onSave(value);
@@ -80,7 +82,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
           </p>
         </div>
         <span className={`text-xs font-medium px-2.5 py-1 rounded-full shrink-0 ${dirty ? 'bg-amber-100 text-amber-800' : managementStyles.slideshowSavedBadge}`}>
-          {dirty ? 'Unsaved changes' : 'All changes saved'}
+          {readOnly ? 'Read-only saved settings' : dirty ? 'Unsaved changes' : 'All changes saved'}
         </span>
       </div>
 
@@ -89,7 +91,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
         data-slideshow-primary-grid
       >
         <GallerySlideshowStepsCard appearance={appearance} embedded />
-        <GallerySlideshowAccessCard meta={meta} appearance={appearance} embedded />
+        {readOnly?<div className={cn('rounded-xl border border-border p-4',isGlass&&managementStyles.galleryViewInsetPanel)} data-slideshow-workspace-card="access"><h2 className="text-xl font-bold">Live Slideshow Access</h2><p className="text-sm mt-2">Private customer access links, QR codes and launch controls are not exposed in this read-only preview.</p></div>:<GallerySlideshowAccessCard meta={meta} appearance={appearance} embedded />}
 
         <div className={cn('rounded-xl border border-border p-4 space-y-4', isGlass && managementStyles.galleryViewInsetPanel)} data-slideshow-workspace-card="playback">
           <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
@@ -98,7 +100,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
           <div className="space-y-3" data-slideshow-playback-controls>
             <div>
               <Label className="text-xs uppercase tracking-wide text-[#6E6E73]">Display order</Label>
-              <Select value={value.order} onValueChange={(v) => set('order', v as SlideshowSettings['order'])}>
+              <Select disabled={readOnly} value={value.order} onValueChange={(v) => set('order', v as SlideshowSettings['order'])}>
                 <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
                 <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
                   <SelectItem value="newest" className={cn(isGlass && managementStyles.gallerySelectItem)}>Newest First</SelectItem>
@@ -109,7 +111,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
             </div>
             <div>
               <Label className="text-xs uppercase tracking-wide text-[#6E6E73]">Slide duration</Label>
-              <Select value={String(value.slide_duration_sec)} onValueChange={(v) => set('slide_duration_sec', Number(v))}>
+              <Select disabled={readOnly} value={String(value.slide_duration_sec)} onValueChange={(v) => set('slide_duration_sec', Number(v))}>
                 <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
                 <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
                   {SLIDE_DURATION_OPTIONS.map(s => (
@@ -120,7 +122,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
             </div>
             <div>
               <Label className="text-xs uppercase tracking-wide text-[#6E6E73]">Transition</Label>
-              <Select value={value.transition} onValueChange={(v) => set('transition', v as SlideshowSettings['transition'])}>
+              <Select disabled={readOnly} value={value.transition} onValueChange={(v) => set('transition', v as SlideshowSettings['transition'])}>
                 <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
                 <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
                   <SelectItem value="fade" className={cn(isGlass && managementStyles.gallerySelectItem)}>Fade</SelectItem>
@@ -132,11 +134,11 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
           </div>
           <div className="flex items-center justify-between gap-3">
             <Label htmlFor="ss-caption" className="text-sm">Show guest name / caption</Label>
-            <Switch id="ss-caption" checked={value.show_caption} onCheckedChange={(v) => set('show_caption', v)} className={cn(isGlass && managementStyles.galleryViewToggle)} />
+            <Switch disabled={readOnly} id="ss-caption" checked={value.show_caption} onCheckedChange={(v) => set('show_caption', v)} className={cn(isGlass && managementStyles.galleryViewToggle)} />
           </div>
           <div className="flex items-center justify-between gap-3">
             <Label htmlFor="ss-loop" className="text-sm">Loop continuously</Label>
-            <Switch id="ss-loop" checked={value.loop} onCheckedChange={(v) => set('loop', v)} className={cn(isGlass && managementStyles.galleryViewToggle)} />
+            <Switch disabled={readOnly} id="ss-loop" checked={value.loop} onCheckedChange={(v) => set('loop', v)} className={cn(isGlass && managementStyles.galleryViewToggle)} />
           </div>
         </div>
       </div>
@@ -150,6 +152,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
           <div className="flex flex-wrap gap-2">
             <button
               type="button"
+              disabled={readOnly}
               onClick={() => set('albums', [])}
               className={cn(
                 `h-9 px-3 rounded-full text-sm border transition-colors ${value.albums.length === 0 ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-background text-[#1D1D1F] border-border hover:bg-muted'}`,
@@ -165,6 +168,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
                 <button
                   key={a}
                   type="button"
+                  disabled={readOnly}
                   onClick={() => toggleAlbum(a)}
                   className={cn(
                     `h-9 px-3 rounded-full text-sm border transition-colors ${active ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-background text-[#1D1D1F] border-border hover:bg-muted'}`,
@@ -184,11 +188,11 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
           <p className={cn('text-sm font-semibold text-[#1D1D1F] mb-6', isGlass && managementStyles.eventBrandingBorder)}>Media types</p>
           <div className="flex items-center justify-between gap-3">
             <Label htmlFor="ss-photos" className="text-sm">Include Photos</Label>
-            <Switch id="ss-photos" checked={value.include_photos} onCheckedChange={(v) => toggleKind('include_photos', v)} className={cn(isGlass && managementStyles.galleryViewToggle)} />
+            <Switch disabled={readOnly} id="ss-photos" checked={value.include_photos} onCheckedChange={(v) => toggleKind('include_photos', v)} className={cn(isGlass && managementStyles.galleryViewToggle)} />
           </div>
           <div className="flex items-center justify-between gap-3">
             <Label htmlFor="ss-videos" className="text-sm">Include Videos</Label>
-            <Switch id="ss-videos" checked={value.include_videos} onCheckedChange={(v) => toggleKind('include_videos', v)} className={cn(isGlass && managementStyles.galleryViewToggle)} />
+            <Switch disabled={readOnly} id="ss-videos" checked={value.include_videos} onCheckedChange={(v) => toggleKind('include_videos', v)} className={cn(isGlass && managementStyles.galleryViewToggle)} />
           </div>
           <p className="text-xs text-muted-foreground">At least one media type must always remain enabled.</p>
         </div>
@@ -197,10 +201,10 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
           <p className={cn('text-sm font-semibold text-[#1D1D1F] mb-6', isGlass && managementStyles.eventBrandingBorder)}>Save settings</p>
           <p className="text-xs text-muted-foreground">Only approved, visible media ever appears in the Live Slideshow.</p>
           <div className="flex flex-wrap items-center gap-3">
-            <Button className={cn('lv-premium-shade h-11', isGlass && [managementStyles.gallerySaveAction, managementStyles.saveBrandingContentShadow, managementStyles.slideshowSaveAction])} onClick={save} disabled={saving || !dirty}>
+            <Button className={cn('lv-premium-shade h-11', isGlass && [managementStyles.gallerySaveAction, managementStyles.saveBrandingContentShadow, managementStyles.slideshowSaveAction])} onClick={save} disabled={readOnly || saving || !dirty}>
               {saving ? <LoaderCircle size={16} strokeWidth={1.8} className="mr-1.5 animate-spin" /> : <Save size={16} strokeWidth={1.8} className="mr-1.5" />} Save Settings
             </Button>
-            {dirty && (
+            {!readOnly && dirty && (
               <Button variant="outline" className={cn('lv-premium-shade h-11', isGlass && managementStyles.galleryControl)} onClick={() => onChange(saved)} disabled={saving}>
                 Discard changes
               </Button>

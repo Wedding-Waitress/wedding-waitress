@@ -67,7 +67,7 @@ export interface InvitationCardSettings {
   updated_at?: string;
 }
 
-const parseRow = (d: any): InvitationCardSettings => ({
+export const invitationCardSettingsFromRow = (d: any): InvitationCardSettings => ({
   ...d,
   background_image_type: d.background_image_type as 'none' | 'full',
   text_zones: resolveWeddingFontZones((d.text_zones || []) as TextZone[]),
@@ -144,7 +144,7 @@ export const useInvitationCardSettings = (eventId: string | null) => {
         return;
       }
 
-      const parsed = (data || []).map((d: any) => parseRow(d));
+      const parsed = (data || []).map((d: any) => invitationCardSettingsFromRow(d));
       setArtworks(parsed);
 
       // Keep active if still valid, otherwise select first
@@ -201,7 +201,7 @@ export const useInvitationCardSettings = (eventId: string | null) => {
         return null;
       }
 
-      const created = parseRow(result.data);
+      const created = invitationCardSettingsFromRow(result.data);
       setArtworks(prev => [...prev, created]);
       setActiveArtworkId(created.id!);
       toast({ title: "Created", description: `"${name}" created successfully` });
@@ -267,7 +267,7 @@ export const useInvitationCardSettings = (eventId: string | null) => {
         return null;
       }
 
-      const created = parseRow(result.data);
+      const created = invitationCardSettingsFromRow(result.data);
       setArtworks(prev => [...prev, created]);
       setActiveArtworkId(created.id!);
       toast({ title: "Duplicated", description: `"${created.name}" created` });

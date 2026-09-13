@@ -8,9 +8,15 @@ const team=read('src/components/Account/AccountAccessCard.tsx');
 
 describe('recoverable account closure security contract',()=>{
   it('rejects unauthenticated and non-owner deletion and requires recent authentication',()=>{
-    expect(closeAccount).toContain('return json({error:"Unauthenticated"},401)');
-    expect(closeAccount).toContain('Recent authentication is required');
-    expect(closeAccount).toContain('Only the account owner can delete this account');
+    expect(closeAccount).toContain("return json({ error: 'Unauthenticated' }, 401)");
+    expect(closeAccount).toContain("client.rpc('deactivate_my_account')");
+    const retainedClosure=read('supabase/migrations/20260912074042_retained_account_closure_original_entitlement.sql');
+    expect(retainedClosure).toContain('Recent authentication is required');
+    expect(retainedClosure).toContain("member_user_id=actor AND role='master'");
+    expect(retainedClosure).toContain('private.admin_customer_retention_required(actor)');
+    expect(closeAccount).not.toContain('subscriptions.cancel');
+    expect(closeAccount).not.toContain('STRIPE_SECRET_KEY');
+    expect(closeAccount).toContain("operation !== 'ordinary_closure'");
   });
   it('is idempotent, closes entitlements and blocks team and operational access',()=>{
     expect(migration).toContain("IF current_row.status = 'scheduled_for_deletion' THEN RETURN");

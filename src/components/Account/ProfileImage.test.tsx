@@ -51,6 +51,7 @@ describe('profile image UI', () => {
     mocks.update.mockReturnValue({ eq: mocks.eq });
     vi.spyOn(URL, 'createObjectURL').mockReturnValue('blob:preview');
     vi.spyOn(URL, 'revokeObjectURL').mockImplementation(() => undefined);
+    vi.spyOn(window, 'confirm').mockReturnValue(true);
   });
 
   it('renders initials when no stored image exists', () => {
@@ -85,8 +86,18 @@ describe('profile image UI', () => {
     mocks.profile = { ...baseProfile, profile_image_path: 'user-1/profile-image', profile_image_url: 'https://signed.example/avatar' };
     render(<ProfileImageEditor />);
     fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
+    expect(window.confirm).toHaveBeenCalledWith('Remove your current profile photo or business logo?');
     await waitFor(() => expect(mocks.remove).toHaveBeenCalledWith(['user-1/profile-image']));
     expect(mocks.updateCachedProfile).toHaveBeenCalledWith({ profile_image_path: null, profile_image_url: null });
+  });
+
+  it('does not remove a stored image when confirmation is cancelled', () => {
+    vi.mocked(window.confirm).mockReturnValue(false);
+    mocks.profile = { ...baseProfile, profile_image_path: 'user-1/profile-image', profile_image_url: 'https://signed.example/avatar' };
+    render(<ProfileImageEditor />);
+    fireEvent.click(screen.getByRole('button', { name: 'Remove' }));
+    expect(mocks.remove).not.toHaveBeenCalled();
+    expect(mocks.updateCachedProfile).not.toHaveBeenCalled();
   });
 
   it('keeps an unsaved preview, resets loading and styles a genuine upload failure as an accessible error', async () => {

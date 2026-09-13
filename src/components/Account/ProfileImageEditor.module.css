@@ -1,25 +1,27 @@
-.editor { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 22px; margin-bottom: 22px; padding: 20px; border: 1px solid rgba(225, 180, 122, .24); border-radius: 18px; background: linear-gradient(145deg, rgba(73, 38, 27, .62), rgba(31, 15, 11, .64)); box-shadow: inset 0 1px rgba(255, 241, 220, .07); }
+.editor { display: grid; grid-template-columns: auto minmax(0, 1fr); gap: 22px; margin-bottom: 22px; padding: 20px; border: 1px solid #cdb99e; border-radius: 10px; background: linear-gradient(145deg, #fbf8f2, #f5ebdd); box-shadow: inset 0 1px rgba(255,255,255,.74), 0 4px 12px rgba(79,48,30,.08); }
 .avatarWrap { position: relative; align-self: start; }
 .avatar { width: 104px; height: 104px; border: 2px solid rgba(241, 210, 166, .65); color: #fff9f1; background: linear-gradient(145deg, #9d6a49, #5d3928); box-shadow: inset 0 1px rgba(255,255,255,.18), 0 14px 28px rgba(10,3,2,.28); font-size: 1.45rem; font-weight: 700; }
-.containedImage { padding: 10px; background: rgba(26, 12, 9, .76); }
-.cameraBadge { position: absolute; right: -2px; bottom: 3px; display: grid; width: 31px; height: 31px; place-items: center; border: 2px solid #4a271c; border-radius: 50%; color: #392017; background: #e7c28d; }
+.containedImage { padding: 10px; background: #ede0d0; }
+.cameraBadge { position: absolute; right: -2px; bottom: 3px; display: grid; width: 31px; height: 31px; place-items: center; border: 2px solid #fbf8f2; border-radius: 50%; color: #2b1711; background: #e7c28d; }
 .cameraBadge svg { width: 15px; height: 15px; }
 .editorBody { min-width: 0; }
-.editorBody h3 { margin: 0; color: #fffaf3; font-size: 1rem; font-weight: 650; }
-.editorBody > p { margin: 5px 0 0; color: #ffffff; font-size: .8rem; line-height: 1.5; }
+.editorBody h3 { margin: 0; color: #2b1711; font-size: 1rem; font-weight: 650; }
+.editorBody > p { margin: 5px 0 0; color: #684b40; font-size: .8rem; line-height: 1.5; }
 .fileInput { position: absolute; width: 1px; height: 1px; overflow: hidden; clip: rect(0 0 0 0); white-space: nowrap; clip-path: inset(50%); }
 .actions { display: flex; flex-wrap: wrap; gap: 9px; margin-top: 15px; }
-.actions button { min-height: var(--ww-compact-button-height); height: var(--ww-compact-button-height); gap: 7px; padding-inline: var(--ww-compact-button-padding-inline); border-radius: var(--ww-compact-button-radius) !important; color: #fff8ef !important; font-family: var(--ww-auth-nav-font-family); font-size: var(--ww-auth-nav-font-size); font-weight: var(--ww-compact-button-font-weight); }
+.actions button { min-height: var(--ww-compact-button-height); height: var(--ww-compact-button-height); gap: 7px; padding-inline: var(--ww-compact-button-padding-inline); border-radius: var(--ww-compact-button-radius) !important; font-family: var(--ww-auth-nav-font-family); font-size: var(--ww-auth-nav-font-size); font-weight: var(--ww-compact-button-font-weight); }
 .actions button svg { width: 16px; height: 16px; }
-.positionControls { margin-top: 16px; padding: 14px; border: 1px solid rgba(224, 177, 117, .2); border-radius: 14px; background: rgba(21, 10, 7, .3); }
+.positionControls { margin-top: 16px; padding: 14px; border: 1px solid #cdb99e; border-radius: 14px; background: #f5ebdd; }
 .fitControls { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; }
-.fitControls > span { margin-right: 2px; color: #ffffff; font-size: .75rem; font-weight: 600; }
-.fitControls button { display: inline-flex; min-height: var(--ww-compact-button-height); align-items: center; gap: 6px; padding: 0 var(--ww-compact-button-padding-inline); border: 1px solid rgba(225, 180, 122, .26); border-radius: var(--ww-compact-button-radius); color: #f4dfc2; background: rgba(74, 38, 27, .5); font-family: var(--ww-auth-nav-font-family); font-size: var(--ww-auth-nav-font-size); font-weight: var(--ww-auth-nav-font-weight); }
-.fitControls button[aria-pressed="true"] { border-color: rgba(241, 210, 166, .72); color: #fff; background: rgba(151, 94, 61, .58); box-shadow: inset 0 1px rgba(255,255,255,.1); }
+.fitControls > span { margin-right: 2px; color: #684b40; font-size: .75rem; font-weight: 600; }
+.fitControls button { display: inline-flex; min-height: var(--ww-compact-button-height); align-items: center; gap: 6px; padding: 0 var(--ww-compact-button-padding-inline); border: 1px solid #806344; border-radius: var(--ww-compact-button-radius); color: #806344; background: #fbf8f2; box-shadow: inset 0 1px rgba(255,255,255,.72); font-family: var(--ww-auth-nav-font-family); font-size: var(--ww-auth-nav-font-size); font-weight: var(--ww-auth-nav-font-weight); }
+.fitControls button:hover { border-color:#755332; color:#2b1711; background:#ede0d0; }
+.fitControls button:focus-visible { outline:2px solid #755332; outline-offset:2px; }
+.fitControls button[aria-pressed="true"] { border-color: #55a447; color: #166534; background: #e8f5e7; box-shadow: inset 0 1px rgba(255,255,255,.82); }
 .fitControls svg { width: 14px; height: 14px; }
 .sliders { display: grid; grid-template-columns: repeat(2, minmax(0, 1fr)); gap: 14px; margin-top: 13px; }
-.sliders label { color: #ffffff; font-size: .72rem; }
-.sliders input { display: block; width: 100%; margin-top: 7px; accent-color: #d3a767; }
+.sliders label { color: #684b40; font-size: .72rem; }
+.sliders input { display: block; width: 100%; margin-top: 7px; accent-color: #55a447; }
 .spinner { animation: spin .8s linear infinite; }
 @keyframes spin { to { transform: rotate(360deg); } }
 @media (max-width: 639px) { .editor { grid-template-columns: 1fr; padding: 16px; text-align: center; } .avatarWrap { justify-self: center; } .actions { justify-content: center; } .actions button, .fitControls button { min-height: var(--ww-compact-button-mobile-height); height: auto; } .actions button { width: 100%; } .sliders { grid-template-columns: 1fr; text-align: left; } .fitControls { justify-content: center; } }

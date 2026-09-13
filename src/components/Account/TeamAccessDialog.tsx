@@ -50,7 +50,7 @@ export const TeamAccessDialog: React.FC<Props> = ({ open, onOpenChange, mode = '
         </div>
         {team.error && <div className={styles.error} role="alert">{team.error}</div>}
 
-        <form className={styles.inviteForm} onSubmit={submitInvite}>
+        {mode === 'invite' && <form className={styles.inviteForm} onSubmit={submitInvite}>
           <div className={styles.fields}>
             <div className={styles.field}><label htmlFor="team-invite-first-name">First name</label><input id="team-invite-first-name" required autoComplete="given-name" maxLength={80} value={invitee.firstName} onChange={(event) => setInvitee((value) => ({ ...value, firstName: event.target.value }))} disabled={team.seats.remaining === 0 || busyId !== null} /></div>
             <div className={styles.field}><label htmlFor="team-invite-last-name">Last name</label><input id="team-invite-last-name" required autoComplete="family-name" maxLength={80} value={invitee.lastName} onChange={(event) => setInvitee((value) => ({ ...value, lastName: event.target.value }))} disabled={team.seats.remaining === 0 || busyId !== null} /></div>
@@ -58,7 +58,7 @@ export const TeamAccessDialog: React.FC<Props> = ({ open, onOpenChange, mode = '
             <div className={styles.field}><label htmlFor="team-invite-mobile">Phone number</label><input id="team-invite-mobile" type="tel" required autoComplete="tel" maxLength={30} value={invitee.mobile} onChange={(event) => setInvitee((value) => ({ ...value, mobile: event.target.value }))} placeholder="04XX XXX XXX or +61…" disabled={team.seats.remaining === 0 || busyId !== null} /></div>
           </div>
           <Button type="submit" className={controlStyles.primaryButton} disabled={team.seats.remaining === 0 || busyId !== null || Object.values(invitee).some((value) => !value.trim())}><MailPlus />{busyId === 'invite' ? 'Sending…' : 'Send Invite'}</Button>
-        </form>
+        </form>}
 
         <section className={styles.section} aria-labelledby="active-team-heading"><h3 id="active-team-heading">People with access</h3>
           <div className={styles.peopleTable} role="table" aria-label="People with account access">

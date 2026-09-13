@@ -7,6 +7,7 @@ import React, { useEffect, useRef, useState, useCallback } from 'react';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { SignUpModal, type SignUpPlanContext } from './SignUpModal';
+import { PRELAUNCH_SIGNUP_HOLD } from '@/lib/prelaunch';
 
 interface AuthGatedCtaLinkProps {
   to: string;
@@ -68,7 +69,7 @@ export const AuthGatedCtaLink: React.FC<AuthGatedCtaLinkProps> = ({
     async (e: React.MouseEvent) => {
       e.preventDefault();
       onClick?.();
-      if (alwaysSignUp) {
+      if (alwaysSignUp || PRELAUNCH_SIGNUP_HOLD) {
         // Marketing CTAs: always show SignUp modal, never auto-navigate.
         hiddenTriggerRef.current?.click();
         return;

@@ -48,11 +48,12 @@ export const ContactForm = () => {
 
     setSubmitting(true);
     try {
-      const { error } = await supabase.functions.invoke("send-transactional-email", {
+      const { data: receipt, error } = await supabase.functions.invoke("send-transactional-email", {
         body: {
           templateName: "contact-form-message",
           recipientEmail: "support@weddingwaitress.com.au",
           idempotencyKey: `contact-${crypto.randomUUID()}`,
+          supportContext: { source: 'public_contact', category: result.data.eventType },
           templateData: {
             name: result.data.fullName,
             email: result.data.email,
@@ -62,8 +63,10 @@ export const ContactForm = () => {
           },
         },
       });
-      if (error) throw error;
-      toast.success("Your message has been sent successfully. We will reply within 24 hours.");
+      if (error || receipt?.success === false) throw error || new Error('Request not accepted');
+      toast.success(receipt?.recorded && !receipt?.accepted
+        ? "Your support request has been recorded. We will reply within 24 hours."
+        : "Your message has been sent successfully. We will reply within 24 hours.");
       setFullName("");
       setEmail("");
       setEventType("");

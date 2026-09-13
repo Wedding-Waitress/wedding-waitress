@@ -23,12 +23,12 @@ describe('public pricing and checkout currency contract', () => {
     expect(checkout).toContain('baseAud: 299');
   });
 
-  it('shows public prices as dollar amounts labelled AUD without a currency selector', () => {
+  it('shows public prices with page-level AUD disclosure and no currency selector', () => {
     expect(pricing).not.toContain('<PricingCurrencyPanel');
     expect(pricing).not.toContain('useLiveExchangeRates');
     expect(pricing).toContain('All prices are in Australian dollars (AUD).');
     expect(pricing).toContain('Your card provider may convert an AUD charge');
-    expect(pricing).toContain('>AUD</p>');
+    expect(pricing).not.toContain('>AUD</p>');
   });
 
   it('keeps only the three active couple plans in public checkout', () => {

@@ -11,7 +11,6 @@ import {
 import { InvitationCardPreview } from '../Invitations/InvitationCardPreview';
 import { SignageGalleryModal } from './SignageGalleryModal';
 import { checkPrintFit } from '@/lib/imagePipeline';
-import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
 import type { LucideIcon } from 'lucide-react';
 import { Loader2, LoaderCircle, FileText, CalendarDays, Printer, LayoutTemplate, BadgeCheck, CircleCheck, Star, Download, Contact, PanelsTopLeft, Mail } from 'lucide-react';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
@@ -20,6 +19,7 @@ import { toast } from '@/hooks/use-toast';
 import type { TextZone, QrConfig } from '@/hooks/useInvitationCardSettings';
 import styles from './SignagePage.module.css';
 import { useSignageImageFit } from './useSignageImageFit';
+import {SIGNAGE_PRINT_DIMENSIONS as PRINT_DIMENSIONS,signageEventDataFromEvent} from '@/lib/signageDocumentData';
 
 interface SignagePageProps {
   selectedEventId: string | null;
@@ -73,13 +73,6 @@ const PRINT_SIZES: ReadonlyArray<{
   { id: 'a3', label: 'A3', dims: '297 × 420 mm', best: 'Best for welcome signs', icon: FileText },
 ];
 
-const PRINT_DIMENSIONS: Record<string, { widthMm: number; heightMm: number }> = {
-
-  a0: { widthMm: 841, heightMm: 1189 },
-  a1: { widthMm: 594, heightMm: 841 },
-  a2: { widthMm: 420, heightMm: 594 },
-  a3: { widthMm: 297, heightMm: 420 },
-};
 
 // QR safety: enforce ≥35mm rendered size (real venue scannability).
 // A4 portrait width = 210mm → 35/210 ≈ 16.7% ; landscape width = 297mm → 35/297 ≈ 11.8%
@@ -171,30 +164,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
     return { ...asInvitationSettings, background_image_url: editorMasterUrl };
   }, [asInvitationSettings, editorMasterUrl]);
 
-  const eventData = useMemo(() => {
-    if (!selectedEvent) return {} as Record<string, string>;
-    const p1 = selectedEvent.partner1_name || '';
-    const p2 = selectedEvent.partner2_name || '';
-    const coupleNames = p1 && p2 ? `${p1} & ${p2}` : p1 || p2 || selectedEvent.name;
-    return {
-      couple_names: coupleNames,
-      event_name: selectedEvent.name || '',
-      date: selectedEvent.date
-        ? (() => {
-            const [y, m, d] = selectedEvent.date.split('-').map(Number);
-            const dt = new Date(y, (m || 1) - 1, d || 1);
-            return isNaN(dt.getTime())
-              ? formatDisplayDate(selectedEvent.date)
-              : dt.toLocaleDateString('en-AU', { weekday: 'long', day: 'numeric', month: 'long', year: 'numeric' });
-          })()
-        : '',
-      date_raw: selectedEvent.date || '',
-      venue: selectedEvent.venue || '',
-      time: selectedEvent.start_time ? formatDisplayTime(selectedEvent.start_time) : '',
-      welcome_message: 'Please scan the QR code to find your table.',
-      qr_instructions: 'Scan to find your seat',
-    };
-  }, [selectedEvent]);
+  const eventData = useMemo(() => signageEventDataFromEvent(selectedEvent), [selectedEvent]);
 
   // Generate QR when QR config event_id changes
   useEffect(() => {

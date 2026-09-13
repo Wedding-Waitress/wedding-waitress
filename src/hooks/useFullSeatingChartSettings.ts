@@ -58,6 +58,28 @@ type PendingSave = {
 
 const SAVE_DEBOUNCE_MS = 200;
 
+/** Same saved-row interpretation for organizer and audited read-only previews. */
+export const fullSeatingChartSettingsFromRow = (data: any): FullSeatingChartSettings => ({
+  sortBy: data.sort_by as FullSeatingChartSettings['sortBy'],
+  fontSize: normalizeFullSeatingChartGuestTextSize(data.font_size),
+  showDietary: data.show_dietary,
+  showGuestNames: data.show_guest_names ?? true,
+  showSeatNumbers: data.show_seat_numbers ?? true,
+  showGuestList: data.show_guest_list ?? true,
+  showRsvp: data.show_rsvp,
+  showRelation: data.show_relation,
+  guestNameColor: normalizeFullSeatingChartColor(data.guest_name_color),
+  seatNumberColor: normalizeFullSeatingChartColor(data.seat_number_color),
+  guestListColor: normalizeFullSeatingChartColor(data.guest_list_color),
+  dietaryColor: normalizeFullSeatingChartColor(data.dietary_color),
+  relationshipColor: normalizeFullSeatingChartColor(data.relationship_color),
+  showLogo: data.show_logo ?? true,
+  paperSize: data.paper_size as FullSeatingChartSettings['paperSize'],
+  isBold: data.is_bold ?? true,
+  isItalic: data.is_italic ?? false,
+  isUnderline: data.is_underline ?? false,
+});
+
 export const useFullSeatingChartSettings = (eventId: string | null) => {
   const cached = eventId ? settingsCache.get(eventId) : undefined;
   const [settings, setSettings] = useState<FullSeatingChartSettings>(cached ?? DEFAULT_SETTINGS);
@@ -116,26 +138,7 @@ export const useFullSeatingChartSettings = (eventId: string | null) => {
         if (error) throw error;
 
         if (data) {
-          const loadedSettings: FullSeatingChartSettings = {
-            sortBy: data.sort_by as 'firstName' | 'lastName' | 'tableNo',
-            fontSize: normalizeFullSeatingChartGuestTextSize(data.font_size),
-            showDietary: data.show_dietary,
-            showGuestNames: data.show_guest_names ?? true,
-            showSeatNumbers: data.show_seat_numbers ?? true,
-            showGuestList: data.show_guest_list ?? true,
-            showRsvp: data.show_rsvp,
-            showRelation: data.show_relation,
-            guestNameColor: normalizeFullSeatingChartColor(data.guest_name_color),
-            seatNumberColor: normalizeFullSeatingChartColor(data.seat_number_color),
-            guestListColor: normalizeFullSeatingChartColor(data.guest_list_color),
-            dietaryColor: normalizeFullSeatingChartColor(data.dietary_color),
-            relationshipColor: normalizeFullSeatingChartColor(data.relationship_color),
-            showLogo: data.show_logo ?? true,
-            paperSize: data.paper_size as 'A4' | 'A3' | 'A2' | 'A1',
-            isBold: data.is_bold ?? true,
-            isItalic: data.is_italic ?? false,
-            isUnderline: data.is_underline ?? false,
-          };
+          const loadedSettings = fullSeatingChartSettingsFromRow(data);
           if (loadGeneration !== loadGenerationRef.current) return;
           settingsRef.current = loadedSettings;
           settingsCache.set(eventId, loadedSettings);

@@ -9,8 +9,8 @@ describe('SectionCard', () => {
     const { container } = render(<SectionCard icon={User} title="Account Info">Details</SectionCard>);
     expect(screen.getByRole('heading', { name: 'Account Info' })).toBeInTheDocument();
     const icon = container.querySelector('[data-account-section-icon]');
-    expect(icon).toHaveClass('text-[#dfbd88]');
-    expect(icon).toHaveClass('from-[#4a2a20]');
+    expect(icon).toHaveClass('text-[#806344]');
+    expect(icon).toHaveClass('bg-[#EDE0D0]');
     expect(icon?.querySelector('svg')).toBeInTheDocument();
   });
 });

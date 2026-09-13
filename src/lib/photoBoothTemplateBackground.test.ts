@@ -49,6 +49,7 @@ describe('Photo Booth saved background rendering', () => {
     templateUrl: string,
     fails = false,
     sampledPixels?: Uint8ClampedArray,
+    strictAssets = false,
   ) => {
     const decode = vi.fn(async () => undefined);
     class TestImage {
@@ -84,10 +85,16 @@ describe('Photo Booth saved background rendering', () => {
       templateId: null,
       style: { bgColor: '#967A59' },
       onTemplateLoadError: report,
+      strictAssets,
     });
     return { output, context, decode, report };
   };
 
+  it('refuses incomplete saved artwork in strict read-only mode without logging its private URL',async()=>{
+    const logger=vi.spyOn(console,'error').mockImplementation(()=>{});
+    await expect(renderWithImage('https://storage.test/event/private-template.jpg?token=fixture',true,undefined,true)).rejects.toThrow('Saved Photo Booth background artwork could not be loaded.');
+    expect(logger).not.toHaveBeenCalled();
+  });
   it('decodes and draws the selected JPEG across the exact master before all eight photos', async () => {
     const { output, context, decode, report } = await renderWithImage('https://storage.test/event/custom-template.jpg');
     expect({ width: output.width, height: output.height }).toEqual({

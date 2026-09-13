@@ -1,10 +1,11 @@
 import { ProductPageLayout } from '@/components/Layout/ProductPageLayout';
+import { QrCodeSeatingChartPage } from './QrCodeSeatingChartPage';
 
 export const ProductMyEvents = () => <ProductPageLayout productId="my-events" />;
 export const ProductEventBudgetPlanner = () => <ProductPageLayout productId="event-budget-planner" />;
 export const ProductGuestList = () => <ProductPageLayout productId="guest-list" />;
 export const ProductTables = () => <ProductPageLayout productId="tables" />;
-export const ProductQrCodeSeatingChart = () => <ProductPageLayout productId="qr-code-seating-chart" />;
+export const ProductQrCodeSeatingChart = QrCodeSeatingChartPage;
 export const ProductSeatingChartSigns = () => <ProductPageLayout productId="seating-chart-signs" />;
 export const ProductInvitationsCards = () => <ProductPageLayout productId="invitations-cards" />;
 export const ProductNamePlaceCards = () => <ProductPageLayout productId="name-place-cards" />;

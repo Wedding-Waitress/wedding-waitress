@@ -1,6 +1,6 @@
 import React, { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import {
-  ArrowLeft, CreditCard, Lock, LogOut, LifeBuoy, Menu, Sparkles, User, Users, X, type LucideIcon,
+  ArrowLeft, CreditCard, Lock, LogOut, LifeBuoy, Menu, User, Users, X, type LucideIcon,
 } from 'lucide-react';
 import {
   Navigate, NavLink, useLocation, useNavigate, useParams, useSearchParams,
@@ -16,10 +16,11 @@ import logoImage from '@/assets/wedding-waitress-full-logo.png';
 import styles from './Account.module.css';
 import controlStyles from '@/components/Account/AccountControls.module.css';
 import { loadDashboardRoute, scheduleIdleWork } from '@/lib/authenticatedRoutePreload';
+import { clearAllCaches } from '@/lib/cacheRegistry';
 
 type AccountSection =
-  | 'account-info' | 'team-access' | 'plan-billing' | 'plans-upgrades'
-  | 'help-support' | 'security-account';
+  | 'account-info' | 'team-access' | 'plan-billing'
+  | 'help-support';
 
 interface SectionDefinition {
   id: AccountSection;
@@ -40,19 +41,12 @@ const sectionGroups: Array<{ label: string; items: SectionDefinition[] }> = [
     label: 'Plan & Billing',
     items: [
       { id: 'plan-billing', label: 'Plan & Billing', description: 'Plan, usage, invoices and payments', icon: CreditCard },
-      { id: 'plans-upgrades', label: 'Plans & Upgrades', description: 'Compare plans and upgrade', icon: Sparkles },
     ],
   },
   {
     label: 'Support',
     items: [
       { id: 'help-support', label: 'Help & Support', description: 'Contact Wedding Waitress support', icon: LifeBuoy },
-    ],
-  },
-  {
-    label: 'Security',
-    items: [
-      { id: 'security-account', label: 'Security & Account', description: 'Password, verification and account controls', icon: Lock },
     ],
   },
 ];
@@ -64,35 +58,31 @@ const accountSectionLoaders = {
   'account-info': () => import('@/components/Account/AccountInfoCard'),
   'team-access': () => import('@/components/Account/AccountAccessCard'),
   'plan-billing': () => import('@/components/Account/PlanBillingSection'),
-  'plans-upgrades': () => import('@/components/Account/AccountDestinations'),
   'help-support': () => import('@/components/Account/AccountDestinations'),
-  'security-account': () => import('@/components/Account/SecurityCard'),
 } as const;
+
+const securityAccountLoader = () => import('@/components/Account/SecurityCard');
 
 const preloadAccountSection = (section: AccountSection) => accountSectionLoaders[section]();
 
 const AccountInfoCard = lazy(() => accountSectionLoaders['account-info']().then((module) => ({ default: module.AccountInfoCard })));
 const AccountAccessCard = lazy(() => accountSectionLoaders['team-access']().then((module) => ({ default: module.AccountAccessCard })));
-const SecurityCard = lazy(() => accountSectionLoaders['security-account']().then((module) => ({ default: module.SecurityCard })));
+const SecurityCard = lazy(() => securityAccountLoader().then((module) => ({ default: module.SecurityCard })));
 const PlanBillingSection = lazy(() => accountSectionLoaders['plan-billing']().then((module) => ({ default: module.PlanBillingSection })));
-const PlansUpgradesSection = lazy(() => accountSectionLoaders['plans-upgrades']().then((module) => ({ default: module.PlansUpgradesSection })));
-const HelpSupportSection = lazy(() => accountSectionLoaders['help-support']().then((module) => ({ default: module.HelpSupportSection })));
-
-const renderSectionContent = (section: AccountSection) => {
+const renderSectionContent = (section: AccountSection, loginEmail: string) => {
   switch (section) {
-    case 'account-info': return <AccountInfoCard icon={User} />;
+    case 'account-info': return <div className={styles.accountInfoStack} data-account-info-stack><AccountInfoCard icon={User} loginEmail={loginEmail} /><SecurityCard icon={Lock} /></div>;
     case 'team-access': return <AccountAccessCard icon={Users} />;
     case 'plan-billing': return <PlanBillingSection />;
-    case 'plans-upgrades': return <PlansUpgradesSection />;
-    case 'help-support': return <HelpSupportSection />;
-    case 'security-account': return <SecurityCard icon={Lock} />;
+    case 'help-support': return null;
   }
 };
 
 const legacyRedirects: Record<string, AccountSection> = {
   notifications: 'account-info', subscription: 'plan-billing', billing: 'plan-billing',
-  usage: 'plan-billing', history: 'plan-billing', 'privacy-data': 'security-account',
-  security: 'security-account', 'access-team': 'team-access', 'referral-rewards': 'account-info',
+  usage: 'plan-billing', history: 'plan-billing', 'privacy-data': 'account-info',
+  security: 'account-info', 'security-account': 'account-info', 'access-team': 'team-access', 'referral-rewards': 'account-info',
+  'plans-upgrades': 'plan-billing',
 };
 
 export const Account: React.FC = () => {
@@ -107,6 +97,7 @@ export const Account: React.FC = () => {
   const activeSection: AccountSection = section && validSections.has(section as AccountSection)
     ? section as AccountSection : 'account-info';
   const activeDefinition = allSections.find((item) => item.id === activeSection)!;
+  const isEmptyHelpSupport = activeSection === 'help-support';
 
   useEffect(() => scheduleIdleWork(() => {
     void loadDashboardRoute();
@@ -119,6 +110,16 @@ export const Account: React.FC = () => {
     void refreshAccountBilling();
     const next = new URLSearchParams(searchParams);
     next.delete('success');
+    setSearchParams(next, { replace: true });
+  }, [searchParams, setSearchParams, toast]);
+
+  useEffect(() => {
+    if (searchParams.get('extension') !== 'success') return;
+    clearAllCaches();
+    toast({ title: 'Access extended', description: 'Your saved Wedding Waitress account is active again.' });
+    void refreshAccountBilling();
+    const next = new URLSearchParams(searchParams);
+    next.delete('extension');
     setSearchParams(next, { replace: true });
   }, [searchParams, setSearchParams, toast]);
 
@@ -151,6 +152,7 @@ export const Account: React.FC = () => {
     return <div className={`${styles.loadingScreen} ww-application-background`} role="status" aria-live="polite"><span className={styles.loadingMark} />Opening Account Centre…</div>;
   }
   if (!session) return <Navigate to="/" replace />;
+  const accountLoginEmail = session.user.email || profile?.email || '';
 
   const sidebar = (
     <div className={styles.sidebarInner}>
@@ -210,15 +212,19 @@ export const Account: React.FC = () => {
           </aside>
         </div>
       )}
-      <main className={styles.main}>
-        <header className={styles.pageHeader}>
-          <span>Account Centre</span><h1 className={styles.pageHeading}>{activeDefinition.label}</h1><p>{activeDefinition.description}</p>
-        </header>
-        <div className={styles.contentPanel} data-active-account-section={activeSection}>
-          <Suspense fallback={<div className={styles.sectionSkeleton} role="status" aria-live="polite" aria-label="Loading Account Centre section"><span /><span /><span /></div>}>
-            {renderSectionContent(activeSection)}
-          </Suspense>
-        </div>
+      <main className={styles.main} data-empty-account-page={isEmptyHelpSupport || undefined}>
+        {!isEmptyHelpSupport && (
+          <>
+            <header className={styles.pageHeader}>
+              <span>Account Centre</span><h1 className={styles.pageHeading}>{activeDefinition.label}</h1><p>{activeDefinition.description}</p>
+            </header>
+            <div className={styles.contentPanel} data-active-account-section={activeSection}>
+              <Suspense fallback={<div className={styles.sectionSkeleton} role="status" aria-live="polite" aria-label="Loading Account Centre section"><span /><span /><span /></div>}>
+                {renderSectionContent(activeSection, accountLoginEmail)}
+              </Suspense>
+            </div>
+          </>
+        )}
       </main>
     </div>
   );

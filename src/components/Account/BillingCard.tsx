@@ -25,7 +25,7 @@ const formatMoney = (amount: number, currency: string) => {
 };
 
 export const BillingCard: React.FC<Props> = ({ icon }) => {
-  const { data, loading } = useAccountBilling();
+  const { data, loading, error } = useAccountBilling();
   const pm = data.paymentMethod;
   const last = data.lastInvoice;
 
@@ -33,6 +33,8 @@ export const BillingCard: React.FC<Props> = ({ icon }) => {
     <SectionCard icon={icon} title="Billing Details" description="Payment method and recent invoice">
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading billing details…</p>
+      ) : error ? (
+        <p role="alert" className="text-sm text-red-700">Billing details are temporarily unavailable. Please try again later.</p>
       ) : (
         <>
           <div className="space-y-3 text-sm">

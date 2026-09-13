@@ -1,3 +1,4 @@
+import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 // Edge function: optimize-signage-image
 // Accepts EITHER:
 //   - { sourcePath, name, category }  (preferred — file already uploaded to signage-gallery bucket under sources/)
@@ -26,6 +27,8 @@ function slugify(input: string): string {
 }
 
 Deno.serve(async (req) => {
+  const suspensionResponse = await guardSuspendedCustomer(req);
+  if (suspensionResponse) return suspensionResponse;
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }

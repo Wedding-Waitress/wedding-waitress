@@ -3,12 +3,16 @@ import type { Session } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { clearAllCaches, registerCache } from '@/lib/cacheRegistry';
+import type { AccountAccess } from '@/components/auth/SuspensionNotice';
+import { useAuthenticatedCustomerActivity } from '@/hooks/useCustomerActivity';
+import { useCustomerCountry } from '@/hooks/useCustomerCountry';
 
 type AuthenticatedSessionState = {
   session: Session | null;
   loading: boolean;
   error: string | null;
   retry: () => void;
+  accountAccess: AccountAccess | null;
 };
 
 const SESSION_RESTORE_TIMEOUT_MS = 10_000;
@@ -94,7 +98,9 @@ const readLifecycle = async (userId: string) => {
   return trackedRequest;
 };
 
-export const AuthenticatedSessionProvider: React.FC<React.PropsWithChildren> = ({ children }) => {
+// Enable only after the matching backend migration is verified. Keep the existing
+// local application available while this release is being prepared.
+export const AuthenticatedSessionProvider: React.FC<React.PropsWithChildren<{ suspensionAccessEnabled?: boolean; activityTrackingEnabled?:boolean }>> = ({ children, suspensionAccessEnabled = false,activityTrackingEnabled=false }) => {
   const navigate = useNavigate();
   const mounted = useRef(true);
   const currentUserId = useRef<string | null>(null);
@@ -103,6 +109,55 @@ export const AuthenticatedSessionProvider: React.FC<React.PropsWithChildren> = (
   const [accessLoading, setAccessLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [attempt, setAttempt] = useState(0);
+  const [accountAccess, setAccountAccess] = useState<AccountAccess | null>(null);
+  const [suspensionLoading, setSuspensionLoading] = useState(true);
+  const [accountAccessError, setAccountAccessError] = useState<string | null>(null);
+  const previousAccessStatus = useRef<AccountAccess['status'] | null>(null);
+  useAuthenticatedCustomerActivity(session?.user.id||null,activityTrackingEnabled&&!sessionLoading&&!accessLoading&&!error&&(!accountAccess||accountAccess.status==='active'));
+  useCustomerCountry(session?.user.id||null,activityTrackingEnabled&&!sessionLoading&&!accessLoading&&!error&&accountAccess?.status==='active');
+
+  useEffect(() => {
+    if (!suspensionAccessEnabled) {
+      // Discard only state from the unreleased optional check when its release
+      // flag is disabled (including state retained by Fast Refresh). Existing
+      // authenticated session/lifecycle verification remains authoritative.
+      setAccountAccess(null);setAccountAccessError(null);previousAccessStatus.current=null;
+      setSuspensionLoading(false);return;
+    }
+    if (sessionLoading) return;
+    if (!session) { setAccountAccess(null); setSuspensionLoading(false); return; }
+    let active = true;
+    let checking = false;
+    setSuspensionLoading(true);
+    setAccountAccess(null);
+    const check = async () => {
+      if (checking) return;
+      checking = true;
+      try {
+        const { data, error: accessError } = await withTimeout(
+          supabase.rpc('get_my_account_access' as never), ACCOUNT_ACCESS_TIMEOUT_MS,
+          'Account verification took too long. Please check your connection and try again.',
+        );
+        if (accessError) throw accessError;
+        const access = data as unknown as AccountAccess;
+        if (!access || !['active', 'suspended', 'pending_review', 'admin_deleted'].includes(access.status)) throw new Error('Invalid access response');
+        if (!active) return;
+        if (previousAccessStatus.current !== access.status) clearAllCaches();
+        previousAccessStatus.current = access.status;
+        setAccountAccess(access);
+        if (access.status !== 'active') navigate('/dashboard?tab=my-events', { replace: true });
+        setAccountAccessError(null);
+      } catch {
+        if (active) { clearAllCaches(); setAccountAccessError('Unable to verify account access. Please try again.'); }
+      } finally { checking = false; if (active) setSuspensionLoading(false); }
+    };
+    void check();
+    const interval = window.setInterval(() => void check(), 5000);
+    const focus = () => void check();
+    window.addEventListener('focus', focus);
+    document.addEventListener('visibilitychange', focus);
+    return () => { active = false; window.clearInterval(interval); window.removeEventListener('focus', focus); document.removeEventListener('visibilitychange', focus); };
+  }, [session?.user.id, sessionLoading, attempt, navigate, suspensionAccessEnabled]);
 
   const applySession = useCallback((nextSession: Session | null, clearBootstrapError = false) => {
     if (!mounted.current) return;
@@ -186,6 +241,7 @@ export const AuthenticatedSessionProvider: React.FC<React.PropsWithChildren> = (
 
   useEffect(() => {
     if (sessionLoading) return;
+    if (suspensionAccessEnabled && (!accountAccess || accountAccess.status !== 'active')) { setAccessLoading(false); return; }
     if (error) { setAccessLoading(false); return; }
     if (!session) {
       setAccessLoading(false);
@@ -212,7 +268,7 @@ export const AuthenticatedSessionProvider: React.FC<React.PropsWithChildren> = (
         if (active) setAccessLoading(false);
       });
     return () => { active = false; };
-  }, [error, navigate, session, sessionLoading]);
+  }, [error, navigate, session, sessionLoading, accountAccess?.status, suspensionAccessEnabled]);
 
   const retry = useCallback(() => {
     clearLifecycleCache();
@@ -222,7 +278,7 @@ export const AuthenticatedSessionProvider: React.FC<React.PropsWithChildren> = (
     setAttempt((value) => value + 1);
   }, []);
   return (
-    <AuthenticatedSessionContext.Provider value={{ session, loading: sessionLoading || accessLoading, error, retry }}>
+    <AuthenticatedSessionContext.Provider value={{ session, loading: sessionLoading || accessLoading || suspensionLoading, error: error || (suspensionAccessEnabled ? accountAccessError : null), retry, accountAccess: suspensionAccessEnabled ? accountAccess : null }}>
       <React.Fragment key={session?.user.id ?? 'anonymous'}>{children}</React.Fragment>
     </AuthenticatedSessionContext.Provider>
   );

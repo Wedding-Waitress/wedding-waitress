@@ -1,6 +1,10 @@
+import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@18.5.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import { validatePaidAccessExtension } from '../_shared/accessExtensionRules.ts';
+import { validatePaidPlanFulfillmentEvidence, validatePaidPlanLedgerReplayEvidence } from '../_shared/paidPlanFulfillmentEvidence.ts';
+import { findOriginalPaymentSuccessEvent } from '../_shared/originalPaymentSuccessEvent.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -71,23 +75,10 @@ const RSVP_TIER_LIMITS: Record<string, number> = {
   "prod_Tyt6a9w3AuwyzB": 1000,
 };
 
-// Extension product IDs
-const EXTENSION_PRODUCT_IDS = new Set([
-  // Essential extensions
-  "prod_TytxX16sHIR9nG", "prod_Tyu7cnAAMQfoWM", "prod_Tyu8DeDOjwI7kF",
-  "prod_Tyu9Penbgx0b5M", "prod_TyuAWtZzBIK8VU", "prod_TyuBFmQiiIO7aU",
-  "prod_TyuChtV169WvvQ",
-  // Premium extensions
-  "prod_TyuO2FCjdV9e4c", "prod_TyuOOztgn9A91A", "prod_TyuPcRhvbTuVaQ",
-  "prod_TyuQ0vCns1b6sN", "prod_TyuRtJpRuT1GWs", "prod_TyuSqYELiHGkIS",
-  "prod_TyuScTpMTUDABh",
-  // Unlimited extensions
-  "prod_TyuTlpKyA7RoeG", "prod_TyuTVX1fTZbeCc", "prod_TyuUVFhtZRyVYj",
-  "prod_TyuUsIDNTY1S16", "prod_TyuUvck5CobTGg", "prod_TyuVXb9EZNXWEz",
-  "prod_TyuVFVumB5xkRa",
-]);
 
 serve(async (req) => {
+  const suspensionResponse = await guardSuspendedCustomer(req, { allowEntitlementRecovery: true });
+  if (suspensionResponse) return suspensionResponse;
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }
@@ -126,6 +117,11 @@ serve(async (req) => {
     const productId = product?.id || "";
     const metadata = session.metadata || {};
     const eventId = metadata.event_id;
+    const recoveryPlan = PRODUCT_TO_PLAN[productId];
+    if (!recoveryPlan || recoveryPlan.is_vendor || metadata.purchase_type) {
+      const normalAccessResponse = await guardSuspendedCustomer(req);
+      if (normalAccessResponse) return normalAccessResponse;
+    }
 
     // Trust Stripe session metadata for user identity (set by create-checkout).
     // This avoids requiring a live auth header on the success-page redirect.
@@ -502,52 +498,36 @@ serve(async (req) => {
       });
     }
 
-    // ── Plan Extension Purchase ──
-    if (EXTENSION_PRODUCT_IDS.has(productId)) {
-      const extensionMonths = parseInt(metadata.extension_months || "0", 10);
-      if (!extensionMonths) throw new Error("extension_months metadata missing");
+    // ── Prepaid Access Extension ──
+    if (purchaseTypeMeta === "access_extension" || metadata.type === "access_extension") {
+      const validation = validatePaidAccessExtension({
+        months: metadata.extension_months, metadataAmount: metadata.expected_amount_cents,
+        pricingVersion: metadata.pricing_version, productPurchaseType: product?.metadata?.purchase_type,
+        paymentStatus: session.payment_status, currency: session.currency?.toLowerCase(), amountTotal: session.amount_total,
+        lineCurrency: price?.currency?.toLowerCase(), lineUnitAmount: price?.unit_amount, lineQuantity: lineItem?.quantity,
+      });
+      if (!validation.ok) throw new Error(`Access-extension payment validation failed: ${validation.reason}`);
+      const { months: extensionMonths, amountCents: expectedAmount } = validation;
 
-      // Get current subscription
-      const { data: subData, error: subFetchError } = await supabase
-        .from("user_subscriptions")
-        .select("expires_at, grace_period_ends_at, download_only_ends_at")
-        .eq("user_id", userId)
-        .single();
-
-      if (subFetchError || !subData) throw new Error("Could not fetch subscription");
-
-      // Extend from current expiry (or now if already expired)
-      const currentExpiry = new Date(subData.expires_at);
-      const baseDate = currentExpiry > new Date() ? currentExpiry : new Date();
-      const newExpiry = new Date(baseDate);
-      newExpiry.setMonth(newExpiry.getMonth() + extensionMonths);
-
-      const newGrace = new Date(newExpiry);
-      newGrace.setMonth(newGrace.getMonth() + 6);
-      const downloadOnlyEndsAt = new Date(newExpiry);
-      downloadOnlyEndsAt.setDate(downloadOnlyEndsAt.getDate() + 30);
-
-      const { error: updateError } = await supabase
-        .from("user_subscriptions")
-        .update({
-          expires_at: newExpiry.toISOString(),
-          grace_period_ends_at: newGrace.toISOString(),
-          download_only_ends_at: downloadOnlyEndsAt.toISOString(),
-          status: "active",
-          is_read_only: false,
-          updated_at: new Date().toISOString(),
-        })
-        .eq("user_id", userId);
-
-      if (updateError) throw new Error(`Failed to extend: ${updateError.message}`);
-
-      logStep("Plan extended", { extensionMonths, newExpiry: newExpiry.toISOString() });
+      const { data: fulfillmentRows, error: fulfillmentError } = await supabase.rpc("fulfill_access_extension", {
+        _stripe_session_id: session_id,
+        _user_id: userId,
+        _months: extensionMonths,
+        _amount_cents: expectedAmount,
+        _currency: "AUD",
+        _payment_status: session.payment_status,
+      });
+      if (fulfillmentError) throw fulfillmentError;
+      const fulfillment = Array.isArray(fulfillmentRows) ? fulfillmentRows[0] : fulfillmentRows;
+      logStep("Access extension fulfilled", { extensionMonths, result: fulfillment?.result });
 
       return new Response(JSON.stringify({
         type: "extension",
         status: "active",
         extension_months: extensionMonths,
-        new_expires_at: newExpiry.toISOString(),
+        expires_at: fulfillment?.new_expires_at,
+        new_expires_at: fulfillment?.new_expires_at,
+        fulfillment: fulfillment?.result,
       }), {
         headers: { ...corsHeaders, "Content-Type": "application/json" },
         status: 200,
@@ -561,52 +541,44 @@ serve(async (req) => {
       throw new Error('New Wedding Waitress plan purchases must be paid in Australian dollars (AUD)');
     }
 
-    const now = new Date();
-    let expiresAt: Date;
-    let status = "active";
-
-    if (planInfo.is_vendor) {
-      // Vendor Pro: 30-day billing cycle, requires admin approval
-      expiresAt = new Date(now);
-      expiresAt.setDate(expiresAt.getDate() + 30);
-      status = "pending_approval";
-      logStep("Vendor Pro — pending admin approval");
-    } else {
-      // One-time plans: 12 months
-      expiresAt = new Date(now);
-      expiresAt.setFullYear(expiresAt.getFullYear() + 1);
+    if (planInfo.is_vendor) throw new Error('Vendor Pro purchases are unavailable');
+    // Always check the metadata owner, including anonymous success-page callbacks.
+    // Checking only the caller's token would miss holds on the account receiving access.
+    const { data: ownerBlocked, error: ownerAccessError } = await supabase.rpc('is_account_suspension_blocked', { p_user_id: userId });
+    if (ownerAccessError || ownerBlocked !== false) throw new Error('Payment account access could not be verified');
+    const intentId = typeof session.payment_intent === 'string' ? session.payment_intent : session.payment_intent?.id;
+    if (!intentId) throw new Error('Verified payment intent is required');
+    const intent = await stripe.paymentIntents.retrieve(intentId, { expand: ['latest_charge'] });
+    const charge = typeof intent.latest_charge === 'object' && intent.latest_charge ? intent.latest_charge : null;
+    if (!charge) throw new Error('Verified captured payment is required');
+    const serverNow = Math.floor(Date.now() / 1000);
+    const { data: priorPlanPurchase, error: priorPlanError } = await supabase.from('paid_plan_purchases')
+      .select('user_id,stripe_session_id,stripe_payment_intent_id,plan_id,purpose,currency,amount_subtotal_cents,amount_total_cents,catalogue_version,payment_reference_at')
+      .eq('user_id', userId).eq('stripe_session_id', session.id).maybeSingle();
+    if (priorPlanError) throw new Error('Original payment ledger could not be verified');
+    // Recorded replay survives Stripe's 30-day event-list retention without
+    // inventing an event or deriving a new term from the verification-page time.
+    const evidence = priorPlanPurchase
+      ? validatePaidPlanLedgerReplayEvidence(session, intent, charge, priorPlanPurchase, serverNow)
+      : validatePaidPlanFulfillmentEvidence(session, intent, charge,
+        await findOriginalPaymentSuccessEvent(intentId, intent.created, serverNow,
+          async (query) => await stripe.events.list(query)), serverNow);
+    if (evidence._user_id !== userId || evidence._plan_id !== planInfo.plan_db_id) throw new Error('Payment account evidence is inconsistent');
+    const { data: fulfillment, error: fulfillmentError } = await supabase.rpc('fulfill_paid_plan_purchase', evidence);
+    if (fulfillmentError) throw new Error('Verified payment fulfillment could not complete');
+    if (!fulfillment || !['fulfilled', 'already_fulfilled'].includes(fulfillment.result)
+      || fulfillment.plan_id !== evidence._plan_id || !['active', 'expired'].includes(fulfillment.status)
+      || !Number.isFinite(Date.parse(fulfillment.started_at)) || !Number.isFinite(Date.parse(fulfillment.expires_at))
+      || Date.parse(fulfillment.expires_at) <= Date.parse(fulfillment.started_at)) {
+      throw new Error('Verified payment fulfillment returned no valid access term');
     }
-
-    // Grace period = 6 months after expiry
-    const gracePeriodEndsAt = new Date(expiresAt);
-    gracePeriodEndsAt.setMonth(gracePeriodEndsAt.getMonth() + 6);
-    const downloadOnlyEndsAt = new Date(expiresAt);
-    downloadOnlyEndsAt.setDate(downloadOnlyEndsAt.getDate() + 30);
-
-    // Update user_subscriptions
-    const { error: subError } = await supabase
-      .from("user_subscriptions")
-      .update({
-        plan_id: planInfo.plan_db_id,
-        status,
-        started_at: now.toISOString(),
-        expires_at: expiresAt.toISOString(),
-        grace_period_ends_at: gracePeriodEndsAt.toISOString(),
-        download_only_ends_at: downloadOnlyEndsAt.toISOString(),
-        is_read_only: planInfo.is_vendor ? true : false, // Vendor Pro is read-only until approved
-        updated_at: now.toISOString(),
-      })
-      .eq("user_id", userId);
-
-    if (subError) {
-      logStep("ERROR updating subscription", { error: subError.message });
-      throw new Error(`Failed to update subscription: ${subError.message}`);
-    }
-
-    logStep("Subscription updated", { plan: planInfo.name, status, expiresAt: expiresAt.toISOString() });
+    const now = new Date(evidence._payment_reference_at);
+    const expiresAt = new Date(fulfillment.expires_at);
+    const status = fulfillment.status;
+    logStep('Original payment term verified', { result: fulfillment.result, status });
 
     // Fire-and-forget admin payment notification. Failures must NOT break payment success.
-    try {
+    if (fulfillment.result === 'fulfilled') try {
       const amountPaid = ((session.amount_total || 0) / 100).toFixed(2);
       // userEmail was resolved earlier via admin.getUserById(userId)
       const { data: profile } = await supabase

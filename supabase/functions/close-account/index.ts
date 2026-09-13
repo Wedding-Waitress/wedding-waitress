@@ -1,32 +1,35 @@
-import Stripe from "https://esm.sh/stripe@18.5.0";
-import { createClient } from "npm:@supabase/supabase-js@2.57.2";
+import { createClient } from 'npm:@supabase/supabase-js@2.57.2';
 
-const corsHeaders={"Access-Control-Allow-Origin":"*","Access-Control-Allow-Headers":"authorization, x-client-info, apikey, content-type"};
-const json=(body:unknown,status=200)=>new Response(JSON.stringify(body),{status,headers:{...corsHeaders,"Content-Type":"application/json"}});
+const corsHeaders = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization, x-client-info, apikey, content-type' };
+const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), { status, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
-Deno.serve(async(req)=>{
-  if(req.method==="OPTIONS") return new Response(null,{headers:corsHeaders});
-  if(req.method!=="POST") return json({error:"Method not allowed"},405);
-  try{
-    const authHeader=req.headers.get("Authorization"); if(!authHeader?.startsWith("Bearer ")) return json({error:"Unauthenticated"},401);
-    const url=Deno.env.get("SUPABASE_URL")!,anon=Deno.env.get("SUPABASE_ANON_KEY")!,service=Deno.env.get("SUPABASE_SERVICE_ROLE_KEY")!;
-    const userClient=createClient(url,anon,{global:{headers:{Authorization:authHeader}}});
-    const admin=createClient(url,service,{auth:{persistSession:false}});
-    const token=authHeader.slice(7); const {data:{user},error:userError}=await userClient.auth.getUser(token);
-    if(userError||!user?.email) return json({error:"Unauthenticated"},401);
-    const payload=JSON.parse(atob(token.split('.')[1].replace(/-/g,'+').replace(/_/g,'/')));
-    if(!payload.auth_time||Date.now()/1000-Number(payload.auth_time)>600) return json({error:"Recent authentication is required"},401);
-    const {confirmation}=await req.json(); if(confirmation!=="DELETE"&&String(confirmation).toLowerCase()!==user.email.toLowerCase()) return json({error:"Confirmation text does not match"},400);
-    const {data:membership}=await admin.from("account_members").select("role,account_owner_id").eq("member_user_id",user.id).eq("account_owner_id",user.id).maybeSingle();
-    if(membership?.role!=="master") return json({error:"Only the account owner can delete this account"},403);
-    let cancelled=true,cancellationError:string|null=null;
-    const stripeKey=Deno.env.get("STRIPE_SECRET_KEY");
-    if(stripeKey){
-      try{const stripe=new Stripe(stripeKey,{apiVersion:"2025-08-27.basil"});const customers=await stripe.customers.list({email:user.email,limit:1});if(customers.data[0]){const subscriptions=await stripe.subscriptions.list({customer:customers.data[0].id,status:"all",limit:100});for(const sub of subscriptions.data.filter(s=>["active","trialing","past_due","unpaid"].includes(s.status))) await stripe.subscriptions.cancel(sub.id);}}
-      catch(error){cancelled=false;cancellationError=error instanceof Error?error.message:"Stripe cancellation failed";}
+Deno.serve(async req => {
+  if (req.method === 'OPTIONS') return new Response(null, { headers: corsHeaders });
+  if (req.method !== 'POST') return json({ error: 'Method not allowed' }, 405);
+  try {
+    const authorization = req.headers.get('Authorization');
+    if (!authorization?.startsWith('Bearer ')) return json({ error: 'Unauthenticated' }, 401);
+    const client = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_ANON_KEY')!, {
+      global: { headers: { Authorization: authorization } }, auth: { persistSession: false },
+    });
+    const { data: { user }, error: authError } = await client.auth.getUser(authorization.slice(7));
+    if (authError || !user?.email) return json({ error: 'Unauthenticated' }, 401);
+    const { confirmation, operation } = await req.json();
+    // Old DELETE clients cannot silently convert an erasure acknowledgement into closure.
+    if (operation !== 'ordinary_closure') return json({ error: 'Please refresh and review the current account closure terms.' }, 409);
+    if (confirmation !== 'CLOSE' && (typeof confirmation !== 'string' || confirmation.trim().toLowerCase() !== user.email.toLowerCase())) {
+      return json({ error: 'Confirmation text does not match' }, 400);
     }
-    const {data,error}=await admin.rpc("schedule_account_closure",{p_user_id:user.id,p_stripe_cancelled:cancelled,p_processing_error:cancellationError,p_metadata:{source:"self_service",stripe_configured:!!stripeKey}});
-    if(error) return json({error:error.message},error.code==="42501"?403:500);
-    return json({success:true,lifecycle:data,stripeCancellationSucceeded:cancelled,warning:cancellationError});
-  }catch(error){return json({error:error instanceof Error?error.message:"Account closure failed"},500);}
+    // SQL verifies recent signed AMR/auth_time, master ownership and holds.
+    const { data, error } = await client.rpc('deactivate_my_account');
+    if (error) {
+      if (error.code === '42501') return json({ error: 'Closure requires a recently authenticated, unrestricted account owner.' }, 403);
+      console.error('[CLOSE-ACCOUNT] Deactivation failed', { code: error.code });
+      return json({ error: 'Account closure could not be completed. No success has been confirmed.' }, 503);
+    }
+    if (!data || data.status !== 'scheduled_for_deletion' || !data.ordinary_closed_at) return json({ error: 'Account closure could not be verified.' }, 503);
+    return json({ success: true, lifecycle: data });
+  } catch {
+    return json({ error: 'Account closure could not be completed.' }, 500);
+  }
 });

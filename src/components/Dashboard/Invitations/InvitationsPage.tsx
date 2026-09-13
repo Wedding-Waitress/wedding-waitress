@@ -6,11 +6,11 @@ import type { Event } from '@/hooks/useEvents';
 import { useInvitationCardSettings, CardType, QrConfig } from '@/hooks/useInvitationCardSettings';
 import { InvitationCardCustomizer, PRESET_ZONES, PRESET_Y_POSITIONS, PRESET_STYLES } from './InvitationCardCustomizer';
 import { InvitationCardPreview } from './InvitationCardPreview';
-import { formatDisplayDate, formatDisplayTime } from '@/lib/utils';
 import { Loader2, LoaderCircle, FileText, CalendarDays, Mail, MailOpen, CalendarHeart, HandHeart, BadgeCheck, Printer, Download, Plus, Copy, Trash2, Pencil } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/enhanced-button';
 import { generateInvitationQR } from '@/lib/invitationQR';
+import {invitationEventDataFromEvent} from '@/lib/invitationEventData';
 import { toast } from '@/hooks/use-toast';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
@@ -128,31 +128,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
 
   const selectedEvent = useMemo(() => events.find(e => e.id === selectedEventId), [events, selectedEventId]);
 
-  const eventData = useMemo(() => {
-    if (!selectedEvent) return {};
-    const p1 = selectedEvent.partner1_name || '';
-    const p2 = selectedEvent.partner2_name || '';
-    const coupleNames = p1 && p2 ? `${p1} & ${p2}` : p1 || p2 || selectedEvent.name;
-
-    return {
-      couple_names: coupleNames,
-      event_name: selectedEvent.name || '',
-      date: selectedEvent.date ? formatDisplayDate(selectedEvent.date) : '',
-      date_raw: selectedEvent.date || '',
-      venue: selectedEvent.venue || '',
-      time: selectedEvent.start_time ? formatDisplayTime(selectedEvent.start_time) : '',
-      finish_time: selectedEvent.finish_time ? formatDisplayTime(selectedEvent.finish_time) : '',
-      rsvp_deadline: selectedEvent.rsvp_deadline ? formatDisplayDate(selectedEvent.rsvp_deadline) : '',
-      rsvp_deadline_raw: selectedEvent.rsvp_deadline || '',
-      ceremony_enabled: selectedEvent.ceremony_enabled ? 'true' : 'false',
-      ceremony_venue: selectedEvent.ceremony_venue || '',
-      ceremony_venue_address: selectedEvent.ceremony_venue_address || '',
-      ceremony_time: selectedEvent.ceremony_start_time ? formatDisplayTime(selectedEvent.ceremony_start_time) : '',
-      ceremony_finish_time: selectedEvent.ceremony_finish_time ? formatDisplayTime(selectedEvent.ceremony_finish_time) : '',
-      reception_enabled: selectedEvent.reception_enabled ? 'true' : 'false',
-      venue_address: selectedEvent.venue_address || '',
-    };
-  }, [selectedEvent]);
+  const eventData = useMemo(() => invitationEventDataFromEvent(selectedEvent), [selectedEvent]);
 
   const CARD_SIZE_MM = INVITATION_CARD_SIZES;
 

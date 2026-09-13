@@ -33,15 +33,19 @@ describe('public dashboard background reuse', () => {
     expect(publicStyles).toMatch(/#root:has\(\.ww-pricing-page\) \{\s*height: auto;/);
   });
 
-  it('reuses the authenticated embossed secondary-button treatment for brown public CTAs', () => {
+  it('preserves espresso public CTAs and the separately approved light account secondary buttons', () => {
     const publicStyles = read('src/styles/PublicSite.css');
     const accountControls = read('src/components/Account/AccountControls.module.css');
 
     const approvedBackground = 'linear-gradient(180deg, rgba(255,244,225,.16) 0%, transparent 38%), linear-gradient(180deg, #70452f 0%, #4a2a20 55%, #2b1712 100%)';
     const approvedShadow = 'inset 0 1px rgba(255,244,225,.24), inset 0 -2px rgba(12,4,2,.38), 0 6px 14px rgba(13,5,3,.25)';
 
-    expect(accountControls).toContain(approvedBackground);
-    expect(accountControls).toContain(approvedShadow);
+    const secondary = accountControls.match(/\.secondaryButton\s*\{([^}]*)\}/)?.[1];
+    expect(secondary).toBeDefined();
+    expect(secondary).toContain('border: 1px solid #806344 !important;');
+    expect(secondary).toContain('color: #806344 !important;');
+    expect(secondary).toContain('background: #fbf8f2 !important;');
+    expect(accountControls).toContain('outline: 2px solid #755332 !important;');
     expect(publicStyles).toContain('.ww-button-espresso');
     expect(publicStyles).toContain(approvedBackground);
     expect(publicStyles).toContain(approvedShadow);

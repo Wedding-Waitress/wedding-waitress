@@ -1,3 +1,4 @@
+import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 // =============================================================================
 // optimize-image — shared edge function for Signage / Invitations / Place Cards.
 //
@@ -33,6 +34,8 @@ const PREVIEW_MAX = 2400;
 const THUMB_MAX = 400;
 
 Deno.serve(async (req) => {
+  const suspensionResponse = await guardSuspendedCustomer(req);
+  if (suspensionResponse) return suspensionResponse;
   if (req.method === "OPTIONS") {
     return new Response(null, { headers: corsHeaders });
   }

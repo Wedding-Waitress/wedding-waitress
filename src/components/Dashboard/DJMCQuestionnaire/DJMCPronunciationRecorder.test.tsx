@@ -1,12 +1,13 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
-import { beforeEach, describe, expect, it, vi } from 'vitest';
+import { afterEach,beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   sign: vi.fn(),
   remove: vi.fn(),
   upload: vi.fn(),
   toast: vi.fn(),
+  preview:vi.fn(),play:vi.fn(),playback:vi.fn(),
 }));
 
 vi.mock('@/lib/djmcPronunciationStorage', () => ({
@@ -15,19 +16,38 @@ vi.mock('@/lib/djmcPronunciationStorage', () => ({
   uploadDJMCPronunciation: mocks.upload,
 }));
 vi.mock('@/hooks/use-toast', () => ({ useToast: () => ({ toast: mocks.toast }) }));
+vi.mock('@/hooks/useAdminPreviewMedia',()=>({useAdminPreviewMedia:mocks.preview}));
 
 import { DJMCPronunciationRecorder } from './DJMCPronunciationRecorder';
+import {ReadOnlyAccountPreviewProvider} from '@/contexts/ReadOnlyAccountPreviewContext';
 
 const eventId = '20000000-0000-4000-8000-000000000002';
 const itemId = '30000000-0000-4000-8000-000000000003';
 const path = `10000000-0000-4000-8000-000000000001/${eventId}/${itemId}/40000000-0000-4000-8000-000000000004.webm`;
 
 describe('DJMCPronunciationRecorder secure lifecycle', () => {
+  it('allows read-only preview playback without exposing recording mutations',async()=>{
+    const onChange=vi.fn();
+    render(<ReadOnlyAccountPreviewProvider customerId="customer-fixture"><DJMCPronunciationRecorder audioPath={path} eventId={eventId} itemId={itemId} onChange={onChange} disabled/></ReadOnlyAccountPreviewProvider>);
+    expect(screen.getByRole('button',{name:'Play recording'})).toBeEnabled();
+    expect(screen.queryByRole('button',{name:'Delete recording'})).not.toBeInTheDocument();
+    expect(screen.queryByRole('button',{name:'Record pronunciation'})).not.toBeInTheDocument();
+    expect(mocks.preview).toHaveBeenCalledWith('customer-fixture',eventId,'questionnaire_audio',itemId,true);
+    fireEvent.click(screen.getByRole('button',{name:'Play recording'}));
+    await waitFor(()=>expect(mocks.play).toHaveBeenCalled());
+    expect(mocks.playback).toHaveBeenCalledWith('https://verified-preview.example/recording');
+    expect(mocks.sign).not.toHaveBeenCalled();
+    expect(mocks.remove).not.toHaveBeenCalled();expect(mocks.upload).not.toHaveBeenCalled();expect(onChange).not.toHaveBeenCalled();
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     mocks.sign.mockResolvedValue('https://signed.example/recording');
     mocks.remove.mockResolvedValue(undefined);
+    mocks.preview.mockImplementation((_customer:string,_event:string,_kind:string,_item:string,enabled:boolean)=>({url:enabled?'https://verified-preview.example/recording':null,error:false,loading:false}));
+    mocks.play.mockResolvedValue(undefined);
+    vi.stubGlobal('Audio',class {onended=null;constructor(url:string){mocks.playback(url);}play=mocks.play;pause(){}});
   });
+  afterEach(()=>vi.unstubAllGlobals());
 
   it('removes the storage object before clearing the saved database path', async () => {
     const onChange = vi.fn();

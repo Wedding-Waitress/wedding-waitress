@@ -19,13 +19,16 @@ interface Props {
   settings: SlideshowSettings;
   loading?: boolean;
   appearance?: 'default' | 'espresso-glass';
+  /** Support previews fail visibly if any signed asset cannot load. */
+  strictAssets?: boolean;
 }
 
-export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, eventName, onExit, settings, loading, appearance = 'default' }) => {
+export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, eventName, onExit, settings, loading, appearance = 'default', strictAssets = false }) => {
   const isGlass = appearance === 'espresso-glass';
   const [index, setIndex] = useState(0);
   const [paused, setPaused] = useState(false);
   const [isFs, setIsFs] = useState(false);
+  const [assetFailed,setAssetFailed] = useState(false);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const timerRef = useRef<number | null>(null);
 
@@ -52,14 +55,16 @@ export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, eventName,
   }, [eligible.length, settings.loop, index]);
 
   const current = eligible.length ? eligible[Math.min(index, eligible.length - 1)] : null;
+  useEffect(()=>{setAssetFailed(false);},[current?.id,current?.signed_url]);
+  const stopForAssetError=()=>{setAssetFailed(true);setPaused(true);};
 
   useEffect(() => {
     if (timerRef.current) { window.clearTimeout(timerRef.current); timerRef.current = null; }
-    if (!current || paused) return;
+    if (!current || paused || (strictAssets && assetFailed)) return;
     const ms = current.kind === 'photo' ? settings.slide_duration_sec * 1000 : MAX_VIDEO_MS;
     timerRef.current = window.setTimeout(advance, ms);
     return () => { if (timerRef.current) window.clearTimeout(timerRef.current); };
-  }, [current?.id, paused, settings.slide_duration_sec, advance]); // eslint-disable-line react-hooks/exhaustive-deps
+  }, [current?.id, paused, settings.slide_duration_sec, advance, strictAssets, assetFailed]); // eslint-disable-line react-hooks/exhaustive-deps
 
   useEffect(() => {
     const h = () => setIsFs(!!document.fullscreenElement);
@@ -99,13 +104,13 @@ export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, eventName,
         <Button variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={() => setIndex(i => (eligible.length ? (i - 1 + eligible.length) % eligible.length : 0))} disabled={!eligible.length}>
           <SkipBack size={16} strokeWidth={1.8} className="mr-1.5" /> Previous
         </Button>
-        <Button variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={() => setPaused(p => !p)} disabled={!eligible.length}>
+        <Button variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={() => setPaused(p => !p)} disabled={!eligible.length || (strictAssets && assetFailed)}>
           {paused ? <><Play size={16} strokeWidth={1.8} className="mr-1.5" /> Play</> : <><Pause size={16} strokeWidth={1.8} className="mr-1.5" /> Pause</>}
         </Button>
         <Button variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={() => setIndex(i => (eligible.length ? (i + 1) % eligible.length : 0))} disabled={!eligible.length}>
           <SkipForward size={16} strokeWidth={1.8} className="mr-1.5" /> Next
         </Button>
-        <Button variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={() => { setIndex(0); setPaused(false); }} disabled={!eligible.length}>
+        <Button variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={() => { setIndex(0); setPaused(false); if(strictAssets)setAssetFailed(false); }} disabled={!eligible.length}>
           <RotateCcw size={16} strokeWidth={1.8} className="mr-1.5" /> Restart
         </Button>
         <Button variant="outline" size="sm" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} onClick={toggleFullscreen} disabled={!eligible.length}>
@@ -114,7 +119,9 @@ export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, eventName,
       </div>
 
       <div ref={stageRef} className="relative w-full aspect-video rounded-xl overflow-hidden bg-black flex items-center justify-center" data-slideshow-preview-stage>
-        {loading ? (
+        {strictAssets && assetFailed ? (
+          <p role="alert" className="text-white text-sm px-6 text-center">The verified slideshow asset could not load. No substitute media is shown.</p>
+        ) : loading ? (
           <p className="text-white/70 text-sm">Loading media…</p>
         ) : !current ? (
           <div className="text-center px-6">
@@ -128,6 +135,7 @@ export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, eventName,
             alt={current.caption || 'Guest photo'}
             loading="lazy"
             decoding="async"
+            onError={strictAssets ? stopForAssetError : undefined}
             className={`absolute inset-0 w-full h-full object-contain ${transitionClass}`}
           />
         ) : (
@@ -139,7 +147,7 @@ export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, eventName,
             playsInline
             preload="metadata"
             onEnded={advance}
-            onError={advance}
+            onError={strictAssets ? stopForAssetError : advance}
             className={`absolute inset-0 w-full h-full object-contain ${transitionClass}`}
           />
         )}

@@ -40,7 +40,8 @@ import { resolveWelcomeVideoUrl } from '@/lib/liveViewMediaConfig';
 import { linkSavedCeremonyPlan } from '@/lib/ceremonyFloorPlanLink';
 import { createQRSaveQueue, persistQRDesign } from '@/lib/qrDesignPersistence';
 import type { QRCodeSettings } from '@/hooks/useQRCodeSettings';
-import { DEFAULT_QR_SETTINGS } from '@/hooks/useQRCodeSettings';
+import {qrPreviewSettings} from '@/lib/qrPreviewSettings';
+import {createCustomerQrJPG,createCustomerQrSVG,createCustomerQrPDF,printCustomerQr} from '@/lib/qrCustomerExports';
 import styles from './QRCodeSeatingChart.module.css';
 interface QRCodeMainCardProps {
   eventId: string;
@@ -274,41 +275,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
   // Convert local settings to QRCodeSettings format
   const convertToQRCodeSettings = useCallback((): QRCodeSettings => {
-    return {
-      ...DEFAULT_QR_SETTINGS,
-      event_id: eventId,
-      user_id: '',
-      background_color: qrColors.background,
-      foreground_color: qrColors.foreground,
-      dots_color: qrColors.dotsColor,
-      marker_border_color: qrColors.markerBorderColor,
-      marker_center_color: qrColors.markerCenterColor,
-      dots_shape: qrShapes.dotsShape,
-      marker_border_shape: qrShapes.markerBorderShape,
-      marker_center_shape: qrShapes.markerCenterShape,
-      center_image_url: qrLogo.url || undefined,
-      center_image_size: qrLogo.size,
-      shape: qrShapes.dotsShape,
-      pattern: 'basic',
-      pattern_style: 'default',
-      corner_style: 'square',
-      border_style: 'none',
-      border_width: 0,
-      border_color: qrColors.foreground,
-      has_scan_text: false,
-      scan_text: '',
-      gradient_type: 'none',
-      gradient_colors: [],
-      background_image_url: undefined,
-      shadow_enabled: false,
-      shadow_color: '#000000',
-      shadow_blur: 10,
-      background_opacity: 1.0,
-      output_size: 512,
-      output_format: 'png',
-      color_palette: 'custom',
-      advanced_settings: {}
-    } as QRCodeSettings;
+    return qrPreviewSettings(eventId,qrColors,qrShapes,qrLogo);
   }, [eventId, qrColors, qrShapes, qrLogo]);
 
   // Debounced QR render function using AdvancedQRGenerator
@@ -405,17 +372,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const handleDownloadJPG = useCallback(async () => {
     if (!qrDataUrl) return;
     setDownloading('jpg');
-    // Convert PNG to JPG
-    const canvas = document.createElement('canvas');
-    const ctx = canvas.getContext('2d');
-    const img = new Image();
-    img.onload = () => {
-      canvas.width = img.width;
-      canvas.height = img.height;
-      ctx!.fillStyle = '#FFFFFF';
-      ctx!.fillRect(0, 0, canvas.width, canvas.height);
-      ctx!.drawImage(img, 0, 0);
-      const jpgDataUrl = canvas.toDataURL('image/jpeg', 0.9);
+    try {
+      const jpgDataUrl = await createCustomerQrJPG(qrDataUrl);
       const link = document.createElement('a');
       link.download = `qr-code-${selectedEvent?.name || 'event'}.jpg`;
       link.href = jpgDataUrl;
@@ -424,30 +382,13 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
       toast({
         title: "JPG downloaded successfully!"
       });
-    };
-    img.src = qrDataUrl;
+    } catch { toast({title:'Error downloading JPG',variant:'destructive'}); }
+    finally { setDownloading(null); }
   }, [qrDataUrl, selectedEvent?.name, toast]);
   const handleDownloadSVG = useCallback(async () => {
     if (!eventUrl || !qrDataUrl) return;
     try {
-      // Convert canvas to SVG (simplified approach)
-      const canvas = document.createElement('canvas');
-      const ctx = canvas.getContext('2d');
-      const img = new Image();
-      img.onload = () => {
-        canvas.width = img.width;
-        canvas.height = img.height;
-        ctx!.drawImage(img, 0, 0);
-
-        // Create a simple SVG wrapper
-        const svgContent = `
-          <svg xmlns="http://www.w3.org/2000/svg" width="${img.width}" height="${img.height}">
-            <image href="${qrDataUrl}" width="${img.width}" height="${img.height}"/>
-          </svg>
-        `;
-        const blob = new Blob([svgContent], {
-          type: 'image/svg+xml'
-        });
+        const blob = await createCustomerQrSVG(qrDataUrl);
         const url = URL.createObjectURL(blob);
         const link = document.createElement('a');
         link.download = `qr-code-${selectedEvent?.name || 'event'}.svg`;
@@ -457,8 +398,6 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
         toast({
           title: "SVG downloaded successfully!"
         });
-      };
-      img.src = qrDataUrl;
     } catch (error) {
       toast({
         title: "Error downloading SVG",
@@ -469,21 +408,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const handleDownloadPDF = useCallback(async () => {
     if (!qrDataUrl) return;
     try {
-      const { savePdfAsync, PDF_DEFAULT_OPTIONS } = await import('@/lib/pdfExportUtils');
-      const { default: jsPDF } = await import('jspdf');
-      const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', ...PDF_DEFAULT_OPTIONS });
-      await new Promise<void>((resolve, reject) => {
-        const img = new Image();
-        img.onload = () => {
-          const qrSize = 100;
-          const x = (210 - qrSize) / 2;
-          const y = (297 - qrSize) / 2;
-          pdf.addImage(img, 'PNG', x, y, qrSize, qrSize);
-          resolve();
-        };
-        img.onerror = reject;
-        img.src = qrDataUrl;
-      });
+      const { savePdfAsync } = await import('@/lib/pdfExportUtils');
+      const pdf = await createCustomerQrPDF(qrDataUrl);
       await savePdfAsync(pdf, `qr-code-${selectedEvent?.name || 'event'}.pdf`);
       toast({ title: "PDF downloaded successfully!" });
     } catch (error) {
@@ -498,27 +424,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   }, []);
   const handlePrintQR = useCallback(() => {
     if (!qrDataUrl) return;
-    const printWindow = window.open('', '_blank');
-    if (printWindow) {
-      printWindow.document.write(`
-        <html>
-          <head>
-            <title>QR Code - ${selectedEvent?.name || 'Event'}</title>
-            <style>
-              body { margin: 0; padding: 20px; text-align: center; }
-              img { max-width: 100%; height: auto; }
-              h1 { font-family: Arial, sans-serif; margin-bottom: 20px; }
-            </style>
-          </head>
-          <body>
-            <h1>QR Code - ${selectedEvent?.name || 'Event'}</h1>
-            <img src="${qrDataUrl}" alt="QR Code" />
-          </body>
-        </html>
-      `);
-      printWindow.document.close();
-      printWindow.print();
-    }
+    try { printCustomerQr(qrDataUrl, selectedEvent?.name || 'Event'); }
+    catch { toast({title:'The QR print window could not be opened',variant:'destructive'});return; }
     toast({
       title: "QR code sent to printer"
     });

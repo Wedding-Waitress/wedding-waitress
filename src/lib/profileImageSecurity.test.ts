@@ -21,8 +21,10 @@ describe('profile image storage and Account Centre dialog safeguards', () => {
     expect(migration).toContain("profile_image_path = id::text || '/profile-image'");
   });
 
-  it('defines dark fields, mobile overflow protection and reduced-motion handling for dialogs', () => {
-    expect(dialogCss).toContain('background: radial-gradient');
+  it('defines dashboard-palette fields, mobile overflow protection and reduced-motion handling for dialogs', () => {
+    expect(dialogCss).toContain('background: #fbf8f2');
+    expect(dialogCss).toContain('border: 1px solid #cdb99e');
+    expect(dialogCss).toContain('color: #2b1711');
     expect(dialogCss).toContain('overflow-y: auto');
     expect(dialogCss).toContain('min-height: 46px');
     expect(dialogCss).toContain('@media (max-width: 767px)');

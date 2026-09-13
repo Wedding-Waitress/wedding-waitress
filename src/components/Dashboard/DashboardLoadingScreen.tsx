@@ -28,6 +28,8 @@ export const CORE_DASHBOARD_LOADING_TABS = new Set([
 interface DashboardLoadingScreenProps {
   contained?: boolean;
   appearance?: DashboardLoadingAppearance;
+  title?: string;
+  description?: string;
 }
 
 export const getDashboardLoadingAppearance = (
@@ -50,7 +52,11 @@ export const getDashboardLoadingAppearance = (
   return dashboardTab && CORE_DASHBOARD_LOADING_TABS.has(dashboardTab) ? 'core' : 'neutral';
 };
 
-const CoreDashboardLoadingScreen: React.FC<{ contained: boolean }> = ({ contained }) => (
+const CoreDashboardLoadingScreen: React.FC<{
+  contained: boolean;
+  title?: string;
+  description?: string;
+}> = ({ contained, title, description }) => (
   <div
     className={cn(
       'flex w-full items-center justify-center overflow-x-hidden px-4',
@@ -67,6 +73,7 @@ const CoreDashboardLoadingScreen: React.FC<{ contained: boolean }> = ({ containe
         'w-full max-w-xs rounded-2xl p-6 text-center sm:p-7',
         managementStyles.glassCard,
         managementStyles.loadingGlassPanel,
+        styles.coreCard,
       )}
       data-dashboard-loading-card
     >
@@ -75,16 +82,17 @@ const CoreDashboardLoadingScreen: React.FC<{ contained: boolean }> = ({ containe
         className={cn(
           'mx-auto mb-3 h-6 w-6 motion-safe:animate-spin motion-reduce:animate-none',
           managementStyles.loadingGlassSpinner,
+          styles.coreSpinner,
         )}
         strokeWidth={1.8}
       />
       <CardTitle
-        className={cn('text-lg font-medium text-white', managementStyles.loadingGlassTitle)}
+        className={cn('text-lg font-medium text-white', managementStyles.loadingGlassTitle, styles.coreTitle)}
       >
-        {contained ? 'Loading Page...' : 'Loading Dashboard...'}
+        {title ?? (contained ? 'Loading Page...' : 'Loading Dashboard...')}
       </CardTitle>
-      <CardDescription className="mt-1 text-sm">
-        Please wait while we set up your workspace
+      <CardDescription className={cn('mt-1 text-sm', styles.coreDescription)}>
+        {description ?? 'Please wait while we set up your workspace'}
       </CardDescription>
     </Card>
   </div>
@@ -138,13 +146,21 @@ const NeutralDashboardLoadingScreen: React.FC<{ contained: boolean }> = ({ conta
 export const DashboardLoadingScreen: React.FC<DashboardLoadingScreenProps> = ({
   contained = false,
   appearance = 'neutral',
+  title,
+  description,
 }) => {
   if (appearance === 'neutral') {
     return <NeutralDashboardLoadingScreen contained={contained} />;
   }
 
   if (appearance === 'core') {
-    return <CoreDashboardLoadingScreen contained={contained} />;
+    return (
+      <CoreDashboardLoadingScreen
+        contained={contained}
+        title={title}
+        description={description}
+      />
+    );
   }
 
   return (

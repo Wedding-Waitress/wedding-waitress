@@ -1,0 +1,17 @@
+.surface,.surface * { box-sizing:border-box; }
+.surface { min-height:100dvh; padding:24px; background:#f0e9dd; color:#2f1b14; font-family:Manrope, sans-serif; }
+.surface header { display:flex; align-items:center; justify-content:space-between; gap:16px; max-width:960px; margin:0 auto 32px; }
+.surface img { width:220px; max-width:60%; }
+.surface button { min-height:40px; border:1px solid #806344; border-radius:10px; padding:10px 16px; background:#fbf8f2; }
+.card { max-width:760px; margin:auto; padding:clamp(20px,5vw,40px); border:1px solid #d8bc91; border-radius:18px; background:#fbf8f2; box-shadow:0 12px 28px #39241512; }
+.card h1 { font-size:clamp(22px,4vw,30px); font-weight:600; margin:12px 0; }
+.card p { line-height:1.6; margin:12px 0; overflow-wrap:anywhere; }
+.eyebrow { font-weight:600; }
+.reason { padding:16px; margin:24px 0; background:#f4eadb; border:1px solid #d8bc91; border-radius:12px; white-space:pre-wrap; }
+.reason h2,.card label { font-weight:600; }
+.card textarea { width:100%; padding:12px; margin-top:8px; border:1px solid #806344; border-radius:10px; background:#fffdf8; color:#2f1b14; resize:vertical; }
+.hint { font-size:13px; }
+.surface .send { background:linear-gradient(180deg,#7bd880,#55a447); color:#fff; border:0; text-shadow:0 1px 2px #0008; box-shadow:inset 0 1px #ffffff80,inset 0 -2px #37652d66,0 4px 10px #426a2a30; }
+.surface button:disabled { opacity:.6; cursor:not-allowed; }
+.surface :is(button,textarea):focus-visible { outline:2px solid #806344; outline-offset:3px; }
+@media(max-width:520px) { .surface { padding:16px; } }

@@ -7,7 +7,7 @@ export class AdvancedQRGenerator {
   private renderScale: number;
   private reservedModules: boolean[][] = [];
   
-  constructor(size: number = 512, private preserveFunctionPatterns = false) {
+  constructor(size: number = 512, private preserveFunctionPatterns = false, private strictAssets = false) {
     // Render at 2x resolution internally for smoother curves and anti-aliased edges
     this.renderScale = 2;
     const renderSize = size * this.renderScale;
@@ -116,7 +116,7 @@ export class AdvancedQRGenerator {
   }
 
   private async drawBackgroundImage(settings: QRCodeSettings) {
-    return new Promise<void>((resolve) => {
+    return new Promise<void>((resolve, reject) => {
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => {
@@ -125,7 +125,7 @@ export class AdvancedQRGenerator {
         this.ctx.globalAlpha = 1;
         resolve();
       };
-      img.onerror = () => resolve();
+      img.onerror = () => this.strictAssets ? reject(new Error('Saved QR background failed to load')) : resolve();
       img.src = settings.background_image_url!;
     });
   }
@@ -376,7 +376,7 @@ export class AdvancedQRGenerator {
   }
 
   private async applyCenterImage(settings: QRCodeSettings) {
-    return new Promise<void>((resolve) => {
+    return new Promise<void>((resolve, reject) => {
       const img = new Image();
       img.crossOrigin = 'anonymous';
       img.onload = () => {
@@ -402,7 +402,7 @@ export class AdvancedQRGenerator {
         
         resolve();
       };
-      img.onerror = () => resolve();
+      img.onerror = () => this.strictAssets ? reject(new Error('Saved QR logo failed to load')) : resolve();
       img.src = settings.center_image_url!;
     });
   }

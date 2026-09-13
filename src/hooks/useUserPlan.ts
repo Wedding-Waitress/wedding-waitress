@@ -13,7 +13,6 @@ export interface UserPlan {
   status: string;
   is_read_only: boolean;
   expires_at: string | null;
-  download_only_ends_at: string | null;
   trial_extended: boolean;
 }
 
@@ -57,7 +56,7 @@ const requestUserPlan = () => {
     if (!data?.length) return null;
     const row = data[0];
     const { data: subData } = await supabase
-      .from('user_subscriptions').select('plan_id, trial_extended, download_only_ends_at').eq('user_id', user.id).limit(1).single();
+      .from('user_subscriptions').select('plan_id, trial_extended').eq('user_id', user.id).limit(1).single();
     let tableLimit: number | null = null;
     if (subData?.plan_id) {
       const { data: planData } = await supabase
@@ -75,7 +74,6 @@ const requestUserPlan = () => {
       status: row.status,
       is_read_only: row.is_read_only,
       expires_at: row.expires_at,
-      download_only_ends_at: subData?.download_only_ends_at ?? null,
       trial_extended: subData?.trial_extended ?? false,
     };
     if (generation !== getCacheGeneration()) throw new Error('Plan request superseded by an account change.');
@@ -139,9 +137,6 @@ export const useUserPlan = () => {
 
   const canSendRsvp = plan ? (plan.can_send_email || plan.can_send_sms) : false;
 
-  const isDownloadOnly = plan?.status === 'grace_period' && plan.is_read_only;
-  const downloadWindowExpired = !!plan?.download_only_ends_at && new Date(plan.download_only_ends_at) < new Date();
-
   return {
     plan,
     loading: loading || ownerAccessLoading,
@@ -149,7 +144,5 @@ export const useUserPlan = () => {
     isTrialExpired,
     isStarterPlan,
     canSendRsvp,
-    isDownloadOnly: hasPlatformOwnerAccess ? false : isDownloadOnly,
-    downloadWindowExpired: hasPlatformOwnerAccess ? false : downloadWindowExpired,
   };
 };

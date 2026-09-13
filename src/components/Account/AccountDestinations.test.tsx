@@ -1,15 +1,10 @@
 import React from 'react';
 import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { HelpSupportSection, PlansUpgradesSection } from './AccountDestinations';
+import { HelpSupportSection } from './AccountDestinations';
 
-const mocks = vi.hoisted(() => ({ navigate: vi.fn(), invoke: vi.fn() }));
+const mocks = vi.hoisted(() => ({ invoke: vi.fn() }));
 
-vi.mock('react-router-dom', () => ({ useNavigate: () => mocks.navigate }));
-vi.mock('@/components/Pricing/PricingSection', () => ({
-  PricingSection: ({ onPlanSelect }: { onPlanSelect: (plan: string) => void }) => <button onClick={() => onPlanSelect('premium')}>Choose Premium</button>,
-}));
-vi.mock('@/components/Dashboard/RsvpOverageModal', () => ({ RsvpOverageModal: () => null }));
 vi.mock('@/hooks/useUserPlan', () => ({ useUserPlan: () => ({ plan: { plan_name: 'Essential', guest_limit: 100 } }) }));
 vi.mock('@/hooks/useEventLimits', () => ({ useEventLimits: () => ({ includedEvents: 1, additionalPurchased: 0, currentEvents: 1 }) }));
 vi.mock('@/hooks/useAccountSeats', () => ({ useAccountSeats: () => ({ usedSeats: 1, maxSeats: 3 }) }));
@@ -30,12 +25,6 @@ vi.mock('sonner', () => ({ toast: { info: vi.fn(), success: vi.fn(), error: vi.f
 
 describe('Account Centre moved destinations', () => {
   beforeEach(() => { vi.clearAllMocks(); });
-
-  it('blocks package checkout while Stripe still has the former prices', async () => {
-    render(<PlansUpgradesSection />);
-    fireEvent.click(screen.getByRole('button', { name: 'Choose Premium' }));
-    expect(mocks.navigate).not.toHaveBeenCalled();
-  });
 
   it('submits support through the existing transactional-email function', async () => {
     mocks.invoke.mockResolvedValue({ error: null });

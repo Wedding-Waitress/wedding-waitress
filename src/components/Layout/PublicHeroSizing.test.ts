@@ -1,7 +1,7 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-const publicSiteCss = readFileSync('src/styles/PublicSite.css', 'utf8');
+const publicSiteCss = readFileSync('src/styles/PublicSite.css', 'utf8').replace(/\r\n/g, '\n');
 
 describe('public hero viewport sizing contract', () => {
   it('uses one full-width, below-header minimum height for every shared hero', () => {
@@ -31,5 +31,15 @@ describe('public hero viewport sizing contract', () => {
     expect(publicSiteCss).toMatch(/--ww-public-hero-gutter:\s*clamp\(1\.25rem,\s*6vw,\s*1\.5rem\)/);
     expect(publicSiteCss).toMatch(/@media \(min-width:\s*640px\) and \(max-width:\s*1023px\)[\s\S]*--ww-public-hero-gutter:\s*2\.5rem/);
     expect(publicSiteCss).toMatch(/@media \(min-width:\s*1024px\)[\s\S]*--ww-public-hero-gutter:\s*clamp\(3rem,\s*7vw,\s*8\.75rem\)/);
+  });
+
+  it('keeps every shared photographic hero shade at seventy-two percent of its original opacity', () => {
+    expect(publicSiteCss).toContain(
+      '.ww-public-hero-shade {\n  z-index: 2;\n  background: linear-gradient(90deg, rgba(25,12,8,.648) 0%, rgba(35,18,12,.5184) 36%, rgba(35,18,12,.144) 70%, rgba(20,10,7,.0576) 100%), linear-gradient(0deg, rgba(18,8,5,.2304), transparent 48%);\n}',
+    );
+    expect(publicSiteCss).toContain(
+      '.ww-public-hero-shade { background: linear-gradient(0deg, rgba(25,12,8,.6768) 0%, rgba(31,15,10,.5184) 55%, rgba(24,11,8,.1296) 100%); }',
+    );
+    expect(publicSiteCss).not.toContain('.ww-home-cinematic-hero .ww-public-hero-shade');
   });
 });

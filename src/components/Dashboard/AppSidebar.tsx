@@ -110,19 +110,6 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
               className={`${styles.logo} h-12 sm:h-10 md:h-14 w-auto group-data-[collapsible=icon]:!h-auto group-data-[collapsible=icon]:!w-9`}
             />
           </div>
-          <button
-            type="button"
-            onClick={toggleSidebar}
-            aria-label={sidebarToggleLabel}
-            title={sidebarToggleLabel}
-            className={styles.sidebarToggle}
-          >
-            {isSidebarExpanded ? (
-              <PanelLeftClose size={20} strokeWidth={1.8} aria-hidden="true" />
-            ) : (
-              <PanelLeftOpen size={20} strokeWidth={1.8} aria-hidden="true" />
-            )}
-          </button>
         </div>
       </SidebarHeader>
       <SidebarContent className={`${styles.content} pt-2`}>
@@ -182,7 +169,22 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
           </SidebarGroupContent>
         </SidebarGroup>
       </SidebarContent>
-      <SidebarFooter className={`${styles.footer} border-t mt-3 pt-3 p-2`}>
+      <div className={styles.sidebarToggleDock} data-sidebar-toggle-dock>
+        <button
+          type="button"
+          onClick={toggleSidebar}
+          aria-label={sidebarToggleLabel}
+          title={sidebarToggleLabel}
+          className={styles.sidebarToggle}
+        >
+          {isSidebarExpanded ? (
+            <PanelLeftClose size={20} strokeWidth={1.8} aria-hidden="true" />
+          ) : (
+            <PanelLeftOpen size={20} strokeWidth={1.8} aria-hidden="true" />
+          )}
+        </button>
+      </div>
+      <SidebarFooter className={`${styles.footer} border-t pt-3 p-2`}>
         <SidebarMenu>
           <SidebarMenuItem>
             <DropdownMenu>

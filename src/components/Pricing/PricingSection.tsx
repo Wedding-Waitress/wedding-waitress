@@ -21,6 +21,12 @@ interface Props {
   onPlanSelect?: (plan: PlanKey) => void;
 }
 
+const mediaAllowanceFeatures = [
+  'Up to 5,000 images, including photo booth images',
+  'Up to 100 videos; each ordinary video up to 5 minutes and 600 MB',
+  '10 GB shared media storage per event; storage may fill before these counts',
+] as const;
+
 export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
   const { t } = useTranslation('landing');
   const { currency } = useCurrencyContext();
@@ -93,7 +99,7 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
             {!publicPage && <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>}
             {publicPage && <p className="text-xs text-primary/70 mb-6">GST added where applicable</p>}
             <ul className="space-y-3 mb-8">
-              {([`${PUBLIC_COUPLE_PLAN_DETAILS.essential.communicationCredits} Email & SMS credits included`, t('pricing.features.oneEvent'), t('pricing.features.fullAccess'), t('pricing.features.easySetup')]).map((f) => (
+              {([`${PUBLIC_COUPLE_PLAN_DETAILS.essential.communicationCredits} Email & SMS credits included`, ...mediaAllowanceFeatures, t('pricing.features.oneEvent'), t('pricing.features.fullAccess'), t('pricing.features.easySetup')]).map((f) => (
                 <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
                   <CircleCheck size={16} strokeWidth={1.8} aria-hidden="true" className="text-primary mt-0.5 shrink-0" />
                   {f}
@@ -126,7 +132,7 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
             {!publicPage && <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>}
             {publicPage && <p className="text-xs text-primary/70 mb-6">GST added where applicable</p>}
             <ul className="space-y-3 mb-8">
-              {([`${PUBLIC_COUPLE_PLAN_DETAILS.premium.communicationCredits} Email & SMS credits included`, t('pricing.features.oneEvent'), t('pricing.features.fullAccess'), t('pricing.features.easySetup')]).map((f) => (
+              {([`${PUBLIC_COUPLE_PLAN_DETAILS.premium.communicationCredits} Email & SMS credits included`, ...mediaAllowanceFeatures, t('pricing.features.oneEvent'), t('pricing.features.fullAccess'), t('pricing.features.easySetup')]).map((f) => (
                 <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
                   <CircleCheck size={16} strokeWidth={1.8} aria-hidden="true" className="text-primary mt-0.5 shrink-0" />
                   {f}
@@ -138,11 +144,11 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
             {!publicPage && <p className="text-xs text-gray-400 text-center mt-1">{t('pricing.cardTrust')}</p>}
           </div>
 
-          {/* Unlimited */}
+          {/* Ultimate (the internal plan key remains "unlimited" for billing compatibility) */}
           <div className="bg-white rounded-[20px] p-8 shadow-[0_4px_30px_rgba(0,0,0,0.08)] hover:-translate-y-2 hover:shadow-[0_8px_40px_rgba(0,0,0,0.12)] transition-all duration-300">
             <div className="flex items-center gap-2 mb-4">
               <Heart size={22} strokeWidth={1.8} aria-hidden="true" className="text-primary" />
-              <h3 className="text-xl font-bold text-gray-900">{publicPage ? PUBLIC_COUPLE_PLAN_DETAILS.unlimited.name : t('pricing.unlimited.name')}</h3>
+              <h3 className="text-xl font-bold text-gray-900">{PUBLIC_COUPLE_PLAN_DETAILS.unlimited.name}</h3>
             </div>
             <div className="flex items-baseline gap-2 mb-1">
               <span className="text-4xl font-bold text-gray-900">{formatPrice(currency, plans.unlimited.price)}</span>
@@ -152,7 +158,7 @@ export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {
             {!publicPage && <p className="text-xs text-primary/70 mb-6">{t('pricing.saveLine')}</p>}
             {publicPage && <p className="text-xs text-primary/70 mb-6">GST added where applicable</p>}
             <ul className="space-y-3 mb-8">
-              {([`${PUBLIC_COUPLE_PLAN_DETAILS.unlimited.communicationCredits} Email & SMS credits included`, t('pricing.features.oneEvent'), t('pricing.features.fullAccess'), t('pricing.features.easySetup')]).map((f) => (
+              {([`${PUBLIC_COUPLE_PLAN_DETAILS.unlimited.communicationCredits} Email & SMS credits included`, ...mediaAllowanceFeatures, t('pricing.features.oneEvent'), t('pricing.features.fullAccess'), t('pricing.features.easySetup')]).map((f) => (
                 <li key={f} className="flex items-start gap-2 text-sm text-gray-600">
                   <CircleCheck size={16} strokeWidth={1.8} aria-hidden="true" className="text-primary mt-0.5 shrink-0" />
                   {f}

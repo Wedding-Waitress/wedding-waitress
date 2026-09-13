@@ -10,6 +10,8 @@ import { beginGuidedSetup, GUIDED_SETUP_ROUTE } from '@/lib/guidedEventSetup';
 import { getSafeAuthenticatedReturnTo } from '@/lib/authNavigation';
 import { AuthError, AuthLegal, AuthModalHeader, VerificationCodeForm, authModalStyles as styles } from './AuthModalParts';
 import { SignInModal } from './SignInModal';
+import { normalizeGuestPhone } from '@/lib/guestPhone';
+import { PRELAUNCH_SIGNUP_HOLD, PRELAUNCH_NOTICE, savePrelaunchRegistration } from '@/lib/prelaunch';
 
 export interface SignUpPlanContext {
   key: 'essential' | 'premium' | 'unlimited' | 'vendor_pro';
@@ -23,10 +25,10 @@ interface SignUpModalProps {
   redirectTo?: string;
 }
 
-interface FormData { first_name: string; last_name: string; email: string; mobile: string; }
+interface FormData { first_name: string; last_name: string; email: string; mobile: string; promo_code: string; }
 
 const emptyCode = () => ['', '', '', '', '', ''];
-const emptyForm = (): FormData => ({ first_name: '', last_name: '', email: '', mobile: '' });
+const emptyForm = (): FormData => ({ first_name: '', last_name: '', email: '', mobile: '', promo_code: '' });
 const mapVerificationError = (message?: string) => {
   if (!message) return 'Verification failed. Please try again.';
   if (/expired/i.test(message)) return 'This code has expired. Request a new code and try again.';
@@ -36,7 +38,7 @@ const mapVerificationError = (message?: string) => {
 
 export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan, redirectTo }) => {
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState<'form' | 'verify'>('form');
+  const [step, setStep] = useState<'form' | 'verify' | 'launch-notice'>('form');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>(emptyForm);
   const [verificationCode, setVerificationCode] = useState(emptyCode);
@@ -68,7 +70,9 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
         data: {
           first_name: formData.first_name.trim(),
           last_name: formData.last_name.trim(),
-          mobile: formData.mobile.trim(),
+          mobile: normalizeGuestPhone(formData.mobile),
+          // Untrusted pending input only. Never an entitlement or redemption proof.
+          ...(formData.promo_code.trim() ? { pending_promo_code: formData.promo_code.trim() } : {}),
           ...(selectedPlan ? { intended_plan: selectedPlan.key, intended_currency: 'AUD' } : {}),
         },
       },
@@ -78,6 +82,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
 
   const handleSubmit = async (event: React.FormEvent) => {
     event.preventDefault();
+    if (requestInFlightRef.current || loading) return;
     setError('');
     if ([formData.first_name, formData.last_name, formData.email, formData.mobile].some((value) => !value.trim())) {
       setError('Please fill in all required fields.');
@@ -92,6 +97,12 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
     signupRequestStartedAtRef.current = Date.now();
     setLoading(true);
     try {
+      if (PRELAUNCH_SIGNUP_HOLD) {
+        await savePrelaunchRegistration({ ...formData, intended_plan: selectedPlan?.key });
+        signupRequestStartedAtRef.current = null;
+        setStep('launch-notice');
+        return;
+      }
       const requestError = await requestCode();
       if (requestError) { signupRequestStartedAtRef.current = null; setError(requestError.message); return; }
       if (selectedPlan) {
@@ -101,7 +112,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
       setStep('verify');
       setResendTimer(30);
     } catch {
-      setError('An unexpected error occurred. Please try again.');
+      setError(PRELAUNCH_SIGNUP_HOLD ? 'We couldn’t confirm your registration. Please check your details and try again.' : 'An unexpected error occurred. Please try again.');
     } finally {
       requestInFlightRef.current = false;
       setLoading(false);
@@ -181,7 +192,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
       <DialogContent className={styles.dialog} overlayClassName="bg-black/75" onEscapeKeyDown={(event) => { if (loading) event.preventDefault(); }}>
         {step === 'form' ? (
           <>
-            <AuthModalHeader icon={UserPlus} title="Create your free account" description="Start planning your wedding in one connected place." signUpReassurance selectedPlan={selectedPlan?.name} />
+            <AuthModalHeader icon={UserPlus} title="Create your free account" description={PRELAUNCH_SIGNUP_HOLD ? 'Register your interest. Planning access will open when Wedding Waitress launches.' : 'Start planning your wedding in one connected place.'} signUpReassurance={!PRELAUNCH_SIGNUP_HOLD} selectedPlan={selectedPlan?.name} />
             <form onSubmit={handleSubmit} className={styles.body} noValidate>
               <div className={styles.fieldStack}>
                 <div className={styles.fieldGroup}>
@@ -200,19 +211,33 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
                   <Label htmlFor={`${idPrefix}-mobile`} className={styles.label}><Phone aria-hidden />Mobile *</Label>
                   <Input id={`${idPrefix}-mobile`} type="tel" inputMode="tel" placeholder="04XX XXX XXX" className={styles.input} value={formData.mobile} onChange={updateField('mobile')} autoComplete="tel" required disabled={loading} aria-invalid={Boolean(error && !formData.mobile.trim())} />
                 </div>
+                <div className={styles.fieldGroup}>
+                  <Label htmlFor={`${idPrefix}-promo-code`} className={styles.label}>Promo code (optional)</Label>
+                  <Input id={`${idPrefix}-promo-code`} placeholder="Enter your promo code" className={styles.input} value={formData.promo_code} onChange={updateField('promo_code')} autoComplete="off" maxLength={64} disabled={loading} aria-describedby={`${idPrefix}-promo-help`} />
+                  <p id={`${idPrefix}-promo-help`}>{PRELAUNCH_SIGNUP_HOLD ? 'Your code is saved for future checking. No code is redeemed and no trial starts before launch.' : 'Your seven-day trial stays free. Any valid discount applies when you choose your first package.'}</p>
+                </div>
               </div>
               <AuthError message={error} />
               <button type="submit" className={styles.primaryButton} disabled={loading} aria-live="polite">
                 {loading ? <LoaderCircle size={18} className="animate-spin" aria-hidden /> : <Send size={18} aria-hidden />}
-                {loading ? 'Creating your account…' : 'Create Free Account & Continue'}
+                {loading ? (PRELAUNCH_SIGNUP_HOLD ? 'Saving your registration…' : 'Creating your account…') : 'Create Free Account & Continue'}
               </button>
               <AuthLegal onNavigate={navigateFromModal} />
               <p className={styles.switchLine}>Already have an account?{' '}<button type="button" className={styles.linkButton} onClick={() => { setOpen(false); setSignInOpen(true); }}>Sign in</button></p>
             </form>
           </>
+        ) : step === 'launch-notice' ? (
+          <>
+            <AuthModalHeader icon={CheckCircle2} title="Thank you — you’re on our launch list" description={PRELAUNCH_NOTICE} />
+            <div className={styles.body}>
+              <p>Your details are saved. No account access, trial, payment or promotional code has been activated, and no notification has been sent yet.</p>
+              <button type="button" className={styles.primaryButton} onClick={() => handleOpenChange(false)}>Done</button>
+            </div>
+          </>
         ) : (
           <>
             <AuthModalHeader icon={CheckCircle2} title="Check your email" description={`We sent a 6-digit verification code to ${formData.email.trim().toLowerCase()}.`} selectedPlan={selectedPlan?.name} />
+            {formData.promo_code.trim() && <p role="status" className="text-sm text-center">Your promo code is saved for checking at your first package checkout. Eligible new accounts still receive the seven-day free trial. Entering a code does not activate paid access.</p>}
             <VerificationCodeForm email={formData.email.trim().toLowerCase()} code={verificationCode} setCode={setVerificationCode} loading={loading} error={error} resendTimer={resendTimer} onVerify={handleVerifyCode} onResend={handleResend} onCorrectEmail={correctEmail} />
           </>
         )}
