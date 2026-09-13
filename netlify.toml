@@ -1,0 +1,4 @@
+# Explicitly include the approved country-only endpoint in Git and CLI deploys.
+# Keep existing site build, publish, environment and redirect settings unchanged.
+[build]
+  edge_functions = "netlify/edge-functions"
