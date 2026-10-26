@@ -6,6 +6,12 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - 'src/lib/prelaunch.ts'
+      - 'src/components/auth/**'
+      - 'src/lib/promotion*.test.ts'
+      - 'src/lib/promotionWorkflow.integration.test.ts'
+      - 'supabase/functions/create-promotion-checkout/**'
+      - 'supabase/functions/verify-promotion-payment/**'
+      - 'supabase/functions/stripe-promotion-webhook/**'
       - 'src/lib/packagePricing.ts'
       - 'src/lib/stripePrices.ts'
       - 'src/lib/currencyPricing.ts'
@@ -38,7 +44,7 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
       - name: Run checkout contract tests
-        run: npx vitest run src/lib/packagePricing.test.ts src/pages/UpgradeCheckout.consent.test.tsx src/lib/paidPlanFulfillmentEvidence.test.ts src/lib/paidPlanVerificationHandler.test.ts src/lib/renewalCheckoutHandler.test.ts
+        run: npx vitest run src/lib/packagePricing.test.ts src/pages/UpgradeCheckout.consent.test.tsx src/lib/paidPlanFulfillmentEvidence.test.ts src/lib/paidPlanVerificationHandler.test.ts src/lib/renewalCheckoutHandler.test.ts src/components/auth/PublicAuthModals.test.tsx src/lib/promotionRules.test.ts src/lib/promotionStripeEvidence.test.ts src/lib/promotionProviderAdapter.test.ts src/lib/promotionCheckoutService.test.ts src/lib/promotionFulfillment.test.ts src/lib/promotionWorkflow.integration.test.ts
       - name: Typecheck
         run: npx tsc --noEmit
       - name: Build production app
