@@ -1,0 +1,38 @@
+name: Repair Wedding Waitress npm lockfile
+on:
+  push:
+    branches:
+      - fix/stripe-live-catalogue-expo-2026
+    paths:
+      - '.github/workflows/repair-npm-lockfile.yml'
+permissions:
+  contents: write
+jobs:
+  repair:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout draft branch
+        uses: actions/checkout@v4
+        with:
+          ref: fix/stripe-live-catalogue-expo-2026
+          persist-credentials: true
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Reconcile lockfile without running dependency scripts
+        run: npm install --package-lock-only --legacy-peer-deps --ignore-scripts --no-audit --no-fund
+      - name: Verify the lockfile with a clean install
+        run: npm ci --ignore-scripts --no-audit --no-fund
+      - name: Commit repaired lockfile to draft branch
+        run: |
+          if git diff --quiet -- package-lock.json; then
+            echo 'package-lock.json already in sync'
+            exit 0
+          fi
+          git config user.name 'github-actions[bot]'
+          git config user.email '41898282+github-actions[bot]@users.noreply.github.com'
+          git add package-lock.json
+          git commit -m 'Reconcile npm lockfile with current package versions'
+          git push origin HEAD:fix/stripe-live-catalogue-expo-2026
