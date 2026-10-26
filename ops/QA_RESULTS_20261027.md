@@ -88,3 +88,8 @@ Stripe work remains parked at the owner's explicit request.
 - Browser check: direct navigation to preview `/dashboard` while unsigned redirected to the homepage and opened the Welcome back email-code sign-in modal. No dashboard or customer data rendered. No credential entry or email submission was attempted.
 - QA has no public views; neither anonymous nor authenticated roles have CREATE privilege on public schema; anon has no USAGE on private schema. These are focused checks, not full function audit completion.
 - The installed Supabase CLI supports backup listing, but a read-only production backup-list attempt returned `Access token not provided`. Browser backup inspection is likewise behind sign-in. Database-backup verification remains a concrete access blocker; no restore or further auth request was attempted.
+
+
+## Fresh source-candidate CI result
+
+GitHub Actions run `40407654308` for source commit `ed4571c56c31e65376809bb39b05a7f847462767` completed successfully. Locked dependency installation, storage ownership check, critical advisory check, complete regression suite, TypeScript check and production build all passed. This supersedes the in-progress observations above. The ready Netlify preview remains a non-production deployment. Email/browser E2Es, parked Stripe tests, remaining security review and database-backup readiness are not cleared by CI.
