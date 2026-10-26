@@ -149,6 +149,4 @@ verify_jwt = true
 [functions.stripe-promotion-webhook]
 verify_jwt = false
 
-# Anonymous interest registration; private service-only persistence and throttling.
-[functions.register-prelaunch-interest]
-verify_jwt = false
+# Historical prelaunch registration endpoint retired from current source.
