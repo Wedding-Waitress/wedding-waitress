@@ -44,9 +44,9 @@ export const PLAN_PRICING: Record<CurrencyCode, {
   unlimited: PlanPricing;
 }> = {
   AUD: {
-    essential: { price: PACKAGE_PRICES_AUD.essential, price_id: 'price_1UDdle5GzTmqOxGKj3yu56jP' },
-    premium:   { price: PACKAGE_PRICES_AUD.premium, price_id: 'price_1UDeO75GzTmqOxGK2JYrvH7I' },
-    unlimited: { price: PACKAGE_PRICES_AUD.unlimited, price_id: 'price_1UDeO95GzTmqOxGKZmJq53Ee' },
+    essential: { price: PACKAGE_PRICES_AUD.essential, price_id: 'price_1UFTfT5GzTmqOxGKWxqjYWed' },
+    premium:   { price: PACKAGE_PRICES_AUD.premium, price_id: 'price_1UFTfW5GzTmqOxGKjj1dBGKR' },
+    unlimited: { price: PACKAGE_PRICES_AUD.unlimited, price_id: 'price_1UFTfa5GzTmqOxGK9EDWU9t6' },
   },
   USD: {
     essential: { price: converted(PACKAGE_PRICES_AUD.essential, 'USD'), price_id: 'price_1UDdle5GzTmqOxGKuDmLmMN9' },
