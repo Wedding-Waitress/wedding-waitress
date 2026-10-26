@@ -6,7 +6,7 @@ const fixture = () => ({
     created: 1700000000, payment_intent: 'pi_Original1', currency: 'aud', amount_subtotal: 19900, amount_total: 21890,
     total_details: { amount_discount: 0, amount_shipping: 0, amount_tax: 1990 },
     metadata: { user_id: owner, plan_type: 'essential', catalogue_version: PAID_PLAN_CATALOGUE_VERSION, purchase_consent: 'explicit-v1', plan_purchase_purpose: 'renewal' },
-    line_items: { has_more: false, data: [{ quantity: 1, amount_subtotal: 19900, price: { currency: 'aud', unit_amount: 19900, product: 'prod_UOQhHcOhFdrhOs' } }] } },
+    line_items: { has_more: false, data: [{ quantity: 1, amount_subtotal: 19900, price: { currency: 'aud', unit_amount: 19900, product: 'ww_live_20260914_v2_essential' } }] } },
   intent: { object: 'payment_intent', id: 'pi_Original1', livemode: true, status: 'succeeded', latest_charge: 'ch_Original1', currency: 'aud', amount: 21890, amount_received: 21890, created: 1700000001 },
   charge: { object: 'charge', id: 'ch_Original1', payment_intent: 'pi_Original1', livemode: true, status: 'succeeded', paid: true, captured: true, refunded: false, amount_refunded: 0, disputed: false, currency: 'aud', amount: 21890, created: 1700000002 },
   event: { object: 'event', id: 'evt_Original1', livemode: true, type: 'payment_intent.succeeded', created: 1700000400, data: { object: { id: 'pi_Original1', status: 'succeeded' } } },
@@ -62,7 +62,7 @@ describe('original paid-plan provider evidence', () => {
     const f = fixture();
     const session = { ...f.session, amount_subtotal: 5000, amount_total: 5500, total_details: { amount_discount: 0, amount_shipping: 0, amount_tax: 500 },
       metadata: { ...f.session.metadata, plan_type: 'premium', from_plan: 'essential', plan_purchase_purpose: 'upgrade' },
-      line_items: { has_more: false, data: [{ quantity: 1, amount_subtotal: 5000, price: { currency: 'aud', unit_amount: 5000, product: 'prod_UOQhTWnFzXV1FK' } }] } };
+      line_items: { has_more: false, data: [{ quantity: 1, amount_subtotal: 5000, price: { id: 'price_1UFTfd5GzTmqOxGKfwtvD4lt', currency: 'aud', unit_amount: 5000, product: 'ww_live_20260914_v2_essential_to_premium' } }] } };
     const intent = { ...f.intent, amount: 5500, amount_received: 5500 };
     const charge = { ...f.charge, amount: 5500 };
     const evidence = validatePaidPlanFulfillmentEvidence(session, intent, charge, f.event, 1800000000);
