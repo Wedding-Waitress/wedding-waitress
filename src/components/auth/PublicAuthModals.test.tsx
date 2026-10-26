@@ -44,7 +44,7 @@ describe('shared public authentication modals', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Open sign up' }));
 
     expect(await screen.findByRole('heading', { name: 'Create your free account' })).toBeInTheDocument();
-    expect(screen.queryByText('7-day free trial · Up to 20 guests')).not.toBeInTheDocument();
+    expect(screen.getByText('7-day free trial · Up to 20 guests')).toBeInTheDocument();
     expect(screen.getByText('Start planning your wedding in one connected place.')).toBeInTheDocument();
     expect(screen.getByLabelText('First name *')).toHaveAttribute('autocomplete', 'given-name');
     expect(screen.getByLabelText('Last name *')).toHaveAttribute('autocomplete', 'family-name');
@@ -65,14 +65,14 @@ describe('shared public authentication modals', () => {
     fireEvent.change(await screen.findByLabelText('First name *'), { target: { value: 'Alex' } });
     fireEvent.change(screen.getByLabelText('Last name *'), { target: { value: 'Taylor' } });
     fireEvent.change(screen.getByLabelText('Email *'), { target: { value: 'alex@example.com' } });
-    fireEvent.change(screen.getByLabelText('Mobile *'), { target: { value: '0412 345 678' } });
+    fireEvent.change(screen.getByLabelText('Mobile *'), { target: { value: '+61 412 345 678' } });
     fireEvent.change(screen.getByLabelText('Promo code (optional)'), { target: { value: 'VENUE50' } });
     fireEvent.click(screen.getByRole('button', { name: 'Create Free Account & Continue' }));
 
     await waitFor(() => expect(mocks.signInWithOtp).toHaveBeenCalledWith({
       email: 'alex@example.com',
       options: { shouldCreateUser: true, data: expect.objectContaining({
-        first_name: 'Alex', last_name: 'Taylor', mobile: '0412345678',
+        first_name: 'Alex', last_name: 'Taylor', mobile: '+61412345678',
         pending_promo_code: 'VENUE50', intended_plan: 'premium', intended_currency: 'AUD',
       }) },
     }));
