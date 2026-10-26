@@ -60,3 +60,11 @@ Fresh focused run: **18 test files / 131 tests passed**. Covered public auth mod
 - Do not delete QA while these gates are open. No claim that all independent testing or launch verification is complete.
 
 The owner explicitly authorized continuing routine QA fixes/tests without repeated confirmation. This does not waive missing authentication or the production deployment hold.
+
+## Follow-up checks during the same session
+
+- Additional rollback-only authenticated-role integration test passed: after authoritative trial history is moved to eight days earlier, existing event/guest edits and new guest inserts are blocked even while the subscription row still has a future expiry. Administrative inspection confirmed existing event/guest content remained unchanged. This verifies the authoritative server-side guard over stale subscription state, not merely a frontend lock.
+- Netlify still returns the previous production deploy `6adb64d23b0756bd010f4db8` as ready, with its exact immutable deploy URL and publication timestamp. This establishes an available application rollback target, not that rollback has been rehearsed or that database recovery is proven.
+- Attempted read-only inspection of the Supabase production Backups dashboard. It redirected to a sign-in form, so backup retention, latest successful backup and restore readiness cannot be verified through the available session. No sign-in request was sent to the driving owner and no restore operation was attempted.
+- React Router is used as a client-side BrowserRouter; no SSR hydration entry was found in the application entry points. Authenticated return destinations are restricted to dashboard/account/admin paths. This narrows advisory reachability, but the package audit remains open.
+- PDF rasterization is shared with print/PDF visual comparison as well as venue floor-plan upload. Do not make a dependency change without protected print baseline rendering/verification. No PDF changes were made.
