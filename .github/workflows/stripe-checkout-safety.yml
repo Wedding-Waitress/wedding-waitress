@@ -9,6 +9,9 @@ on:
       - 'src/lib/planRegistry.ts'
       - 'src/pages/UpgradeCheckout.tsx'
       - 'src/lib/packagePricing.test.ts'
+      - 'supabase/functions/create-checkout/**'
+      - 'supabase/functions/verify-payment/**'
+      - 'supabase/functions/_shared/**'
       - '.github/workflows/stripe-checkout-safety.yml'
   workflow_dispatch:
 
@@ -30,7 +33,7 @@ jobs:
       - name: Install locked dependencies
         run: npm ci
       - name: Run checkout contract tests
-        run: npx vitest run src/lib/packagePricing.test.ts src/pages/UpgradeCheckout.consent.test.tsx
+        run: npx vitest run src/lib/packagePricing.test.ts src/pages/UpgradeCheckout.consent.test.tsx src/lib/paidPlanFulfillmentEvidence.test.ts src/lib/paidPlanVerificationHandler.test.ts src/lib/renewalCheckoutHandler.test.ts
       - name: Typecheck
         run: npx tsc --noEmit
       - name: Build production app
