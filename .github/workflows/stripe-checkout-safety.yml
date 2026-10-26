@@ -55,6 +55,7 @@ jobs:
         run: |
           mv package-lock.json /tmp/weddingwaitress-existing-lockfile.json
           npm install --no-save --package-lock=false --legacy-peer-deps --no-audit --no-fund
+          npm install --no-save --package-lock=false --legacy-peer-deps --no-audit --no-fund @testing-library/dom@10.4.1
       - name: Run checkout and entitlement contract tests
         run: npx vitest run src/lib/packagePricing.test.ts src/pages/UpgradeCheckout.consent.test.tsx src/lib/paidPlanFulfillmentEvidence.test.ts src/lib/paidPlanVerificationHandler.test.ts src/lib/renewalCheckoutHandler.test.ts
       - name: Typecheck
