@@ -1,8 +1,9 @@
 import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@18.5.0";
+import Stripe from "https://esm.sh/stripe@22.4.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import { validatePaidAccessExtension } from '../_shared/accessExtensionRules.ts';
+import { validateWorldwideGstTotal, worldwideGstAmounts } from '../_shared/worldwideGst.ts';
 import { validatePaidPlanFulfillmentEvidence, validatePaidPlanLedgerReplayEvidence } from '../_shared/paidPlanFulfillmentEvidence.ts';
 import { findOriginalPaymentSuccessEvent } from '../_shared/originalPaymentSuccessEvent.ts';
 
@@ -19,9 +20,12 @@ const logStep = (step: string, details?: unknown) => {
 
 // Product-to-plan mapping (duplicated from stripePrices.ts for edge function context)
 const PRODUCT_TO_PLAN: Record<string, { plan_db_id: string; name: string; is_vendor: boolean }> = {
-  "prod_UOQhHcOhFdrhOs": { plan_db_id: "78cdab0d-d81d-4757-b7cc-f210b8b30f47", name: "Essential",  is_vendor: false },
-  "prod_UOQhTWnFzXV1FK": { plan_db_id: "1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8", name: "Premium",    is_vendor: false },
-  "prod_UOQhLIYTxQAd7U": { plan_db_id: "cd10f207-2109-4546-a635-0baa68ba8213", name: "Unlimited",  is_vendor: false },
+  "ww_live_20260914_v2_essential": { plan_db_id: "78cdab0d-d81d-4757-b7cc-f210b8b30f47", name: "Essential",  is_vendor: false },
+  "ww_live_20260914_v2_premium": { plan_db_id: "1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8", name: "Premium",    is_vendor: false },
+  "ww_live_20260914_v2_unlimited": { plan_db_id: "cd10f207-2109-4546-a635-0baa68ba8213", name: "Unlimited",  is_vendor: false },
+  "ww_live_20260914_v2_essential_to_premium": { plan_db_id: "1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8", name: "Premium", is_vendor: false },
+  "ww_live_20260914_v2_premium_to_unlimited": { plan_db_id: "cd10f207-2109-4546-a635-0baa68ba8213", name: "Unlimited", is_vendor: false },
+  "ww_live_20260914_v2_essential_to_unlimited": { plan_db_id: "cd10f207-2109-4546-a635-0baa68ba8213", name: "Unlimited", is_vendor: false },
   "prod_UTm2XBA5rX9dGN": { plan_db_id: "632b476a-39da-4f6f-8457-9ba104d571da", name: "Vendor Pro", is_vendor: true  },
 };
 
@@ -36,11 +40,11 @@ const RSVP_PRODUCT_IDS = new Set([
 ]);
 
 // RSVP overage product ID ($10 AUD per 10 extra guests)
-const RSVP_OVERAGE_PRODUCT_ID = "prod_URud0pt0K8Sl9i";
-const GUEST_CAPACITY_TOPUP_FALLBACK_PRICE_ID = "price_1TT0o05GzTmqOxGKUIiEXxj6";
-const ADDITIONAL_EVENT_PRODUCT_ID = 'prod_UTm7byFGV7E127';
+const RSVP_OVERAGE_PRODUCT_ID = "ww_live_20260914_v2_guest_capacity_10";
+const GUEST_CAPACITY_TOPUP_FALLBACK_PRICE_ID = "price_1UFTqV5GzTmqOxGKkLYcl2PS";
+const ADDITIONAL_EVENT_PRODUCT_ID = 'ww_live_20260914_v2_additional_event';
 const ADDITIONAL_EVENT_PRICES: Record<string, { currency: string; unitAmount: number }> = {
-  price_1TUoZ15GzTmqOxGKDRmvofDh: { currency: 'aud', unitAmount: 9900 },
+  price_1UFTqL5GzTmqOxGKgPWVdCwr: { currency: 'aud', unitAmount: 9900 },
 };
 
 // Smart RSVP & Messaging — SMS top-up product ($99 AUD = 250 credits)
@@ -54,6 +58,8 @@ const COMMUNICATION_CREDIT_PACKS = {
     amountAud: 10,
     priceSecret: 'STRIPE_COMMUNICATION_TOPUP_10_PRICE_ID',
     productSecret: 'STRIPE_COMMUNICATION_TOPUP_10_PRODUCT_ID',
+    priceId: 'price_1UFTqt5GzTmqOxGKhwwnh4Wj',
+    productId: 'ww_live_20260914_v2_communication_10',
   },
   credits_100: {
     credits: 100,
@@ -61,6 +67,8 @@ const COMMUNICATION_CREDIT_PACKS = {
     amountAud: 49,
     priceSecret: 'STRIPE_COMMUNICATION_TOPUP_PRICE_ID',
     productSecret: 'STRIPE_COMMUNICATION_TOPUP_PRODUCT_ID',
+    priceId: 'price_1UFTr55GzTmqOxGKsh0sjgjK',
+    productId: 'ww_live_20260914_v2_communication_100',
   },
 } as const;
 type CommunicationCreditPackKey = keyof typeof COMMUNICATION_CREDIT_PACKS;
@@ -96,7 +104,7 @@ serve(async (req) => {
     if (!session_id) throw new Error("session_id is required");
 
     const stripe = new Stripe(Deno.env.get("STRIPE_SECRET_KEY") || "", {
-      apiVersion: "2025-08-27.basil",
+      apiVersion: "2026-07-29.dahlia",
     });
 
     const session = await stripe.checkout.sessions.retrieve(session_id, {
@@ -155,14 +163,15 @@ serve(async (req) => {
       const amountCents = session.amount_total || 0;
       const currency = (session.currency || "AUD").toUpperCase();
       const allowed = ADDITIONAL_EVENT_PRICES[lineItem.price.id];
+      if (allowed) validateWorldwideGstTotal(allowed.unitAmount, 1, 0, session.amount_total, session.total_details?.amount_tax);
       if (!allowed || lineItem.quantity !== 1 || lineItem.price.currency !== allowed.currency || lineItem.price.unit_amount !== allowed.unitAmount || currency !== allowed.currency.toUpperCase() || amountCents < allowed.unitAmount) {
         throw new Error('Additional-event payment does not match the approved catalogue');
       }
-      const { data: fulfilment, error: fulfilmentError } = await supabase.rpc('fulfill_additional_event_purchase', {
+      const { data: fulfilment, error: fulfilmentError } = await supabase.rpc('fulfill_additional_event_purchase_gst', {
         _user_id: userId,
         _stripe_session_id: session_id,
         _stripe_price_id: lineItem.price.id,
-        _amount: allowed.unitAmount,
+        _amount: worldwideGstAmounts(allowed.unitAmount).totalCents,
         _currency: allowed.currency,
       });
       if (fulfilmentError) throw fulfilmentError;
@@ -296,7 +305,8 @@ serve(async (req) => {
 
       const amountPaid = (session.amount_total || 0) / 100;
       const guestCountAtPurchase = parseInt(metadata.guest_count_at_purchase || "0", 10) || null;
-      const { data: fulfilment, error: fulfilmentError } = await supabase.rpc('fulfill_guest_capacity_topup', {
+      validateWorldwideGstTotal(1000, overageBlocks, 0, session.amount_total, session.total_details?.amount_tax);
+      const { data: fulfilment, error: fulfilmentError } = await supabase.rpc('fulfill_guest_capacity_topup_gst', {
         _user_id: userId,
         _event_id: eventId,
         _stripe_session_id: session_id,
@@ -408,8 +418,10 @@ serve(async (req) => {
       const packKey = (metadata.communication_topup_pack || 'credits_100') as CommunicationCreditPackKey;
       const pack = packKey in COMMUNICATION_CREDIT_PACKS ? COMMUNICATION_CREDIT_PACKS[packKey] : null;
       if (!pack) throw new Error('Communication top-up pack is not approved');
-      const configuredPriceId = Deno.env.get(pack.priceSecret) || '';
-      const configuredProductId = Deno.env.get(pack.productSecret) || '';
+      const configuredPriceId = Deno.env.get(pack.priceSecret) || pack.priceId;
+      const configuredProductId = Deno.env.get(pack.productSecret) || pack.productId;
+      if (configuredPriceId !== pack.priceId || configuredProductId !== pack.productId) throw new Error('Live communication catalogue binding mismatch.');
+      validateWorldwideGstTotal(pack.unitAmount, 1, 0, session.amount_total, session.total_details?.amount_tax);
       if (!configuredPriceId
         || !configuredProductId
         || lineItem?.price?.id !== configuredPriceId
@@ -419,16 +431,16 @@ serve(async (req) => {
         || lineItem?.quantity !== 1
         || session.currency !== 'aud'
         || session.amount_subtotal !== pack.unitAmount
-        || session.amount_total !== pack.unitAmount) {
+        || session.amount_total !== worldwideGstAmounts(pack.unitAmount).totalCents) {
         throw new Error(`Communication top-up payment does not match the approved ${pack.credits}-credit sandbox catalogue item`);
       }
-      const { data: fulfilment, error: fulfilmentError } = await supabase.rpc('fulfill_communication_credit_topup', {
+      const { data: fulfilment, error: fulfilmentError } = await supabase.rpc('fulfill_communication_credit_topup_gst', {
         _user_id: userId,
         _event_id: eventId,
         _stripe_session_id: session_id,
         _stripe_payment_id: typeof session.payment_intent === 'string' ? session.payment_intent : null,
         _stripe_price_id: configuredPriceId,
-        _amount_paid: pack.amountAud,
+        _amount_paid: worldwideGstAmounts(pack.unitAmount).totalCents / 100,
         _pack_key: packKey,
         _credits: pack.credits,
       });
@@ -437,7 +449,7 @@ serve(async (req) => {
       return new Response(JSON.stringify({
         type: 'communication_topup',
         status: 'completed',
-        amount_paid: pack.amountAud,
+        amount_paid: worldwideGstAmounts(pack.unitAmount).totalCents / 100,
         credits_added: pack.credits,
         pack: packKey,
         fulfilment,
@@ -505,17 +517,22 @@ serve(async (req) => {
         pricingVersion: metadata.pricing_version, productPurchaseType: product?.metadata?.purchase_type,
         paymentStatus: session.payment_status, currency: session.currency?.toLowerCase(), amountTotal: session.amount_total,
         lineCurrency: price?.currency?.toLowerCase(), lineUnitAmount: price?.unit_amount, lineQuantity: lineItem?.quantity,
+        linePriceId: price?.id, lineProductId: productId, amountSubtotal: session.amount_subtotal,
+        amountTax: session.total_details?.amount_tax, amountDiscount: session.total_details?.amount_discount,
+        amountShipping: session.total_details?.amount_shipping, sessionComplete: session.status === 'complete',
+        sessionLive: session.livemode, lineCount: session.line_items?.data?.length, linesHasMore: session.line_items?.has_more,
       });
       if (!validation.ok) throw new Error(`Access-extension payment validation failed: ${validation.reason}`);
       const { months: extensionMonths, amountCents: expectedAmount } = validation;
 
-      const { data: fulfillmentRows, error: fulfillmentError } = await supabase.rpc("fulfill_access_extension", {
+      const { data: fulfillmentRows, error: fulfillmentError } = await supabase.rpc('totalCents' in validation ? "fulfill_access_extension_gst" : "fulfill_access_extension", {
         _stripe_session_id: session_id,
         _user_id: userId,
         _months: extensionMonths,
         _amount_cents: expectedAmount,
         _currency: "AUD",
         _payment_status: session.payment_status,
+        ...('totalCents' in validation ? { _tax_cents: validation.taxCents, _total_cents: validation.totalCents } : {}),
       });
       if (fulfillmentError) throw fulfillmentError;
       const fulfillment = Array.isArray(fulfillmentRows) ? fulfillmentRows[0] : fulfillmentRows;
@@ -562,7 +579,17 @@ serve(async (req) => {
       ? validatePaidPlanLedgerReplayEvidence(session, intent, charge, priorPlanPurchase, serverNow)
       : validatePaidPlanFulfillmentEvidence(session, intent, charge,
         await findOriginalPaymentSuccessEvent(intentId, intent.created, serverNow,
-          async (query) => await stripe.events.list(query)), serverNow);
+          async (query) => {
+            const page = await stripe.events.list(query);
+            return { has_more: page.has_more, data: page.data.map(event => {
+              const object = event.data.object;
+              return { id: event.id, object: event.object, type: event.type,
+                livemode: event.livemode, created: event.created, data: { object: {
+                  id: 'id' in object && typeof object.id === 'string' ? object.id : undefined,
+                  status: 'status' in object && typeof object.status === 'string' ? object.status : undefined,
+                } } };
+            }) };
+          }), serverNow);
     if (evidence._user_id !== userId || evidence._plan_id !== planInfo.plan_db_id) throw new Error('Payment account evidence is inconsistent');
     const { data: fulfillment, error: fulfillmentError } = await supabase.rpc('fulfill_paid_plan_purchase', evidence);
     if (fulfillmentError) throw new Error('Verified payment fulfillment could not complete');
