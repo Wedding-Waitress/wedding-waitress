@@ -13,7 +13,7 @@ function fixture({ blocked = false, replay = false, invalidResult = false, unpai
     metadata: { user_id: owner, plan_type: 'essential', catalogue_version: PAID_PLAN_CATALOGUE_VERSION,
       purchase_consent: 'explicit-v1', plan_purchase_purpose: 'renewal' },
     line_items: { has_more: false, data: [{ quantity: 1, amount_subtotal: 19900,
-      price: { currency: 'aud', unit_amount: 19900, product: { id: 'prod_UOQhHcOhFdrhOs' } } }] } };
+      price: { currency: 'aud', unit_amount: 19900, product: { id: 'ww_live_20260914_v2_essential' } } }] } };
   const charge = { object: 'charge', id: 'ch_Original1', payment_intent: 'pi_Original1', livemode: true,
     status: 'succeeded', paid: true, captured: true, refunded: false, amount_refunded: 0, disputed: false,
     currency: 'aud', amount: 21890, created: 1700000002 };
