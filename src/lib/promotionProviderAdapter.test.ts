@@ -21,7 +21,7 @@ it('checks the stored binding and expanded package before reopening', async () =
   const { db, stripe, adapter } = recordedFixture();
   await expect(adapter.verifyRecordedSession(recordedSession, reservation, 'user')).resolves.toBeUndefined();
   expect(db.rpc).toHaveBeenCalledWith('promotion_checkout_context', { p_session: 'cs_fixture' });
-  expect(stripe.coupons.retrieve).toHaveBeenCalledWith('coupon_fixture');
+  expect(stripe.coupons.retrieve).toHaveBeenCalledWith('coupon_fixture', { expand: ['applies_to'] });
 });
 it.each([{ customer: 'cus_other' }, { currency: 'usd' }, { amount_total: 9949 }, { mode: 'subscription' }])(
   'rejects substituted reopened checkout evidence: %j', async (change) => {
@@ -42,7 +42,7 @@ it('stops before provider reads when recorded binding is missing', async () => {
 
 it('uses a persisted customer without searching or creating another', async () => {
   const db = { rpc: vi.fn().mockResolvedValue({ data: 'cus_stored', error: null }) };
-  const stripe = { customers: { create: vi.fn() } };
+  const stripe = { customers: { create: vi.fn(), retrieve: vi.fn().mockResolvedValue({ id: 'cus_stored', object: 'customer', livemode: false, tax_exempt: 'none', metadata: { wedding_waitress_user_id: 'user' } }) } };
   const adapter = promotionProviderAdapter(db, stripe, false);
   expect(await adapter.ensureCustomer('user', 'verified@example.test')).toBe('cus_stored');
   expect(stripe.customers.create).not.toHaveBeenCalled();
