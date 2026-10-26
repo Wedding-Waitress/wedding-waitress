@@ -143,3 +143,11 @@ FAQ preview verification completed: Netlify deploy `6adfcf8c6912dd3fb61061da` is
 ## Atomic bulk guest-capacity enforcement
 
 `qa-bulk-guest-capacity-verification-20261027.sql` passed as an authenticated, rollback-only QA test: setting the event guest_limit to 999 does not override the Starter plan's 20-person limit; a single 21-row bulk INSERT is rejected and leaves no partial guest rows; a valid 20-row bulk INSERT succeeds; one extra guest is rejected while the existing 20 remain intact. This proves database statement atomicity and server capacity enforcement, not the complete spreadsheet-import UI journey or concurrent-request behavior. No fix was necessary and all fixtures were rolled back.
+
+
+## Latest guest-form CI and team-access review
+
+- Full CI run `40410912175` for source commit `45387fda6d7fd43feb15227336aec1d9024da901` completed successfully: regression suite, critical-advisory check, storage-ownership check, TypeScript and production build passed. This supersedes its earlier pending observations. Subsequent commits add evidence/test scripts only.
+- Attempted rollback-only accepted-team integration query was declined before execution. The returned response was only `SQL execution was declined` / status `declined`, with no reason. It included synthetic membership changes, role-promotion denial and event-deletion denial assertions. It was not retried or counted as passing. Read-only follow-up confirmed zero fixture Auth users/events from that attempted test.
+- Safer read-only review confirms authenticated role lacks account_members UPDATE; event INSERT/DELETE policies require account-master/owner identity, event UPDATE retains the resolved account owner, and planning-owner resolution requires accepted, enabled membership plus active/operational entitlements. These source/policy observations are not substitutes for the declined integration test.
+- Five existing team core/security/authorization/availability/rollback test files / 21 tests passed. Team invitation email/acceptance and actual accepted-member/revocation integration remain unverified. No permissions were expanded and no production data was changed during this check. Stripe remains parked.
