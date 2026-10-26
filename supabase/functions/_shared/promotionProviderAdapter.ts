@@ -1,6 +1,7 @@
 import { parsePromotionStripePayment, parsePromotionStripeSession } from './promotionStripeEvidence.ts';
 import type { PromotionCheckoutDependencies } from './promotionCheckoutService.ts';
 import { promotionPreview } from './promotionRules.ts';
+import { validateWorldwideGstCustomer } from './worldwideGst.ts';
 import type { PromotionFulfillmentDependencies, StoredPromotionCheckout } from './promotionFulfillment.ts';
 
 export function promotionProviderAdapter(db: any, stripe: any, live: boolean): PromotionCheckoutDependencies & PromotionFulfillmentDependencies {
@@ -14,18 +15,18 @@ export function promotionProviderAdapter(db: any, stripe: any, live: boolean): P
     reserve: (userId, code, plan) => rpc('reserve_first_purchase_promotion', { p_user: userId, p_code: code, p_plan: plan }),
     ensureCustomer: async (userId, email) => {
       const existing = await rpc('promotion_customer_binding', { p_user: userId });
-      if (existing) return existing;
+      if (existing) return validateWorldwideGstCustomer(await stripe.customers.retrieve(existing), userId, live);
       const customer = await stripe.customers.create({ email, metadata: { wedding_waitress_user_id: userId } }, { idempotencyKey: `ww-promotion-customer:${userId}` });
-      if (!customer.id || customer.livemode !== live) throw new Error('Customer could not be confirmed.');
+      validateWorldwideGstCustomer(customer, userId, live);
       return rpc('promotion_customer_binding', { p_user: userId, p_customer: customer.id });
     },
     ensureCoupon: async (id, percent, product) => {
       let coupon;
-      try { coupon = await stripe.coupons.retrieve(id); }
+      try { coupon = await stripe.coupons.retrieve(id, { expand: ['applies_to'] }); }
       catch (failure: any) {
         if (failure.code !== 'resource_missing') throw new Error('Coupon lookup could not be confirmed.');
         coupon = await stripe.coupons.create({ id, percent_off: percent, duration: 'once',
-          max_redemptions: 1, applies_to: { products: [product] } }, { idempotencyKey: `ww-promotion-coupon:${id}` });
+          max_redemptions: 1, applies_to: { products: [product] }, expand: ['applies_to'] }, { idempotencyKey: `ww-promotion-coupon:${id}` });
       }
       if (coupon.id !== id || coupon.percent_off !== percent || coupon.amount_off != null || coupon.valid !== true
         || coupon.applies_to?.products?.length !== 1 || coupon.applies_to.products[0] !== product) throw new Error('Coupon does not match the reserved package.');
@@ -51,7 +52,7 @@ export function promotionProviderAdapter(db: any, stripe: any, live: boolean): P
         || parsed.userId !== userId || parsed.plan !== context.plan || parsed.livemode !== live
         || parsed.mode !== 'payment' || parsed.quantity !== 1 || parsed.currency !== 'aud'
         || parsed.subtotalCents !== quote.originalCents || parsed.discountCents !== quote.discountCents
-        || parsed.totalCents < quote.subtotalCents
+        || parsed.totalCents !== quote.subtotalCents + Math.round(quote.subtotalCents / 10)
         || context.percent === 100 && parsed.totalCents !== 0) {
         throw new Error('Recorded checkout offer does not match its binding.');
       }
@@ -82,10 +83,11 @@ export function promotionProviderAdapter(db: any, stripe: any, live: boolean): P
         if (!stored) throw new Error('Stored checkout context required.');
         let cursor: string | undefined;
         for (let page = 0; page < 20; page++) {
-          const events = await stripe.events.list({ types: ['checkout.session.completed'],
+          const events = await stripe.events.list({ types: ['checkout.session.completed', 'checkout.session.async_payment_succeeded'],
             created: { gte: Math.floor(Date.parse(stored.createdAt) / 1000) }, limit: 100,
             ...(cursor ? { starting_after: cursor } : {}) });
-          const match = events.data.filter((candidate: any) => candidate.data?.object?.id === sessionId);
+          const match = events.data.filter((candidate: any) => candidate.data?.object?.id === sessionId
+            && ['paid', 'no_payment_required'].includes(candidate.data?.object?.payment_status));
           for (const candidate of match) if (!event || candidate.created < event.created) event = candidate;
           if (!events.has_more) break;
           if (page === 19) throw new Error('Original completion event search is incomplete.');
@@ -93,7 +95,7 @@ export function promotionProviderAdapter(db: any, stripe: any, live: boolean): P
           if (!cursor) throw new Error('Completion event pagination is inconsistent.');
         }
       }
-      if (!event) throw new Error('Original provider completion event is unavailable.');
+      if (!event || !['paid', 'no_payment_required'].includes(event.data?.object?.payment_status)) throw new Error('Original successful provider completion event is unavailable.');
       return { id: event.id, type: event.type, sessionId: event.data?.object?.id,
         livemode: event.livemode, createdAt: new Date(event.created * 1000).toISOString() };
     },
@@ -118,7 +120,7 @@ async function retrieveSessionEvidence(stripe: any, session: any, stored: Stored
     const coupon = discount.source?.coupon ?? discount.coupon;
     const couponId = typeof coupon === 'string' ? coupon : coupon?.id;
     if (couponId) {
-      const retrieved = await stripe.coupons.retrieve(couponId);
+      const retrieved = await stripe.coupons.retrieve(couponId, { expand: ['applies_to'] });
       if (discount.source) discount.source.coupon = retrieved; else discount.coupon = retrieved;
     }
   }
