@@ -4,7 +4,7 @@
  * immutable fulfillment ledger / reviewed signed-webhook evidence, not a guessed date.
  */
 type ProviderEvent = { id: string; object: string; type: string; livemode: boolean;
-  created: number; data: { object: { id?: string; status?: string } } };
+  created: number; data: { object: { id?: string; status?: string | null } } };
 type EventPage = { data: ProviderEvent[]; has_more: boolean };
 type EventQuery = { type: 'payment_intent.succeeded'; limit: 100;
   created: { gte: number; lte: number }; starting_after?: string };
