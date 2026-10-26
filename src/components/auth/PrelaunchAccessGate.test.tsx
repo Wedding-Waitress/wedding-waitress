@@ -10,7 +10,7 @@ afterEach(()=>{cleanup();vi.clearAllMocks();});
 const open=()=>render(<MemoryRouter><PrelaunchAccessGate><p>Protected owner tools</p></PrelaunchAccessGate></MemoryRouter>);
 describe('prelaunch route gate',()=>{
  it('allows only an affirmative server decision, preserving owner access',async()=>{mocks.rpc.mockResolvedValue({data:{enabled:true,allowed:true},error:null});open();expect(await screen.findByText('Protected owner tools')).toBeInTheDocument();});
- it('blocks existing nonowner sessions without mounting planning tools',async()=>{mocks.rpc.mockResolvedValue({data:{enabled:true,allowed:false},error:null});open();expect(await screen.findByText('Wedding Waitress is launching soon')).toBeInTheDocument();expect(screen.queryByText('Protected owner tools')).not.toBeInTheDocument();});
+ it('blocks existing nonowner sessions without mounting planning tools',async()=>{mocks.rpc.mockResolvedValue({data:{enabled:true,allowed:false},error:null});open();expect(await screen.findByText('Account access is unavailable')).toBeInTheDocument();expect(screen.queryByText('Protected owner tools')).not.toBeInTheDocument();});
  it.each([{data:null,error:null},{data:{allowed:'true'},error:null},{data:{allowed:true},error:{message:'private'}}])('fails closed on uncertain responses',async result=>{mocks.rpc.mockResolvedValue(result);open();expect(await screen.findByText('Access could not be verified')).toBeInTheDocument();expect(screen.queryByText('Protected owner tools')).not.toBeInTheDocument();});
  it('restores normal routing only after the server launch switch is released',async()=>{mocks.rpc.mockResolvedValue({data:{enabled:false,allowed:true},error:null});open();expect(await screen.findByText('Protected owner tools')).toBeInTheDocument();});
 });
