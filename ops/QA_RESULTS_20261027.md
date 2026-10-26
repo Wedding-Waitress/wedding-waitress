@@ -115,3 +115,10 @@ Source commit `cfb8e73a63f47efe06e84d3e844a8306d6500f3c` has ready Netlify deplo
 ## Latest credit-fix CI completion
 
 Run `40408742560` for source commit `cfb8e73a63f47efe06e84d3e844a8306d6500f3c` completed successfully. Locked install, storage-ownership check, critical-advisory check, complete regression suite, TypeScript check and production build all passed. This supersedes earlier in-progress observations for that source commit. Subsequent commits contain test/evidence files only. The ready preview remains non-production. Real email/OTP/browser onboarding, parked Stripe work, remaining dependency/function security review and database-backup verification remain open. No release approval, merge, production deployment or production data modification occurred.
+
+
+## Customer-facing pricing and FAQ check
+
+- Browser inspection of isolated preview pricing confirmed package prices A$199/A$249/A$299 and displayed 10% GST-inclusive totals A$218.90/A$273.90/A$328.90, matching arithmetic from the QA catalogue. Seven-day/20-guest and 100/200/400 paid guest limits match. These are display checks, not Stripe tax settlement proof.
+- Expanded/read FAQ content revealed two stale answers still offering A$20 monthly extensions and promising permanent automatic deletion after the recovery period. Corrected only these two answers in `src/pages/Faq.tsx` to match the candidate pricing/terms: available-package renewal with verified checkout; saved information retained and expiry alone does not automatically delete content. No prices, entitlements, layout or terms were changed.
+- Three existing lifecycle/pricing test files / 24 tests passed, and QA-configured production build passed (26.47 seconds). Preview rebuild/rendered-content confirmation remains required after saving this copy-only change. Backend source CI at `cfb8e73` remains separately verified.
