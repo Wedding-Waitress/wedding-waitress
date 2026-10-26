@@ -28,8 +28,8 @@ export const secureGuestSchema = z.object({
     .min(1, "Table selection is required")
     .refine(val => val !== "none", "Table selection is required"),
   
-  seat_no: z.coerce.number({
-    invalid_type_error: "Seat selection is required",
+  seat_no: z.coerce.number<number>({
+    error: "Seat selection is required",
   })
     .min(1, "Seat selection is required")
     .max(100, "Invalid seat number"),
@@ -37,7 +37,7 @@ export const secureGuestSchema = z.object({
   rsvp_date: z.date().optional(),
   
   rsvp: z.enum(["Pending", "Attending", "Not Attending"], {
-    errorMap: () => ({ message: "Invalid RSVP status" })
+    error: "Invalid RSVP status"
   }),
   
   dietary: z.string()
@@ -220,6 +220,7 @@ export const sanitizeInput = {
 };
 
 export type SecureGuestData = z.infer<typeof secureGuestSchema>;
+export type SecureGuestInput = z.input<typeof secureGuestSchema>;
 export type SecureTableData = z.infer<typeof secureTableSchema>;
 export type SecureEmailData = z.infer<typeof secureEmailSchema>;
 export type SecureEventData = z.infer<typeof secureEventSchema>;
