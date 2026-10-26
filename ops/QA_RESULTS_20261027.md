@@ -110,3 +110,8 @@ GitHub Actions run `40407654308` for source commit `ed4571c56c31e65376809bb39b05
 Rollback-only `qa-trial-email-reuse-verification-20261027.sql` passed: an expired account changing its email retains the original expired trial; a new account reusing that account's now-vacant original email, including changed case, inherits the original eligibility deadline and does not obtain a fresh trial. Neither account receives an active Starter entitlement. No email was sent. A separate direct authenticated test confirmed the legacy `extend_starter_trial_once` call is already blocked by function privileges and cannot move the original expiry; no extra source change was needed.
 
 Source commit `cfb8e73a63f47efe06e84d3e844a8306d6500f3c` has ready Netlify deploy-preview `6adfccf590b168954ca3d5ca`, with published_at null. Full CI run `40408742560` remains in progress at the latest check; it has not yet been marked passed. Stripe remains parked and all previously stated access/review blockers remain open.
+
+
+## Latest credit-fix CI completion
+
+Run `40408742560` for source commit `cfb8e73a63f47efe06e84d3e844a8306d6500f3c` completed successfully. Locked install, storage-ownership check, critical-advisory check, complete regression suite, TypeScript check and production build all passed. This supersedes earlier in-progress observations for that source commit. Subsequent commits contain test/evidence files only. The ready preview remains non-production. Real email/OTP/browser onboarding, parked Stripe work, remaining dependency/function security review and database-backup verification remain open. No release approval, merge, production deployment or production data modification occurred.
