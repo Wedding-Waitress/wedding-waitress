@@ -17,16 +17,16 @@ describe('package pricing catalogue', () => {
     expect(VENDOR_PRICING).toMatchObject({ AUD: { price: 300 }, USD: { price: 198 }, GBP: { price: 153 }, EUR: { price: 180 } });
   });
 
-  it('uses the reviewed Stripe sandbox catalogue references', () => {
-    expect(PLAN_PRICES.essential.price_id).toBe('price_1UDdle5GzTmqOxGKj3yu56jP');
-    expect(PLAN_PRICES.premium.price_id).toBe('price_1UDeO75GzTmqOxGK2JYrvH7I');
-    expect(PLAN_PRICES.unlimited.price_id).toBe('price_1UDeO95GzTmqOxGKZmJq53Ee');
+  it('uses the verified live AUD v2 catalogue references', () => {
+    expect(PLAN_PRICES.essential.price_id).toBe('price_1UFTfT5GzTmqOxGKWxqjYWed');
+    expect(PLAN_PRICES.premium.price_id).toBe('price_1UFTfW5GzTmqOxGKjj1dBGKR');
+    expect(PLAN_PRICES.unlimited.price_id).toBe('price_1UFTfa5GzTmqOxGK9EDWU9t6');
     expect(VENDOR_PRO.price_id).toBe('price_1TUoUX5GzTmqOxGK4eswrMPQ');
   });
 
-  it('blocks package checkout until Stripe has matching prices', () => {
+  it('permits package checkout only after live catalogue verification', () => {
     const checkoutPage = readFileSync('src/pages/UpgradeCheckout.tsx', 'utf8');
-    expect(PACKAGE_CHECKOUT_AVAILABLE).toBe(false);
+    expect(PACKAGE_CHECKOUT_AVAILABLE).toBe(true);
     expect(checkoutPage).toContain('if (!PACKAGE_CHECKOUT_AVAILABLE)');
     expect(checkoutPage).toContain('Australian total including GST');
   });
