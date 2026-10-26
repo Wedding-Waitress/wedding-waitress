@@ -68,3 +68,15 @@ The owner explicitly authorized continuing routine QA fixes/tests without repeat
 - Attempted read-only inspection of the Supabase production Backups dashboard. It redirected to a sign-in form, so backup retention, latest successful backup and restore readiness cannot be verified through the available session. No sign-in request was sent to the driving owner and no restore operation was attempted.
 - React Router is used as a client-side BrowserRouter; no SSR hydration entry was found in the application entry points. Authenticated return destinations are restricted to dashboard/account/admin paths. This narrows advisory reachability, but the package audit remains open.
 - PDF rasterization is shared with print/PDF visual comparison as well as venue floor-plan upload. Do not make a dependency change without protected print baseline rendering/verification. No PDF changes were made.
+
+## Guest-token security repair — continued non-Stripe work
+
+Stripe work remains parked at the owner's explicit request.
+
+- Reproduced `generate_guest_access_token` failing in QA because its public-only search path cannot resolve `extensions.gen_random_bytes`. A read-only production definition/schema check found the same function body and extension location. No production invocation or write was performed.
+- A synthetic legacy/malformed token row paired one event with another event's guest. `get_guest_by_token` returned that unrelated synthetic guest before the fix. This establishes a missing event/recipient consistency guard, not proof of an exploit through the currently broken generator. Read-only production aggregate found zero currently mismatched token/event pairs; this does not establish historical absence of abuse.
+- Applied candidate migration `20261026214721_guard_guest_token_event_scope.sql` to QA only using execute_sql. It qualifies the crypto function, verifies both current planning ownership and guest/event membership, emits URL-safe 43-character tokens, denies anonymous generation and uses empty search paths. Token reads and updates now require the guest to belong to the token's event. Existing public recipient read/update behavior is preserved for valid tokens.
+- Rollback-only `qa-guest-token-scope-verification-20261027.sql` passed: own token generation and RSVP update; cross-event/other-owner generation rejection; malformed/invalid/expired/disabled-event token read/update rejection; anonymous generation rejection. Generated values never appeared in tool output. Fixtures were rolled back.
+- Reran the prior trial integration and postal-privacy integration scripts after this change; both passed.
+- Four relevant Vitest files / 27 tests passed (public lookup privacy, event-access migration, song prefill migration and authentication navigation). Fresh advisor counts: 23 INFO RLS/no-policy, 131 anon SECURITY DEFINER warnings and 181 authenticated SECURITY DEFINER warnings. This remains a partial security review, not a blanket all-clear.
+- Source fix is queued for the existing draft release candidate. It has not been applied to production. A fresh candidate CI/preview must be checked after saving this commit.
