@@ -1,0 +1,37 @@
+name: Wedding Waitress Stripe Checkout Safety
+
+on:
+  pull_request:
+    paths:
+      - 'src/lib/packagePricing.ts'
+      - 'src/lib/stripePrices.ts'
+      - 'src/lib/currencyPricing.ts'
+      - 'src/lib/planRegistry.ts'
+      - 'src/pages/UpgradeCheckout.tsx'
+      - 'src/lib/packagePricing.test.ts'
+      - '.github/workflows/stripe-checkout-safety.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checkout-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Run checkout contract tests
+        run: npx vitest run src/lib/packagePricing.test.ts src/pages/UpgradeCheckout.consent.test.tsx
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Build production app
+        run: npm run build
