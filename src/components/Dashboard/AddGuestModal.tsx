@@ -19,7 +19,7 @@
 import React, { useState, useEffect, useCallback } from 'react';
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { secureGuestSchema, type SecureGuestData } from "@/lib/security/validation";
+import { secureGuestSchema, type SecureGuestData, type SecureGuestInput } from "@/lib/security/validation";
 import { logSecurityEvent, guestAddRateLimiter } from "@/lib/security/monitoring";
 import { sanitize, InputSanitizer } from "@/lib/security/inputSanitizer";
 import {
@@ -171,7 +171,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     dietary: 'None'
   });
 
-  const form = useForm<AddGuestFormData>({
+  const form = useForm<SecureGuestInput, unknown, AddGuestFormData>({
     resolver: zodResolver(secureGuestSchema),
     defaultValues: {
       first_name: "",
@@ -1502,7 +1502,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         setPeopleToAssign([{ name, index: -1 }]);
                         // In Add mode we do NOT set pendingFormData — that would trigger auto-submit on dialog complete.
                         if (isEdit) {
-                          setPendingFormData(form.getValues());
+                          const values = form.getValues();
+                          setPendingFormData({ ...values, dietary: values.dietary ?? 'NA' });
                         }
                         setShowRelationAssignment(true);
                       }}
