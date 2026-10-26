@@ -3,6 +3,9 @@ name: Wedding Waitress Stripe Checkout Safety
 on:
   pull_request:
     paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'src/lib/prelaunch.ts'
       - 'src/lib/packagePricing.ts'
       - 'src/lib/stripePrices.ts'
       - 'src/lib/currencyPricing.ts'
