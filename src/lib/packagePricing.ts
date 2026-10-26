@@ -12,10 +12,10 @@ export const gstInclusiveAud = (exGstAmount: number): number =>
   Math.round(exGstAmount * (1 + AUSTRALIAN_GST_RATE) * 100) / 100;
 
 /**
- * Package checkout stays unavailable until Stripe has matching prices.
- * This prevents a newly advertised amount from ever initiating an old-price charge.
+ * Enable only with the verified Stripe live AUD v2 catalogue and matching
+ * hosted checkout and fulfillment handlers. A draft PR alone does not deploy this.
  */
-export const PACKAGE_CHECKOUT_AVAILABLE = false;
+export const PACKAGE_CHECKOUT_AVAILABLE = true;
 
 export const PACKAGE_CHECKOUT_NOTICE =
-  'Package checkout is temporarily unavailable while the new prices are prepared. No payment will be taken.';
+  'Checkout is temporarily unavailable. No payment will be taken.';
