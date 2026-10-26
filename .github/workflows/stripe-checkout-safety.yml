@@ -30,6 +30,8 @@ jobs:
         with:
           node-version: '22'
           cache: npm
+      - name: Pin npm version
+        run: npm install --global npm@11.19.1
       - name: Install locked dependencies
         run: npm ci
       - name: Run checkout contract tests
@@ -51,6 +53,8 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
+      - name: Pin npm version
+        run: npm install --global npm@11.19.1
       - name: Install for diagnosis without modifying the lockfile
         run: |
           mv package-lock.json /tmp/weddingwaitress-existing-lockfile.json
