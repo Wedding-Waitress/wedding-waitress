@@ -7,8 +7,8 @@ import { PACKAGE_PRICES_AUD } from './packagePricing';
 // ── Wedding Plans (one-time payments) ──────────────────────────────
 export const PLAN_PRICES = {
   essential: {
-    product_id: 'prod_UOQhHcOhFdrhOs',
-    price_id: 'price_1UDdle5GzTmqOxGKj3yu56jP',
+    product_id: 'ww_live_20260914_v2_essential',
+    price_id: 'price_1UFTfT5GzTmqOxGKWxqjYWed',
     name: 'Essential Plan',
     price_aud: PACKAGE_PRICES_AUD.essential,
     original_price_aud: 199, // strikethrough marketing price
@@ -16,8 +16,8 @@ export const PLAN_PRICES = {
     plan_db_id: '78cdab0d-d81d-4757-b7cc-f210b8b30f47',
   },
   premium: {
-    product_id: 'prod_UOQhTWnFzXV1FK',
-    price_id: 'price_1UDeO75GzTmqOxGK2JYrvH7I',
+    product_id: 'ww_live_20260914_v2_premium',
+    price_id: 'price_1UFTfW5GzTmqOxGKjj1dBGKR',
     name: 'Premium Plan',
     price_aud: PACKAGE_PRICES_AUD.premium,
     original_price_aud: 299,
@@ -25,8 +25,8 @@ export const PLAN_PRICES = {
     plan_db_id: '1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8',
   },
   unlimited: {
-    product_id: 'prod_UOQhLIYTxQAd7U',
-    price_id: 'price_1UDeO95GzTmqOxGKZmJq53Ee',
+    product_id: 'ww_live_20260914_v2_unlimited',
+    price_id: 'price_1UFTfa5GzTmqOxGK9EDWU9t6',
     name: 'Ultimate Plan',
     price_aud: PACKAGE_PRICES_AUD.unlimited,
     original_price_aud: 499,
