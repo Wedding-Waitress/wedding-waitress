@@ -30,8 +30,8 @@ export function PrelaunchAccessGate({ children }: React.PropsWithChildren) {
   }, [attempt]);
   if (decision === 'allowed') return <>{children}</>;
   return <main className={styles.surface} data-prelaunch-access-notice><section className={styles.card}>
-    <h1>{decision === 'checking' ? 'Checking your access…' : decision === 'error' ? 'Access could not be verified' : 'Wedding Waitress is launching soon'}</h1>
-    {decision === 'held' && <p>Planning and account tools are not open yet. Your existing information is preserved. Only the verified platform owner has access during pre-launch.</p>}
+    <h1>{decision === 'checking' ? 'Checking your access…' : decision === 'error' ? 'Access could not be verified' : 'Account access is unavailable'}</h1>
+    {decision === 'held' && <p>Your account cannot access planning tools at present. Your existing information is preserved. Please contact support if access should be available.</p>}
     {decision === 'error' && <p role="alert">No access has been granted. Please try again.</p>}
     {decision !== 'checking' && <><button onClick={() => setAttempt(value => value + 1)}>Try again</button><Link to="/">Return to homepage</Link></>}
   </section></main>;
