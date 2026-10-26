@@ -48,6 +48,12 @@ jobs:
         run: npm install --global npm@11.19.1
       - name: Install locked dependencies
         run: npm ci
+      - name: Install storage-ownership check dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ripgrep
+      - name: Reject critical dependency advisories
+        run: npm audit --audit-level=critical
       - name: Run complete regression suite with synthetic configuration
         env:
           TZ: America/New_York

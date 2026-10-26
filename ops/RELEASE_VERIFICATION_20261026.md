@@ -27,6 +27,7 @@
 8. The active package webhook was missing from Git. Captured its exact deployed version-25 handler and shared service into source, with the matching signature-authenticated gateway setting and contract tests. Deployed bundle hash: `2febfbd623715a0872f1849bd4a281f3e99d7d0ca2a6e0f308a570f325f9a42b`. This capture was not a backend redeployment.
 9. Several tests still asserted retired Stripe IDs, pre-GST credit fulfillment, or a disabled renewal gate. Updated those expectations while preserving payment evidence, consent and retry checks. CI now runs the whole regression suite with synthetic client configuration.
 10. Public pricing omitted explicit GST totals and promised monthly extensions/automatic expiry deletion despite the release's disabled extension controls and retained-content renewal flow. Added per-card GST totals and aligned renewal/expiry wording; no prices, storage allowances, trial terms or paid limits were changed.
+11. The expanded GitHub CI run found a runner dependency missing from the pretest check: ripgrep. The workflow now installs it rather than skipping storage ownership. Dependency audit also found unused direct `fabric` and `xlsx` packages with vulnerable transitive dependencies. No source imports either package; removing them preserves `xlsx-js-style` guest imports and removes 54 installed packages. The resulting audit has zero critical findings, three high and eight moderate. The high PDF.js, Vite and Zod findings still need reachability/remediation review; this is not a clean security approval. CI rejects critical dependency advisories.
 
 ## Current commercial configuration
 
@@ -69,6 +70,10 @@ QA project `ckmgjbwifbzzknnyxzqe`, branch ID `d2509e11-d20a-4bed-a1a8-b4676313d7
 - Production paid-plan and promotion atomic-fulfillment RPCs are executable by service_role only, not anon/authenticated.
 - Security advisors were read. They report informational no-policy tables and numerous GraphQL/SECURITY DEFINER visibility warnings requiring individual review. A clean critical-security audit has not been established.
 - A broad Netlify environment-variable listing was rejected by automatic approval review because it could expose live secrets. It was not bypassed. Safe public-bundle inspection established which database the preview uses, but did not prove server secret pairing or all redirect/environment settings.
+- Netlify preview deployment `6adefc45c9f12419921d8510` is ready at candidate commit `748d99e79c199bba8a1db1ee64bf17748a9b77d6`. Read-only browser inspection confirmed all three GST-inclusive totals and the corrected pricing copy. It still uses production Supabase; it is not a payment QA environment.
+- Initial GitHub full-suite run 40283895397 failed before tests because `rg` was unavailable. This failure is recorded, and the workflow fix above must pass a fresh run. After unused-package removal, clean installation, compilation/build and the full local regression passed again: 450 files / 2,636 tests, 226.70 seconds. The lockfile removes 151 entries and adds none; all retained package versions are unchanged.
+
+Dependency advisory references: [PDF.js scripting advisory](https://github.com/advisories/GHSA-hq66-cqwq-w95j), [node-tar resource-exhaustion advisory](https://github.com/advisories/GHSA-23hp-3jrh-7fpw). Removing unused Fabric removed the optional legacy node-tar path; no archive-exhaustion exploit was run.
 
 ## Remaining release gates and required access
 
