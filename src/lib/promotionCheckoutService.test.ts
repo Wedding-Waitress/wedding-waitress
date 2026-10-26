@@ -3,7 +3,7 @@ import { createPromotionCheckout, type PromotionCheckoutDependencies } from '../
 describe('promotional Checkout creation', () => {
   let deps: PromotionCheckoutDependencies;
   const input = { userId: 'user-fixture', verifiedEmail: 'verified@example.test', code: 'VENUE51', plan: 'essential' as const,
-    consent: true, returnOrigin: 'http://localhost:8080', livemode: false, taxRegistrationVerified: true };
+    consent: true, returnOrigin: 'http://localhost:8080', livemode: false, taxRegistrationVerified: true, worldwideGstRateId: 'txr_TestWorldwideGstRate' };
   const reservation = { id: '11111111-1111-4111-8111-111111111111', percent_off: 51, included_credits: 0, plan_key: 'essential' as const, stripe_session_id: null };
   const recordedMetadata = { promotion_version: '1', promotion_reservation_id: reservation.id, user_id: input.userId,
     plan_type: input.plan, plan_purchase_purpose: 'new_plan', purchase_consent: 'explicit-v1' };
@@ -14,9 +14,9 @@ describe('promotional Checkout creation', () => {
     const result = await createPromotionCheckout(deps, input);
     expect(result.quote.includedCredits).toBe(0);
     expect(deps.ensureCustomer).toHaveBeenCalledWith('user-fixture', 'verified@example.test');
-    expect(deps.ensureCoupon).toHaveBeenCalledWith(`ww-promotion-${reservation.id}`, 51, 'prod_UOQhHcOhFdrhOs');
+    expect(deps.ensureCoupon).toHaveBeenCalledWith(`ww-promotion-${reservation.id}`, 51, 'ww_live_20260914_v2_essential');
     expect(deps.createSession).toHaveBeenCalledWith(expect.objectContaining({ discounts: [{ coupon: 'coupon_fixture' }], mode: 'payment', return_url: 'http://localhost:8080/payment-success?promotion=1&session_id={CHECKOUT_SESSION_ID}' }), `ww-promotion-checkout:${reservation.id}`);
-    expect(deps.bind).toHaveBeenCalledWith(reservation.id, 'cs_fixture', 'cus_fixture', 'prod_UOQhHcOhFdrhOs', 'coupon_fixture', false);
+    expect(deps.bind).toHaveBeenCalledWith(reservation.id, 'cs_fixture', 'cus_fixture', 'ww_live_20260914_v2_essential', 'coupon_fixture', false);
   });
   it('never exposes an unbound checkout', async () => {
     vi.mocked(deps.bind).mockRejectedValue(new Error('binding unavailable'));
@@ -59,7 +59,7 @@ describe('promotional Checkout creation', () => {
     deps.reconcileExpired=vi.fn().mockResolvedValue(undefined);
     await createPromotionCheckout(deps,input);
     expect(deps.reconcileExpired).toHaveBeenCalled();
-    expect(deps.ensureCoupon).toHaveBeenCalledWith(`ww-promotion-${reservation.id}:1`,51,'prod_UOQhHcOhFdrhOs');
+    expect(deps.ensureCoupon).toHaveBeenCalledWith(`ww-promotion-${reservation.id}:1`,51,'ww_live_20260914_v2_essential');
     expect(deps.createSession).toHaveBeenCalledWith(expect.anything(),`ww-promotion-checkout:${reservation.id}:1`);
   });
   it('never retries an expired checkout that has payment evidence',async()=>{
