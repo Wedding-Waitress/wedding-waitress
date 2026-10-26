@@ -38,3 +38,24 @@ jobs:
         run: npx tsc --noEmit
       - name: Build production app
         run: npm run build
+
+  # Diagnostic only: the committed npm lockfile is currently out of sync
+  # with package.json. Keep checkout-contract's npm ci check failing until fixed.
+  diagnostic-build:
+    runs-on: ubuntu-latest
+    timeout-minutes: 25
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Install for diagnosis without modifying the lockfile
+        run: npm install --no-save --package-lock=false --no-audit --no-fund
+      - name: Run checkout and entitlement contract tests
+        run: npx vitest run src/lib/packagePricing.test.ts src/pages/UpgradeCheckout.consent.test.tsx src/lib/paidPlanFulfillmentEvidence.test.ts src/lib/paidPlanVerificationHandler.test.ts src/lib/renewalCheckoutHandler.test.ts
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Build production app
+        run: npm run build
