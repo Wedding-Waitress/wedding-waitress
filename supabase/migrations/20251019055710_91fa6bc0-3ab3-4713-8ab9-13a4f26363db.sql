@@ -26,8 +26,8 @@ DROP FUNCTION IF EXISTS get_all_gallery_analytics();
 DROP FUNCTION IF EXISTS update_galleries_updated_at();
 DROP FUNCTION IF EXISTS cleanup_expired_upload_sessions();
 
--- Remove all files from storage buckets first
-DELETE FROM storage.objects WHERE bucket_id IN ('event-media', 'audio-uploads');
-
--- Now remove the buckets
-DELETE FROM storage.buckets WHERE id IN ('event-media', 'audio-uploads');
+-- Historical gallery schema cleanup only.
+-- Do not delete records from storage.objects or storage.buckets via SQL:
+-- Supabase Storage protects these tables. If old buckets need removal,
+-- empty and delete them separately through the Storage API after review.
+-- Keeping them here is intentional and safe for fresh preview branches.
