@@ -22,8 +22,10 @@ jobs:
         uses: actions/setup-node@v4
         with:
           node-version: '22'
-      - name: Reconcile lockfile without running dependency scripts
-        run: npm install --package-lock-only --legacy-peer-deps --ignore-scripts --no-audit --no-fund
+      - name: Regenerate lockfile cleanly without running dependency scripts
+        run: |
+          rm package-lock.json
+          npm install --package-lock-only --ignore-scripts --no-audit --no-fund
       - name: Verify the lockfile with a clean install
         run: npm ci --ignore-scripts --no-audit --no-fund
       - name: Commit repaired lockfile to draft branch
