@@ -45,7 +45,7 @@ describe('shared public authentication modals', () => {
 
     expect(await screen.findByRole('heading', { name: 'Create your free account' })).toBeInTheDocument();
     expect(screen.queryByText('7-day free trial · Up to 20 guests')).not.toBeInTheDocument();
-    expect(screen.getByText('Register your interest. Planning access will open when Wedding Waitress launches.')).toBeInTheDocument();
+    expect(screen.getByText('Start planning your wedding in one connected place.')).toBeInTheDocument();
     expect(screen.getByLabelText('First name *')).toHaveAttribute('autocomplete', 'given-name');
     expect(screen.getByLabelText('Last name *')).toHaveAttribute('autocomplete', 'family-name');
     expect(screen.getByLabelText('Email *')).toHaveAttribute('autocomplete', 'email');
@@ -55,7 +55,7 @@ describe('shared public authentication modals', () => {
     expect(screen.queryByText(/google/i)).not.toBeInTheDocument();
   });
 
-  it('durably saves pricing and promo intent without creating Auth or a trial', async () => {
+  it('requests an email OTP for a new account, retaining pricing and promo intent without charging', async () => {
     renderInRouter(
       <SignUpModal selectedPlan={{ key: 'premium', name: 'Premium', currency: 'USD' }}>
         <button type="button">Choose Premium</button>
@@ -69,14 +69,19 @@ describe('shared public authentication modals', () => {
     fireEvent.change(screen.getByLabelText('Promo code (optional)'), { target: { value: 'VENUE50' } });
     fireEvent.click(screen.getByRole('button', { name: 'Create Free Account & Continue' }));
 
-    await waitFor(() => expect(mocks.invoke).toHaveBeenCalledWith('register-prelaunch-interest', { body: {
-      first_name: 'Alex', last_name: 'Taylor', email: 'alex@example.com', mobile: '0412345678', promo_code: 'VENUE50', intended_plan: 'premium',
-    } }));
-    expect(await screen.findByRole('heading', { name: 'Thank you — you’re on our launch list' })).toBeInTheDocument();
-    expect(mocks.signInWithOtp).not.toHaveBeenCalled();
+    await waitFor(() => expect(mocks.signInWithOtp).toHaveBeenCalledWith({
+      email: 'alex@example.com',
+      options: { shouldCreateUser: true, data: expect.objectContaining({
+        first_name: 'Alex', last_name: 'Taylor', mobile: '0412345678',
+        pending_promo_code: 'VENUE50', intended_plan: 'premium', intended_currency: 'AUD',
+      }) },
+    }));
+    expect(await screen.findByRole('heading', { name: 'Check your email' })).toBeInTheDocument();
+    expect(screen.getAllByLabelText(/Verification code digit/)).toHaveLength(6);
+    expect(mocks.invoke).not.toHaveBeenCalledWith('register-prelaunch-interest', expect.anything());
     expect(mocks.verifyOtp).not.toHaveBeenCalled();
     expect(mocks.upsert).not.toHaveBeenCalled();
-    expect(sessionStorage.getItem('ww_intended_plan')).toBeNull();
+    expect(sessionStorage.getItem('ww_intended_plan')).toBe('premium');
   });
 
   it('uses the approved sign-in wording and can return to sign-up', async () => {
@@ -92,15 +97,16 @@ describe('shared public authentication modals', () => {
     expect(screen.queryByLabelText(/password/i)).not.toBeInTheDocument();
   });
 
-  it('keeps the registration form open on failed durable save without showing a launch success', async () => {
-    mocks.invoke.mockResolvedValue({ data: null, error: { message: 'Private error' } });
+  it('keeps the registration form open when the email OTP request is rejected', async () => {
+    mocks.signInWithOtp.mockResolvedValue({ error: { message: 'Account registration is unavailable.' } });
     renderInRouter(<SignUpModal><button type="button">Register interest</button></SignUpModal>);
     fireEvent.click(screen.getByRole('button', { name: 'Register interest' }));
     for (const [label,value] of [['First name *','Alex'],['Last name *','Taylor'],['Email *','alex@example.com'],['Mobile *','0412345678']]) fireEvent.change(await screen.findByLabelText(label),{target:{value}});
     fireEvent.click(screen.getByRole('button',{name:'Create Free Account & Continue'}));
-    expect(await screen.findByRole('alert')).toHaveTextContent('We couldn’t confirm your registration');
+    expect(await screen.findByRole('alert')).toHaveTextContent('Account registration is unavailable.');
     expect(screen.queryByRole('heading',{name:'Thank you — you’re on our launch list'})).not.toBeInTheDocument();
-    expect(mocks.signInWithOtp).not.toHaveBeenCalled();
+    expect(mocks.signInWithOtp).toHaveBeenCalledTimes(1);
+    expect(mocks.invoke).not.toHaveBeenCalled();
   });
 
   it('shows existing email validation without requesting a sign-in code', async () => {
