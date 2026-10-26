@@ -103,3 +103,10 @@ GitHub Actions run `40407654308` for source commit `ed4571c56c31e65376809bb39b05
 - Rollback-only `qa-admin-credit-boundary-verification-20261027.sql` passed: anon/customer calls denied, unchanged synthetic balance after denied calls, service_role check and deduction still work, and an ordinary customer is denied all nine checked administrator endpoints by the existing recent-owner-verification guard.
 - Eight focused administrator/team/closure/suspension security test files: 80 tests passed. Fresh advisors: 23 informational RLS/no-policy notices, 129 anonymous and 179 authenticated SECURITY DEFINER warnings. These counts remain a partial-review indicator, not an all-clear.
 - Final QA fixture counts: zero Auth users, events, guests, communication-credit rows and usage rows. The fix remains unapplied to production; a fresh candidate CI run is required after saving this source migration. Stripe remains parked.
+
+
+## Trial eligibility reuse checks
+
+Rollback-only `qa-trial-email-reuse-verification-20261027.sql` passed: an expired account changing its email retains the original expired trial; a new account reusing that account's now-vacant original email, including changed case, inherits the original eligibility deadline and does not obtain a fresh trial. Neither account receives an active Starter entitlement. No email was sent. A separate direct authenticated test confirmed the legacy `extend_starter_trial_once` call is already blocked by function privileges and cannot move the original expiry; no extra source change was needed.
+
+Source commit `cfb8e73a63f47efe06e84d3e844a8306d6500f3c` has ready Netlify deploy-preview `6adfccf590b168954ca3d5ca`, with published_at null. Full CI run `40408742560` remains in progress at the latest check; it has not yet been marked passed. Stripe remains parked and all previously stated access/review blockers remain open.
