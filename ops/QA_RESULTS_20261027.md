@@ -138,3 +138,8 @@ FAQ preview verification completed: Netlify deploy `6adfcf8c6912dd3fb61061da` is
 ## Guest-update auto-lock and override integration checks
 
 `qa-guest-auto-lock-verification-20261027.sql` passed as a rollback-only QA test using the event's Australia/Melbourne date: day-eight access is available; exactly seven days before the event, detail/RSVP/plus-one actions are locked and a direct save is rejected; details-only override allows a detail save without enabling RSVP or plus-ones; explicit individual overrides enable their actions; an expired RSVP deadline still closes all guest actions despite those auto-lock overrides. No production edits, real emails or Stripe operations occurred. No fix was necessary. The full CI run `40410912175` for the prior guest-relation fix remains in progress at this observation.
+
+
+## Atomic bulk guest-capacity enforcement
+
+`qa-bulk-guest-capacity-verification-20261027.sql` passed as an authenticated, rollback-only QA test: setting the event guest_limit to 999 does not override the Starter plan's 20-person limit; a single 21-row bulk INSERT is rejected and leaves no partial guest rows; a valid 20-row bulk INSERT succeeds; one extra guest is rejected while the existing 20 remain intact. This proves database statement atomicity and server capacity enforcement, not the complete spreadsheet-import UI journey or concurrent-request behavior. No fix was necessary and all fixtures were rolled back.
