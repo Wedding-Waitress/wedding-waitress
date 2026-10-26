@@ -93,3 +93,13 @@ Stripe work remains parked at the owner's explicit request.
 ## Fresh source-candidate CI result
 
 GitHub Actions run `40407654308` for source commit `ed4571c56c31e65376809bb39b05a7f847462767` completed successfully. Locked dependency installation, storage ownership check, critical advisory check, complete regression suite, TypeScript check and production build all passed. This supersedes the in-progress observations above. The ready Netlify preview remains a non-production deployment. Email/browser E2Es, parked Stripe tests, remaining security review and database-backup readiness are not cleared by CI.
+
+
+## Administrator and legacy communication-credit boundaries
+
+- Reproduced an unsigned deduction against a synthetic QA ledger: starting credit 10 became 9 after calling legacy `deduct_communication_credit` as anon. The entire fixture was rolled back. No messages, provider calls, Stripe operations or real balances were involved.
+- Read-only production permission inspection confirms both legacy `deduct_communication_credit` and `check_communication_credits` are currently executable by anon/authenticated/service_role. This is not evidence that production was exploited.
+- Applied `20261026215644_restrict_legacy_communication_credit_rpcs.sql` to QA only: revoke legacy helper access from PUBLIC/anon/authenticated; retain service_role execution. No balance/rate/function-body changes. Repository search found no application or Edge caller of either legacy helper beyond generated types and historical migration definitions.
+- Rollback-only `qa-admin-credit-boundary-verification-20261027.sql` passed: anon/customer calls denied, unchanged synthetic balance after denied calls, service_role check and deduction still work, and an ordinary customer is denied all nine checked administrator endpoints by the existing recent-owner-verification guard.
+- Eight focused administrator/team/closure/suspension security test files: 80 tests passed. Fresh advisors: 23 informational RLS/no-policy notices, 129 anonymous and 179 authenticated SECURITY DEFINER warnings. These counts remain a partial-review indicator, not an all-clear.
+- Final QA fixture counts: zero Auth users, events, guests, communication-credit rows and usage rows. The fix remains unapplied to production; a fresh candidate CI run is required after saving this source migration. Stripe remains parked.
