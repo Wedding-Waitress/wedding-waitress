@@ -15,8 +15,6 @@ import { SignInModal } from './SignInModal';
 import { AuthError, AuthLegal, VerificationCodeForm, authModalStyles as styles } from './AuthModalParts';
 import { beginGuidedSetup, GUIDED_SETUP_ROUTE } from '@/lib/guidedEventSetup';
 import { normalizeGuestPhone } from '@/lib/guestPhone';
-import { SignUpModal } from './SignUpModal';
-import { PRELAUNCH_SIGNUP_HOLD } from '@/lib/prelaunch';
 
 interface FormData {
   first_name: string;
@@ -26,15 +24,7 @@ interface FormData {
   promo_code?: string;
 }
 
-export const EmbeddedSignUpForm: React.FC = () => PRELAUNCH_SIGNUP_HOLD ? (
-  <div className={styles.dialog}>
-    <h2 className={styles.title}>Create your free account</h2>
-    <p className={styles.description}>Register your interest and we’ll let you know when Wedding Waitress launches.</p>
-    <SignUpModal><button type="button" className={styles.primaryButton}>Create Free Account & Continue</button></SignUpModal>
-  </div>
-) : <LiveEmbeddedSignUpForm />;
-
-const LiveEmbeddedSignUpForm: React.FC = () => {
+export const EmbeddedSignUpForm: React.FC = () => {
   const { t } = useTranslation('common');
   const [step, setStep] = useState<'form' | 'verify'>('form');
   const [loading, setLoading] = useState(false);
