@@ -1,5 +1,21 @@
 # Wedding Waitress release verification — 26 October 2026
 
+## Resumed investigation — latest evidence
+
+The owner subsequently requested final approval before production deployment. That instruction supersedes the earlier routine release authorization. No production deployment, schema change, customer mutation or live test charge has occurred.
+
+- QA replay advanced from 91 to 528 migrations. Supported rebases were continued after individually guarded repairs. Replay is still being checked; 528 is not a completion claim.
+- Applied the prepared guarded `20251023084541` repair on empty QA. Further replay exposed and repaired a retired Storage cleanup (`20260210062706`), an absent administrator seed (`20260227004706`), and owner-only seeds (`20260815213000`, `20260904135254`). No auth users or administrator roles were created. Source filenames may differ from recorded production timestamps; the repair JSON preserves actual original/repaired statement arrays.
+- Migration `20260913083100` also expected an existing verified owner. Empty QA now skips only the owner seed. Its table constraints, grants, restrictive policies, signup guard and fail-closed defaults are preserved. QA registration remains deliberately unavailable until the operator-controlled prelaunch setup is completed. This is not a passing signup test.
+- Prepared `netlify.toml` public browser overrides only for `deploy-preview`, targeting QA `ckmgjbwifbzzknnyxzqe`. Production context remains unchanged. The QA-configured local build and project-selection contract tests passed, as did TypeScript. The new preview must be rebuilt and its published bundle inspected before it is treated as isolated.
+- Public Auth settings returned HTTP 200 for both projects: signup enabled, email enabled, automatic email confirmation disabled. These are configuration checks, not delivery or registration E2Es.
+- A temporary JWT-gated QA diagnostic returned only boolean/configuration classifications: QA URL matches; Stripe server key missing; no test publishable key; no recognized webhook secret. No secret values were returned. The sandbox account `acct_1T0eOQ7wzy1AV51C` has no webhook endpoints. Stripe test credentials and webhook pairing need secure configuration through supported provider settings; the connector has no server-secret configuration operation.
+- The sandbox already contains Essential/Premium/Ultimate test products. No production prices or entitlements were modified.
+- A fresh complete regression was started. It currently reports failures in `GalleryUploadFeatureAppearance.test.tsx`; this run must not be reported as green. The earlier 2,638-pass result below belongs to the previous verified run.
+- Full OTP/onboarding/trial lifecycle, sandbox payment/promo/decline/cancel/retry, SQL idempotency, dependency reachability/security review and production recovery readiness remain release gates. Production-only payment evidence guards also need a reviewed QA test-mode strategy; do not forge live payment evidence or weaken production guards to make sandbox tests pass.
+
+The historical evidence below describes the earlier investigation and is superseded where this section supplies newer evidence.
+
 ## Decision
 
 **HOLD: no production deployment or merge.** The owner authorized deployment after all release gates pass. Full database replay and a genuinely isolated trial/payment E2E are still incomplete. Production customer data, schema, migration metadata, Stripe settings, secrets and deployed code were not changed during this investigation. Only the empty QA database was reset and partially replayed.

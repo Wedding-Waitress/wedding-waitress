@@ -17,6 +17,11 @@ DO $$
 DECLARE
   verified_owner_id constant uuid := 'a0dba7aa-b67a-4856-8e7e-4af91d43d3fa';
 BEGIN
+  -- Keep the private owner table empty on a no-data development branch.
+  IF NOT EXISTS (SELECT 1 FROM auth.users) THEN
+    RETURN;
+  END IF;
+
   IF NOT EXISTS (SELECT 1 FROM auth.users WHERE id = verified_owner_id) THEN
     RAISE EXCEPTION 'Platform-owner migration aborted: verified Auth UUID does not exist';
   END IF;
