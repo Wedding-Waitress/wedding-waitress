@@ -1,10 +1,11 @@
 name: Repair Wedding Waitress npm lockfile
 on:
-  push:
+  pull_request:
     branches:
-      - fix/stripe-live-catalogue-expo-2026
+      - main
     paths:
       - '.github/workflows/repair-npm-lockfile.yml'
+  workflow_dispatch:
 permissions:
   contents: write
 jobs:
