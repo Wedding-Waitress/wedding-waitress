@@ -56,7 +56,7 @@ function workflow(plan: PromotionPlan, percent: number, trialEndsAt = '2026-09-2
     }),
   };
   const input = { userId, verifiedEmail: 'verified@example.test', code: 'VENUE OFFER', plan, consent: true,
-    returnOrigin: 'http://localhost:8080', livemode: false, taxRegistrationVerified: true };
+    returnOrigin: 'http://localhost:8080', livemode: false, taxRegistrationVerified: true, worldwideGstRateId: 'txr_TestWorldwideGstRate' };
   return { checkout, completion, input, now, quote, trialEndsAt, completedAt,
     complete: () => { rawSession.status = 'complete'; rawSession.payment_status = percent === 100 ? 'no_payment_required' : 'paid';
       rawSession.payment_intent = percent === 100 ? null : 'pi_fixture'; },

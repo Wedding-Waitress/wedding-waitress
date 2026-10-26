@@ -49,7 +49,7 @@ export async function fulfillPromotionCheckout(deps: PromotionFulfillmentDepende
   const quote = validatePromotionCompletion({ ...session, percent: stored.percent, plan: stored.plan, expectedCouponId: stored.couponId });
   const completion = await deps.findOriginalCompletion(sessionId, stored.completionEventId);
   const completedAt = Date.parse(completion.createdAt), createdAt = Date.parse(stored.createdAt);
-  if (!/^evt_[A-Za-z0-9]+$/.test(completion.id) || completion.type !== 'checkout.session.completed'
+  if (!/^evt_[A-Za-z0-9]+$/.test(completion.id) || !['checkout.session.completed', 'checkout.session.async_payment_succeeded'].includes(completion.type)
     || completion.sessionId !== sessionId || completion.livemode !== stored.livemode
     || !Number.isFinite(completedAt) || !Number.isFinite(createdAt) || completedAt < Math.floor(createdAt / 1000) * 1000 || completedAt > now
     || stored.completionEventId !== null && completion.id !== stored.completionEventId) {

@@ -145,10 +145,12 @@ verify_jwt = true
 [functions.get-promotion-state]
 verify_jwt = true
 
-# Signed raw-body verification in handler; not registered or deployed.
+# Signed raw-body verification in the deployed handler.
 [functions.stripe-promotion-webhook]
 verify_jwt = false
 
-# Anonymous interest registration; private service-only persistence and throttling.
-[functions.register-prelaunch-interest]
+# Stripe authenticates with the signature verified by this handler, not a JWT.
+[functions.stripe-access-extension-webhook]
 verify_jwt = false
+
+# Historical prelaunch registration endpoint retired from current source.

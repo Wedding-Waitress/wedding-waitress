@@ -1,4 +1,5 @@
 import React, { useCallback, useEffect, useMemo, useState } from "react";
+import { parseISO } from 'date-fns';
 import {
   AlertTriangle,
   Eye,
@@ -225,7 +226,7 @@ const requestAdminSnapshot = () => {
 };
 const date = (value: string | null | undefined) =>
   value
-    ? new Date(value).toLocaleDateString("en-AU", {
+    ? parseISO(value).toLocaleDateString("en-AU", {
         day: "2-digit",
         month: "short",
         year: "numeric",

@@ -15,8 +15,8 @@ describe('additional-event paid-plan contract', () => {
   });
 
   it('accepts only the approved product and currency-specific price mapping', () => {
-    expect(checkout).toContain("const ADDITIONAL_EVENT_PRODUCT_ID = 'prod_UTm7byFGV7E127'");
-    expect(checkout).toContain('price_1TUoZ15GzTmqOxGKDRmvofDh');
+    expect(checkout).toContain("const ADDITIONAL_EVENT_PRODUCT_ID = 'ww_live_20260914_v2_additional_event'");
+    expect(checkout).toContain('price_1UFTqL5GzTmqOxGKgPWVdCwr');
     expect(checkout).toContain("{ currency: 'aud', unitAmount: 9900 }");
     expect(verification).toContain('lineItem.price.unit_amount !== allowed.unitAmount');
   });

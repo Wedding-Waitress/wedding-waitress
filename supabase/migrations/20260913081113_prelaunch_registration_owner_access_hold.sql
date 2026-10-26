@@ -10,6 +10,9 @@ CREATE TABLE private.prelaunch_control (
 ALTER TABLE private.prelaunch_control ENABLE ROW LEVEL SECURITY;
 REVOKE ALL ON private.prelaunch_control FROM PUBLIC,anon,authenticated,service_role;
 DO $$ DECLARE owners uuid[]; BEGIN
+ -- No-data branches cannot seed a verified owner. Leave the switch unseeded
+ -- and preserve every fail-closed access check until QA is configured.
+ IF NOT EXISTS (SELECT 1 FROM auth.users) THEN RETURN; END IF;
  SELECT array_agg(u.id) INTO owners FROM auth.users u
  WHERE private.is_platform_owner(u.id) AND public.has_role(u.id,'admin'::public.app_role);
  IF cardinality(owners) IS DISTINCT FROM 1 THEN RAISE EXCEPTION 'Exactly one established platform owner is required'; END IF;

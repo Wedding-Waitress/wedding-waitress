@@ -1,35 +1,41 @@
 import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
+import { retrieveWorldwideGstRate, worldwideGstLineItem, WORLDWIDE_GST_RATE_SECRET, validateWorldwideGstCustomer } from '../_shared/worldwideGst.ts';
+import { liveUpgradeFor, validateLiveUpgradePrice } from '../_shared/liveUpgradeCatalogue.ts';
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
-import Stripe from "https://esm.sh/stripe@18.5.0";
+import Stripe from "https://esm.sh/stripe@22.4.0";
 import { createClient } from "npm:@supabase/supabase-js@2.57.2";
 import { PAID_PLAN_CATALOGUE_VERSION, PAID_PLAN_LIVE_CHECKOUT_ENABLED } from '../_shared/paidPlanFulfillmentEvidence.ts';
 import { isMinimalConsentedRenewalRequest, isVerifiedClosedRenewalDecision } from '../_shared/renewalRecoveryRules.ts';
 
 const PUBLIC_PLAN_CATALOG = {
-  essential: { product: "prod_UOQhHcOhFdrhOs", baseAud: 199, mode: "payment" },
-  premium: { product: "prod_UOQhTWnFzXV1FK", baseAud: 249, mode: "payment" },
-  unlimited: { product: "prod_UOQhLIYTxQAd7U", baseAud: 299, mode: "payment" },
+  essential: { product: "ww_live_20260914_v2_essential", baseAud: 199, mode: "payment" },
+  premium: { product: "ww_live_20260914_v2_premium", baseAud: 249, mode: "payment" },
+  unlimited: { product: "ww_live_20260914_v2_unlimited", baseAud: 299, mode: "payment" },
 } as const;
 const AUD_PLAN_PRICE_IDS = {
-  essential: "price_1UDdle5GzTmqOxGKj3yu56jP",
-  premium: "price_1UDeO75GzTmqOxGK2JYrvH7I",
-  unlimited: "price_1UDeO95GzTmqOxGKZmJq53Ee",
+  essential: "price_1UFTfT5GzTmqOxGKWxqjYWed",
+  premium: "price_1UFTfW5GzTmqOxGKjj1dBGKR",
+  unlimited: "price_1UFTfa5GzTmqOxGK9EDWU9t6",
 } as const;
 
-const GUEST_CAPACITY_TOPUP_FALLBACK_PRICE_ID = "price_1TT0o05GzTmqOxGKUIiEXxj6";
-const GUEST_CAPACITY_TOPUP_PRODUCT_ID = "prod_URud0pt0K8Sl9i";
+const GUEST_CAPACITY_TOPUP_FALLBACK_PRICE_ID = "price_1UFTqV5GzTmqOxGKkLYcl2PS";
+const GUEST_CAPACITY_TOPUP_PRODUCT_ID = "ww_live_20260914_v2_guest_capacity_10";
 const COMMUNICATION_CREDIT_PACKS = {
   credits_10: {
     credits: 10,
     unitAmount: 1000,
     priceSecret: 'STRIPE_COMMUNICATION_TOPUP_10_PRICE_ID',
     productSecret: 'STRIPE_COMMUNICATION_TOPUP_10_PRODUCT_ID',
+    priceId: 'price_1UFTqt5GzTmqOxGKhwwnh4Wj',
+    productId: 'ww_live_20260914_v2_communication_10',
   },
   credits_100: {
     credits: 100,
     unitAmount: 4900,
     priceSecret: 'STRIPE_COMMUNICATION_TOPUP_PRICE_ID',
     productSecret: 'STRIPE_COMMUNICATION_TOPUP_PRODUCT_ID',
+    priceId: 'price_1UFTr55GzTmqOxGKsh0sjgjK',
+    productId: 'ww_live_20260914_v2_communication_100',
   },
 } as const;
 type CommunicationCreditPackKey = keyof typeof COMMUNICATION_CREDIT_PACKS;
@@ -39,9 +45,9 @@ const PAID_WEDDING_PLAN_IDS = new Set([
   "cd10f207-2109-4546-a635-0baa68ba8213",
 ]);
 const ADDITIONAL_EVENT_PRICES: Record<string, { currency: string; unitAmount: number }> = {
-  price_1TUoZ15GzTmqOxGKDRmvofDh: { currency: 'aud', unitAmount: 9900 },
+  price_1UFTqL5GzTmqOxGKgPWVdCwr: { currency: 'aud', unitAmount: 9900 },
 };
-const ADDITIONAL_EVENT_PRODUCT_ID = 'prod_UTm7byFGV7E127';
+const ADDITIONAL_EVENT_PRODUCT_ID = 'ww_live_20260914_v2_additional_event';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -186,7 +192,7 @@ serve(async (req) => {
       return new Response(JSON.stringify({ error: 'Select an approved communication credit pack.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
     const price_id = isCommunicationTopup
-      ? (Deno.env.get(communicationPack!.priceSecret) || '')
+      ? (Deno.env.get(communicationPack!.priceSecret) || communicationPack!.priceId)
       : isGuestCapacityTopup
         ? (Deno.env.get('STRIPE_GUEST_CAPACITY_PRICE_ID') || GUEST_CAPACITY_TOPUP_FALLBACK_PRICE_ID)
         : requested_price_id;
@@ -206,7 +212,7 @@ serve(async (req) => {
     if (!price_id && !publicPlan) throw new Error(isCommunicationTopup ? 'Selected communication top-up price is not configured' : 'price_id is required');
 
     const checkoutMode = publicPlan ? publicPlan.mode : mode === "subscription" ? "subscription" : "payment";
-    const isEmbedded = ui_mode === "embedded";
+    const isEmbedded = ui_mode === "embedded" || ui_mode === "embedded_page";
     const lineQuantity = Number.isFinite(quantity) && quantity > 0 ? Math.floor(quantity) : 1;
     if (isCommunicationTopup && lineQuantity !== 1) {
       return new Response(JSON.stringify({ error: 'Communication credit packs must be purchased one at a time.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
@@ -282,25 +288,28 @@ serve(async (req) => {
         { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
     const stripe = new Stripe(stripeKey, {
-      apiVersion: "2025-08-27.basil",
+      apiVersion: "2026-07-29.dahlia",
     });
 
-    // Find or create the Stripe customer. Do not force a country: Stripe Tax
-    // determines GST/VAT from the customer's verified checkout location.
-    const customers = await stripe.customers.list({ email: user.email, limit: 1 });
+    // Email alone is not ownership. Only reuse a server-bound account customer.
+    const customers = await stripe.customers.list({ email: user.email, limit: 100 });
+    if (customers.has_more) throw new Error('Customer lookup requires review before checkout.');
+    const ownedCustomers = customers.data.filter((customer: Stripe.Customer) =>
+      [customer.metadata?.user_id, customer.metadata?.wedding_waitress_user_id].includes(user.id));
+    if (ownedCustomers.length > 1) throw new Error('Multiple account customers require review before checkout.');
     let customerId: string;
-    if (customers.data.length > 0) {
-      customerId = customers.data[0].id;
+    if (ownedCustomers.length > 0) {
+      customerId = validateWorldwideGstCustomer(ownedCustomers[0], user.id, stripeKey.startsWith('sk_live_') || stripeKey.startsWith('rk_live_'));
     } else {
       const created = await stripe.customers.create({
         email: user.email,
         metadata: { user_id: user.id },
-      });
-      customerId = created.id;
+      }, { idempotencyKey: `ww-account-customer:${user.id}` });
+      customerId = validateWorldwideGstCustomer(created, user.id, stripeKey.startsWith('sk_live_') || stripeKey.startsWith('rk_live_'));
       logStep("Created Stripe customer", { customerId });
     }
 
-    const origin = req.headers.get("origin") || "https://wedding-waitress.lovable.app";
+    const origin = req.headers.get("origin") || "https://weddingwaitress.com.au";
 
     // ── Plan upgrade — difference-only pricing ────────────────────────
     // Allowed source→target pairs among one-time wedding plans only.
@@ -389,7 +398,7 @@ serve(async (req) => {
 
       // Find the source price in the SAME currency.
       let sourceUnitAmount: number | null = null;
-      for (const pid of SOURCE_PRICE_IDS[fromKey]) {
+      for (const pid of [AUD_PLAN_PRICE_IDS[fromKey as keyof typeof AUD_PLAN_PRICE_IDS], ...SOURCE_PRICE_IDS[fromKey]]) {
         try {
           const sp = await stripe.prices.retrieve(pid);
           const sourceCatalogue = PUBLIC_PLAN_CATALOG[fromKey as keyof typeof PUBLIC_PLAN_CATALOG];
@@ -414,15 +423,10 @@ serve(async (req) => {
         });
       }
 
-      upgradeLineItem = {
-        quantity: 1,
-        price_data: {
-          currency: targetCurrency,
-          product: targetProductId,
-          unit_amount: diff,
-          tax_behavior: "exclusive",
-        },
-      };
+      const upgradeSku = liveUpgradeFor(fromKey, toKey);
+      validateLiveUpgradePrice(await stripe.prices.retrieve(upgradeSku.priceId), fromKey, toKey, diff);
+      resolvedProductId = upgradeSku.productId;
+      upgradeLineItem = { quantity: 1, price: upgradeSku.priceId };
       upgradeDiffMeta = String(diff);
       originalAmountCents = diff;
       logStep("Upgrade difference computed", {
@@ -448,7 +452,8 @@ serve(async (req) => {
       resolvedCurrency = resolvedPrice.currency;
       originalAmountCents = (resolvedPrice.unit_amount || 0) * lineQuantity;
       if (isCommunicationTopup) {
-        const configuredProductId = Deno.env.get(communicationPack!.productSecret) || '';
+        const configuredProductId = Deno.env.get(communicationPack!.productSecret) || communicationPack!.productId;
+        if (price_id !== communicationPack!.priceId || configuredProductId !== communicationPack!.productId) throw new Error('Live communication catalogue binding mismatch.');
         if (!configuredProductId
           || resolvedPrice.id !== price_id
           || resolvedProductId !== configuredProductId
@@ -489,11 +494,13 @@ serve(async (req) => {
       checkoutLineItem = { quantity: 1, price_data: { currency: resolvedCurrency, product: resolvedProductId, unit_amount: originalAmountCents, tax_behavior: "inclusive" } };
     }
 
+    const gstRateId = await retrieveWorldwideGstRate(stripe, Deno.env.get(WORLDWIDE_GST_RATE_SECRET), stripeKey.startsWith('sk_live_') || stripeKey.startsWith('rk_live_'));
     const sessionParams: Stripe.Checkout.SessionCreateParams = {
+      integration_identifier: 'ww-checkout-pkzhnqav',
       customer: customerId,
-      line_items: [checkoutLineItem],
+      line_items: [worldwideGstLineItem(checkoutLineItem as Record<string, unknown>, gstRateId)],
       mode: checkoutMode as Stripe.Checkout.SessionCreateParams.Mode,
-      automatic_tax: { enabled: true },
+      automatic_tax: { enabled: false },
       customer_update: { address: "auto" },
       metadata: {
         user_id: user.id,
@@ -524,7 +531,7 @@ serve(async (req) => {
     };
 
     if (isEmbedded) {
-      sessionParams.ui_mode = "embedded";
+      sessionParams.ui_mode = "embedded_page";
       sessionParams.return_url = `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`;
     } else {
       sessionParams.success_url = `${origin}/payment-success?session_id={CHECKOUT_SESSION_ID}`;

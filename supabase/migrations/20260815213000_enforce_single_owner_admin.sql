@@ -11,6 +11,12 @@ BEGIN
   FROM auth.users
   WHERE lower(btrim(email)) = 'naderelalfy1977@gmail.com';
 
+  -- No-data development branches have no owner account to seed.
+  -- Continue installing the role guards; never assign another user as owner.
+  IF owner_match_count = 0 AND NOT EXISTS (SELECT 1 FROM auth.users) THEN
+    RETURN;
+  END IF;
+
   IF owner_match_count <> 1 THEN
     RAISE EXCEPTION
       'Owner/admin enforcement aborted: expected exactly one matching auth user, found %',

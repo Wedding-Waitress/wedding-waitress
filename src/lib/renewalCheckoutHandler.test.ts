@@ -17,20 +17,24 @@ function fixture({ status = 'closed', held = false, master = false, retainedMast
     data: { user: authenticated ? { id: owner, email: 'owner@isolated.test' } : null }, error: null })) } };
   const createSession = vi.fn(async () => ({ id: 'cs_test_Isolated', client_secret: 'isolated-client-secret' }));
   const createCustomer = vi.fn();
-  const stripe = { customers: { list: vi.fn(async () => ({ data: [{ id: 'cus_Isolated' }] })), create: createCustomer },
+  const stripe = { customers: { list: vi.fn(async () => ({ data: [{ id: 'cus_Isolated', metadata: { user_id: owner } }] })), create: createCustomer },
     checkout: { sessions: { create: createSession } } };
   const guard = vi.fn(async () => held ? new Response('held', { status: 403 }) : null);
   const env: Record<string, string> = { SUPABASE_URL: 'https://isolated.test', SUPABASE_ANON_KEY: 'isolated-public',
     SUPABASE_SERVICE_ROLE_KEY: 'isolated-service', STRIPE_SECRET_KEY: liveKey ? 'sk_live_Isolated' : 'sk_test_Isolated',
-    STRIPE_PUBLISHABLE_KEY: 'pk_test_Isolated' };
+    STRIPE_PUBLISHABLE_KEY: liveKey ? 'pk_live_Isolated' : 'pk_test_Isolated' };
   let handler!: (request: Request) => Promise<Response>;
   const source = readFileSync('supabase/functions/create-checkout/index.ts', 'utf8').replace(/^import .*$/gm, '');
   const compiled = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.None } }).outputText;
   new Function('guardSuspendedCustomer', 'serve', 'Stripe', 'createClient', 'Deno', 'console',
-    'PAID_PLAN_CATALOGUE_VERSION', 'PAID_PLAN_LIVE_CHECKOUT_ENABLED', 'isMinimalConsentedRenewalRequest', 'isVerifiedClosedRenewalDecision', compiled)(
+    'PAID_PLAN_CATALOGUE_VERSION', 'PAID_PLAN_LIVE_CHECKOUT_ENABLED', 'isMinimalConsentedRenewalRequest', 'isVerifiedClosedRenewalDecision',
+    'retrieveWorldwideGstRate', 'worldwideGstLineItem', 'WORLDWIDE_GST_RATE_SECRET', 'validateWorldwideGstCustomer',
+    'liveUpgradeFor', 'validateLiveUpgradePrice', compiled)(
     guard, (callback: typeof handler) => { handler = callback; }, function () { return stripe; }, () => client,
     { env: { get: (name: string) => env[name] } }, { log: vi.fn(), error: vi.fn() }, PAID_PLAN_CATALOGUE_VERSION,
-    PAID_PLAN_LIVE_CHECKOUT_ENABLED, isMinimalConsentedRenewalRequest, isVerifiedClosedRenewalDecision);
+    PAID_PLAN_LIVE_CHECKOUT_ENABLED, isMinimalConsentedRenewalRequest, isVerifiedClosedRenewalDecision,
+    vi.fn(async () => 'txr_Isolated'), (line: any) => line, 'STRIPE_WORLDWIDE_GST_RATE_ID', (customer: any) => customer.id,
+    vi.fn(), vi.fn());
   const request = (changes = {}) => new Request('https://isolated.test', { method: 'POST',
     headers: { Authorization: 'Bearer isolated-session', origin: 'http://localhost:8080' }, body: JSON.stringify({ ...body, ...changes }) });
   return { handler, request, rpc, query, guard, createSession, createCustomer, client };
@@ -66,10 +70,15 @@ describe('actual minimal renewal checkout handler with isolated adapters', () =>
     expect(app.rpc).not.toHaveBeenCalled();
     expect(app.createSession).not.toHaveBeenCalled();
   });
-  it('never creates a live package checkout while separate live activation is unapproved', async () => {
+  it('permits a verified live renewal only with explicit consent and the approved AUD base amount', async () => {
     const app = fixture({ liveKey: true });
-    expect((await app.handler(app.request())).status).toBe(503);
-    expect(app.createSession).not.toHaveBeenCalled();
+    expect((await app.handler(app.request())).status).toBe(200);
+    expect(app.createSession).toHaveBeenCalledWith(expect.objectContaining({
+      mode: 'payment',
+      line_items: [expect.objectContaining({ price_data: expect.objectContaining({
+        product: 'ww_live_20260914_v2_essential', unit_amount: 19900, currency: 'aud' }) })],
+      metadata: expect.objectContaining({ purchase_consent: 'explicit-v1', plan_purchase_purpose: 'renewal' }),
+    }), undefined);
   });
   it('does not apply an expiry exception to an add-on disguised as renewal', async () => {
     const app = fixture();

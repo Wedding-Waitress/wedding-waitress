@@ -919,14 +919,6 @@ export const Dashboard = () => {
       <PlanExpiredModal
         isOpen={showPlanExpired}
         onClose={() => setShowPlanExpired(false)}
-        onUpgrade={() => {
-          setShowPlanExpired(false);
-          toast({
-            title: "Upgrade Coming Soon",
-            description: "Plan upgrades will be available once Stripe is connected.",
-          });
-        }}
-        trialExtended={plan?.trial_extended ?? false}
       />
     </div>
   </SidebarProvider>;

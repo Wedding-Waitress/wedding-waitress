@@ -260,5 +260,6 @@ CREATE TRIGGER update_dj_answers_updated_at
 
 -- Seed admin user (existing bootstrap admin from adminConfig.ts)
 INSERT INTO public.user_roles (user_id, role, created_by)
-VALUES ('a0dba7aa-b67a-4856-8e7e-4af91d43d3fa', 'admin', 'a0dba7aa-b67a-4856-8e7e-4af91d43d3fa')
+SELECT id, 'admin'::public.app_role, id FROM auth.users
+WHERE id = 'a0dba7aa-b67a-4856-8e7e-4af91d43d3fa'
 ON CONFLICT (user_id, role) DO NOTHING;

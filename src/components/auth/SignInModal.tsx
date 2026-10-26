@@ -112,7 +112,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     
     const validation = secureEmailSchema.safeParse({ email: sanitizedEmail });
     if (!validation.success) {
-      setError(validation.error.errors[0].message);
+      setError(validation.error.issues[0].message);
       logSecurityEvent.validationFailure('email', email, email);
       otpRequestInFlightRef.current = false;
       return;

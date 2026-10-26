@@ -21,7 +21,7 @@ import { EventDatePicker } from './EventDatePicker';
 import { TimePicker } from './TimePicker';
 import { LocationDetailsPopover } from './LocationDetailsPopover';
 import { EventNameCombobox } from './EventNameCombobox';
-import { format } from 'date-fns';
+import { format, parseISO } from 'date-fns';
 import styles from './EventCreateModal.module.css';
 import { EventImageEditor } from '@/components/EventImage/EventImageEditor';
 import type { EventImageValue } from '@/lib/eventImage';
@@ -215,7 +215,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         // Ceremony fields
         ceremony_enabled: event.ceremony_enabled ?? false,
         ceremony_name: event.ceremony_name || '',
-        ceremony_date: event.ceremony_date ? new Date(event.ceremony_date) : null,
+        ceremony_date: event.ceremony_date ? parseISO(event.ceremony_date) : null,
         ceremony_venue: event.ceremony_venue || '',
         ceremony_venue_address: event.ceremony_venue_address || '',
         ceremony_venue_phone: event.ceremony_venue_phone || '',
@@ -224,13 +224,13 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         ceremony_guest_limit: event.ceremony_guest_limit ?? 10,
         ceremony_start_time: event.ceremony_start_time || '',
         ceremony_finish_time: event.ceremony_finish_time || '',
-        ceremony_rsvp_deadline: event.ceremony_rsvp_deadline ? new Date(event.ceremony_rsvp_deadline) : null,
+        ceremony_rsvp_deadline: event.ceremony_rsvp_deadline ? parseISO(event.ceremony_rsvp_deadline) : null,
         
         // Reception fields
         reception_enabled: event.reception_enabled ?? true,
         name: event.name,
         event_type: (event.event_type as 'seated' | 'cocktail') || 'seated',
-        date: event.date ? new Date(event.date) : null,
+        date: event.date ? parseISO(event.date) : null,
         venue: event.venue || '',
         venue_address: event.venue_address || '',
         venue_phone: event.venue_phone || '',

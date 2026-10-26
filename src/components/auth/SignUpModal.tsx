@@ -11,7 +11,6 @@ import { getSafeAuthenticatedReturnTo } from '@/lib/authNavigation';
 import { AuthError, AuthLegal, AuthModalHeader, VerificationCodeForm, authModalStyles as styles } from './AuthModalParts';
 import { SignInModal } from './SignInModal';
 import { normalizeGuestPhone } from '@/lib/guestPhone';
-import { PRELAUNCH_SIGNUP_HOLD, PRELAUNCH_NOTICE, savePrelaunchRegistration } from '@/lib/prelaunch';
 
 export interface SignUpPlanContext {
   key: 'essential' | 'premium' | 'unlimited' | 'vendor_pro';
@@ -38,7 +37,7 @@ const mapVerificationError = (message?: string) => {
 
 export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan, redirectTo }) => {
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState<'form' | 'verify' | 'launch-notice'>('form');
+  const [step, setStep] = useState<'form' | 'verify'>('form');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>(emptyForm);
   const [verificationCode, setVerificationCode] = useState(emptyCode);
@@ -97,12 +96,6 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
     signupRequestStartedAtRef.current = Date.now();
     setLoading(true);
     try {
-      if (PRELAUNCH_SIGNUP_HOLD) {
-        await savePrelaunchRegistration({ ...formData, intended_plan: selectedPlan?.key });
-        signupRequestStartedAtRef.current = null;
-        setStep('launch-notice');
-        return;
-      }
       const requestError = await requestCode();
       if (requestError) { signupRequestStartedAtRef.current = null; setError(requestError.message); return; }
       if (selectedPlan) {
@@ -112,7 +105,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
       setStep('verify');
       setResendTimer(30);
     } catch {
-      setError(PRELAUNCH_SIGNUP_HOLD ? 'We couldn’t confirm your registration. Please check your details and try again.' : 'An unexpected error occurred. Please try again.');
+      setError('An unexpected error occurred. Please try again.');
     } finally {
       requestInFlightRef.current = false;
       setLoading(false);
@@ -192,7 +185,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
       <DialogContent className={styles.dialog} overlayClassName="bg-black/75" onEscapeKeyDown={(event) => { if (loading) event.preventDefault(); }}>
         {step === 'form' ? (
           <>
-            <AuthModalHeader icon={UserPlus} title="Create your free account" description={PRELAUNCH_SIGNUP_HOLD ? 'Register your interest. Planning access will open when Wedding Waitress launches.' : 'Start planning your wedding in one connected place.'} signUpReassurance={!PRELAUNCH_SIGNUP_HOLD} selectedPlan={selectedPlan?.name} />
+            <AuthModalHeader icon={UserPlus} title="Create your free account" description="Start planning your wedding in one connected place." signUpReassurance selectedPlan={selectedPlan?.name} />
             <form onSubmit={handleSubmit} className={styles.body} noValidate>
               <div className={styles.fieldStack}>
                 <div className={styles.fieldGroup}>
@@ -214,25 +207,17 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
                 <div className={styles.fieldGroup}>
                   <Label htmlFor={`${idPrefix}-promo-code`} className={styles.label}>Promo code (optional)</Label>
                   <Input id={`${idPrefix}-promo-code`} placeholder="Enter your promo code" className={styles.input} value={formData.promo_code} onChange={updateField('promo_code')} autoComplete="off" maxLength={64} disabled={loading} aria-describedby={`${idPrefix}-promo-help`} />
-                  <p id={`${idPrefix}-promo-help`}>{PRELAUNCH_SIGNUP_HOLD ? 'Your code is saved for future checking. No code is redeemed and no trial starts before launch.' : 'Your seven-day trial stays free. Any valid discount applies when you choose your first package.'}</p>
+                  <p id={`${idPrefix}-promo-help`}>Your seven-day trial stays free. Any valid discount applies when you choose your first package.</p>
                 </div>
               </div>
               <AuthError message={error} />
               <button type="submit" className={styles.primaryButton} disabled={loading} aria-live="polite">
                 {loading ? <LoaderCircle size={18} className="animate-spin" aria-hidden /> : <Send size={18} aria-hidden />}
-                {loading ? (PRELAUNCH_SIGNUP_HOLD ? 'Saving your registration…' : 'Creating your account…') : 'Create Free Account & Continue'}
+                {loading ? 'Creating your account…' : 'Create Free Account & Continue'}
               </button>
               <AuthLegal onNavigate={navigateFromModal} />
               <p className={styles.switchLine}>Already have an account?{' '}<button type="button" className={styles.linkButton} onClick={() => { setOpen(false); setSignInOpen(true); }}>Sign in</button></p>
             </form>
-          </>
-        ) : step === 'launch-notice' ? (
-          <>
-            <AuthModalHeader icon={CheckCircle2} title="Thank you — you’re on our launch list" description={PRELAUNCH_NOTICE} />
-            <div className={styles.body}>
-              <p>Your details are saved. No account access, trial, payment or promotional code has been activated, and no notification has been sent yet.</p>
-              <button type="button" className={styles.primaryButton} onClick={() => handleOpenChange(false)}>Done</button>
-            </div>
           </>
         ) : (
           <>

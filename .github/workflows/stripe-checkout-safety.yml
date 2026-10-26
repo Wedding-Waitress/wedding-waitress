@@ -1,0 +1,69 @@
+name: Wedding Waitress Stripe Checkout Safety
+
+on:
+  pull_request:
+    paths:
+      - 'package.json'
+      - 'package-lock.json'
+      - 'src/lib/prelaunch.ts'
+      - 'src/lib/authNavigation.ts'
+      - 'src/lib/authNavigation.test.ts'
+      - 'src/components/auth/**'
+      - 'src/lib/promotion*.test.ts'
+      - 'src/lib/promotionWorkflow.integration.test.ts'
+      - 'supabase/functions/create-promotion-checkout/**'
+      - 'supabase/functions/verify-promotion-payment/**'
+      - 'supabase/functions/stripe-promotion-webhook/**'
+      - 'src/lib/packagePricing.ts'
+      - 'src/lib/stripePrices.ts'
+      - 'src/lib/currencyPricing.ts'
+      - 'src/lib/planRegistry.ts'
+      - 'src/lib/paidPlanWebhook.test.ts'
+      - 'src/components/Account/AccountRenewalPackages.test.tsx'
+      - 'supabase/config.toml'
+      - 'supabase/migrations/**'
+      - 'supabase/functions/stripe-access-extension-webhook/**'
+      - 'src/pages/UpgradeCheckout.tsx'
+      - 'src/lib/packagePricing.test.ts'
+      - 'supabase/functions/create-checkout/**'
+      - 'supabase/functions/verify-payment/**'
+      - 'supabase/functions/_shared/**'
+      - '.github/workflows/stripe-checkout-safety.yml'
+  workflow_dispatch:
+
+permissions:
+  contents: read
+
+jobs:
+  checkout-contract:
+    runs-on: ubuntu-latest
+    timeout-minutes: 20
+    steps:
+      - name: Checkout repository
+        uses: actions/checkout@v4
+      - name: Use Node.js 22
+        uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+          cache: npm
+      - name: Pin npm version
+        run: npm install --global npm@11.19.1
+      - name: Install locked dependencies
+        run: npm ci
+      - name: Install storage-ownership check dependency
+        run: |
+          sudo apt-get update
+          sudo apt-get install --yes ripgrep
+      - name: Reject critical dependency advisories
+        run: npm audit --audit-level=critical
+      - name: Run complete regression suite with synthetic configuration
+        env:
+          TZ: America/New_York
+          VITE_SUPABASE_URL: https://qa.invalid
+          VITE_SUPABASE_PUBLISHABLE_KEY: synthetic-public-key
+          VITE_PUBLIC_BASE_URL: https://weddingwaitress.com.au
+        run: npm test -- --maxWorkers=2
+      - name: Typecheck
+        run: npx tsc --noEmit
+      - name: Build production app
+        run: npm run build

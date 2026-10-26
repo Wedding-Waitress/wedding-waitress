@@ -6,6 +6,7 @@ import { Button } from '@/components/ui/enhanced-button';
 import type { CurrencyCode } from '@/lib/currencyPricing';
 import { AUD_BASE_PRICES, formatPublicPricingPrice } from '@/lib/liveCurrencyPricing';
 import { PUBLIC_COUPLE_PLAN_DETAILS, type PlanKey } from './pricingPlans';
+import { gstInclusiveAud } from '@/lib/packagePricing';
 
 type PlatformFeature = {
   prefix: string;
@@ -189,7 +190,8 @@ export const PublicPricingSection: React.FC = () => {
                   )}
                   <h3 id={`${key}-plan-title`} className="text-4xl font-bold text-[#412419]">{details.name}</h3>
                 </div>
-                <p className="mt-5 text-2xl font-bold text-[#221b18]" aria-label={`${details.name}, ${price} Australian dollars one-time`}>{price}</p>
+                <p className="mt-5 text-2xl font-bold text-[#221b18]" aria-label={`${details.name}, ${price} Australian dollars one-time excluding GST`}>{price}</p>
+                <p className="mt-1 text-sm text-[#6f625b]">Excluding GST · A${gstInclusiveAud(AUD_BASE_PRICES[key]).toFixed(2)} including 10% GST</p>
                 <div className="mt-3 leading-6">
                   <p className="font-semibold text-[#412419]">Up to {details.guests} guests</p>
                   <p className="text-sm text-[#6f625b]">One event for 12 months</p>

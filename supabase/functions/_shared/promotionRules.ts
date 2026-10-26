@@ -69,11 +69,11 @@ export function validatePromotionCompletion(evidence: PromotionCompletionEvidenc
   if (evidence.status !== 'complete' || evidence.currency.toUpperCase() !== 'AUD'
     || !evidence.expectedCouponId || evidence.couponId !== evidence.expectedCouponId
     || evidence.subtotalCents !== quote.originalCents || evidence.discountCents !== quote.discountCents
-    || !Number.isSafeInteger(evidence.totalCents) || evidence.totalCents < quote.subtotalCents) {
+    || !Number.isSafeInteger(evidence.totalCents) || evidence.totalCents !== quote.subtotalCents + Math.round(quote.subtotalCents / 10)) {
     throw new Error('Checkout does not match the approved promotional quote.');
   }
   if (evidence.percent === 100) {
-    if (evidence.totalCents !== 0 || evidence.paymentStatus !== 'no_payment_required' || evidence.paymentIntentId !== null) throw new Error('A completed no-cost checkout is required.');
+    if (evidence.totalCents !== 0 || !['no_payment_required', 'paid'].includes(evidence.paymentStatus) || evidence.paymentIntentId !== null) throw new Error('A completed no-cost checkout is required.');
   } else if (evidence.paymentStatus !== 'paid' || !/^pi_[A-Za-z0-9]+$/.test(evidence.paymentIntentId ?? '')) {
     throw new Error('A verified successful discounted payment is required.');
   }

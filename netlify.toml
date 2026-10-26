@@ -2,3 +2,11 @@
 # Keep existing site build, publish, environment and redirect settings unchanged.
 [build]
   edge_functions = "netlify/edge-functions"
+
+# Public browser configuration for isolated PR testing. Production is unchanged.
+[context.deploy-preview]
+  command = 'VITE_PUBLIC_BASE_URL="$DEPLOY_PRIME_URL" npm run build'
+
+[context.deploy-preview.environment]
+  VITE_SUPABASE_URL = "https://ckmgjbwifbzzknnyxzqe.supabase.co"
+  VITE_SUPABASE_PUBLISHABLE_KEY = "sb_publishable_fajkDNBw3paS624YtwxNtg_JrumfUMl"
