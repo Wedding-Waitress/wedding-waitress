@@ -54,6 +54,12 @@ export const EmbeddedSignUpForm: React.FC = () => {
       setError(t('form.validEmail'));
       return;
     }
+    try {
+      normalizeGuestPhone(formData.mobile);
+    } catch {
+      setError('Please enter a valid mobile number, including its country code if needed.');
+      return;
+    }
     setLoading(true);
     signupRequestStartedAtRef.current = Date.now();
     try {

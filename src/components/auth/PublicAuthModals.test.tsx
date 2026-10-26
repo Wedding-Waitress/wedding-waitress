@@ -55,6 +55,23 @@ describe('shared public authentication modals', () => {
     expect(screen.queryByText(/google/i)).not.toBeInTheDocument();
   });
 
+  it.each(['abc', '0411', '+61 abc 123'])('rejects invalid mobile %s before requesting an email code', async (mobile) => {
+    renderInRouter(<SignUpModal><button type="button">Open sign up</button></SignUpModal>);
+    fireEvent.click(screen.getByRole('button', { name: 'Open sign up' }));
+    fireEvent.change(await screen.findByLabelText('First name *'), { target: { value: 'Alex' } });
+    fireEvent.change(screen.getByLabelText('Last name *'), { target: { value: 'Taylor' } });
+    fireEvent.change(screen.getByLabelText('Email *'), { target: { value: 'alex@example.com' } });
+    fireEvent.change(screen.getByLabelText('Mobile *'), { target: { value: mobile } });
+    fireEvent.click(screen.getByRole('button', { name: 'Create Free Account & Continue' }));
+    expect(await screen.findByText('Please enter a valid mobile number, including its country code if needed.')).toBeInTheDocument();
+    expect(mocks.signInWithOtp).not.toHaveBeenCalled();
+    expect(screen.getByRole('button', { name: 'Create Free Account & Continue' })).toBeEnabled();
+    fireEvent.change(screen.getByLabelText('Mobile *'), { target: { value: '+61 412 345 678' } });
+    fireEvent.click(screen.getByRole('button', { name: 'Create Free Account & Continue' }));
+    await waitFor(() => expect(mocks.signInWithOtp).toHaveBeenCalledTimes(1));
+    expect(await screen.findByRole('heading', { name: 'Check your email' })).toBeInTheDocument();
+  });
+
   it('requests an email OTP for a new account, retaining pricing and promo intent without charging', async () => {
     renderInRouter(
       <SignUpModal selectedPlan={{ key: 'premium', name: 'Premium', currency: 'USD' }}>

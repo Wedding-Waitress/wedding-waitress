@@ -91,6 +91,12 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
       setError('Please enter a valid email address.');
       return;
     }
+    try {
+      normalizeGuestPhone(formData.mobile);
+    } catch {
+      setError('Please enter a valid mobile number, including its country code if needed.');
+      return;
+    }
 
     requestInFlightRef.current = true;
     signupRequestStartedAtRef.current = Date.now();
