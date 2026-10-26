@@ -1,4 +1,5 @@
 import { PROMOTION_PLANS, promotionPreview, type PromotionPlan } from './promotionRules.ts';
+import { worldwideGstLineItem } from './worldwideGst.ts';
 
 export interface PromotionReservation {
   id: string; percent_off: number; included_credits: number; plan_key: PromotionPlan;
@@ -6,7 +7,7 @@ export interface PromotionReservation {
   attempt_number?: number;
 }
 const products: Record<PromotionPlan, string> = {
-  essential: 'prod_UOQhHcOhFdrhOs', premium: 'prod_UOQhTWnFzXV1FK', unlimited: 'prod_UOQhLIYTxQAd7U',
+  essential: 'ww_live_20260914_v2_essential', premium: 'ww_live_20260914_v2_premium', unlimited: 'ww_live_20260914_v2_unlimited',
 };
 export interface PromotionCheckoutDependencies {
   reserve(userId: string, code: string, plan: PromotionPlan): Promise<PromotionReservation>;
@@ -22,11 +23,12 @@ export interface PromotionCheckoutDependencies {
 /** Provider creation is injectable so local tests never contact Stripe. */
 export async function createPromotionCheckout(deps: PromotionCheckoutDependencies, input: {
   userId: string; verifiedEmail: string; code: string; plan: PromotionPlan;
-  consent: boolean; returnOrigin: string; livemode: boolean; taxRegistrationVerified: boolean;
+  consent: boolean; returnOrigin: string; livemode: boolean; taxRegistrationVerified: boolean; worldwideGstRateId: string;
 }) {
   if (input.consent !== true || !input.userId || !input.verifiedEmail || !Object.prototype.hasOwnProperty.call(PROMOTION_PLANS, input.plan)) throw new Error('Verified first-package purchase and explicit consent required.');
   if (!['https://weddingwaitress.com.au', 'https://www.weddingwaitress.com.au', 'http://localhost:8080'].includes(input.returnOrigin)) throw new Error('Checkout return origin is not approved.');
   if (!input.taxRegistrationVerified) throw new Error('Tax registration must be verified before promotional checkout is enabled.');
+  if (!/^txr_[A-Za-z0-9]+$/.test(input.worldwideGstRateId)) throw new Error('Verified worldwide GST rate required.');
   let reservation = await deps.reserve(input.userId, input.code, input.plan);
   const quote = promotionPreview(input.plan, reservation.percent_off);
   if (!reservation.id || reservation.plan_key !== input.plan || reservation.included_credits !== quote.includedCredits) throw new Error('Reservation does not match the approved offer.');
@@ -56,10 +58,10 @@ export async function createPromotionCheckout(deps: PromotionCheckoutDependencie
   const attemptSuffix=reservation.attempt_number?`:${reservation.attempt_number}`:'';
   const couponId = await deps.ensureCoupon(`ww-promotion-${reservation.id}${attemptSuffix}`, reservation.percent_off, productId);
   const session = await deps.createSession({
-    customer: customerId, mode: 'payment', ui_mode: 'embedded',
-    line_items: [{ quantity: 1, price_data: { currency: 'aud', product: productId,
-      unit_amount: quote.originalCents, tax_behavior: 'exclusive' } }],
-    discounts: [{ coupon: couponId }], automatic_tax: { enabled: true },
+    customer: customerId, mode: 'payment', ui_mode: 'embedded_page',
+    line_items: [worldwideGstLineItem({ quantity: 1, price_data: { currency: 'aud', product: productId,
+      unit_amount: quote.originalCents, tax_behavior: 'exclusive' } }, input.worldwideGstRateId)],
+    discounts: [{ coupon: couponId }], automatic_tax: { enabled: false },
     customer_update: { address: 'auto' }, billing_address_collection: 'required',
     return_url: `${input.returnOrigin}/payment-success?promotion=1&session_id={CHECKOUT_SESSION_ID}`,
     // Stable random-letter UUID-derived suffix for Dashboard integration tracking.
