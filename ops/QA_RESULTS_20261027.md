@@ -80,3 +80,11 @@ Stripe work remains parked at the owner's explicit request.
 - Reran the prior trial integration and postal-privacy integration scripts after this change; both passed.
 - Four relevant Vitest files / 27 tests passed (public lookup privacy, event-access migration, song prefill migration and authentication navigation). Fresh advisor counts: 23 INFO RLS/no-policy, 131 anon SECURITY DEFINER warnings and 181 authenticated SECURITY DEFINER warnings. This remains a partial security review, not a blanket all-clear.
 - Source fix is queued for the existing draft release candidate. It has not been applied to production. A fresh candidate CI/preview must be checked after saving this commit.
+
+## Continued verification after token fix commit
+
+- Fix saved at source commit `ed4571c56c31e65376809bb39b05a7f847462767`. Netlify deploy `6adfcb0f2b21feeef304fe96` is ready in deploy-preview context at that exact commit; `published_at` is null. GitHub run `40407654308` was still running its full regression step at the latest check; no full-success claim yet.
+- `qa-trial-event-limit-verification-20261027.sql` passed on QA as an authenticated-role rollback-only test: one trial event allowed, second event rejected with `WW_EVENT_LIMIT_REACHED`, reassignment of its owner rejected, and user-editable `role: admin`, `is_owner: true`, `plan: unlimited` metadata grants neither administrator nor platform-owner status.
+- Browser check: direct navigation to preview `/dashboard` while unsigned redirected to the homepage and opened the Welcome back email-code sign-in modal. No dashboard or customer data rendered. No credential entry or email submission was attempted.
+- QA has no public views; neither anonymous nor authenticated roles have CREATE privilege on public schema; anon has no USAGE on private schema. These are focused checks, not full function audit completion.
+- The installed Supabase CLI supports backup listing, but a read-only production backup-list attempt returned `Access token not provided`. Browser backup inspection is likewise behind sign-in. Database-backup verification remains a concrete access blocker; no restore or further auth request was attempted.
