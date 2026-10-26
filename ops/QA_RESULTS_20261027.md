@@ -125,3 +125,11 @@ Run `40408742560` for source commit `cfb8e73a63f47efe06e84d3e844a8306d6500f3c` c
 
 
 FAQ preview verification completed: Netlify deploy `6adfcf8c6912dd3fb61061da` is ready at copy-fix commit `90504059c33a16668b7d2729e1ace9ba73c028a5` in deploy-preview context. Reloaded `/faq` and read the two rendered answer elements; both contain the corrected renewal/retention wording, without the obsolete monthly-extension or automatic-deletion promises. Production remains unchanged.
+
+
+## Guest-details write authorization and blank-relation repair
+
+- Rollback-only guest-details integration testing reproduced a valid own-guest dietary update failing with NOT NULL violation: the save function used nullif(...,'') for three relation fields whose schema requires non-null empty strings. Read-only function-definition inspection found the same fragment in production; no real guest update or production mutation was attempted.
+- Applied candidate `20261026221300_preserve_empty_guest_relation_fields.sql` to QA only. The function definition is captured with only the three relation assignments changed to coalesce(...,''); token checks, authorization, locking, RSVP deadline, household restrictions and remaining saved data logic are preserved.
+- `qa-guest-details-boundary-verification-20261027.sql` passed after the fix: valid recipient/household read; unrelated/no-token/expired-token reads rejected; unrelated save rejected; own update successfully persisted with blank relations; table assignment and disabled plus-one additions rejected; expired RSVP deadline prevents updates. All synthetic fixtures rolled back. An initial syntax error in an added test-script block was corrected before the final passing run.
+- Three existing guest-update/access/privacy test files / 40 tests passed. The source fix requires fresh candidate CI after saving. No live emails, external messages, payments, production writes or production deployment occurred; Stripe remains parked.
