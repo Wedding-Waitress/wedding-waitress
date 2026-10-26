@@ -14,4 +14,10 @@ Pins Zod 4.6.7 and compatible React Hook Form resolvers 5.2.2. Updates error cus
 
 ## Pending
 
-Full regression completion and independent release-candidate integration. PDF approved-layout comparisons, broader function review, email/browser E2E, backup verification and Stripe gates remain open. Do not deploy based only on these checks.
+Full regression completed: 453 files / 2650 tests passed with four fork workers. The first attempt hit a 180-second limit; the completed longer run took 129.71 seconds. Independent release-candidate integration remains pending. PDF approved-layout comparisons, broader function review, email/browser E2E, backup verification and Stripe gates remain open. Do not deploy based only on these checks.
+
+## Notification and SMS helper permissions
+
+The continued permissions review reproduced missing-identity authorization bypass in get_notification_settings using only a nonexistent synthetic UUID, without reading any real settings. Both notification helper definitions used nullable inequality. Migration 20261026230842_restrict_notification_and_sms_helpers.sql replaces that predicate with an explicit missing-identity rejection and IS DISTINCT FROM, revokes anonymous execution, and keeps authenticated own-account access. Two SMS status helpers lacked internal authorization and were publicly executable; restrict them to service_role, matching current Edge/webhook callers. Applied to QA only.
+
+Read-only QA verification passed: anon notification read/write denied; own nonexistent-account lookup allowed; cross-account read/write denied; missing authenticated identity denied. SMS privileges confirm anon/customer denied and service_role retained. No real credentials were read, no SMS sent, and no production changes were made. This is a scoped correction, not completion of the entire database-function audit.
