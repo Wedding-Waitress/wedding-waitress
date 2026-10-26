@@ -142,7 +142,7 @@ VALUES (
     'image/jpeg', 'image/jpg', 'image/png', 'image/webp', 'image/gif',
     'video/mp4', 'video/quicktime', 'video/webm'
   ]
-);
+) ON CONFLICT (id) DO NOTHING;
 
 -- 5. Storage RLS policies
 CREATE POLICY "Event owners can view their media"

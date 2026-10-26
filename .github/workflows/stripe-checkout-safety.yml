@@ -16,6 +16,11 @@ on:
       - 'src/lib/stripePrices.ts'
       - 'src/lib/currencyPricing.ts'
       - 'src/lib/planRegistry.ts'
+      - 'src/lib/paidPlanWebhook.test.ts'
+      - 'src/components/Account/AccountRenewalPackages.test.tsx'
+      - 'supabase/config.toml'
+      - 'supabase/migrations/**'
+      - 'supabase/functions/stripe-access-extension-webhook/**'
       - 'src/pages/UpgradeCheckout.tsx'
       - 'src/lib/packagePricing.test.ts'
       - 'supabase/functions/create-checkout/**'
@@ -43,8 +48,13 @@ jobs:
         run: npm install --global npm@11.19.1
       - name: Install locked dependencies
         run: npm ci
-      - name: Run checkout contract tests
-        run: npx vitest run src/lib/packagePricing.test.ts src/pages/UpgradeCheckout.consent.test.tsx src/lib/paidPlanFulfillmentEvidence.test.ts src/lib/paidPlanVerificationHandler.test.ts src/lib/renewalCheckoutHandler.test.ts src/components/auth/PublicAuthModals.test.tsx src/lib/promotionRules.test.ts src/lib/promotionStripeEvidence.test.ts src/lib/promotionProviderAdapter.test.ts src/lib/promotionCheckoutService.test.ts src/lib/promotionFulfillment.test.ts src/lib/promotionWorkflow.integration.test.ts
+      - name: Run complete regression suite with synthetic configuration
+        env:
+          TZ: America/New_York
+          VITE_SUPABASE_URL: https://qa.invalid
+          VITE_SUPABASE_PUBLISHABLE_KEY: synthetic-public-key
+          VITE_PUBLIC_BASE_URL: https://weddingwaitress.com.au
+        run: npm test -- --maxWorkers=2
       - name: Typecheck
         run: npx tsc --noEmit
       - name: Build production app

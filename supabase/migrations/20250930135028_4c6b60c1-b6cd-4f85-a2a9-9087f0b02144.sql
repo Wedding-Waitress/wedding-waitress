@@ -1,3 +1,20 @@
+-- Replay repair: the original creation was recorded after this ALTER.
+-- Create live_view_settings table
+CREATE TABLE IF NOT EXISTS public.live_view_settings (
+  id UUID NOT NULL DEFAULT gen_random_uuid() PRIMARY KEY,
+  event_id UUID NOT NULL UNIQUE,
+  show_rsvp_invite BOOLEAN NOT NULL DEFAULT false,
+  show_search_update BOOLEAN NOT NULL DEFAULT true,
+  show_ceremony BOOLEAN NOT NULL DEFAULT false,
+  show_reception BOOLEAN NOT NULL DEFAULT false,
+  show_video_message BOOLEAN NOT NULL DEFAULT false,
+  updated_at TIMESTAMP WITH TIME ZONE NOT NULL DEFAULT now(),
+  CONSTRAINT fk_event FOREIGN KEY (event_id) REFERENCES public.events(id) ON DELETE CASCADE
+);
+
+-- Enable RLS
+ALTER TABLE public.live_view_settings ENABLE ROW LEVEL SECURITY;
+
 -- Add missing columns to live_view_settings table
 ALTER TABLE live_view_settings 
   ADD COLUMN IF NOT EXISTS show_update_details boolean NOT NULL DEFAULT false,

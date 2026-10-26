@@ -148,7 +148,7 @@ export const PricingValueComparison: React.FC = () => {
               One event · 12 months of access · Complete platform included
             </p>
             <p className="mt-4 text-sm leading-6 text-[#fff8ee]">
-              Planning and download access ends when the paid period expires. Your saved account remains recoverable for six months, and access can be extended for A$20 per prepaid month.
+              Planning and download access ends when the paid period expires. Your saved information remains retained. Renewal requires your explicit package selection and a successful, verified payment.
             </p>
           </div>
         </div>

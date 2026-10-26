@@ -54,7 +54,7 @@ export const PLAN_REGISTRY: Record<PlanKey, PlanRegistryEntry> = {
     product_id: "ww_live_20260914_v2_essential",
     plan_db_id: "78cdab0d-d81d-4757-b7cc-f210b8b30f47",
     mode: "payment",
-    limits: { guests: 100, includedEvents: 1, additionalEventPrice: 99, maxUsers: 3 },
+    limits: { guests: 100, includedEvents: 1, additionalEventPrice: 99, maxUsers: 5 },
     prices: couplePrices("essential"),
   },
   premium: {
@@ -63,7 +63,7 @@ export const PLAN_REGISTRY: Record<PlanKey, PlanRegistryEntry> = {
     product_id: "ww_live_20260914_v2_premium",
     plan_db_id: "1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8",
     mode: "payment",
-    limits: { guests: 200, includedEvents: 1, additionalEventPrice: 99, maxUsers: 3 },
+    limits: { guests: 200, includedEvents: 1, additionalEventPrice: 99, maxUsers: 5 },
     prices: couplePrices("premium"),
   },
   unlimited: {
@@ -72,7 +72,7 @@ export const PLAN_REGISTRY: Record<PlanKey, PlanRegistryEntry> = {
     product_id: "ww_live_20260914_v2_unlimited",
     plan_db_id: "cd10f207-2109-4546-a635-0baa68ba8213",
     mode: "payment",
-    limits: { guests: 400, includedEvents: 1, additionalEventPrice: 99, maxUsers: 3 },
+    limits: { guests: 400, includedEvents: 1, additionalEventPrice: 99, maxUsers: 5 },
     prices: couplePrices("unlimited"),
   },
   vendor_pro: {
