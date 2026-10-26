@@ -10,15 +10,28 @@ export const getSafeAuthenticatedReturnTo = (
   value: unknown,
   fallback = '/dashboard',
 ) => {
-  if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//')) {
+  if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//') || /[\\\u0000-\u001f\u007f]/.test(value)) {
+    return fallback;
+  }
+
+  // Check the canonical path, since router dot-segment resolution can turn an
+  // apparently protected path into a different navigation destination.
+  const origin = 'https://weddingwaitress.invalid';
+  let destination: URL;
+  try {
+    destination = new URL(value, origin);
+  } catch {
+    return fallback;
+  }
+  if (destination.origin !== origin || destination.pathname.startsWith('//') || /%(?:2f|5c)/i.test(destination.pathname)) {
     return fallback;
   }
 
   const isProtectedDestination = protectedRoutePrefixes.some(
-    (prefix) => value === prefix || ['/', '?', '#'].some((separator) => value.startsWith(`${prefix}${separator}`)),
+    (prefix) => destination.pathname === prefix || destination.pathname.startsWith(`${prefix}/`),
   );
 
-  return isProtectedDestination ? value : fallback;
+  return isProtectedDestination ? `${destination.pathname}${destination.search}${destination.hash}` : fallback;
 };
 
 export const createSignInRedirectState = (returnTo: string): SignInRedirectState => ({

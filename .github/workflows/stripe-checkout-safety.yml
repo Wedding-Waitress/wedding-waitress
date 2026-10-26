@@ -6,6 +6,8 @@ on:
       - 'package.json'
       - 'package-lock.json'
       - 'src/lib/prelaunch.ts'
+      - 'src/lib/authNavigation.ts'
+      - 'src/lib/authNavigation.test.ts'
       - 'src/components/auth/**'
       - 'src/lib/promotion*.test.ts'
       - 'src/lib/promotionWorkflow.integration.test.ts'
