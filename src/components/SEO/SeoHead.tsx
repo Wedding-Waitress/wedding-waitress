@@ -6,6 +6,7 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
+import publicSeo from '@/content/publicSeo.json';
 
 interface SeoHeadProps {
   title: string;
@@ -27,20 +28,23 @@ const DEFAULT_IMAGE = `${SITE_URL}/wedding-waitress-share-logo.png`;
  * Per-page SEO head. Renders title, meta description, canonical,
  * OpenGraph, Twitter Card, and optional JSON-LD structured data.
  *
- * Lovable hosting cannot prerender HTML, but Googlebot executes JS
- * and indexes Helmet-rendered tags within seconds — so this gives us
- * ~90% of SSG's SEO benefit with zero infra changes.
+ * Public routes also receive matching metadata in built HTML. Crawling,
+ * indexing and search-result wording remain search-provider decisions.
  */
 export const SeoHead: React.FC<SeoHeadProps> = ({
-  title,
-  description,
+  title: suppliedTitle,
+  description: suppliedDescription,
   canonicalPath,
-  image = DEFAULT_IMAGE,
+  image: suppliedImage,
   jsonLd,
   noIndex,
 }) => {
   const location = useLocation();
   const path = canonicalPath ?? location.pathname;
+  const metadata = (publicSeo as Record<string, { title: string; description: string; image?: string }>)[path];
+  const title = metadata?.title ?? suppliedTitle;
+  const description = metadata?.description ?? suppliedDescription;
+  const image = metadata?.image ?? suppliedImage ?? DEFAULT_IMAGE;
   const canonicalUrl = `${SITE_URL}${path}`;
   const imageUrl = image.startsWith('http') ? image : `${SITE_URL}${image}`;
 
@@ -62,7 +66,7 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
       <title>{title}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={canonicalUrl} />
-      <meta name="robots" content={shouldNoIndex ? 'noindex,nofollow' : 'index,follow'} />
+      <meta name="robots" content={shouldNoIndex ? 'noindex,nofollow' : 'index,follow,max-image-preview:large'} />
 
       {/* Open Graph */}
       <meta property="og:title" content={title} />

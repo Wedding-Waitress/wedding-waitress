@@ -14,7 +14,8 @@
     "test:watch": "vitest",
     "check:storage": "node scripts/check-event-storage.mjs",
     "import:photo-strip-templates": "node scripts/import-photo-strip-templates.mjs",
-    "pretest": "node scripts/check-event-storage.mjs"
+    "pretest": "node scripts/check-event-storage.mjs",
+    "postbuild": "node scripts/generate-search-metadata.mjs"
   },
   "dependencies": {
     "@dnd-kit/core": "^6.3.1",

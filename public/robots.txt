@@ -1,15 +1,5 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
+# Public pages are crawlable by search and AI retrieval crawlers.
+# Robots directives do not replace authentication for private data.
 User-agent: *
 Allow: /
 Disallow: /dashboard/

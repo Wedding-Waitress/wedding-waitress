@@ -1,0 +1,219 @@
+{
+  "/": {
+    "title": "Wedding Planning Software & QR Seating | Wedding Waitress",
+    "description": "Plan your wedding in one place: guest lists, RSVPs, QR seating charts, invitations, budgets, floor plans and shared photos. Try 7 days free.",
+    "image": "/images/public-heroes/home-poster-desktop.jpg"
+  },
+  "/how-it-works": {
+    "title": "How Wedding Waitress Works | Wedding Planning Guide",
+    "description": "Create your event, set a budget, organise tables and guests, then prepare invitations, seating charts and your run sheet in six connected stages.",
+    "image": "/images/public-heroes/how-it-works.jpg"
+  },
+  "/products": {
+    "title": "Wedding Planning Tools & Features | Wedding Waitress",
+    "description": "Explore 16 connected tools for wedding guests, RSVPs, seating charts, budgets, invitations, floor plans, run sheets and guest photo sharing.",
+    "image": "/images/public-heroes/products.jpg"
+  },
+  "/events": {
+    "title": "Event Planning Tools for Every Celebration | Wedding Waitress",
+    "description": "Explore connected planning tools for weddings, engagements, birthdays, corporate events, seasonal gatherings and celebrations of life.",
+    "image": "/images/public-heroes/events.jpg"
+  },
+  "/pricing": {
+    "title": "Wedding Planning Software Pricing | Wedding Waitress",
+    "description": "Compare Essential, Premium and Ultimate plans for 100, 200 or 400 guests. One event, 12 months of access. Start with a 7-day, 20-guest free trial.",
+    "image": "/images/public-heroes/pricing.jpg"
+  },
+  "/faq": {
+    "title": "Wedding Waitress FAQ | Plans, Guests, QR & Products",
+    "description": "Answers about Wedding Waitress plans, guest limits, QR seating charts, invitations, exports, photo sharing and account access.",
+    "image": "/images/public-heroes/faq.jpg"
+  },
+  "/blog": {
+    "title": "Wedding Planning Tips & Ideas | Wedding Waitress Blog",
+    "description": "Practical Australian wedding planning guides covering seating charts, QR codes, signage, run sheets and guest experience.",
+    "image": "/images/public-heroes/blog.jpg"
+  },
+  "/contact": {
+    "title": "Contact Wedding Waitress | Product & Plan Help",
+    "description": "Contact Wedding Waitress for help choosing a plan, understanding a product or using the wedding planning platform.",
+    "image": "/images/public-heroes/contact.jpg"
+  },
+  "/privacy": {
+    "title": "Privacy Policy | Wedding Waitress",
+    "description": "Read the Wedding Waitress privacy policy and learn how personal information is collected, used and protected."
+  },
+  "/terms": {
+    "title": "Terms of Service | Wedding Waitress",
+    "description": "Read the terms that apply when using the Wedding Waitress website and wedding planning platform."
+  },
+  "/cookies": {
+    "title": "Cookie Policy | Wedding Waitress",
+    "description": "Learn how Wedding Waitress uses cookies and similar technologies on its public website and application."
+  },
+  "/venues": {
+    "title": "Wedding Venue Floor Plans Directory | Wedding Waitress",
+    "description": "Browse wedding and event venue floor plans and practical planning references in the Wedding Waitress venue directory.",
+    "image": "/images/public-heroes/venues.jpg"
+  },
+  "/my-events": {
+    "title": "Wedding Event Planner & Overview | Wedding Waitress",
+    "description": "Create a wedding, record dates and venues, see your countdown and open every connected Wedding Waitress planning tool from one event overview.",
+    "image": "/images/public-heroes/my-events.jpg"
+  },
+  "/event-budget-planner": {
+    "title": "Wedding & Event Budget Planner | Wedding Waitress",
+    "description": "Plan wedding costs, record vendor expenses and track estimated and actual costs, payments and due dates. Print or download your event budget.",
+    "image": "/images/public-heroes/event-budget-planner.jpg"
+  },
+  "/guest-list": {
+    "title": "Wedding Guest List & RSVP Manager | Wedding Waitress",
+    "description": "Manage individuals, couples and families, RSVP details, plus-ones, addresses, dietary needs, relationships and seating in one guest list.",
+    "image": "/images/public-heroes/guest-list.jpg"
+  },
+  "/tables": {
+    "title": "Wedding Table & Seat Planner | Wedding Waitress",
+    "description": "Create and name wedding tables, set capacities, and assign guests and seats with live connections to your guest list and seating outputs.",
+    "image": "/images/public-heroes/tables.jpg"
+  },
+  "/floor-plan": {
+    "title": "Wedding Ceremony & Reception Floor Plans | Wedding Waitress",
+    "description": "Design ceremony and reception floor plans with seating arrangements, bridal party, family sections, rows, chairs, tables and venue-ready PDF output.",
+    "image": "/images/public-heroes/floor-plan.jpg"
+  },
+  "/qr-code-seating-chart": {
+    "title": "QR Code Wedding Seating Chart | Wedding Waitress",
+    "description": "Create a custom event QR code so guests can search their name and find their assigned wedding table or seat without downloading an app.",
+    "image": "/images/public-heroes/qr-code-seating-chart.jpg"
+  },
+  "/live-slideshow": {
+    "title": "Wedding Seating Lookup Display | Wedding Waitress",
+    "description": "Help guests find their assigned wedding table or seat using the Live Slideshow lookup on a venue touchscreen, tablet, laptop or entrance display.",
+    "image": "/images/public-heroes/live-slideshow.jpg"
+  },
+  "/invitations-cards": {
+    "title": "Wedding Invitations & Thank You Cards | Wedding Waitress",
+    "description": "Design wedding invitations, save the dates and thank you cards with personalised text, backgrounds and QR codes, then export for printing.",
+    "image": "/images/public-heroes/invitations-cards.jpg"
+  },
+  "/photo-video-sharing": {
+    "title": "Wedding Photo Sharing & Digital Guestbook | Wedding Waitress",
+    "description": "Collect wedding guest photos and videos through QR uploads. Bring memories together in a gallery, digital guestbook, photo booth and live slideshow.",
+    "image": "/images/public-heroes/photo-video-sharing.jpg"
+  },
+  "/seating-chart-signs": {
+    "title": "Wedding Seating Chart Signs & QR Signs | Wedding Waitress",
+    "description": "Create wedding seating chart signs and QR seating signs linked to your guest list. Export print-ready PDFs in supported Australian paper sizes.",
+    "image": "/images/public-heroes/seating-chart-signs.jpg"
+  },
+  "/name-place-cards": {
+    "title": "Wedding Name Place Card Designer | Wedding Waitress",
+    "description": "Design foldable wedding place cards with guest names, table and seat details, fonts, colours, backgrounds, QR codes and print-ready export.",
+    "image": "/images/public-heroes/name-place-cards.jpg"
+  },
+  "/individual-table-charts": {
+    "title": "Individual Wedding Table Charts | Wedding Waitress",
+    "description": "Generate separate round, square or long-table charts with guest names, seats, dietary details, relationships and print-ready PDF export.",
+    "image": "/images/public-heroes/individual-table-charts.jpg"
+  },
+  "/full-seating-chart": {
+    "title": "Full Wedding Seating Chart & Check-Off List",
+    "description": "Create a complete guest seating chart with table and seat details, check-off boxes, sorting, display options and multi-page PDF export.",
+    "image": "/images/public-heroes/full-seating-chart.jpg"
+  },
+  "/dietary-requirements": {
+    "title": "Wedding Dietary Requirements List | Wedding Waitress",
+    "description": "Prepare a clear dietary requirements reference with guest, table and seat details for venues, caterers and kitchen teams.",
+    "image": "/images/public-heroes/dietary-requirements.jpg"
+  },
+  "/dj-mc-questionnaire": {
+    "title": "Wedding DJ & MC Questionnaire | Wedding Waitress",
+    "description": "Organise ceremony music, introductions, speeches, event songs, dinner music, dance music and do-not-play choices for your DJ and MC.",
+    "image": "/images/public-heroes/dj-mc-questionnaire.jpg"
+  },
+  "/running-sheet": {
+    "title": "Wedding Run Sheet Planner | Wedding Waitress",
+    "description": "Build a clear wedding run sheet with times, event descriptions and responsible people, then share or export it for vendors and your venue.",
+    "image": "/images/public-heroes/running-sheet.jpg"
+  },
+  "/events/weddings": {
+    "title": "Wedding Planning & Guest Management | Wedding Waitress",
+    "description": "Organise wedding guests, RSVPs, tables, invitations, floor plans, run sheets and shared photos with connected tools from Wedding Waitress.",
+    "image": "/images/public-heroes/event-weddings.jpg"
+  },
+  "/events/engagements": {
+    "title": "Engagement Party Planning Tools | Wedding Waitress",
+    "description": "Organise engagement invitations, guests, seating, dietary details and shared memories in one connected plan.",
+    "image": "/images/public-heroes/event-engagements.jpg"
+  },
+  "/events/birthdays-parties": {
+    "title": "Birthday & Party Planning Tools | Wedding Waitress",
+    "description": "Plan birthday and party guests, venue details, seating, dietary needs, schedules and shared moments in one workspace.",
+    "image": "/images/public-heroes/event-birthdays-parties.jpg"
+  },
+  "/events/corporate-events": {
+    "title": "Corporate Event Guest & Venue Planning | Wedding Waitress",
+    "description": "Coordinate corporate event attendees, seating, service details, dietary needs, suppliers and event-day responsibilities.",
+    "image": "/images/public-heroes/event-corporate-events.jpg"
+  },
+  "/events/christmas-seasonal-events": {
+    "title": "Christmas & Seasonal Event Planning Tools | Wedding Waitress",
+    "description": "Organise invitations, attendance, food requirements, seating, entertainment and memories for seasonal events.",
+    "image": "/images/public-heroes/event-christmas-seasonal-events.jpg"
+  },
+  "/events/memorials-celebrations-of-life": {
+    "title": "Memorial & Celebration of Life Planning | Wedding Waitress",
+    "description": "Coordinate attendance, service information, venue needs and shared memories with a respectful connected workflow.",
+    "image": "/images/public-heroes/event-memorials-celebrations-of-life.jpg"
+  },
+  "/blog/qr-code-wedding-seating-chart-australia": {
+    "title": "QR Code Wedding Seating Charts Australia | 2026 Trend",
+    "description": "Discover why Australian couples are switching to QR code wedding seating charts. Save money, reduce stress, and manage guests easily.",
+    "image": "/images/public-heroes/blog.jpg"
+  },
+  "/blog/wedding-signage-cost-australia": {
+    "title": "Wedding Signage Cost Australia | Printed vs Digital",
+    "description": "Compare printed vs digital wedding seating charts in Australia. See how much you can save by going digital.",
+    "image": "/images/public-heroes/blog.jpg"
+  },
+  "/blog/how-to-create-qr-code-seating-chart": {
+    "title": "How to Create QR Code Seating Chart | Easy Guide",
+    "description": "Step-by-step guide to creating a QR code wedding seating chart in minutes. Simple, fast, and stress-free.",
+    "image": "/images/public-heroes/blog.jpg"
+  },
+  "/blog/digital-wedding-seating-chart-accessibility": {
+    "title": "Digital Seating Charts for Seniors | Wedding Guide",
+    "description": "Worried about older guests? Learn why digital seating charts are easier to use and more accessible for everyone.",
+    "image": "/images/public-heroes/blog.jpg"
+  },
+  "/blog/last-minute-wedding-seating-changes": {
+    "title": "Last Minute Wedding Seating Changes | Easy Fix",
+    "description": "Guest cancelled last minute? Learn how to update your seating chart instantly without stress.",
+    "image": "/images/public-heroes/blog.jpg"
+  },
+  "/blog/why-every-wedding-needs-a-running-sheet": {
+    "title": "Why Every Wedding Needs a Running Sheet | Wedding Waitress",
+    "description": "A well-planned wedding running sheet keeps your day on track. Learn how to build a timeline that avoids delays and keeps every vendor aligned.",
+    "image": "/images/public-heroes/blog.jpg"
+  },
+  "/blog/how-to-create-a-wedding-seating-chart-step-by-step": {
+    "title": "How to Create a Wedding Seating Chart (Step-by-Step Guide Australia)",
+    "description": "Learn how to create a wedding seating chart step-by-step. Easy guide for Australian couples using digital and QR code seating charts.",
+    "image": "/images/public-heroes/blog.jpg"
+  },
+  "/blog/wedding-seating-chart-etiquette-who-sits-where": {
+    "title": "Wedding Seating Chart Etiquette: Who Sits Where? (Australia Guide)",
+    "description": "Confused about wedding seating etiquette? Learn who sits where, table arrangements, and how to organise guests stress-free.",
+    "image": "/images/public-heroes/blog.jpg"
+  },
+  "/blog/best-wedding-seating-chart-templates-australia": {
+    "title": "Best Wedding Seating Chart Templates (Australia Guide 2026)",
+    "description": "Looking for wedding seating chart templates? Discover the best options, ideas, and digital solutions for Australian weddings.",
+    "image": "/images/public-heroes/blog.jpg"
+  },
+  "/blog/common-wedding-seating-chart-mistakes": {
+    "title": "Common Wedding Seating Chart Mistakes",
+    "description": "Avoid the most common wedding seating chart mistakes. Learn how to plan your seating the right way and keep guests happy.",
+    "image": "/images/public-heroes/blog.jpg"
+  }
+}

@@ -1,3 +1,5 @@
+import { readFileSync } from 'node:fs';
+const publicSeo = JSON.parse(readFileSync(new URL('../src/content/publicSeo.json', import.meta.url), 'utf8'));
 export const SITE_URL = "https://weddingwaitress.com.au";
 
 const page = (path, title, description, h1, options = {}) => ({
@@ -13,7 +15,7 @@ const page = (path, title, description, h1, options = {}) => ({
   breadcrumbs: options.breadcrumbs ?? [],
 });
 
-export const seoRoutes = [
+const baseRoutes = [
   page("/", "All-in-One Wedding Planning Platform | Wedding Waitress", "Manage guests, RSVPs, seating, invitations, signage, event-day plans and shared wedding memories in one connected platform.", "Your all-in-one wedding planning and guest-experience platform", { schema: "Home" }),
   page("/how-it-works", "How Wedding Waitress Works | One Connected Wedding Plan", "See how Wedding Waitress connects event setup, guests, seating, stationery, venue references, schedules and shared memories in one plan.", "Four stages from first plan to wedding day"),
   page("/products", "All Wedding Planning Products | Wedding Waitress", "Explore sixteen connected Wedding Waitress tools for budgets, guests, seating, stationery, venue references, event-day planning and shared memories.", "Sixteen tools. One connected wedding plan."),
@@ -63,6 +65,7 @@ export const seoRoutes = [
   page("/blog/common-wedding-seating-chart-mistakes", "Common Wedding Seating Chart Mistakes", "Avoid the most common wedding seating chart mistakes. Learn how to plan your seating the right way and keep guests happy.", "Common Wedding Seating Chart Mistakes", { schema: "BlogPosting", type: "article", published: "2026-04-20", lastmod: "2026-04-20", breadcrumbs: ["Blog", "Seating Chart Mistakes"] }),
 ];
 
+export const seoRoutes = baseRoutes.filter(route => publicSeo[route.path]).map(route => ({ ...route, ...publicSeo[route.path] }));
 export const routeByPath = new Map(seoRoutes.map((route) => [route.path, route]));
 
 export const canonicalUrl = (path) => `${SITE_URL}${path === "/" ? "/" : path}`;
@@ -74,7 +77,7 @@ export function schemaForRoute(route) {
     "@id": `${SITE_URL}/#organization`,
     name: "Wedding Waitress",
     url: `${SITE_URL}/`,
-    logo: `${SITE_URL}/branding/wedding-waitress-logo-dark-brown.png`,
+    logo: `${SITE_URL}/wedding-waitress-logo-dark-brown.png`,
   };
   const webPage = {
     "@type": route.schema === "ContactPage" ? "ContactPage" : "WebPage",
@@ -93,7 +96,7 @@ export function schemaForRoute(route) {
       { "@type": "SoftwareApplication", "@id": `${SITE_URL}/#software`, name: "Wedding Waitress", applicationCategory: "LifestyleApplication", operatingSystem: "Web", url: `${SITE_URL}/`, description: route.description, publisher: { "@id": `${SITE_URL}/#organization` } },
     );
   } else if (route.schema === "Product") {
-    graph.push({ "@type": "SoftwareApplication", "@id": `${url}#software", name: route.h1, applicationCategory: "LifestyleApplication", operatingSystem: "Web", url, description: route.description, publisher: { "@id": `${SITE_URL}/#organization` } });
+    graph.push({ "@type": "SoftwareApplication", "@id": `${url}#software`, name: route.h1, applicationCategory: "LifestyleApplication", operatingSystem: "Web", url, description: route.description, publisher: { "@id": `${SITE_URL}/#organization` } });
   } else if (route.schema === "BlogPosting") {
     graph.push({ "@type": "BlogPosting", "@id": `${url}#article`, headline: route.h1, description: route.description, datePublished: route.published, dateModified: route.modified, mainEntityOfPage: { "@id": `${url}#webpage` }, author: organisation, publisher: organisation, inLanguage: "en-AU" });
   } else if (route.schema === "Blog") {
