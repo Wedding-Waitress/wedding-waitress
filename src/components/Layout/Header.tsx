@@ -1,3 +1,4 @@
+import { PublicImage } from '@/components/Layout/PublicImage';
 /**
  * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY
  * Part of the approved public homepage surface (locked 2026-04-18).
@@ -151,7 +152,9 @@ export const Header: React.FC<HeaderProps> = ({
               !user ? 'min-[1320px]:-translate-x-2 min-[1320px]:pr-3' : ''
             }`}
           >
-            <img
+            <PublicImage
+              sizes="(min-width: 1024px) 232px, 199px"
+              fetchPriority="high"
               src="/wedding-waitress-logo-dark-brown.png"
               alt="Wedding Waitress"
               width="1920"
