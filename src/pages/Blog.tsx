@@ -1,3 +1,4 @@
+import { PublicImage } from '@/components/Layout/PublicImage';
 /**
  * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY
  * Part of the approved public homepage surface (locked 2026-04-18).
@@ -35,6 +36,19 @@ const BLOG_COVER_IMAGES: Record<string, string> = {
   'blog-seating-etiquette': blogSeatingEtiquette,
   'blog-seating-templates': blogSeatingTemplates,
   'blog-seating-mistakes': blogSeatingMistakes,
+};
+
+const BLOG_IMAGE_DESCRIPTIONS: Record<string, string> = {
+  'blog-qr-scanning': 'Wedding guest viewing seating information on a phone',
+  'blog-planning-laptop': 'Couple reviewing wedding plans together on a laptop',
+  'blog-wedding-signage': 'Wedding welcome signs on easels beside floral decorations',
+  'blog-older-guest': 'Older wedding guest using a smartphone at a reception',
+  'blog-last-minute-changes': 'Laptop displaying a wedding seating chart beside a tablet and notebook',
+  'blog-running-sheet': 'Printed wedding day schedule beside a tablet showing the run sheet',
+  'blog-seating-chart-step-by-step': 'Couple planning their wedding together with a laptop and notebook',
+  'blog-seating-etiquette': 'Wedding guests seated together around a decorated reception table',
+  'blog-seating-templates': 'Wedding seating chart displayed on an easel in a reception room',
+  'blog-seating-mistakes': 'Couple reviewing wedding planning notes together',
 };
 
 export const Blog = () => {
@@ -78,9 +92,9 @@ export const Blog = () => {
                   className="block aspect-[16/9] overflow-hidden bg-[#f3efe9]"
                 >
                   {post.coverImage && BLOG_COVER_IMAGES[post.coverImage] ? (
-                    <img
+                    <PublicImage
                       src={BLOG_COVER_IMAGES[post.coverImage]}
-                      alt={post.title}
+                      alt={BLOG_IMAGE_DESCRIPTIONS[post.coverImage] ?? post.title}
                       loading="lazy"
                       width={1024}
                       height={576}

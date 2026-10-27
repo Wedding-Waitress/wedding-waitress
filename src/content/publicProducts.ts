@@ -51,7 +51,7 @@ export const productGroups: ProductGroup[] = ['Plan & Organise', 'Guest Experien
 export const publicProducts: PublicProduct[] = [
   {
     id: 'my-events', name: 'My Events', shortName: 'My Events', path: '/my-events', group: 'Plan & Organise', icon: CalendarHeart, navigationIcon: productIconById['my-events'],
-    image: myEvents, imageAlt: 'Wedding Waitress event overview dashboard', seoTitle: 'Wedding Event Planner & Overview | Wedding Waitress',
+    image: myEvents, imageAlt: 'Wedding welcome sign and seating chart displayed at a reception', seoTitle: 'Wedding Event Planner & Overview | Wedding Waitress',
     metaDescription: 'Create a wedding, record dates and venues, see your countdown and open every connected Wedding Waitress planning tool from one event overview.',
     h1: 'Your wedding plans, all in one place', lead: 'Create your event once, keep the important details close, and move between every connected planning tool without rebuilding the same information.',
     demonstration: 'The event overview keeps your date, venues, guest capacity and countdown together. It is the starting point for a wedding, engagement, birthday or other organised event.',
@@ -64,7 +64,7 @@ export const publicProducts: PublicProduct[] = [
   },
   {
     id: 'event-budget-planner', name: 'Event Budget Planner', shortName: 'Event Budget Planner', path: '/event-budget-planner', group: 'Plan & Organise', icon: PLANNING_WORKFLOW_BY_ID.dashboard.icon, navigationIcon: PLANNING_WORKFLOW_BY_ID.dashboard.icon,
-    image: budgetPlanner, imageAlt: 'A couple planning their wedding costs together', seoTitle: 'Event Budget Planner | Wedding Waitress',
+    image: budgetPlanner, imageAlt: 'Couple reviewing wedding plans together on a laptop', seoTitle: 'Event Budget Planner | Wedding Waitress',
     metaDescription: 'Set an anticipated event budget, record vendor expenses, track estimated and actual costs, payments and due dates, and print or download your budget.',
     h1: 'Event Budget Planner', lead: 'Set your anticipated budget, organise costs and payments, and keep a clear view of what has been paid, what is outstanding and what remains.',
     demonstration: 'Choose the event budget currency, add expenses by category, record vendor and contact details, compare budgeted and actual costs, track deposits and due dates, then search, filter, sort, print or download the budget as a PDF.',
@@ -77,7 +77,7 @@ export const publicProducts: PublicProduct[] = [
   },
   {
     id: 'tables', name: 'Tables', shortName: 'Tables', path: '/tables', group: 'Plan & Organise', icon: TableProperties, navigationIcon: productIconById.tables,
-    image: tables, imageAlt: 'Wedding table and seat assignment planner', seoTitle: 'Wedding Table & Seat Planner | Wedding Waitress',
+    image: tables, imageAlt: 'Round reception tables arranged with chairs and floral centrepieces', seoTitle: 'Wedding Table & Seat Planner | Wedding Waitress',
     metaDescription: 'Create and name wedding tables, set capacities, and assign guests and seats with live connections to your guest list and seating outputs.',
     h1: 'Build tables with every guest in the right place', lead: 'Create, name and size your tables, then assign guests and seat numbers for a seating plan that stays connected to every output.',
     demonstration: 'Table tools bring capacity and seat assignment into one practical workspace, including supported family and head-table arrangements.',
@@ -90,7 +90,7 @@ export const publicProducts: PublicProduct[] = [
   },
   {
     id: 'guest-list', name: 'Guest List & RSVP', shortName: 'Guest List & RSVP', path: '/guest-list', group: 'Plan & Organise', icon: Users, navigationIcon: productIconById['guest-list'],
-    image: guestList, imageAlt: 'Wedding guest list and RSVP management screen', seoTitle: 'Wedding Guest List & RSVP Manager | Wedding Waitress',
+    image: guestList, imageAlt: 'Printed wedding guest lists with a pen and floral decoration', seoTitle: 'Wedding Guest List & RSVP Manager | Wedding Waitress',
     metaDescription: 'Manage individuals, couples and families, RSVP details, plus-ones, addresses, dietary needs, relationships and seating in one guest list.',
     h1: 'A guest list that powers the whole wedding', lead: 'Organise individuals, couples and families, then carry accurate guest information into invitations, tables, catering references and seating outputs.',
     demonstration: 'Track responses, contact and mailing details, relationships, plus-ones, dietary requirements, table assignments and seat numbers in one working list.',
@@ -103,7 +103,7 @@ export const publicProducts: PublicProduct[] = [
   },
   {
     id: 'floor-plan', name: 'Ceremony & Reception Floor Plans', shortName: 'Floor Plans', path: '/floor-plan', group: 'Plan & Organise', icon: PanelsTopLeft, navigationIcon: productIconById['floor-plan'],
-    image: floorPlan, imageAlt: 'Wedding ceremony floor plan designer', seoTitle: 'Wedding Ceremony & Reception Floor Plans | Wedding Waitress',
+    image: floorPlan, imageAlt: 'Overhead view of a reception room with round tables and a central dance floor', seoTitle: 'Wedding Ceremony & Reception Floor Plans | Wedding Waitress',
     metaDescription: 'Design ceremony and reception floor plans with seating arrangements, bridal party, family sections, rows, chairs, tables and venue-ready PDF output.',
     h1: 'Plan the room before the day begins', lead: 'Create dedicated ceremony and reception layouts so the couple, wedding party, families, rows, chairs and tables make sense before guests arrive.',
     demonstration: 'Ceremony plans support couple positioning, bridal party and family sections, rows, capacity and aisle arrangement. Reception plans use your event’s real tables and seating information.',
@@ -116,7 +116,7 @@ export const publicProducts: PublicProduct[] = [
   },
   {
     id: 'qr-code-seating-chart', name: 'QR Code Seating Chart', shortName: 'QR Seating Chart', path: '/qr-code-seating-chart', group: 'Guest Experience', icon: QrCode, navigationIcon: productIconById['qr-code-seating-chart'],
-    image: qr, imageAlt: 'Custom wedding QR code seating chart', seoTitle: 'QR Code Wedding Seating Chart | Wedding Waitress',
+    image: qr, imageAlt: 'Guest scanning a wedding welcome sign QR code with a phone', seoTitle: 'QR Code Wedding Seating Chart | Wedding Waitress',
     metaDescription: 'Create a custom event QR code so guests can search their name and find their assigned wedding table or seat without downloading an app.',
     h1: 'Help every guest find their seat in seconds', lead: 'Create a unique event QR code that guests can scan from a sign, screen or stationery, then search their name and view their assigned table or seat.',
     demonstration: 'Customise the supported QR appearance, preview the guest lookup, and download the QR for digital display or print. Guests use a browser—there is no app to install.',
@@ -129,7 +129,7 @@ export const publicProducts: PublicProduct[] = [
   },
   {
     id: 'live-slideshow', name: 'Live Slideshow', shortName: 'Live Slideshow', path: '/live-slideshow', group: 'Guest Experience', icon: MonitorSmartphone, navigationIcon: productIconById['live-slideshow'],
-    image: liveSlideshow, imageAlt: 'Wedding venue Live Slideshow guest lookup screen', seoTitle: 'Wedding Live Slideshow Guest & Seating Lookup | Wedding Waitress',
+    image: liveSlideshow, imageAlt: 'Guest standing beside a digital welcome display at a wedding venue', seoTitle: 'Wedding Live Slideshow Guest & Seating Lookup | Wedding Waitress',
     metaDescription: 'Let wedding guests search for their table or seat through a Live Slideshow on a venue touchscreen, tablet, laptop, desktop computer or entrance display.',
     h1: 'A welcoming guest lookup for the venue entrance', lead: 'Open the Live Slideshow on a large touchscreen, tablet, laptop or desktop computer so arriving guests can search their name and find their table or seat.',
     demonstration: 'Use the Live Slideshow URL and QR setup, copy or open the link, enter fullscreen mode and configure the guest information and supported modules shown at the venue.',
@@ -142,7 +142,7 @@ export const publicProducts: PublicProduct[] = [
   },
   {
     id: 'invitations-cards', name: 'Invitations, Save the Dates & Thank You Cards', shortName: 'Invitations & Cards', path: '/invitations-cards', group: 'Guest Experience', icon: Mail, navigationIcon: productIconById['invitations-cards'],
-    image: invitations, imageAlt: 'Wedding invitation and card designer', seoTitle: 'Wedding Invitations, Save the Dates & Thank You Cards',
+    image: invitations, imageAlt: 'Wedding invitation cards arranged with envelopes and wax seals', seoTitle: 'Wedding Invitations, Save the Dates & Thank You Cards',
     metaDescription: 'Design wedding invitations, save the dates and thank you cards with custom text, backgrounds, QR codes, messages and print-ready exports.',
     h1: 'Create every card around the same wedding details', lead: 'Design invitations, save the dates and thank you cards with flexible text zones, backgrounds, QR placement and personal messages.',
     demonstration: 'Choose the card type, build with preset or custom text zones, personalise typography and background design, and prepare the result for digital use or supported print-ready export.',
@@ -168,7 +168,7 @@ export const publicProducts: PublicProduct[] = [
   },
   {
     id: 'seating-chart-signs', name: 'Seating Chart Signs', shortName: 'Seating Chart Signs', path: '/seating-chart-signs', group: 'Print & Export', icon: SignpostBig, navigationIcon: productIconById['seating-chart-signs'],
-    image: signs, imageAlt: 'Professional wedding seating chart signage', seoTitle: 'Wedding Seating Chart Signs & QR Signage',
+    image: signs, imageAlt: 'Wedding welcome signs displayed on easels beside flowers', seoTitle: 'Wedding Seating Chart Signs & QR Signage',
     metaDescription: 'Design professional wedding seating charts, QR seating signs and supported event signage with print-ready PDFs and Australian print sizes.',
     h1: 'Professional wedding signage, ready for display', lead: 'Design seating and QR signage using your real event information, then prepare it for venue display with the product’s supported print formats.',
     demonstration: 'Create QR seating chart signage, seating charts and supported welcome, upload-station, guestbook or QR cards. Export print-ready PDFs with supported 300-DPI output and Australian standard sizes.',
@@ -181,7 +181,7 @@ export const publicProducts: PublicProduct[] = [
   },
   {
     id: 'name-place-cards', name: 'Name Place Cards', shortName: 'Name Place Cards', path: '/name-place-cards', group: 'Print & Export', icon: ContactRound, navigationIcon: productIconById['name-place-cards'],
-    image: placeCards, imageAlt: 'Foldable wedding name place card designer', seoTitle: 'Wedding Name Place Card Designer | Wedding Waitress',
+    image: placeCards, imageAlt: 'Personalised name place cards on a decorated reception table', seoTitle: 'Wedding Name Place Card Designer | Wedding Waitress',
     metaDescription: 'Design foldable wedding place cards with guest names, table and seat details, fonts, colours, backgrounds, QR codes and print-ready export.',
     h1: 'Place cards personalised from your seating plan', lead: 'Turn guest, table and seat information into foldable place cards with flexible typography, backgrounds, QR codes and personal messages.',
     demonstration: 'Style guest names and table details independently, choose fonts, sizes, colours and backgrounds, then preview the cards before supported print-ready export.',
@@ -194,7 +194,7 @@ export const publicProducts: PublicProduct[] = [
   },
   {
     id: 'individual-table-charts', name: 'Individual Table Charts', shortName: 'Individual Table Charts', path: '/individual-table-charts', group: 'Print & Export', icon: LayoutGrid, navigationIcon: productIconById['individual-table-charts'],
-    image: tableCharts, imageAlt: 'Individual round table wedding seating chart', seoTitle: 'Individual Wedding Table Charts | Wedding Waitress',
+    image: tableCharts, imageAlt: 'Round wedding reception table set with flowers and glassware', seoTitle: 'Individual Wedding Table Charts | Wedding Waitress',
     metaDescription: 'Generate separate round, square or long-table charts with guest names, seats, dietary details, relationships and print-ready PDF export.',
     h1: 'A clear seating chart for every table', lead: 'Generate a separate chart for each table, with the seating shape and guest details your venue team needs.',
     demonstration: 'Preview supported round, square and long-table formats with guest names, seat numbers, dietary requirements, relationships, typography and display options.',
@@ -207,7 +207,7 @@ export const publicProducts: PublicProduct[] = [
   },
   {
     id: 'full-seating-chart', name: 'Full Seating Chart', shortName: 'Full Seating Chart', path: '/full-seating-chart', group: 'Print & Export', icon: ClipboardCheck, navigationIcon: productIconById['full-seating-chart'],
-    image: fullSeating, imageAlt: 'Complete printable wedding guest seating chart', seoTitle: 'Full Wedding Seating Chart & Check-Off List',
+    image: fullSeating, imageAlt: 'Framed wedding seating chart displayed on an easel', seoTitle: 'Full Wedding Seating Chart & Check-Off List',
     metaDescription: 'Create a complete guest seating chart with table and seat details, check-off boxes, sorting, display options and multi-page PDF export.',
     h1: 'The complete guest seating reference', lead: 'Create a full, sortable guest chart with check-off boxes and the seating information your venue team needs from arrival through service.',
     demonstration: 'Choose sorting and display options for names, tables, seats, dietary requirements and relationships, then preview single- or multi-page supported output.',
@@ -220,7 +220,7 @@ export const publicProducts: PublicProduct[] = [
   },
   {
     id: 'dietary-requirements', name: 'Dietary Requirements', shortName: 'Dietary Requirements', path: '/dietary-requirements', group: 'Print & Export', icon: UtensilsCrossed, navigationIcon: productIconById['dietary-requirements'],
-    image: dietary, imageAlt: 'Kitchen dietary requirements guest chart', seoTitle: 'Wedding Dietary Requirements List | Wedding Waitress',
+    image: dietary, imageAlt: 'Wedding catering table with plated food and a dietary information sign', seoTitle: 'Wedding Dietary Requirements List | Wedding Waitress',
     metaDescription: 'Prepare a clear dietary requirements reference with guest, table and seat details for venues, caterers and kitchen teams.',
     h1: 'A practical dietary reference for the team serving your guests', lead: 'Organise dietary needs alongside guest, table and seat details, then prepare a clear reference for the venue, caterer or kitchen team.',
     demonstration: 'Sort the list, choose supported display options and preview print-ready output that helps event staff identify each guest’s recorded requirements.',
@@ -233,7 +233,7 @@ export const publicProducts: PublicProduct[] = [
   },
   {
     id: 'dj-mc-questionnaire', name: 'DJ & MC Questionnaire', shortName: 'DJ & MC Questionnaire', path: '/dj-mc-questionnaire', group: 'Event-Day Planning', icon: Mic2, navigationIcon: productIconById['dj-mc-questionnaire'],
-    image: djMc, imageAlt: 'Wedding DJ and MC questionnaire with music sections', seoTitle: 'Wedding DJ & MC Questionnaire | Wedding Waitress',
+    image: djMc, imageAlt: 'DJ equipment facing the dance floor in a decorated wedding reception room', seoTitle: 'Wedding DJ & MC Questionnaire | Wedding Waitress',
     metaDescription: 'Organise ceremony music, introductions, speeches, event songs, dinner music, dance music and do-not-play choices for your DJ and MC.',
     h1: 'Give your DJ and MC one organised brief', lead: 'Build a structured, central questionnaire covering the music, introductions, speeches and key moments that shape your wedding day.',
     demonstration: 'Work through ceremony and cocktail-hour music, bridal-party introductions, speeches, main-event songs, background dinner music, dance music, multicultural choices and the do-not-play list.',
@@ -246,7 +246,7 @@ export const publicProducts: PublicProduct[] = [
   },
   {
     id: 'running-sheet', name: 'Run Sheet', shortName: 'Run Sheet', path: '/running-sheet', group: 'Event-Day Planning', icon: ListChecks, navigationIcon: productIconById['running-sheet'],
-    image: runSheet, imageAlt: 'Wedding run sheet schedule with time event and who columns', seoTitle: 'Wedding Run Sheet Planner | Wedding Waitress',
+    image: runSheet, imageAlt: 'Printed wedding day schedule beside flowers, a notebook and coffee', seoTitle: 'Wedding Run Sheet Planner | Wedding Waitress',
     metaDescription: 'Build a clear wedding run sheet with times, event descriptions and responsible people, then share or export it for vendors and your venue.',
     h1: 'Keep the wedding day moving to one shared timeline', lead: 'Arrange the schedule by time, describe each moment and record who is responsible so the couple, venue and suppliers can work from one plan.',
     demonstration: 'Add and reorder schedule rows across TIME, EVENT and WHO, then use the supported sharing and PDF controls for your venue, DJ, MC and other vendors.',
