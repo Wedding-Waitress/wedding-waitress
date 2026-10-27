@@ -1,3 +1,5 @@
+import { scheduleIdleWork } from './authenticatedRoutePreload';
+
 export const dashboardPageLoaders = {
   'my-events': () => import('@/components/Dashboard/MyEventsPage'),
   'guest-list': () => import('@/components/Dashboard/GuestListTable'),
@@ -25,12 +27,23 @@ export const preloadDashboardPage = (page: string) => {
 
 let allDashboardPagesPreload: Promise<PromiseSettledResult<unknown>[]> | undefined;
 
-/** Warm every sidebar page after the dashboard has painted so later navigation
- * can reuse the browser module cache instead of waiting on a cold chunk. */
+/** Warm one feature per idle turn instead of fetching and evaluating all fifteen
+ * together. Explicit sidebar intent still loads immediately, outside this queue. */
 export const preloadAllDashboardPages = () => {
-  allDashboardPagesPreload ??= Promise.allSettled(
-    Object.values(dashboardPageLoaders).map((loader) => loader()),
-  );
+  allDashboardPagesPreload ??= (async () => {
+    const results: PromiseSettledResult<unknown>[] = [];
+    for (const loader of Object.values(dashboardPageLoaders)) {
+      await new Promise<void>((resolve) => scheduleIdleWork(resolve));
+      try {
+        results.push({ status: 'fulfilled', value: await loader() });
+      } catch (reason) {
+        // A failed speculative load must not stop warming other pages or become
+        // an unhandled rejection. Route navigation can retry the import later.
+        results.push({ status: 'rejected', reason });
+      }
+    }
+    return results;
+  })();
 
   return allDashboardPagesPreload;
 };
