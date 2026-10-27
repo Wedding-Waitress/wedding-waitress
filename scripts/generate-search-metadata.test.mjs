@@ -43,3 +43,26 @@ test('build routing preserves existing redirects and private SPA fallback', asyn
     assert.ok((await readFile(`${dist}/pricing.html`, 'utf8')).includes('Wedding Planning Software Pricing'));
   } finally { await rm(dist, { recursive: true, force: true }); }
 });
+
+test('each public route preloads its existing matching hero, never the previous route image', async () => {
+  const { existsSync } = await import('node:fs');
+  const manifest = await readFile('src/config/publicHeroManifest.ts', 'utf8');
+  for (const route of seoRoutes) {
+    const html = renderSearchMetadata(template, route);
+    const preloads = [...html.matchAll(/<link\b[^>]*data-ww-hero-preload[^>]*>/g)].map(match => match[0]);
+    assert.equal(preloads.length, route.path === '/' ? 2 : 1, route.path);
+    for (const preload of preloads) {
+      const file = preload.match(/href="([^"]+)"/)[1];
+      assert.ok(existsSync(`public${file}`), `${route.path}: missing ${file}`);
+      assert.ok(preload.includes('type="image/avif"'));
+      if (route.path !== '/') {
+        const id = file.split('/').pop().replace('.avif', '');
+        const key = route.path.startsWith('/blog/') ? '/blog/:slug' : route.path;
+        assert.ok(manifest.includes(`'${key}': asset('${id}'`), `${route.path}: hero does not match manifest`);
+      }
+    }
+    const replaced = renderSearchMetadata(html, seoRoutes.find(page => page.path === '/products'));
+    assert.equal((replaced.match(/data-ww-hero-preload/g) ?? []).length, 1);
+    assert.ok(replaced.includes('href="/images/public-heroes/products.avif"'));
+  }
+});

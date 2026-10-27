@@ -8,11 +8,25 @@ const escape = value => String(value).replaceAll('&', '&amp;').replaceAll('"', '
 export function renderSearchMetadata(template, route, noIndex = false) {
   const canonical = `${SITE_URL}${route.path}`;
   const image = `${SITE_URL}${route.image ?? '/images/public-heroes/home-poster-desktop.jpg'}`;
+  // Match PublicHeroPicture's first supported source so the browser can fetch
+  // the hero before the route's JavaScript and CSS finish loading.
+  const hero = route.image ?? (['/privacy', '/terms', '/cookies'].includes(route.path)
+    ? '/images/public-heroes/legal.jpg' : undefined);
+  const heroPreloads = hero?.startsWith('/images/public-heroes/') && hero.endsWith('.jpg')
+    ? route.path === '/'
+      ? [
+        '<link rel="preload" as="image" type="image/avif" href="/images/public-heroes/home-poster-mobile.avif" media="(max-width: 639px)" fetchpriority="high" data-ww-hero-preload>',
+        '<link rel="preload" as="image" type="image/avif" href="/images/public-heroes/home-poster-desktop.avif" media="(min-width: 640px)" fetchpriority="high" data-ww-hero-preload>',
+      ]
+      : [`<link rel="preload" as="image" type="image/avif" href="${escape(hero.replace(/\.jpg$/, '.avif'))}" fetchpriority="high" data-ww-hero-preload>`]
+    : [];
   let html = template.replace(/<title\b[^>]*>[\s\S]*?<\/title>/gi, '')
     .replace(/<meta\b[^>]*(?:name|property)=["'](?:description|robots|og:[^"']+|twitter:[^"']+)["'][^>]*>/gi, '')
     .replace(/<link\b[^>]*rel=["']canonical["'][^>]*>/gi, '')
-    .replace(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/gi, '');
+    .replace(/<script\b[^>]*type=["']application\/ld\+json["'][^>]*>[\s\S]*?<\/script>/gi, '')
+    .replace(/<link\b[^>]*data-ww-hero-preload[^>]*>/gi, '');
   const tags = [
+    ...heroPreloads,
     `<title>${escape(route.title)}</title>`,
     `<meta name="description" content="${escape(route.description)}" data-rh="true">`,
     `<link rel="canonical" href="${escape(canonical)}" data-rh="true">`,
