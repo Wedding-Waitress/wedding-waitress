@@ -7,7 +7,7 @@ const escape = value => String(value).replaceAll('&', '&amp;').replaceAll('"', '
 
 export function renderSearchMetadata(template, route, noIndex = false) {
   const canonical = `${SITE_URL}${route.path}`;
-  const image = `${SITE_URL}${route.image ?? '/images/public-heroes/home-poster-desktop.jpg'}`;
+  const image = `${SITE_URL}/wedding-waitress-link-preview.png`;
   // Match PublicHeroPicture's first supported source so the browser can fetch
   // the hero before the route's JavaScript and CSS finish loading.
   const hero = route.image ?? (['/privacy', '/terms', '/cookies'].includes(route.path)
@@ -31,7 +31,7 @@ export function renderSearchMetadata(template, route, noIndex = false) {
     `<meta name="description" content="${escape(route.description)}" data-rh="true">`,
     `<link rel="canonical" href="${escape(canonical)}" data-rh="true">`,
     `<meta name="robots" content="${noIndex ? 'noindex,nofollow' : 'index,follow,max-image-preview:large'}" data-rh="true">`,
-    ...Object.entries({ 'og:title': route.title, 'og:description': route.description, 'og:url': canonical, 'og:image': image, 'og:type': route.type, 'og:site_name': 'Wedding Waitress', 'og:locale': 'en_AU' }).map(([key, value]) => `<meta property="${key}" content="${escape(value)}" data-rh="true">`),
+    ...Object.entries({ 'og:title': route.title, 'og:description': route.description, 'og:url': canonical, 'og:image': image, 'og:image:width': '1200', 'og:image:height': '630', 'og:image:alt': 'Wedding Waitress — Your Wedding & Event Assistant', 'og:type': route.type, 'og:site_name': 'Wedding Waitress', 'og:locale': 'en_AU' }).map(([key, value]) => `<meta property="${key}" content="${escape(value)}" data-rh="true">`),
     ...Object.entries({ 'twitter:card': 'summary_large_image', 'twitter:title': route.title, 'twitter:description': route.description, 'twitter:image': image }).map(([key, value]) => `<meta name="${key}" content="${escape(value)}" data-rh="true">`),
     `<script type="application/ld+json" data-rh="true">${JSON.stringify(schemaForRoute(route)).replaceAll('<', '\\u003c')}</script>`,
   ].join('\n    ');

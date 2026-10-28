@@ -22,7 +22,7 @@ interface SeoHeadProps {
 }
 
 const SITE_URL = 'https://weddingwaitress.com.au';
-const DEFAULT_IMAGE = `${SITE_URL}/wedding-waitress-share-logo.png`;
+const DEFAULT_IMAGE = `${SITE_URL}/wedding-waitress-link-preview.png`;
 
 /**
  * Per-page SEO head. Renders title, meta description, canonical,
@@ -44,7 +44,7 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
   const metadata = (publicSeo as Record<string, { title: string; description: string; image?: string }>)[path];
   const title = metadata?.title ?? suppliedTitle;
   const description = metadata?.description ?? suppliedDescription;
-  const image = metadata?.image ?? suppliedImage ?? DEFAULT_IMAGE;
+  const image = suppliedImage ?? DEFAULT_IMAGE;
   const canonicalUrl = `${SITE_URL}${path}`;
   const imageUrl = image.startsWith('http') ? image : `${SITE_URL}${image}`;
 
@@ -74,6 +74,7 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
       <meta property="og:type" content="website" />
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:image" content={imageUrl} />
+      <meta property="og:image:alt" content="Wedding Waitress — Your Wedding & Event Assistant" />
       <meta property="og:site_name" content="Wedding Waitress" />
       <meta property="og:locale" content="en_AU" />
 
