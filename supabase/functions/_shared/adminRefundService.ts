@@ -21,7 +21,7 @@ export async function resolveRefundPayment(admin: any, stripe: any, paymentType:
     const intent = await stripe.paymentIntents.retrieve(reference, { expand:['latest_charge'] });
     if (intent.status!=='succeeded' || intent.livemode!==expectedLive) throw new Error('Stripe payment is not successful in the expected mode.');
     charge = typeof intent.latest_charge==='string' ? await stripe.charges.retrieve(intent.latest_charge) : intent.latest_charge;
-  } else if (reference?.startsWith('ch_')) charge = await stripe.charges.retrieve(reference);
+  } else if (typeof reference==='string' && /^(?:ch|py)_[A-Za-z0-9]+$/.test(reference)) charge = await stripe.charges.retrieve(reference);
   else throw new Error('Unsupported Stripe payment reference.');
   if (!charge?.paid || !charge.captured || charge.disputed || charge.currency!=='aud' || charge.livemode!==expectedLive || charge.status!=='succeeded') throw new Error('Stripe payment is not eligible for an AUD refund.');
   const recordedMinor=['verified_plan_purchase','promotion_plan_purchase'].includes(paymentType)?Number(payment.amount_total_cents):Math.round(Number(payment.amount_paid)*100);
@@ -40,7 +40,15 @@ export async function reconcileRefund(admin: any, stripe: any, record: any) {
   }
   if (!refund) return record;
   const chargeId=typeof refund.charge==='string'?refund.charge:refund.charge?.id;
-  if (chargeId!==record.charge_id || refund.amount!==Number(record.amount_minor) || refund.currency!==record.currency || refund.livemode!==record.livemode || refund.metadata?.ww_refund_request!==record.id) throw new Error('Provider refund evidence mismatch.');
+  if (chargeId!==record.charge_id || refund.amount!==Number(record.amount_minor) || refund.currency!==record.currency || (refund.livemode!==undefined && refund.livemode!==record.livemode) || refund.metadata?.ww_refund_request!==record.id) throw new Error('Provider refund evidence mismatch.');
+  // Refund objects do not consistently include livemode. Verify the owning
+  // charge freshly from Stripe rather than guessing mode or rejecting a valid refund.
+  const parentCharge=await stripe.charges.retrieve(chargeId);
+  if(parentCharge?.object!=='charge' || parentCharge.id!==record.charge_id
+    || parentCharge.livemode!==record.livemode || parentCharge.currency!==record.currency
+    || !Number.isSafeInteger(parentCharge.amount) || parentCharge.amount<refund.amount) {
+    throw new Error('Provider refund charge evidence mismatch.');
+  }
   const {data,error}=await admin.rpc('admin_record_payment_refund',{p_request_id:record.id,p_refund_id:refund.id,p_status:refund.status});
   if(error || !data) throw new Error('Refund was found but its database status could not be confirmed.');
   return data;

@@ -1,7 +1,7 @@
 import { createClient } from '@supabase/supabase-js';
 const url = 'https://xytxkidpourwdbzzwcdp.supabase.co';
 const key = 'eyJhbGciOiJIUzI1NiIsInR5cCI6IkpXVCJ9.eyJpc3MiOiJzdXBhYmFzZSIsInJlZiI6Inh5dHhraWRwb3Vyd2Rienp3Y2RwIiwicm9sZSI6ImFub24iLCJpYXQiOjE3NTczMTMzNTMsImV4cCI6MjA3Mjg4OTM1M30.37m5PSVqAjo51n8CYfDAu0gZr9lGCaAy3NU3PPYxMmI';
-const accessToken = process.env.LOVABLE_BROWSER_SUPABASE_ACCESS_TOKEN || '';
+const accessToken = process.env.WW_SUPABASE_ACCESS_TOKEN || '';
 const supabase = createClient(url, key, {
   global: { headers: { Authorization: accessToken ? `Bearer ${accessToken}` : undefined } },
 });

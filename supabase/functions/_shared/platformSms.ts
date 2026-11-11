@@ -1,5 +1,6 @@
 export interface PlatformSmsResult {
   accepted: boolean
+  acceptanceUnknown?: boolean
   providerId?: string
   error?: string
 }
@@ -26,14 +27,15 @@ export async function sendPlatformSms(to: string, body: string): Promise<Platfor
         'Content-Type': 'application/x-www-form-urlencoded',
       },
       body: form.toString(),
+      signal: AbortSignal.timeout(10000),
     })
     const result = await response.json().catch(() => ({}))
     if (response.ok && typeof result?.sid === 'string') {
       return { accepted: true, providerId: result.sid }
     }
     const code = result?.code == null ? 'unknown_error' : String(result.code)
-    return { accepted: false, error: `Twilio rejected request (${response.status}, ${code})` }
+    return { accepted: false, acceptanceUnknown: response.ok || response.status >= 500, error: `Twilio rejected request (${response.status}, ${code})` }
   } catch {
-    return { accepted: false, error: 'Twilio request failed before acceptance was confirmed' }
+    return { accepted: false, acceptanceUnknown: true, error: 'Twilio request failed before acceptance was confirmed' }
   }
 }

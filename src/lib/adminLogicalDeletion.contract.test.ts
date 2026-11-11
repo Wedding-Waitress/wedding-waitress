@@ -19,7 +19,7 @@ it('retains audited administrator deletions but keeps customer closure distinct'
  expect(migration).toMatch(/AND admin_deleted_at IS NULL AND NOT private\.admin_customer_retention_required\(account_owner_id\)\s+AND purge_after<=now\(\)/);
 });
 it('freshly checks retention before storage deletion and keeps state-based access restrictions',()=>{
- expect(purge.indexOf('current.admin_deleted_at')).toBeLessThan(purge.indexOf('admin.storage.from(bucket).remove'));
+ expect(purge.indexOf('current.admin_deleted_at')).toBeLessThan(purge.indexOf('await removePrefix(admin.storage'));
  expect(migration).toContain('Admin deletion blocks planning access');
  expect(migration).toContain("'Suspension blocks storage access'");
  expect(migration).toContain("'admin_deleted'");

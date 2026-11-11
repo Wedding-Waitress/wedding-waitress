@@ -324,10 +324,11 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     }
   }, []);
 
-  const handleDragEnd = useCallback(async (event: DragEndEvent) => {
-    const { active, over } = event;
-    const savedPosition = overGuestPositionRef.current;
-    
+  const resetDragState = useCallback(() => {
+    if (stickyTimeoutRef.current) {
+      clearTimeout(stickyTimeoutRef.current);
+      stickyTimeoutRef.current = null;
+    }
     setActiveGuest(null);
     setActiveTableId(null);
     setOverTableId(null);
@@ -335,6 +336,16 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     setIsOverUnassigned(false);
     setOverGuestPosition(null);
     overGuestPositionRef.current = null;
+    lastOverGuestRef.current = null;
+    pointerPositionRef.current = { x: 0, y: 0 };
+  }, []);
+
+  const handleDragEnd = useCallback(async (event: DragEndEvent) => {
+    const { active, over } = event;
+    const savedPosition = overGuestPositionRef.current;
+    const savedPointer = { ...pointerPositionRef.current };
+    
+    resetDragState();
 
     if (!over || !active) return;
 
@@ -389,7 +400,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
         if (firstGuestEl) {
           const rect = firstGuestEl.getBoundingClientRect();
           const midpoint = rect.top + rect.height / 2;
-          insertAtIndex = pointerPositionRef.current.y < midpoint ? 0 : destTableGuests.length;
+          insertAtIndex = savedPointer.y < midpoint ? 0 : destTableGuests.length;
         } else {
           insertAtIndex = destTableGuests.length;
         }
@@ -484,7 +495,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
             if (firstGuestEl) {
               const rect = firstGuestEl.getBoundingClientRect();
               const midpoint = rect.top + rect.height / 2;
-              const rawTarget = pointerPositionRef.current.y < midpoint ? 0 : tableGuests.length;
+              const rawTarget = savedPointer.y < midpoint ? 0 : tableGuests.length;
               targetIndex = oldIndex < rawTarget ? rawTarget - 1 : rawTarget;
             } else {
               targetIndex = tableGuests.length - 1;
@@ -518,7 +529,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
       processingRef.current = false;
       setIsProcessing(false);
     }
-  }, [guests, tables, onMoveGuest, onReorderGuests, onGuestMoved, toast]);
+  }, [guests, tables, onMoveGuest, onReorderGuests, onGuestMoved, toast, resetDragState]);
 
   // Create drag state context value
   const dragStateValue: DragStateContextType = {
@@ -552,6 +563,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
       onDragStart={handleDragStart}
       onDragOver={handleDragOver}
       onDragEnd={handleDragEnd}
+      onDragCancel={resetDragState}
       accessibility={{ announcements }}
     >
       <DragStateContext.Provider value={dragStateValue}>

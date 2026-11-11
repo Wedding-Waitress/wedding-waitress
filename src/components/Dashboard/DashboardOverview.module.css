@@ -107,3 +107,14 @@
 .exportMount { justify-self:end; }
 .exportMount:empty { display:none; }
 @media(max-width:1024px) { .eventPanel { grid-template-columns:1fr; }.exportMount { justify-self:stretch; } }
+/* Budget header copy and its event selector, including the portalled option list. */
+:global(#root#root#root) .overview .pageHeader p,
+:global(#root#root#root) .overview .eventLabel,
+:global(#root#root#root) .overview .eventLabel span,
+:global(#root#root#root) .overview .eventField,
+:global(#root#root#root) .overview .eventField span { color:#2b1711 !important; -webkit-text-fill-color:#2b1711 !important; }
+.eventMenu.eventMenu [role='option'], .eventMenu.eventMenu [role='option'] span { color:#2b1711 !important; -webkit-text-fill-color:#2b1711 !important; }
+:global(#root#root#root) .overview .pageHeader p,
+:global(#root#root#root) .overview .eventField,
+:global(#root#root#root) .overview .eventField span,
+.eventMenu.eventMenu [role='option'], .eventMenu.eventMenu [role='option'] span { font-weight:600 !important; }

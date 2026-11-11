@@ -1,6 +1,8 @@
 import React from 'react';
+import { usePaymentProcessing } from '@/contexts/PaymentProcessingContext';
 import { CreditCard, Loader2 } from 'lucide-react';
 import { Button } from '@/components/ui/button';
+import { CommunicationTopupNotice } from './CommunicationTopupNotice';
 import { useSmsTopup } from '@/hooks/useSmsTopup';
 import {
   COMMUNICATION_CREDIT_PACKS,
@@ -8,6 +10,8 @@ import {
 } from '@/lib/stripePrices';
 import { cn } from '@/lib/utils';
 import styles from './CommunicationCreditPackOptions.module.css';
+import { gstInclusiveAud } from '@/lib/packagePricing';
+import { formatLivePrice } from '@/lib/liveCurrencyPricing';
 
 interface Props {
   eventId: string;
@@ -24,7 +28,11 @@ export const CommunicationCreditPackOptions: React.FC<Props> = ({
   compact = false,
   className,
 }) => {
-  const { startTopup, loading, activePack } = useSmsTopup();
+  const { startTopup, loading, activePack, eligibility, retryEligibility } = useSmsTopup(eventId);
+
+  const { processing } = usePaymentProcessing();
+
+  if (eligibility.status !== 'eligible') return <CommunicationTopupNotice eligibility={eligibility} retry={retryEligibility} />;
 
   if (!canPurchase) {
     return (
@@ -43,6 +51,7 @@ export const CommunicationCreditPackOptions: React.FC<Props> = ({
       <div className={styles.buttons}>
         {PACK_ORDER.map((packKey) => {
           const pack = COMMUNICATION_CREDIT_PACKS[packKey];
+          const total = formatLivePrice('AUD', gstInclusiveAud(pack.price_aud));
           const isActive = loading && activePack === packKey;
           return (
             <Button
@@ -50,16 +59,16 @@ export const CommunicationCreditPackOptions: React.FC<Props> = ({
               type="button"
               size="sm"
               className={styles.packButton}
-              disabled={loading}
+              disabled={loading || processing}
               onClick={() => startTopup(eventId, packKey)}
-              aria-label={`Buy ${pack.credits} shared Email and SMS credits for A$${pack.price_aud}`}
+              aria-label={`Buy ${pack.credits} shared Email and SMS credits for ${total} including GST`}
             >
               {isActive ? (
                 <Loader2 size={14} className={styles.spinner} aria-hidden="true" />
               ) : (
                 <CreditCard size={14} aria-hidden="true" />
               )}
-              <span>{pack.credits} for A${pack.price_aud}</span>
+              <span>{pack.credits} for {total} including GST</span>
             </Button>
           );
         })}

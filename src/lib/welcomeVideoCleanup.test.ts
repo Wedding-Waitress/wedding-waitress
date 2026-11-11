@@ -3,7 +3,7 @@ import { deleteStreamVideo, removeWelcomeVideos, retireVideos, checkWelcomeVideo
 const uid = 'a'.repeat(32);
 function database(owner = 'owner') {
   const state = { config: { video_url: `https://iframe.cloudflarestream.com/${uid}` } as any, rows: [{ id: 'upload', event_id: 'event', user_id: owner, cloudflare_uid: uid, status: 'ready' }], failSave: false };
-  const db = { from(table: string) {
+  const db = { rpc: vi.fn(async (_name: string, args: { _user_id: string }) => ({ data: args._user_id === owner || (owner === 'owner' && args._user_id === 'member'), error: null })), from(table: string) {
     const filters: Array<[string, any]> = []; let action = 'select'; let patch: any;
     const query: any = {
       select: () => query, order: () => query, eq: (key: string, value: any) => { filters.push([key, value]); return query; },
@@ -13,7 +13,7 @@ function database(owner = 'owner') {
       single: () => query,
       then(resolve: any, reject: any) {
         return Promise.resolve().then(() => {
-          if (table === 'events') return { data: filters.some(([k, v]) => k === 'user_id' && v !== owner) ? null : { id: 'event' }, error: null };
+          if (table === 'events') return { data: filters.some(([k, v]) => k === 'user_id' && v !== owner) ? null : { id: 'event', user_id: owner }, error: null };
           if (table === 'live_view_module_settings') {
             if (action === 'select') return { data: { welcome_video_config: state.config }, error: null };
             if (state.failSave) return { data: null, error: new Error('Database unavailable') };
@@ -32,6 +32,11 @@ function database(owner = 'owner') {
   } }; return { db, state };
 }
 describe('hosted welcome video cleanup', () => {
+  it('allows an authorised member to manage the existing owner-scoped upload', async () => {
+    const {db,state}=database(); const remove=vi.fn().mockResolvedValue(undefined);
+    await removeWelcomeVideos(db,'event','member',remove);
+    expect(remove).toHaveBeenCalledWith(uid); expect(state.rows).toHaveLength(0);
+  });
   it('checks ownership before touching Cloudflare or configuration', async () => {
     const { db, state } = database('someone-else'); const remove = vi.fn();
     await expect(removeWelcomeVideos(db, 'event', 'owner', remove)).rejects.toThrow('unauthorized');

@@ -23,7 +23,7 @@ export const HistoryCard: React.FC<Props> = ({ icon }) => {
   const history = data.history;
 
   return (
-    <SectionCard icon={icon} title="Invoices & Payment History" description="Past payments and invoice records">
+    <SectionCard showIcon={false} icon={icon} title="Invoices & Payment History" description="Past payments and invoice records">
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading history…</p>
       ) : error ? (

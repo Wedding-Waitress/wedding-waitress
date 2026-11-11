@@ -6,6 +6,7 @@ import { cn } from "@/lib/utils";
 
 interface ColorPickerPopoverProps {
   value: string;
+  ariaLabel?: string;
   onChange: (color: string) => void;
   className?: string;
   contentClassName?: string;
@@ -44,7 +45,7 @@ const STANDARD_COLORS = [
   ['#A0A0A0', '#C0C0C0', '#E0E0E0', '#F0F0F0', '#FFFFFF'],
 ];
 
-export function ColorPickerPopover({ value, onChange, className, contentClassName }: ColorPickerPopoverProps) {
+export function ColorPickerPopover({ value, onChange, className, contentClassName, ariaLabel }: ColorPickerPopoverProps) {
   const [isOpen, setIsOpen] = React.useState(false);
   const [hoveredColor, setHoveredColor] = React.useState<string | null>(null);
   const colorInputRef = React.useRef<HTMLInputElement>(null);
@@ -61,6 +62,7 @@ export function ColorPickerPopover({ value, onChange, className, contentClassNam
     <Popover open={isOpen} onOpenChange={setIsOpen}>
       <PopoverTrigger asChild>
         <Button
+          aria-label={ariaLabel ? `${ariaLabel}: ${value.toUpperCase()}` : undefined}
           variant="outline"
           className={cn("w-full justify-start gap-2", className)}
         >

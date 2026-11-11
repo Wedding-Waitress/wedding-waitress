@@ -10,6 +10,7 @@ type DietaryPreviewPdfOptions = {
   currentPage: number;
   renderPage: (pageNumber: number) => Promise<void>;
   getPageElement: () => HTMLElement | null;
+  assertContext?: () => void;
 };
 
 /**
@@ -70,6 +71,7 @@ export const createDietaryPreviewPdf = async ({
   currentPage,
   renderPage,
   getPageElement,
+  assertContext,
 }: DietaryPreviewPdfOptions): Promise<jsPDF> => {
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', ...PDF_DEFAULT_OPTIONS });
 
@@ -79,6 +81,7 @@ export const createDietaryPreviewPdf = async ({
       const pageElement = getPageElement();
       if (!pageElement) throw new Error('Dietary A4 preview sheet was not found.');
       await waitForPreviewAssets(pageElement);
+      assertContext?.();
 
       const canvas = await html2canvas(pageElement, {
         backgroundColor: '#ffffff',
@@ -88,6 +91,7 @@ export const createDietaryPreviewPdf = async ({
         onclone: alignDietaryPdfTextInClone,
       });
 
+      assertContext?.();
       if (index > 0) pdf.addPage('a4', 'portrait');
       pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 210, 297, undefined, 'FAST');
     }

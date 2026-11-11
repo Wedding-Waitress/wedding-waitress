@@ -20,6 +20,7 @@ import { cn } from '@/lib/utils';
 import { useSmsCredits } from '@/hooks/useSmsCredits';
 import { useSmsTopup } from '@/hooks/useSmsTopup';
 import { usePaymentProcessing } from '@/contexts/PaymentProcessingContext';
+import { CommunicationTopupNotice } from './CommunicationTopupNotice';
 import { SMS_TOPUP } from '@/lib/stripePrices';
 
 export type CreditHealthState =
@@ -170,14 +171,20 @@ export const SmartSmsCreditStatus: React.FC<Props> = ({
   recipientCount,
   className,
 }) => {
-  const { credits, loading } = useSmsCredits(eventId);
-  const { startTopup, loading: topupLoading } = useSmsTopup();
+  const { credits, loading, error, refetch } = useSmsCredits(eventId);
+  const { startTopup, loading: topupLoading, eligibility, retryEligibility } = useSmsTopup(eventId);
   const { processing } = usePaymentProcessing();
 
   if (!eventId) return null;
+  if (loading) {
+    return <Card className={cn('p-3 rounded-2xl', className)} role="status" aria-live="polite">Loading credits…</Card>;
+  }
+
+  if (error) return <Card className={cn('p-3 rounded-2xl', className)} role="status"><p>{error}</p><button type="button" className="underline" onClick={() => { void refetch(); }}>Retry credit balance</button></Card>;
 
   const health = getCreditHealth(credits.remaining, credits.total);
-  const ctaDisabled = topupLoading || processing;
+  const busy = topupLoading || processing;
+  const ctaDisabled = busy || eligibility.status !== 'eligible';
   const projection = projectSends(credits.remaining, recipientCount);
   const valueLine = formatRemainingValue(credits.remaining, credits.total);
 
@@ -185,7 +192,7 @@ export const SmartSmsCreditStatus: React.FC<Props> = ({
   if (variant === 'compact') {
     if (health.state === 'unactivated') return null;
     return (
-      <Card className={cn('p-3 flex items-center gap-3 rounded-2xl', health.toneClasses, className)}>
+      <Card className={cn(styles.compactCard, 'p-3 flex items-center gap-3 rounded-2xl', health.toneClasses, className)}>
         <MessageSquareText size={20} strokeWidth={1.8} className={cn('shrink-0', health.iconColor)} aria-hidden="true" />
         <div className="flex-1 min-w-0">
           <div className="text-sm font-semibold text-foreground">
@@ -212,8 +219,9 @@ export const SmartSmsCreditStatus: React.FC<Props> = ({
             ctaDisabled && 'pointer-events-none opacity-80',
           )}
         >
-          {ctaDisabled ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard size={16} strokeWidth={1.8} aria-hidden="true" />}<span>Top Up</span>
+          {busy ? <Loader2 className="h-4 w-4 animate-spin" /> : <CreditCard size={16} strokeWidth={1.8} aria-hidden="true" />}<span>Top Up</span>
         </Button>
+        <CommunicationTopupNotice eligibility={eligibility} retry={retryEligibility} />
       </Card>
     );
   }
@@ -276,13 +284,14 @@ export const SmartSmsCreditStatus: React.FC<Props> = ({
               )}
               aria-label={`Top-Up Credits +${SMS_TOPUP.credits}`}
             >
-              {ctaDisabled ? (
+              {busy ? (
                 <Loader2 className="h-3.5 w-3.5 animate-spin" aria-hidden="true" />
               ) : (
                 <CreditCard size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
               )}
               {`Top-Up Credits +${SMS_TOPUP.credits}`}
             </Button>
+            <CommunicationTopupNotice eligibility={eligibility} retry={retryEligibility} />
           </div>
         </div>
       </div>

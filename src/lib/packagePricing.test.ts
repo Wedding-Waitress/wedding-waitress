@@ -17,27 +17,27 @@ describe('package pricing catalogue', () => {
     expect(VENDOR_PRICING).toMatchObject({ AUD: { price: 300 }, USD: { price: 198 }, GBP: { price: 153 }, EUR: { price: 180 } });
   });
 
-  it('uses the reviewed Stripe sandbox catalogue references', () => {
-    expect(PLAN_PRICES.essential.price_id).toBe('price_1UDdle5GzTmqOxGKj3yu56jP');
-    expect(PLAN_PRICES.premium.price_id).toBe('price_1UDeO75GzTmqOxGK2JYrvH7I');
-    expect(PLAN_PRICES.unlimited.price_id).toBe('price_1UDeO95GzTmqOxGKZmJq53Ee');
+  it('uses the reviewed fresh live catalogue references without activating checkout', () => {
+    expect(PLAN_PRICES.essential.price_id).toBe('price_1UFTfT5GzTmqOxGKWxqjYWed');
+    expect(PLAN_PRICES.premium.price_id).toBe('price_1UFTfW5GzTmqOxGKjj1dBGKR');
+    expect(PLAN_PRICES.unlimited.price_id).toBe('price_1UFTfa5GzTmqOxGK9EDWU9t6');
     expect(VENDOR_PRO.price_id).toBe('price_1TUoUX5GzTmqOxGK4eswrMPQ');
   });
 
-  it('blocks package checkout until Stripe has matching prices', () => {
+  it('enables the verified live catalogue while retaining the runtime availability guard', () => {
     const checkoutPage = readFileSync('src/pages/UpgradeCheckout.tsx', 'utf8');
-    expect(PACKAGE_CHECKOUT_AVAILABLE).toBe(false);
-    expect(checkoutPage).toContain('if (!PACKAGE_CHECKOUT_AVAILABLE)');
-    expect(checkoutPage).toContain('Australian total including GST');
+    expect(PACKAGE_CHECKOUT_AVAILABLE).toBe(true);
+    expect(checkoutPage).toContain('if (!checkoutAvailable)');
+    expect(checkoutPage).toContain('Total including 10% GST worldwide');
   });
 
   it('publishes new structured prices and responsive pricing breakpoints', () => {
     const pricingPage = readFileSync('src/pages/Pricing.tsx', 'utf8');
     const cards = readFileSync('src/components/Pricing/PublicPricingSection.tsx', 'utf8');
-    expect(pricingPage).toContain("price: String(PACKAGE_PRICES_AUD.essential)");
+    expect(pricingPage).toContain("price: gstInclusiveAud(PACKAGE_PRICES_AUD.essential).toFixed(2)");
     expect(pricingPage).not.toContain("unitText: 'MONTH'");
     expect(cards).toContain('md:grid-cols-2 xl:grid-cols-3');
-    expect(cards).toContain('one-time');
+    expect(cards).toContain('One event for 12 months');
     expect(cards).not.toContain('Vendor Pro');
   });
 });

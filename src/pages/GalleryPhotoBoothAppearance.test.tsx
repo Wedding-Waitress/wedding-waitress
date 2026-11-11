@@ -96,13 +96,11 @@ describe('Digital Photo Booth premium appearance', () => {
 
     expect(await screen.findByRole('heading', { name: 'Digital Photo Booth', level: 1 })).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Back to Photo & Video Sharing' })).toHaveClass(managementStyles.glassAction);
-    const launchAction = screen.getAllByRole('button', { name: 'Launch Digital Photo Booth' })[0];
+    const launchAction = screen.getByRole('button', { name: 'Preview as Guest' });
     expect(launchAction).toHaveClass(managementStyles.glassAction);
     expect(launchAction).toHaveClass(managementStyles.workspaceHeaderAction);
     expect(launchAction).toBeEnabled();
-    expect(screen.getByText('Selected event')).toHaveClass(managementStyles.selectedEventLabel);
-    expect(screen.getByText(event.name)).toHaveClass(managementStyles.selectedEventName);
-    expect(screen.getByRole('switch', { name: 'Digital Photo Booth enabled' })).toBeChecked();
+    expect(screen.queryByRole('switch', { name: 'Digital Photo Booth enabled' })).not.toBeInTheDocument();
 
     for (const heading of ['How the Digital Photo Booth Works', 'Digital Photo Booth Access']) {
       expect(screen.getByRole('heading', { name: heading }).closest('[data-appearance="espresso-glass"]')).toHaveClass(managementStyles.glassCard);
@@ -118,15 +116,8 @@ describe('Digital Photo Booth premium appearance', () => {
     expect(screen.getByText('The on-screen countdown guides guests through four photo captures.')).toBeInTheDocument();
     expect(screen.getByText('The completed photo strip and four individual photos appear below for review, approval and download.')).toBeInTheDocument();
     expect(screen.getByText(/Choose one background for the complete 1200 × 1800 print/)).toBeInTheDocument();
-    expect(screen.getByText('Review, organise, approve, hide and download completed photo strips and individual photos captured in your Digital Photo Booth.')).toBeInTheDocument();
 
-    const captures = screen.getByRole('heading', { name: 'Digital Photo Booth Captures (1)' }).closest('[data-appearance="espresso-glass"]');
-    expect(captures).toHaveClass(managementStyles.galleryPanel);
-    expect(screen.getByPlaceholderText(/Search uploader/)).toHaveClass(managementStyles.galleryControl);
-    expect(screen.getByRole('button', { name: /Download all Photo Booth/ })).toHaveClass(managementStyles.galleryControl);
-    expect(document.querySelector(`.${managementStyles.mediaLoadingSurface}`)).toBeInTheDocument();
-    expect(document.querySelector(`.${managementStyles.mediaLoadingSpinner}`)).toBeInTheDocument();
-    expect(screen.getByText('Nader').closest(`.${managementStyles.galleryMediaFooter}`)).toBeInTheDocument();
+    expect(screen.queryByRole('heading',{name:/Digital Photo Booth Captures/})).not.toBeInTheDocument();
   });
 
   it('protects the QR code and all photo-strip output geometry constants', async () => {
@@ -144,7 +135,7 @@ describe('Digital Photo Booth premium appearance', () => {
 
     fireEvent.click(screen.getByRole('button', { name: 'Copy' }));
     await waitFor(() => expect(navigator.clipboard.writeText).toHaveBeenCalledWith(expect.stringContaining('public-token')));
-    fireEvent.click(screen.getAllByRole('button', { name: 'Launch Digital Photo Booth' })[1]);
+    fireEvent.click(screen.getByRole('button', { name: 'Launch Digital Photo Booth' }));
     expect(open).toHaveBeenCalledWith(expect.stringContaining('public-token'), '_blank', 'noopener,noreferrer');
     fireEvent.click(screen.getByRole('button', { name: 'Download QR code' }));
     expect(anchorClick).toHaveBeenCalled();

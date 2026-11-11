@@ -2,7 +2,7 @@ import React, { useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Progress } from '@/components/ui/progress';
-import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, DialogFooter } from '@/components/ui/dialog';
+import { UpgradePlanModal } from '@/components/Subscription/UpgradePlanModal';
 import { Download, FileImage, FileText, Layers, Users, Lock, Sparkles, Send } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
 import { useUserPlan } from '@/hooks/useUserPlan';
@@ -11,7 +11,7 @@ import { exportInvitationPNG, exportInvitationPDF, exportInvitation2Up, exportBu
 import { InvitationSendModal } from './InvitationSendModal';
 import type { InvitationTemplate, TextZone } from '@/hooks/useInvitationTemplates';
 import type { QrConfig } from '@/lib/invitationQR';
-import { useNavigate } from 'react-router-dom';
+
 
 interface Props {
   template: InvitationTemplate;
@@ -34,7 +34,7 @@ export const InvitationExporter: React.FC<Props> = ({
   qrConfig,
   qrDataUrl,
 }) => {
-  const navigate = useNavigate();
+
   const { toast } = useToast();
   const { plan, isStarterPlan } = useUserPlan();
   const { guests } = useGuests(eventId);
@@ -236,51 +236,7 @@ export const InvitationExporter: React.FC<Props> = ({
       )}
 
       {/* Upgrade Modal */}
-      <Dialog open={showUpgradeModal} onOpenChange={setShowUpgradeModal}>
-        <DialogContent className="ww-invitations-premium-dialog sm:max-w-md">
-          <DialogHeader>
-            <DialogTitle className="flex items-center gap-2">
-              <Lock className="w-5 h-5 text-primary" /> Export Limit Reached
-            </DialogTitle>
-            <DialogDescription>
-              You've used all {FREE_EXPORT_LIMIT} free exports on the Starter plan. Upgrade to Essential, Premium, or Unlimited to enjoy unlimited invitation exports.
-            </DialogDescription>
-          </DialogHeader>
-          <div className="grid grid-cols-1 gap-3 py-4">
-            <div className="flex items-center justify-between p-3 rounded-lg border border-primary/20 bg-primary/5">
-              <div>
-                <p className="font-semibold text-sm">Essential Plan</p>
-                <p className="text-xs text-muted-foreground">Up to 100 guests</p>
-              </div>
-              <p className="font-bold text-primary">A$150 one-time</p>
-            </div>
-            <div className="flex items-center justify-between p-3 rounded-lg border border-primary/20 bg-primary/5">
-              <div>
-                <p className="font-semibold text-sm">Premium Plan</p>
-                <p className="text-xs text-muted-foreground">Up to 300 guests</p>
-              </div>
-              <p className="font-bold text-primary">A$200 one-time</p>
-            </div>
-            <div className="flex items-center justify-between p-3 rounded-lg border border-primary/20 bg-primary/5">
-              <div>
-                <p className="font-semibold text-sm">Unlimited Plan</p>
-                <p className="text-xs text-muted-foreground">Unlimited guests</p>
-              </div>
-              <p className="font-bold text-primary">A$300 one-time</p>
-            </div>
-          </div>
-          <DialogFooter>
-            <Button variant="outline" onClick={() => setShowUpgradeModal(false)}>Maybe Later</Button>
-            <Button onClick={() => {
-              setShowUpgradeModal(false);
-              // Navigate to pricing - uses existing pricing page
-              navigate('/#pricing');
-            }}>
-              View Plans
-            </Button>
-          </DialogFooter>
-        </DialogContent>
-      </Dialog>
+      <UpgradePlanModal open={showUpgradeModal} onOpenChange={setShowUpgradeModal} />
     </>
   );
 };

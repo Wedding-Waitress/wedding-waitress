@@ -1,0 +1,120 @@
+/* UNPUBLISHED BATCH: exact public-route allowlist; photo assets, layout and text are untouched. */
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/contact"] { --hero-polish-saturation: 1.14; --hero-polish-contrast: 1.08; --hero-polish-brightness: 1.055; --hero-polish-warm: 0.23; --hero-polish-shade: 0.4; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/faq"] { --hero-polish-saturation: 1.1; --hero-polish-contrast: 1.09; --hero-polish-brightness: 1.04; --hero-polish-warm: 0.2; --hero-polish-shade: 0.4; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/blog"] { --hero-polish-saturation: 1.1; --hero-polish-contrast: 1.09; --hero-polish-brightness: 1.04; --hero-polish-warm: 0.22; --hero-polish-shade: 0.35; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/pricing"] { --hero-polish-saturation: 1.17; --hero-polish-contrast: 1.1; --hero-polish-brightness: 1.06; --hero-polish-warm: 0.31; --hero-polish-shade: 0.42; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/how-it-works"] { --hero-polish-saturation: 1.13; --hero-polish-contrast: 1.09; --hero-polish-brightness: 1.05; --hero-polish-warm: 0.25; --hero-polish-shade: 0.38; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/weddings"] { --hero-polish-saturation: 1.1; --hero-polish-contrast: 1.08; --hero-polish-brightness: 1.04; --hero-polish-warm: 0.16; --hero-polish-shade: 0.32; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/birthdays-parties"] { --hero-polish-saturation: 1.13; --hero-polish-contrast: 1.04; --hero-polish-brightness: 1.13; --hero-polish-warm: 0.16; --hero-polish-shade: 0.26; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/christmas-seasonal-events"] { --hero-polish-saturation: 1.08; --hero-polish-contrast: 1.05; --hero-polish-brightness: 1.13; --hero-polish-warm: 0.17; --hero-polish-shade: 0.27; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/engagements"] { --hero-polish-saturation: 1.07; --hero-polish-contrast: 1.07; --hero-polish-brightness: 1.045; --hero-polish-warm: 0.17; --hero-polish-shade: 0.34; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/corporate-events"] { --hero-polish-saturation: 1.12; --hero-polish-contrast: 1.06; --hero-polish-brightness: 1.1; --hero-polish-warm: 0.18; --hero-polish-shade: 0.28; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/memorials-celebrations-of-life"] { --hero-polish-saturation: 1.12; --hero-polish-contrast: 1.095; --hero-polish-brightness: 1.075; --hero-polish-warm: 0.24; --hero-polish-shade: 0.32; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/my-events"] { --hero-polish-saturation: 1.1; --hero-polish-contrast: 1.06; --hero-polish-brightness: 1.08; --hero-polish-warm: 0.17; --hero-polish-shade: 0.3; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/event-budget-planner"] { --hero-polish-saturation: 1.11; --hero-polish-contrast: 1.08; --hero-polish-brightness: 1.075; --hero-polish-warm: 0.22; --hero-polish-shade: 0.36; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/tables"] { --hero-polish-saturation: 1.1; --hero-polish-contrast: 1.045; --hero-polish-brightness: 1.13; --hero-polish-warm: 0.18; --hero-polish-shade: 0.25; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/guest-list"] { --hero-polish-saturation: 1.12; --hero-polish-contrast: 1.085; --hero-polish-brightness: 1.05; --hero-polish-warm: 0.22; --hero-polish-shade: 0.37; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/floor-plan"] { --hero-polish-saturation: 1.11; --hero-polish-contrast: 1.045; --hero-polish-brightness: 1.14; --hero-polish-warm: 0.17; --hero-polish-shade: 0.24; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/qr-code-seating-chart"] { --hero-polish-saturation: 1.08; --hero-polish-contrast: 1.07; --hero-polish-brightness: 1.07; --hero-polish-warm: 0.17; --hero-polish-shade: 0.3; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/live-slideshow"] { --hero-polish-saturation: 1.1; --hero-polish-contrast: 1.045; --hero-polish-brightness: 1.13; --hero-polish-warm: 0.12; --hero-polish-shade: 0.25; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/invitations-cards"] { --hero-polish-saturation: 1.12; --hero-polish-contrast: 1.1; --hero-polish-brightness: 1.06; --hero-polish-warm: 0.25; --hero-polish-shade: 0.36; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/photo-video-sharing"] { --hero-polish-saturation: 1.12; --hero-polish-contrast: 1.09; --hero-polish-brightness: 1.045; --hero-polish-warm: 0.2; --hero-polish-shade: 0.38; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/seating-chart-signs"] { --hero-polish-saturation: 1.08; --hero-polish-contrast: 1.055; --hero-polish-brightness: 1.095; --hero-polish-warm: 0.18; --hero-polish-shade: 0.26; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/name-place-cards"] { --hero-polish-saturation: 1.16; --hero-polish-contrast: 1.105; --hero-polish-brightness: 1.075; --hero-polish-warm: 0.29; --hero-polish-shade: 0.38; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/individual-table-charts"] { --hero-polish-saturation: 1.075; --hero-polish-contrast: 1.06; --hero-polish-brightness: 1.065; --hero-polish-warm: 0.15; --hero-polish-shade: 0.3; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/full-seating-chart"] { --hero-polish-saturation: 1.1; --hero-polish-contrast: 1.08; --hero-polish-brightness: 1.07; --hero-polish-warm: 0.21; --hero-polish-shade: 0.33; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/dietary-requirements"] { --hero-polish-saturation: 1.105; --hero-polish-contrast: 1.07; --hero-polish-brightness: 1.08; --hero-polish-warm: 0.2; --hero-polish-shade: 0.32; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/dj-mc-questionnaire"] { --hero-polish-saturation: 1.15; --hero-polish-contrast: 1.075; --hero-polish-brightness: 1.13; --hero-polish-warm: 0.24; --hero-polish-shade: 0.3; }
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/running-sheet"] { --hero-polish-saturation: 1.09; --hero-polish-contrast: 1.06; --hero-polish-brightness: 1.085; --hero-polish-warm: 0.17; --hero-polish-shade: 0.3; }
+
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/contact"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/faq"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/blog"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/pricing"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/how-it-works"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/weddings"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/birthdays-parties"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/christmas-seasonal-events"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/engagements"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/corporate-events"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/memorials-celebrations-of-life"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/my-events"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/event-budget-planner"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/tables"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/guest-list"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/floor-plan"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/qr-code-seating-chart"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/live-slideshow"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/invitations-cards"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/photo-video-sharing"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/seating-chart-signs"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/name-place-cards"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/individual-table-charts"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/full-seating-chart"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/dietary-requirements"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/dj-mc-questionnaire"] > .ww-public-hero-picture img,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/running-sheet"] > .ww-public-hero-picture img {
+  filter: saturate(var(--hero-polish-saturation)) contrast(var(--hero-polish-contrast)) brightness(var(--hero-polish-brightness));
+}
+
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/contact"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/faq"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/blog"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/pricing"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/how-it-works"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/weddings"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/birthdays-parties"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/christmas-seasonal-events"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/engagements"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/corporate-events"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/memorials-celebrations-of-life"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/my-events"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/event-budget-planner"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/tables"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/guest-list"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/floor-plan"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/qr-code-seating-chart"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/live-slideshow"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/invitations-cards"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/photo-video-sharing"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/seating-chart-signs"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/name-place-cards"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/individual-table-charts"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/full-seating-chart"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/dietary-requirements"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/dj-mc-questionnaire"] > .ww-public-hero-shade,
+#root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/running-sheet"] > .ww-public-hero-shade {
+  background: radial-gradient(ellipse at 12% 0%, rgba(220, 152, 71, var(--hero-polish-warm)), transparent 53%), radial-gradient(ellipse at 8% 96%, rgba(173, 99, 36, .075), transparent 50%), linear-gradient(90deg, rgba(25, 11, 7, var(--hero-polish-shade)) 0%, rgba(29, 14, 9, calc(var(--hero-polish-shade) * .66)) 39%, rgba(15, 8, 5, .035) 74%, transparent 100%), linear-gradient(0deg, rgba(20, 9, 5, .11), transparent 46%);
+}
+
+@media (max-width: 639px) {
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/contact"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/faq"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/blog"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/pricing"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/how-it-works"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/weddings"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/birthdays-parties"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/christmas-seasonal-events"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/engagements"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/corporate-events"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/events/memorials-celebrations-of-life"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/my-events"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/event-budget-planner"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/tables"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/guest-list"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/floor-plan"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/qr-code-seating-chart"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/live-slideshow"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/invitations-cards"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/photo-video-sharing"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/seating-chart-signs"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/name-place-cards"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/individual-table-charts"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/full-seating-chart"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/dietary-requirements"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/dj-mc-questionnaire"] > .ww-public-hero-shade,
+  #root#root .ww-public .ww-public-photo-hero[data-hero-polish-route="/running-sheet"] > .ww-public-hero-shade {
+    background: radial-gradient(ellipse at 10% 0%, rgba(220, 152, 71, calc(var(--hero-polish-warm) * .85)), transparent 61%), linear-gradient(90deg, rgba(24, 11, 7, calc(var(--hero-polish-shade) + .15)) 0%, rgba(29, 14, 9, calc(var(--hero-polish-shade) * .8)) 42%, rgba(15, 8, 5, .025) 75%, transparent 100%);
+  }
+}

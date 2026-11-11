@@ -432,7 +432,7 @@
       "seo1Text": "Crea invitaciones digitales y comparte con invitados de tu <0>lista</0>.",
       "seo2Heading": "Gestiona RSVPs Digitalmente",
       "seo2Text": "Rastrea respuestas en tiempo real. Los invitados pueden confirmar por <0>código QR</0>.",
-      "seo3Heading": "Crea Save the Dates",
+      "seo3Heading": "Crea Save the Date",
       "seo3Text": "Diseña tarjetas Save the Date. Asigna invitados con el <0>planificador de asientos</0>.",
       "related1": "Gestor de Lista de Invitados",
       "related2": "RSVP con Código QR",
@@ -1048,9 +1048,8 @@
           {
             "heading": "El costo real de los planos de asientos para bodas en Australia",
             "paragraphs": [
-              "La señalización de asientos impresa tradicional en Australia se acumula rápidamente: señalización acrílica $600–$1,000+, caligrafía o diseño $400–$700, reimpresiones de última hora $200–$450 y configuración o alquiler de caballete $300–$500. Total: $1,600–$2,800.",
-              "Digital con Wedding Waitress: una pequeña impresión de código QR $5–$100, y actualizaciones ilimitadas gratis. Total: costo mínimo.",
-              "Por eso las parejas que buscan las mejores herramientas de planificación de bodas en Australia están cambiando a lo digital."
+              "El coste de impresión varía según material, tamaño y proveedor. Compara presupuestos actuales; el acceso a los paquetes de Wedding Waitress tiene un coste aparte indicado en Precios.",
+              "Durante tu periodo de acceso activo, los cambios guardados de invitados y mesas aparecen en la consulta en línea. Los invitados necesitan internet; conserva una copia impresa."
             ]
           },
           {
@@ -1063,8 +1062,7 @@
           {
             "heading": "Preguntas Frecuentes",
             "paragraphs": [
-              "¿Funcionan los QR Code Seating Charts para bodas grandes? Sí, evitan los cuellos de botella en la entrada y permiten a los invitados encontrar su asiento al instante, sin importar el tamaño de la lista de invitados.",
-              "¿Puedo cambiar el plano de asientos el día de la boda? Sí. Las actualizaciones se sincronizan al instante y se reflejan en el mismo código QR, por lo que nunca necesitarás volver a imprimir.",
+              "Durante tu periodo de acceso activo, los cambios guardados de invitados y mesas aparecen en la consulta en línea. Los invitados necesitan internet; conserva una copia impresa.",
               "¿Qué pasa si mi lugar tiene mala conexión Wi-Fi? Los invitados pueden escanear al entrar donde la señal sea más fuerte, o puedes proporcionar una pequeña lista impresa de respaldo para mayor tranquilidad."
             ]
           },
@@ -1080,32 +1078,20 @@
         "title": "El costo real de la señalización de bodas en Australia: planos impresos vs. digitales",
         "metaTitle": "Wedding Signage Cost Australia | Printed vs Digital",
         "metaDescription": "Compare printed vs digital wedding seating charts in Australia. See how much you can save by going digital.",
-        "excerpt": "Los planos impresos en Australia cuestan $150–$400. Aquí hay un desglose claro — y cómo lo digital ahorra cientos.",
+        "excerpt": "El coste de impresión varía según material, tamaño y proveedor. Compara presupuestos actuales; el acceso a los paquetes de Wedding Waitress tiene un coste aparte indicado en Precios.",
         "readingTime": "5 min de lectura",
-        "intro": "La señalización de bodas en Australia es uno de esos costos que crece silenciosamente. Solo el plano de asientos puede costar entre $150 y $400, y eso sin contar los carteles de bienvenida, los números de mesa y los menús. Aquí les presento una comparación clara entre impreso y digital para que sepan exactamente a dónde va su dinero.",
+        "intro": "El coste de impresión varía según material, tamaño y proveedor. Compara presupuestos actuales; el acceso a los paquetes de Wedding Waitress tiene un coste aparte indicado en Precios.",
         "sections": [
           {
             "heading": "Costos de los planos de asientos de boda impresos en Australia",
             "paragraphs": [
-              "Un plano de asientos impreso estándar (acrílico, espejo o tablero de espuma) típicamente cuesta entre $150 y $400 en Australia, dependiendo del tamaño, material y el estilista.",
-              "También necesitarás un caballete ($30–$80), envío o recogida ($20–$50), y cualquier reimpresión de última hora si un invitado cancela ($50–$120). De repente, tu \"cartel de $200\" se acerca más a los $400.",
               "Y una vez impreso, no se puede cambiar."
             ]
           },
           {
             "heading": "Comparación de costos del plano de asientos digital",
             "paragraphs": [
-              "Un plano de asientos de boda digital con código QR solo requiere un pequeño cartel impreso en la entrada, que generalmente cuesta entre $20 y $50 por un cartel de acrílico o de espuma A4.",
-              "Los datos de los asientos se encuentran en línea, por lo que las cancelaciones, reubicaciones y cambios de mesa no tienen costo alguno para actualizarlos. El mismo código QR sigue funcionando toda la noche.",
-              "Ahorro neto para la boda australiana promedio: $150–$350 solo en señalización."
-            ]
-          },
-          {
-            "heading": "Cara a cara: impreso vs digital",
-            "paragraphs": [
-              "Impreso: $150–$400 de entrada, $50–$120 por reimpresión, cero ediciones, difícil de leer con poca luz.",
-              "Código QR digital: $20–$50 de entrada, ediciones ilimitadas gratuitas, fácil de leer en un teléfono, accesible para todos los invitados.",
-              "Lo impreso ofrece un único y hermoso \"momento Instagram\". Lo digital ofrece una boda sin estrés."
+              "Durante tu periodo de acceso activo, los cambios guardados de invitados y mesas aparecen en la consulta en línea. Los invitados necesitan internet; conserva una copia impresa."
             ]
           },
           {
@@ -1118,46 +1104,44 @@
         ]
       },
       "how-to-create-qr-code-seating-chart": {
-        "title": "Cómo crear un plano de mesa de boda con código QR en 5 minutos",
-        "metaTitle": "How to Create QR Code Seating Chart | Easy Guide",
-        "metaDescription": "Step-by-step guide to creating a QR code wedding seating chart in minutes. Simple, fast, and stress-free.",
-        "excerpt": "Una sencilla guía de 5 pasos para crear su propio plano de mesa con código QR — de la lista de invitados al cartel impreso — en solo 5 minutos.",
+        "title": "Crea tu plano de asientos con código QR",
+        "metaTitle": "Crea tu plano de asientos con código QR | Wedding Waitress",
+        "metaDescription": "Importa un CSV o añade invitados individualmente en la Lista de invitados.",
+        "excerpt": "Wedding Waitress mantiene conectada la información que añades, para que cada paso apoye la papelería, los asientos, los proveedores y las experiencias de invitados que siguen.",
         "readingTime": "5 min de lectura",
-        "intro": "No se necesita ser un experto en tecnología para configurar un QR Code Seating Chart para bodas. Todo el proceso toma unos 5 minutos, y una vez que está activado, cada actualización ocurre automáticamente. Aquí te explicamos cómo hacerlo.",
+        "intro": "Wedding Waitress mantiene conectada la información que añades, para que cada paso apoye la papelería, los asientos, los proveedores y las experiencias de invitados que siguen.",
         "sections": [
           {
-            "heading": "Paso 1 — Importa tu lista de invitados",
+            "heading": "Etapa 1",
             "paragraphs": [
-              "Comienza con una lista de invitados limpia. Puedes pegar nombres desde una hoja de cálculo o añadirlos uno por uno en tu gestor de lista de invitados de boda.",
-              "Registra las confirmaciones de asistencia a medida que avanzas para sentar solo a los invitados que han confirmado."
+              "Primero crea y gestiona tu evento. Cuando termines, continúa con el planificador del presupuesto."
             ]
           },
           {
-            "heading": "Paso 2 — Crea tus mesas",
+            "heading": "Etapa 2",
             "paragraphs": [
-              "Añade cada mesa con un nombre, número y capacidad. Las mesas redondas suelen sentar de 8 a 10 personas, las mesas de banquete largas de 12 a 24.",
-              "Dentro de la herramienta de mesas, puedes etiquetar tu mesa nupcial por separado para que destaque del resto."
+              "Planifica y gestiona el presupuesto del evento. Cuando termines, continúa con las mesas."
             ]
           },
           {
-            "heading": "Paso 3 — Arrastra a los invitados a las mesas",
+            "heading": "Etapa 3",
             "paragraphs": [
-              "Arrastra a cada invitado a una mesa. El sistema te avisará si excedes la capacidad, para que evites apretamientos de última hora incómodos.",
-              "Guarda los requisitos dietéticos al mismo tiempo; esto simplifica mucho la coordinación del catering."
+              "Crea la mesa principal y las demás mesas de invitados. Cuando termines, continúa con la lista de invitados."
             ]
           },
           {
-            "heading": "Paso 4 — Genera tu código QR de marca",
+            "heading": "Etapa 4",
+            "paragraphs": [
+              "Añade y gestiona invitados y asígnalos a mesas. Cuando termines, continúa con el plano de asientos con código QR.",
+              "Importa un CSV o añade invitados individualmente en la Lista de invitados."
+            ]
+          },
+          {
+            "heading": "Etapa 5",
             "paragraphs": [
               "Personaliza los colores, la forma y el logotipo central de tu código QR para que coincida con la paleta de tu boda, luego descarga un PNG de alta resolución.",
-              "Pruébalo una vez con tu propio teléfono para asegurarte de que escanee limpiamente bajo luz tenue."
-            ]
-          },
-          {
-            "heading": "Paso 5 — Imprime tu letrero y listo",
-            "paragraphs": [
-              "Imprime el código QR en un pequeño letrero de acrílico, foam-board o papel para la entrada del lugar.",
-              "El día de la boda, los invitados escanean, buscan su nombre y ven al instante su mesa y asiento. Si algo cambia, simplemente reasigna al invitado desde tu teléfono; el código QR seguirá funcionando."
+              "Pruébalo una vez con tu propio teléfono para asegurarte de que escanee limpiamente bajo luz tenue.",
+              "Imprime el código QR en un pequeño letrero de acrílico, foam-board o papel para la entrada del lugar."
             ]
           }
         ]
@@ -1218,7 +1202,7 @@
           {
             "heading": "Cómo un plano de mesa digital lo soluciona en 60 segundos",
             "paragraphs": [
-              "Con un QR Code Seating Chart para bodas, tu dama de honor o coordinador puede abrir la herramienta de asientos en un teléfono, arrastrar al invitado cancelado fuera de la mesa y reasignar a cualquier otra persona que necesite moverse.",
+              "Usa Mesas y Lista de invitados para asignar o cambiar mesas y asientos. La planificación compartida requiere una invitación de equipo autorizada.",
               "El siguiente invitado que escanee el código QR verá la distribución de mesas actualizada inmediatamente. Sin reimpresión, sin garabatos, sin estrés."
             ]
           },
@@ -1266,7 +1250,7 @@
             "heading": "La Solución: Una Running Sheet Digital",
             "paragraphs": [
               "Con Wedding Waitress, puedes planificar toda tu línea de tiempo en un solo lugar, actualizar tu horario al instante y mantener todo organizado y accesible.",
-              "Cada cambio se refleja en tiempo real, por lo que la última versión es siempre la fuente de la verdad; se acabaron los PDF obsoletos pululando por los chats de grupo."
+              "Comparte el enlace del programa guardado con el lugar o los proveedores. Los PDF descargados son copias estáticas; envía una versión actualizada tras los cambios."
             ]
           },
           {
@@ -1279,7 +1263,7 @@
           {
             "heading": "Mantente Flexible el Día de la Boda",
             "paragraphs": [
-              "Las cosas cambian, y eso está bien. Con una Running Sheet digital, puedes ajustar los tiempos al instante, notificar a todos rápidamente y mantener tu evento funcionando sin problemas.",
+              "Guarda los cambios y pide a los destinatarios que vuelvan a abrir el enlace compartido o envíales un PDF nuevo.",
               "Ya sea que la ceremonia comience 10 minutos tarde o que los discursos se alarguen, tu equipo puede ver las actualizaciones de inmediato."
             ]
           },

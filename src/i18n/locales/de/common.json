@@ -1,4 +1,22 @@
 {
+  "guestbookSuccess": {
+    "thankYou": "Vielen Dank, {{name}}!",
+    "another": "Weitere Nachricht hinterlassen",
+    "return": "Zurück zur App",
+    "received": "Vielen Dank für deinen Beitrag zum Gästebuch."
+  },
+  "guestbookMessages": {
+    "textTitle": "Nachricht schreiben",
+    "audioTitle": "Sprachnachricht aufnehmen",
+    "videoTitle": "Videonachricht aufnehmen",
+    "textAgain": "Weitere Nachricht schreiben",
+    "audioAgain": "Weitere Sprachnachricht aufnehmen",
+    "videoAgain": "Weitere Videonachricht aufnehmen",
+    "textSaved": "Deine schriftliche Nachricht wurde gespeichert.",
+    "audioSaved": "Deine Sprachnachricht wurde gespeichert.",
+    "videoSaved": "Deine Videonachricht wurde gespeichert."
+  },
+  "guestbookBackToApp": "Zurück zur App",
   "privacyPolicy": "Datenschutz",
   "termsOfService": "Nutzungsbedingungen",
   "contact": "Kontakt",
@@ -21,5 +39,17 @@
   "edit": "Bearbeiten",
   "close": "Schließen",
   "submit": "Absenden",
-  "language": "Sprache"
+  "language": "Sprache",
+  "guestbookPrivacy": {
+    "intro": "Hinterlasse eine Text-, Audio- oder Videonachricht – oder eine beliebige Kombination.",
+    "notice": "Ihre Text-, Audio- und Videonachrichten werden in der Veranstaltungsgalerie und der Live-Diashow geteilt."
+  },
+  "photoBoothSession": {
+    "capturedPhoto": "Aufgenommenes Foto {{number}}",
+    "captureNote": "4 Fotos - 8 Sekunden Countdown",
+    "nameLabel": "Bitte gib zuerst deinen vollständigen Namen ein",
+    "namePlaceholder": "z. B. Sarah Müller",
+    "partial": "{{saved}} von {{total}} Bildern gespeichert. Tippe auf Herunterladen und speichern, um die restlichen Bilder erneut zu speichern. Bereits gespeicherte Fotos werden nicht erneut hochgeladen.",
+    "captureFailed": "Es konnte kein Kamerabild aufgenommen werden. Bitte starte die Aufnahme erneut."
+  }
 }

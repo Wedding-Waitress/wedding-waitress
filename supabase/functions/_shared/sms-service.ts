@@ -5,7 +5,7 @@
 //     queued -> sent | failed | blocked
 //   Future Twilio status-callback webhook will then update sent -> delivered | undelivered.
 
-import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2";
+import { createClient, SupabaseClient } from "https://esm.sh/@supabase/supabase-js@2.58.0";
 
 export interface SmsSendInput {
   user_id: string;
@@ -20,6 +20,7 @@ export interface SmsSendInput {
    * here (no SMS would be sent), but accepted for type completeness.
    */
   delivery_method?: 'email' | 'sms' | 'both';
+  delivery_id: string;
 }
 
 export interface SmsSendResult {
@@ -27,6 +28,7 @@ export interface SmsSendResult {
   status: "sent" | "failed" | "blocked";
   twilio_sid?: string;
   error?: string;
+  code?: string;
 }
 
 export const maskPhone = (raw: string): string => {
@@ -41,6 +43,16 @@ export function getAdminSupabase(): SupabaseClient {
     Deno.env.get("SUPABASE_SERVICE_ROLE_KEY") ?? "",
     { auth: { persistSession: false } }
   );
+}
+
+export function getSmsConfigurationError(): string | null {
+  if (!Deno.env.get("TWILIO_ACCOUNT_SID") || !Deno.env.get("TWILIO_AUTH_TOKEN")) {
+    return 'SMS sending is not configured. Add TWILIO_ACCOUNT_SID and TWILIO_AUTH_TOKEN to the Edge Function secrets.';
+  }
+  if (!Deno.env.get("TWILIO_MESSAGING_SERVICE_SID") && !Deno.env.get("TWILIO_PHONE_NUMBER")) {
+    return 'SMS sending is not configured. Add TWILIO_MESSAGING_SERVICE_SID or TWILIO_PHONE_NUMBER to the Edge Function secrets.';
+  }
+  return null;
 }
 
 export async function getRemainingCredits(
@@ -68,23 +80,21 @@ async function insertLog(
     status: "queued" | "sent" | "failed" | "blocked";
     error?: string | null;
     delivery_method?: 'email' | 'sms' | 'both';
+    delivery_id: string;
   }
-): Promise<string | null> {
-  const { data, error } = await admin.rpc("log_sms_send", {
-    _user_id: args.user_id,
-    _event_id: args.event_id,
-    _guest_id: args.guest_id,
-    _to_masked: args.to_masked,
-    _twilio_sid: args.twilio_sid,
-    _status: args.status,
-    _error: args.error ?? null,
-    _delivery_method: args.delivery_method ?? 'sms',
-  });
+): Promise<{ id: string | null; duplicate: boolean }> {
+  const { data, error } = await admin.from("sms_send_logs").insert({
+    user_id: args.user_id, event_id: args.event_id, guest_id: args.guest_id,
+    to_masked: args.to_masked, twilio_sid: args.twilio_sid, status: args.status,
+    error_message: args.error ?? null, delivery_method: args.delivery_method ?? 'sms',
+    delivery_id: args.delivery_id,
+  }).select('id').maybeSingle();
+  if (error?.code === '23505') return { id: null, duplicate: true };
   if (error) {
     console.error("[sms-service] log_sms_send failed", error);
-    return null;
+    throw new Error('SMS audit is unavailable before sending');
   }
-  return (data as string) ?? null;
+  return { id: data?.id ?? null, duplicate: false };
 }
 
 async function updateLog(
@@ -119,8 +129,8 @@ export async function sendSmsAndAccount(
 
   const dm = input.delivery_method ?? 'sms';
 
-  if (!sid || !token || (!messagingServiceSid && !phone)) {
-    const err = "SMS provider not configured";
+  const configurationError = getSmsConfigurationError();
+  if (configurationError) {
     await insertLog(admin, {
       user_id: input.user_id,
       event_id: input.event_id,
@@ -128,14 +138,15 @@ export async function sendSmsAndAccount(
       to_masked: masked,
       twilio_sid: null,
       status: "failed",
-      error: err,
+      error: configurationError,
       delivery_method: dm,
+      delivery_id: input.delivery_id,
     });
-    return { ok: false, status: "failed", error: err };
+    return { ok: false, status: "failed", error: configurationError, code: 'SMS_NOT_CONFIGURED' };
   }
 
-  // Pre-check: credit must be available. Failed/blocked sends NEVER consume
-  // credits (consume_sms_credit is only called after a successful Twilio SID).
+  // Pre-check: credit must be available. A credit is reserved atomically before
+  // provider delivery and restored whenever Twilio does not accept the message.
   const remaining = await getRemainingCredits(admin, input.user_id, input.event_id);
   if (remaining <= 0) {
     await insertLog(admin, {
@@ -147,12 +158,13 @@ export async function sendSmsAndAccount(
       status: "blocked",
       error: "No SMS credits remaining",
       delivery_method: dm,
+      delivery_id: input.delivery_id,
     });
     return { ok: false, status: "blocked", error: "No SMS credits remaining" };
   }
 
   // 1. Insert queued log row first so Twilio webhook callbacks can match by SID later.
-  const logId = await insertLog(admin, {
+  const claim = await insertLog(admin, {
     user_id: input.user_id,
     event_id: input.event_id,
     guest_id: input.guest_id,
@@ -160,7 +172,22 @@ export async function sendSmsAndAccount(
     twilio_sid: null,
     status: "queued",
     delivery_method: dm,
+    delivery_id: input.delivery_id,
   });
+  if (claim.duplicate) return { ok: false, status: 'blocked', error: 'This invitation send was already submitted.', code: 'DUPLICATE_SEND' };
+  const logId = claim.id;
+
+  // Reserve one shared credit before contacting Twilio so concurrent requests
+  // cannot overspend. The reservation is always restored unless Twilio accepts.
+  const { data: reserved, error: reserveError } = await admin.rpc("consume_communication_credit", {
+    _user_id: input.user_id, _event_id: input.event_id, _guest_id: input.guest_id,
+    _channel: 'sms', _delivery_id: input.delivery_id,
+  });
+  if (reserveError) throw reserveError;
+  if (reserved !== true) {
+    if (logId) await updateLog(admin, logId, { status: 'blocked', error: 'No shared invitation credits remaining' });
+    return { ok: false, status: 'blocked', error: 'No shared invitation credits remaining', code: 'NO_CREDITS' };
+  }
 
   // 2. Send via Twilio REST API
   const url = `https://api.twilio.com/2010-04-01/Accounts/${sid}/Messages.json`;
@@ -202,6 +229,7 @@ export async function sendSmsAndAccount(
   }
 
   if (!twilioSid) {
+    await admin.rpc('restore_communication_credit', { _user_id: input.user_id, _event_id: input.event_id });
     if (logId) {
       await updateLog(admin, logId, {
         status: "failed",
@@ -212,21 +240,13 @@ export async function sendSmsAndAccount(
     return { ok: false, status: "failed", error: errorMessage };
   }
 
-  // 3. Atomic post-success credit deduction
-  const { data: consumed, error: consumeErr } = await admin.rpc("consume_sms_credit", {
-    _user_id: input.user_id,
-    _event_id: input.event_id,
-    _guest_id: input.guest_id,
-    _twilio_sid: twilioSid,
-  });
-  if (consumeErr) console.error("[sms-service] consume_sms_credit failed", consumeErr);
-
-  // 4. Transition queued -> sent (webhook will later move sent -> delivered/undelivered)
+  // Twilio accepted the message, so retain the reserved credit and transition
+  // queued -> sent. The webhook later moves sent -> delivered/undelivered.
   if (logId) {
     await updateLog(admin, logId, {
       status: "sent",
       twilio_sid: twilioSid,
-      error: consumed ? null : "credit_not_deducted",
+      error: null,
     });
   }
 

@@ -1,20 +1,13 @@
-User-agent: Googlebot
-Allow: /
-
-User-agent: Bingbot
-Allow: /
-
-User-agent: Twitterbot
-Allow: /
-
-User-agent: facebookexternalhit
-Allow: /
-
 User-agent: *
 Allow: /
-Disallow: /dashboard/
-Disallow: /account/
-Disallow: /admin/
+Disallow: /dashboard
+Disallow: /admin
+Disallow: /account
+Disallow: /reset-password
+Disallow: /upgrade-checkout
+Disallow: /payment-success
+Disallow: /unsubscribe
+Disallow: /venue-floor-plan-upload
 Disallow: /gallery/
 Disallow: /gallery-live/
 Disallow: /gallery-guestbook/
@@ -22,5 +15,12 @@ Disallow: /gallery-photobooth/
 Disallow: /s/
 Disallow: /kiosk/
 Disallow: /live-slideshow/
+Disallow: /shared-running-sheet/
+Disallow: /running-sheet/
+Disallow: /dj-mc/
+Disallow: /djmc/
+Disallow: /seating-chart/
+Disallow: /share/
+Disallow: /qr/
 
 Sitemap: https://weddingwaitress.com.au/sitemap.xml

@@ -1,4 +1,4 @@
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { EOL } from 'node:os';
 
 const SITE_URL = 'https://weddingwaitress.com.au';
@@ -6,6 +6,7 @@ const SITE_URL = 'https://weddingwaitress.com.au';
 const entries = [
   { path: '/', changefreq: 'weekly', priority: '1.0' },
   { path: '/how-it-works', changefreq: 'monthly', priority: '0.9' },
+  { path: '/venues', changefreq: 'monthly', priority: '0.7' },
   { path: '/products', changefreq: 'monthly', priority: '0.9' },
   { path: '/events', changefreq: 'monthly', priority: '0.9' },
   { path: '/events/weddings', changefreq: 'monthly', priority: '0.9' },
@@ -30,6 +31,7 @@ const entries = [
   { path: '/full-seating-chart', changefreq: 'monthly', priority: '0.9' },
   { path: '/live-slideshow', changefreq: 'monthly', priority: '0.9' },
   { path: '/dj-mc-questionnaire', changefreq: 'monthly', priority: '0.9' },
+  { path: '/photo-group-list', changefreq: 'monthly', priority: '0.9' },
   { path: '/running-sheet', changefreq: 'monthly', priority: '0.9' },
   { path: '/photo-video-sharing', changefreq: 'monthly', priority: '0.9' },
   { path: '/privacy', changefreq: 'yearly', priority: '0.3' },
@@ -37,18 +39,12 @@ const entries = [
   { path: '/contact', changefreq: 'yearly', priority: '0.4' },
   { path: '/cookies', changefreq: 'yearly', priority: '0.3' },
   { path: '/blog', changefreq: 'weekly', priority: '0.8' },
-  { path: '/blog/qr-code-wedding-seating-chart-australia', changefreq: 'monthly', priority: '0.7' },
-  { path: '/blog/wedding-signage-cost-australia', changefreq: 'monthly', priority: '0.7' },
-  { path: '/blog/how-to-create-qr-code-seating-chart', changefreq: 'monthly', priority: '0.7' },
-  { path: '/blog/digital-wedding-seating-chart-accessibility', changefreq: 'monthly', priority: '0.7' },
-  { path: '/blog/last-minute-wedding-seating-changes', changefreq: 'monthly', priority: '0.7' },
-  { path: '/blog/why-australian-couples-switching-qr-seating-charts-2026', changefreq: 'monthly', priority: '0.7' },
-  { path: '/blog/why-every-wedding-needs-a-running-sheet', changefreq: 'monthly', priority: '0.7' },
-  { path: '/blog/how-to-create-a-wedding-seating-chart-step-by-step', changefreq: 'monthly', priority: '0.7' },
-  { path: '/blog/wedding-seating-chart-etiquette-who-sits-where', changefreq: 'monthly', priority: '0.7' },
-  { path: '/blog/best-wedding-seating-chart-templates-australia', changefreq: 'monthly', priority: '0.7' },
-  { path: '/blog/common-wedding-seating-chart-mistakes', changefreq: 'monthly', priority: '0.7' },
 ];
+
+const blogSource = await readFile('src/content/blogPosts.ts', 'utf8');
+const blogSlugs = [...blogSource.matchAll(/slug: '([^']+)'/g)].map(m => m[1]);
+if (!blogSlugs.length || new Set(blogSlugs).size !== blogSlugs.length) throw new Error('Missing or duplicate public blog slugs');
+entries.push(...blogSlugs.map(slug => ({ path: '/blog/' + slug, changefreq: 'monthly', priority: '0.7' })));
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

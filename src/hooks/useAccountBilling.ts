@@ -1,6 +1,7 @@
 // 🔒 PRODUCTION-LOCKED — Account billing shared hook (2026-04-18)
 import { useCallback, useEffect, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { PLAN_ENTITLEMENT_CHANGED_EVENT } from '@/lib/planEntitlementEvents';
 import { getCacheGeneration, registerCache } from '@/lib/cacheRegistry';
 
 export interface BillingPaymentMethod {
@@ -101,8 +102,10 @@ export const useAccountBilling = () => {
     const cb = (d: AccountBillingData) => setData(d);
     subscribers.add(cb);
     if (!cache) fetchBilling();
+    window.addEventListener(PLAN_ENTITLEMENT_CHANGED_EVENT, fetchBilling);
     return () => {
       subscribers.delete(cb);
+      window.removeEventListener(PLAN_ENTITLEMENT_CHANGED_EVENT, fetchBilling);
     };
   }, [fetchBilling]);
 

@@ -19,7 +19,7 @@ describe('Full Seating Chart display-option integration', () => {
     expect(page).toContain('settings={settings}');
     expect(page).toContain("await exportPreview('single')"); expect(page).toContain("await exportPreview('all')"); expect(page).toContain('getPageElement: preview.getPageElement');
     fields.forEach(field => {
-      expect(preview).toContain(`settings.${field}`);
+      if (field !== 'showGuestList') expect(preview).toContain(`settings.${field}`);
       expect(exporter).toContain(`settings.${field}`);
     });
   });

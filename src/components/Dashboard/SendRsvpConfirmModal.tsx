@@ -1,159 +1,73 @@
-/**
- * PRODUCTION-READY -- LOCKED FOR PRODUCTION
- *
- * The Guest List page feature is COMPLETE and APPROVED for production use.
- *
- * CRITICAL RULES:
- * - DO NOT modify without explicit owner approval
- * - Changes could break guest list management
- * - Changes could break bulk actions and RSVP workflows
- * - Changes could break real-time synchronisation
- *
- * Last locked: 2026-02-19
- */
-import React from 'react';
+import React, { useRef, useState } from 'react';
+import { Loader2, Send } from 'lucide-react';
+import { Dialog, DialogContent, DialogFooter, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Button } from '@/components/ui/button';
+import actionStyles from './RsvpInviteActions.module.css';
 import {
-  Dialog,
-  DialogContent,
-  DialogFooter,
-  DialogHeader,
-  DialogTitle,
-} from "@/components/ui/dialog";
-import { Button } from "@/components/ui/button";
-import { Badge } from "@/components/ui/badge";
-import { Mail, Phone, AlertCircle, Loader2 } from "lucide-react";
-
-interface Guest {
-  id: string;
-  first_name: string;
-  last_name: string;
-  email?: string | null;
-  mobile?: string | null;
-}
+  deliveryMethodLabel,
+  getRsvpDeliverySummary,
+  type RsvpContactGuest,
+  type RsvpDeliveryMethod,
+} from '@/lib/rsvpInviteWorkflow';
 
 interface SendRsvpConfirmModalProps {
   isOpen: boolean;
   onClose: () => void;
-  onConfirm: () => void;
-  channel: 'email' | 'sms';
-  selectedGuests: Guest[];
-  totalGuestCount: number;
+  onConfirm: () => Promise<void>;
+  method: RsvpDeliveryMethod;
+  selectedGuests: RsvpContactGuest[];
+  creditsRemaining: number;
   isSending: boolean;
 }
 
-const getPricingTier = (count: number) => {
-  if (count <= 100) return { price: 100, label: '1–100 guests' };
-  if (count <= 200) return { price: 129, label: '101–200 guests' };
-  if (count <= 300) return { price: 149, label: '201–300 guests' };
-  if (count <= 400) return { price: 159, label: '301–400 guests' };
-  if (count <= 500) return { price: 199, label: '401–500 guests' };
-  return { price: 299, label: '501–1000 guests' };
-};
-
 export const SendRsvpConfirmModal: React.FC<SendRsvpConfirmModalProps> = ({
-  isOpen,
-  onClose,
-  onConfirm,
-  channel,
-  selectedGuests,
-  totalGuestCount,
-  isSending,
+  isOpen, onClose, onConfirm, method, selectedGuests, creditsRemaining, isSending,
 }) => {
-  const isEmail = channel === 'email';
-  const contactField = isEmail ? 'email' : 'mobile';
-  
-  const validGuests = selectedGuests.filter(g => {
-    const value = isEmail ? g.email : g.mobile;
-    return value && value.trim() !== '';
-  });
-  
-  const skippedGuests = selectedGuests.filter(g => {
-    const value = isEmail ? g.email : g.mobile;
-    return !value || value.trim() === '';
-  });
+  const confirmingRef = useRef(false);
+  const [confirming, setConfirming] = useState(false);
+  const summary = getRsvpDeliverySummary(selectedGuests, method);
+  const oneGuest = selectedGuests.length === 1;
+  const guestName = oneGuest ? `${selectedGuests[0].first_name} ${selectedGuests[0].last_name}`.trim() : '';
 
-  const pricing = getPricingTier(totalGuestCount);
+  const handleConfirm = async () => {
+    if (confirmingRef.current || isSending) return;
+    confirmingRef.current = true;
+    setConfirming(true);
+    try {
+      await onConfirm();
+    } finally {
+      confirmingRef.current = false;
+      setConfirming(false);
+    }
+  };
 
+  const busy = confirming || isSending;
   return (
-    <Dialog open={isOpen} onOpenChange={onClose}>
+    <Dialog open={isOpen} onOpenChange={(open) => !open && !busy && onClose()}>
       <DialogContent className="ww-guest-list-typography max-w-md">
         <DialogHeader>
-          <DialogTitle className="flex items-center gap-2 text-lg">
-            <Mail className="w-5 h-5 text-primary" />
-            RSVP Invite Bundle (Email & SMS)
-          </DialogTitle>
+          <DialogTitle className="mt-6 flex items-center justify-center gap-2 text-lg"><Send className="h-5 w-5 text-primary" />Confirm RSVP Invitation</DialogTitle>
         </DialogHeader>
-
-        <div className="space-y-4 py-2">
-          {/* Summary */}
-          <div className="bg-muted/50 rounded-lg p-4 space-y-2">
-            <div className="flex justify-between items-center">
-              <span className="text-sm text-muted-foreground">Will send {isEmail ? 'email' : 'SMS'} to:</span>
-              <Badge className="bg-green-500 text-white">{validGuests.length} guests</Badge>
-            </div>
-            {skippedGuests.length > 0 && (
-              <div className="flex justify-between items-center">
-                <span className="text-sm text-muted-foreground">Will skip (no {contactField}):</span>
-                <Badge variant="secondary">{skippedGuests.length} guests</Badge>
-              </div>
-            )}
-          </div>
-
-          {/* Skipped guests list */}
-          {skippedGuests.length > 0 && (
-            <div className="border border-amber-200 bg-amber-50 rounded-lg p-3">
-              <div className="flex items-center gap-2 mb-2">
-                <AlertCircle className="w-4 h-4 text-amber-600" />
-                <span className="text-sm font-medium text-amber-800">
-                  Missing {isEmail ? 'email' : 'mobile'} — will be skipped:
-                </span>
-              </div>
-              <div className="max-h-32 overflow-y-auto space-y-1">
-                {skippedGuests.slice(0, 10).map(g => (
-                  <p key={g.id} className="text-xs text-amber-700">
-                    • {g.first_name} {g.last_name}
-                  </p>
-                ))}
-                {skippedGuests.length > 10 && (
-                  <p className="text-xs text-amber-600 font-medium">
-                    ...and {skippedGuests.length - 10} more
-                  </p>
-                )}
-              </div>
-            </div>
-          )}
-
-          {/* Pricing info */}
-          <div className="border rounded-lg p-3 space-y-1">
-            <p className="text-sm font-medium">Combined Email & SMS ({pricing.label}):</p>
-            <p className="text-lg font-bold text-primary">${pricing.price} AUD</p>
-            <p className="text-xs text-muted-foreground">
-              One-time charge per event. Includes both Email and SMS invitations.
-            </p>
-          </div>
+        <div className="space-y-4 py-3">
+          <p className="text-center text-base font-semibold text-foreground">
+            {oneGuest
+              ? `Are you ready to send this RSVP invitation to ${guestName}?`
+              : `Are you ready to send these RSVP invitations to ${selectedGuests.length} guests?`}
+          </p>
+          <dl className="grid grid-cols-2 gap-x-3 gap-y-2 rounded-xl border border-[#d8c7b2] bg-[#fbf6ed] p-4 text-sm">
+            <dt className="text-muted-foreground">Selected</dt><dd className="text-right font-semibold">{oneGuest ? guestName : `${selectedGuests.length} guests`}</dd>
+            <dt className="text-muted-foreground">Email recipients</dt><dd className="text-right font-semibold">{summary.emailRecipientCount}</dd>
+            <dt className="text-muted-foreground">SMS recipients</dt><dd className="text-right font-semibold">{summary.smsRecipientCount}</dd>
+            <dt className="text-muted-foreground">Delivery method</dt><dd className="text-right font-semibold">{deliveryMethodLabel(method)}</dd>
+            <dt className="text-muted-foreground">Credits used</dt><dd className="text-right font-semibold">{summary.creditsUsed}</dd>
+            <dt className="text-muted-foreground">Credits remaining</dt><dd className="text-right font-semibold">{Math.max(0, creditsRemaining - summary.creditsUsed)}</dd>
+          </dl>
         </div>
-
-        <DialogFooter className="gap-2">
-          <Button variant="outline" onClick={onClose} disabled={isSending} className="rounded-full">
-            Cancel
+        <DialogFooter className="gap-2 pb-4 max-sm:flex-col">
+          <Button type="button" onClick={handleConfirm} disabled={busy} className={actionStyles.primaryAction}>
+            {busy && <Loader2 className="mr-2 h-4 w-4 animate-spin" aria-hidden="true" />}<span className="[text-shadow:0_1px_2px_rgba(0,0,0,.55)]">Confirm &amp; Send</span>
           </Button>
-          <Button
-            onClick={onConfirm}
-            disabled={isSending || validGuests.length === 0}
-            className={`rounded-full text-white ${isEmail ? 'bg-blue-500 hover:bg-blue-600' : 'bg-green-500 hover:bg-green-600'}`}
-          >
-            {isSending ? (
-              <>
-                <Loader2 className="w-4 h-4 mr-2 animate-spin" />
-                Sending...
-              </>
-            ) : (
-              <>
-                {isEmail ? <Mail className="w-4 h-4 mr-2" /> : <Phone className="w-4 h-4 mr-2" />}
-                Send {validGuests.length} {isEmail ? 'Emails' : 'SMS'}
-              </>
-            )}
-          </Button>
+          <Button type="button" onClick={onClose} disabled={busy} className={actionStyles.cancelAction}><span>Cancel</span></Button>
         </DialogFooter>
       </DialogContent>
     </Dialog>

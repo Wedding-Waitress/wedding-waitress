@@ -1,0 +1,10 @@
+import React from 'react';
+// SVG labels use the browser's text positioning in both the visible card and
+// html2canvas's SVG image capture. No export-only text offsets are applied.
+export function PhotoCardNumber({number}:{number:number}){return <svg width={number>=100?45:number>=10?32:24} height="24" role="img" aria-label={`Photo ${number}`} style={{display:'block',overflow:'visible'}}><text x="0" y="12" dominantBaseline="central" fill="#fff" stroke="none" fontFamily="Arial, Helvetica, sans-serif" fontSize="27" fontWeight="700">{number}</text></svg>;}
+export function PhotoCardCount({number,total}:{number:number;total:number}){return <svg width={total>=100?56:44} height="24" role="img" aria-label={`${number} of ${total}`} style={{display:'block'}}><text x="50%" y="12" dominantBaseline="central" textAnchor="middle" fill="#fff" stroke="none" fontFamily="Arial, Helvetica, sans-serif" fontSize="10" fontWeight="700">{number} of {total}</text></svg>;}
+export function PhotoPartnerBadge({label}:{label:string}){
+ const width=React.useMemo(()=>{try{const context=document.createElement('canvas').getContext('2d');if(context){context.font='700 10px Arial';return Math.max(60,Math.ceil(context.measureText(label).width)+4);}}catch{}return Math.max(60,label.length*5.3+4);},[label]);
+ return <svg width={width} height="20" viewBox={`0 0 ${width} 20`} preserveAspectRatio="none" role="img" aria-label={label} style={{display:'block',maxWidth:'100%',overflow:'visible'}}><title>{label}</title><text x="50%" y="10" dominantBaseline="central" textAnchor="middle" fill="#fff" stroke="none" fontFamily="Arial, Helvetica, sans-serif" fontSize="10" fontWeight="700">{label}</text></svg>;
+}
+export function PhotoPriorityLabel(){return <svg width="100%" height="14" role="img" aria-label="Must Have Photo" style={{display:'block'}}><text x="50%" y="7" dominantBaseline="central" textAnchor="middle" fill="#fff" stroke="none" fontFamily="Arial, Helvetica, sans-serif" fontSize="10" fontWeight="700">MUST HAVE PHOTO</text></svg>;}

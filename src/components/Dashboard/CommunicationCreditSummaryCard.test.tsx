@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import {
   CommunicationCreditSummaryCard,
   getCommunicationCreditLevel,
@@ -46,11 +46,11 @@ describe('CommunicationCreditSummaryCard', () => {
     });
   });
 
-  it('uses the plan allowance as a floor while preserving canonical usage', () => {
+  it('never inflates the backend balance with a client-side plan allowance', () => {
     expect(normalizeCommunicationCredits({ total: 1, used: 1, remaining: 0 }, 450)).toEqual({
-      total: 450,
+      total: 1,
       used: 1,
-      remaining: 449,
+      remaining: 0,
     });
   });
 
@@ -142,7 +142,9 @@ describe('CommunicationCreditSummaryCard', () => {
       </PaymentProcessingProvider>,
     );
 
-    expect(screen.getByLabelText('Buy 10 shared Email and SMS credits for A$10')).toBeInTheDocument();
-    expect(screen.getByLabelText('Buy 100 shared Email and SMS credits for A$49')).toBeInTheDocument();
+    expect(screen.getByLabelText('Buy 10 shared Email and SMS credits for A$11 including GST')).toBeInTheDocument();
+    expect(screen.getByLabelText('Buy 100 shared Email and SMS credits for A$53.90 including GST')).toBeInTheDocument();
   });
 });
+
+vi.mock('@/hooks/useSmsTopup',()=>({useSmsTopup:()=>({startTopup:vi.fn(),loading:false,activePack:null,eligibility:{status:'eligible',message:''},retryEligibility:vi.fn()})}));

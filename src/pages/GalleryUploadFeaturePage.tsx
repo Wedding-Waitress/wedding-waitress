@@ -1,3 +1,4 @@
+import {VideoWishesManagement} from '@/components/Dashboard/PhotoVideoGallery/VideoWishesManagement';
 // Feature workspace: Photo & Video Sharing (stage 1 — layout foundation).
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -7,7 +8,8 @@ import { SeoHead } from '@/components/SEO/SeoHead';
 import { FeatureWorkspaceLayout } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceLayout';
 import { FeatureWorkspaceStatePanel } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceStatePanel';
 import { GalleryUploadAccessCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryUploadAccessCard';
-import { publicGalleryItems } from '@/lib/mediaPrivacy';
+import { categoryOf, publicGalleryItems } from '@/lib/mediaPrivacy';
+import { GalleryGuestbookMessagesCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryGuestbookMessagesCard';
 import { GalleryUsageCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryUsageCard';
 import { GalleryGrid } from '@/components/Dashboard/PhotoVideoGallery/GalleryGrid';
 import { GalleryDownloadsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryDownloadsCard';
@@ -16,11 +18,11 @@ import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVide
 export const GalleryUploadFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelection>> = (selection) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { selectedEventId, selectedEvent, selectionStatus, meta, items, error, setOpen, deleteItem, deleteItems, setModeration, setAlbum, bulkSetAlbum, setGuestFeature } = usePhotoVideoFeatureWorkspace(selection);
+  const { selectedEventId, selectedEvent, selectionStatus, meta, items, loading, error, refreshRecordings, setOpen, deleteItem, deleteItems, setModeration, setAlbum, bulkSetAlbum, setGuestFeature } = usePhotoVideoFeatureWorkspace(selection);
   const [saving, setSaving] = useState(false);
 
   // Public gallery media only — private Guestbook recordings never appear here.
-  const publicItems = useMemo(() => publicGalleryItems(items), [items]);
+  const publicItems = useMemo(() => publicGalleryItems(items).filter(item => categoryOf(item) !== 'guestbook_recording' && categoryOf(item) !== 'guestbook_text'), [items]);
 
   const goBack = () => navigate('/dashboard?tab=photo-video-gallery');
 
@@ -39,6 +41,7 @@ export const GalleryUploadFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelec
     <>
       <SeoHead title="Photo & Video Sharing | Wedding Waitress" description="Manage the photos and videos shared by your guests." noIndex />
       <FeatureWorkspaceLayout
+        hideSelectedEventPanel
         brownOutline
         appearance="photo-video-sharing"
         title="Photo & Video Sharing"
@@ -49,6 +52,7 @@ export const GalleryUploadFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelec
         toggleDisabled={saving || !meta}
         onToggle={handleToggle}
         onBack={goBack}
+        guestPreviewToken={meta?.primary_token ?? null}
       >
         {selectionStatus !== 'selected' || !meta ? (
           <FeatureWorkspaceStatePanel
@@ -71,6 +75,8 @@ export const GalleryUploadFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelec
             />
           </div>
 
+          <VideoWishesManagement eventId={selectedEventId!}/>
+          <GalleryGuestbookMessagesCard eventId={selectedEventId} items={items} eventName={selectedEvent?.name} loading={loading} error={error} onSetItemModeration={setModeration} onRefreshRecordings={refreshRecordings} appearance="espresso-glass" />
           <GalleryGrid
             items={publicItems}
             onDelete={deleteItem}

@@ -417,6 +417,7 @@ export const GalleryGrid: React.FC<{
           <Input
             value={search}
             onChange={e => setSearch(e.target.value)}
+            aria-label="Search uploader, caption or message"
             placeholder="Search uploader, caption or message…"
             className={`h-9 pl-9 bg-white text-[#1D1D1F] ${isEspressoGallery ? managementStyles.galleryControl : ''}`}
           />
@@ -651,11 +652,11 @@ export const GalleryGrid: React.FC<{
                   </div>
 
                   {!readOnly && !selectMode && !hideCardActions && (
-                    <div className="absolute top-1 right-1 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10">
+                    <div data-gallery-media-actions className="absolute top-1 right-1 grid grid-cols-2 sm:flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-opacity z-10">
                       {it.signed_url && (
                         <button
                           onClick={() => window.open(it.signed_url!, '_blank', 'noopener,noreferrer')}
-                          className="bg-white/90 rounded-md p-1 hover:bg-white"
+                          className="bg-white/90 rounded-md p-1 hover:bg-white min-h-11 min-w-11 sm:min-h-0 sm:min-w-0"
                           title="Open in new tab"
                         >
                           <ExternalLink className="h-3.5 w-3.5" />
@@ -664,7 +665,7 @@ export const GalleryGrid: React.FC<{
                       {it.signed_url && (
                         <button
                           onClick={() => downloadSignedUrl(it.signed_url!, filenameFor(it, eventName))}
-                          className="bg-white/90 rounded-md p-1 hover:bg-white"
+                          className="bg-white/90 rounded-md p-1 hover:bg-white min-h-11 min-w-11 sm:min-h-0 sm:min-w-0"
                           title="Download"
                         >
                           <Download className="h-3.5 w-3.5" />
@@ -672,14 +673,14 @@ export const GalleryGrid: React.FC<{
                       )}
                       <button
                         onClick={() => toggleModeration(it)}
-                        className="bg-white/90 rounded-md p-1 hover:bg-white"
+                        className="bg-white/90 rounded-md p-1 hover:bg-white min-h-11 min-w-11 sm:min-h-0 sm:min-w-0"
                         title={isHidden ? 'Approve / show again' : 'Hide from guests'}
                       >
                         {isHidden ? <Check className="h-3.5 w-3.5 text-green-600" /> : <EyeOff className="h-3.5 w-3.5 text-amber-600" />}
                       </button>
                       <button
                         onClick={() => { if (confirm('Delete this upload? This also removes the file from storage.')) runDelete([it.id]); }}
-                        className="bg-white/90 rounded-md p-1 hover:bg-white text-red-600"
+                        className="bg-white/90 rounded-md p-1 hover:bg-white min-h-11 min-w-11 sm:min-h-0 sm:min-w-0 text-red-600"
                         title="Delete"
                       >
                         <Trash2 className="h-3.5 w-3.5" />

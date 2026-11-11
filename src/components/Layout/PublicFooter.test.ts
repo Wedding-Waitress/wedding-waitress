@@ -9,6 +9,27 @@ const footer = readFileSync('src/components/Layout/PublicFooter.tsx', 'utf8');
 const landing = readFileSync('src/pages/Landing.tsx', 'utf8');
 
 describe('public footer navigation', () => {
+  it('gently animates the flag continuously while respecting reduced motion', () => {
+    render(createElement(MemoryRouter, null, createElement(PublicFooter)));
+    expect(screen.getByRole('img', { name: 'Australian flag' })).toHaveClass('ww-footer-flag');
+    const css = readFileSync('src/styles/PublicSite.css', 'utf8');
+    expect(css).toContain('animation: ww-footer-flag-wave 3.2s ease-in-out infinite');
+    expect(css).toMatch(/@media \(prefers-reduced-motion: reduce\)\s*\{\s*\.ww-footer-flag \{ animation: none; filter: none; \}/);
+    expect(css).toContain('filter: var(--ww-flag-wave-filter)');
+    expect(footer).toContain('<feDisplacementMap');
+    expect(footer).toContain('repeatCount="indefinite"');
+  });
+  it('shows the circular back-to-top button by default on shared public footers', () => {
+    const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);
+    render(createElement(MemoryRouter, null, createElement(PublicFooter)));
+    const button = screen.getByRole('button', { name: 'Back to top' });
+    expect(button).toHaveClass('rounded-full', 'h-10', 'w-10');
+    expect(button.parentElement?.lastElementChild).toBe(button);
+    fireEvent.click(button);
+    expect(scrollToSpy).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+    scrollToSpy.mockRestore();
+  });
+
   it('keeps the footer description free of hyphens', () => {
     render(createElement(MemoryRouter, null, createElement(PublicFooter)));
     expect(screen.getByText('An all in one wedding planning and guest experience platform for guests, RSVPs, seating, stationery, event day details and shared memories.')).toBeInTheDocument();
@@ -51,11 +72,11 @@ describe('public footer navigation', () => {
     expect(flag).toHaveAttribute('width', '32');
     expect(flag).toHaveAttribute('height', '20');
     expect(flag).toHaveClass('h-auto', 'object-contain', '-rotate-12', '-translate-y-0.5');
-    expect(flag.parentElement).toHaveTextContent(`Copyright © ${new Date().getFullYear()} Wedding Waitress`);
+    expect(flag.parentElement).toHaveTextContent(`Copyright © 2024–${new Date().getFullYear()} Wedding Waitress`);
     expect(credit.nextElementSibling).toBeNull();
     expect(flag.parentElement!.nextElementSibling).toHaveTextContent('|');
     const row = credit.closest('footer')!.lastElementChild!.lastElementChild!;
-    expect(row.textContent).toBe(`Copyright © ${new Date().getFullYear()} Wedding Waitress|Powered by: Marketing King Australia|Privacy Policy|Terms and Conditions|Cookie Policy`);
+    expect(row.textContent).toBe(`Copyright © 2024–${new Date().getFullYear()} Wedding Waitress|Powered by: Marketing King Australia|Privacy Policy|Terms and Conditions|Cookie Policy`);
     expect(row.lastElementChild).toBe(screen.getByRole('button', { name: 'Back to top' }));
   });
 
@@ -70,7 +91,7 @@ describe('public footer navigation', () => {
 
   it('keeps the homepage back-to-top control beside copyright and scrolls to the top', () => {
     expect(landing).toContain('<PublicFooter showBackToTop />');
-    expect(footer).toContain('aria-label="Back to top"');
+    expect(footer).toContain("aria-label={copy('Back to top')}");
     expect(footer).not.toContain('mt-8 flex justify-end');
 
     const scrollToSpy = vi.spyOn(window, 'scrollTo').mockImplementation(() => undefined);

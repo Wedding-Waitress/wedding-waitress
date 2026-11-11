@@ -2,13 +2,43 @@ import React from 'react';
 import { fireEvent, render, screen, waitFor, within } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
-import { AdminAccountLifecyclePage, AdminCustomersPage, AdminEventsPage, AdminOverviewPage, AdminSubscriptionsPaymentsPage } from './AdminCentrePages';
+import { AdminAccountLifecyclePage, AdminCustomersPage, AdminEventsPage, AdminOverviewPage, AdminSubscriptionsPaymentsPage, AdminPromotionsPage } from './AdminCentrePages';
 import { clearAllCaches } from '@/lib/cacheRegistry';
 
 const mocks=vi.hoisted(()=>({rpc:vi.fn(),invoke:vi.fn()}));
 vi.mock('@/integrations/supabase/client',()=>({supabase:{rpc:mocks.rpc,functions:{invoke:mocks.invoke}}}));
 const snapshot={reporting_version:2,generated_at:'2026-08-19T00:00:00Z',platform_totals:{customers:3,events:2,tables:12,guests:80,seated_guests:70,invitations_sent:25,media_items:14,media_storage_bytes:2048,guestbook_entries:6,photo_booth_captures:4,feature_configurations:9},customers:[{id:'host-1',full_name:'Alex Host',email:'alex@example.com',mobile:null,signup_date:'2026-08-18',email_confirmed_at:'2026-08-18',last_sign_in_at:'2026-08-19',customer_type:'host',account_status:'active',plan_name:'Premium',plan_status:'active',plan_started_at:'2026-08-18',plan_expires_at:'2027-08-18',event_count:2,guest_count:80,table_count:12,seated_guest_count:70,feature_usage_count:9,media_item_count:14,team_member_count:3,active_team_member_count:2},{id:'vendor-1',full_name:'Venue Co',email:'venue@example.com',mobile:null,signup_date:'2026-08-01',email_confirmed_at:null,last_sign_in_at:null,customer_type:'vendor',account_status:'suspended',plan_name:'Vendor Pro',plan_status:'pending_approval',plan_started_at:'2026-08-01',plan_expires_at:'2026-09-01',event_count:0}],subscriptions:[{id:'sub-1',user_id:'host-1',customer_name:'Alex Host',email:'alex@example.com',plan_name:'Starter Trial',price_aud:0,subscription_status:'trialing',payment_status:'recorded',started_at:'2026-08-18',expires_at:'2026-08-22',created_at:'2026-08-18',is_read_only:false,vendor_approval_status:'not_applicable'},{id:'sub-2',user_id:'vendor-1',customer_name:'Venue Co',email:'venue@example.com',plan_name:'Vendor Pro',price_aud:100,subscription_status:'pending_approval',payment_status:'recorded',started_at:'2026-08-01',expires_at:'2026-09-01',created_at:'2026-08-01',is_read_only:true,vendor_approval_status:'pending'}],events:[{id:'event-1',user_id:'host-1',name:'Alex Wedding',event_type:'wedding',effective_date:'2026-09-20',venue:'Harbour Room',created_at:'2026-08-10',owner_name:'Alex Host',owner_email:'alex@example.com',guest_count:80,seated_guest_count:70,unseated_guest_count:10,dietary_guest_count:8,table_count:12,seating_capacity:96,invitations_sent:25,attending_count:18,feature_count:9,media_photo_count:10,media_video_count:4,guestbook_text_count:4,guestbook_recording_count:2,photo_booth_capture_count:4,qr_scan_count:22,plan_name:'Premium',event_status:'upcoming'}],lifecycle:[{account_owner_id:'closed-1',customer_name:'Closed Customer',email:'closed@example.com',status:'scheduled_for_deletion',deletion_requested_at:'2026-08-01',purge_after:'2027-08-01',reactivated_at:null,stripe_cancellation_succeeded:false,deletion_processing_error:'private diagnostic',updated_at:'2026-08-01',previous_plan:'Premium',purge_status:'scheduled'}],payments:[],recent_admin_actions:[],configuration:{account_lifecycle:true,admin_actions:true,stripe_live_data:false,platform_reporting:true}};
 describe('Admin Centre operational pages',()=>{
+  it('shows pending sign-ups without inventing a trial or enabling profile-dependent actions',async()=>{
+    const pending={...snapshot.customers[0],id:'pending-signup',full_name:'Sign-up awaiting profile',email:'pending@example.test',plan_name:null,plan_status:null,email_confirmed_at:null,identity_state:'missing_profile',auth_record_exists:true,profile_record_exists:false,account_status:'pending_verification'};
+    mocks.rpc.mockResolvedValue({data:{...snapshot,customers:[pending],lifecycle:[],signup_reconciliation:{missing_profiles:1,unmatched_profiles:0}},error:null});
+    render(<MemoryRouter><AdminCustomersPage/></MemoryRouter>);
+    const row=within((await screen.findByText('Sign-up awaiting profile',{selector:'strong'})).closest('tr')!);
+    expect(row.getByText('Pending verification')).toBeInTheDocument();
+    expect(row.getByText('No plan recorded')).toBeInTheDocument();
+    expect(row.getByRole('button',{name:'Suspend'})).toBeDisabled();
+    expect(row.getByRole('button',{name:'Deleted'})).toBeDisabled();
+    expect(row.getByRole('button',{name:'Open account'})).toBeDisabled();
+    expect(row.getByRole('button',{name:'Resend Verification'})).toBeEnabled();
+    expect(screen.getByRole('note',{name:'Sign-up reporting reconciliation'})).toHaveTextContent('1 sign-ups awaiting profiles');
+    expect(mocks.invoke).not.toHaveBeenCalled();
+  });
+  it('clearly marks unmatched profiles and keeps account actions unavailable',async()=>{
+    const orphan={...snapshot.customers[0],id:'unmatched-profile',full_name:'Saved Profile',email_confirmed_at:null,identity_state:'missing_auth',auth_record_exists:false,profile_record_exists:true,account_status:'unmatched_profile',plan_name:null};
+    mocks.rpc.mockResolvedValue({data:{...snapshot,customers:[orphan],lifecycle:[],signup_reconciliation:{missing_profiles:0,unmatched_profiles:1}},error:null});
+    render(<MemoryRouter><AdminCustomersPage/></MemoryRouter>);
+    const row=within((await screen.findByText('Saved Profile',{selector:'strong'})).closest('tr')!);
+    expect(row.getByText('Unmatched profile')).toBeInTheDocument();
+    expect(row.queryByRole('button',{name:'Resend Verification'})).not.toBeInTheDocument();
+    expect(row.getByRole('button',{name:'Suspend'})).toBeDisabled();
+    expect(row.getByRole('button',{name:'Open account'})).toBeDisabled();
+    expect(mocks.invoke).not.toHaveBeenCalled();
+  });
+  it('does not count unmatched profiles as registered customers',async()=>{
+    mocks.rpc.mockResolvedValue({data:{...snapshot,customers:[...snapshot.customers,{...snapshot.customers[0],id:'unmatched-profile',auth_record_exists:false,identity_state:'missing_auth'}],lifecycle:[]},error:null});
+    render(<MemoryRouter><AdminOverviewPage/></MemoryRouter>);
+    expect((await screen.findByText('Total registered customers')).parentElement?.querySelector('strong')).toHaveTextContent('2');
+  });
   it('identifies missing subscription profiles without inventing customer details and supports ID search',async()=>{
     const original=JSON.stringify(snapshot);
     mocks.rpc.mockResolvedValue({data:{...snapshot,subscriptions:[snapshot.subscriptions[0],{...snapshot.subscriptions[1],id:'missing-profile',user_id:'preserved-account-id',customer_name:' ',email:null}]},error:null});
@@ -41,6 +71,18 @@ describe('Admin Centre operational pages',()=>{
     expect(screen.queryByRole('button',{name:'Permanently Delete Now'})).not.toBeInTheDocument();
     expect(screen.getByText('Awaiting permanent deletion').parentElement?.querySelector('strong')).toHaveTextContent('0');
     expect(mocks.invoke).not.toHaveBeenCalled();
+  });
+  it('keeps promotions off subscriptions and mounts the same controls independently without automatic requests',async()=>{
+    const view=render(<MemoryRouter><AdminSubscriptionsPaymentsPage/></MemoryRouter>);
+    await screen.findAllByRole('link',{name:'View Customer'});
+    expect(screen.queryByRole('heading',{name:'Promotions & Codes'})).not.toBeInTheDocument();
+    view.unmount();mocks.rpc.mockClear();mocks.invoke.mockClear();
+    const promotions=render(<MemoryRouter><AdminPromotionsPage/></MemoryRouter>);
+    expect(promotions.container.querySelector('[data-admin-page]')).toBeInTheDocument();
+    expect(screen.getByRole('heading',{name:'Promotions & Codes'})).toBeInTheDocument();
+    expect(screen.getByLabelText('Campaign name')).toBeInTheDocument();
+    expect(screen.getByText('Local preparation: promotional checkout and activation are not yet available.')).toBeInTheDocument();
+    expect(mocks.rpc).not.toHaveBeenCalled();expect(mocks.invoke).not.toHaveBeenCalled();
   });
   it('links each subscription to that customer’s existing read-only preview',async()=>{
     render(<MemoryRouter><AdminSubscriptionsPaymentsPage/></MemoryRouter>);
@@ -78,7 +120,7 @@ describe('Admin Centre operational pages',()=>{
     expect(screen.queryByText('No customers match these filters.')).not.toBeInTheDocument();
   });
   it('counts legacy Unlimited subscriptions under Ultimate and removes vendor approval overview UI',async()=>{
-    mocks.rpc.mockResolvedValue({data:{...snapshot,subscriptions:[...snapshot.subscriptions,{...snapshot.subscriptions[0],id:'ultimate-sub',plan_name:'Unlimited',subscription_status:'active'}]},error:null});
+    mocks.rpc.mockResolvedValue({data:{...snapshot,subscriptions:[...snapshot.subscriptions,{...snapshot.subscriptions[0],id:'ultimate-sub',plan_name:'Unlimited',subscription_status:'active',created_at:'2026-10-14',expires_at:'2099-01-01'}]},error:null});
     render(<MemoryRouter><AdminOverviewPage/></MemoryRouter>);
     const label=await screen.findByText('Ultimate customers');
     expect(label.parentElement).toHaveTextContent('1');
@@ -88,7 +130,7 @@ describe('Admin Centre operational pages',()=>{
     expect(screen.queryByText('Vendor Pro customers')).not.toBeInTheDocument();
     expect(screen.queryByText(/Vendor Pro approval/)).not.toBeInTheDocument();
     expect(screen.getByText('Cancelled plans')).toBeInTheDocument();
-    expect(screen.getByText('Expired plans')).toBeInTheDocument();
+    expect(screen.getByText('Expired subscription records')).toBeInTheDocument();
     expect(screen.getByText('Past-due or unpaid')).toBeInTheDocument();
   });
   it('keeps historical subscriptions visible without approval actions and filters Ultimate aliases together',async()=>{
@@ -126,26 +168,33 @@ describe('Admin Centre operational pages',()=>{
     expect(await screen.findByText('Customer response')).toBeInTheDocument();
     expect(mocks.rpc).toHaveBeenLastCalledWith('admin_get_account_access_detail',{p_target:'host-1'});
     expect(screen.getByText('Owner review')).toBeInTheDocument();
-    expect(mocks.invoke).not.toHaveBeenCalled();
+    expect(mocks.invoke).toHaveBeenCalledWith('admin-payment-refund', expect.objectContaining({ body: expect.objectContaining({ action: 'customer_history', customer_id: 'host-1' }) }));
+    expect(mocks.invoke.mock.calls.every(([, options]) => options.body.action === 'customer_history')).toBe(true);
   });
   it('consolidates all event metrics and rows without collapsing multiple events per customer',async()=>{
+    vi.useFakeTimers({toFake:['Date']});vi.setSystemTime(new Date('2026-08-19T04:00:00Z'));
     const second={...snapshot.events[0],id:'event-2',name:'Alex reception',guest_count:20,event_status:'active',event_type:'cocktail'};
     mocks.rpc.mockResolvedValue({data:{...snapshot,events:[...snapshot.events,second]},error:null});
     render(<MemoryRouter><AdminCustomersPage/></MemoryRouter>);
     await screen.findByText('Alex Host',{selector:'strong'});
     const panel=within(screen.getByLabelText('Customer events'));
-    const summary=screen.getByLabelText('Event summary');
+    const summary=screen.getByLabelText('Account & event summary');
     const database=screen.getByRole('region',{name:'Customer database'});
     expect(summary.parentElement).toBe(database.parentElement);
     expect(database).not.toContainElement(summary);
     expect(summary).toHaveAttribute('data-admin-page');
     expect(database).toHaveAttribute('data-admin-page');
     expect(within(database).getByRole('heading',{name:'Customer database'})).toBeInTheDocument();
-    expect(screen.getAllByRole('heading',{name:'Event summary'})).toHaveLength(1);
+    expect(screen.getAllByRole('heading',{name:'Account & event summary'})).toHaveLength(1);
     expect(summary.compareDocumentPosition(document.querySelector('[data-admin-customers-table]')!)&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    for(const [label,value] of [['Total events','2'],['Active events','1'],['Upcoming events','1'],['Completed events','0'],['Total guests','100'],['Average guests per event','50']]) {
+    for(const [label,value] of [['Total sign-ups','2'],['Total events created','2'],['Upcoming events','2'],['Past events','0'],['Total guests','100']]) {
       expect(within(summary).getByText(label).parentElement?.querySelector('strong')).toHaveTextContent(value);
     }
+    expect(within(summary).queryByText('Average guests per event')).not.toBeInTheDocument();
+    expect(within(summary).queryByText('Events awaiting a date')).not.toBeInTheDocument();
+    expect(within(summary).getByText('Happening today or in the future')).toBeInTheDocument();
+    expect(within(summary).getAllByText(/^(Total sign-ups|Total events created|Upcoming events|Past events|Total guests)$/).map(node=>node.textContent)).toEqual(['Total sign-ups','Total events created','Upcoming events','Past events','Total guests']);
+    vi.useRealTimers();
     expect(panel.getAllByRole('columnheader').map(cell=>cell.textContent)).toEqual(['Event','Owner','Date / venue','Guests','RSVP','Plan','Status','Created','Actions']);
     expect(panel.getByText('Alex Wedding')).toBeInTheDocument();
     expect(panel.getByText('Alex reception')).toBeInTheDocument();
@@ -206,7 +255,7 @@ describe('Admin Centre operational pages',()=>{
   it('keeps retained closed accounts visible with exactly the three approved display states',async()=>{
     render(<MemoryRouter><AdminCustomersPage/></MemoryRouter>);
     await screen.findByText('Closed Customer',{selector:'strong'});
-    expect(screen.getByText('Free trial')).toBeInTheDocument();
+    expect(screen.getByText('No plan recorded')).toBeInTheDocument();
     const customerCells=screen.getByText('Alex Host',{selector:'strong'}).closest('tr')!.querySelectorAll('td');
     expect(customerCells[0]).not.toHaveTextContent('alex@example.com');
     expect(customerCells[1]).toHaveTextContent('Not available');
@@ -275,4 +324,12 @@ describe('Admin Centre operational pages',()=>{
   it('reuses the protected in-memory snapshot across Admin page navigation',async()=>{const first=render(<MemoryRouter><AdminOverviewPage/></MemoryRouter>);await screen.findByText('Active free trials');first.unmount();render(<MemoryRouter><AdminEventsPage/></MemoryRouter>);expect(await screen.findByText('Alex Wedding')).toBeInTheDocument();expect(mocks.rpc).toHaveBeenCalledTimes(1);});
   it('shows authoritative feature totals and refreshes without reloading or another OTP',async()=>{render(<MemoryRouter><AdminOverviewPage/></MemoryRouter>);expect(await screen.findByText('Platform feature usage')).toBeInTheDocument();expect(screen.getByText('Photo-booth captures')).toBeInTheDocument();fireEvent.click(screen.getByRole('button',{name:'Refresh'}));await waitFor(()=>expect(mocks.rpc).toHaveBeenCalledTimes(2));expect(mocks.rpc).toHaveBeenLastCalledWith('get_admin_platform_snapshot');});
   it('shows privacy-minimised event feature detail from the correct event aggregate',async()=>{render(<MemoryRouter><AdminEventsPage/></MemoryRouter>);await screen.findByText('Alex Wedding');fireEvent.click(screen.getByRole('button',{name:'View Event'}));expect(screen.getByText(/12 tables · 96 capacity · 70 seated · 10 unseated/)).toBeInTheDocument();expect(screen.getByText(/10 photos · 4 videos · 4 photo-booth captures · 6 guestbook entries/)).toBeInTheDocument();});
+});
+
+
+
+it('refreshes confirmed admin plan totals on focus and normalises legacy Ultimate records',async()=>{
+ clearAllCaches();mocks.rpc.mockReset();const customer={...snapshot.customers[0],plan_name:'Essential'};const sub={...snapshot.subscriptions[0],user_id:customer.id,plan_name:'Essential',subscription_status:'active',expires_at:'2099-01-01',created_at:'2026-11-01'};
+ mocks.rpc.mockResolvedValue({data:{...snapshot,customers:[customer],subscriptions:[sub]},error:null});render(<MemoryRouter><AdminOverviewPage/></MemoryRouter>);await waitFor(()=>expect(screen.getByText('Essential customers').parentElement).toHaveTextContent('1'));
+ mocks.rpc.mockResolvedValue({data:{...snapshot,customers:[{...customer,plan_name:'Unlimited'}],subscriptions:[{...sub,plan_name:'Unlimited'}]},error:null});fireEvent(window,new Event('focus'));await waitFor(()=>expect(screen.getByText('Ultimate customers').parentElement).toHaveTextContent('1'));expect(screen.getByText('Essential customers').parentElement).toHaveTextContent('0');
 });

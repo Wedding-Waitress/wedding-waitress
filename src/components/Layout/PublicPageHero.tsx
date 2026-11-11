@@ -1,3 +1,5 @@
+import '@/styles/PublicHeroPolishBatch.css';
+import { PublicCopy } from '@/i18n/PublicCopy';
 import type { CSSProperties, ReactNode } from 'react';
 import type { PublicHeroAsset } from '@/config/publicHeroManifest';
 
@@ -68,16 +70,16 @@ export const PublicPageHero = ({
   note,
   compact = false,
 }: PublicPageHeroProps) => (
-  <section className={`ww-public-photo-hero${compact ? ' ww-public-photo-hero-compact' : ''}`} data-solid-text-surface="dark">
+  <section className={`ww-public-photo-hero${compact ? ' ww-public-photo-hero-compact' : ''}`} data-solid-text-surface="dark" data-hero-polish-route={asset.publicRoute}>
     <PublicHeroPicture asset={asset} />
     <div className="ww-public-hero-shade" aria-hidden="true" />
     <div className="ww-container ww-public-hero-content">
       {breadcrumbs}
-      <p className="ww-eyebrow mb-4">{eyebrow}</p>
-      <h1 className="ww-display max-w-4xl">{normalisePublicHeroHeading(title)}</h1>
-      <p className="ww-public-hero-lead mt-6 max-w-2xl">{description}</p>
+      <p className="ww-eyebrow mb-4"><PublicCopy text={eyebrow} /></p>
+      <h1 className="ww-display max-w-4xl"><PublicCopy text={normalisePublicHeroHeading(title)} /></h1>
+      <p className="ww-public-hero-lead mt-6 max-w-2xl"><PublicCopy text={description} /></p>
       {actions && <div className="mt-8 flex flex-wrap gap-3">{actions}</div>}
-      {note && <div className="ww-public-hero-note mt-4">{note}</div>}
+      {note && <div className="ww-public-hero-note mt-4">{typeof note === 'string' ? <PublicCopy text={note} /> : note}</div>}
     </div>
   </section>
 );

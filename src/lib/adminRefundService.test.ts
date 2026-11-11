@@ -2,7 +2,7 @@ import {beforeEach,describe,expect,it,vi} from 'vitest';
 import {resolveRefundPayment,submitRefund,reconcileRefund} from '../../supabase/functions/_shared/adminRefundService';
 const requestId='77777777-7777-4777-8777-777777777777';
 const payment={id:'payment1',user_id:'customer1',amount_paid:199,stripe_payment_id:'pi_original'};
-const charge={id:'ch_original',paid:true,captured:true,disputed:false,currency:'aud',livemode:false,status:'succeeded',amount:19900,amount_refunded:0};
+const charge={object:'charge',id:'ch_original',paid:true,captured:true,disputed:false,currency:'aud',livemode:false,status:'succeeded',amount:19900,amount_refunded:0};
 const record={id:requestId,amount_minor:4900,currency:'aud',livemode:false,charge_id:'ch_original',access_choice:'keep',reason:'Owner reviewed refund',customer_reason:'',payment_id:'payment1',payment_type:'plan_purchase',administrator_id:'owner'};
 const refund={id:'re_refund',amount:4900,currency:'aud',livemode:false,charge:'ch_original',status:'pending',metadata:{ww_refund_request:requestId}};
 const body={action:'submit',request_id:requestId,payment_type:'plan_purchase',payment_id:'payment1',amount_minor:4900,access_choice:'keep',reason:'Owner reviewed refund',customer_reason:'',confirmed:true};
@@ -31,4 +31,22 @@ describe('refund server service with mocked Stripe only',()=>{
  it('rejects mismatched refund evidence before recording status or suspension',async()=>{stripe.refunds.retrieve.mockResolvedValue({...refund,amount:999});await expect(reconcileRefund(admin,stripe,{...record,stripe_refund_id:'re_refund'})).rejects.toThrow(/mismatch/);expect(admin.rpc).not.toHaveBeenCalled();});
  it('does not invent a result when an uncertain refund cannot be found',async()=>{stripe.refunds.list.mockReturnValue({async *[Symbol.asyncIterator](){}});expect(await reconcileRefund(admin,stripe,record)).toEqual(record);expect(admin.rpc).not.toHaveBeenCalled();});
  it('rejects unsupported payment mappings rather than guessing',async()=>{await expect(resolveRefundPayment(admin,stripe,'unmapped','payment1',false)).rejects.toThrow(/separately reviewed/);});
+});
+
+it('reconciles the real Stripe refund shape without a livemode field',async()=>{
+ const {livemode:omitted,...providerRefund}=refund;
+ stripe.refunds.retrieve.mockResolvedValue(providerRefund);
+ await reconcileRefund(admin,stripe,{...record,stripe_refund_id:'re_refund'});
+ expect(stripe.charges.retrieve).toHaveBeenCalledWith('ch_original');
+ expect(admin.rpc).toHaveBeenCalledWith('admin_record_payment_refund',expect.objectContaining({p_status:'pending'}));
+});
+it.each([{livemode:true},{id:'ch_foreign'},{currency:'usd'},{object:'payment_intent'},{amount:1}])('refuses mismatched parent charge %j before refund recording',async change=>{
+ stripe.charges.retrieve.mockResolvedValue({...charge,...change});
+ await expect(reconcileRefund(admin,stripe,{...record,stripe_refund_id:'re_refund'})).rejects.toThrow(/charge evidence mismatch/);
+ expect(admin.rpc).not.toHaveBeenCalled();
+});
+it('keeps an uncertain request unconfirmed when the parent charge cannot be read',async()=>{
+ stripe.charges.retrieve.mockRejectedValue(new Error('provider unavailable'));
+ await expect(reconcileRefund(admin,stripe,{...record,stripe_refund_id:'re_refund'})).rejects.toThrow();
+ expect(admin.rpc).not.toHaveBeenCalled();
 });

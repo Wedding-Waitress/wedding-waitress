@@ -46,6 +46,7 @@ export function DJMCMusicUrlField({
   const platform = value ? detectMusicPlatform(value) : 'unknown';
   const { toast } = useToast();
   const lastFetchedUrlRef = useRef<string | null>(null);
+  React.useEffect(() => { lastFetchedUrlRef.current = disabled ? null : value; return () => { lastFetchedUrlRef.current = null; }; }, [value, disabled]);
 
   const handleChange = useCallback(async (e: React.ChangeEvent<HTMLInputElement>) => {
     const newValue = e.target.value || null;
@@ -156,6 +157,7 @@ export function DJMCMusicUrlField({
         return (
           <>
             <iframe
+              title={getPlatformLabel()}
               src={`https://www.youtube.com/embed/${videoId}`}
               className="w-full aspect-video rounded-lg"
               allow="accelerometer; autoplay; clipboard-write; encrypted-media; gyroscope; picture-in-picture"
@@ -174,6 +176,7 @@ export function DJMCMusicUrlField({
         return (
           <>
             <iframe
+              title={getPlatformLabel()}
               src={`https://open.spotify.com/embed/${spotifyData.type}/${spotifyData.id}`}
               className="w-full h-[152px] rounded-lg"
               allow="encrypted-media"
@@ -212,7 +215,7 @@ export function DJMCMusicUrlField({
         </div>
         <Input
           type="url"
-          aria-label={ariaLabel}
+          aria-label={ariaLabel || placeholder}
           value={value || ''}
           onChange={handleChange}
           placeholder={placeholder}

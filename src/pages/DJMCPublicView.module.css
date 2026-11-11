@@ -1,0 +1,2 @@
+.page { margin:0 !important; padding:24px !important; min-height:100dvh; }
+@media(max-width:767px) { .page { padding:16px !important; } }

@@ -16,6 +16,7 @@ import {
 } from '@/lib/guestCapacity';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { gstInclusiveAud } from '@/lib/packagePricing';
 
 interface RsvpOverageModalProps {
   isOpen: boolean;
@@ -40,7 +41,8 @@ export const RsvpOverageModal: React.FC<RsvpOverageModalProps> = ({
 
   const shortfall = Math.max(0, currentGuestCount - totalCapacity);
   const suggestedBlocks = blocksForGuestShortfall(currentGuestCount, totalCapacity);
-  const { blocks, additionalGuests, totalAud } = guestCapacityQuote(selectedBlocks);
+  const { blocks, additionalGuests, totalAud: baseAud } = guestCapacityQuote(selectedBlocks);
+  const totalAud = gstInclusiveAud(baseAud);
 
   useEffect(() => {
     if (isOpen) setSelectedBlocks(suggestedBlocks);
@@ -82,7 +84,7 @@ export const RsvpOverageModal: React.FC<RsvpOverageModalProps> = ({
         } catch { /* popup navigation is a best-effort fallback */ }
         onClose();
         // Stripe Checkout sets X-Frame-Options: DENY and cannot render inside
-        // any iframe (e.g. the Lovable preview). Break out to the top window;
+        // any embedded preview iframe. Break out to the top window;
         // if cross-origin top-nav is blocked, fall back to a new tab.
         const inIframe = window.self !== window.top;
         if (inIframe) {
@@ -155,9 +157,9 @@ export const RsvpOverageModal: React.FC<RsvpOverageModalProps> = ({
               Add {blocks} × {GUEST_CAPACITY_BLOCK.guests}-guest block{blocks === 1 ? '' : 's'}{' '}
               (+{additionalGuests} guest spaces)
             </p>
-            <p className="text-3xl font-bold text-primary">${totalAud} AUD</p>
+            <p className="text-3xl font-bold text-primary">${totalAud} AUD including GST</p>
             <p className="text-xs text-muted-foreground">
-              ${GUEST_CAPACITY_BLOCK.priceAud} AUD per block of {GUEST_CAPACITY_BLOCK.guests} • One-time
+              ${gstInclusiveAud(GUEST_CAPACITY_BLOCK.priceAud)} AUD including GST per block of {GUEST_CAPACITY_BLOCK.guests} • One-time
             </p>
           </div>
 

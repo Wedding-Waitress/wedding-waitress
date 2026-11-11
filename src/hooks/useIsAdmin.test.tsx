@@ -44,6 +44,25 @@ describe('useIsAdmin owner authorization', () => {
     unmount();
     expect(mocks.unsubscribe).toHaveBeenCalledOnce();
   });
+  it('does not duplicate bootstrap and INITIAL_SESSION checks', async () => {
+    const { result } = renderHook(() => useIsAdmin());
+    act(() => mocks.authCallback?.('INITIAL_SESSION', mocks.session));
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(mocks.rpc).toHaveBeenCalledOnce();
+  });
+
+  it('shares only an in-flight check between consumers of the same session', async () => {
+    let finish!: (value: unknown) => void;
+    mocks.rpc.mockReturnValue(new Promise(resolve => { finish = resolve; }));
+    const one = renderHook(() => useIsAdmin());
+    const two = renderHook(() => useIsAdmin());
+    await waitFor(() => expect(mocks.rpc).toHaveBeenCalledOnce());
+    await act(async () => { await new Promise(resolve => setTimeout(resolve, 10)); });
+    expect(mocks.rpc).toHaveBeenCalledOnce();
+    await act(async () => finish({ data: true, error: null }));
+    expect(one.result.current.isAdmin).toBe(true);
+    expect(two.result.current.isAdmin).toBe(true);
+  });
 
   it('does not grant admin when the backend rejects the current user', async () => {
     mocks.rpcResult = { data: false, error: null };

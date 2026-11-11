@@ -1,7 +1,7 @@
 import React from 'react';
 import fs from 'node:fs';
 import path from 'node:path';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 let admin = false;
@@ -22,13 +22,14 @@ vi.mock('@/hooks/useInvitationGallery', () => ({
   }),
 }));
 
+vi.mock('@/lib/signageImageCache', () => ({ loadSignageImageSize: vi.fn().mockResolvedValue({width:800,height:1000}), hasLoadedSignageImage: () => false, rememberSignageImage: vi.fn() }));
 import { InvitationGalleryModal } from './InvitationGalleryModal';
 import { getInvitationDesignColour } from './invitationTemplateFilters';
 
 afterEach(() => { admin = false; cleanup(); });
 
 describe('Invitation Template Library', () => {
-  it('renders the live catalogue controls, dynamic total and selection flow', () => {
+  it('renders the live catalogue controls, dynamic total and selection flow', async () => {
     const onSelectImage = vi.fn();
     const onOpenChange = vi.fn();
     render(<InvitationGalleryModal open onOpenChange={onOpenChange} onSelectImage={onSelectImage} />);
@@ -42,8 +43,8 @@ describe('Invitation Template Library', () => {
     fireEvent.change(screen.getByRole('textbox', { name: 'Search templates by name' }), { target: { value: 'Ivory' } });
     expect(screen.getByText('Ivory Minimal Arch')).toBeVisible();
     expect(screen.queryByText('Blue Gold Floral Frame')).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Select' }));
-    expect(onSelectImage).toHaveBeenCalledWith('/two.jpg');
+    await act(async () => { fireEvent.click(screen.getByRole('button', { name: 'Select' })); });
+    expect(onSelectImage).toHaveBeenCalledWith('/two.jpg', '/two.jpg', expect.any(AbortSignal));
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
@@ -68,3 +69,22 @@ describe('Invitation Template Library', () => {
     expect(getInvitationDesignColour({ name: 'Minimal Line Art' })).toBe('Neutral');
   });
 });
+
+it('shows selection feedback until fitting completes and cancels an older selection', async () => {
+ let firstResolve: (value: boolean) => void = () => undefined;
+ const first = new Promise<boolean>(resolve => {firstResolve=resolve;});
+ const apply=vi.fn().mockReturnValueOnce(first).mockResolvedValueOnce(true);
+ const close=vi.fn();
+ render(<InvitationGalleryModal open onOpenChange={close} onSelectImage={apply} />);
+ fireEvent.click(screen.getAllByRole('button',{name:'Select'})[0]);
+ expect(screen.getByRole('status')).toHaveTextContent('Loading selected image...');
+ expect(close).not.toHaveBeenCalled();
+ fireEvent.click(screen.getAllByRole('button',{name:/Blue Gold Floral Frame/})[0]);
+ expect(apply.mock.calls[0][2].aborted).toBe(true);
+ await act(async()=>firstResolve(true));
+ expect(close).not.toHaveBeenCalled();
+ await act(async()=>fireEvent.click(screen.getAllByRole('button',{name:'Select'})[1]));
+ expect(close).toHaveBeenCalledWith(false);
+});
+
+it('places the primary template confirmation before Close',()=>{render(<InvitationGalleryModal open onOpenChange={vi.fn()} onSelectImage={vi.fn()}/>);expect(screen.getByRole('button',{name:'Select Template'}).compareDocumentPosition(screen.getByRole('button',{name:'Close'}))&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();});

@@ -6,10 +6,11 @@
  */
 
 import { useState, useEffect, useRef } from 'react';
+import { PLAN_ENTITLEMENT_CHANGED_EVENT } from '@/lib/planEntitlementEvents';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { useProfile } from '@/hooks/useProfile';
-import { clearEventCaches, getCacheGeneration, registerCache, registerEventCache } from '@/lib/cacheRegistry';
+import { clearAllCaches, clearEventCaches, getCacheGeneration, getCacheUserId, registerCache, registerEventCache, setCacheUserId } from '@/lib/cacheRegistry';
 import { getSelectedEventId, setSelectedEventId } from '@/hooks/useSelectedEvent';
 import {
   EventDeletionError,
@@ -27,6 +28,15 @@ import {
 import { isEventImageBackendUnavailable, isEventImageZoomBackendUnavailable } from '@/lib/eventImage';
 import { deleteOwnedEventWithImage } from '@/lib/eventDeletionWithImage';
 import { syncEventHeroImage } from '@/lib/eventHeroImage';
+import { EVENT_CREATED_EVENT, type EventCreatedDetail } from '@/lib/eventCreationEvents';
+import {
+  assertEventGuestLimitChange,
+  assertGuestLimitsWithinEntitlement,
+  getEventGuestLimitValidation,
+  getGuestCapacityMutationError,
+  getCurrentPlanGuestLimit,
+  GuestCapacityError,
+} from '@/lib/guestCapacityAccess';
 
 export interface Event {
   id: string;
@@ -76,36 +86,88 @@ export interface Event {
   reception_enabled?: boolean;
 }
 
-// Module-level cache for instant loading on return visits
-let eventsCache: Event[] | null = null;
-registerCache(() => { eventsCache = null; });
-registerEventCache((eventId) => { eventsCache = eventsCache?.filter((event) => event.id !== eventId) ?? null; });
+// Module-level cache for instant loading on return visits. The session provider
+// supplies the user key, so a cached collection can never be hydrated for a
+// different authenticated account.
+type EventsCache = { userId: string; events: Event[] };
+let eventsCache: EventsCache | null = null;
+let eventsRequest: { userId: string; promise: Promise<void> } | null = null;
+let eventsCacheRevision = 0;
+let createdEventSelection: EventCreatedDetail | null = null;
+const getCachedEvents = () => {
+  const userId = getCacheUserId();
+  return userId && eventsCache?.userId === userId ? eventsCache.events : null;
+};
+registerCache(() => { eventsCache = null; eventsRequest = null; createdEventSelection = null; eventsCacheRevision += 1; });
+if (typeof window !== 'undefined') window.addEventListener(EVENT_CREATED_EVENT, (event) => {
+  const detail = (event as CustomEvent<EventCreatedDetail>).detail;
+  if (!detail?.userId || detail.userId !== getCacheUserId()) return;
+  eventsCache = null;
+  eventsRequest = null;
+  createdEventSelection = detail;
+  eventsCacheRevision += 1;
+});
+registerEventCache((eventId) => {
+  if (eventsCache) eventsCache = { ...eventsCache, events: eventsCache.events.filter((event) => event.id !== eventId) };
+});
 export const useEvents = () => {
-  const [events, setEvents] = useState<Event[]>(eventsCache ?? []);
-  const [loading, setLoading] = useState(!eventsCache);
-  const [loaded, setLoaded] = useState(eventsCache !== null);
-  const [activeEventId, setActiveEventId] = useState<string | null>(null);
+  const cachedEvents = getCachedEvents();
+  const [events, setEvents] = useState<Event[]>(cachedEvents ?? []);
+  const [loading, setLoading] = useState(cachedEvents === null);
+  const [loaded, setLoaded] = useState(cachedEvents !== null);
+  const [activeEventId, setActiveEventId] = useState<string | null>(() => createdEventSelection?.userId === getCacheUserId() ? createdEventSelection.eventId : null);
   const { toast } = useToast();
   const { profile, updateDisplayCountdownEvent } = useProfile();
   const eventsRequestRef = useRef<Promise<void> | null>(null);
 
   // Keep cache in sync
   useEffect(() => {
-    if (loaded) eventsCache = events;
+    const userId = getCacheUserId();
+    if (loaded && userId) eventsCache = { userId, events };
   }, [events, loaded]);
 
   const setActiveEventIdWithPersistence = async (eventId: string | null) => {
+    createdEventSelection = null;
     setActiveEventId(eventId);
     await updateDisplayCountdownEvent(eventId);
   };
 
   const fetchEvents = async () => {
-    if (eventsRequestRef.current) return eventsRequestRef.current;
+    const userId = getCacheUserId();
+    if (!userId) return;
+    if (eventsRequestRef.current) {
+      const pending = eventsRequestRef.current;
+      await pending;
+      if (userId !== getCacheUserId()) return;
+      if (eventsRequestRef.current === pending) eventsRequestRef.current = null;
+      const cached = getCachedEvents();
+      if (cached === null) return fetchEvents();
+      setEvents(cached); setLoaded(true); setLoading(false);
+      return;
+    }
+
+    // A second dashboard consumer can mount while the first is fetching. Let
+    // it join that request, then hydrate from the resolved account-scoped cache
+    // instead of issuing the same RPC and events select again.
+    if (eventsRequest?.userId === userId) {
+      const joinedRequest = eventsRequest.promise.then(() => {
+        const cached = getCachedEvents();
+        if (cached !== null) {
+          setEvents(cached);
+          setLoaded(true);
+        }
+        setLoading(false);
+      });
+      eventsRequestRef.current = joinedRequest;
+      try { await joinedRequest; } finally { if (eventsRequestRef.current === joinedRequest) eventsRequestRef.current = null; }
+      return;
+    }
 
     const request = (async () => {
       const generation = getCacheGeneration();
+      const revision = eventsCacheRevision;
       try {
-      if (!eventsCache) setLoading(true);
+      if (getCachedEvents() === null && !loaded) setLoading(true);
       
       // Fetch events with guest count AND additional fields in parallel
       const additionalFields = `
@@ -199,11 +261,14 @@ export const useEvents = () => {
           collect_guest_addresses: extraData.collect_guest_addresses ?? false,
         };
       });
-      if (generation !== getCacheGeneration()) return;
+      if (generation !== getCacheGeneration() || userId !== getCacheUserId() || revision !== eventsCacheRevision) return;
       // Publish the resolved collection to the shared cache before React mounts
       // another feature route. This prevents a new route from observing the
       // temporary `[]` loading value as a genuine no-events result.
-      eventsCache = nextEvents;
+      eventsCache = { userId, events: nextEvents };
+      if (createdEventSelection?.userId === userId && nextEvents.some(event => event.id === createdEventSelection.eventId)) {
+        setActiveEventId(createdEventSelection.eventId);
+      }
       setEvents(nextEvents);
       setLoaded(true);
       } catch (error) {
@@ -218,11 +283,13 @@ export const useEvents = () => {
       }
     })();
 
+    eventsRequest = { userId, promise: request };
     eventsRequestRef.current = request;
     try {
       await request;
     } finally {
       if (eventsRequestRef.current === request) eventsRequestRef.current = null;
+      if (eventsRequest?.promise === request) eventsRequest = null;
     }
   };
 
@@ -257,6 +324,13 @@ export const useEvents = () => {
           getEventCreationBlockMessage(allowance),
         );
       }
+
+      const planGuestLimit = await getCurrentPlanGuestLimit();
+      assertGuestLimitsWithinEntitlement(
+        planGuestLimit,
+        eventData.guest_limit ?? 50,
+        (eventData as any).ceremony_guest_limit,
+      );
 
       // Get browser timezone and calculate local dates
       const timezone = Intl.DateTimeFormat().resolvedOptions().timeZone;
@@ -317,32 +391,40 @@ export const useEvents = () => {
 
       if (error) throw error;
 
-      // Auto-create a dynamic QR code for this event
-      try {
-        const { data: code, error: codeErr } = await supabase.rpc('generate_dynamic_qr_code');
-        if (!codeErr && code) {
-          await supabase.from('dynamic_qr_codes').insert({
-            code,
-            user_id: user.user.id,
-            current_event_id: data.id,
-            destination_type: 'guest_lookup',
-            label: eventData.name || 'Event QR',
-            is_active: true,
-          });
-        }
-      } catch (qrErr) {
-        console.error('Auto-create dynamic QR failed (non-blocking):', qrErr);
-      }
-
-      // Set the newly created event as active immediately
+      // Supabase has confirmed the event row. Publish it immediately; ancillary
+      // profile and QR setup must not keep the Create button spinning.
+      const createdEvent = { ...data, guests_count: 0 } as Event;
+      setEvents((currentEvents) => {
+        const nextEvents = [...currentEvents.filter((event) => event.id !== createdEvent.id), createdEvent];
+        const cacheUserId = getCacheUserId();
+        if (cacheUserId) eventsCache = { userId: cacheUserId, events: nextEvents };
+        return nextEvents;
+      });
       setActiveEventId(data.id);
-      await updateDisplayCountdownEvent(data.id);
+      void updateDisplayCountdownEvent(data.id);
       // Promote new event to global selected event
       if (typeof window !== 'undefined') {
         window.dispatchEvent(new CustomEvent('ww:selected-event-set', { detail: data.id }));
       }
-      
-      await fetchEvents();
+
+      void (async () => {
+        try {
+          const { data: code, error: codeErr } = await supabase.rpc('generate_dynamic_qr_code');
+          if (!codeErr && code) {
+            await supabase.from('dynamic_qr_codes').insert({
+              code,
+              user_id: user.user.id,
+              current_event_id: data.id,
+              destination_type: 'guest_lookup',
+              label: eventData.name || 'Event QR',
+              is_active: true,
+            });
+          }
+        } catch (qrErr) {
+          console.error('Auto-create dynamic QR failed (non-blocking):', qrErr);
+        }
+      })();
+
       notifyEventAllowanceChanged();
       toast({
         title: "Success",
@@ -355,9 +437,10 @@ export const useEvents = () => {
       const allowanceError = error instanceof EventAllowanceError
         ? error
         : getDatabaseEventCreationError(error);
+      const capacityError = error instanceof GuestCapacityError ? error : null;
       toast({
-        title: allowanceError ? 'Event not created' : 'Error',
-        description: allowanceError?.message ?? 'Failed to create event',
+        title: allowanceError || capacityError ? 'Event not created' : 'Error',
+        description: allowanceError?.message ?? capacityError?.message ?? 'Failed to create event',
         variant: "destructive",
       });
       throw allowanceError ?? error;
@@ -366,14 +449,35 @@ export const useEvents = () => {
 
   const updateEvent = async (id: string, eventData: Partial<Omit<Event, 'id' | 'user_id' | 'created_at' | 'guests_count'>>) => {
     try {
-      const { error } = await supabase
+      const currentEvent = events.find((event) => event.id === id);
+      const changesGuestLimit = eventData.guest_limit !== undefined
+        && eventData.guest_limit !== currentEvent?.guest_limit;
+      const changesCeremonyLimit = (eventData as any).ceremony_guest_limit !== undefined
+        && (eventData as any).ceremony_guest_limit !== currentEvent?.ceremony_guest_limit;
+      if (changesGuestLimit || changesCeremonyLimit) {
+        const validation = await getEventGuestLimitValidation(id);
+        assertEventGuestLimitChange(
+          validation,
+          changesGuestLimit ? eventData.guest_limit : undefined,
+          changesCeremonyLimit ? (eventData as any).ceremony_guest_limit : undefined,
+        );
+      }
+      const { data: updatedRow, error } = await supabase
         .from('events')
         .update(eventData)
-        .eq('id', id);
+        .eq('id', id)
+        .select('id')
+        .maybeSingle();
 
       if (error) throw error;
+      if (!updatedRow) throw new Error('The event was not found or you do not have permission to update it.');
 
-      await fetchEvents();
+      setEvents((currentEvents) => {
+        const nextEvents = currentEvents.map((event) => event.id === id ? { ...event, ...eventData } : event);
+        const cacheUserId = getCacheUserId();
+        if (cacheUserId) eventsCache = { userId: cacheUserId, events: nextEvents };
+        return nextEvents;
+      });
       if ('event_image_path' in eventData) {
         try { await syncEventHeroImage(id); }
         catch {
@@ -387,12 +491,16 @@ export const useEvents = () => {
       });
     } catch (error) {
       console.error('Error updating event:', error);
+      const capacityError = error instanceof GuestCapacityError
+        ? error
+        : getGuestCapacityMutationError(error);
       toast({
-        title: "Error",
-        description: "Failed to update event",
+        title: capacityError ? 'Guest limit not updated' : 'Event not updated',
+        description: capacityError?.message
+          ?? (error instanceof Error ? error.message : 'The event could not be updated. Please try again.'),
         variant: "destructive",
       });
-      throw error;
+      throw capacityError ?? error;
     }
   };
 
@@ -416,7 +524,8 @@ export const useEvents = () => {
 
       const deleted = await deleteOwnedEventWithImage(id, authUser.id);
       const remainingEvents = events.filter((event) => event.id !== deleted.id);
-      eventsCache = remainingEvents;
+      const userId = getCacheUserId();
+      if (userId) eventsCache = { userId, events: remainingEvents };
       setEvents(remainingEvents);
       clearEventCaches(deleted.id);
 
@@ -429,7 +538,7 @@ export const useEvents = () => {
         setSelectedEventId(replacementId);
       }
 
-      notifyEventDeleted(deleted.id, authUser.id, replacementId);
+      notifyEventDeleted(deleted.id, deleted.user_id, replacementId);
       await fetchEvents();
 
       toast({
@@ -467,11 +576,20 @@ export const useEvents = () => {
         return;
       }
 
+      // Dashboard consumers receive this from AuthenticatedSessionProvider.
+      // Keep this fallback for isolated authenticated tools that mount this
+      // hook directly; getUser is an authenticated server-backed identity read.
+      if (getCacheUserId() !== user.id) {
+        clearAllCaches();
+        setCacheUserId(user.id);
+      }
+
       // A sibling dashboard tool may mount its own consumer while the shared
       // authenticated shell is already warm. Reuse the account-scoped cache in
       // that case instead of issuing the same two event requests again.
-      if (eventsCache) {
-        setEvents(eventsCache);
+      const cached = getCachedEvents();
+      if (cached !== null) {
+        setEvents(cached);
         setLoaded(true);
         setLoading(false);
       } else {
@@ -504,16 +622,21 @@ export const useEvents = () => {
     void init();
 
     // Auth listener: refetch on login, clear on logout
-    const { data: { subscription } } = supabase.auth.onAuthStateChange((_event, session) => {
+    const { data: { subscription } } = supabase.auth.onAuthStateChange((event, session) => {
       if (session?.user) {
+        if (getCacheUserId() !== session.user.id) {
+          clearAllCaches();
+          setCacheUserId(session.user.id);
+        }
         // Defer Supabase calls to avoid deadlocks
         setTimeout(() => {
-          if (!eventsCache) void fetchEvents();
+          if (event !== 'TOKEN_REFRESHED' && getCachedEvents() === null) void fetchEvents();
         }, 0);
       } else {
         setEvents([]);
         setActiveEventId(null);
         setLoading(false);
+        setCacheUserId(null);
         // Clear all module-level caches and global selection
         if (typeof window !== 'undefined') {
           window.dispatchEvent(new Event('ww:auth-cleared'));
@@ -527,6 +650,26 @@ export const useEvents = () => {
     };
   }, []);
 
+  // A confirmed plan upgrade can change saved event guest caps on the server.
+  useEffect(() => {
+    const refresh = () => { void fetchEvents(); };
+    window.addEventListener(PLAN_ENTITLEMENT_CHANGED_EVENT, refresh);
+    return () => window.removeEventListener(PLAN_ENTITLEMENT_CHANGED_EVENT, refresh);
+  }, []);
+
+  // Reload every mounted collection after creation.
+  useEffect(() => {
+    const created = (event: globalThis.Event) => {
+      const detail = (event as CustomEvent<EventCreatedDetail>).detail;
+      if (!detail?.userId || detail.userId !== getCacheUserId()) return;
+      // Keep selection recovery paused until the new event can be resolved.
+      setLoaded(false); setLoading(true);
+      void fetchEvents();
+    };
+    window.addEventListener(EVENT_CREATED_EVENT, created);
+    return () => window.removeEventListener(EVENT_CREATED_EVENT, created);
+  }, []);
+
   // Synchronize every mounted useEvents collection after a confirmed deletion.
   useEffect(() => {
     const handleEventDeleted = (event: globalThis.Event) => {
@@ -535,7 +678,8 @@ export const useEvents = () => {
       if (!deletedId) return;
       setEvents((currentEvents) => {
         const remainingEvents = currentEvents.filter((item) => item.id !== deletedId);
-        eventsCache = remainingEvents;
+        const userId = getCacheUserId();
+        if (userId) eventsCache = { userId, events: remainingEvents };
         return remainingEvents;
       });
       setActiveEventId((currentId) => currentId === deletedId ? detail.replacementId : currentId);
@@ -546,7 +690,15 @@ export const useEvents = () => {
 
   // Initialize activeEventId from profile or auto-select first event
   useEffect(() => {
-    if (!profile || events.length === 0) return;
+    if (!profile || events.length === 0 || !loaded || loading) return;
+
+    // My Events has its own countdown selector. Preserve the completed setup
+    // selection while the shared profile refresh still contains the old ID.
+    if (createdEventSelection?.userId === getCacheUserId() && events.some(event => event.id === createdEventSelection.eventId)) {
+      setActiveEventId(createdEventSelection.eventId);
+      if (profile.display_countdown_event_id === createdEventSelection.eventId) createdEventSelection = null;
+      return;
+    }
     
     // If profile has a saved display_countdown_event_id and it exists in events, use it
     if (profile.display_countdown_event_id) {
@@ -563,7 +715,7 @@ export const useEvents = () => {
       setActiveEventId(firstEvent.id);
       updateDisplayCountdownEvent(firstEvent.id);
     }
-  }, [events, profile, activeEventId, updateDisplayCountdownEvent]);
+  }, [events, profile, activeEventId, updateDisplayCountdownEvent, loaded, loading]);
 
   return {
     events,

@@ -4,7 +4,7 @@ import ts from 'typescript';
 import {describe,expect,it,vi} from 'vitest';
 const target='11111111-1111-4111-8111-111111111111',event='22222222-2222-4222-8222-222222222222',actor='33333333-3333-4333-8333-333333333333';
 const path=`${target}/${event}/background.png`;
-const source=readFileSync('supabase/functions/admin-customer-preview-media/index.ts','utf8').replace(/^import .*$/gm,'');
+const source=(readFileSync('supabase/functions/_shared/adminVerifiedSession.ts','utf8').replace('export async function','async function')+'\n'+readFileSync('supabase/functions/admin-customer-preview-media/index.ts', 'utf8')).replace(/^import .*$/gm,'');
 const compiled=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None}}).outputText;
 async function fixture(options:{owner?:boolean;identity?:boolean;event?:boolean;path?:string;printPath?:string;auditFailure?:boolean;artwork?:boolean;gallery?:boolean;media?:boolean;qrDesign?:boolean;profile?:boolean;liveConfig?:Record<string,unknown>;liveSettings?:boolean}={}){
  const getUser=vi.fn(async()=>({data:{user:options.identity===false?null:{id:actor,email:'owner@example.test',is_anonymous:false}},error:null}));

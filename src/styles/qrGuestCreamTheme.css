@@ -1,0 +1,295 @@
+/* Repeated portal classes override legacy selectors with many :not() exceptions.
+   QR guest routes opt in at mount. Never theme backend/gallery/public routes.
+   Geometry, typography, media and authoritative print renderers are untouched. */
+html[data-qr-guest-theme="cream"] {
+  --qr-guest-ink: #21120b;
+  --qr-guest-paper: #fff9f0;
+  --qr-guest-tan: #efdfc8;
+  --qr-guest-line: #b89a70;
+}
+
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog,
+html[data-qr-guest-theme="cream"] .ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu {
+  --foreground: 20 50% 9%;
+  --muted-foreground: 25 22% 30%;
+  --background: 36 65% 96%;
+  --card: 35 54% 91%;
+  --card-foreground: 20 50% 9%;
+  --popover: 36 65% 96%;
+  --popover-foreground: 20 50% 9%;
+  --ww-text-on-light: #21120b;
+  --ww-text-on-dark: #fff;
+  color-scheme: light;
+  color: var(--qr-guest-ink) !important;
+  border-color: var(--qr-guest-line) !important;
+  background: linear-gradient(180deg, #fff9f0, #f3e7d6) !important;
+  background-color: var(--qr-guest-paper) !important;
+}
+
+/* Retain the mobile modal's actual dark dismiss backdrop. */
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.fixed.inset-0[role="dialog"] {
+  background: transparent !important;
+}
+
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog :is(h1,h2,h3,h4,h5,p,label,strong,[data-live-body],[data-live-label],[class*="text-foreground"],[class*="text-muted-foreground"],[class*="text-gray"]):not(:where(:is([data-print-mirror-document],[data-qr-media-document]), :is([data-print-mirror-document],[data-qr-media-document]) *, [class*="groupSectionHeading"], [data-save-state], [data-rsvp-status], button, button *)) {
+  color: var(--qr-guest-ink) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog :is([class*="bg-background"],[class*="bg-gradient-card"],[class*="bg-accent"],[class*="bg-muted"],[class*="bg-white"],[class*="selectedMemberPanel"],[class*="partyMemberCard"],[class*="modalHeader"],[class*="groupSection"]:not([class*="groupSectionHeading"]),section[class*="border"]):not(:where(:is([data-print-mirror-document],[data-qr-media-document]), :is([data-print-mirror-document],[data-qr-media-document]) *, button, button *)) {
+  color: var(--qr-guest-ink) !important;
+  background: #f1e2cc !important;
+}
+
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog :is([class*="selectedMemberPanel"],[class*="partyMemberCard"]) {
+  border-color: var(--qr-guest-line) !important;
+}
+
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog :is(input,textarea,select,button[role="combobox"]):not(:where(:is([data-print-mirror-document],[data-qr-media-document]), :is([data-print-mirror-document],[data-qr-media-document]) *)) {
+  color: var(--qr-guest-ink) !important;
+  -webkit-text-fill-color: var(--qr-guest-ink) !important;
+  border-color: var(--qr-guest-line) !important;
+  background: #fff9ef !important;
+  box-shadow: inset 0 1px 3px #21120b12 !important;
+}
+
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog :is(input,textarea)::placeholder {
+  color: #65503c !important;
+  -webkit-text-fill-color: #65503c !important;
+  opacity: 1;
+}
+
+html[data-qr-guest-theme="cream"] .ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu :is([role="option"],span) {
+  color: var(--qr-guest-ink) !important;
+  -webkit-text-fill-color: currentColor !important;
+  background-color: #fff9ef !important;
+}
+html[data-qr-guest-theme="cream"] .ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu [role="option"]:is([data-highlighted],[data-state="checked"]) {
+  background: #e6cfac !important;
+}
+
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog svg:not(:where(button svg,:is([data-print-mirror-document],[data-qr-media-document]) svg,[class*="text-green"],[class*="text-red"],[class*="text-destructive"],[class*="text-warning"])) {
+  color: #3a2618 !important;
+  stroke: currentColor !important;
+}
+
+/* Ordinary selectable relation options are light; semantic action buttons keep
+   their original coloured gradients, white labels/icons and disabled states. */
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog [class*="roleGrid"] button {
+  color: var(--qr-guest-ink) !important;
+  -webkit-text-fill-color: var(--qr-guest-ink) !important;
+  background: linear-gradient(180deg,#fff9ef,#ead9bf) !important;
+  border-color: var(--qr-guest-line) !important;
+}
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog [class*="roleGrid"] button:is(:hover,[aria-pressed="true"]) {
+  background: #dec49d !important;
+  box-shadow: inset 0 0 0 2px #80613c !important;
+}
+
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog button[aria-label="Close"],
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog > button:last-child:not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]) {
+  color: var(--qr-guest-ink) !important;
+  background: #ead9bf !important;
+  border-color: var(--qr-guest-line) !important;
+}
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog :is(button[aria-label="Close"],button[role="combobox"]) svg,html[data-qr-guest-theme="cream"] .ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu svg {
+  color: var(--qr-guest-ink) !important;
+  stroke: currentColor !important;
+}
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog :is(input,textarea,select,button):focus-visible,html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] .guest-rsvp-action:focus-visible:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  outline: none !important;
+  outline-color: #80613c !important;
+  box-shadow: 0 0 0 2px #fff4e1,0 0 0 4px #80613c !important;
+}
+
+/* QR table content, not table geometry or the rendered floor-plan document. */
+html[data-qr-guest-theme="cream"] #root#root [data-qr-guest-page] [class*="liveContent"] :is(.ww-box,[class*="bg-gradient-card"],[class*="bg-background-subtle"],[class*="bg-accent"]):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  color: var(--qr-guest-ink) !important;
+  background: #f4e7d4 !important;
+  border-color: #c6ad88 !important;
+}
+html[data-qr-guest-theme="cream"] #root#root [data-qr-guest-page] [class*="liveContent"] :is(.ww-box,[class*="bg-gradient-card"],[class*="bg-background-subtle"],[class*="bg-accent"]) :is(h2,h3,h4,p,[data-live-label],[data-live-body],[data-live-section-heading],[class*="text-muted-foreground"],[class*="text-foreground"]):not(:where(button *, [data-rsvp-status])):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  color: var(--qr-guest-ink) !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+/* Video Wishes is a QR-only route. Its recording/upload behaviour is unchanged;
+   keep existing green/brown action buttons and dark video preview canvases. */
+html[data-qr-guest-theme="cream"] [data-qr-video-wishes] > div {
+  color: var(--qr-guest-ink) !important;
+  background: linear-gradient(180deg,#fff9f0,#f3e7d6);
+}
+html[data-qr-guest-theme="cream"] [data-qr-video-wishes] :is(section,form) {
+  color: var(--qr-guest-ink) !important;
+  background: #efdfc8 !important;
+  border-color: var(--qr-guest-line) !important;
+}
+html[data-qr-guest-theme="cream"] [data-qr-video-wishes] :is(p,h1,h2,label,small):not(:where([role="alert"],[role="status"][class*="bg-green"],button *)) {
+  color: var(--qr-guest-ink) !important;
+}
+html[data-qr-guest-theme="cream"] [data-qr-video-wishes] :is(input,select,option) {
+  color-scheme: light;
+  color: var(--qr-guest-ink) !important;
+  background: #fff9ef !important;
+  border-color: var(--qr-guest-line) !important;
+}
+html[data-qr-guest-theme="cream"] [data-qr-video-wishes] button { color:#fff; }
+
+html[data-qr-guest-theme="cream"] [data-qr-guest-page]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+html[data-qr-guest-theme="cream"] [data-qr-video-wishes] { background:linear-gradient(180deg,#100905 0%,#24150f 55%,#100905 100%) !important; }
+html[data-qr-guest-theme="cream"] [data-qr-video-wishes] > div > :last-child img { filter:brightness(0) saturate(100%); }
+
+/* Keep occupied-seat names readable without changing RSVP seat/status colours. */
+html[data-qr-guest-theme="cream"] #root#root [data-qr-guest-page] [data-round-guest-seat]:not([class*="bg-[#2a1711]"]) [class*="text-white"]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) { color:#21120b !important; -webkit-text-fill-color:currentColor !important; }
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog > button:last-child svg { color:#21120b !important; stroke:currentColor !important; }
+html[data-qr-guest-theme="cream"] #root#root [class*="statePage"] { background:linear-gradient(180deg,#100905,#24150f,#100905) !important; }
+html[data-qr-guest-theme="cream"] #root#root [class*="stateCard"] { color:#21120b !important; border-color:#b89a70 !important; background:#fff9f0 !important; }
+html[data-qr-guest-theme="cream"] #root#root [class*="stateCard"] :is(h1,h2,h3,p) { color:#21120b !important; -webkit-text-fill-color:currentColor !important; }
+
+/* Review batch 1/2: explicit nested greeting contrast and grouped seating rows.
+   Scope stays on QR routes; hero, dark event strip and semantic actions keep
+   their existing colours. */
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] [data-guest-welcome]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] [data-guest-welcome] :is(span,svg,svg *):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  color:#21120b !important;
+  -webkit-text-fill-color:#21120b !important;
+  stroke:currentColor !important;
+}
+
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] [class*="footerLogo"] img:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  /* Tint the original transparent artwork dark espresso; preserve its shape. */
+  filter:brightness(0) saturate(100%) invert(8%) sepia(34%) saturate(1304%) hue-rotate(341deg) brightness(95%) contrast(96%) !important;
+}
+
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] [class*="liveContent"] :is(.ww-box,[class*="searchCard"],[class*="moduleTray"]) svg:not(:where(button *,[data-rsvp-status] *,[class*="text-green"],[class*="text-red"],[class*="text-warning"],[class*="text-destructive"],[data-round-guest-seat] *)):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  color:#21120b !important;
+  stroke:currentColor !important;
+}
+
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] [data-qr-seated-guest-row]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) max-content;
+  align-items:center;
+  gap:16px;
+  width:min(100%,640px);
+  margin-inline:auto;
+  padding:10px 14px;
+  border:1px solid #c4a77e;
+  border-radius:10px;
+  background:#f1e1c9 !important;
+  box-shadow:inset 0 1px 0 #fff9ed;
+}
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] [data-qr-seated-guest-row] > :first-child:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  min-width:0;
+}
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] [data-qr-seated-guest-row] [data-live-body]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  overflow-wrap:anywhere;
+}
+
+/* Review batch 3: retain outlined status geometry and use the richer existing
+   embossed button palette's lower gradient stops. */
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog [data-rsvp-status="attending"] {
+  color:#55a447 !important;
+  -webkit-text-fill-color:#55a447 !important;
+  border-color:#55a447 !important;
+}
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog [data-rsvp-status="declined"] {
+  color:#d9342c !important;
+  -webkit-text-fill-color:#d9342c !important;
+  border-color:#d9342c !important;
+}
+
+/* Review batch 4: dark foregrounds/borders on cream, never on authored media,
+   coloured actions/statuses, or the original dark hero/event strip. */
+html[data-qr-guest-theme="cream"] { --qr-guest-line:#21120b; }
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] :is(input,textarea,button[role="combobox"]):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] [class*="moduleTray"] button:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] [class*="shareInvite"] button:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  border-color:#21120b !important;
+}
+
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog :is([class*="text-white"],[class*="text-primary"],svg):not(:where(button,button *,[data-rsvp-status],[data-rsvp-status] *,[data-save-state],[class*="groupSectionHeading"],[class*="categoryLabel"],[class*="categoryOption"],[class*="text-green"],[class*="text-red"],[class*="text-warning"],[class*="text-destructive"],[data-print-mirror-document],[data-print-mirror-document] *,[data-qr-media-document],[data-qr-media-document] *,[class*="bg-black"] *)) { color:#21120b !important; -webkit-text-fill-color:currentColor !important; stroke:currentColor !important; }
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog :is(button[aria-label="Close"],button[role="combobox"]),html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog > button:last-child:not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]),html[data-qr-guest-theme="cream"] .ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu.ww-public-live-menu { border-color:#21120b !important; }
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog :is(button[aria-label="Close"],button[role="combobox"]) svg,html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog > button:last-child svg { color:#21120b !important; stroke:#21120b !important; }
+
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] [data-guest-welcome] :is(svg,svg *):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) { filter:none !important; stroke:#21120b !important; }
+
+/* Existing-plan UI states are interface, not authored plan media. Only these
+   direct placeholder/status children cross the protected document boundary. */
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog [data-qr-media-document] > :is(.text-center.py-8,[role="status"],[role="alert"]),html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog [data-qr-media-document] > :is(.text-center.py-8,[role="status"],[role="alert"]) :is(p,span,svg,svg *) {
+  color:#21120b !important;
+  -webkit-text-fill-color:#21120b !important;
+  stroke:currentColor !important;
+}
+html[data-qr-guest-theme="cream"] .ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog.ww-public-live-dialog [data-qr-media-document] > .flex.items-center.justify-center.py-12 > .animate-spin,
+html[data-qr-guest-theme="cream"] #root#root#root [class*="stateCard"] .animate-spin {
+  border-color:#21120b !important;
+  border-top-color:transparent !important;
+}
+
+
+
+/* Requested QR guest text and action-button polish, 10 November 2026. */
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] input[data-guest-name-search] {
+  text-align: center !important;
+  padding-inline: 40px !important;
+  font-family: Manrope, ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 20px !important;
+  font-weight: 400 !important;
+}
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] [data-qr-invitation-heading],
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] [data-qr-verification-explanation] {
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  gap: 12px;
+  text-align: center !important;
+}
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] :is([data-qr-invitation-heading],[data-qr-verification-explanation]),
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] :is([data-qr-invitation-heading],[data-qr-verification-explanation]) > span {
+  color: #2a1b12 !important;
+  -webkit-text-fill-color: #2a1b12 !important;
+}
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] :is([data-qr-invitation-heading],[data-qr-verification-explanation]),
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] :is([data-qr-invitation-heading],[data-qr-verification-explanation]) > span,
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] button:is([data-inline-editor-toggle],[data-qr-verification-send]),
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] button[data-inline-editor-toggle] > [data-qr-action-label] {
+  font-family: Manrope, ui-sans-serif, system-ui, sans-serif !important;
+  font-size: 20px !important;
+  font-weight: 400 !important;
+  line-height: 28px !important;
+  text-align: center !important;
+}
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] button:is([data-inline-editor-toggle],[data-qr-verification-send]) {
+  position: relative;
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  height: auto !important;
+  min-height: 56px !important;
+  padding: 12px 24px !important;
+  border: 0 !important;
+  border-radius: 9999px !important;
+  background: linear-gradient(180deg, #7bd880, #55a447) !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  box-shadow: inset 0 1px 0 #ffffff80, inset 0 -2px 0 #37652d66, 0 4px 10px #426a2a30 !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,.55);
+  text-decoration: none !important;
+  white-space: normal;
+  max-width: 100%;
+}
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] button[data-inline-editor-toggle] {
+  display: flex;
+  width: 100%;
+  padding-inline: 44px !important;
+}
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] button[data-inline-editor-toggle] > [data-qr-action-label] {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,.55);
+}
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] button:is([data-inline-editor-toggle],[data-qr-verification-send]):hover {
+  filter: brightness(1.04);
+}
+html[data-qr-guest-theme="cream"] #root#root#root [data-qr-guest-page] [data-qr-verification-gate] {
+  padding-block: 24px;
+}

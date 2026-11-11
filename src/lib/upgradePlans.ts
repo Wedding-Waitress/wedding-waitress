@@ -29,7 +29,7 @@ export const PLAN_DETAILS: Record<PlanKey, PlanDetail> = {
     description: "Up to 100 guests · 1 event included · 3 account users",
     features: [
       "1 event included",
-      "Add extra events for A$99 each",
+      "Add extra events for A$99 each including GST",
       "Up to 3 account users",
       "Up to 100 guests",
       "Full platform access",
@@ -44,7 +44,7 @@ export const PLAN_DETAILS: Record<PlanKey, PlanDetail> = {
     description: "Up to 200 guests · 1 event included · 3 account users",
     features: [
       "1 event included",
-      "Add extra events for A$99 each",
+      "Add extra events for A$99 each including GST",
       "Up to 3 account users",
       "Up to 200 guests",
       "Full platform access",

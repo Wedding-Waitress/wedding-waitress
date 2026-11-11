@@ -1,4 +1,5 @@
 // Slideshow Preview — 16:9 preview that mirrors the real Live Slideshow behaviour.
+import { guestbookMemoryPoster } from '../../../../supabase/functions/_shared/guestbook-memory-poster';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import slideshowLogo from '@/assets/wedding-waitress-slideshow-logo.png';
 import { Card } from '@/components/ui/card';
@@ -29,12 +30,14 @@ export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, eventName,
   const [paused, setPaused] = useState(false);
   const [isFs, setIsFs] = useState(false);
   const [assetFailed,setAssetFailed] = useState(false);
+  const videoRef = useRef<HTMLVideoElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const stageRef = useRef<HTMLDivElement | null>(null);
   const timerRef = useRef<number | null>(null);
 
   // Only approved, uploaded, non-guestbook photos/videos are eligible — same rule as the live route.
   const eligible = useMemo(() => {
-    const approved = guestVisibleItems(items).filter(i => !!i.signed_url);
+    const approved = [...guestVisibleItems(items),...items.filter(i=>i.source_category==='video_wishes'&&i.shared_to_slideshow&&i.moderation_status==='approved')].filter(i => !!i.signed_url);
     return applySlideshowSettings(approved, settings);
   }, [items, settings]);
 
@@ -56,12 +59,18 @@ export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, eventName,
 
   const current = eligible.length ? eligible[Math.min(index, eligible.length - 1)] : null;
   useEffect(()=>{setAssetFailed(false);},[current?.id,current?.signed_url]);
+  useEffect(() => {
+    const video = current?.kind === 'audio' ? audioRef.current : videoRef.current;
+    if (!video) return;
+    if (paused) video.pause();
+    else video.play()?.catch(() => {});
+  }, [paused, current?.id, current?.signed_url]);
   const stopForAssetError=()=>{setAssetFailed(true);setPaused(true);};
 
   useEffect(() => {
     if (timerRef.current) { window.clearTimeout(timerRef.current); timerRef.current = null; }
     if (!current || paused || (strictAssets && assetFailed)) return;
-    const ms = current.kind === 'photo' ? settings.slide_duration_sec * 1000 : MAX_VIDEO_MS;
+    const ms = current.kind === 'photo' ? settings.slide_duration_sec * 1000 : current.kind === 'audio' ? Math.max(settings.slide_duration_sec * 1000,(current.duration_sec || 60)*1000) : MAX_VIDEO_MS;
     timerRef.current = window.setTimeout(advance, ms);
     return () => { if (timerRef.current) window.clearTimeout(timerRef.current); };
   }, [current?.id, paused, settings.slide_duration_sec, advance, strictAssets, assetFailed]); // eslint-disable-line react-hooks/exhaustive-deps
@@ -138,8 +147,14 @@ export const GallerySlideshowPreviewCard: React.FC<Props> = ({ items, eventName,
             onError={strictAssets ? stopForAssetError : undefined}
             className={`absolute inset-0 w-full h-full object-contain ${transitionClass}`}
           />
+        ) : current.kind === 'audio' ? (
+          <>
+            <img src={guestbookMemoryPoster(current.caption || '♫',current.uploader_name)} alt={current.caption || current.uploader_name || ''} className="absolute inset-0 w-full h-full object-contain" />
+            <audio ref={audioRef} key={current.id} src={current.signed_url} autoPlay={!paused} controls onEnded={advance} onError={strictAssets ? stopForAssetError : advance} className="absolute bottom-16 left-[10%] w-[80%] z-20" />
+          </>
         ) : (
           <video
+            ref={videoRef}
             key={current.id}
             src={current.signed_url}
             autoPlay={!paused}

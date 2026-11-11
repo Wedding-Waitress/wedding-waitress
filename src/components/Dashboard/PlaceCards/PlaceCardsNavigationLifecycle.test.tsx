@@ -114,3 +114,5 @@ describe('Name Place Cards dashboard navigation lifecycle', () => {
     expect(screen.getByRole('heading', { name: 'Table Name Place Cards' })).toBeInTheDocument();
   });
 });
+
+it('associates the event and table selectors with their visible labels',()=>{render(<PlaceCardsPage selectedEventId="event-1"onEventSelect={vi.fn()}events={[{id:'event-1',name:'Existing wedding'}as any]}eventsLoading={false}/>);expect(screen.getByRole('combobox',{name:'Choose Event:'})).toBeInTheDocument();expect(screen.getByRole('combobox',{name:'Table:'})).toBeInTheDocument();});

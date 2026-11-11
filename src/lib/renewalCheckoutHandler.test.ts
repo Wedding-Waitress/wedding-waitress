@@ -3,9 +3,10 @@ import ts from 'typescript';
 import { describe, expect, it, vi } from 'vitest';
 import { isMinimalConsentedRenewalRequest, isVerifiedClosedRenewalDecision } from '../../supabase/functions/_shared/renewalRecoveryRules';
 import { PAID_PLAN_CATALOGUE_VERSION, PAID_PLAN_LIVE_CHECKOUT_ENABLED } from '../../supabase/functions/_shared/paidPlanFulfillmentEvidence';
+import { retrieveWorldwideGstRate, validateWorldwideGstCustomer, worldwideGstLineItem, WORLDWIDE_GST_RATE_SECRET } from '../../supabase/functions/_shared/worldwideGst';
 const owner = 'aaaaaaaa-aaaa-4aaa-8aaa-aaaaaaaaaaaa';
 const body = { plan_type: 'essential', purchase_consent: true, plan_purchase_purpose: 'renewal', pricing_currency: 'AUD', mode: 'payment', ui_mode: 'embedded' };
-function fixture({ status = 'closed', held = false, master = false, retainedMaster = true,
+function fixture({ liveEnabled = PAID_PLAN_LIVE_CHECKOUT_ENABLED, status = 'closed', held = false, master = false, retainedMaster = true,
   decisionValid = true, authenticated = true, liveKey = false } = {}) {
   const rpc = vi.fn(async (name: string) => ({ data: name === 'is_account_operational' ? status !== 'closed'
     : name === 'is_account_master' ? master : name === 'get_my_customer_entitlement' ? { status }
@@ -17,20 +18,21 @@ function fixture({ status = 'closed', held = false, master = false, retainedMast
     data: { user: authenticated ? { id: owner, email: 'owner@isolated.test' } : null }, error: null })) } };
   const createSession = vi.fn(async () => ({ id: 'cs_test_Isolated', client_secret: 'isolated-client-secret' }));
   const createCustomer = vi.fn();
-  const stripe = { customers: { list: vi.fn(async () => ({ data: [{ id: 'cus_Isolated' }] })), create: createCustomer },
+  const stripe = { customers: { list: vi.fn(async () => ({ has_more: false, data: [{ object: 'customer', id: 'cus_Isolated', livemode: false, tax_exempt: 'none', metadata: { user_id: owner } }] })), create: createCustomer },
+    taxRates: { retrieve: vi.fn(async () => ({ object: 'tax_rate', id: 'txr_fixture', active: true, livemode: false, inclusive: false, percentage: 10, tax_type: 'gst' })) },
     checkout: { sessions: { create: createSession } } };
   const guard = vi.fn(async () => held ? new Response('held', { status: 403 }) : null);
   const env: Record<string, string> = { SUPABASE_URL: 'https://isolated.test', SUPABASE_ANON_KEY: 'isolated-public',
     SUPABASE_SERVICE_ROLE_KEY: 'isolated-service', STRIPE_SECRET_KEY: liveKey ? 'sk_live_Isolated' : 'sk_test_Isolated',
-    STRIPE_PUBLISHABLE_KEY: 'pk_test_Isolated' };
+    STRIPE_PUBLISHABLE_KEY: 'pk_test_Isolated', STRIPE_WORLDWIDE_GST_RATE_ID: 'txr_fixture' };
   let handler!: (request: Request) => Promise<Response>;
   const source = readFileSync('supabase/functions/create-checkout/index.ts', 'utf8').replace(/^import .*$/gm, '');
   const compiled = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.None } }).outputText;
   new Function('guardSuspendedCustomer', 'serve', 'Stripe', 'createClient', 'Deno', 'console',
-    'PAID_PLAN_CATALOGUE_VERSION', 'PAID_PLAN_LIVE_CHECKOUT_ENABLED', 'isMinimalConsentedRenewalRequest', 'isVerifiedClosedRenewalDecision', compiled)(
+    'PAID_PLAN_CATALOGUE_VERSION', 'PAID_PLAN_LIVE_CHECKOUT_ENABLED', 'isMinimalConsentedRenewalRequest', 'isVerifiedClosedRenewalDecision', 'retrieveWorldwideGstRate', 'validateWorldwideGstCustomer', 'worldwideGstLineItem', 'WORLDWIDE_GST_RATE_SECRET', compiled)(
     guard, (callback: typeof handler) => { handler = callback; }, function () { return stripe; }, () => client,
     { env: { get: (name: string) => env[name] } }, { log: vi.fn(), error: vi.fn() }, PAID_PLAN_CATALOGUE_VERSION,
-    PAID_PLAN_LIVE_CHECKOUT_ENABLED, isMinimalConsentedRenewalRequest, isVerifiedClosedRenewalDecision);
+    liveEnabled, isMinimalConsentedRenewalRequest, isVerifiedClosedRenewalDecision, retrieveWorldwideGstRate, validateWorldwideGstCustomer, worldwideGstLineItem, WORLDWIDE_GST_RATE_SECRET);
   const request = (changes = {}) => new Request('https://isolated.test', { method: 'POST',
     headers: { Authorization: 'Bearer isolated-session', origin: 'http://localhost:8080' }, body: JSON.stringify({ ...body, ...changes }) });
   return { handler, request, rpc, query, guard, createSession, createCustomer, client };
@@ -66,8 +68,8 @@ describe('actual minimal renewal checkout handler with isolated adapters', () =>
     expect(app.rpc).not.toHaveBeenCalled();
     expect(app.createSession).not.toHaveBeenCalled();
   });
-  it('never creates a live package checkout while separate live activation is unapproved', async () => {
-    const app = fixture({ liveKey: true });
+  it('retains the server kill switch when live checkout is explicitly disabled', async () => {
+    const app = fixture({ liveKey: true, liveEnabled: false });
     expect((await app.handler(app.request())).status).toBe(503);
     expect(app.createSession).not.toHaveBeenCalled();
   });

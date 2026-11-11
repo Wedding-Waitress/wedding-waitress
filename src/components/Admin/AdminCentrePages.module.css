@@ -88,3 +88,55 @@
 .accountDetailCard summary { cursor:pointer; }
 .accountDetailCard dt { margin-top:8px; font-weight:600; }
 .accountDetailCard dd { margin:4px 0; }
+
+/* Compact, readable overview summaries only. */
+.overviewPage { display:grid; grid-template-columns:repeat(2,minmax(0,1fr)); gap:16px; padding:18px; align-items:start; }
+.overviewPage > .freshness, .overviewPage > .loading, .overviewPage > .unavailable { grid-column:1/-1; }
+.overviewPage .section { min-width:0; }
+.overviewPage .section + .section { margin-top:0; }
+.overviewPage .sectionHeader { margin-bottom:8px; }
+.overviewPage .metrics { grid-template-columns:1fr; gap:4px; }
+.overviewPage .metric { display:flex; align-items:center; justify-content:space-between; gap:12px; padding:6px 10px; border-radius:7px; }
+.overviewPage .metric span { min-width:0; line-height:1.35; }
+.overviewPage .metric strong { flex-shrink:0; margin:0; font-size:17px; line-height:1.35; font-variant-numeric:tabular-nums; }
+.overviewPage .empty { padding:12px; text-align:left; }
+.overviewPage .attentionList li, .overviewPage .activityList li { padding:7px 10px; gap:8px; flex-wrap:wrap; }
+@media(max-width:767px) { .overviewPage { grid-template-columns:1fr; padding:12px; gap:14px; } }
+
+/* Six vertical summary cards, with attention kept below. */
+.overviewPage { grid-template-columns:repeat(6,minmax(0,1fr)); gap:10px; padding:12px; }
+.overviewPage > .section { padding:12px 10px; border:1px solid var(--dashboard-border); border-radius:6px; background:var(--dashboard-card); }
+.overviewPage .sectionHeader { align-items:flex-start; min-height:42px; }
+.overviewPage .sectionHeader h2 { font-size:15px; font-weight:700; line-height:1.35; overflow-wrap:anywhere; }
+.overviewPage .sectionHeader p { font-size:11px; line-height:1.4; }
+.overviewPage .metric { display:block; padding:8px 0; border:0; border-bottom:1px solid var(--dashboard-border); border-radius:0; background:transparent; box-shadow:none; }
+.overviewPage .metric span { font-size:12px; }
+.overviewPage .metric strong { margin-top:3px; font-size:18px; overflow-wrap:anywhere; }
+.overviewPage > [data-admin-summary='Needs Attention'] { grid-column:1/-1; }
+.overviewPage > [data-admin-summary='Needs Attention'] .sectionHeader { min-height:0; }
+@media(max-width:1279px) { .overviewPage { grid-template-columns:repeat(3,minmax(0,1fr)); } }
+@media(max-width:767px) { .overviewPage { grid-template-columns:repeat(2,minmax(0,1fr)); } }
+@media(max-width:479px) { .overviewPage { grid-template-columns:1fr; } }
+
+/* Shared compact Admin typography, matching the approved Overview. */
+.page { padding:12px; }
+.sectionHeader { margin-bottom:8px; gap:10px; }
+.sectionHeader h2 { font-size:15px; font-weight:700; line-height:1.35; }
+.sectionHeader p { font-size:12px; line-height:1.4; }
+.section + .section { margin-top:16px; }
+.metrics { gap:8px; }
+.metric { min-height:0; padding:9px 10px; border-radius:6px; }
+.metric span { font-size:12px; line-height:1.35; }
+.metric strong { margin-top:3px; font-size:18px; line-height:1.35; font-variant-numeric:tabular-nums; }
+.page .table th, .page .table td { font-size:12px; padding:8px 10px; line-height:1.4; }
+.page .empty { padding:14px 12px; }
+@media(max-width:639px) { .page { padding:12px; } .sectionHeader { gap:6px; } }
+
+.supportTools { min-width:0; }
+.supportTools h3 { margin:20px 0 10px; font-size:14px; font-weight:600; }
+.supportTools article { margin-top:12px; padding:12px; border:1px solid var(--dashboard-border); border-radius:10px; background:var(--dashboard-card); }
+.supportTools article p { margin:0 0 8px; }
+.dialogText .supportReplyReview { flex-direction:row; align-items:flex-start; gap:8px; }
+.supportReplyReview input[type="checkbox"] { flex:0 0 18px; width:18px; min-height:18px; height:18px; margin:0; padding:0; }
+
+.healthIssueList{display:grid;gap:12px}.healthIssue{padding:14px;border:1px solid #b99364;border-radius:12px;background:#fff8ed}.healthIssueHeading{display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}.healthIssueHeading h3{margin:0;font-size:15px}.healthIssueState{padding:3px 9px;border-radius:999px;background:#f5e2c7;color:#633415;font-size:12px}.healthReview{display:flex;align-items:center;gap:8px;width:fit-content;margin-top:12px;min-height:40px;cursor:pointer}.healthReview input[type=checkbox]{width:18px;height:18px;flex:0 0 18px;margin:0;accent-color:#806344}.healthReviewNote{font-size:12px;line-height:1.5}.healthAllChecks{border:1px solid #c6b498;border-radius:14px;margin-top:18px;overflow:hidden}.healthAllChecks>summary{cursor:pointer;min-height:44px;padding:14px 16px;font-weight:600;overflow-wrap:anywhere}.healthAllChecks>summary:focus-visible{outline:2px solid #806344;outline-offset:-4px}.healthAllChecksBody{padding:0 14px 14px}.healthIssue p{overflow-wrap:anywhere}

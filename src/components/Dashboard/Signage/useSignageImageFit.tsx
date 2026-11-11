@@ -3,6 +3,7 @@ import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription, Di
 import { Button } from '@/components/ui/enhanced-button';
 import { signageImageCrop, type SignPaper } from '@/lib/signageImageFit';
 import { toast } from '@/hooks/use-toast';
+import { loadSignageImageSize } from '@/lib/signageImageCache';
 
 interface FitRequest { url: string; paper: SignPaper; imageWidth: number; imageHeight: number; x: number; y: number; key: string; }
 const fitKey = (url: string, paper: SignPaper, x: number, y: number) => `${url}|${paper.widthMm}|${paper.heightMm}|${x}|${y}`;
@@ -22,28 +23,44 @@ export function useSignageImageFit() {
   const rememberFit = useCallback((url: string, paper: SignPaper, x = 50, y = 50) => {
     approvals.current.add(fitKey(url, paper, x, y));
   }, []);
-  const confirmFit = useCallback(async (url: string, paper: SignPaper, x = 50, y = 50): Promise<boolean> => {
+  const confirmFit = useCallback(async (url: string, paper: SignPaper, x = 50, y = 50, measurementUrl = url, signal?: AbortSignal): Promise<boolean> => {
+    if (signal?.aborted) return false;
     const key = fitKey(url, paper, x, y);
     if (approvals.current.has(key)) return true;
     const currentVersion = ++version.current;
     pending.current?.(false);
     pending.current = null;
     setRequest(null);
+    const cancel = () => {
+      if (version.current !== currentVersion) return;
+      version.current++;
+      pending.current?.(false);
+      pending.current = null;
+      setRequest(null);
+    };
+    signal?.addEventListener('abort', cancel, { once: true });
     try {
-      const image = new Image();
-      image.src = url;
-      await image.decode();
+      // Gallery previews preserve the master's aspect ratio. Measuring the
+      // cached preview avoids downloading a print master just to check cropping.
+      let dimensions;
+      try { dimensions = await loadSignageImageSize(measurementUrl); }
+      catch (error) {
+        if (measurementUrl === url || version.current !== currentVersion) throw error;
+        dimensions = await loadSignageImageSize(url);
+        measurementUrl = url;
+      }
       if (version.current !== currentVersion) return false;
-      const crop = signageImageCrop(image.naturalWidth, image.naturalHeight, paper, x, y);
-      if (!crop.needsApproval) return true;
-      return new Promise<boolean>(resolve => {
+      const crop = signageImageCrop(dimensions.width, dimensions.height, paper, x, y);
+      if (!crop.needsApproval) { approvals.current.add(key); return true; }
+      return await new Promise<boolean>(resolve => {
         pending.current = resolve;
-        setRequest({ url, paper, imageWidth: image.naturalWidth, imageHeight: image.naturalHeight, x, y, key });
+        setRequest({ url: measurementUrl, paper, imageWidth: dimensions.width, imageHeight: dimensions.height, x, y, key });
       });
     } catch {
+      if (signal?.aborted || version.current !== currentVersion) return false;
       toast({ title: 'Image could not be checked', description: 'Please choose a valid image and try again.', variant: 'destructive' });
       return false;
-    }
+    } finally { signal?.removeEventListener('abort', cancel); }
   }, []);
   const crop = request && signageImageCrop(request.imageWidth, request.imageHeight, request.paper, request.x, request.y);
   const dialog = request && crop ? (

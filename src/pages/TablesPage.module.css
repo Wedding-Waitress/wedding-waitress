@@ -23,7 +23,7 @@
 :global(.ww-tables-popover),
 :global(.ww-tables-toast) {
   font-size: 13px;
-  font-weight: 400;
+  font-weight: 600;
   line-height: 18px;
 }
 
@@ -42,7 +42,7 @@
   overflow-wrap: anywhere;
   white-space: normal;
   font-size: 20px !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
 }
 
 :global(#root) .mainSurface .page :is([class~="text-xs"], [class~="text-sm"], [class~="text-base"], [class~="text-lg"], [class*="text-[1"]),
@@ -64,7 +64,7 @@
 :global(.ww-tables-popover) :is(p, li, div),
 :global(.ww-tables-toast) :is([data-title], [data-description]) {
   font-size: 13px !important;
-  font-weight: 400 !important;
+  font-weight: 600 !important;
   line-height: 18px !important;
 }
 
@@ -78,7 +78,7 @@
 }
 
 :global(.ww-tables-toast) > div > :not(:first-child) {
-  font-weight: 400 !important;
+  font-weight: 600 !important;
 }
 
 :global(#root) .mainSurface .page :is(label, th),
@@ -95,13 +95,13 @@
 :global(.ww-tables-dialog) :is(button, [role="button"]),
 :global(.ww-tables-menu) :is(button, [role="option"], [role="menuitem"]) {
   font-size: 13px !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-table-guest-chip),
 :global(#root) .mainSurface .page :global(.ww-table-guest-chip) span {
   font-size: 13px !important;
-  font-weight: 400 !important;
+  font-weight: 600 !important;
   line-height: 18px !important;
 }
 
@@ -114,7 +114,7 @@
 
 :global(#root) .mainSurface .stats :global(.ww-stat-value) {
   font-size: 20px !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
 }
 
 :global(#root) .mainSurface .page :global(.ww-table-card) :is([class*="rounded-full"][class*="font-bold"], [class*="rounded-full"][class*="font-semibold"]),
@@ -285,7 +285,7 @@
   color: var(--tables-text) !important;
   font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif !important;
   font-size: 13px !important;
-  font-weight: 400 !important;
+  font-weight: 600 !important;
   line-height: 18px !important;
   letter-spacing: -0.01em;
 }
@@ -297,7 +297,7 @@
   border: 1px solid #22c55e !important;
   background: linear-gradient(180deg, #4ade80 0%, #22c55e 58%, #16a34a 100%) !important;
   font-size: 13px !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
   box-shadow:
     inset 0 1px 0 rgba(255, 255, 255, 0.28),
     0 8px 18px rgba(22, 163, 74, 0.28) !important;
@@ -569,9 +569,9 @@
 
 /* Approved Create Tables action style. */
 :global(#root#root) .mainSurface .page .setupPanel button[class*="bg-green"] {
-  min-height:40px !important;
+  min-height:30px !important;
   height:auto !important;
-  padding:10px 16px !important;
+  padding:5px 12px !important;
   border:0 !important;
   border-radius:9999px !important;
   font-family:Manrope,ui-sans-serif,system-ui,sans-serif;
@@ -596,9 +596,9 @@
 
 /* Table-card Edit/Delete actions use the approved pill treatment. */
 :global(#root#root) .mainSurface .page .tablesPanel button:is([aria-label="Edit table"],[aria-label="Delete table"]) {
-  min-height:40px !important;
+  min-height:30px !important;
   height:auto !important;
-  padding:10px 16px !important;
+  padding:5px 12px !important;
   border:0 !important;
   border-radius:9999px !important;
   font-family:Manrope,ui-sans-serif,system-ui,sans-serif;
@@ -629,3 +629,33 @@
 :global(#root#root) .mainSurface .page .tablesPanel button:is([aria-label="Edit table"],[aria-label="Delete table"]) span {
   -webkit-text-fill-color:#fff !important;
 }
+
+/* Reviewed semibold body text, including feature-owned dropdown portals. */
+:global(#root#root) .mainSurface .page :is(span,div),
+:global(#root#root) .mainSurface .stats p,
+.eventMenu.eventMenu :is([role="option"],span),
+:global(.ww-tables-dialog) :is(p,span,input,button,[role="combobox"]),
+:global(.ww-tables-menu) :is([role="option"],span) { font-weight:600 !important; }
+:global(#root#root) .mainSurface .page .tablesPanel .emptyStateAction,
+:global(#root#root) .mainSurface .page .tablesPanel button[class*="bg-[#967A59]"] {
+ min-height:30px !important; height:auto !important; padding:5px 12px !important;
+ border:0 !important; border-radius:9999px !important; font-size:14px !important; line-height:20px !important;
+ white-space:normal !important; color:#fff !important; -webkit-text-fill-color:#fff !important;
+}
+:global(#root#root) .mainSurface .page .tablesPanel .emptyStateAction {
+ background:linear-gradient(180deg,#7bd880,#55a447) !important;
+ box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30 !important;
+}
+:global(.ww-tables-dialog) button:not([aria-label]):not([class*="absolute"]) {
+ min-height:30px !important; height:auto !important; padding:5px 12px !important;
+ border-radius:9999px !important; font-size:14px !important; line-height:20px !important;
+}
+@media (max-width:1023px), (pointer:coarse) {
+ :global(#root#root) .mainSurface .page .tablesPanel :global(.ww-table-card) > div > div:last-child { gap:16px !important; }
+ :global(#root#root) .mainSurface .page button:is([aria-label="Edit table"],[aria-label="Delete table"]),
+ :global(#root#root) .mainSurface .page .setupPanel button[class*="bg-green"] { position:relative; }
+ :global(#root#root) .mainSurface .page button:is([aria-label="Edit table"],[aria-label="Delete table"])::after,
+ :global(#root#root) .mainSurface .page .setupPanel button[class*="bg-green"]::after { content:''; position:absolute; inset:-7px 0; }
+}
+:global(#root#root) .mainSurface .page .tablesPanel :global(.ww-table-card)[class*="border-emerald-600"]:not([class*="border-blue-500"]) { border:2px solid #55a447 !important; background:#eaf5e7 !important; }
+:global(.ww-tables-popover) { border:0 !important; outline:none !important; }

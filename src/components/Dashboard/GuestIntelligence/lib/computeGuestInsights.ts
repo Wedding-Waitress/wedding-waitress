@@ -151,7 +151,7 @@ const CATEGORY_DEFS: Array<{ key: string; label: string; patterns: RegExp; tone:
 
 const isMissingDietary = (d: string) => {
   const v = d.trim().toLowerCase();
-  return !v || v === 'na' || v === 'n/a' || v === 'none' || v === 'no' || v === '-';
+  return !v || v === 'na' || v === 'n/a' || v === '-';
 };
 
 export const computeDietaryInsights = (guests: Guest[]): DietaryInsights => {
@@ -168,6 +168,8 @@ export const computeDietaryInsights = (guests: Guest[]): DietaryInsights => {
       missing++;
       continue;
     }
+    // An explicit 'none' or 'no' is completed dietary information, not a missing answer.
+    if (['none', 'no'].includes(d.trim().toLowerCase())) continue;
     totalWithDietary++;
     map.set(d, (map.get(d) ?? 0) + 1);
     let matched = false;

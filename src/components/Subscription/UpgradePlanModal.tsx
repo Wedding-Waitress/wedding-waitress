@@ -22,6 +22,7 @@ import { useAccountSeats } from '@/hooks/useAccountSeats';
 import {
   PLAN_REGISTRY,
   getPlanByName,
+  getWeddingPlanUpgrades,
   type PlanKey,
 } from '@/lib/planRegistry';
 import { formatPrice } from '@/lib/currencyPricing';
@@ -34,16 +35,10 @@ interface Props {
   onOpenChange: (open: boolean) => void;
 }
 
-const TIER_RANK: Record<PlanKey, number> = {
-  essential: 1,
-  premium: 2,
-  unlimited: 3,
-  vendor_pro: 4,
-};
 
 export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
   const navigate = useNavigate();
-  const { plan } = useUserPlan();
+  const { plan, hasPlatformOwnerAccess } = useUserPlan();
   const { includedEvents, additionalPurchased, currentEvents } = useEventLimits();
   const { usedSeats, maxSeats } = useAccountSeats();
 
@@ -52,9 +47,8 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
   const [overageOpen, setOverageOpen] = useState(false);
   const [overageEventId, setOverageEventId] = useState<string | null>(null);
 
-  const currentRegistry = getPlanByName(plan?.plan_name);
+  const currentRegistry = hasPlatformOwnerAccess ? null : getPlanByName(plan?.plan_name);
   const currentKey: PlanKey | null = currentRegistry?.key ?? null;
-  const currentRank = currentKey ? TIER_RANK[currentKey] : 0;
 
   // Pull live guest + overage stats only when the modal opens.
   useEffect(() => {
@@ -89,23 +83,23 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
     return () => { cancelled = true; };
   }, [open]);
 
-  const guestLimit = currentRegistry?.limits.guests ?? plan?.guest_limit ?? null;
+  const guestLimit = hasPlatformOwnerAccess ? null : currentRegistry?.limits.guests ?? plan?.guest_limit ?? null;
   const totalGuestCapacity = guestLimit != null ? guestLimit + overagePackGuests : null;
   const approachingCap =
     totalGuestCapacity != null && guestCount >= Math.max(1, Math.floor(totalGuestCapacity * 0.8));
 
   // Build the upgrade option list — strictly higher tiers only.
-  const upgradeOptions = useMemo(() => {
-    return (Object.values(PLAN_REGISTRY) as Array<typeof PLAN_REGISTRY[PlanKey]>).filter(
-      (p) => p.key !== 'vendor_pro' && TIER_RANK[p.key] > currentRank,
-    );
-  }, [currentRank]);
+  const upgradeOptions = useMemo(() => getWeddingPlanUpgrades(hasPlatformOwnerAccess ? null : plan?.plan_name), [hasPlatformOwnerAccess, plan?.plan_name]);
 
   const currentPlanPriceAud = currentKey
     ? PLAN_REGISTRY[currentKey].prices.AUD.price
     : 0;
 
   const handleSelect = (targetKey: PlanKey) => {
+    if (hasPlatformOwnerAccess) {
+      toast.info('Platform owner access already includes all features. Checkout is unavailable for this account.');
+      return;
+    }
     if (!PACKAGE_CHECKOUT_AVAILABLE) {
       toast.info(PACKAGE_CHECKOUT_NOTICE);
       return;
@@ -120,6 +114,7 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
   };
 
   const renderCurrentPlanName = () => {
+    if (hasPlatformOwnerAccess) return 'Platform Owner Access';
     if (!plan?.plan_name || /^(free|starter)$/i.test(plan.plan_name)) return 'Free Trial';
     return currentRegistry?.name ?? plan.plan_name;
   };
@@ -134,10 +129,10 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
           <DialogHeader className="px-6 pt-12 pb-2 max-lg:px-4 max-lg:pt-12">
             <DialogTitle className="text-center text-xl font-semibold flex items-center justify-center gap-2">
               <Sparkles className="h-5 w-5" style={{ color: '#967A59' }} />
-              Upgrade your plan
+              {hasPlatformOwnerAccess ? 'View customer packages' : 'Upgrade your plan'}
             </DialogTitle>
             <p className="text-xs text-muted-foreground/80 text-center mt-1.5">
-              Move up anytime — you'll only pay the difference between your current and new plan.
+              {hasPlatformOwnerAccess ? 'Your platform owner access already includes all features. These are customer packages; checkout is disabled for this account.' : currentKey ? 'Move up anytime — you’ll only pay the difference between your current and new plan.' : 'Choose a package now for 12 months of access. Your new allowance starts after checkout is confirmed.'}
             </p>
           </DialogHeader>
 
@@ -164,7 +159,7 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
                   <div>
                     <div className="text-muted-foreground text-xs">Events</div>
                     <div className="text-foreground font-medium">
-                      {currentEvents} used · {includedEvents + additionalPurchased} allowed
+                      {currentEvents} used · {hasPlatformOwnerAccess ? 'owner access' : (includedEvents + additionalPurchased) + ' allowed'}
                     </div>
                   </div>
                 </div>
@@ -174,7 +169,7 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
                     <div className="text-muted-foreground text-xs">Guest capacity</div>
                     <div className="text-foreground font-medium">
                       {guestCount} used ·{' '}
-                      {totalGuestCapacity != null ? `${totalGuestCapacity} allowed` : 'Unlimited'}
+                      {hasPlatformOwnerAccess ? 'no guest limit with owner access' : totalGuestCapacity != null ? `${totalGuestCapacity} allowed` : 'Unlimited'}
                     </div>
                   </div>
                 </div>
@@ -183,7 +178,7 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
                   <div>
                     <div className="text-muted-foreground text-xs">Account users</div>
                     <div className="text-foreground font-medium">
-                      {usedSeats} / {maxSeats}
+                      {hasPlatformOwnerAccess ? usedSeats + ' in account' : usedSeats + ' / ' + maxSeats}
                     </div>
                   </div>
                 </div>
@@ -317,12 +312,12 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
 
                       <Button
                         onClick={() => handleSelect(p.key)}
-                        disabled={!PACKAGE_CHECKOUT_AVAILABLE}
-                        title={!PACKAGE_CHECKOUT_AVAILABLE ? PACKAGE_CHECKOUT_NOTICE : undefined}
+                        disabled={hasPlatformOwnerAccess || !PACKAGE_CHECKOUT_AVAILABLE}
+                        title={hasPlatformOwnerAccess ? 'Owner access already includes all features; checkout is disabled.' : !PACKAGE_CHECKOUT_AVAILABLE ? PACKAGE_CHECKOUT_NOTICE : undefined}
                         size="sm"
                         className="lv-premium-shade w-full mt-4 bg-gradient-to-r from-[#B8946A] via-[#967A59] to-[#7d6649] hover:from-[#A88560] hover:via-[#7d6649] hover:to-[#6a5640] text-white rounded-full"
                       >
-                        {PACKAGE_CHECKOUT_AVAILABLE ? 'Continue to checkout' : 'Checkout coming soon'}
+                        {hasPlatformOwnerAccess ? 'Included with owner access' : PACKAGE_CHECKOUT_AVAILABLE ? 'Continue to checkout' : 'Checkout coming soon'}
                         <ArrowRight className="ml-1.5 h-4 w-4" />
                       </Button>
                     </div>

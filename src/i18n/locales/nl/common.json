@@ -1,4 +1,22 @@
 {
+  "guestbookSuccess": {
+    "thankYou": "Bedankt, {{name}}!",
+    "another": "Nog een bericht achterlaten",
+    "return": "Terug naar de app",
+    "received": "Bedankt voor je bijdrage aan het gastenboek."
+  },
+  "guestbookMessages": {
+    "textTitle": "Schrijf een bericht",
+    "audioTitle": "Neem een audiobericht op",
+    "videoTitle": "Neem een videobericht op",
+    "textAgain": "Nog een bericht schrijven",
+    "audioAgain": "Nog een audiobericht opnemen",
+    "videoAgain": "Nog een videobericht opnemen",
+    "textSaved": "Je geschreven bericht is opgeslagen.",
+    "audioSaved": "Je audiobericht is opgeslagen.",
+    "videoSaved": "Je videobericht is opgeslagen."
+  },
+  "guestbookBackToApp": "Terug naar de app",
   "privacyPolicy": "Privacybeleid",
   "termsOfService": "Servicevoorwaarden",
   "contact": "Contact",
@@ -21,5 +39,17 @@
   "edit": "Bewerken",
   "close": "Sluiten",
   "submit": "Verzenden",
-  "language": "Taal"
+  "language": "Taal",
+  "guestbookPrivacy": {
+    "intro": "Laat een geschreven bericht, audiobericht of videobericht achter, of combineer deze.",
+    "notice": "Je geschreven berichten, audio- en videoberichten worden gedeeld in de evenementgalerij en de live diavoorstelling."
+  },
+  "photoBoothSession": {
+    "capturedPhoto": "Gemaakte foto {{number}}",
+    "captureNote": "4 foto’s - 8 seconden aftellen",
+    "nameLabel": "Vul eerst je volledige naam in",
+    "namePlaceholder": "bijv. Sara de Vries",
+    "partial": "{{saved}} van {{total}} afbeeldingen opgeslagen. Tik op Downloaden en opslaan om de resterende afbeeldingen opnieuw te proberen. Opgeslagen foto's worden niet opnieuw geüpload.",
+    "captureFailed": "Er kon geen camerabeeld worden vastgelegd. Probeer de fotosessie opnieuw."
+  }
 }

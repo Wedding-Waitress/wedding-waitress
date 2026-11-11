@@ -56,4 +56,9 @@ describe('Full Seating Chart display settings', () => {
     expect(formatFullSeatingChartGuestDetails(untidy, true, false)).toBe('Halal/Nut Free');
     expect(formatFullSeatingChartGuestDetails(untidy, false, true)).toBe('Mahmoud/Uncle');
   });
+
+  it('does not render legacy Guest relationships', () => {
+    expect(formatFullSeatingChartGuestDetails({ relation_role: 'guest', relation_display: 'Reema / Guest' }, false, true)).toBe('');
+    expect(formatFullSeatingChartGuestDetails({ relation_display: 'Guest' }, false, true)).toBe('');
+  });
 });

@@ -1459,3 +1459,10 @@
 :global(#root#root#root) .designerShell :global(.ww-signage-reset-action) svg * {
  color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;
 }
+
+:global {
+
+/* Popular print-size badge stays white in every selection state. */
+#root [data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular],#root [data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular] svg{color:#fff!important;stroke:currentColor!important;opacity:1!important;-webkit-text-fill-color:#fff!important}#root [data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular]{border:1px solid #fff!important;background:#55a447!important}
+
+}

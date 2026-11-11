@@ -1,3 +1,4 @@
+import { template as customerPackagePurchase } from './customer-package-purchase.tsx';
 /// <reference types="npm:@types/react@18.3.1" />
 import * as React from 'npm:react@18.3.1'
 
@@ -19,6 +20,7 @@ import { template as accountTeamInvitation } from './account-team-invitation.tsx
 
 export const TEMPLATES: Record<string, TemplateEntry> = {
   'welcome': welcome,
+  'customer-package-purchase': customerPackagePurchase,
   'admin-new-signup': adminNewSignup,
   'admin-new-payment': adminNewPayment,
   'contact-form-message': contactFormMessage,

@@ -167,8 +167,9 @@ describe('printer-ready Photo Booth strip geometry', () => {
     const preview = fs.readFileSync(path.join(process.cwd(), 'src/components/Dashboard/PhotoVideoGallery/PhotoBoothTemplatePreview.tsx'), 'utf8');
     const guest = fs.readFileSync(path.join(process.cwd(), 'src/pages/GuestPhotoBooth.tsx'), 'utf8');
     expect(preview).toContain('await composeStrip(');
-    expect(guest).toContain('await composeStripBlob(nextPhotos, buildComposeOpts())');
-    expect(guest).toContain('const finalBlob = blob;');
-    expect(guest).toContain('const singles = mode === \'strip\' ? stripPhotos : [];');
+    expect(guest).toContain('await composeStripBlob(photos, buildComposeOpts())');
+    // Originals go straight into the save plan; only the completed strip is composed.
+    expect(guest).toContain('stripPhotos.map((blob, i) => ({blob, filename:');
+    expect(guest).toContain('await upload(output.blob,');
   });
 });

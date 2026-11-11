@@ -27,8 +27,10 @@ import { Input } from "@/components/ui/input";
 import { Label } from "@/components/ui/label";
 import { AlertTriangle, Trash2, X } from "lucide-react";
 import styles from './MyEventsPage.module.css';
+import controls from './MyEventsModalControls.module.css';
 
 interface DeleteConfirmationModalProps {
+  compactControls?: boolean;
   isOpen: boolean;
   onClose: () => void;
   onConfirm: () => void;
@@ -41,7 +43,8 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
   onClose,
   onConfirm,
   eventName,
-  isLoading = false
+  isLoading = false,
+  compactControls = false
 }) => {
   const [confirmText, setConfirmText] = useState('');
   const isConfirmValid = confirmText === 'DELETE';
@@ -60,8 +63,8 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
 
   return (
     <Dialog open={isOpen} onOpenChange={(open) => { if (!open) handleClose(); }}>
-      <DialogContent className={`sm:max-w-md ${styles.dialogRoot} ${styles.dialogWrap}`}>
-        <DialogHeader>
+      <DialogContent className={`sm:max-w-md ${styles.dialogRoot} ${styles.dialogWrap} ${compactControls ? controls.root : ''}`}>
+        <DialogHeader className={compactControls ? controls.deleteHeader : undefined}>
           <div className="flex items-center space-x-2 max-sm:items-start max-sm:pr-10">
             <AlertTriangle size={18} strokeWidth={1.8} className="text-destructive shrink-0" aria-hidden="true" />
             <DialogTitle className={`min-w-0 max-sm:text-left max-sm:leading-snug ${styles.dialogTitle}`}>You are deleting this event</DialogTitle>
@@ -88,8 +91,8 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
           />
         </div>
 
-        <DialogFooter className="flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2">
-          <Button variant="outline" onClick={handleClose} disabled={isLoading} className={`inline-flex items-center gap-1.5 ${styles.dialogButton}`}>
+        <DialogFooter className={`flex-col-reverse sm:flex-row sm:justify-end sm:space-x-2 ${compactControls ? controls.footer : ''}`}>
+          <Button variant="outline" onClick={handleClose} disabled={isLoading} className={`inline-flex items-center gap-1.5 ${styles.dialogButton} ${compactControls ? controls.action : ''}`}>
             <X size={18} strokeWidth={1.8} aria-hidden="true" />
             Cancel
           </Button>
@@ -97,7 +100,7 @@ export const DeleteConfirmationModal: React.FC<DeleteConfirmationModalProps> = (
             variant="destructive"
             onClick={handleConfirm}
             disabled={!isConfirmValid || isLoading}
-            className={`inline-flex items-center gap-1.5 ${styles.dialogButton}`}
+            className={`inline-flex items-center gap-1.5 ${styles.dialogButton} ${compactControls ? controls.action : ''}`}
           >
             <Trash2 size={18} strokeWidth={1.8} aria-hidden="true" />
             {isLoading ? 'Deleting...' : 'Delete Event'}

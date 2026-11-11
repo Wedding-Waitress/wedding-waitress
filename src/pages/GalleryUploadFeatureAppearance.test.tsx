@@ -34,6 +34,7 @@ vi.mock('@/hooks/useEventMediaGallery', () => ({
 vi.mock('@/components/SEO/SeoHead', () => ({ SeoHead: () => null }));
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
+    from: () => ({select: () => ({eq: () => ({order: async () => ({data: [], error: null})})})}),
     auth: {
       getSession: mocks.getSession,
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe: vi.fn() } } }),
@@ -130,15 +131,8 @@ describe('Photo & Video Sharing management appearance', () => {
     const backButton = screen.getByRole('button', { name: 'Back to Photo & Video Sharing' });
     expect(backButton).toHaveClass(managementStyles.glassAction);
 
-    const selectedEventLabel = screen.getByText('Selected event');
-    expect(selectedEventLabel.parentElement?.parentElement).toHaveClass(managementStyles.glassStatus);
-    expect(selectedEventLabel).toHaveClass(managementStyles.selectedEventLabel);
-    expect(screen.getByText(event.name)).toHaveClass(managementStyles.selectedEventName);
 
-    const onLabel = screen.getByText('On');
-    expect(onLabel).toHaveClass('text-white/85');
-    expect(onLabel).not.toHaveClass(managementStyles.selectedEventName);
-    expect(screen.getByRole('switch', { name: 'Photo & Video Sharing enabled' })).toBeChecked();
+    expect(screen.queryByRole('switch', { name: 'Photo & Video Sharing enabled' })).not.toBeInTheDocument();
 
     const upperHeadings = [
       screen.getByRole('heading', { name: 'Photo & Video Sharing Access', level: 2 }),
@@ -177,7 +171,7 @@ describe('Photo & Video Sharing management appearance', () => {
     expect(albumFilter).toHaveClass(managementStyles.galleryControl);
     expect(within(albumFilter).getByText('All Albums')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'All Albums' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Select' })).toHaveClass(managementStyles.galleryControl);
+    expect(screen.getAllByRole('button', { name: 'Select' }).find(b=>b.closest('[data-testid="gallery-toolbar"]'))).toHaveClass(managementStyles.galleryControl);
 
     const approvedBadge = screen.getByText('Approved', { selector: 'span.uppercase' });
     expect(approvedBadge).toHaveClass('bg-green-600/85', 'text-white');
@@ -274,8 +268,6 @@ describe('Photo & Video Sharing management appearance', () => {
     expect(css).toMatch(/\.upperGlassPill[\s\S]*:global\(svg\)[\s\S]*color:\s*#d9b77f\s*!important/);
     expect(css).toMatch(/\.upperGlassPill[\s\S]*:global\(\.tabular-nums\)[\s\S]*color:\s*#edc994\s*!important/);
     expect(css).not.toMatch(/\.legibleLight(?:Field|Control)/);
-    expect(css).toMatch(/\.selectedEventLabel[\s\S]*color:\s*#d9b77f\s*!important/);
-    expect(css).toMatch(/\.selectedEventName[\s\S]*color:\s*#fff\s*!important/);
   });
 
   it('keeps the default variants of the shared upper components unchanged', async () => {

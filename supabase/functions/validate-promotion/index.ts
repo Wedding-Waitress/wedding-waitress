@@ -1,3 +1,5 @@
+import Stripe from 'https://esm.sh/stripe@22.4.0';
+import { recoverExpiredPromotionCapacity } from '../_shared/promotionExpiryRecovery.ts';
 import { authenticatePromotionRequest } from '../_shared/promotionRequestAuth.ts';
 import { normalizePromotionCode, PROMOTION_PLANS } from '../_shared/promotionRules.ts';
 const headers = { 'Access-Control-Allow-Origin': '*', 'Access-Control-Allow-Headers': 'authorization,x-client-info,apikey,content-type', 'Content-Type': 'application/json' };
@@ -11,9 +13,14 @@ Deno.serve(async req => {
     if (body.purpose !== 'new_plan' || typeof body.plan_key !== 'string' || !Object.hasOwn(PROMOTION_PLANS, body.plan_key)) return reply({ error: 'Promo codes apply only to a first package purchase.' }, 400);
     let code: string;
     try { code = normalizePromotionCode(body.code); } catch { return reply({ error: 'Enter a valid promo code.' }, 400); }
+    const key = Deno.env.get('STRIPE_PROMOTIONS_RESTRICTED_KEY');
+    if (Deno.env.get('PROMOTIONS_ENABLED') === 'true' && key?.startsWith('rk_live_')) {
+      await recoverExpiredPromotionCapacity(db, new Stripe(key, { apiVersion: '2026-07-29.dahlia' }), user.id, code);
+    }
     const quote = await db.rpc('quote_first_purchase_promotion', { p_user: user.id, p_code: code, p_plan: body.plan_key });
     if (quote.error || !quote.data) return reply({ error: 'This offer could not be verified for your first package purchase.' }, 400);
-    // Read-only preview: no reservation, payment or entitlement is created here.
+    // Preview creates no reservation, payment or entitlement. A full campaign may
+    // recover allocation from provider-confirmed expired/unpaid holds first.
     return reply({ success: true, quote: quote.data });
   } catch { return reply({ error: 'Offer validation is unavailable. No payment was started.' }, 503); }
 });

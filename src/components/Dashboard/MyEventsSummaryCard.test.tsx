@@ -1,0 +1,5 @@
+import React from 'react';
+import {render,screen,within} from '@testing-library/react';
+import {it,expect} from 'vitest';
+import {MyEventsSummaryCard} from './MyEventsSummaryCard';
+it.each(['ceremony','reception'] as const)('keeps %s values intact and uses the same ordered accessible rows',(kind)=>{const values={name:'Cherie & Shane’s Wedding',date:'30/01/2027',location:'Brookwood reception - 10–12 Lawson Crescent, Thomastown, Vic, 3074, Australia',time:'5:00 PM — 11:00 PM',guests:20};const {container}=render(<MyEventsSummaryCard kind={kind} values={values}/>);expect(screen.getByRole('heading',{level:4,name:kind==='ceremony'?'Ceremony':'Reception'})).toBeInTheDocument();expect([...container.querySelectorAll('[data-summary-row]')].map(n=>n.getAttribute('data-summary-row'))).toEqual(['name','date','location','time','guests']);for(const value of Object.values(values))expect(screen.getByText(String(value))).toBeInTheDocument();expect(screen.getAllByRole('term')).toHaveLength(5);expect(screen.getAllByRole('definition')).toHaveLength(5);expect(container.querySelectorAll('svg')).toHaveLength(6);});

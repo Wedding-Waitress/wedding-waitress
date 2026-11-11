@@ -1,0 +1,2 @@
+-- Superseded before release by 20261015031952_enforce_private_digital_guestbook.sql.
+-- Intentionally no auto-share changes: all Guestbook messages must remain private.

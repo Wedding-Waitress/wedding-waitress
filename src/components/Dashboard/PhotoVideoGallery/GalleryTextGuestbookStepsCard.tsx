@@ -7,9 +7,9 @@ import managementStyles from './photoVideoSharingManagement.module.css';
 
 const STEPS = [
   { icon: QrCode, title: 'Open the Digital Guestbook', text: 'Guests open it using the event link or QR code.' },
-  { icon: ListChecks, title: 'Choose a message type', text: 'They can leave a written, audio or video message.' },
-  { icon: PenLine, title: 'Create and submit', text: 'They write their message or record their audio or video.' },
-  { icon: Lock, title: 'Private delivery', text: 'Guestbook messages are sent privately to the event organisers and are not displayed in the public Photo & Video Gallery by default.' },
+  { icon: ListChecks, title: 'Choose any message types', text: 'Written, audio and video options are always available. Guests can choose any combination.' },
+  { icon: PenLine, title: 'Create and submit', text: 'Guests save each message separately and can write or record another without losing other drafts.' },
+  { icon: Lock, title: 'Shared memories', text: 'Written, audio and video messages join your event gallery and live slideshow. Organisers can manage them in Photo & Video Sharing.' },
 ];
 
 export const GalleryTextGuestbookStepsCard: React.FC<{ appearance?: 'default' | 'espresso-glass' }> = ({ appearance = 'default' }) => {

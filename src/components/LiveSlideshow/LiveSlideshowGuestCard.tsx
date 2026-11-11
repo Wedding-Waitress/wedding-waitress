@@ -2,6 +2,7 @@ import React from 'react';
 import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { normalizeRsvp, getRsvpDisplayLabel } from '@/lib/rsvp';
+import { getRelationDisplayText } from '@/lib/relationUtils';
 import { 
   User, 
   MapPin, 
@@ -31,6 +32,7 @@ interface LiveSlideshowGuestCardProps {
 }
 
 export const LiveSlideshowGuestCard: React.FC<LiveSlideshowGuestCardProps> = ({ guest, showRsvp = true, showDietary = true }) => {
+  const relationship = getRelationDisplayText(guest.relation_display);
   const getRSVPColor = (rsvp: string) => {
     const normalized = normalizeRsvp(rsvp);
     switch (normalized) {
@@ -73,9 +75,9 @@ export const LiveSlideshowGuestCard: React.FC<LiveSlideshowGuestCardProps> = ({ 
             <h3 className="text-2xl font-bold text-foreground">
               {guest.first_name} {guest.last_name}
             </h3>
-            {guest.relation_display && (
+            {relationship && (
               <p className="text-lg text-muted-foreground">
-                {guest.relation_display}
+                {relationship}
               </p>
             )}
           </div>
@@ -83,19 +85,14 @@ export const LiveSlideshowGuestCard: React.FC<LiveSlideshowGuestCardProps> = ({ 
 
         {/* Table Assignment */}
         <div className="space-y-4 mb-6">
-          {guest.table_no ? (
+          {(guest.table_id || guest.table_no != null || guest.table_name) ? (
             <div className="flex items-center justify-between p-4 bg-primary/5 rounded-lg border border-primary/20">
               <div className="flex items-center">
                 <MapPin className="w-6 h-6 text-primary mr-3" />
                 <div>
                   <p data-live-slideshow-label className="text-lg font-semibold text-foreground">
-                    Table {guest.table_no}
+                    {guest.table_name || `Table ${guest.table_no ?? ''}`}
                   </p>
-                  {guest.table_name && (
-                    <p className="text-sm text-muted-foreground">
-                      {guest.table_name}
-                    </p>
-                  )}
                 </div>
               </div>
               {guest.seat_no && (

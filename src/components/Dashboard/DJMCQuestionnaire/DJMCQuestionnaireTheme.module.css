@@ -955,3 +955,10 @@
   background:linear-gradient(180deg,#70c573,#4c933f) !important;
   filter:none !important;
 }
+
+/* Maintain usable controls inside the horizontally scrollable phone editor. */
+@media screen and (max-width: 767px) {
+ :global(#root#root) :is(.page,.publicPage) button {min-height:44px !important;}
+ :global(#root#root) :is(.page,.publicPage) .row button {min-width:44px !important;}
+ :global(#root#root) :is(.page,.publicPage) .row [role="button"].cursor-text {min-height:44px !important;}
+}

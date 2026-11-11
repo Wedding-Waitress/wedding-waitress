@@ -1,13 +1,15 @@
 /** Pure validation of SERVER-retrieved Stripe objects / signature-verified events.
  * Never call this with caller-supplied provider objects. No charges, retries, or DB writes.
  */
+import { worldwideGstAmounts } from './worldwideGst.ts';
+import { liveUpgradeFor } from './liveUpgradeCatalogue.ts';
 export const PAID_PLAN_CATALOGUE_VERSION = 'ww-aud-couple-20260909';
-/** Separate owner-approved live Stripe activation is still required. */
-export const PAID_PLAN_LIVE_CHECKOUT_ENABLED = false;
+/** Owner-authorized activation after sandbox fulfillment and paired live webhook checks. */
+export const PAID_PLAN_LIVE_CHECKOUT_ENABLED = true;
 const plans = {
-  essential: { product: 'prod_UOQhHcOhFdrhOs', id: '78cdab0d-d81d-4757-b7cc-f210b8b30f47', cents: 19900, rank: 1 },
-  premium: { product: 'prod_UOQhTWnFzXV1FK', id: '1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8', cents: 24900, rank: 2 },
-  unlimited: { product: 'prod_UOQhLIYTxQAd7U', id: 'cd10f207-2109-4546-a635-0baa68ba8213', cents: 29900, rank: 3 },
+  essential: { product: 'ww_live_20260914_v2_essential', id: '78cdab0d-d81d-4757-b7cc-f210b8b30f47', cents: 19900, rank: 1 },
+  premium: { product: 'ww_live_20260914_v2_premium', id: '1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8', cents: 24900, rank: 2 },
+  unlimited: { product: 'ww_live_20260914_v2_unlimited', id: 'cd10f207-2109-4546-a635-0baa68ba8213', cents: 29900, rank: 3 },
 } as const;
 type ObjectData = Record<string, any>;
 const idOf = (value: unknown): string | null => typeof value === 'string' ? value
@@ -65,14 +67,17 @@ function validatePaidPlanObjects(session: ObjectData, intent: ObjectData, charge
   requireEvidence(metadata.plan_purchase_purpose !== 'upgrade' || previous && previous.rank < plan.rank);
   requireEvidence(metadata.plan_purchase_purpose === 'upgrade' || !metadata.from_plan);
   const expectedSubtotal = previous ? plan.cents - previous.cents : plan.cents;
+  const upgradeSku = previous ? liveUpgradeFor(metadata.from_plan, metadata.plan_type) : null;
   const lines = session.line_items;
   requireEvidence(lines && lines.has_more === false && Array.isArray(lines.data) && lines.data.length === 1);
   const line = lines.data[0];
   requireEvidence(line.quantity === 1 && line.price && line.price.currency === 'aud'
-    && idOf(line.price.product) === plan.product && line.price.unit_amount === expectedSubtotal
+    && idOf(line.price.product) === (upgradeSku?.productId ?? plan.product) && line.price.unit_amount === expectedSubtotal
+    && (!upgradeSku || line.price.id === upgradeSku.priceId)
     && line.amount_subtotal === expectedSubtotal);
   requireEvidence(session.currency === 'aud' && session.amount_subtotal === expectedSubtotal && cents(session.amount_total));
   const totals = session.total_details;
+  requireEvidence(totals?.amount_tax === worldwideGstAmounts(expectedSubtotal).taxCents);
   requireEvidence(totals && totals.amount_discount === 0 && totals.amount_shipping === 0 && cents(totals.amount_tax)
     && session.amount_total === expectedSubtotal + totals.amount_tax);
   requireEvidence(intent.object === 'payment_intent' && intent.livemode === true && intent.status === 'succeeded'
@@ -81,7 +86,7 @@ function validatePaidPlanObjects(session: ObjectData, intent: ObjectData, charge
   requireEvidence(charge.object === 'charge' && charge.livemode === true && charge.status === 'succeeded'
     && charge.paid === true && charge.captured === true && charge.refunded === false && charge.amount_refunded === 0
     && charge.disputed === false && charge.currency === 'aud' && charge.amount === session.amount_total
-    && typeof charge.id === 'string' && /^ch_[A-Za-z0-9]+$/.test(charge.id)
+    && typeof charge.id === 'string' && /^(?:ch|py)_[A-Za-z0-9]+$/.test(charge.id)
     && idOf(intent.latest_charge) === charge.id && idOf(charge.payment_intent) === intent.id);
   requireEvidence(timestamp(session.created) && timestamp(intent.created) && timestamp(charge.created)
     && timestamp(referenceSeconds) && referenceSeconds <= serverNowEpochSeconds

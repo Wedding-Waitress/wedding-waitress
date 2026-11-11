@@ -3,7 +3,7 @@ import { promotionTermStart, promotionTermEnd, validatePromotionCompletion, type
 export interface StoredPromotionCheckout {
   id: string; userId: string; plan: PromotionPlan; percent: number; couponId: string;
   customerId: string; productId: string; sessionId: string; livemode: boolean;
-  originalTrialEndsAt: string; createdAt: string; completionEventId: string | null;
+  activationPolicy?: 'after_trial' | 'immediate'; originalTrialEndsAt: string; createdAt: string; completionEventId: string | null;
 }
 export interface RetrievedPromotionSession {
   id: string; customerId: string; productId: string; couponId: string;
@@ -49,7 +49,7 @@ export async function fulfillPromotionCheckout(deps: PromotionFulfillmentDepende
   const quote = validatePromotionCompletion({ ...session, percent: stored.percent, plan: stored.plan, expectedCouponId: stored.couponId });
   const completion = await deps.findOriginalCompletion(sessionId, stored.completionEventId);
   const completedAt = Date.parse(completion.createdAt), createdAt = Date.parse(stored.createdAt);
-  if (!/^evt_[A-Za-z0-9]+$/.test(completion.id) || completion.type !== 'checkout.session.completed'
+  if (!/^evt_[A-Za-z0-9]+$/.test(completion.id) || !['checkout.session.completed', 'checkout.session.async_payment_succeeded'].includes(completion.type)
     || completion.sessionId !== sessionId || completion.livemode !== stored.livemode
     || !Number.isFinite(completedAt) || !Number.isFinite(createdAt) || completedAt < Math.floor(createdAt / 1000) * 1000 || completedAt > now
     || stored.completionEventId !== null && completion.id !== stored.completionEventId) {
@@ -63,7 +63,7 @@ export async function fulfillPromotionCheckout(deps: PromotionFulfillmentDepende
       throw new Error('A matching captured, undisputed discounted payment is required.');
     }
   }
-  const termStartsAt = promotionTermStart(completion.createdAt, stored.originalTrialEndsAt);
+  const termStartsAt = promotionTermStart(completion.createdAt, stored.originalTrialEndsAt, stored.activationPolicy);
   const evidence = {
     reservationId: stored.id, sessionId, completionEventId: completion.id, userId: stored.userId,
     plan: stored.plan, subtotalCents: session.subtotalCents, totalCents: session.totalCents,

@@ -113,3 +113,7 @@ describe('shared Undo persistence',()=>{
   expect(mocks.rpc).toHaveBeenCalledWith('update_running_sheet_item_by_token',expect.objectContaining({item_id:'restored',new_description_rich:{text:'Opening',bullets:['Keep']},new_is_bold:true,new_is_italic:true,new_is_underline:true,new_is_section_header:true}));
  });
 });
+
+it('passes a live export predicate and invalidates it when the shared view closes',async()=>{
+ const {exportRunningSheetPDF}=await import('@/lib/runningSheetPdfExporter');const exporter=vi.mocked(exportRunningSheetPDF);let done:any;exporter.mockImplementation(()=>new Promise<void>(resolve=>done=resolve));mocks.rpc.mockResolvedValue({data:[validRow('view_only')],error:null});const{unmount}=render(<RunningSheetPublicView/>);await waitFor(()=>expect(screen.getByRole('button',{name:'Download PDF'})).toBeEnabled());fireEvent.click(screen.getByRole('button',{name:'Download PDF'}));await waitFor(()=>expect(exporter).toHaveBeenCalled());const current=exporter.mock.calls.at(-1)![5];expect(typeof current).toBe('function');expect(current!()).toBe(true);unmount();expect(current!()).toBe(false);done();exporter.mockReset();
+});

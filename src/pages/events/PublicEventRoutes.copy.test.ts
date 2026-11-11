@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-const routesSource = readFileSync('src/pages/events/PublicEventRoutes.tsx', 'utf8');
+import { readEnglishPublicSource } from '@/test/readEnglishPublicSource';
+const routesSource = readEnglishPublicSource('src/pages/events/PublicEventRoutes.tsx');
 
 describe('public event guide heading copy', () => {
   it('uses the full, correctly capitalised Christmas and seasonal event name in generated headings', () => {

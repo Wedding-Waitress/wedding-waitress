@@ -38,11 +38,11 @@ export function requireFirstPromotionPurchase(purpose: unknown, hasPreviousPurch
   if (purpose !== 'new_plan' || hasPreviousPurchase) throw new Error('Promo codes apply only to your first package purchase.');
 }
 
-export function promotionTermStart(completedAt: string, originalTrialEndsAt: string): string {
+export function promotionTermStart(completedAt: string, originalTrialEndsAt: string, activationPolicy: 'after_trial' | 'immediate' = 'after_trial'): string {
   const completed = Date.parse(completedAt);
   const trialEnd = Date.parse(originalTrialEndsAt);
   if (!Number.isFinite(completed) || !Number.isFinite(trialEnd)) throw new Error('Verified completion and original trial expiry are required.');
-  return new Date(Math.max(completed, trialEnd)).toISOString();
+  return new Date(activationPolicy === 'immediate' ? completed : Math.max(completed, trialEnd)).toISOString();
 }
 
 export function promotionTermEnd(startsAt: string): string {
@@ -69,11 +69,11 @@ export function validatePromotionCompletion(evidence: PromotionCompletionEvidenc
   if (evidence.status !== 'complete' || evidence.currency.toUpperCase() !== 'AUD'
     || !evidence.expectedCouponId || evidence.couponId !== evidence.expectedCouponId
     || evidence.subtotalCents !== quote.originalCents || evidence.discountCents !== quote.discountCents
-    || !Number.isSafeInteger(evidence.totalCents) || evidence.totalCents < quote.subtotalCents) {
+    || !Number.isSafeInteger(evidence.totalCents) || evidence.totalCents !== quote.subtotalCents + Math.round(quote.subtotalCents / 10)) {
     throw new Error('Checkout does not match the approved promotional quote.');
   }
   if (evidence.percent === 100) {
-    if (evidence.totalCents !== 0 || evidence.paymentStatus !== 'no_payment_required' || evidence.paymentIntentId !== null) throw new Error('A completed no-cost checkout is required.');
+    if (evidence.totalCents !== 0 || !['no_payment_required', 'paid'].includes(evidence.paymentStatus) || evidence.paymentIntentId !== null) throw new Error('A completed no-cost checkout is required.');
   } else if (evidence.paymentStatus !== 'paid' || !/^pi_[A-Za-z0-9]+$/.test(evidence.paymentIntentId ?? '')) {
     throw new Error('A verified successful discounted payment is required.');
   }

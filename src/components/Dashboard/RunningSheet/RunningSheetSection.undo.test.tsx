@@ -43,3 +43,7 @@ describe('schedule Undo',()=>{
  });
  it('does not expose Undo to view-only recipients',()=>{render(<Harness readOnly/>);expect(screen.queryByRole('button',{name:'Undo'})).toBeNull();expect(screen.getByRole('button',{name:'More actions'})).toBeDisabled();});
 });
+
+it('opens a named section title editor from the keyboard and labels notes',()=>{
+ render(<Harness/>);fireEvent.click(screen.getByRole('button',{name:'Run Sheet'}));expect(screen.getByRole('textbox',{name:'Run Sheet'})).toBeVisible();fireEvent.keyDown(screen.getByRole('textbox',{name:'Run Sheet'}),{key:'Escape'});fireEvent.click(screen.getByRole('button',{name:'Toggle notes'}));expect(screen.getByRole('textbox',{name:'Notes'})).toBeVisible();
+});

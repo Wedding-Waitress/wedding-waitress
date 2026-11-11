@@ -3,7 +3,7 @@ import { Card, CardContent } from '@/components/ui/card';
 import { Button } from '@/components/ui/button';
 import { Badge } from '@/components/ui/badge';
 import {
-  PartyPopper, Hand, Smile, Frown, SquarePen, CheckCircle2,
+  PartyPopper, Hand, Smile, Frown, CheckCircle2,
   Clock,
   X,
   XCircle,
@@ -20,6 +20,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { normalizeRsvp, getRsvpDisplayLabel, type RsvpStatus } from '@/lib/rsvp';
 import { useToast } from '@/hooks/use-toast';
 import { formatDisplayDate } from '@/lib/utils';
+import { getRelationDisplayText } from '@/lib/relationUtils';
 import {
   AlertDialog,
   AlertDialogAction,
@@ -44,36 +45,36 @@ interface Guest {
   dietary?: string;
   mobile?: string;
   email?: string;
+  table_name?: string;
 }
 
 interface EnhancedGuestCardProps {
   guest: Guest;
   onUpdate: () => void;
-  onEdit?: (guest: Guest) => void;
   onAddGuest?: () => void;
   isEditable?: boolean;
   rsvpDeadline?: string | null;
   additionalGuestCount?: number;
+  /** Existing invited members of the recipient's family/couple group. */
+  partyMembers?: Guest[];
   /** 7-day auto-protection: when false, Accept/Decline are hidden */
   showRsvpButtons?: boolean;
   /** 7-day auto-protection: when false, Add +1 Guest is hidden */
   showAddPlusOne?: boolean;
-  /** 7-day auto-protection: when false, Update Your Details is hidden */
-  showUpdateDetails?: boolean;
 }
 
 export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
   guest,
   onUpdate,
-  onEdit,
   onAddGuest,
   isEditable = true,
   rsvpDeadline,
   additionalGuestCount,
+  partyMembers = [],
   showRsvpButtons = true,
   showAddPlusOne = true,
-  showUpdateDetails = true,
 }) => {
+  const relationship = getRelationDisplayText(guest.relation_display);
   const [updatingRsvp, setUpdatingRsvp] = useState(false);
   const { toast } = useToast();
   const [localRsvp, setLocalRsvp] = useState<RsvpStatus>(normalizeRsvp(guest.rsvp));
@@ -82,6 +83,22 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
   useEffect(() => {
     setLocalRsvp(normalizeRsvp(guest.rsvp));
   }, [guest.rsvp]);
+  const [authoritativeTableName, setAuthoritativeTableName] = useState<string | null>(guest.table_name || null);
+  useEffect(() => {
+    let cancelled = false;
+    setAuthoritativeTableName(guest.table_name || null);
+    if (!guest.table_id) {
+      setAuthoritativeTableName(guest.table_name || null);
+      return;
+    }
+    // Use the exact same public table resolver as the seating-table view so
+    // this compact summary cannot drift from the authoritative assignment.
+    void supabase.rpc('get_public_table_data', { p_table_id: guest.table_id, p_event_id: guest.event_id })
+      .then(({ data, error }: any) => {
+        if (!cancelled && !error && data?.[0]?.table_name) setAuthoritativeTableName(data[0].table_name);
+      });
+    return () => { cancelled = true; };
+  }, [guest.event_id, guest.table_id, guest.table_name]);
 
   const getRsvpColor = (status: string) => {
     const normalized = normalizeRsvp(status);
@@ -96,6 +113,13 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
         return "text-gray-600";
     }
   };
+
+  const tableLabel = (() => {
+    if (guest.table_no != null) return `Table ${guest.table_no}${authoritativeTableName ? ` – ${authoritativeTableName}` : ''}`;
+    const legacyMatch = authoritativeTableName?.match(/^(\d+)\.\s*(.+)$/);
+    if (legacyMatch) return `Table ${legacyMatch[1]} – ${legacyMatch[2]}`;
+    return authoritativeTableName ? `Table ${authoritativeTableName}` : 'Table assigned';
+  })();
 
   const getRsvpIcon = (status: string) => {
     const normalized = normalizeRsvp(status);
@@ -187,10 +211,6 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
     onAddGuest?.();
   };
 
-  const openEditDetails = () => {
-    onEdit?.(guest);
-  };
-
   const blurActive = () => {
     const el = document.activeElement as HTMLElement | null;
     if (el && typeof el.blur === 'function') el.blur();
@@ -216,11 +236,6 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
     runAfterKeyboardDismiss(openAddGuest);
   };
 
-  const handleEditDetailsClick = () => {
-    if (suppressNextClickRef.current) return;
-    runAfterKeyboardDismiss(openEditDetails);
-  };
-
   return (
     <Card className="card-elevated border-primary/20 bg-gradient-card p-2 md:p-2">
       <CardContent className="p-2">
@@ -230,9 +245,9 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
             <h3 data-guest-welcome className="flex items-center justify-center gap-2 text-center font-bold text-lg md:text-xl text-[#1D1D1F]">
               <Hand aria-hidden="true" className="h-5 w-5 shrink-0 text-white" /><span>Welcome, {guest.first_name} {guest.last_name}</span><PartyPopper aria-hidden="true" className="h-5 w-5 shrink-0 text-white" />
             </h3>
-            {guest.relation_display && (
+            {relationship && (
               <p className="text-sm text-muted-foreground mt-1">
-                {guest.relation_display}
+                {relationship}
               </p>
             )}
 
@@ -266,9 +281,9 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
           <div className="flex items-start gap-3 p-2 bg-background-subtle rounded-lg">
             <Users className="w-5 h-5 text-primary mt-0.5" />
             <div className="flex-1">
-              {guest.table_no ? (
+              {(guest.table_id || guest.table_no != null) ? (
                 <>
-                  <div data-live-label className="font-semibold text-foreground">Table {guest.table_no}</div>
+                  <div data-live-label className="font-semibold text-foreground">{tableLabel}</div>
                   <div data-live-body className="text-sm text-muted-foreground">Your assigned table</div>
                 </>
               ) : (
@@ -302,11 +317,24 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
             </div>
           )}
 
-          {/* Additional Guests */}
+          {/* Invited party members are not self-added +1 guests. */}
+          {partyMembers.length > 1 && (
+            <div className="flex items-start gap-3 p-2 bg-background-subtle rounded-lg">
+              <Users className="w-5 h-5 text-primary mt-0.5" />
+              <div className="flex-1">
+                <div data-live-label className="font-semibold text-foreground">Your family / party</div>
+                <div data-live-body className="text-sm text-muted-foreground">
+                  {partyMembers.length} invited members: {partyMembers.map((member) => `${member.first_name} ${member.last_name}`.trim()).join(', ')}
+                </div>
+              </div>
+            </div>
+          )}
+
+          {/* True self-added guests stay separate from the invited party. */}
           <div className="flex items-start gap-3 p-2 bg-background-subtle rounded-lg">
             <UserPlus className="w-5 h-5 text-primary mt-0.5" />
             <div className="flex-1">
-              <div data-live-label className="font-semibold text-foreground">Additional Guests</div>
+              <div data-live-label className="font-semibold text-foreground">Additional +1 guests</div>
               <div data-live-body className="text-sm text-muted-foreground">
                 {(additionalGuestCount ?? 0) > 0 ? `${additionalGuestCount} added` : 'None added'}
               </div>
@@ -378,24 +406,6 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
                 </Button>
               )}
             </div>
-          )}
-
-          {/* Divider + Update Your Details (moved from top) */}
-          {onEdit && isEditable && showUpdateDetails && (
-            <>
-              <div aria-hidden="true" className="my-6 h-px" />
-              <div className="flex justify-center">
-                <Button
-                  type="button"
-                  onPointerDown={(event) => handleTouchStartAction(event, openEditDetails)}
-                  onClick={handleEditDetailsClick}
-                  className="guest-rsvp-action bg-green-600 hover:bg-green-700 text-white px-6 py-2 rounded-lg"
-                >
-                  <SquarePen aria-hidden="true" className="h-5 w-5 shrink-0 text-white" />
-                  Update My Details
-                </Button>
-              </div>
-            </>
           )}
 
           {/* RSVP Deadline */}

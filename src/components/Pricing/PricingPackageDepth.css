@@ -1,0 +1,5 @@
+/* Pricing cards and their approved heading and button surfaces only. */
+#root#root .ww-pricing-page [data-public-pricing-card-grid] > article { box-shadow:0 8px 30px rgba(43,23,17,.22),0 2px 8px rgba(43,23,17,.12)!important; }
+#root#root .ww-pricing-page [data-public-pricing-card-grid] article :is(h4,h5)[data-pricing-metallic-heading] { box-shadow:0 7px 20px rgba(43,23,17,.20),0 2px 5px rgba(43,23,17,.10)!important; }
+#root#root .ww-pricing-page [data-pricing-package-cta="bronze"] { box-shadow:var(--ww-embossed-shadow),0 7px 16px rgba(43,23,17,.27)!important; }
+#root#root .ww-pricing-page [data-pricing-package-cta="emerald"] { box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 7px 16px rgba(43,23,17,.27)!important; }

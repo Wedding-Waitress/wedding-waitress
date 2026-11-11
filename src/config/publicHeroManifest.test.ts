@@ -32,6 +32,6 @@ describe('public photographic hero manifest', () => {
   it('provides art-directed mobile and desktop homepage posters', () => {
     expect(homepageHeroAsset.mobileAvif).toBeTruthy();
     expect(existsSync(publicFile(homepageHeroAsset.mobileAvif!))).toBe(true);
-    expect(HOMEPAGE_HERO_VIDEO_READY).toBe(false);
+    expect(HOMEPAGE_HERO_VIDEO_READY).toBe(true);
   });
 });

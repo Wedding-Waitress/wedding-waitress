@@ -1,3 +1,4 @@
+import { publicPhotoGroupSources as photoCopy } from '@/i18n/publicPhotoGroupCopy';
 import type { LucideIcon } from 'lucide-react';
 import {
   CalendarHeart, Users, TableProperties, QrCode, SignpostBig, Mail,
@@ -141,13 +142,13 @@ export const publicProducts: PublicProduct[] = [
     connects: 'Live Slideshow uses the event’s Guest List and Tables, and complements QR Seating for guests using their own phones.', related: ['qr-code-seating-chart', 'guest-list', 'tables'],
   },
   {
-    id: 'invitations-cards', name: 'Invitations, Save the Dates & Thank You Cards', shortName: 'Invitations & Cards', path: '/invitations-cards', group: 'Guest Experience', icon: Mail, navigationIcon: productIconById['invitations-cards'],
-    image: invitations, imageAlt: 'Wedding invitation and card designer', seoTitle: 'Wedding Invitations, Save the Dates & Thank You Cards',
-    metaDescription: 'Design wedding invitations, save the dates and thank you cards with custom text, backgrounds, QR codes, messages and print-ready exports.',
-    h1: 'Create every card around the same wedding details', lead: 'Design invitations, save the dates and thank you cards with flexible text zones, backgrounds, QR placement and personal messages.',
+    id: 'invitations-cards', name: 'Invitations, Save the Date & Thank You Cards', shortName: 'Invitations & Cards', path: '/invitations-cards', group: 'Guest Experience', icon: Mail, navigationIcon: productIconById['invitations-cards'],
+    image: invitations, imageAlt: 'Wedding invitation and card designer', seoTitle: 'Wedding Invitations, Save the Date & Thank You Cards',
+    metaDescription: 'Design wedding invitations, save the date and thank you cards with custom text, backgrounds, QR codes, messages and print-ready exports.',
+    h1: 'Create every card around the same wedding details', lead: 'Design invitations, save the date and thank you cards with flexible text zones, backgrounds, QR placement and personal messages.',
     demonstration: 'Choose the card type, build with preset or custom text zones, personalise typography and background design, and prepare the result for digital use or supported print-ready export.',
     benefits: [
-      { title: 'Three card types, one designer', text: 'Create invitations, save the dates and thank you cards in the same workspace.' },
+      { title: 'Three card types, one designer', text: 'Create invitations, save the date and thank you cards in the same workspace.' },
       { title: 'Flexible personalisation', text: 'Control text zones, backgrounds, QR placement and personal messages.' },
       { title: 'Event details ready to use', text: 'Bring relevant event and guest information into the design without retyping everything.' },
     ],
@@ -256,6 +257,12 @@ export const publicProducts: PublicProduct[] = [
       { title: 'Made to share', text: 'Use the available share and PDF controls to distribute the current schedule.' },
     ],
     connects: 'Run Sheet uses your event timing and pairs with the DJ & MC Questionnaire to keep music and formalities aligned.', related: ['dj-mc-questionnaire', 'my-events', 'floor-plan'],
+  },
+  {
+    id:'photo-callout-cards',name:photoCopy[0],shortName:photoCopy[0],path:'/photo-group-list',group:'Event-Day Planning',icon:Camera,navigationIcon:productIconById['photo-callout-cards'],
+    image:'/images/public-heroes/photo-video-sharing.jpg',imageAlt:photoCopy[12],seoTitle:photoCopy[2],metaDescription:photoCopy[3],h1:photoCopy[1],lead:photoCopy[3],demonstration:photoCopy[4],
+    benefits:[{title:photoCopy[5],text:photoCopy[6]},{title:photoCopy[7],text:photoCopy[8]},{title:photoCopy[9],text:photoCopy[10]}],
+    connects:photoCopy[11],related:['running-sheet','guest-list','tables'],
   },
 ];
 

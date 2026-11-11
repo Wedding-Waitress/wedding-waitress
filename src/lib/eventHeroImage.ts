@@ -19,7 +19,7 @@ export async function syncEventHeroImage(eventId: string) {
   if (!sourcePath && !previous?.file_url) return;
 
   let publishedPath: string | null = null;
-  let config: Record<string, any> = { source: 'event' };
+  let config: Record<string, any> = { source: 'event', ...(previous?.enabled === false ? {enabled:false} : {}) };
   if (sourcePath) {
     if (!sourcePath.startsWith(`${event.user_id}/`)) throw new Error('Event image does not belong to this event owner');
     const download = await supabase.storage.from('event-branding').download(sourcePath);
@@ -29,7 +29,7 @@ export async function syncEventHeroImage(eventId: string) {
     const upload = await supabase.storage.from('live-view-uploads').upload(publishedPath, download.data, { contentType: download.data.type });
     if (upload.error) throw upload.error;
     config = {
-      source: 'event', source_path: sourcePath,
+      source: 'event', source_path: sourcePath, ...(previous?.enabled === false ? {enabled:false} : {}),
       file_url: supabase.storage.from('live-view-uploads').getPublicUrl(publishedPath).data.publicUrl,
       file_name: 'My Events photo or logo', file_type: download.data.type, uploaded_at: new Date().toISOString(),
     };
@@ -65,4 +65,5 @@ export async function syncEventHeroImage(eventId: string) {
     const cleanup = await supabase.storage.from(retired.bucket).remove([retired.path]);
     if (cleanup.error) throw cleanup.error;
   }
+  return true;
 }

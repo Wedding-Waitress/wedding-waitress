@@ -1,7 +1,7 @@
 /**
  * Phase 2D — Public share-view hook. Calls token-gated RPCs.
  */
-import { useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import type {
   ReceptionFloorPlan,
@@ -10,6 +10,7 @@ import type {
 } from '@/hooks/useReceptionFloorPlan';
 import type { ReceptionTable } from '@/hooks/useReceptionTables';
 import type { ReceptionPdfEvent } from '@/lib/receptionFloorPlanPdfExporter';
+import { requestFloorPlanShare } from '@/lib/floorPlanShareRequest';
 import { parseHeadSeatingOrder } from '@/lib/headTable';
 
 export interface SharePayload {
@@ -46,6 +47,7 @@ const parsePolygon = (raw: unknown): RoomPolygon | null => {
 };
 
 export const useReceptionFloorPlanShare = (token: string | undefined): State => {
+  const stateToken = useRef(token);
   const [state, setState] = useState<State>({
     data: null,
     backgroundUrl: null,
@@ -54,14 +56,15 @@ export const useReceptionFloorPlanShare = (token: string | undefined): State => 
   });
 
   useEffect(() => {
+    stateToken.current = token;
     if (!token) {
       setState({ data: null, backgroundUrl: null, loading: false, error: 'Missing token.' });
       return;
     }
     let cancelled = false;
     (async () => {
-      setState((s) => ({ ...s, loading: true, error: null }));
-      const { data, error } = token.length === 64 ? await supabase.functions.invoke('floor-plan-share', { body: { token } }) : await supabase.rpc('get_reception_floor_plan_by_share_token', { _token: token });
+      setState({data:null,backgroundUrl:null,loading:true,error:null});
+      const { data, error } = await requestFloorPlanShare(token, 'reception');
       if (cancelled) return;
       if (error || !data || (token.length === 64 && data.kind !== 'reception')) {
         setState({
@@ -175,11 +178,11 @@ export const useReceptionFloorPlanShare = (token: string | undefined): State => 
 
       if (cancelled) return;
       setState({ data: { plan, event, tables, permission: raw.permission, draft: raw.draft, baseUpdatedAt: String(r.updated_at), attendingCount: Number(raw.attending_count ?? 0) }, backgroundUrl, loading: false, error: null });
-    })();
+    })().catch(() => { if(!cancelled) setState({data:null,backgroundUrl:null,loading:false,error:'This share link is invalid or has been revoked.'}); });
     return () => {
       cancelled = true;
     };
   }, [token]);
 
-  return state;
+  return stateToken.current === token ? state : { data:null, backgroundUrl:null, loading:!!token, error:token ? null : 'Missing token.' };
 };

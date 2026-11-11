@@ -1,3 +1,5 @@
+import { AdminCustomerRefundHistory } from './AdminCustomerRefundHistory';
+import { AdminLiveBillingReport } from './AdminLiveBillingReport';
 import React, { useCallback, useEffect, useMemo, useState } from "react";
 import {
   AlertTriangle,
@@ -24,10 +26,16 @@ import { useAdminCustomerActivity } from '@/hooks/useCustomerActivity';
 import { customerCountryLabel } from '@/lib/adminCustomerContact';
 import { effectiveCustomerActivity } from '@/lib/customerActivityDate';
 import { adminPlanLabel, adminPlanOptions, CURRENT_ADMIN_PLANS } from '@/lib/adminPlanDisplay';
-import { getCacheGeneration, registerCache } from "@/lib/cacheRegistry";
+import { clearAllCaches, getCacheGeneration, registerCache } from "@/lib/cacheRegistry";
 import styles from "./AdminCentrePages.module.css";
+import { currentCustomerSubscriptions } from "@/lib/adminCurrentSubscriptions";
+
+import { getAdminCustomerSummary } from '@/lib/adminCustomerSummary';
 
 type Customer = {
+  identity_state?: 'complete' | 'missing_profile' | 'missing_auth';
+  auth_record_exists?: boolean;
+  profile_record_exists?: boolean;
   account_id?: string | null;
   country_code?: string | null;
   last_active_at?: string | null;
@@ -134,6 +142,7 @@ type Payment = {
   payment_method: string | null;
 };
 type Snapshot = {
+  signup_reconciliation?: { missing_profiles: number; unmatched_profiles: number };
   customer_activity_ready?: boolean;
   admin_customer_preview_ready?: boolean;
   admin_team_roster_ready?: boolean;
@@ -207,7 +216,15 @@ const requestAdminSnapshot = () => {
       if (error && ["42883", "PGRST202"].includes((error as { code?: string }).code || "")) {
         ({ data: result, error } = await supabase.rpc("get_admin_centre_snapshot" as never));
       }
-      if (error) throw error;
+      if (error) {
+        if ((error as { code?: string }).code === '42501' && /Recent administrator verification required/i.test(error.message || '')) {
+          sessionStorage.removeItem('ww_admin_grant');
+          sessionStorage.removeItem('ww_admin_grant_sig');
+          clearAllCaches();
+          window.dispatchEvent(new Event('ww-admin-verification-expired'));
+        }
+        throw error;
+      }
       if (generation !== getCacheGeneration()) throw new Error("Admin request superseded by an account change.");
       const recorded = (result || empty) as unknown as Snapshot;
       snapshotCache = {
@@ -267,6 +284,15 @@ const Badge = ({ children }: { children: React.ReactNode }) => (
     {words(String(children))}
   </span>
 );
+const reconciliationStatus = (customer: Customer) => customer.identity_state === 'missing_auth' ? 'Unmatched profile'
+  : customer.identity_state === 'missing_profile' ? customer.email_confirmed_at ? 'Profile incomplete' : 'Pending verification'
+  : customerStatus(customer.account_status);
+const SignupReconciliation = ({data}:{data:Snapshot}) => data.signup_reconciliation
+  && (data.signup_reconciliation.missing_profiles > 0 || data.signup_reconciliation.unmatched_profiles > 0)
+  ? <div className={styles.freshness} role="note" aria-label="Sign-up reporting reconciliation">
+    <span>{data.signup_reconciliation.missing_profiles} sign-ups awaiting profiles; {data.signup_reconciliation.unmatched_profiles} profiles without a matching login record.</span>
+    <span>These are reporting flags. Accounts, plans and access have not been changed. Unmatched profiles are excluded from registered-customer totals.</span>
+  </div> : null;
 const Metric = ({
   label,
   value,
@@ -310,7 +336,11 @@ function useAdminSnapshot() {
     setRefreshing(false);
   }, []);
   useEffect(() => {
+    const resume = () => { if (document.visibilityState !== 'hidden') void load(true); };
     void load();
+    window.addEventListener('focus', resume);
+    document.addEventListener('visibilitychange', resume);
+    return () => { window.removeEventListener('focus', resume); document.removeEventListener('visibilitychange', resume); };
   }, [load]);
   const reload=useCallback(()=>void load(true),[load]);
   return { data, loading, unavailable, refreshing, reload };
@@ -353,7 +383,7 @@ const Section = ({
   description?: string;
   children: React.ReactNode;
 }) => (
-  <section className={styles.section}>
+  <section className={styles.section} data-admin-summary={title}>
     <div className={styles.sectionHeader}>
       <div>
         <h2>{title}</h2>
@@ -555,12 +585,13 @@ export const AdminOverviewPage = () => {
       new Date().getMonth(),
       1,
     ).getTime();
-  const trials = data.subscriptions.filter(
+  const currentSubscriptions = currentCustomerSubscriptions(data.subscriptions, new Set(data.customers.filter(c=>!c.admin_deleted_at && c.auth_record_exists !== false).map(c=>c.id)), now);
+  const trials = currentSubscriptions.filter(
     (s) =>
       /starter|trial/i.test(s.plan_name) ||
       s.subscription_status === "trialing",
   );
-  const paid = data.subscriptions.filter(
+  const paid = currentSubscriptions.filter(
     (s) => s.subscription_status === "active" && !trials.includes(s),
   );
   const upcoming = data.events.filter(
@@ -600,6 +631,7 @@ export const AdminOverviewPage = () => {
     <div className={`${styles.page} ${styles.overviewPage}`} data-admin-page>
       <State loading={loading} unavailable={unavailable} reload={reload} />
       {!loading && !unavailable && <SnapshotFreshness generatedAt={data.generated_at} refreshing={refreshing} reload={reload} enhanced={data.reporting_version === 2} />}
+      {!loading && !unavailable && <SignupReconciliation data={data}/>}
       {!loading && !unavailable && (
         <>
           <Section title="Customer overview">
@@ -607,7 +639,7 @@ export const AdminOverviewPage = () => {
               <Metric
                 label="Total registered customers"
                 value={
-                  new Set([...data.customers.map(c => c.id),
+                  new Set([...data.customers.filter(c => c.auth_record_exists !== false).map(c => c.id),
                     ...data.lifecycle.filter(l => l.status !== 'reactivated').map(l => l.account_owner_id)]).size
                 }
               />
@@ -617,7 +649,7 @@ export const AdminOverviewPage = () => {
                   data.customers.filter(
                     (c) =>
                       c.signup_date &&
-                      now - new Date(c.signup_date).getTime() <= week,
+                      new Date(c.signup_date).getTime() <= now && now - new Date(c.signup_date).getTime() <= week,
                   ).length
                 }
               />
@@ -627,7 +659,7 @@ export const AdminOverviewPage = () => {
                   data.customers.filter(
                     (c) =>
                       c.signup_date &&
-                      new Date(c.signup_date).getTime() >= monthStart,
+                      new Date(c.signup_date).getTime() >= monthStart && new Date(c.signup_date).getTime() <= now,
                   ).length
                 }
               />
@@ -671,15 +703,16 @@ export const AdminOverviewPage = () => {
                 value={
                   trials.filter(
                     (s) =>
+                      ["active", "trialing"].includes(s.subscription_status) &&
                       new Date(s.expires_at).getTime() - now <= week &&
                       new Date(s.expires_at).getTime() >= now,
                   ).length
                 }
               />
               <Metric
-                label="Expired trials"
+                label="Expired trial records"
                 value={
-                  trials.filter((s) => new Date(s.expires_at).getTime() < now)
+                  data.subscriptions.filter(s => /starter|trial/i.test(s.plan_name)).filter((s) => new Date(s.expires_at).getTime() < now)
                     .length
                 }
               />
@@ -694,7 +727,7 @@ export const AdminOverviewPage = () => {
                     key={plan}
                     label={`${plan} customers`}
                     value={
-                      data.subscriptions.filter(
+                      currentSubscriptions.filter(
                         (s) =>
                           s.plan_name === plan &&
                           s.subscription_status === "active",
@@ -712,7 +745,7 @@ export const AdminOverviewPage = () => {
                 }
               />
               <Metric
-                label="Expired plans"
+                label="Expired subscription records"
                 value={
                   data.subscriptions.filter(
                     (s) => s.subscription_status === "expired",
@@ -739,6 +772,7 @@ export const AdminOverviewPage = () => {
                 label="Sales collected this month"
                 value={money(
                   completedPayments
+                    .filter(p=>new Date(p.payment_date).getTime()<=now)
                     .filter(
                       (p) => new Date(p.payment_date).getTime() >= monthStart,
                     )
@@ -760,7 +794,7 @@ export const AdminOverviewPage = () => {
               <Metric
                 label="A$100 RSVP bundle purchases"
                 value={
-                  data.payments.filter(
+                  completedPayments.filter(
                     (p) =>
                       p.payment_type === "rsvp_bundle" &&
                       Number(p.amount_paid) === 100,
@@ -770,7 +804,7 @@ export const AdminOverviewPage = () => {
               <Metric
                 label="SMS top-up purchases"
                 value={
-                  data.payments.filter((p) => p.payment_type === "sms_top_up")
+                  completedPayments.filter((p) => p.payment_type === "sms_top_up")
                     .length
                 }
               />
@@ -863,42 +897,7 @@ export const AdminOverviewPage = () => {
               </div>
             )}
           </Section>
-          <Section title="Recent activity">
-            <ul className={styles.activityList}>
-              {[
-                ...data.customers
-                  .slice(0, 4)
-                  .map((c) => ({
-                    label: `Customer registered: ${c.full_name || c.email}`,
-                    at: c.signup_date,
-                  })),
-                ...data.events
-                  .slice(0, 4)
-                  .map((e) => ({
-                    label: `Event created: ${e.name}`,
-                    at: e.created_at,
-                  })),
-                ...data.recent_admin_actions
-                  .slice(0, 4)
-                  .map((a) => ({
-                    label: `Administrator action: ${a.action}`,
-                    at: a.created_at,
-                  })),
-              ]
-                .sort(
-                  (a, b) =>
-                    new Date(b.at || 0).getTime() -
-                    new Date(a.at || 0).getTime(),
-                )
-                .slice(0, 8)
-                .map((a, i) => (
-                  <li key={`${a.label}-${i}`}>
-                    <span>{a.label}</span>
-                    <span className={styles.subtle}>{date(a.at)}</span>
-                  </li>
-                ))}
-            </ul>
-          </Section>
+
         </>
       )}
     </div>
@@ -957,7 +956,7 @@ export const AdminCustomersPage = ({activityTrackingEnabled=false}:{activityTrac
                 .includes(search.toLowerCase())) &&
             (type === "all" || c.customer_type === type) &&
             (plan === "all" || c.plan_name === plan) &&
-            (status === "all" || customerStatus(c.account_status) === status) &&
+            (status === "all" || reconciliationStatus(c) === status) &&
             (verified === "all" ||
               (verified === "verified") === !!c.email_confirmed_at),
         )
@@ -976,6 +975,7 @@ export const AdminCustomersPage = ({activityTrackingEnabled=false}:{activityTrac
     <div className={styles.customerLayout}>
       <State loading={loading} unavailable={unavailable} reload={reload} />
       {!loading && !unavailable && <SnapshotFreshness generatedAt={data.generated_at} refreshing={refreshing} reload={reload} enhanced={data.reporting_version === 2} />}
+      {!loading && !unavailable && <SignupReconciliation data={data}/>}
       {!loading && !unavailable && (
         <>
           <AdminCustomerEventSummary data={data}/>
@@ -1020,6 +1020,9 @@ export const AdminCustomersPage = ({activityTrackingEnabled=false}:{activityTrac
               onChange={(e) => setStatus(e.target.value)}
             >
               <option value="all">All access states</option>
+              
+              
+              
               <option value="Active">Active</option>
               <option value="Suspended">Suspended</option>
               <option value="Deleted">Deleted</option>
@@ -1057,7 +1060,7 @@ export const AdminCustomersPage = ({activityTrackingEnabled=false}:{activityTrac
                 {slice.map((c) => (
                   <tr key={c.id}>
                     <td>
-                      <strong>{c.full_name || "No name"}</strong>
+                      <strong>{c.full_name || "No name"}</strong>{(c.identity_state === 'missing_profile' || c.identity_state === 'missing_auth') && <span className={styles.subtle}>{reconciliationStatus(c)}</span>}
                     </td>
                     <td>{c.account_id || "Not available"}</td>
                     <td className={styles.customerReferenceText}>
@@ -1081,21 +1084,21 @@ export const AdminCustomersPage = ({activityTrackingEnabled=false}:{activityTrac
                       </span>
                     </td>
                     <td className={styles.customerReferenceText}>
-                      {c.plan_name || "Free trial"}
+                      {c.plan_name || "No plan recorded"}
                       <span className={styles.subtle}>
                         {c.plan_status || "—"}
                       </span>
                     </td>
                     <td className={styles.customerReferenceText}>{c.event_count}</td>
                     <td>
-                      <AdminCustomerAccountStatus status={customerStatus(c.account_status)} customerName={c.full_name||c.email||c.id}
+                      {c.identity_state === 'missing_profile' || c.identity_state === 'missing_auth' ? <span className={styles.subtle}>{c.identity_state === 'missing_auth' ? 'No login record' : 'Not established'}</span> : <AdminCustomerAccountStatus status={customerStatus(c.account_status)} customerName={c.full_name||c.email||c.id}
                        detail={c.admin_deleted_at?'Account information is retained indefinitely. Only the platform owner may restore access.':
-                        c.account_status==='scheduled_for_deletion'?`Deletion is scheduled for ${date(data.lifecycle.find(record=>record.account_owner_id===c.id)?.purge_after)}. This account can be restored before that deadline.`:undefined}/>
+                        c.account_status==='scheduled_for_deletion'?`Deletion is scheduled for ${date(data.lifecycle.find(record=>record.account_owner_id===c.id)?.purge_after)}. This account can be restored before that deadline.`:undefined}/> }
                     </td>
                     <td>
                       <div className={styles.actionRow}>
                         <button
-                          disabled={!data.admin_logical_deletion_ready || c.account_status === "permanently_deleted"}
+                          disabled={c.identity_state === 'missing_profile' || c.identity_state === 'missing_auth' || !data.admin_logical_deletion_ready || c.account_status === "permanently_deleted"}
                           aria-label={['suspended','scheduled_for_deletion'].includes(c.account_status)?'Restore account':'Suspend'}
                           title={!data.admin_logical_deletion_ready ? "This action will be available after the planned update is released." : undefined}
                           className={`${styles.button} ${c.account_status === "suspended" ? styles.green : styles.danger} ${c.account_status === 'active' ? styles.retainedDelete : ''}`}
@@ -1114,7 +1117,7 @@ export const AdminCustomersPage = ({activityTrackingEnabled=false}:{activityTrac
                           {['scheduled_for_deletion','suspended'].includes(c.account_status)?<span>Restore<br/>account</span>:'Suspend'}
                         </button>
                         <button
-                          disabled={!data.admin_logical_deletion_ready || ["scheduled_for_deletion", "permanently_deleted"].includes(c.account_status)}
+                          disabled={c.identity_state === 'missing_profile' || c.identity_state === 'missing_auth' || !data.admin_logical_deletion_ready || ["scheduled_for_deletion", "permanently_deleted"].includes(c.account_status)}
                           aria-label="Deleted"
                           title={!data.admin_logical_deletion_ready ? "This action will be available after the planned update is released." : undefined}
                           className={`${styles.button} ${styles.danger} ${styles.retainedDelete}`}
@@ -1129,7 +1132,7 @@ export const AdminCustomersPage = ({activityTrackingEnabled=false}:{activityTrac
                         >
                           Deleted
                         </button>
-                        {!c.email_confirmed_at && (
+                        {!c.email_confirmed_at && c.auth_record_exists !== false && (
                           <button
                             className={styles.button}
                             aria-label="Resend Verification"
@@ -1146,7 +1149,7 @@ export const AdminCustomersPage = ({activityTrackingEnabled=false}:{activityTrac
                         )}
                       </div>
                     </td>
-                    <td><button className={styles.button} aria-label="Open account" disabled={!data.admin_customer_preview_ready}
+                    <td><button className={styles.button} aria-label="Open account" disabled={c.identity_state === 'missing_profile' || c.identity_state === 'missing_auth' || !data.admin_customer_preview_ready}
                       title={!data.admin_customer_preview_ready?'This action will be available after the planned update is released.':undefined}
                       onClick={()=>navigate(`/admin/customers?preview=${encodeURIComponent(c.id)}`)}><span>Open<br/>account</span></button></td>
                     <td title="Recorded account country; not verified residence.">{customerCountryLabel(c.country_code)}</td>
@@ -1200,6 +1203,7 @@ export const AdminSubscriptionsPaymentsPage = () => {
   const [search, setSearch] = useState("");
   const [plan, setPlan] = useState("all");
   const [status, setStatus] = useState("all");
+  const currentSubscriptions = currentCustomerSubscriptions(data.subscriptions, new Set(data.customers.filter(c=>!c.admin_deleted_at && c.auth_record_exists !== false).map(c=>c.id)));
   const rows = data.subscriptions.filter(
     (s) =>
       (!search ||
@@ -1220,9 +1224,9 @@ export const AdminSubscriptionsPaymentsPage = () => {
               <Metric
                 label="Active free trials"
                 value={
-                  data.subscriptions.filter(
+                  currentSubscriptions.filter(
                     (s) =>
-                      /starter|trial/i.test(s.plan_name) &&
+                      (/starter|trial/i.test(s.plan_name) || s.subscription_status === "trialing") &&
                       ["active", "trialing"].includes(s.subscription_status),
                   ).length
                 }
@@ -1230,7 +1234,7 @@ export const AdminSubscriptionsPaymentsPage = () => {
               <Metric
                 label="Active paid plans"
                 value={
-                  data.subscriptions.filter(
+                  currentSubscriptions.filter(
                     (s) =>
                       s.subscription_status === "active" &&
                       !/starter|trial/i.test(s.plan_name),
@@ -1240,8 +1244,9 @@ export const AdminSubscriptionsPaymentsPage = () => {
               <Metric
                 label="Expiring plans"
                 value={
-                  data.subscriptions.filter(
+                  currentSubscriptions.filter(
                     (s) =>
+                      ["active", "trialing"].includes(s.subscription_status) &&
                       new Date(s.expires_at).getTime() >= Date.now() &&
                       new Date(s.expires_at).getTime() - Date.now() <=
                         30 * 864e5,
@@ -1251,7 +1256,7 @@ export const AdminSubscriptionsPaymentsPage = () => {
               <Metric
                 label="Expired plans"
                 value={
-                  data.subscriptions.filter(
+                  currentSubscriptions.filter(
                     (s) => s.subscription_status === "expired",
                   ).length
                 }
@@ -1259,7 +1264,7 @@ export const AdminSubscriptionsPaymentsPage = () => {
               <Metric
                 label="Cancelled plans"
                 value={
-                  data.subscriptions.filter(
+                  currentSubscriptions.filter(
                     (s) => s.subscription_status === "cancelled",
                   ).length
                 }
@@ -1267,7 +1272,7 @@ export const AdminSubscriptionsPaymentsPage = () => {
               <Metric
                 label="Past-due plans"
                 value={
-                  data.subscriptions.filter((s) =>
+                  currentSubscriptions.filter((s) =>
                     ["past_due", "unpaid"].includes(s.subscription_status),
                   ).length
                 }
@@ -1427,57 +1432,36 @@ export const AdminSubscriptionsPaymentsPage = () => {
             </div>
             {!data.configuration.stripe_live_data && (
               <p className={styles.subtle}>
-                Live Stripe refunds, disputes, invoices and payment methods
-                require a separately deployed protected Stripe reporting
-                function; they are not estimated here.
+                Use Live Stripe reconciliation below to verify provider records. Recorded payments above come from Wedding Waitress.
               </p>
             )}
           </Section>
-          <AdminRefundHistory/>
-          <AdminPromotions/>
+          <AdminLiveBillingReport payments={data.payments}/><AdminRefundHistory/>
         </>
       )}
     </div>
   );
 };
 
+export const AdminPromotionsPage = () => (
+  <div className={styles.page} data-admin-page>
+    <AdminPromotions />
+  </div>
+);
+
 export const AdminCustomerEventSummary = ({data}:{data:Snapshot}) => {
- const guests=data.events.reduce((total,event)=>total+event.guest_count,0);
- return <div className={`${styles.page} ${styles.customerCard}`} data-admin-page aria-label="Event summary">
-<Section title="Event summary">
-            <div className={styles.metrics}>
-              <Metric label="Total events" value={data.events.length} />
-              <Metric
-                label="Active events"
-                value={
-                  data.events.filter((e) => e.event_status === "active").length
-                }
-              />
-              <Metric
-                label="Upcoming events"
-                value={
-                  data.events.filter((e) => e.event_status === "upcoming")
-                    .length
-                }
-              />
-              <Metric
-                label="Completed events"
-                value={
-                  data.events.filter((e) => e.event_status === "completed")
-                    .length
-                }
-              />
-              <Metric label="Total guests" value={guests} />
-              <Metric
-                label="Average guests per event"
-                value={
-                  data.events.length
-                    ? Math.round(guests / data.events.length)
-                    : 0
-                }
-              />
-            </div>
-          </Section>
+ const summary=getAdminCustomerSummary(data);
+ const cards: Array<{label:string;value:number;hint?:string}> = [
+  {label:'Total sign-ups',value:summary.signups},
+  {label:'Total events created',value:summary.events},
+  {label:'Upcoming events',value:summary.upcoming,hint:'Happening today or in the future'},
+  {label:'Past events',value:summary.past},
+  {label:'Total guests',value:summary.guests},
+ ];
+ return <div className={`${styles.page} ${styles.customerCard}`} data-admin-page aria-label="Account & event summary">
+  <Section title="Account & event summary"><div className={styles.metrics}>
+   {cards.map(card=><div className={styles.metric} key={card.label}><span>{card.label}</span><strong>{card.value}</strong>{card.hint&&<small className={styles.subtle}>{card.hint}</small>}</div>)}
+  </div></Section>
  </div>;
 };
 
@@ -1493,6 +1477,7 @@ function CustomerAccountDetails({customer,data}:{customer:Snapshot['customers'][
     <dt>Media</dt><dd>{customer.media_item_count??'Not available'} uploaded items</dd>
    </dl><h3>Team members</h3><AdminCustomerTeamMembers customerId={customer.id} revision={data.generated_at}
     ready={data.admin_team_roster_ready===true} activeCount={customer.active_team_member_count} recordedCount={customer.team_member_count}/>
+   <AdminCustomerRefundHistory key={`${customer.id}:refunds`} customerId={customer.id}/>
    <AdminCustomerAccessReview customerId={customer.id} targetName={customer.full_name||customer.email||customer.id}/>
   </div>}
  </details>;
@@ -1963,3 +1948,4 @@ export const AdminAccountLifecyclePage = () => {
     </div>
   );
 };
+

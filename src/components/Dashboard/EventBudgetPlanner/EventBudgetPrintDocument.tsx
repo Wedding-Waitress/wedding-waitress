@@ -30,12 +30,53 @@ const contactLines = (expense: EventBudgetExpense): string[] =>
 export const EventBudgetPrintDocument = React.forwardRef<HTMLDivElement, EventBudgetPrintDocumentProps>(({
   eventName, eventDate, currency, expenses, summary, generatedAt,
 }, ref) => {
-  const pages = paginateBudgetExpenses(expenses);
+  const documentRef = React.useRef<HTMLDivElement | null>(null);
+  const [pageSizes, setPageSizes] = React.useState<number[] | null>(null);
+  let start = 0;
+  const pages = pageSizes && pageSizes.reduce((sum, size) => sum + size, 0) === expenses.length
+    ? pageSizes.map(size => { const page = expenses.slice(start, start + size); start += size; return page; })
+    : paginateBudgetExpenses(expenses);
+
+  // Measure the authoritative rows at their intrinsic paper width. A long
+  // contact block moves the whole row to the next page rather than clipping it.
+  React.useLayoutEffect(() => {
+    const root = documentRef.current;
+    if (!root || !expenses.length) return;
+    const measure = () => {
+      const page = root.querySelector<HTMLElement>('[data-print-mirror-document="event-budget"]');
+      if (!page || !page.clientHeight) return;
+      const style = getComputedStyle(page);
+      const footer = page.querySelector<HTMLElement>('footer')!;
+      const footerStyle = getComputedStyle(footer);
+      const capacity = page.clientHeight - parseFloat(style.paddingTop) - parseFloat(style.paddingBottom)
+        - page.querySelector('header')!.getBoundingClientRect().height
+        - page.querySelector('section')!.getBoundingClientRect().height
+        - page.querySelector('thead')!.getBoundingClientRect().height
+        - parseFloat(footerStyle.minHeight) - parseFloat(footerStyle.paddingTop) - 2;
+      const sizes: number[] = [];
+      let count = 0;
+      let height = 0;
+      root.querySelectorAll<HTMLTableRowElement>('tbody tr').forEach(row => {
+        const rowHeight = row.getBoundingClientRect().height;
+        if (count && (count === EVENT_BUDGET_ROWS_PER_PAGE || height + rowHeight > capacity)) {
+          sizes.push(count); count = 0; height = 0;
+        }
+        count += 1; height += rowHeight;
+      });
+      if (count) sizes.push(count);
+      setPageSizes(previous => JSON.stringify(previous) === JSON.stringify(sizes) ? previous : sizes);
+    };
+    measure();
+    if (typeof ResizeObserver === 'undefined') return;
+    const observer = new ResizeObserver(measure);
+    root.querySelectorAll('tbody tr').forEach(row => observer.observe(row));
+    return () => observer.disconnect();
+  }, [expenses, eventName, eventDate, currency, summary, pageSizes]);
   const remainingLabel = summary.budgetRemaining < 0 ? 'Over Budget' : 'Budget Remaining';
   const remainingValue = Math.abs(summary.budgetRemaining);
   const generated = new Intl.DateTimeFormat('en-AU', { dateStyle: 'medium', timeStyle: 'short' }).format(generatedAt);
 
-  return <div ref={ref} className={styles.document} data-budget-print-document-root="true">
+  return <div ref={node => { documentRef.current = node; if (typeof ref === 'function') ref(node); else if (ref) ref.current = node; }} className={styles.document} data-budget-print-document-root="true">
     {pages.map((pageExpenses, pageIndex) => <div key={pageIndex} className={styles.presentation} data-print-mirror-presentation="true">
       <article
         className={styles.page}
@@ -47,7 +88,7 @@ export const EventBudgetPrintDocument = React.forwardRef<HTMLDivElement, EventBu
       >
         <header className={styles.header}>
           <div><h1>{eventName}</h1><h2>Event Budget Planner</h2>{eventDate && <p>{formatAustralianDate(eventDate)}</p>}</div>
-          <div className={styles.headerBudget}><span>Total Anticipated Budget · {currency}</span><strong>{formatBudgetCurrency(currency, summary.totalBudget)}</strong></div>
+          <div className={styles.headerBudget}><span>Total Anticipated Budget</span><strong>{formatBudgetCurrency(currency, summary.totalBudget)}</strong></div>
         </header>
 
         <section className={styles.summary} aria-label="Budget summary">

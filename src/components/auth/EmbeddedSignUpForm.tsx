@@ -13,7 +13,8 @@ import { CheckCircle2, LoaderCircle, Mail, Phone, Send, UserPlus, UserRound } fr
 import { useTranslation } from 'react-i18next';
 import { SignInModal } from './SignInModal';
 import { AuthError, AuthLegal, VerificationCodeForm, authModalStyles as styles } from './AuthModalParts';
-import { beginGuidedSetup, GUIDED_SETUP_ROUTE } from '@/lib/guidedEventSetup';
+import { beginGuidedSetup } from '@/lib/guidedEventSetup';
+import { MY_EVENTS_ENTRY_ROUTE } from '@/lib/authNavigation';
 import { normalizeGuestPhone } from '@/lib/guestPhone';
 import { SignUpModal } from './SignUpModal';
 import { PRELAUNCH_SIGNUP_HOLD } from '@/lib/prelaunch';
@@ -158,7 +159,7 @@ const LiveEmbeddedSignUpForm: React.FC = () => {
           title: t('form.welcomeTitle'),
           description: t('form.welcomeDesc')
         });
-        navigate(isGenuinelyNew ? `${GUIDED_SETUP_ROUTE}?mode=first&new=1` : '/dashboard');
+        navigate(MY_EVENTS_ENTRY_ROUTE);
       }
     } catch {
       setError(t('form.verificationFailed'));

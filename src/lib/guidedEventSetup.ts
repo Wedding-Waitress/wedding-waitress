@@ -1,5 +1,7 @@
 import { supabase } from '@/integrations/supabase/client';
 import { syncEventHeroImage } from '@/lib/eventHeroImage';
+import { seedOnboardingProfileImage } from '@/lib/onboardingProfileImage';
+import { notifyEventCreated } from '@/lib/eventCreationEvents';
 import {
   getDatabaseEventCreationError,
   getEventAllowanceSnapshot,
@@ -18,7 +20,7 @@ export type CelebrationType = 'wedding' | 'engagement' | 'birthday' | 'corporate
 export type DateChoice = 'exact' | 'month' | 'undecided';
 export type EventFormat = 'seated' | 'cocktail' | 'combined' | 'undecided';
 export type BudgetChoice = 'under-5000' | '5000-10000' | '10000-15000' | '15000-20000' | '20000-25000' | '25000-30000' | 'over-30000' | 'undecided' | 'exact';
-export type GuidedSetupCreationStage = 'draft-start' | 'event-recovery' | 'event-insert' | 'draft-link' | 'budget' | 'tables-read' | 'tables-insert' | 'guests-read' | 'guests-insert' | 'event-image-sync' | 'draft-completion';
+export type GuidedSetupCreationStage = 'draft-start' | 'event-recovery' | 'event-insert' | 'draft-link' | 'budget' | 'tables-read' | 'tables-insert' | 'guests-read' | 'guests-insert' | 'event-image-sync' | 'profile-image-sync' | 'draft-completion';
 
 export class GuidedSetupCreationError extends Error {
   constructor(public readonly stage: GuidedSetupCreationStage, message: string) {
@@ -185,16 +187,20 @@ const isValidPostcode = (value?: string, country?: string) => {
 
 export const normalizeGuidedAnswers = (answers: GuidedSetupAnswers): GuidedSetupAnswers => {
   const legacyParts = answers.partsChoice;
-  const partsChoice = legacyParts === 'combined'
+  const weddingParts = !answers.celebrationType || answers.celebrationType === 'wedding';
+  const partsChoice = !weddingParts
+    ? (legacyParts === 'ceremony-reception' || legacyParts === 'combined' ? 'multiple'
+      : legacyParts === 'ceremony-only' || legacyParts === 'reception-only' ? 'one-location' : legacyParts)
+    : legacyParts === 'combined'
     ? 'ceremony-reception'
     : legacyParts === 'one-location'
       ? 'reception-only'
       : legacyParts === 'multiple'
         ? 'ceremony-reception'
         : legacyParts;
-  const sameVenue = legacyParts === 'combined'
+  const sameVenue = weddingParts && legacyParts === 'combined'
     ? 'yes'
-    : legacyParts === 'multiple'
+    : weddingParts && legacyParts === 'multiple'
       ? 'no'
       : answers.sameVenue;
 
@@ -249,6 +255,7 @@ export const getGuidedStepIssues = (step: number, rawAnswers: GuidedSetupAnswers
     if (isCoupleCelebration(answers.celebrationType) && !hasText(answers.customerFirstName)) add('customerFirstName', 'Your first name', 'Enter your first name.');
     if (isCoupleCelebration(answers.celebrationType) && !hasText(answers.partnerFirstName)) add('partnerFirstName', "Your partner's first name", "Enter your partner's first name.");
     if (answers.celebrationType === 'birthday' && !hasText(answers.honoureeName)) add('honoureeName', 'Person celebrating', 'Enter the name of the person celebrating.');
+    if (answers.celebrationType === 'birthday' && hasText(answers.age) && (!positiveInt(answers.age) || Number(answers.age) < 1)) add('age', 'Age', 'Enter a whole age of one or more, or leave it blank.');
     if (!isCoupleCelebration(answers.celebrationType) && answers.celebrationType !== 'birthday' && !hasText(answers.organiserName)) add('organiserName', "Organiser's name", "Enter the organiser's name.");
     if (!hasText(answers.eventName)) add('eventName', 'Event name', 'Enter an event name.');
   }
@@ -271,7 +278,7 @@ export const getGuidedStepIssues = (step: number, rawAnswers: GuidedSetupAnswers
     }
     if (answers.dateChoice === 'month') {
       if (!answers.month || Number(answers.month) < 1 || Number(answers.month) > 12) add('month', 'Month', 'Choose the event month.');
-      if (!/^\d{4}$/.test(answers.year || '')) add('year', 'Year', 'Enter a four-digit event year.');
+      if (!/^\d{4}$/.test(answers.year || '') || Number(answers.year) < new Date().getFullYear()) add('year', 'Year', 'Enter a four-digit event year from this year onward.');
     }
     if (!answers.locationChoice) add('locationChoice', 'Location', 'Choose the current venue or location status.');
     if (answers.locationChoice === 'booked' && !hasText(answers.venueName)) add('venueName', 'Venue name', 'Enter the booked venue name.');
@@ -291,9 +298,9 @@ export const getGuidedStepIssues = (step: number, rawAnswers: GuidedSetupAnswers
   }
   if (step === 6) {
     if (!answers.eventFormat) add('eventFormat', 'Guest format', 'Choose how guests will be celebrating.');
-    if (!answers.guestCountsUnsure) {
-      if (!positiveInt(answers.approximateInvited)) add('approximateInvited', 'Approximate number invited', 'Enter a whole number, or choose that guest numbers are not known.');
-      if (!positiveInt(answers.expectedAttending)) add('expectedAttending', 'Expected number attending', 'Enter a whole number, or choose that guest numbers are not known.');
+    {
+      if ((!answers.guestCountsUnsure || hasText(answers.approximateInvited)) && !positiveInt(answers.approximateInvited)) add('approximateInvited', 'Approximate number invited', 'Enter a whole number, or choose that guest numbers are not known.');
+      if ((!answers.guestCountsUnsure || hasText(answers.expectedAttending)) && !positiveInt(answers.expectedAttending)) add('expectedAttending', 'Expected number attending', 'Enter a whole number, or choose that guest numbers are not known.');
       for (const [field, label] of [['adults', 'Adults'], ['children', 'Children'], ['vendors', 'Vendors or event staff']] as const) {
         if (hasText(answers[field]) && !positiveInt(answers[field])) add(field, label, 'Enter a whole number of zero or more.');
       }
@@ -308,6 +315,7 @@ export const getGuidedStepIssues = (step: number, rawAnswers: GuidedSetupAnswers
     const maximumCapacity = answers.tableStyle === 'long' ? 50 : 20;
     if (answers.tableCreation === 'automatic' && Number(answers.tableCapacity) > maximumCapacity) add('tableCapacity', 'Typical guests per table', `${answers.tableStyle === 'long' ? 'Long' : 'Round and square'} tables support up to ${maximumCapacity} seats.`);
     if (answers.tableCreation === 'automatic' && answers.headTable === 'yes' && (!positiveInt(answers.headTableCount) || Number(answers.headTableCount) < 1)) add('headTableCount', 'People at the Head Table', 'Enter the Head Table capacity.');
+    if (answers.tableCreation === 'automatic' && answers.headTable === 'yes' && Number(answers.headTableCount) > 124) add('headTableCount', 'People at the Head Table', 'The Head Table supports up to 124 seats.');
     if (answers.tableCreation === 'automatic' && answers.headTable === 'yes' && positiveInt(answers.headTableCount) && Number(answers.headTableCount) > Number(answers.expectedAttending || 0)) add('headTableCount', 'People at the Head Table', 'The Head Table cannot seat more people than the expected attendance.');
   }
   if (step === 8 && !answers.budgetChoice) add('budgetChoice', 'Overall planned budget', 'Choose a budget option.');
@@ -385,6 +393,7 @@ export const getGuidedTableSummary = (answers: GuidedSetupAnswers) => {
 };
 
 const creationFailureMessages: Record<GuidedSetupCreationStage, string> = {
+  'profile-image-sync': 'Your event was saved, but its photo could not be added to your private account profile. Please retry to finish setup.',
   'event-image-sync': 'Your event was saved, but its guest-app photo could not be prepared. Please retry to finish setup.',
   'draft-start': 'Your setup could not be prepared for completion. Your answers and photo are safe. Please try again.',
   'event-recovery': 'We could not safely resume event creation. Your answers and photo are safe. Please try again.',
@@ -445,7 +454,8 @@ export const completeGuidedSetup = async (draft: GuidedSetupDraft, guestEntryLim
   const creationPlan = getGuidedCreationPlan(answers);
   const { sections, requestedTables } = creationPlan;
   const venueFields = getGuidedVenueEventFields(answers);
-  const usesDifferentLocations = answers.partsChoice === 'ceremony-reception' && answers.sameVenue === 'no';
+  const usesDifferentLocations = (answers.partsChoice === 'ceremony-reception' && answers.sameVenue === 'no')
+    || (answers.celebrationType !== 'wedding' && answers.partsChoice === 'multiple');
   const receptionLocation = usesDifferentLocations ? answers.receptionVenue : answers.venueName;
   const receptionAddress = usesDifferentLocations ? answers.receptionAddress : venueFields.venueAddress;
   const ceremonyLocation = usesDifferentLocations ? answers.ceremonyVenue : answers.venueName;
@@ -576,9 +586,12 @@ export const completeGuidedSetup = async (draft: GuidedSetupDraft, guestEntryLim
     catch (error) { throwCreationFailure('event-image-sync', error); }
   }
   const completedAt = new Date().toISOString();
+  try { await seedOnboardingProfileImage(draft); }
+  catch (error) { throwCreationFailure('profile-image-sync', error); }
   const { error: completionError } = await supabase.from('onboarding_drafts').update({ created_event_id: eventId, current_step: 10, completed_at: completedAt }).eq('id', draft.id);
   if (completionError) throwCreationFailure('draft-completion', completionError);
   await supabase.from('profiles').update({ display_countdown_event_id: answers.dateChoice === 'exact' ? eventId : null }).eq('id', auth.user.id);
+  notifyEventCreated(auth.user.id, eventId);
   setSelectedEventId(eventId);
   window.dispatchEvent(new CustomEvent('ww:selected-event-set', { detail: eventId }));
   return eventId;

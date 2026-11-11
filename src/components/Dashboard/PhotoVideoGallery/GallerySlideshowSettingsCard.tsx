@@ -101,7 +101,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
             <div>
               <Label className="text-xs uppercase tracking-wide text-[#6E6E73]">Display order</Label>
               <Select disabled={readOnly} value={value.order} onValueChange={(v) => set('order', v as SlideshowSettings['order'])}>
-                <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+                <SelectTrigger aria-label="Display order" className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
                 <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
                   <SelectItem value="newest" className={cn(isGlass && managementStyles.gallerySelectItem)}>Newest First</SelectItem>
                   <SelectItem value="oldest" className={cn(isGlass && managementStyles.gallerySelectItem)}>Oldest First</SelectItem>
@@ -112,7 +112,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
             <div>
               <Label className="text-xs uppercase tracking-wide text-[#6E6E73]">Slide duration</Label>
               <Select disabled={readOnly} value={String(value.slide_duration_sec)} onValueChange={(v) => set('slide_duration_sec', Number(v))}>
-                <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+                <SelectTrigger aria-label="Slide duration" className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
                 <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
                   {SLIDE_DURATION_OPTIONS.map(s => (
                     <SelectItem key={s} value={String(s)} className={cn(isGlass && managementStyles.gallerySelectItem)}>{s} seconds</SelectItem>
@@ -123,7 +123,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
             <div>
               <Label className="text-xs uppercase tracking-wide text-[#6E6E73]">Transition</Label>
               <Select disabled={readOnly} value={value.transition} onValueChange={(v) => set('transition', v as SlideshowSettings['transition'])}>
-                <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+                <SelectTrigger aria-label="Transition" className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
                 <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
                   <SelectItem value="fade" className={cn(isGlass && managementStyles.gallerySelectItem)}>Fade</SelectItem>
                   <SelectItem value="slide" className={cn(isGlass && managementStyles.gallerySelectItem)}>Slide</SelectItem>
@@ -153,6 +153,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
             <button
               type="button"
               disabled={readOnly}
+              aria-pressed={value.albums.length === 0}
               onClick={() => set('albums', [])}
               className={cn(
                 `h-9 px-3 rounded-full text-sm border transition-colors ${value.albums.length === 0 ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-background text-[#1D1D1F] border-border hover:bg-muted'}`,
@@ -169,6 +170,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
                   key={a}
                   type="button"
                   disabled={readOnly}
+                  aria-pressed={active}
                   onClick={() => toggleAlbum(a)}
                   className={cn(
                     `h-9 px-3 rounded-full text-sm border transition-colors ${active ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-background text-[#1D1D1F] border-border hover:bg-muted'}`,

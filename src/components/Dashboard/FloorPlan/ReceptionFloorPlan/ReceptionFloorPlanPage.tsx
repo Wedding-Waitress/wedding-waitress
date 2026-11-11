@@ -9,7 +9,7 @@ import { Loader2, Printer, Download, Building2, UploadCloud, Share2 } from 'luci
 import { useToast } from '@/hooks/use-toast';
 import { useReceptionTables } from '@/hooks/useReceptionTables';
 import { useReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
-import { useAttendingGuestCount } from '@/hooks/useAttendingGuestCount';
+
 import type { Event } from '@/hooks/useEvents';
 import { ReceptionFloorPlanCanvas } from './ReceptionFloorPlanCanvas';
 
@@ -32,6 +32,7 @@ interface ReceptionFloorPlanPageProps {
   selectedEventId: string;
   selectedEvent: Event;
   headerControlsContainer: HTMLDivElement | null;
+  active?: boolean;
 }
 
 /**
@@ -42,8 +43,9 @@ export const ReceptionFloorPlanPage = ({
   selectedEventId,
   selectedEvent,
   headerControlsContainer,
+  active = true,
 }: ReceptionFloorPlanPageProps) => {
-  const { tables, loading: tablesLoading, ready: tablesReady } = useReceptionTables(selectedEventId);
+  const { tables, attendingCount, loading: tablesLoading, ready: tablesReady, error: tablesError, retry: retryTables } = useReceptionTables(selectedEventId, active);
   const {
     plan,
     loading: planLoading,
@@ -55,7 +57,7 @@ export const ReceptionFloorPlanPage = ({
     uploadBackground,
     uploadingBackground,
   } = useReceptionFloorPlan(selectedEventId);
-  const { count: attendingCount } = useAttendingGuestCount(selectedEventId);
+
   const { toast } = useToast();
   const {update,undo,canUndo} = useReceptionLayoutHistory(selectedEventId,commit,tables);
   const [exporting, setExporting] = useState<ReceptionPdfPageSize | null>(null);
@@ -67,7 +69,7 @@ export const ReceptionFloorPlanPage = ({
   const receptionA4Ref = useRef<HTMLDivElement>(null);
   const [generatedAt] = useState(() => new Date());
 
-  const loading = tablesLoading || planLoading || !plan;
+  const loading = tablesLoading || !tablesReady || planLoading || !plan;
 
   useEffect(() => {
     if (!plan || plan.event_id !== selectedEventId || tablesLoading || !tablesReady) return;
@@ -76,12 +78,13 @@ export const ReceptionFloorPlanPage = ({
 
 
   useEffect(() => {
+    if (!active) return;
     const mark = () => receptionA4Ref.current?.closest('[data-reception-document-group]')?.setAttribute('data-reception-print-source', 'true');
     const clear = () => receptionA4Ref.current?.closest('[data-reception-document-group]')?.removeAttribute('data-reception-print-source');
     window.addEventListener('beforeprint', mark);
     window.addEventListener('afterprint', clear);
     return () => { window.removeEventListener('beforeprint', mark); window.removeEventListener('afterprint', clear); clear(); };
-  }, []);
+  }, [active]);
 
   const handleReset = () => {
     update(p => resetReceptionLayout(p,tables));
@@ -149,6 +152,7 @@ export const ReceptionFloorPlanPage = ({
     </div>
   ) : null;
 
+  if (!active) return null;
   return (
     <Card className={`${styles.masterCard} border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`} data-reception-master-card="true">
       <CardContent className={`${styles.masterContent} space-y-4 max-lg:px-4`}>
@@ -157,9 +161,10 @@ export const ReceptionFloorPlanPage = ({
           : null}
 
         {saveError && <div role="alert" className="rounded-lg border border-red-600 p-3 text-sm">{saveError} <Button variant="outline" size="sm" onClick={() => void flush().catch(() => undefined)}>Retry save</Button></div>}
+        {tablesError && tablesReady && <div role="alert" className="rounded-lg border border-red-600 p-3 text-sm">{tablesError} <Button variant="outline" size="sm" onClick={retryTables}>Try again</Button></div>}
         <h2 className={styles.setupTitle}>Reception Setup &amp; Status</h2>
-        {loadError ? <div role="alert" className="p-4">{loadError}</div> : loading ? (
-          <div className={`${headerStyles.interfaceText} flex items-center gap-2 text-sm text-muted-foreground py-8 justify-center`}>
+        {tablesError && !tablesReady ? <div role="alert" className="p-4">{tablesError} <Button variant="outline" size="sm" onClick={retryTables}>Try again</Button></div> : loadError ? <div role="alert" className="p-4">{loadError}</div> : loading ? (
+          <div role="status" aria-live="polite" className={`${headerStyles.interfaceText} flex items-center gap-2 text-sm text-muted-foreground py-8 justify-center`}>
             <Loader2 className="w-4 h-4 animate-spin" /> Loading reception floor plan…
           </div>
         ) : (

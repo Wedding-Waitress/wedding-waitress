@@ -4,6 +4,7 @@ import { TableWithGuestCount } from '@/hooks/useTables';
 import { A4_PAGE_STYLE } from '@/lib/a4';
 import { IndividualChartSettings } from './IndividualTableSeatingChartPage';
 import { getHeadParticipantName } from '@/lib/headTable';
+import { getRelationDisplayText } from '@/lib/relationUtils';
 
 interface IndividualTableChartPrintPageProps {
   settings: IndividualChartSettings;
@@ -69,10 +70,12 @@ const sortGuests = (guests: Guest[], tableId: string) => [...guests]
 const getDietaryText = (guest: Guest, settings: IndividualChartSettings) =>
   settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? guest.dietary : '';
 
-const getRelationshipText = (guest: Guest, settings: IndividualChartSettings) =>
-  settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned'
-    ? guest.relation_display.replace(/ \/ /g, '/')
+const getRelationshipText = (guest: Guest, settings: IndividualChartSettings) => {
+  const relationship = getRelationDisplayText(guest.relation_display, guest.relation_role);
+  return settings.includeRelation && relationship !== 'Not Assigned'
+    ? relationship.replace(/ \/ /g, '/')
     : '';
+};
 
 const GuestDetails = ({ guest, settings }: { guest: Guest; settings: IndividualChartSettings }) => {
   const dietary = getDietaryText(guest, settings);

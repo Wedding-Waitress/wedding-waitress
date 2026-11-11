@@ -1,0 +1,13 @@
+const fs = require('node:fs'); const espree = require('espree');
+const root = 'work/upload-production-baseline/assets/';
+const file = 'GuestMediaUpload-UN3xq6Cw.js';
+const text = fs.readFileSync(root+file,'utf8');
+const ast = espree.parse(text,{ecmaVersion:'latest',sourceType:'module',range:true});
+const imports=ast.body.filter(n=>n.type==='ImportDeclaration').map(n=>({source:n.source.value,names:n.specifiers.map(s=>[s.imported?.name||'default',s.local.name])}));
+const functions=ast.body.filter(n=>n.type==='FunctionDeclaration'||n.type==='VariableDeclaration').flatMap(n=>n.type==='FunctionDeclaration'?[{name:n.id.name,range:n.range,text:text.slice(...n.range)}]:n.declarations.filter(d=>d.init?.type==='ArrowFunctionExpression').map(d=>({name:d.id.name,range:d.range,text:text.slice(...d.range)})));
+console.log(JSON.stringify({imports,functions:functions.filter(f=>/uploadFiles|register_event_media_upload|Waiting for picker/.test(f.text)).map(f=>({name:f.name,range:f.range,prefix:f.text.slice(0,900)}))},null,2));
+const main=fs.readFileSync(root+'index-CFWgM6CR.js','utf8');
+const m=espree.parse(main,{ecmaVersion:'latest',sourceType:'module',range:true});
+const exported=m.body.filter(n=>n.type==='ExportNamedDeclaration').flatMap(n=>n.specifiers.map(s=>[s.local.name,s.exported.name]));
+const translation=m.body.filter(n=>n.type==='FunctionDeclaration'&&main.slice(...n.range).includes('NO_I18NEXT_INSTANCE')).map(n=>({name:n.id.name,exports:exported.filter(([local])=>local===n.id.name)}));
+console.log(JSON.stringify({translation},null,2));

@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Guest } from '@/hooks/useGuests';
 import type { TableWithGuestCount } from '@/hooks/useTables';
-import { getHeadParticipantName, type HeadSeatEntry } from '@/lib/headTable';
+import { defaultHeadSeatingOrder, getHeadParticipantName, type HeadSeatEntry } from '@/lib/headTable';
 
 interface Props {
   open: boolean;
@@ -53,6 +53,14 @@ export const HeadTableSeatingDialog: React.FC<Props> = ({
     const next = [...order];
     [next[index], next[destination]] = [next[destination], next[index]];
     setOrder(next);
+  };
+
+  const missingParticipants = defaultHeadSeatingOrder(participant1, participant2).filter(entry =>
+    !order.some(existing => entryKey(existing) === entryKey(entry))
+  );
+  const addParticipant = (entry: HeadSeatEntry) => {
+    setOrder(current => current.length >= table.limit_seats || current.some(existing => entryKey(existing) === entryKey(entry))
+      ? current : [...current, entry]);
   };
 
   const addGuest = () => {
@@ -110,6 +118,11 @@ export const HeadTableSeatingDialog: React.FC<Props> = ({
             <Button type="button" className="min-h-11" variant="outline" onClick={swapHosts}><RefreshCw size={17} aria-hidden="true" />Swap Couple/Hosts</Button>
           </div>
 
+          {missingParticipants.length > 0 && <div className="flex flex-wrap gap-2">
+            {missingParticipants.map(entry => <Button key={entryKey(entry)} type="button" variant="outline" className="min-h-11 h-auto whitespace-normal" disabled={order.length >= table.limit_seats} onClick={() => addParticipant(entry)}>
+              <Plus size={17} aria-hidden="true" />Add {labelFor(entry)}
+            </Button>)}
+          </div>}
           <div className="overflow-x-auto pb-2" aria-label="Head Table seating order">
             <div className="flex min-w-max items-end justify-center gap-2 rounded-2xl border border-[#C4A882] p-4">
               {order.map((entry, index) => (

@@ -58,7 +58,7 @@ Deno.serve(async (req) => {
     );
   } catch (err) {
     return new Response(
-      JSON.stringify({ error: err.message }),
+      JSON.stringify({ error: err && typeof err === 'object' && 'message' in err && typeof err.message === 'string' ? err.message : 'Gallery upload failed' }),
       { status: 500, headers: { ...corsHeaders, "Content-Type": "application/json" } }
     );
   }

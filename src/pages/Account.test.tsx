@@ -32,8 +32,10 @@ vi.mock('@/hooks/useAccountBilling', () => ({
 
 vi.mock('@/hooks/use-toast', () => ({ useToast: () => ({ toast: mocks.toast }) }));
 vi.mock('@/integrations/supabase/client', () => ({ supabase: { auth: { signOut: mocks.signOut } } }));
+vi.mock('@/components/ContactForm', () => ({ContactForm: ({supportSource,initialEmail}: any) => <form aria-label="Support request" data-source={supportSource} data-email={initialEmail}/> }));
 vi.mock('@/components/SEO/SeoHead', () => ({ SeoHead: () => null }));
 
+vi.mock('@/components/Account/AccountInfoPanels', () => ({ AccountInfoPanels: () => <div data-account-info-stack><div>Account Info content</div><div>Security content</div></div> }));
 vi.mock('@/components/Account/AccountInfoCard', () => ({ AccountInfoCard: () => <div>Account Info content</div> }));
 vi.mock('@/components/Account/AccountAccessCard', () => ({ AccountAccessCard: () => <div>Access Team content</div> }));
 vi.mock('@/components/Account/SecurityCard', () => ({ SecurityCard: () => <div>Security content</div> }));
@@ -76,14 +78,15 @@ describe('Account Centre routing', () => {
     expect(screen.queryByText('Account Info content')).not.toBeInTheDocument();
   });
 
-  it('keeps the Help & Support route and navigation while leaving its page body empty', async () => {
+  it('keeps the Help & Support route with account guidance and the existing support form', async () => {
     const router = renderAccount('/account/help-support');
     const link = await screen.findByRole('link', { name: 'Help & Support' });
     expect(router.state.location.pathname).toBe('/account/help-support');
     expect(link).toHaveAttribute('aria-current', 'page');
     expect(screen.queryByText('Help Support content')).not.toBeInTheDocument();
-    expect(screen.queryByRole('heading', { name: 'Help & Support' })).not.toBeInTheDocument();
-    expect(document.querySelector('[data-empty-account-page="true"]')).toBeInTheDocument();
+    expect(screen.getByRole('heading', { name: 'Packages, promotions & invitation credits' })).toBeInTheDocument();
+    expect(document.querySelector('[data-support-form-slot]')).toBeInTheDocument();
+    expect(screen.getByRole('form',{name:'Support request'})).toHaveAttribute('data-source','account_support');
   });
 
   it('shows exactly four Account Centre destinations with security integrated into Account Info', async () => {

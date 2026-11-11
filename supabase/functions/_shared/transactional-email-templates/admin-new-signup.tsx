@@ -1,3 +1,4 @@
+import { EmailBrandFooter } from './email-brand-footer.tsx';
 /**
  * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY without explicit owner approval.
  * Admin notification: a new user signed up.
@@ -30,7 +31,8 @@ const AdminNewSignupEmail = ({ fullName, email, date }: AdminSignupProps) => {
           <Text style={row}><strong>Name:</strong> {fullName || '—'}</Text>
           <Text style={row}><strong>Email:</strong> {email || '—'}</Text>
           <Text style={row}><strong>Signup Date:</strong> {formattedDate}</Text>
-        </Container>
+        <EmailBrandFooter />
+      </Container>
       </Body>
     </Html>
   )

@@ -15,8 +15,8 @@ export const AccountRenewalPackages: React.FC<{reason?:'paid-expired'|'trial-end
       {Object.values(PLAN_DETAILS).map(plan => <label key={plan.key} style={{ display: 'block', margin: '12px 0' }}>
         <input type="radio" name="renewal-package" value={plan.key} checked={selected === plan.key}
           onChange={() => { setSelected(plan.key); setConsented(false); }} />
-        {' '}{plan.name} — A${plan.price_aud} excluding GST
-        <span style={{ display: 'block' }}>{plan.description}. Australian total including GST: A${gstInclusiveAud(plan.price_aud)}.</span>
+        {' '}{plan.name} — A${gstInclusiveAud(plan.price_aud).toFixed(2)} including 10% GST
+        <span style={{ display: 'block' }}>{plan.description}. Base price A${plan.price_aud}; GST applies worldwide.</span>
       </label>)}
     </fieldset>
     <label><input type="checkbox" checked={consented} onChange={event => setConsented(event.target.checked)} />{' '}

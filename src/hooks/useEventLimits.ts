@@ -1,4 +1,5 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useCallback, useEffect, useState, useRef } from 'react';
+import { PLAN_ENTITLEMENT_CHANGED_EVENT } from '@/lib/planEntitlementEvents';
 import { supabase } from '@/integrations/supabase/client';
 import { EVENT_DELETED_EVENT } from '@/lib/eventDeletion';
 import {
@@ -46,12 +47,15 @@ const usageError = (label: string) => `Unable to load ${label}.`;
 
 export const useEventLimits = (): EventLimitsState => {
   const [state, setState] = useState(initialState);
+  const latestRequest = useRef(0);
 
   const fetchCounts = useCallback(async () => {
+    const request = ++latestRequest.current;
     setState((current) => ({ ...current, loading: true }));
     try {
       const allowance = await getEventAllowanceSnapshot();
       const { data: { user } } = await supabase.auth.getUser();
+      if (request !== latestRequest.current) return;
       if (!user) {
         setState({ ...initialState, loading: false });
         return;
@@ -77,6 +81,7 @@ export const useEventLimits = (): EventLimitsState => {
           ? { count: 0, error: null }
           : await supabase.from('guests').select('id', { count: 'exact', head: true }).in('event_id', eventIds);
 
+      if (request !== latestRequest.current) return;
       setState({
         loading: false,
         eventsError: null,
@@ -94,6 +99,7 @@ export const useEventLimits = (): EventLimitsState => {
         canCreate: allowance.canCreate,
       });
     } catch (error) {
+      if (request !== latestRequest.current) return;
       console.error('Unable to load the authoritative event allowance:', error);
       setState((current) => ({
         ...current,
@@ -110,9 +116,16 @@ export const useEventLimits = (): EventLimitsState => {
 
   useEffect(() => {
     const refresh = () => { void fetchCounts(); };
+    const resume = () => { if (document.visibilityState !== 'hidden') refresh(); };
+    window.addEventListener(PLAN_ENTITLEMENT_CHANGED_EVENT, refresh);
+    window.addEventListener('focus', resume);
+    document.addEventListener('visibilitychange', resume);
     window.addEventListener(EVENT_DELETED_EVENT, refresh);
     window.addEventListener(EVENT_ALLOWANCE_CHANGED_EVENT, refresh);
     return () => {
+      window.removeEventListener(PLAN_ENTITLEMENT_CHANGED_EVENT, refresh);
+      window.removeEventListener('focus', resume);
+      document.removeEventListener('visibilitychange', resume);
       window.removeEventListener(EVENT_DELETED_EVENT, refresh);
       window.removeEventListener(EVENT_ALLOWANCE_CHANGED_EVENT, refresh);
     };

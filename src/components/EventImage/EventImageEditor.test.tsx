@@ -28,6 +28,36 @@ import { EventImageEditor } from './EventImageEditor';
 const context = { kind: 'draft' as const, ownerId: 'user-1', draftId: 'draft-1' };
 
 describe('EventImageEditor', () => {
+  it('does not save a new photo reference when its preview URL cannot be prepared', async () => {
+    mocks.probe.mockResolvedValue(undefined);
+    const file=new File(['image'],'new.jpg',{type:'image/jpeg'});
+    mocks.validate.mockResolvedValue({file,mime:'image/jpeg'});
+    mocks.path.mockReturnValue('user-1/drafts/draft-1/new.jpg');
+    const onChange=vi.fn().mockResolvedValue(undefined);
+    render(<EventImageEditor heading='Photo' context={context} value={{path:'user-1/drafts/draft-1/old.jpg',fit:'cover',positionX:50,positionY:50,zoom:100}} onChange={onChange}/>);
+    await screen.findByAltText('Event photo or logo preview');
+    mocks.signed.mockRejectedValueOnce(new Error('Preview unavailable'));
+    fireEvent.change(screen.getByLabelText('Choose an event photo or logo'),{target:{files:[file]}});
+    await screen.findByRole('alert');
+    expect(onChange).not.toHaveBeenCalled();
+    expect(mocks.remove).toHaveBeenCalledWith('user-1/drafts/draft-1/new.jpg');
+    expect(mocks.remove).not.toHaveBeenCalledWith('user-1/drafts/draft-1/old.jpg');
+  });
+  it('retains the new saved photo when old-object cleanup fails', async () => {
+    mocks.probe.mockResolvedValue(undefined);
+    const file=new File(['image'],'new.jpg',{type:'image/jpeg'});
+    mocks.validate.mockResolvedValue({file,mime:'image/jpeg'});
+    mocks.path.mockReturnValue('user-1/drafts/draft-1/new.jpg');
+    mocks.remove.mockRejectedValue(new Error('Cleanup unavailable'));
+    const onChange=vi.fn().mockResolvedValue(undefined);
+    render(<EventImageEditor heading='Photo' context={context} value={{path:'user-1/drafts/draft-1/old.jpg',fit:'cover',positionX:50,positionY:50,zoom:100}} onChange={onChange}/>);
+    await screen.findByAltText('Event photo or logo preview');
+    fireEvent.change(screen.getByLabelText('Choose an event photo or logo'),{target:{files:[file]}});
+    await waitFor(()=>expect(onChange).toHaveBeenCalled());
+    await waitFor(()=>expect(screen.getByRole('button',{name:'Replace'})).toBeEnabled());
+    expect(mocks.remove).not.toHaveBeenCalledWith('user-1/drafts/draft-1/new.jpg');
+    expect(screen.queryByRole('alert')).not.toBeInTheDocument();
+  });
   beforeEach(() => {
     mocks.probe.mockReset();
     mocks.signed.mockReset();

@@ -1,6 +1,7 @@
 // Public guest Photo Booth page — /gallery-photobooth/:token
-// Supports two modes: 'single' (one photo) and 'strip' (4 photos composed into a wedding strip)
+// Four distinct captures composed into the existing duplicated wedding strip.
 import React, { useEffect, useRef, useState, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
@@ -13,6 +14,7 @@ import { safeEventName } from '@/lib/sharedPhotoFilename';
 import { GalleryPasswordGate, galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 import { resolveGalleryTheme } from '@/lib/galleryTheme';
 import { resolveGalleryTitle } from '@/lib/galleryTitle';
+import { usePhotoBoothCameraFocus } from '@/hooks/usePhotoBoothCameraFocus';
 import { usePhotoBoothUpload } from '@/hooks/usePhotoBoothUpload';
 import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
 import publicUploadStyles from './guestMediaUpload.module.css';
@@ -30,7 +32,7 @@ const STRIP_COUNT = PB_STRIP_COUNT;
 import photoBoothBgAsset from '@/assets/photo-booth-bg.png.asset.json';
 
 const PHOTO_BOOTH_BG = photoBoothBgAsset.url;
-const COUNTDOWN_SECONDS = 7;
+const COUNTDOWN_SECONDS = 8;
 
 export interface GalleryPublic {
   gallery_id: string;
@@ -94,6 +96,17 @@ export const buildPublicPhotoBoothComposeOpts = (
 
 type Phase = 'preview' | 'captured' | 'saving' | 'saved';
 
+// Each slot owns its Blob URL; previous shots stay stable while later shots arrive.
+const CapturedPhotoThumbnail: React.FC<{ blob: Blob; alt: string }> = ({ blob, alt }) => {
+  const [src, setSrc] = useState<string>();
+  useEffect(() => {
+    const url = URL.createObjectURL(blob);
+    setSrc(url);
+    return () => URL.revokeObjectURL(url);
+  }, [blob]);
+  return src ? <img src={src} alt={alt} className="block w-full h-full object-cover" /> : null;
+};
+
 
 
 interface GuestPhotoBoothProps {
@@ -108,6 +121,10 @@ interface GuestPhotoBoothProps {
 }
 
 export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onExit, embedded = false, onSaved }) => {
+  const { t } = useTranslation('common');
+  const captureRun = useRef<AbortController | null>(null);
+  const cameraRequest = useRef(0);
+  const uploadSession = useRef<{token: string; uploaderName: string; outputs: {blob: Blob; filename: string; isStrip: boolean; saved: boolean}[]} | null>(null);
   const params = useParams<{ token: string }>();
   const token = tokenProp ?? params.token;
   const [gallery, setGallery] = useState<GalleryPublic | null>(null);
@@ -115,6 +132,14 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   const [notFound, setNotFound] = useState(false);
   const [unlocked, setUnlocked] = useState(false);
   const [name, setName] = useState('');
+  const [nameRequired, setNameRequired] = useState(false);
+  const nameRef = useRef<HTMLInputElement | null>(null);
+  const validateName = () => {
+    if (name.trim()) return true;
+    setNameRequired(true);
+    nameRef.current?.focus();
+    return false;
+  };
   const [phase, setPhase] = useState<Phase>('preview');
   const [errorMsg, setErrorMsg] = useState<string | null>(null);
   const [capturedBlob, setCapturedBlob] = useState<Blob | null>(null);
@@ -128,6 +153,8 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   const [fallbackLinks, setFallbackLinks] = useState<{ name: string; url: string }[]>([]);
 
 
+  const cameraFrameRef = useRef<HTMLDivElement | null>(null);
+  const centerCamera = usePhotoBoothCameraFocus(cameraFrameRef);
   const videoRef = useRef<HTMLVideoElement | null>(null);
   const streamRef = useRef<MediaStream | null>(null);
 
@@ -163,6 +190,16 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
 
   useEffect(() => {
     if (!token) { setLoading(false); setNotFound(true); return; }
+    captureRun.current?.abort();
+    captureRun.current = null;
+    uploadSession.current = null;
+    savedRef.current = false;
+    setPhase('preview');
+    setCountdown(null);
+    setStripActive(false);
+    setStripPhotos([]);
+    setCapturedBlob(null);
+    setCapturedUrl(previous => { if (previous) URL.revokeObjectURL(previous); return null; });
     let cancelled = false;
     setLoading(true);
     setLoadError(null);
@@ -186,7 +223,8 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
 
           const row = Array.isArray(data) ? data[0] : data;
           if (row) {
-            setGallery(row as GalleryPublic);
+            // The approved booth is a four-capture strip, including events with the legacy single default.
+            setGallery({ ...row, photo_booth_mode: 'strip' } as GalleryPublic);
             if (!cancelled) { setLoadError(null); setLoading(false); }
             return;
           }
@@ -222,6 +260,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   const retryLoad = useCallback(() => setLoadAttempt(n => n + 1), []);
 
   const stopStream = useCallback(() => {
+    cameraRequest.current += 1;
     if (streamRef.current) {
       streamRef.current.getTracks().forEach(t => t.stop());
       streamRef.current = null;
@@ -243,19 +282,23 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
     setCameraError(null);
     setCameraStarting(true);
     stopStream();
+    const request = cameraRequest.current;
     try {
       const stream = await navigator.mediaDevices.getUserMedia({
         audio: false,
         video: { facingMode: { ideal: fm }, width: { ideal: 1920 }, height: { ideal: 1440 } },
       });
+      if (request !== cameraRequest.current) { stream.getTracks().forEach(track => track.stop()); return; }
       streamRef.current = stream;
       if (videoRef.current) {
         videoRef.current.srcObject = stream;
         videoRef.current.muted = true;
         await videoRef.current.play().catch(() => {});
       }
+      if (request !== cameraRequest.current) return;
       setStreamReady(true);
     } catch (e: any) {
+      if (request !== cameraRequest.current) return;
       const name = e?.name || '';
       if (name === 'NotAllowedError' || name === 'SecurityError' || /Permission/i.test(e?.message || '')) {
         setCameraError({
@@ -271,7 +314,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
       }
       cameraInitRef.current = null;
     } finally {
-      setCameraStarting(false);
+      if (request === cameraRequest.current) setCameraStarting(false);
     }
   }, [stopStream]);
 
@@ -305,7 +348,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
 
   // Unmount cleanup only — must not depend on changing values.
   const cleanupRef = useRef<() => void>(() => {});
-  cleanupRef.current = () => { stopStream(); if (capturedUrl) URL.revokeObjectURL(capturedUrl); };
+  cleanupRef.current = () => { uploadSession.current = null; captureRun.current?.abort(); stopStream(); if (capturedUrl) URL.revokeObjectURL(capturedUrl); };
   useEffect(() => () => { cleanupRef.current(); }, []);
 
 
@@ -316,8 +359,9 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   const grabFrameBlob = async (): Promise<Blob | null> => {
     if (!videoRef.current || !streamReady) return null;
     const v = videoRef.current;
-    const w = v.videoWidth || 1280;
-    const h = v.videoHeight || 720;
+    if (v.readyState < 2 || !v.videoWidth || !v.videoHeight || streamRef.current?.getVideoTracks().some(track => track.readyState === 'ended')) return null;
+    const w = v.videoWidth;
+    const h = v.videoHeight;
     const canvas = document.createElement('canvas');
     canvas.width = w; canvas.height = h;
     const ctx = canvas.getContext('2d');
@@ -337,78 +381,74 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
     });
   };
 
-  const captureSingle = async () => {
-    const blob = await grabFrameBlob();
-    if (!blob) { setErrorMsg('Could not capture photo'); return; }
+  // One cancellable run owns all four countdowns and frame captures. React renders
+  // never restart it; late canvas/composition callbacks cannot revive a stopped run.
+  const stopCapture = () => {
+    captureRun.current?.abort();
+    captureRun.current = null;
+    setCountdown(null);
+    setStripActive(false);
+    setFlash(false);
+  };
+
+  const startCountdown = async () => {
+    if (!streamReady || captureRun.current) return;
+    if (!validateName()) return;
+    nameRef.current?.blur();
+    centerCamera();
+    const run = new AbortController();
+    captureRun.current = run;
+    uploadSession.current = null;
+    savedRef.current = false;
+    setErrorMsg(null);
+    setStripPhotos([]);
+    setStripActive(true);
+    const pause = (ms: number) => new Promise<void>(resolve => {
+      if (run.signal.aborted) return resolve();
+      const finish = () => { clearTimeout(timer); run.signal.removeEventListener('abort', finish); resolve(); };
+      const timer = setTimeout(finish, ms);
+      run.signal.addEventListener('abort', finish, { once: true });
+    });
+    const photos: Blob[] = [];
     try {
-      // Individual photos are always saved as the original raw capture — no template styling.
-      const finalBlob = blob;
-      setCapturedBlob(finalBlob);
+      for (let index = 0; index < STRIP_COUNT; index++) {
+        for (let second = COUNTDOWN_SECONDS; second > 0; second--) {
+          if (run.signal.aborted) return;
+          setCountdown(second);
+          await pause(1000);
+        }
+        if (run.signal.aborted) return;
+        setCountdown(null);
+        const blob = await grabFrameBlob();
+        if (run.signal.aborted) return;
+        if (!blob) throw new Error(t('photoBoothSession.captureFailed'));
+        photos.push(blob);
+        setStripPhotos([...photos]);
+        setFlash(true);
+        await pause(180);
+        if (run.signal.aborted) return;
+        setFlash(false);
+        if (index < STRIP_COUNT - 1) await pause(520);
+      }
+      if (run.signal.aborted) return;
+      const stripBlob = await composeStripBlob(photos, buildComposeOpts());
+      if (run.signal.aborted) return;
+      setCapturedBlob(stripBlob);
       if (capturedUrl) URL.revokeObjectURL(capturedUrl);
-      setCapturedUrl(URL.createObjectURL(finalBlob));
+      setCapturedUrl(URL.createObjectURL(stripBlob));
       setPhase('captured');
       stopStream();
-    } catch (e: any) {
-      setErrorMsg(e?.message || 'Could not compose photo');
+    } catch (error: any) {
+      if (!run.signal.aborted) setErrorMsg(error?.message || t('photoBoothSession.captureFailed'));
+    } finally {
+      if (captureRun.current === run) { captureRun.current = null; setCountdown(null); setStripActive(false); setFlash(false); }
     }
   };
-
-  const captureStripFrame = async () => {
-    const blob = await grabFrameBlob();
-    if (!blob) { setErrorMsg('Could not capture photo'); setStripActive(false); return; }
-    setFlash(true);
-    setTimeout(() => setFlash(false), 180);
-    const nextPhotos = [...stripPhotos, blob];
-    setStripPhotos(nextPhotos);
-    if (nextPhotos.length < STRIP_COUNT) {
-      setTimeout(() => setCountdown(COUNTDOWN_SECONDS), 700);
-    } else {
-      setStripActive(false);
-      try {
-        const stripBlob = await composeStripBlob(nextPhotos, buildComposeOpts());
-        setCapturedBlob(stripBlob);
-        if (capturedUrl) URL.revokeObjectURL(capturedUrl);
-        setCapturedUrl(URL.createObjectURL(stripBlob));
-        setPhase('captured');
-        stopStream();
-      } catch (e: any) {
-        setErrorMsg(e?.message || 'Could not compose strip');
-        setStripPhotos([]);
-      }
-    }
-  };
-
-
-
-  const startCountdown = () => {
-    if (!streamReady || countdown !== null) return;
-    if (!name.trim()) { setErrorMsg('Please add your full name first.'); return; }
-    setErrorMsg(null);
-    if (mode === 'strip') {
-      setStripPhotos([]);
-      setStripActive(true);
-    }
-    setCountdown(COUNTDOWN_SECONDS);
-  };
-
-  // Countdown ticker
-  useEffect(() => {
-    if (countdown === null) return;
-    if (countdown === 0) {
-      setCountdown(null);
-      if (mode === 'strip') {
-        captureStripFrame();
-      } else {
-        captureSingle();
-      }
-      return;
-    }
-    const t = setTimeout(() => setCountdown(c => (c === null ? null : c - 1)), 1000);
-    return () => clearTimeout(t);
-    // eslint-disable-next-line react-hooks/exhaustive-deps
-  }, [countdown]);
 
   const retake = () => {
+    stopCapture();
+    uploadSession.current = null;
+    savedRef.current = false;
     if (capturedUrl) URL.revokeObjectURL(capturedUrl);
     setCapturedUrl(null);
     setCapturedBlob(null);
@@ -419,6 +459,9 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   };
 
   const cancel = () => {
+    stopCapture();
+    uploadSession.current = null;
+    savedRef.current = false;
     if (capturedUrl) URL.revokeObjectURL(capturedUrl);
     setCapturedUrl(null);
     setCapturedBlob(null);
@@ -502,43 +545,30 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
   const savedRef = useRef(false);
 
   const downloadAndSave = async () => {
-    if (!capturedBlob || !token) return;
-    if (!name.trim()) { setErrorMsg('Please add your full name first.'); return; }
-    if (savingRef.current) return;
+    if (!capturedBlob || !token || stripPhotos.length !== STRIP_COUNT) return;
+    if (!validateName()) return;
+    if (savingRef.current || savedRef.current) return;
     savingRef.current = true;
     setPhase('saving');
     setErrorMsg(null);
-
-    // Download first so the native share sheet still counts as a user gesture.
-    await downloadAll();
-
-    if (savedRef.current) {
-      setPhase('saved');
-      savingRef.current = false;
-      return;
+    if (!uploadSession.current) {
+      const stamp = Date.now();
+      uploadSession.current = { token, uploaderName: name.trim(), outputs: [
+        {blob: capturedBlob, filename: `photobooth-strip-${stamp}.jpg`, isStrip: true, saved: false},
+        ...stripPhotos.map((blob, i) => ({blob, filename: `photobooth-${stamp}-${i + 1}.jpg`, isStrip: false, saved: false})),
+      ] };
     }
-
-    const prefix = mode === 'strip' ? 'photobooth-strip' : 'photobooth';
-    const stamp = Date.now();
-    const uploaderName = name.trim();
-    const ok = await upload(capturedBlob, {
-      token,
-      mime: 'image/jpeg',
-      uploaderName,
-      filename: `${prefix}-${stamp}.jpg`,
-      isStrip: mode === 'strip',
-    });
-    if (ok) {
-      // Also store each individual capture from the strip so all 5 images land in the gallery.
-      const singles = mode === 'strip' ? stripPhotos : [];
-      for (let i = 0; i < singles.length; i++) {
-        await upload(singles[i], {
-          token,
-          mime: 'image/jpeg',
-          uploaderName,
-          filename: `photobooth-${stamp}-${i + 1}.jpg`,
-          isStrip: false,
-        });
+    const session = uploadSession.current;
+    try {
+      // Native sharing must start on the tap. Cancelling it does not cancel server saving.
+      try { await downloadAll(); } catch { showFallbackLinks(); }
+      if (uploadSession.current !== session) return;
+      for (const output of session.outputs) {
+        if (output.saved) continue;
+        const ok = await upload(output.blob, {token: session.token, mime: 'image/jpeg', uploaderName: session.uploaderName, filename: output.filename, isStrip: output.isStrip});
+        if (uploadSession.current !== session) return;
+        if (!ok) throw new Error('incomplete');
+        output.saved = true;
       }
       savedRef.current = true;
       setPhase('saved');
@@ -547,13 +577,12 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
       setCapturedUrl(null);
       setStripPhotos([]);
       onSaved?.();
-    } else {
+    } catch {
+      if (uploadSession.current !== session) return;
       setPhase('captured');
-      setErrorMsg('Your photos could not be added to the gallery. Please tap “Download and Save” to try again.');
-    }
-    savingRef.current = false;
+      setErrorMsg(t('photoBoothSession.partial', {saved: session.outputs.filter(output => output.saved).length, total: session.outputs.length}));
+    } finally { savingRef.current = false; }
   };
-
 
   const theme = resolveGalleryTheme(gallery);
   const accent = theme.themeColor;
@@ -660,7 +689,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
             <div className="mt-6 space-y-2">
               <Button
                 className={`lv-premium-shade w-full h-11 text-white ${publicUploadStyles.primaryAction}`}
-                onClick={() => { setPhase('preview'); }}
+                onClick={retake}
               >
                 {mode === 'strip' ? 'Make another strip' : 'Take another photo'}
               </Button>
@@ -673,10 +702,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
           </Card>
         ) : (
           <Card className={`p-5 space-y-5 border ${theme.surfaceClass} ${theme.textClass} ${publicUploadStyles.uploadPanel} ${publicUploadStyles.photoBoothPanel}`} data-public-photo-booth-surface="form">
-            <div>
-              <Label htmlFor="pb-name" className={`text-base font-medium ${publicUploadStyles.sectionHeading}`}>Your Full Name <span className={publicUploadStyles.requiredMark}>*</span></Label>
-              <Input id="pb-name" className={`h-12 text-base mt-2 border ${publicUploadStyles.field}`} value={name} onChange={e => setName(e.target.value)} placeholder="e.g. Sarah Jones" />
-            </div>
+
 
             {!isCameraSupported && (
               <div className={`rounded-md border text-sm p-3 ${publicUploadStyles.photoBoothWarning}`}>
@@ -720,7 +746,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
                 />
               </div>
             ) : (
-              <div className={`rounded-lg overflow-hidden bg-black aspect-[3/4] relative border ${publicUploadStyles.photoBoothCameraFrame}`}>
+              <div ref={cameraFrameRef} className={`rounded-lg overflow-hidden bg-black aspect-[3/4] relative border ${publicUploadStyles.photoBoothCameraFrame}`}>
                 <video
                   ref={videoRef}
                   className="w-full h-full object-cover"
@@ -756,20 +782,28 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
 
             {/* Strip thumbnails progress (during capture) */}
             {mode === 'strip' && phase === 'preview' && (
-              <div className="flex gap-2 justify-center">
+              <div className="space-y-2">
+                <p className={`text-center text-base font-medium ${publicUploadStyles.sectionHeading}`}>{t('photoBoothSession.captureNote')}</p>
+                <div className="grid grid-cols-4 gap-2">
                 {Array.from({ length: STRIP_COUNT }).map((_, i) => (
                   <div
                     key={i}
-                    className={`w-12 h-16 rounded border ${publicUploadStyles.photoBoothSlot} ${i < stripProgress ? publicUploadStyles.photoBoothSlotComplete : ''} ${i === stripProgress && stripBusy ? publicUploadStyles.photoBoothSlotActive : ''}`}
+                    className={`min-w-0 aspect-[3/4] rounded border ${publicUploadStyles.photoBoothSlot} ${i < stripProgress ? publicUploadStyles.photoBoothSlotComplete : ''} ${i === stripProgress && stripBusy ? publicUploadStyles.photoBoothSlotActive : ''}`}
                     data-photo-booth-slot={i + 1}
                   >
                     {i < stripProgress && (
-                      <div className="w-full h-full flex items-center justify-center text-[#967A59] text-xs font-semibold">{i + 1}</div>
+                      <CapturedPhotoThumbnail blob={stripPhotos[i]} alt={t('photoBoothSession.capturedPhoto', { number: i + 1 })} />
                     )}
                   </div>
                 ))}
+                </div>
               </div>
             )}
+
+            <div>
+              <Label htmlFor="pb-name" className={`text-base font-medium ${publicUploadStyles.sectionHeading}`}>{t('photoBoothSession.nameLabel')} <span className={publicUploadStyles.requiredMark}>*</span></Label>
+              <Input id="pb-name" ref={nameRef} enterKeyHint="done" onKeyDown={e => { if (e.key === 'Enter' && !e.nativeEvent.isComposing) { e.preventDefault(); e.currentTarget.blur(); } }} onBlur={e => { if (phase === 'preview' && !stripActive && e.currentTarget.value.trim()) centerCamera(); }} aria-required="true" aria-invalid={nameRequired || undefined} className={`h-12 text-base mt-2 border ${publicUploadStyles.field} ${nameRequired ? publicUploadStyles.photoBoothNameRequired : ''}`} value={name} onChange={e => { setName(e.target.value); if (e.target.value.trim()) setNameRequired(false); }} placeholder={t('photoBoothSession.namePlaceholder')} />
+            </div>
 
             {phase === 'preview' && (
               <div className="space-y-2.5">
@@ -799,8 +833,7 @@ export const GuestPhotoBooth: React.FC<GuestPhotoBoothProps> = ({ tokenProp, onE
                     className={`flex-1 h-11 text-base text-white shadow-none ${publicUploadStyles.guestbookDangerAction} ${publicUploadStyles.photoBoothNoBlackBorder}`}
                     onClick={() => {
                       if (countdown !== null || stripActive) {
-                        setCountdown(null);
-                        setStripActive(false);
+                        stopCapture();
                         setStripPhotos([]);
                         return;
                       }

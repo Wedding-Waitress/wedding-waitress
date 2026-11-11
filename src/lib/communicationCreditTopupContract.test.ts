@@ -38,11 +38,11 @@ describe('communication credit top-up contract', () => {
       verification.indexOf('// ── Legacy SMS top-up'),
     );
     expect(verification.indexOf('session.payment_status !== "paid"')).toBeLessThan(
-      verification.indexOf("rpc('fulfill_communication_credit_topup'"),
+      verification.indexOf("rpc('fulfill_communication_credit_topup_gst'"),
     );
     expect(verification).toContain("lineItem?.price?.id !== configuredPriceId");
     expect(verification).toContain("productId !== configuredProductId");
-    expect(verification).toContain("session.amount_total !== pack.unitAmount");
+    expect(verification).toContain("validateWorldwideGstTotal(pack.unitAmount");
     expect(verification).toContain("lineItem?.quantity !== 1");
     expect(communicationBranch).not.toContain('add_sms_credits');
   });

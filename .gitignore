@@ -33,5 +33,11 @@ supabase/backups/
 # Local Netlify folder
 .netlify
 
+# Isolated production snapshots, release artifacts and disposable browser profile.
+.codex-deploy-photo-video/
+
 # Supabase CLI cache/link state
 supabase/.temp/
+
+# Temporary live upload test context may contain test-only bearer credentials.
+work/upload-live-test/

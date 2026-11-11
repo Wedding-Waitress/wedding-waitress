@@ -1,3 +1,4 @@
+import { useDJMCRowTextSize } from '@/hooks/useDJMCRowTextSize';
 import { Printer as ExportControlsPrinter } from 'lucide-react';
 import { DJMCRowTextSize } from './DJMCRowTextSize';
 /**
@@ -67,7 +68,7 @@ const formatTimeDisplay = (time: string | null | undefined): string => {
 
 export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }: DJMCQuestionnairePageProps) {
   const { toast } = useToast();
-  const [rowTextSize, setRowTextSize] = useState<"standard"|"larger">("standard");
+  const { rowTextSize, setRowTextSize, loading: rowTextSizeLoading } = useDJMCRowTextSize(selectedEventId);
   const [showShareModal, setShowShareModal] = useState(false);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
 
@@ -98,19 +99,30 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
   const selectedEvent = events.find(e => e.id === selectedEventId);
   const progress = calculateProgress();
 
+  const exportLock = React.useRef(false);
+  const exportContext = JSON.stringify([selectedEventId, selectedEvent, questionnaire, rowTextSize]);
+  const exportContextRef = React.useRef(exportContext);
+  exportContextRef.current = exportContext;
+  React.useEffect(() => () => { exportContextRef.current = ''; }, []);
+  const exportBlocked = loading || saving || rowTextSizeLoading || undoHistory.busy || downloadingPDF || questionnaire?.event_id !== selectedEventId;
   const handleDownloadEntirePDF = async () => {
-    if (!questionnaire || !selectedEvent) return;
+    if (!questionnaire || !selectedEvent || exportBlocked || exportLock.current) return;
+    exportLock.current = true;
+    const snapshot = exportContextRef.current;
+    const isCurrent = () => exportContextRef.current === snapshot;
 
     setDownloadingPDF(true);
     try {
       const { exportEntireQuestionnairePDF } = await import('@/lib/djMCQuestionnairePdfExporter');
-      await exportEntireQuestionnairePDF(questionnaire, selectedEvent, rowTextSize);
+      await exportEntireQuestionnairePDF(questionnaire, selectedEvent, rowTextSize, isCurrent);
+      if (!isCurrent()) return;
       toast({
         className: 'ww-djmc-toast',
         title: "PDF Downloaded",
         description: "Your DJ & MC Questionnaire has been downloaded.",
       });
     } catch (error) {
+      if (!isCurrent()) return;
       console.error('Failed to download PDF:', error);
       toast({
         className: 'ww-djmc-toast',
@@ -119,22 +131,28 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
         variant: "destructive",
       });
     } finally {
+      exportLock.current = false;
       setDownloadingPDF(false);
     }
   };
 
   const handleDownloadSectionPDF = async (section: typeof questionnaire.sections[0]) => {
-    if (!selectedEvent) return;
-
+    if (!selectedEvent || exportBlocked || exportLock.current) return;
+    exportLock.current = true;
+    setDownloadingPDF(true);
+    const snapshot = exportContextRef.current;
+    const isCurrent = () => exportContextRef.current === snapshot;
     try {
       const { exportSectionPDF } = await import('@/lib/djMCQuestionnairePdfExporter');
-      await exportSectionPDF(section, selectedEvent, rowTextSize);
+      await exportSectionPDF(section, selectedEvent, rowTextSize, isCurrent);
+      if (!isCurrent()) return;
       toast({
         className: 'ww-djmc-toast',
         title: "Section PDF Downloaded",
         description: `"${section.section_label}" has been downloaded.`,
       });
     } catch (error) {
+      if (!isCurrent()) return;
       console.error('Failed to download section PDF:', error);
       toast({
         className: 'ww-djmc-toast',
@@ -142,6 +160,9 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
         description: "There was an error generating the PDF.",
         variant: "destructive",
       });
+    } finally {
+      exportLock.current = false;
+      setDownloadingPDF(false);
     }
   };
 
@@ -171,7 +192,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
           </div>
         </div>
 
-        <DJMCRowTextSize value={rowTextSize} onChange={setRowTextSize}/>
+        <DJMCRowTextSize value={rowTextSize} onChange={setRowTextSize} disabled={rowTextSizeLoading}/>
         <Button variant="ghost" className="gap-1.5 print:hidden" disabled={!undoHistory.canUndo||undoHistory.busy}
           onClick={undoHistory.undo} title="Restore the previous questionnaire while this page is open">
           {undoHistory.operation === 'restoring' ? <LoaderCircle size={18} className="animate-spin" aria-hidden="true"/> : <Undo2 size={18} strokeWidth={1.8} aria-hidden="true"/>}
@@ -204,7 +225,8 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
                 </div>
                 <div className="flex items-center gap-3 flex-wrap max-lg:gap-2 max-sm:flex-col max-sm:items-stretch">
                   <button
-                    onClick={() => setShowShareModal(true)}
+                    disabled={exportBlocked}
+                    onClick={() => {if(!exportBlocked)setShowShareModal(true);}}
                     className={`${theme.primaryAction} ${theme.exportButton} inline-flex items-center gap-1.5 h-10 px-4 text-sm font-semibold rounded-full transition-colors max-sm:h-10 max-sm:w-full max-sm:justify-center max-sm:text-sm`}
                   >
                     <Share2 size={16} strokeWidth={1.8} aria-hidden="true" />
@@ -212,7 +234,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
                   </button>
                   <button
                     onClick={handleDownloadEntirePDF}
-                    disabled={downloadingPDF}
+                    disabled={exportBlocked}
                     aria-busy={downloadingPDF}
                     className={`${theme.primaryAction} ${theme.exportButton} inline-flex items-center gap-1.5 h-10 px-4 text-sm font-semibold rounded-full transition-colors disabled:opacity-50 disabled:pointer-events-none max-sm:h-10 max-sm:w-full max-sm:justify-center max-sm:text-sm`}
                   >
@@ -312,7 +334,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
             <DJMCQuestionnaireSection
               key={section.id}
               section={section}
-              disabled={undoHistory.busy}
+              disabled={undoHistory.busy || downloadingPDF || questionnaire?.event_id !== selectedEventId}
               onRunUndoable={undoHistory.run}
               eventId={questionnaire.event_id}
               onUpdateSection={(updates) => undoHistory.record(() => updateSection(section.id, updates))}
@@ -331,7 +353,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
           {/* Guest Song Requests (synthetic appended section) */}
           <GuestSongRequestsSection
             key={`${selectedEventId}:${undoHistory.revision}`}
-            disabled={undoHistory.busy}
+            disabled={undoHistory.busy || downloadingPDF}
             onRunUndoable={(action,rows)=>undoHistory.run(action,false,rows)}
             eventId={selectedEvent?.id ?? null}
             eventName={selectedEvent?.name ?? null}

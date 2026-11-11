@@ -97,7 +97,7 @@ export const VenueDetail = () => {
           </Link>
 
           <div className="grid grid-cols-1 md:grid-cols-2 gap-8 items-start">
-            <div className="rounded-xl border border-border bg-card overflow-hidden aspect-[4/3] flex items-center justify-center">
+            <div className="ww-venue-detail-photo rounded-xl border border-border bg-card overflow-hidden aspect-[4/3] flex items-center justify-center">
               {thumb ? (
                 <img src={thumb} alt={title} className="w-full h-full object-cover" />
               ) : (

@@ -1590,3 +1590,21 @@
 }
 :global(body) button.slideshowSaveAction.slideshowSaveAction.slideshowSaveAction :is(svg,svg *) {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;}
 :global(#root#root#root#root) button.slideshowSaveAction :is(svg,svg *) {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;}
+:global(#root#root) .workspaceContent .zipEmptyMessage,
+:global(#root#root) .workspaceContent .zipEmptyMessage svg,
+.zipEmptyMessage.zipEmptyMessage,
+.zipEmptyMessage.zipEmptyMessage svg {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+
+/* Keep compact gallery controls usable at phone width. */
+@media(max-width:639px){
+ :global(#root#root#root) .photoVideoSharingSurface :global([data-guestbook-toolbar]) button,
+ :global(#root#root#root) .photoVideoSharingSurface :global([data-slideshow-preview-controls]) button,
+ :global(#root#root#root) button.guestbookCsvAction,
+ :global(#root#root#root) button.slideshowSaveAction {min-height:44px!important;}
+}
+
+@media(max-width:639px){:global(#root#root#root) .galleryMediaTile :global([data-gallery-media-actions]) button {min-width:44px!important;min-height:44px!important;}}

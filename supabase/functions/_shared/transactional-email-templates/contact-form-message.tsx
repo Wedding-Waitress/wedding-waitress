@@ -1,3 +1,4 @@
+import { EmailBrandFooter } from './email-brand-footer.tsx';
 /**
  * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY
  * Contact form notification template (locked 2026-04-18).
@@ -59,6 +60,7 @@ const ContactFormMessageEmail = ({ name, email, eventType, message, date }: Cont
         </Section>
 
         <Text style={footer}>Wedding Waitress · Contact form notification</Text>
+      <EmailBrandFooter />
       </Container>
     </Body>
   </Html>

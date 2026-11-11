@@ -22,6 +22,7 @@ vi.mock('@/components/SEO/SeoHead', () => ({ SeoHead: () => null }));
 vi.mock('qrcode', () => ({ default: { toDataURL: mocks.qrToDataUrl } }));
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
+    from: () => ({select: () => ({eq: () => ({eq: async () => ({data: [],error: null})})})}),
     auth: {
       getSession: mocks.getSession,
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe: vi.fn() } } }),
@@ -73,9 +74,7 @@ describe('Live Slideshow premium appearance', () => {
     expect(launchAction).toHaveClass(managementStyles.glassAction);
     expect(launchAction).toHaveClass(managementStyles.workspaceHeaderAction);
     expect(launchAction).toBeEnabled();
-    expect(screen.getByText('Selected event')).toHaveClass(managementStyles.selectedEventLabel);
-    expect(screen.getAllByText(event.name).find(node => node.classList.contains(managementStyles.selectedEventName))).toHaveClass(managementStyles.selectedEventName);
-    expect(screen.getByRole('switch', { name: 'Live Slideshow enabled' })).toHaveClass(managementStyles.galleryViewToggle);
+    expect(screen.queryByRole('switch', { name: 'Live Slideshow enabled' })).not.toBeInTheDocument();
 
     for (const heading of ['How the Live Slideshow Works', 'Live Slideshow Access', 'Slideshow Settings', 'Slideshow Preview']) {
       expect(screen.getByRole('heading', { name: heading }).closest('[data-appearance="espresso-glass"]')).toHaveClass(managementStyles.glassCard);

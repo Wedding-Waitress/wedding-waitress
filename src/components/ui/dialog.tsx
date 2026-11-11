@@ -37,12 +37,16 @@ interface DialogContentProps
   trueFullScreenOnMobile?: boolean;
   /** Custom className for the overlay behind the dialog */
   overlayClassName?: string;
+  /** Optional caller-supplied accessible copy; existing dialogs retain Exit. */
+  closeLabel?: string;
+  /** Caller-specific close placement without changing other dialogs. */
+  closeButtonClassName?: string;
 }
 
 const DialogContent = React.forwardRef<
   React.ElementRef<typeof DialogPrimitive.Content>,
   DialogContentProps
->(({ className, children, fullScreenOnMobile = false, bottomSheetOnMobile = false, trueFullScreenOnMobile = false, overlayClassName, ...props }, ref) => (
+>(({ className, children, fullScreenOnMobile = false, bottomSheetOnMobile = false, trueFullScreenOnMobile = false, overlayClassName, closeLabel = 'Exit', closeButtonClassName, ...props }, ref) => (
   <DialogPortal>
     <DialogOverlay className={overlayClassName} />
     <DialogPrimitive.Content
@@ -80,9 +84,9 @@ const DialogContent = React.forwardRef<
         <div className="md:hidden mx-auto mb-2 h-1 w-10 rounded-full bg-[#ccc]" aria-hidden />
       )}
       {children}
-      <DialogPrimitive.Close title="Exit" className="absolute right-4 top-4 inline-flex shrink-0 items-center justify-center h-10 w-10 min-h-[40px] min-w-[40px] aspect-square box-border rounded-full border-2 border-primary bg-white p-0 m-0 leading-none opacity-100 ring-offset-background transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none">
+      <DialogPrimitive.Close title={closeLabel} className={cn("absolute right-4 top-4 inline-flex shrink-0 items-center justify-center h-10 w-10 min-h-[40px] min-w-[40px] aspect-square box-border rounded-full border-2 border-primary bg-white p-0 m-0 leading-none opacity-100 ring-offset-background transition-opacity hover:opacity-80 focus:outline-none focus:ring-2 focus:ring-ring focus:ring-offset-2 disabled:pointer-events-none", closeButtonClassName)}>
         <X className="h-4 w-4 shrink-0 text-primary stroke-[2.5] block" />
-        <span className="sr-only">Exit</span>
+        <span className="sr-only">{closeLabel}</span>
       </DialogPrimitive.Close>
     </DialogPrimitive.Content>
   </DialogPortal>

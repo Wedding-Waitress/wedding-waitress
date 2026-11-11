@@ -1,3 +1,4 @@
+import { ContactForm } from '@/components/ContactForm';
 import React, { lazy, Suspense, useEffect, useMemo, useState } from 'react';
 import {
   ArrowLeft, CreditCard, Lock, LogOut, LifeBuoy, Menu, User, Users, X, type LucideIcon,
@@ -15,6 +16,7 @@ import { supabase } from '@/integrations/supabase/client';
 import logoImage from '@/assets/wedding-waitress-full-logo.png';
 import styles from './Account.module.css';
 import controlStyles from '@/components/Account/AccountControls.module.css';
+import { PackageHelpGuide } from '@/components/Account/PackageHelpGuide';
 import { loadDashboardRoute, scheduleIdleWork } from '@/lib/authenticatedRoutePreload';
 import { clearAllCaches } from '@/lib/cacheRegistry';
 
@@ -34,7 +36,7 @@ const sectionGroups: Array<{ label: string; items: SectionDefinition[] }> = [
     label: 'Account',
     items: [
       { id: 'account-info', label: 'Account Info', description: 'Your personal details', icon: User },
-      { id: 'team-access', label: 'Team & Access', description: 'Account holders and team access', icon: Users },
+      { id: 'team-access', label: 'Team & Access', description: 'Account holders, team members and permissions', icon: Users },
     ],
   },
   {
@@ -46,7 +48,7 @@ const sectionGroups: Array<{ label: string; items: SectionDefinition[] }> = [
   {
     label: 'Support',
     items: [
-      { id: 'help-support', label: 'Help & Support', description: 'Contact Wedding Waitress support', icon: LifeBuoy },
+      { id: 'help-support', label: 'Help & Support', description: 'Need help? Send us an email.', icon: LifeBuoy },
     ],
   },
 ];
@@ -61,6 +63,8 @@ const accountSectionLoaders = {
   'help-support': () => import('@/components/Account/AccountDestinations'),
 } as const;
 
+const AccountInfoPanels = lazy(() => import('@/components/Account/AccountInfoPanels').then(module => ({ default: module.AccountInfoPanels })));
+
 const securityAccountLoader = () => import('@/components/Account/SecurityCard');
 
 const preloadAccountSection = (section: AccountSection) => accountSectionLoaders[section]();
@@ -69,12 +73,12 @@ const AccountInfoCard = lazy(() => accountSectionLoaders['account-info']().then(
 const AccountAccessCard = lazy(() => accountSectionLoaders['team-access']().then((module) => ({ default: module.AccountAccessCard })));
 const SecurityCard = lazy(() => securityAccountLoader().then((module) => ({ default: module.SecurityCard })));
 const PlanBillingSection = lazy(() => accountSectionLoaders['plan-billing']().then((module) => ({ default: module.PlanBillingSection })));
-const renderSectionContent = (section: AccountSection, loginEmail: string) => {
+const renderSectionContent = (section: AccountSection, loginEmail: string, loginName = '') => {
   switch (section) {
-    case 'account-info': return <div className={styles.accountInfoStack} data-account-info-stack><AccountInfoCard icon={User} loginEmail={loginEmail} /><SecurityCard icon={Lock} /></div>;
+    case 'account-info': return <AccountInfoPanels loginEmail={loginEmail} />;
     case 'team-access': return <AccountAccessCard icon={Users} />;
     case 'plan-billing': return <PlanBillingSection />;
-    case 'help-support': return null;
+    case 'help-support': return <><PackageHelpGuide /><section aria-labelledby="support-request-heading" className="mx-auto w-full max-w-3xl rounded-xl border border-[#CDB99E] bg-[#FBF8F2] p-6 sm:p-8 text-[#2b1711]"><h2 id="support-request-heading" className="text-center text-[17px] font-bold">Send a support request</h2><div data-support-form-slot className="mt-5"><ContactForm supportSource="account_support" initialEmail={loginEmail} initialName={loginName} /></div></section></>;
   }
 };
 
@@ -97,7 +101,7 @@ export const Account: React.FC = () => {
   const activeSection: AccountSection = section && validSections.has(section as AccountSection)
     ? section as AccountSection : 'account-info';
   const activeDefinition = allSections.find((item) => item.id === activeSection)!;
-  const isEmptyHelpSupport = activeSection === 'help-support';
+  const isEmptyHelpSupport = false;
 
   useEffect(() => scheduleIdleWork(() => {
     void loadDashboardRoute();
@@ -167,7 +171,7 @@ export const Account: React.FC = () => {
       <nav className={styles.navigation} aria-label="Account Centre navigation">
         {sectionGroups.map((group) => (
           <div className={styles.navGroup} key={group.label}>
-            <h2>{group.label}</h2>
+            
             {group.items.map((item) => {
               const Icon = item.icon;
               return (
@@ -212,15 +216,15 @@ export const Account: React.FC = () => {
           </aside>
         </div>
       )}
-      <main className={styles.main} data-empty-account-page={isEmptyHelpSupport || undefined}>
+      <main className={styles.main} data-team-access-page={['team-access', 'account-info', 'plan-billing', 'help-support'].includes(activeSection) || undefined} data-empty-account-page={isEmptyHelpSupport || undefined}>
         {!isEmptyHelpSupport && (
           <>
             <header className={styles.pageHeader}>
-              <span>Account Centre</span><h1 className={styles.pageHeading}>{activeDefinition.label}</h1><p>{activeDefinition.description}</p>
+              {!['team-access', 'account-info', 'plan-billing', 'help-support'].includes(activeSection) && <span>Account Centre</span>}<h1 className={styles.pageHeading}>{activeDefinition.label}</h1><p>{activeDefinition.description}</p>
             </header>
             <div className={styles.contentPanel} data-active-account-section={activeSection}>
               <Suspense fallback={<div className={styles.sectionSkeleton} role="status" aria-live="polite" aria-label="Loading Account Centre section"><span /><span /><span /></div>}>
-                {renderSectionContent(activeSection, accountLoginEmail)}
+                {renderSectionContent(activeSection, accountLoginEmail, [profile?.first_name, profile?.last_name].filter(Boolean).join(' '))}
               </Suspense>
             </div>
           </>

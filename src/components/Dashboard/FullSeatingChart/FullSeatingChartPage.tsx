@@ -72,6 +72,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
   const { settings, loading: settingsLoading, updateSettings } = useFullSeatingChartSettings(selectedEventId);
   const { tables, loading: tablesLoading } = useTables(selectedEventId);
   const previewRef = useRef<FullSeatingChartPreviewHandle>(null);
+  const exportOperation = useRef<string | null>(null);
   const resolvedGuests = React.useMemo(() => guests.map(guest => {
     const table = tables.find(table => table.id === guest.table_id);
     return table ? { ...guest, table_no: table.table_no } : guest;
@@ -116,14 +117,17 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     if (!preview || !selectedEvent) throw new Error('The seating chart is still loading.');
     const currentPage = preview.getCurrentPage();
     const { exportFullSeatingPreviewPdf } = await import('@/lib/fullSeatingPreviewPdf');
+    assertExportContext();
     await exportFullSeatingPreviewPdf({
       eventName: selectedEvent.name, mode, currentPage,
       pageNumbers: mode === 'single' ? [currentPage] : Array.from({length: preview.getTotalPages()}, (_, i) => i + 1),
-      renderPage: preview.renderPage, getPageElement: preview.getPageElement,
+      renderPage: async page => { assertExportContext(); await preview.renderPage(page); assertExportContext(); }, getPageElement: preview.getPageElement,
+      assertContext: assertExportContext,
     });
   };
   const handleDownloadPdf = async () => {
-    if (!selectedEvent) return;
+    if (!isDataReady || !selectedEvent || !guests.length || exportOperation.current) return;
+    exportOperation.current = exportContextKey;
 
     setIsExporting(true);
     setExportTarget('single');
@@ -147,13 +151,15 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         variant: 'destructive',
       });
     } finally {
+      exportOperation.current = null;
       setIsExporting(false);
       setExportTarget(null);
     }
   };
 
   const handleDownloadPdfAll = async () => {
-    if (!selectedEvent) return;
+    if (!isDataReady || !selectedEvent || !guests.length || exportOperation.current) return;
+    exportOperation.current = exportContextKey;
 
     setIsExporting(true);
     setExportTarget('all');
@@ -177,6 +183,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
         variant: 'destructive',
       });
     } finally {
+      exportOperation.current = null;
       setIsExporting(false);
       setExportTarget(null);
     }
@@ -236,6 +243,16 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
     });
   }, [resolvedGuests, settings.sortBy, tableNameMap, tableIdNameMap]);
 
+  const exportContextKey = JSON.stringify([selectedEvent, settings, sortedGuests, tableNameMap, tableIdNameMap]);
+  const currentExportContext = useRef(exportContextKey);
+  currentExportContext.current = exportContextKey;
+  const assertExportContext = React.useCallback(() => {
+    if (exportOperation.current !== currentExportContext.current) throw new Error("The seating chart changed during export. Please try again.");
+  }, []);
+  const guardedUpdateSettings: typeof updateSettings = changes => {
+    if (!isDataReady || exportOperation.current) return;
+    return updateSettings(changes);
+  };
   const isDataReady = !!selectedEvent && !eventsLoading && !guestsLoading && !tablesLoading && !settingsLoading;
   const hasGuests = guests.length > 0;
 
@@ -348,7 +365,7 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
               <fieldset disabled={isExporting}>
               <FullSeatingChartCustomizer
                 settings={settings}
-                onSettingsChange={updateSettings}
+                onSettingsChange={guardedUpdateSettings}
               />
               </fieldset>
             </div>

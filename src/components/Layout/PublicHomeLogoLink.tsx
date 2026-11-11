@@ -1,6 +1,7 @@
 import React from 'react';
 import { Link, useLocation, useNavigate } from 'react-router-dom';
 import { scrollPageToTop } from '@/lib/pageScroll';
+import { usePublicCopy } from '@/i18n/usePublicCopy';
 
 interface PublicHomeLogoLinkProps {
   children: React.ReactNode;
@@ -14,6 +15,7 @@ export const PublicHomeLogoLink: React.FC<PublicHomeLogoLinkProps> = ({
   onNavigate,
 }) => {
   const location = useLocation();
+  const copy = usePublicCopy();
   const navigate = useNavigate();
 
   const handleClick = (event: React.MouseEvent<HTMLAnchorElement>) => {
@@ -37,7 +39,7 @@ export const PublicHomeLogoLink: React.FC<PublicHomeLogoLinkProps> = ({
     <Link
       to="/"
       onClick={handleClick}
-      aria-label="Wedding Waitress home"
+      aria-label={copy('Wedding Waitress home')}
       className={`ww-public-home-logo ww-focus ${className}`.trim()}
     >
       {children}

@@ -24,13 +24,14 @@ import { useEventLimits } from '@/hooks/useEventLimits';
 import { useProfile } from '@/hooks/useProfile';
 import { supabase } from '@/integrations/supabase/client';
 import { SeoHead } from '@/components/SEO/SeoHead';
-import { Timer, HeartHandshake, PartyPopper, UserRound, CalendarDays, MapPin, Clock3, Users } from 'lucide-react';
+import { Timer, CalendarDays } from 'lucide-react';
+import { MyEventsSummaryCard } from './MyEventsSummaryCard';
 import styles from './MyEventsPage.module.css';
+import { PlanUpgradeStatus } from '@/components/Subscription/PlanUpgradeStatus';
 import { MyEventsHeroLayout } from './MyEventsHeroLayout';
 import {calculateCustomerTimeRemaining} from '@/lib/customerEventCountdown';
 import {CustomerCountdownCircle} from './CustomerCountdownCircle';
 
-const LABEL_ICON_CLS = "w-4 h-4 shrink-0 opacity-70";
 interface MyEventsPageProps {
   events: Event[];
   loading: boolean;
@@ -308,30 +309,20 @@ export const MyEventsPage: React.FC<MyEventsPageProps> = ({
           hasCeremony={Boolean(hasCeremony)}
           hasReception={Boolean(hasReception)}
           countdown={<CountdownTimer key={activeEventId} eventId={activeEventId} />}
-          ceremony={selectedEvent && hasCeremony ? (
-                    <div className={`min-w-0 bg-muted/30 rounded-xl p-3 sm:p-4 border border-border text-left shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] ${styles.detailCard}`}>
-                      <h4 className={`font-semibold text-primary mb-2 text-sm sm:text-base inline-flex items-center gap-2 ${styles.detailHeading}`}><HeartHandshake size={20} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Ceremony</h4>
-                      <div className={`space-y-1 text-xs sm:text-sm text-muted-foreground ${styles.detailText}`}>
-                        <p><span className="font-medium inline-flex items-center gap-1.5"><UserRound size={16} strokeWidth={1.8} className={LABEL_ICON_CLS} aria-hidden="true" />Name:</span> {selectedEvent.ceremony_name || 'Not set'}</p>
-                        <p><span className="font-medium inline-flex items-center gap-1.5"><CalendarDays size={16} strokeWidth={1.8} className={LABEL_ICON_CLS} aria-hidden="true" />Date:</span> {formatBoxDate(selectedEvent.ceremony_date)}</p>
-                        <p className="break-words"><span className="font-medium inline-flex items-center gap-1.5"><MapPin size={16} strokeWidth={1.8} className={LABEL_ICON_CLS} aria-hidden="true" />Location:</span> {selectedEvent.ceremony_venue ? `${selectedEvent.ceremony_venue}${selectedEvent.ceremony_venue_address ? ` - ${selectedEvent.ceremony_venue_address}` : ''}` : 'TBD'}</p>
-                        <p><span className="font-medium inline-flex items-center gap-1.5"><Clock3 size={16} strokeWidth={1.8} className={LABEL_ICON_CLS} aria-hidden="true" />Time:</span> {selectedEvent.ceremony_start_time ? formatBoxTime(selectedEvent.ceremony_start_time, null) : 'TBD'} — {selectedEvent.ceremony_finish_time ? formatBoxTime(selectedEvent.ceremony_finish_time, null) : 'TBD'}</p>
-                        <p><span className="font-medium inline-flex items-center gap-1.5"><Users size={16} strokeWidth={1.8} className={LABEL_ICON_CLS} aria-hidden="true" />Guests:</span> {selectedEvent.ceremony_guest_limit || 'Not set'}</p>
-                      </div>
-                    </div>
-                  ) : null}
-          reception={selectedEvent && hasReception ? (
-                    <div className={`min-w-0 bg-muted/30 rounded-xl p-3 sm:p-4 border border-border text-left shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] ${styles.detailCard}`}>
-                      <h4 className={`font-semibold text-primary mb-2 text-sm sm:text-base inline-flex items-center gap-2 ${styles.detailHeading}`}><PartyPopper size={20} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Reception</h4>
-                      <div className={`space-y-1 text-xs sm:text-sm text-muted-foreground ${styles.detailText}`}>
-                        <p><span className="font-medium inline-flex items-center gap-1.5"><UserRound size={16} strokeWidth={1.8} className={LABEL_ICON_CLS} aria-hidden="true" />Name:</span> {selectedEvent.name}</p>
-                        <p><span className="font-medium inline-flex items-center gap-1.5"><CalendarDays size={16} strokeWidth={1.8} className={LABEL_ICON_CLS} aria-hidden="true" />Date:</span> {formatBoxDate(selectedEvent.date)}</p>
-                        <p className="break-words"><span className="font-medium inline-flex items-center gap-1.5"><MapPin size={16} strokeWidth={1.8} className={LABEL_ICON_CLS} aria-hidden="true" />Location:</span> {selectedEvent.venue ? `${selectedEvent.venue}${selectedEvent.venue_address ? ` - ${selectedEvent.venue_address}` : ''}` : 'TBD'}</p>
-                        <p><span className="font-medium inline-flex items-center gap-1.5"><Clock3 size={16} strokeWidth={1.8} className={LABEL_ICON_CLS} aria-hidden="true" />Time:</span> {selectedEvent.start_time ? formatBoxTime(selectedEvent.start_time, null) : 'TBD'} — {selectedEvent.finish_time ? formatBoxTime(selectedEvent.finish_time, null) : 'TBD'}</p>
-                        <p><span className="font-medium inline-flex items-center gap-1.5"><Users size={16} strokeWidth={1.8} className={LABEL_ICON_CLS} aria-hidden="true" />Guests:</span> {selectedEvent.guest_limit || 'Not set'}</p>
-                      </div>
-                    </div>
-                  ) : null}
+          ceremony={selectedEvent && hasCeremony ? <MyEventsSummaryCard kind="ceremony" values={{
+            name: selectedEvent.ceremony_name || 'Not set',
+            date: formatBoxDate(selectedEvent.ceremony_date),
+            location: selectedEvent.ceremony_venue ? selectedEvent.ceremony_venue + (selectedEvent.ceremony_venue_address ? ' - ' + selectedEvent.ceremony_venue_address : '') : 'TBD',
+            time: (selectedEvent.ceremony_start_time ? formatBoxTime(selectedEvent.ceremony_start_time, null) : 'TBD') + ' — ' + (selectedEvent.ceremony_finish_time ? formatBoxTime(selectedEvent.ceremony_finish_time, null) : 'TBD'),
+            guests: selectedEvent.ceremony_guest_limit || 'Not set',
+          }}/> : null}
+          reception={selectedEvent && hasReception ? <MyEventsSummaryCard kind="reception" values={{
+            name: selectedEvent.name,
+            date: formatBoxDate(selectedEvent.date),
+            location: selectedEvent.venue ? selectedEvent.venue + (selectedEvent.venue_address ? ' - ' + selectedEvent.venue_address : '') : 'TBD',
+            time: (selectedEvent.start_time ? formatBoxTime(selectedEvent.start_time, null) : 'TBD') + ' — ' + (selectedEvent.finish_time ? formatBoxTime(selectedEvent.finish_time, null) : 'TBD'),
+            guests: selectedEvent.guest_limit || 'Not set',
+          }}/> : null}
         />
       </Card>
 
@@ -348,6 +339,8 @@ export const MyEventsPage: React.FC<MyEventsPageProps> = ({
             onEventSelect={handleCountdownEventSelect}
             selectedEvent={selectedEvent}
             eventLimits={eventLimits}
+            refinedControls
+            planControls={<PlanUpgradeStatus />}
           />
         </div>
     </div>;

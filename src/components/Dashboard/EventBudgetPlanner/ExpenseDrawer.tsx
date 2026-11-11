@@ -179,7 +179,7 @@ export const ExpenseDrawer: React.FC<ExpenseDrawerProps> = ({
           <AlertDialogDescription>{confirmation === 'delete'
             ? `${expense?.vendor_name || expense?.expense_name || expense?.custom_category || expense?.category || 'This expense'} will be permanently removed from this event budget.`
             : 'Your changes have not been saved. Close the drawer and discard them?'}</AlertDialogDescription></AlertDialogHeader>
-        <AlertDialogFooter><AlertDialogCancel>Keep Editing</AlertDialogCancel>
+        <AlertDialogFooter className={styles.confirmActions}><AlertDialogCancel className={styles.secondaryButton}>Keep Editing</AlertDialogCancel>
           <AlertDialogAction className={confirmation === 'delete' ? styles.dangerButton : styles.successButton} onClick={(event) => {
             event.preventDefault();
             if (confirmation === 'delete') void confirmDelete(); else { setConfirmation(null); onClose(); }

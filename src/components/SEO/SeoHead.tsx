@@ -21,15 +21,14 @@ interface SeoHeadProps {
 }
 
 const SITE_URL = 'https://weddingwaitress.com.au';
-const DEFAULT_IMAGE = `${SITE_URL}/wedding-waitress-share-logo.png`;
+const DEFAULT_IMAGE = `${SITE_URL}/wedding-waitress-link-preview-20261028.png`;
 
 /**
  * Per-page SEO head. Renders title, meta description, canonical,
  * OpenGraph, Twitter Card, and optional JSON-LD structured data.
  *
- * Lovable hosting cannot prerender HTML, but Googlebot executes JS
- * and indexes Helmet-rendered tags within seconds — so this gives us
- * ~90% of SSG's SEO benefit with zero infra changes.
+ * Client-rendered tags complement the public static SEO export.
+ * Crawling and indexing are controlled by search engines; timing is not guaranteed.
  */
 export const SeoHead: React.FC<SeoHeadProps> = ({
   title,
@@ -44,7 +43,7 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
   const canonicalUrl = `${SITE_URL}${path}`;
   const imageUrl = image.startsWith('http') ? image : `${SITE_URL}${image}`;
 
-  // Force noindex on non-canonical hostnames (Netlify, Lovable previews, etc.)
+  // Force noindex on non-canonical hostnames (non-production previews)
   const isNonCanonicalHost =
     typeof window !== 'undefined' &&
     window.location.hostname !== 'weddingwaitress.com.au' &&
@@ -70,6 +69,8 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
       <meta property="og:type" content="website" />
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:image" content={imageUrl} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
       <meta property="og:site_name" content="Wedding Waitress" />
       <meta property="og:locale" content="en_AU" />
 

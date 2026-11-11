@@ -38,6 +38,10 @@ interface InvitationCardPreviewProps {
   documentRef?: React.MutableRefObject<HTMLDivElement | null>;
   documentId?: string;
   fitToWidth?: boolean;
+  /** Lock external editor presentation scale without changing printable paper geometry. */
+  fixedZoomPercent?: number;
+  /** Fixed screen width in CSS millimetres; intrinsic export dimensions stay unchanged. */
+  fixedPreviewWidthMm?: number;
 }
 
 
@@ -69,17 +73,20 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
   documentRef,
   documentId = 'seating-chart-sign',
   fitToWidth = false,
+  fixedZoomPercent,
+  fixedPreviewWidthMm,
 }) => {
   const scaledPaper = !!paperSize || fitToWidth;
   const containerRef = useRef<HTMLDivElement | null>(null);
   const canvasAreaRef = useRef<HTMLDivElement>(null);
   const [dragGuides, setDragGuides] = useState<{ showVertical: boolean; showHorizontal: boolean } | null>(null);
-  const [zoom, setZoom] = useState(100);
+  const [zoom, setZoom] = useState(fixedZoomPercent ?? 100);
 
   const handleZoomChange = useCallback((value: number) => {
+    if (fixedZoomPercent != null || fixedPreviewWidthMm != null) return;
 
     setZoom(Math.max(scaledPaper ? 5 : 25, Math.min(100, value)));
-  }, [scaledPaper]);
+  }, [scaledPaper, fixedZoomPercent, fixedPreviewWidthMm]);
 
   const currentSettings = settings || {
     background_color: '#ffffff',
@@ -104,11 +111,14 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
   const dims = useMemo(() => paperSize ? { w: paperSize.widthMm, h: paperSize.heightMm } : SIZE_MAP[currentSettings.card_size] || SIZE_MAP.A5, [paperSize, currentSettings.card_size]);
   const paperWidth = !paperSize && isLandscape ? dims.h : dims.w;
   const paperHeight = !paperSize && isLandscape ? dims.w : dims.h;
+  const displayZoom = fixedPreviewWidthMm != null ? fixedPreviewWidthMm / paperWidth * 100 : zoom;
   const previewWidth = `${paperWidth}mm`;
   const previewHeight = `${paperHeight}mm`;
   const fontScale = paperSize ? Math.min(paperWidth / 210, paperHeight / 297) : 1;
 
   useEffect(() => {
+    if (fixedPreviewWidthMm != null) return;
+    if (fixedZoomPercent != null) { setZoom(fixedZoomPercent); return; }
     if (!fitToContainer || !canvasAreaRef.current) return;
 
     const MM_TO_PX = 3.7795275591;
@@ -144,14 +154,14 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
     const ro = new ResizeObserver(compute);
     ro.observe(area);
     return () => ro.disconnect();
-  }, [fitToContainer, dims, isLandscape, paperSize, paperWidth, paperHeight, scaledPaper]);
+  }, [fitToContainer, dims, isLandscape, paperSize, paperWidth, paperHeight, scaledPaper, fixedZoomPercent, fixedPreviewWidthMm]);
 
 
 
   const textZones = currentSettings.text_zones || [];
 
   const getZoneText = (zone: TextZone): string => {
-    if (zone.text) return zone.text;
+    if (zone.text != null) return zone.text;
     if (zone.type === 'preset' && zone.preset_field) {
       return eventData[zone.preset_field] || '';
     }
@@ -250,7 +260,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
         >
           <div
             style={{
-              ...(scaledPaper ? { width: paperWidth * 96 / 25.4 * zoom / 100, height: paperHeight * 96 / 25.4 * zoom / 100, flexShrink: 0 } : { transform: `scale(${zoom / 100})` }),
+              ...(scaledPaper ? { width: paperWidth * 96 / 25.4 * displayZoom / 100, height: paperHeight * 96 / 25.4 * displayZoom / 100, flexShrink: 0 } : { transform: `scale(${displayZoom / 100})` }),
               transformOrigin: 'center center',
               transition: 'transform 0.15s ease-out',
             }}
@@ -262,7 +272,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                 width: previewWidth,
                 height: previewHeight,
                 overflow: scaledPaper ? 'hidden' : undefined,
-                ...(scaledPaper ? { transform: `scale(${zoom / 100})`, transformOrigin: 'top left' } : {}),
+                ...(scaledPaper ? { transform: `scale(${displayZoom / 100})`, transformOrigin: 'top left' } : {}),
                 backgroundColor: currentSettings.background_color,
               }}
               className="bg-white shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-visible relative"
@@ -319,6 +329,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                     <InteractiveTextOverlay
                       key={zone.id}
                       isSelected={isSelected}
+                      normaliseDragScale={!!paperSize}
                       onSelect={() => onSelectZone?.(zone.id)}
                       onMove={(dx, dy) => handleMove(zone.id, dx, dy)}
                       onResize={(dw, side) => handleResize(zone.id, dw, side)}
@@ -370,7 +381,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
                   onRotate={(r) => onQrConfigUpdate?.({ rotation: r })}
                   containerRef={containerRef as React.RefObject<HTMLElement>}
                   whitePlate={qrWhitePlate}
-                  controlScale={normaliseQrControls ? 100 / zoom : 1}
+                  controlScale={normaliseQrControls ? 100 / displayZoom : 1}
                 />
               )}
 
@@ -387,7 +398,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
         </div>
 
         {/* Zoom controls on right side, vertically centered */}
-        <div
+        {fixedZoomPercent == null && fixedPreviewWidthMm == null && <div
           className="ww-signage-preview-zoom-controls flex flex-col items-center gap-1.5 rounded-lg border border-border/60 bg-card/70 px-1.5 py-3 shadow-sm self-center opacity-90"
           onClick={(e) => e.stopPropagation()}
         >
@@ -424,7 +435,7 @@ export const InvitationCardPreview: React.FC<InvitationCardPreviewProps> = ({
           <span className="text-xs font-medium text-muted-foreground tabular-nums">
             {zoom}%
           </span>
-        </div>
+        </div>}
       </div>
     </div>
   );

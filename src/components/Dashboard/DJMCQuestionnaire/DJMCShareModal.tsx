@@ -224,6 +224,7 @@ export function DJMCShareModal({
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8"
+                              aria-label={token.permission === "can_edit" ? "Switch to View Only" : "Switch to Can Edit"}
                               onClick={() => toggleTokenPermission(token.id, token.permission)}
                             >
                               {token.permission === 'can_edit' ? (
@@ -243,6 +244,7 @@ export function DJMCShareModal({
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8"
+                              aria-label="Copy Link"
                               onClick={() => copyLink(token.token)}
                             >
                               {copiedId === token.token ? (
@@ -263,6 +265,7 @@ export function DJMCShareModal({
                               asChild
                             >
                               <a
+                                aria-label="Open Link"
                                 href={buildDJQuestionnaireUrl(token.token, eventSlug)}
                                 target="_blank"
                                 rel="noopener noreferrer"
@@ -279,6 +282,7 @@ export function DJMCShareModal({
                               variant="ghost"
                               size="icon"
                               className="h-8 w-8"
+                              aria-label="Delete Link"
                               onClick={() => onDeleteToken(token.id)}
                             >
                               <Trash2 size={18} strokeWidth={1.8} className=" text-destructive" />

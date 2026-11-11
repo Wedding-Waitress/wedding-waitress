@@ -1,3 +1,4 @@
+import { paginateRunSheet } from './runningSheetPagination';
 /**
  * PRODUCTION-READY -- LOCKED FOR PRODUCTION
  *
@@ -262,13 +263,15 @@ export const exportRunningSheetPDF = async (
   event: Event,
   sectionLabel: string = 'Run Sheet',
   sectionNotes: string | null = null,
-  rowTextSize: "standard" | "larger" = "standard"
+  rowTextSize: "standard" | "larger" = "standard",
+  isCurrent: () => boolean = () => true
 ): Promise<void> => {
   const logoDataUrl = await loadLogoAsDataUrl();
   const htmlContent = generateRunningSheetHTML(items, event, sectionNotes, sectionLabel, rowTextSize);
   const timestamp = formatGeneratedTimestamp();
 
   // Create offscreen container
+  if (!isCurrent()) throw new Error("Run Sheet changed during export. Please try again.");
   const container = document.createElement('div');
   container.innerHTML = htmlContent;
   container.style.position = 'absolute';
@@ -318,7 +321,11 @@ export const exportRunningSheetPDF = async (
     const rows = Array.from(container.querySelectorAll('tbody tr, [data-pdf-block]')).map(row => ({
       top: Math.round(row.getBoundingClientRect().top - origin),
       bottom: Math.round(row.getBoundingClientRect().bottom - origin),
+      keepTogether: row.tagName === "TR" || row.getBoundingClientRect().height <= 80,
     }));
+    const tableHead = container.querySelector('thead');
+    const firstRow = container.querySelector('tbody tr');
+    if(tableHead && firstRow)rows.unshift({top:Math.round(tableHead.getBoundingClientRect().top-origin),bottom:Math.round(firstRow.getBoundingClientRect().bottom-origin),keepTogether:true});
     const raster = fullCanvas.getContext('2d')!;
     const findTextGap = (limit: number, start: number) => {
       const top = Math.max(start + 1, limit - 80);
@@ -336,21 +343,7 @@ export const exportRunningSheetPDF = async (
       }
       return limit;
     };
-    const slices: {start:number; height:number}[] = [];
-    let cursor = 0;
-    while (cursor < contentHeight) {
-      const capacity = slices.length ? usableHeightPage2PlusPx : usableHeightPage1Px;
-      let end = Math.min(contentHeight, cursor + capacity);
-      const crossing = rows.find(row => row.top < end && row.bottom > end);
-      if (crossing) {
-        if (crossing.top > cursor + 1) end = crossing.top;
-        else end = findTextGap(end, cursor);
-      }
-      if (end < contentHeight && end > cursor + 1) end = findTextGap(end, cursor);
-      if (end <= cursor) end = Math.min(contentHeight, cursor + capacity);
-      slices.push({start:cursor, height:end-cursor});
-      cursor = end;
-    }
+    const slices = paginateRunSheet(contentHeight, rows, usableHeightPage1Px, usableHeightPage2PlusPx, findTextGap);
     const totalPages = slices.length;
 
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', ...PDF_DEFAULT_OPTIONS });
@@ -403,6 +396,7 @@ export const exportRunningSheetPDF = async (
       drawPageFooter(pdf, logoDataUrl, page + 1, totalPages, timestamp);
     }
 
+    if (!isCurrent()) throw new Error("Run Sheet changed during export. Please try again.");
     await savePdfAsync(pdf, getRunningSheetPdfFileName(event));
   } finally {
     document.body.removeChild(container);

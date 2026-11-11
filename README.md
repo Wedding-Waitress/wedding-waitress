@@ -30,7 +30,7 @@ Coming soon…
 - React
 - TypeScript
 - Supabase
-- Lovable.dev
+- Netlify
 
 ## 📩 Contact
 

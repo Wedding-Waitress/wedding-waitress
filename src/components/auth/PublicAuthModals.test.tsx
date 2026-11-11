@@ -6,9 +6,11 @@ import { SignUpModal } from './SignUpModal';
 import { SignInModal } from './SignInModal';
 
 const mocks = vi.hoisted(() => ({
+  prelaunchHold: false,
   signInWithOtp: vi.fn(),
   verifyOtp: vi.fn(),
   upsert: vi.fn(),
+  countrySave:vi.fn(),
   invoke: vi.fn(),
 }));
 
@@ -18,18 +20,22 @@ vi.mock('@/integrations/supabase/client', () => ({
       signInWithOtp: mocks.signInWithOtp,
       verifyOtp: mocks.verifyOtp,
     },
-    from: vi.fn(() => ({ upsert: mocks.upsert })),
+    from: vi.fn(() => ({ upsert: mocks.upsert,update:()=>({eq:()=>({is:mocks.countrySave})}) })),
     functions: { invoke: mocks.invoke },
   },
 }));
+
+vi.mock('@/lib/prelaunch', async importOriginal => ({ ...(await importOriginal<typeof import('@/lib/prelaunch')>()), get PRELAUNCH_SIGNUP_HOLD() { return mocks.prelaunchHold; } }));
 
 const renderInRouter = (node: React.ReactNode) => render(<MemoryRouter>{node}</MemoryRouter>);
 
 describe('shared public authentication modals', () => {
   beforeEach(() => {
+    mocks.prelaunchHold = false;
     mocks.signInWithOtp.mockReset().mockResolvedValue({ error: null });
     mocks.verifyOtp.mockReset().mockResolvedValue({ data: { user: null }, error: null });
     mocks.upsert.mockReset().mockResolvedValue({ error: null });
+    mocks.countrySave.mockReset().mockResolvedValue({error:null});
     mocks.invoke.mockReset().mockResolvedValue({ data: { saved: true }, error: null });
     sessionStorage.clear();
   });
@@ -44,8 +50,9 @@ describe('shared public authentication modals', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Open sign up' }));
 
     expect(await screen.findByRole('heading', { name: 'Create your free account' })).toBeInTheDocument();
-    expect(screen.queryByText('7-day free trial · Up to 20 guests')).not.toBeInTheDocument();
-    expect(screen.getByText('Register your interest. Planning access will open when Wedding Waitress launches.')).toBeInTheDocument();
+    expect(screen.getByText('7-day free trial · Up to 20 guests')).toBeInTheDocument();
+    expect(screen.queryByText('Register your interest. Planning access will open when Wedding Waitress launches.')).not.toBeInTheDocument();
+    expect(screen.queryByText(/Your code is saved for future checking|Your seven-day trial stays free/)).not.toBeInTheDocument();
     expect(screen.getByLabelText('First name *')).toHaveAttribute('autocomplete', 'given-name');
     expect(screen.getByLabelText('Last name *')).toHaveAttribute('autocomplete', 'family-name');
     expect(screen.getByLabelText('Email *')).toHaveAttribute('autocomplete', 'email');
@@ -55,9 +62,14 @@ describe('shared public authentication modals', () => {
     expect(screen.queryByText(/google/i)).not.toBeInTheDocument();
   });
 
-  it('durably saves pricing and promo intent without creating Auth or a trial', async () => {
+  it.each([
+    { key: 'essential' as const, name: 'Essential' as const },
+    { key: 'premium' as const, name: 'Premium' as const },
+    { key: 'unlimited' as const, name: 'Ultimate' as const },
+  ])('durably saves $name pricing intent without creating Auth or a trial', async (plan) => {
+    mocks.prelaunchHold = true;
     renderInRouter(
-      <SignUpModal selectedPlan={{ key: 'premium', name: 'Premium', currency: 'USD' }}>
+      <SignUpModal selectedPlan={{ ...plan, currency: 'USD' }}>
         <button type="button">Choose Premium</button>
       </SignUpModal>,
     );
@@ -66,11 +78,12 @@ describe('shared public authentication modals', () => {
     fireEvent.change(screen.getByLabelText('Last name *'), { target: { value: 'Taylor' } });
     fireEvent.change(screen.getByLabelText('Email *'), { target: { value: 'alex@example.com' } });
     fireEvent.change(screen.getByLabelText('Mobile *'), { target: { value: '0412 345 678' } });
-    fireEvent.change(screen.getByLabelText('Promo code (optional)'), { target: { value: 'VENUE50' } });
+    fireEvent.change(screen.getByLabelText('Country *'), {target:{value:'Australia'}});
+    expect(screen.queryByLabelText('Promo code (optional)')).not.toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Create Free Account & Continue' }));
 
     await waitFor(() => expect(mocks.invoke).toHaveBeenCalledWith('register-prelaunch-interest', { body: {
-      first_name: 'Alex', last_name: 'Taylor', email: 'alex@example.com', mobile: '0412345678', promo_code: 'VENUE50', intended_plan: 'premium',
+      first_name: 'Alex', last_name: 'Taylor', email: 'alex@example.com', mobile: '0412345678', promo_code: '', intended_plan: plan.key,
     } }));
     expect(await screen.findByRole('heading', { name: 'Thank you — you’re on our launch list' })).toBeInTheDocument();
     expect(mocks.signInWithOtp).not.toHaveBeenCalled();
@@ -84,7 +97,7 @@ describe('shared public authentication modals', () => {
     renderInRouter(<SignInModal open onOpenChange={vi.fn()} onBackToSignUp={backToSignUp} />);
 
     expect(await screen.findByRole('heading', { name: 'Welcome back' })).toBeInTheDocument();
-    expect(screen.getByText('Continue planning your wedding in one connected place.')).toBeInTheDocument();
+    expect(screen.queryByText('Continue planning your wedding in one connected place.')).not.toBeInTheDocument();
     expect(screen.queryByText('Secure password-free sign in')).not.toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Email Me a Sign-In Code' })).toBeEnabled();
     fireEvent.click(screen.getByRole('button', { name: 'Create a free account' }));
@@ -93,14 +106,30 @@ describe('shared public authentication modals', () => {
   });
 
   it('keeps the registration form open on failed durable save without showing a launch success', async () => {
+    mocks.prelaunchHold = true;
     mocks.invoke.mockResolvedValue({ data: null, error: { message: 'Private error' } });
     renderInRouter(<SignUpModal><button type="button">Register interest</button></SignUpModal>);
     fireEvent.click(screen.getByRole('button', { name: 'Register interest' }));
-    for (const [label,value] of [['First name *','Alex'],['Last name *','Taylor'],['Email *','alex@example.com'],['Mobile *','0412345678']]) fireEvent.change(await screen.findByLabelText(label),{target:{value}});
+    for (const [label,value] of [['First name *','Alex'],['Last name *','Taylor'],['Email *','alex@example.com'],['Mobile *','0412345678'],['Country *','Australia']]) fireEvent.change(await screen.findByLabelText(label),{target:{value}});
     fireEvent.click(screen.getByRole('button',{name:'Create Free Account & Continue'}));
     expect(await screen.findByRole('alert')).toHaveTextContent('We couldn’t confirm your registration');
     expect(screen.queryByRole('heading',{name:'Thank you — you’re on our launch list'})).not.toBeInTheDocument();
     expect(mocks.signInWithOtp).not.toHaveBeenCalled();
+  });
+
+  it('queues the welcome only after verified signup', async () => {
+    mocks.verifyOtp.mockResolvedValue({ data: { user: { id: 'verified-signup', email: 'alex@example.com' } }, error: null });
+    mocks.invoke.mockResolvedValue({ data: { accepted: true }, error: null });
+    renderInRouter(<SignUpModal><button type="button">Open signup test</button></SignUpModal>);
+    fireEvent.click(screen.getByRole('button', { name: 'Open signup test' }));
+    for (const [label,value] of [['First name *','Alex'],['Last name *','Taylor'],['Email *','alex@example.com'],['Mobile *','0412345678'],['Country *','Australia']]) fireEvent.change(await screen.findByLabelText(label),{target:{value}});
+    fireEvent.click(screen.getByRole('button',{name:'Create Free Account & Continue'}));
+    const inputs = await screen.findAllByLabelText(/Verification code digit/);
+    expect(mocks.invoke).not.toHaveBeenCalled();
+    ['1','2','3','4','5','6'].forEach((value,index)=>fireEvent.change(inputs[index],{target:{value}}));
+    fireEvent.click(screen.getByRole('button',{name:'Verify Code'}));
+    await waitFor(()=>expect(mocks.invoke).toHaveBeenCalledWith('send-transactional-email',{body:{templateName:'welcome',recipientEmail:'alex@example.com',idempotencyKey:'welcome-verified-signup',templateData:{firstName:'Alex'}}}));
+    expect(mocks.invoke).toHaveBeenCalledTimes(1);
   });
 
   it('shows existing email validation without requesting a sign-in code', async () => {
@@ -165,3 +194,5 @@ describe('shared public authentication modals', () => {
     await waitFor(() => expect(onOpenChange).toHaveBeenCalledWith(false));
   });
 });
+
+

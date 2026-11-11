@@ -140,6 +140,8 @@ interface EventsTableProps {
   selectedEvent?: Event | null;
   eventLimits?: EventLimitsState;
   readOnly?: boolean;
+  planControls?: React.ReactNode;
+  refinedControls?: boolean;
 }
 export const EventsTable: React.FC<EventsTableProps> = ({
   events,
@@ -155,6 +157,8 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   selectedEvent: selectedEventProp,
   eventLimits,
   readOnly = false,
+  planControls,
+  refinedControls = false,
 }) => {
   const navigate = useNavigate();
   const { toast } = useToast();
@@ -293,13 +297,14 @@ export const EventsTable: React.FC<EventsTableProps> = ({
   return <>
       <Card className="ww-events-table-panel border-2 border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] overflow-hidden mx-0 rounded-xl">
         <div className="ww-events-table-header px-4 sm:px-6 pt-4 pb-8 border-b-2 border-primary bg-white">
-          <div className="flex flex-wrap items-center gap-x-3 gap-y-3 max-lg:justify-center max-lg:text-center">
+          <div className={`${planControls ? 'ww-events-plan-row ' : ''}flex flex-wrap items-center gap-x-3 gap-y-3 max-lg:justify-center max-lg:text-center`}>
             <h3 className="ww-events-title min-w-0 max-w-full shrink text-2xl font-extrabold text-foreground truncate tracking-tight max-lg:w-full max-lg:font-bold max-lg:tracking-normal flex items-center gap-2 max-lg:justify-center">
               <CalendarDays size={22} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
               <span className="truncate">My Events{selectedEventProp?.name ? ` - ${selectedEventProp.name}` : ''}</span>
             </h3>
 
-            <div className="ml-auto flex shrink-0 items-center gap-2 max-lg:ml-0 max-lg:basis-full max-lg:flex-wrap max-lg:justify-center">
+            {planControls && <div data-plan-controls-location="events-actions" className="ww-events-plan-slot">{planControls}</div>}
+            <div className="ww-events-actions ml-auto flex shrink-0 items-center gap-2 max-lg:ml-0 max-lg:basis-full max-lg:flex-wrap max-lg:justify-center">
               <Badge variant="outline" className="ww-events-badge max-w-full whitespace-normal text-center bg-white border-primary text-primary rounded-full text-sm">
                 <CalendarCheck2 size={16} strokeWidth={1.8} className="mr-1.5 shrink-0" aria-hidden="true" />
                 {eventAllowanceLabel}
@@ -308,7 +313,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                 <Plus size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                 {isMobile ? "Create" : "Create Event"}
               </Button>
-              <Button disabled={readOnly} variant="outline" size="sm" className="ww-events-button rounded-full flex items-center gap-2 border-primary bg-white text-primary touch-target sm:max-lg:w-48 max-lg:h-9 max-lg:justify-center" onClick={() => {if(!readOnly)navigate('/onboarding/event-setup?mode=additional&new=1');}}>
+              <Button disabled={readOnly} variant="outline" size="sm" className="ww-events-button ww-events-guided rounded-full flex items-center gap-2 border-primary bg-white text-primary touch-target sm:max-lg:w-48 max-lg:h-9 max-lg:justify-center" onClick={() => {if(!readOnly)navigate('/onboarding/event-setup?mode=additional&new=1');}}>
                 <Sparkles size={16} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                 {isMobile ? 'Guided' : 'Guided Setup'}
               </Button>
@@ -417,7 +422,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
               <Table>
               <TableHeader>
                 <TableRow className="border-b-0">
-                  <TableHead className="w-20">Countdown</TableHead>
+                  <TableHead className="w-20"><span className="ww-countdown-heading">Countdown</span></TableHead>
                   <TableHead className="w-24">Event ID</TableHead>
                   <TableHead className="w-32">Event Name</TableHead>
                   <TableHead className="w-24">Event Date</TableHead>
@@ -428,7 +433,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                   <TableHead className="w-24">RSVP Deadline</TableHead>
                   <TableHead className="w-24">Created Date</TableHead>
                   <TableHead className="w-24">Expiry Date</TableHead>
-                  <TableHead className="w-20">Actions</TableHead>
+                  <TableHead className="w-20"><span className="ww-events-actions-heading">Actions</span></TableHead>
                 </TableRow>
               </TableHeader>
               <TableBody>
@@ -442,15 +447,13 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         ${atCapacity ? 'bg-green-500/10 dark:bg-green-500/20' : ''}
                       `}>
                       <TableCell className="text-center w-20">
-                        <div className="flex items-center justify-center">
+                        <div className="ww-countdown-control flex items-center justify-center">
                           <RadioGroupItem value={event.id} id={`countdown-${event.id}`} aria-label={`Show countdown for ${event.name}`} className="sr-only" />
-                          <label htmlFor={`countdown-${event.id}`} className="cursor-pointer inline-flex items-center justify-center p-1">
-                            <CircleDot
-                              size={20}
-                              strokeWidth={1.8}
-                              aria-hidden="true"
-                              className={isSelected ? 'text-green-500' : 'text-muted-foreground/50'}
-                            />
+                          <label htmlFor={`countdown-${event.id}`} className="ww-countdown-select cursor-pointer inline-flex items-center justify-center p-1">
+                            {refinedControls ? <svg width={28} height={28} viewBox="0 0 24 24" fill="none" stroke="currentColor" strokeWidth={3.6} strokeLinecap="round" strokeLinejoin="round" aria-hidden="true" data-countdown-selected={isSelected} className={isSelected ? 'text-green-500' : 'text-muted-foreground/50'}>
+                              <circle cx="12" cy="12" r="9" />
+                              {isSelected && <path d="m8 12 3 3 5-6" strokeWidth={2} />}
+                            </svg> : <CircleDot size={20} strokeWidth={1.8} aria-hidden="true" className={isSelected ? 'text-green-500' : 'text-muted-foreground/50'} />}
                           </label>
                         </div>
                       </TableCell>
@@ -510,7 +513,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                         </span>
                       </TableCell>
                       <TableCell className="w-20">
-                        <div className="flex items-center justify-center space-x-1">
+                        <div className="ww-events-action-group flex items-center justify-center space-x-1">
                           <TooltipProvider>
                             <Tooltip>
                               <TooltipTrigger asChild>
@@ -575,6 +578,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
 
       <Suspense fallback={null}>
         {!readOnly && editModal.isOpen && <EventEditModal
+          compactControls={refinedControls}
           isOpen
           onClose={() => setEditModal({ isOpen: false, event: null })}
           event={editModal.event}
@@ -586,7 +590,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
           onClose={() => setCreateModal(false)}
           onCreate={handleCreateEvent}
         />}
-        {!readOnly && deleteModal.isOpen && <DeleteConfirmationModal isOpen onClose={() => setDeleteModal({
+        {!readOnly && deleteModal.isOpen && <DeleteConfirmationModal compactControls={refinedControls} isOpen onClose={() => setDeleteModal({
           isOpen: false,
           event: null
         })} onConfirm={handleDeleteConfirm} eventName={deleteModal.event?.name || ''} isLoading={deletingEventId === deleteModal.event?.id} />}

@@ -3,7 +3,7 @@ import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.58.0';
 /** Apply before any customer planning handler uses service-role access.
  * This guard adds no permissions: the handler still validates all existing
  * ownership, public-token, processor-secret and provider-signature rules. */
-export async function guardSuspendedCustomer(req: Request, options: { allowEntitlementRecovery?: boolean } = {}): Promise<Response | null> {
+export async function guardSuspendedCustomer(req: Request, options: { allowEntitlementRecovery?: boolean; allowPendingTeamInvitation?: boolean } = {}): Promise<Response | null> {
   if (req.method === 'OPTIONS') return null;
   const token = req.headers.get('Authorization')?.replace(/^Bearer\s+/i, '') || '';
   const serviceKey = Deno.env.get('SUPABASE_SERVICE_ROLE_KEY') || '';
@@ -19,7 +19,16 @@ export async function guardSuspendedCustomer(req: Request, options: { allowEntit
     const client = createClient(Deno.env.get('SUPABASE_URL') || '', serviceKey, { auth: { persistSession: false } });
     const { data: { user }, error } = await client.auth.getUser(token);
     if (error || !user) return new Response(JSON.stringify({ error: 'Authentication required.' }), { status: 401, headers });
-    const { data: prelaunchBlocked, error: prelaunchError } = await client.rpc('is_prelaunch_access_blocked', { p_user_id: user.id });
+    let subject = user.id;
+    if (options.allowPendingTeamInvitation && user.email_confirmed_at && user.email) {
+      const body = await req.clone().json().catch(() => ({}));
+      if (['readiness','preview','accept'].includes(body.action)) {
+        const {data: owner, error: pendingError} = await client.rpc('internal_pending_team_owner', {p_actor: user.id, p_email: user.email});
+        if (pendingError) throw pendingError;
+        if (owner) subject = owner;
+      }
+    }
+    const { data: prelaunchBlocked, error: prelaunchError } = await client.rpc('is_prelaunch_access_blocked', { p_user_id: subject });
     if (prelaunchError) throw prelaunchError;
     if (prelaunchBlocked !== false) return new Response(JSON.stringify({ error: 'Wedding Waitress is launching soon. Planning access is not open yet.' }), { status: 403, headers });
     const { data: blocked, error: accessError } = await client.rpc('is_account_suspension_blocked', { p_user_id: user.id });
@@ -28,7 +37,7 @@ export async function guardSuspendedCustomer(req: Request, options: { allowEntit
     // Only a separately verified billing-recovery handler may opt out of the
     // expiry check. That option never bypasses administrative account holds.
     if (!options.allowEntitlementRecovery) {
-      const { data: entitlementBlocked, error: entitlementError } = await client.rpc('is_customer_entitlement_blocked', { p_user_id: user.id });
+      const { data: entitlementBlocked, error: entitlementError } = await client.rpc('is_customer_entitlement_blocked', { p_user_id: subject });
       if (entitlementError) throw entitlementError;
       if (entitlementBlocked !== false) return new Response(JSON.stringify({ error: 'Your original access period has ended or account access is restricted.' }), { status: 403, headers });
     }

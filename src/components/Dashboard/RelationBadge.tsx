@@ -14,6 +14,7 @@
 import React from 'react';
 import { Badge } from "@/components/ui/badge";
 import { Button } from "@/components/ui/enhanced-button";
+import { getRelationDisplayText } from '@/lib/relationUtils';
 
 interface RelationBadgeProps {
   display: string;
@@ -32,10 +33,12 @@ export const RelationBadge: React.FC<RelationBadgeProps> = ({
   onClick,
   isEmpty = false
 }) => {
-  if (isEmpty || !display) {
+  const safeDisplay = getRelationDisplayText(display, role);
+
+  if (isEmpty || !safeDisplay) {
     return (
       <div className="flex items-center gap-2">
-        <span className="text-muted-foreground text-sm">—</span>
+        <span className="text-muted-foreground text-sm">No relation set</span>
         {onClick && <Button
           variant="link"
           size="sm"
@@ -49,10 +52,10 @@ export const RelationBadge: React.FC<RelationBadgeProps> = ({
   }
 
   // Try splitting by new format first, then fall back to old format
-  let parts = display.split(' — ');
+  let parts = safeDisplay.split(' — ');
   if (parts.length === 1) {
     // Old format: try splitting by '/'
-    parts = display.split('/');
+    parts = safeDisplay.split('/');
   }
   const displayPartner = parts[0] || partnerName;
   const displayRole = parts[1] || role;

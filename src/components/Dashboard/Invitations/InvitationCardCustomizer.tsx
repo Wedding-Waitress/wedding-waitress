@@ -63,12 +63,14 @@ interface InvitationCardCustomizerProps {
   presetYPositions?: Record<string, number>;
   presetStyles?: Record<string, { font_family: string; font_size: number }>;
   textZonesIntro?: string;
+  textZonesEmptyMessage?: string;
   bgSectionTitle?: string;
   qrTabTitle?: string;
   notesPlaceholder?: string;
   notesHelper?: string;
   notes?: string;
   onNotesChange?: (notes: string) => Promise<boolean>;
+  onGallerySelect?: (imageUrl: string, measurementUrl?: string, signal?: AbortSignal) => Promise<boolean>;
   beforeBackgroundUpload?: (file: File) => Promise<boolean>;
   imageUploadFolder?: string;
   storageBucket?: string;
@@ -78,7 +80,7 @@ interface InvitationCardCustomizerProps {
   GalleryModalComponent?: React.ComponentType<{
     open: boolean;
     onOpenChange: (open: boolean) => void;
-    onSelectImage: (imageUrl: string) => void;
+    onSelectImage: (imageUrl: string, measurementUrl?: string, signal?: AbortSignal) => void | boolean | Promise<void | boolean>;
   }>;
   portalScopeClassName?: string;
 }
@@ -217,6 +219,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
   presetYPositions,
   presetStyles,
   textZonesIntro,
+  textZonesEmptyMessage = 'Start by adding a preset or custom text zone to build your invitation.',
   bgSectionTitle,
   qrTabTitle,
   notesPlaceholder,
@@ -224,6 +227,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
   notes,
   onNotesChange,
   beforeBackgroundUpload,
+  onGallerySelect,
   imageUploadFolder,
   storageBucket,
   galleryButtonLabel = 'Template Library',
@@ -240,6 +244,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
   const [localNotes, setLocalNotes] = useState('');
   const { toast } = useToast();
   const signagePremium = appearance === 'signage-premium';
+  const labelControls = signageTypography || signagePremium;
   const portalClassName = signagePremium
     ? `ww-signage-premium-portal ww-invitations-premium-portal${signageTypography ? ' ww-signage-typography-portal' : ''}${portalScopeClassName ? ` ${portalScopeClassName}` : ''}`
     : undefined;
@@ -432,7 +437,8 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                       <div>
                         <Label className="text-xs inline-flex items-center gap-1.5"><Type className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />Text Content</Label>
                         <Input
-                          value={zone.text || (zone.type === 'preset' && zone.preset_field ? eventData[zone.preset_field] || '' : '')}
+                          aria-label={labelControls ? `${zone.label} text content` : undefined}
+                          value={zone.text ?? (zone.type === 'preset' && zone.preset_field ? eventData[zone.preset_field] || '' : '')}
                           onChange={(e) => updateZone(zone.id, { text: e.target.value })}
                           placeholder={zone.type === 'preset' && zone.preset_field ? eventData[zone.preset_field] || `Enter ${zone.label}...` : 'Enter text...'}
                           className="mt-1"
@@ -443,6 +449,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         <div>
                           <Label className="text-xs inline-flex items-center gap-1.5"><CaseSensitive className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />Font</Label>
                           <PlaceCardFontPicker
+                            label={labelControls ? `${zone.label} font` : undefined}
                             value={zone.font_family}
                             onValueChange={(v) => updateZone(zone.id, { font_family: v })}
                             contentClassName={portalClassName}
@@ -451,7 +458,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         <div>
                           <Label className="text-xs inline-flex items-center gap-1.5"><Scaling className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />Size (px)</Label>
                           <Select value={zone.font_size.toString()} onValueChange={(v) => updateZone(zone.id, { font_size: parseInt(v) })}>
-                            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                            <SelectTrigger aria-label={labelControls ? `${zone.label} font size` : undefined} className="mt-1"><SelectValue /></SelectTrigger>
                             <SelectContent className={portalClassName}>
                               {[12, 14, 16, 18, 20, 22, 24, 28, 32, 36, 40, 48, 56, 64, 72, 80, 96, 120, 150].map(s => (
                                 <SelectItem key={s} value={s.toString()}>{s}px</SelectItem>
@@ -465,6 +472,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         <div>
                           <Label className="text-xs inline-flex items-center gap-1.5"><Palette className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />Font Color</Label>
                           <ColorPickerPopover
+                            ariaLabel={labelControls ? `${zone.label} font color` : undefined}
                             value={zone.font_color}
                             onChange={(color) => updateZone(zone.id, { font_color: color })}
                             contentClassName={portalClassName}
@@ -473,7 +481,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         <div>
                           <Label className="text-xs">Text Style</Label>
                           <Select value={zone.font_style === 'normal' ? 'default' : (zone.font_style || 'default')} onValueChange={(v) => updateZone(zone.id, { font_style: v })}>
-                            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                            <SelectTrigger aria-label={labelControls ? `${zone.label} text style` : undefined} className="mt-1"><SelectValue /></SelectTrigger>
                             <SelectContent className={portalClassName}>
                               <SelectItem value="default">Default</SelectItem>
                               <SelectItem value="bold">Bold</SelectItem>
@@ -488,7 +496,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         <div>
                           <Label className="text-xs inline-flex items-center gap-1.5"><AlignCenter className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />Align</Label>
                           <Select value={zone.text_align} onValueChange={(v) => updateZone(zone.id, { text_align: v })}>
-                            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                            <SelectTrigger aria-label={labelControls ? `${zone.label} alignment` : undefined} className="mt-1"><SelectValue /></SelectTrigger>
                             <SelectContent className={portalClassName}>
                               <SelectItem value="left">Left</SelectItem>
                               <SelectItem value="center">Center</SelectItem>
@@ -499,7 +507,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         <div>
                           <Label className="text-xs inline-flex items-center gap-1.5"><CaseUpper className="h-4 w-4 text-muted-foreground" strokeWidth={1.8} aria-hidden="true" />Text Case</Label>
                           <Select value={zone.text_case} onValueChange={(v) => updateZone(zone.id, { text_case: v })}>
-                            <SelectTrigger className="mt-1"><SelectValue /></SelectTrigger>
+                            <SelectTrigger aria-label={labelControls ? `${zone.label} text case` : undefined} className="mt-1"><SelectValue /></SelectTrigger>
                             <SelectContent className={portalClassName}>
                               <SelectItem value="default">Default</SelectItem>
                               <SelectItem value="uppercase">UPPERCASE</SelectItem>
@@ -536,7 +544,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                   <div className="text-center py-8 text-muted-foreground border-2 border-dashed rounded-lg px-4">
                     <Layers className="h-8 w-8 mx-auto mb-2" />
                     <p className="text-sm font-medium">No text zones added yet</p>
-                    <p className="text-xs mt-1">Start by adding a preset or custom text zone to build your invitation.</p>
+                    <p className="text-xs mt-1">{textZonesEmptyMessage}</p>
                   </div>
                 )}
 
@@ -624,7 +632,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         </button>
                       </div>
                       <p className="text-xs text-muted-foreground mt-2">
-                        Want more design freedom? Click 'Edit with Canva' to customise your invitation using Canva. After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress.
+                        Want more design freedom? Click 'Design with Canva' to customise your design. Download it as a PNG image, then return here and upload it to Wedding Waitress.
                       </p>
 
                       {currentSettings.background_image_url && (
@@ -658,7 +666,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                         value={String(currentSettings.background_image_opacity ?? 100)}
                         onValueChange={(value) => handleSettingChange('background_image_opacity', Number(value))}
                       >
-                        <SelectTrigger><SelectValue /></SelectTrigger>
+                        <SelectTrigger aria-label={labelControls ? "Image opacity" : undefined}><SelectValue /></SelectTrigger>
                         <SelectContent className={portalClassName}>
                           {[0, 10, 20, 30, 40, 50, 60, 70, 80, 90, 100].map(val => (
                             <SelectItem key={val} value={String(val)}>{val}%</SelectItem>
@@ -670,6 +678,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                   <div className="space-y-2">
                     <Label className="flex items-center gap-2"><Palette className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />Card Background Color</Label>
                     <ColorPickerPopover
+                      ariaLabel={labelControls ? "Card background color" : undefined}
                       value={currentSettings.background_color}
                       onChange={(color) => handleSettingChange('background_color', color)}
                       contentClassName={portalClassName}
@@ -723,7 +732,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                       });
                     }}
                   >
-                    <SelectTrigger className="w-full border-primary">
+                    <SelectTrigger aria-label={labelControls ? "Choose event for QR code" : undefined} className="w-full border-primary">
                       <SelectValue placeholder="Select an event..." />
                     </SelectTrigger>
                     <SelectContent className={`${portalClassName || ''} bg-popover border-border z-50`}>
@@ -740,6 +749,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                     <div className="flex items-center justify-between">
                       <Label className="text-sm flex items-center gap-2"><Move className="h-[18px] w-[18px]" strokeWidth={1.8} aria-hidden="true" />Show QR on Canvas</Label>
                       <Switch
+                        aria-label={labelControls ? "Show QR on canvas" : undefined}
                         checked={currentSettings.qr_config.enabled}
                         onCheckedChange={(checked) => {
                           handleSettingChange('qr_config', {
@@ -788,6 +798,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
                     Notes / Caption
                   </Label>
                   <Textarea
+                    aria-label={labelControls ? "Notes / Caption" : undefined}
                     placeholder={notesPlaceholder || 'Add any notes or captions for this invitation design...'}
                     value={onNotesChange ? notes ?? '' : localNotes}
                     onChange={e => onNotesChange ? void onNotesChange(e.target.value) : setLocalNotes(e.target.value)}
@@ -827,6 +838,7 @@ export const InvitationCardCustomizer: React.FC<InvitationCardCustomizerProps> =
             onSelectImage={async (imageUrl) => {
               if (await handleSettingChange('background_image_url', imageUrl) === false) return;
               toast({ title: "Image Selected", description: "Gallery image has been applied" });
+              return true;
             }}
           />
         );

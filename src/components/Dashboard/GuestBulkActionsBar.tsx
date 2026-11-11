@@ -28,6 +28,8 @@ interface SelectedGuest {
   id: string;
   first_name: string;
   last_name: string;
+  email?: string | null;
+  mobile?: string | null;
 }
 
 interface GuestBulkActionsBarProps {
@@ -42,8 +44,7 @@ interface GuestBulkActionsBarProps {
   onDeselectAll: () => void;
   onUpdateRsvp: () => void;
   onDelete: () => void;
-  onSendEmail?: () => void;
-  onSendSms?: () => void;
+  onChooseDelivery?: () => void;
   onMarkManualInvite: (method: string) => void;
 }
 
@@ -59,8 +60,7 @@ export const GuestBulkActionsBar = ({
   onDeselectAll,
   onUpdateRsvp,
   onDelete,
-  onSendEmail,
-  onSendSms,
+  onChooseDelivery,
   onMarkManualInvite,
 }: GuestBulkActionsBarProps) => {
   const [pickerOpen, setPickerOpen] = useState(false);
@@ -73,7 +73,7 @@ export const GuestBulkActionsBar = ({
       setDraftIds(new Set(selectedGuests.map((g) => g.id)));
       setSearch("");
     }
-  }, [pickerOpen]);
+  }, [pickerOpen, selectedGuests]);
 
   const filteredGuests = useMemo(() => {
     const q = search.trim().toLowerCase();
@@ -220,15 +220,15 @@ export const GuestBulkActionsBar = ({
             <span className="text-sm font-medium text-foreground">Select All Unanswered Guests</span>
           </div>
 
-          {/* Send Email or SMS via Wedding Waitress (combined) */}
-          {onSendEmail && (
+          {/* Continue to the contact, delivery method and credit summary. */}
+          {onChooseDelivery && (
             <button
-              onClick={onSendEmail}
+              onClick={onChooseDelivery}
               className="p-3 rounded-lg border-2 border-[#967A59]/70 hover:border-[#967A59] hover:bg-[#967A59]/5 cursor-pointer flex items-center gap-3 transition-colors text-left"
             >
               <Mail className="w-5 h-5 text-blue-500" />
               <Phone className="w-5 h-5 text-green-500" />
-              <span className="text-sm font-medium text-foreground">Send Email or SMS via Wedding Waitress</span>
+              <span className="text-sm font-medium text-foreground">Choose Email, SMS or Email + SMS</span>
             </button>
           )}
 
@@ -237,7 +237,7 @@ export const GuestBulkActionsBar = ({
             <Send className="w-5 h-5 text-[#967A59] shrink-0" />
             <div className="flex flex-col gap-1.5 flex-1">
               <span className="text-sm font-medium text-foreground">Mark RSVP / Invite as sent manually</span>
-              <Select onValueChange={(value) => onMarkManualInvite(value)}>
+              <Select value="" onValueChange={(value) => onMarkManualInvite(value)}>
                 <SelectTrigger className="h-9 text-xs border-2 border-[#967A59]/70">
                   <SelectValue placeholder="Select method..." />
                 </SelectTrigger>

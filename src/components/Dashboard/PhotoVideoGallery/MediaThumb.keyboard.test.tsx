@@ -1,0 +1,2 @@
+import React from'react';import{cleanup,fireEvent,render,screen}from'@testing-library/react';import{afterEach,expect,it,vi}from'vitest';import{MediaThumb}from'./MediaThumb';afterEach(cleanup);
+it.each(['Enter',' '])('opens a media preview using %s',key=>{const open=vi.fn();render(<MediaThumb item={{id:'one',kind:'photo',uploader_name:'Guest'}as any} onOpen={open}/>);fireEvent.keyDown(screen.getByRole('button',{name:'Open upload from Guest'}),{key});expect(open).toHaveBeenCalledTimes(1)});

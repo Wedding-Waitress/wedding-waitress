@@ -186,6 +186,7 @@ export function DJMCQuestionnaireSection({
   );
 
   const handleDragEnd = useCallback((event: DragEndEvent) => {
+    if (disabled) return;
     const { active, over } = event;
     if (!over || active.id === over.id) return;
 
@@ -199,7 +200,7 @@ export function DJMCQuestionnaireSection({
       }));
       onReorderItems(newItems);
     }
-  }, [section.items, onReorderItems]);
+  }, [section.items, onReorderItems, disabled]);
 
   const handleLabelClick = useCallback(() => {
     if (!disabled) {
@@ -311,6 +312,8 @@ export function DJMCQuestionnaireSection({
 
                 {editingLabel ? (
                   <Input
+                    aria-label={section.section_label}
+                    disabled={disabled}
                     ref={labelInputRef}
                     value={localLabel}
                     onChange={(e) => setLocalLabel(e.target.value)}
@@ -442,6 +445,7 @@ export function DJMCQuestionnaireSection({
                     Notes for DJ-MC
                   </div>
                   <Textarea
+                    aria-label="Notes for DJ-MC"
                     value={section.notes || ''}
                     onChange={(e) => onUpdateSection({ notes: e.target.value || null })}
                     placeholder="e.g., special instructions, timing, etc."

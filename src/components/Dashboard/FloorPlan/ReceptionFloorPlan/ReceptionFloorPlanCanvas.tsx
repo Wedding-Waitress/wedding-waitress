@@ -1,5 +1,5 @@
 import {receptionLabelRotation} from '@/lib/receptionLabelOrientation';
-import { useCallback, useEffect, useMemo, useRef, useState } from 'react';
+import { useCallback, useEffect, useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { Lock, Unlock, RotateCw, RotateCcw, Undo2, Trash2, StickyNote, Move } from 'lucide-react';
 
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
@@ -88,6 +88,27 @@ export const ReceptionFloorPlanCanvas = ({
   const previewRef = useRef<ReceptionFloorPlan | null>(null);
   const plan = dragPreview?.id === savedPlan.id ? dragPreview : savedPlan;
   const canvasRef = useRef<HTMLDivElement>(null);
+  const [presentationScale, setPresentationScale] = useState(1);
+  useLayoutEffect(() => {
+    const room = canvasRef.current;
+    if (!room) return;
+    let frame = 0;
+    const measure = () => {
+      const width = room.getBoundingClientRect().width;
+      const scale = width > 0 && room.offsetWidth > 0 ? width / room.offsetWidth : 1;
+      setPresentationScale(current => Math.abs(current - scale) > 0.0001 ? Math.max(0.01, scale) : current);
+    };
+    const schedule = () => { cancelAnimationFrame(frame); frame = requestAnimationFrame(measure); };
+    measure();
+    const resize = new ResizeObserver(schedule);
+    resize.observe(room);
+    if (room.parentElement) resize.observe(room.parentElement);
+    const presentation = room.closest('[data-reception-document-area]') ?? room.parentElement;
+    const changes = new MutationObserver(schedule);
+    if (presentation) changes.observe(presentation, { attributes: true, attributeFilter: ['style'], subtree: true });
+    window.addEventListener('resize', schedule);
+    return () => { resize.disconnect(); changes.disconnect(); window.removeEventListener('resize', schedule); cancelAnimationFrame(frame); };
+  }, [savedPlan.id, fitViewport]);
   const [selection, setSelection] = useState<Selection | null>(null);
   const [guides, setGuides] = useState<SnapTarget[]>([]);
   const [draggingFixtureType, setDraggingFixtureType] = useState<FixtureType | null>(null);
@@ -98,7 +119,7 @@ export const ReceptionFloorPlanCanvas = ({
     | null
   >(null);
   const rotationState = useRef<{kind: SelectedKind; id: string; startX: number; angle: number} | null>(null);
-  const originalTransforms = useRef(new Map<string, ReceptionBackground | Fixture>());
+  const originalTransforms = useRef(new Map<string, ReceptionBackground | Fixture | TablePosition>());
   const resizeState = useRef<
     | {
         kind: 'background';
@@ -129,6 +150,24 @@ export const ReceptionFloorPlanCanvas = ({
     | null
   >(null);
 
+  const cancelGesture = useCallback(() => {
+    previewRef.current = null;
+    dragState.current = null;
+    resizeState.current = null;
+    rotationState.current = null;
+    altDownRef.current = false;
+    setDragPreview(null);
+    setGuides([]);
+    setDraggingFixtureType(null);
+  }, []);
+
+  useEffect(() => {
+    cancelGesture();
+    setSelection(null);
+    setTextEditor(null);
+    originalTransforms.current.clear();
+  }, [savedPlan.id, readOnly, cancelGesture]);
+
   // Keep pointer motion local so autosave and advisory panels cannot reflow the page mid-drag.
   const onChange = (mutator: (current: ReceptionFloorPlan) => ReceptionFloorPlan) => {
     if (dragState.current || resizeState.current || rotationState.current) {
@@ -142,17 +181,23 @@ export const ReceptionFloorPlanCanvas = ({
   useEffect(() => {
     const down = (e: KeyboardEvent) => {
       if (e.key === 'Alt') altDownRef.current = true;
+      if (e.key === 'Escape' && (dragState.current || resizeState.current || rotationState.current)) {
+        e.preventDefault();
+        cancelGesture();
+      }
     };
     const up = (e: KeyboardEvent) => {
       if (e.key === 'Alt') altDownRef.current = false;
     };
     window.addEventListener('keydown', down);
     window.addEventListener('keyup', up);
+    window.addEventListener('blur', cancelGesture);
     return () => {
       window.removeEventListener('keydown', down);
       window.removeEventListener('keyup', up);
+      window.removeEventListener('blur', cancelGesture);
     };
-  }, []);
+  }, [cancelGesture]);
   // Notify parent of selected table changes (for the Table Note panel).
   useEffect(() => {
     if (!onSelectedTableChange) return;
@@ -324,7 +369,7 @@ export const ReceptionFloorPlanCanvas = ({
     if (readOnly) return;
     setSelection({ kind, id });
     const key=savedPlan.id+':'+kind+':'+id;
-    if(!originalTransforms.current.has(key)){const item=kind==='background'?plan.background:plan.fixtures.find(f=>f.id===id);if(item)originalTransforms.current.set(key,{...item});}
+    if(!originalTransforms.current.has(key)){const item=kind==='background'?plan.background:kind==='table'?plan.table_positions.find(position=>position.table_id===id):plan.fixtures.find(f=>f.id===id);if(item)originalTransforms.current.set(key,{...item});}
     if (locked) return;
     const metrics = getCanvasMetrics();
     if (!metrics) return;
@@ -338,8 +383,9 @@ export const ReceptionFloorPlanCanvas = ({
     (e.currentTarget as Element).setPointerCapture(e.pointerId);
   };
   const handlePointerMove = (e: React.PointerEvent) => {
+    if (readOnly) return;
     const turning=rotationState.current;
-    if(turning){const angle=Math.round(turning.angle+(e.clientX-turning.startX)*0.5);const rotation=((angle%360)+360)%360;onChange(p=>turning.kind==='background'?{...p,background:{...p.background,rotation}}:{...p,fixtures:p.fixtures.map(f=>f.id===turning.id?{...f,rotation}:f)});return;}
+    if(turning){const angle=Math.round(turning.angle+(e.clientX-turning.startX)*0.5);const rotation=((angle%360)+360)%360;onChange(p=>turning.kind==='background'?{...p,background:{...p.background,rotation}}:turning.kind==='table'?{...p,table_positions:p.table_positions.map(position=>position.table_id===turning.id?{...position,rotation}:position)}:{...p,fixtures:p.fixtures.map(f=>f.id===turning.id?{...f,rotation}:f)});return;}
     if (resizeState.current) {
       const r = resizeState.current;
       const metrics = getCanvasMetrics();
@@ -483,6 +529,7 @@ export const ReceptionFloorPlanCanvas = ({
     }
   };
   const handlePointerUp = () => {
+    if (readOnly) { cancelGesture(); return; }
     const gesture = rotationState.current ?? resizeState.current ?? dragState.current;
     const preview = previewRef.current;
     if (gesture && preview && preview.id === savedPlan.id) {
@@ -693,27 +740,31 @@ export const ReceptionFloorPlanCanvas = ({
   };
 
   const selectedFixture=selection?.kind==='fixture'?plan.fixtures.find(f=>f.id===selection.id):null;
-  const selectedObject=selection?.kind==='background'?plan.background:selectedFixture;
-  const transformControls=(!readOnly && selectedObject && selection && selection.kind!=='table')?(()=>{
+  const selectedHeadTable=selection?.kind==='table' && tableById.get(selection.id)?.table_purpose==='head' ? tableById.get(selection.id)! : null;
+  const selectedHeadPosition=selectedHeadTable ? plan.table_positions.find(position=>position.table_id===selectedHeadTable.id) : null;
+  const selectedObject=selection?.kind==='background'?plan.background:selectedHeadPosition??selectedFixture;
+  const transformControls=(!readOnly && selectedObject && selection && (selection.kind!=='table' || selectedHeadTable))?(()=>{
     const background=selection.kind==='background', item=selectedObject;
-    const width=background?(plan.background.width??0):(selectedFixture?.width_m??0),height=background?(plan.background.height??0):(selectedFixture?.height_m??0);
+    const headDimensions=selectedHeadTable ? getHeadTableDimensions(selectedHeadTable.limit_seats) : null;
+    const width=background?(plan.background.width??0):selectedHeadPosition?(selectedHeadPosition.width_m??headDimensions!.width):(selectedFixture?.width_m??0),height=background?(plan.background.height??0):selectedHeadPosition?(selectedHeadPosition.height_m??headDimensions!.height):(selectedFixture?.height_m??0);
     const centre=background?{x:item.x+width/2,y:item.y+height/2}:{x:item.x,y:item.y};
     const point=receptionRoomPointToLandscape(centre,roomPresentation);
     const rad=item.rotation*Math.PI/180;
     const halfHeight=(Math.abs(Math.sin(rad))*height+Math.abs(Math.cos(rad))*width)*PX_PER_M/2;
-    const x=clamp(point.x*PX_PER_M,80,displayRoomW-80);
-    const top=clamp(point.y*PX_PER_M-halfHeight-56,8,displayRoomH-56);
-    const bottom=clamp(point.y*PX_PER_M+halfHeight+8,64,displayRoomH-52);
-    const reset=()=>{const original=originalTransforms.current.get(savedPlan.id+':'+selection.kind+':'+selection.id);if(!original)return;onChange(p=>background?{...p,background:{...p.background,...original} as ReceptionBackground}:{...p,fixtures:p.fixtures.map(f=>f.id===selection.id?{...f,...original} as Fixture:f)});};
-    const remove=()=>{if(background)onChange(p=>({...p,background:{...p.background,path:null,width:null,height:null,visible:false}}));else removeFixture(selection.id);setSelection(null);};
+    const margin=Math.min(displayRoomW/2,80/presentationScale);
+    const x=clamp(point.x*PX_PER_M,margin,displayRoomW-margin);
+    const top=clamp(point.y*PX_PER_M-halfHeight-56/presentationScale,8/presentationScale,displayRoomH-56/presentationScale);
+    const bottom=clamp(point.y*PX_PER_M+halfHeight+8/presentationScale,64/presentationScale,displayRoomH-52/presentationScale);
+    const reset=()=>{const original=originalTransforms.current.get(savedPlan.id+':'+selection.kind+':'+selection.id);if(!original)return;onChange(p=>background?{...p,background:{...p.background,...original} as ReceptionBackground}:selection.kind==='table'?{...p,table_positions:p.table_positions.map(position=>position.table_id===selection.id?{...position,x:original.x,y:original.y,rotation:original.rotation,width_m:(original as TablePosition).width_m,height_m:(original as TablePosition).height_m}:position)}:{...p,fixtures:p.fixtures.map(f=>f.id===selection.id?{...f,...original} as Fixture:f)});};
+    const remove=()=>{if(selection.kind==='table')originalTransforms.current.delete(savedPlan.id+':table:'+selection.id);if(background)onChange(p=>({...p,background:{...p.background,path:null,width:null,height:null,visible:false}}));else if(selection.kind==='table')onChange(p=>({...p,manual_placement:true,table_positions:p.table_positions.filter(position=>position.table_id!==selection.id)}));else removeFixture(selection.id);setSelection(null);};
     const buttonClass='lv-premium-shade min-w-[44px] min-h-[44px] inline-flex items-center justify-center rounded bg-card text-foreground';
     return <div data-reception-screen-only="true" style={{position:'absolute',inset:0,zIndex:100,pointerEvents:'none'}}>
-      <div style={{position:'absolute',left:x,top,transform:'translateX(-50%)',pointerEvents:'auto'}} className="flex gap-1 bg-card border rounded-md shadow p-1">
+      <div style={{position:'absolute',left:x,top,transform:'translateX(-50%) scale('+1/presentationScale+')',transformOrigin:'top center',pointerEvents:'auto'}} className="flex gap-1 bg-card border rounded-md shadow p-1">
         <button type="button" className={buttonClass} title="Reset to starting position and size" disabled={item.locked} onClick={reset}><RotateCcw className="w-4 h-4"/></button>
-        <button type="button" className={buttonClass} title={item.locked?'Unlock':'Lock'} onClick={()=>background?toggleLockBackground():toggleLockFixture(selection.id)}>{item.locked?<Lock className="w-4 h-4"/>:<Unlock className="w-4 h-4"/>}</button>
+        <button type="button" className={buttonClass} title={item.locked?'Unlock':'Lock'} onClick={()=>background?toggleLockBackground():selection.kind==='table'?toggleLockTable(selection.id):toggleLockFixture(selection.id)}>{item.locked?<Lock className="w-4 h-4"/>:<Unlock className="w-4 h-4"/>}</button>
         <button type="button" className={buttonClass} title="Remove" aria-label="Delete selected item" onClick={remove}><Trash2 className="w-4 h-4"/></button>
       </div>
-      {!item.locked&&<div style={{position:'absolute',left:x,top:bottom,transform:'translateX(-50%)',pointerEvents:'auto'}} className="flex gap-1">
+      {!item.locked&&<div style={{position:'absolute',left:x,top:bottom,transform:'translateX(-50%) scale('+1/presentationScale+')',transformOrigin:'top center',pointerEvents:'auto'}} className="flex gap-1">
         <button type="button" className={buttonClass} title="Drag to move" style={{touchAction:'none',cursor:'move'}} onPointerDown={e=>{e.stopPropagation();e.preventDefault();handlePointerDown(e,selection.kind,selection.id,centre.x,centre.y,false)}} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerUp}><Move className="w-4 h-4"/></button>
         <button type="button" className={buttonClass} title="Drag left or right to rotate" style={{touchAction:'none',cursor:'ew-resize'}} onPointerDown={e=>{e.preventDefault();e.stopPropagation();rotationState.current={kind:selection.kind,id:selection.id,startX:e.clientX,angle:item.rotation};e.currentTarget.setPointerCapture(e.pointerId)}} onPointerMove={handlePointerMove} onPointerUp={handlePointerUp} onPointerCancel={handlePointerUp}><RotateCw className="w-4 h-4"/></button>
       </div>}
@@ -867,6 +918,8 @@ export const ReceptionFloorPlanCanvas = ({
               data-canonical-room-length-m={plan.room_length_m}
               data-presentation-width-m={roomPresentation.displayWidth}
               data-presentation-height-m={roomPresentation.displayHeight}
+              onPointerCancelCapture={cancelGesture}
+              onLostPointerCaptureCapture={cancelGesture}
               onDragOver={handleCanvasDragOver}
               onDrop={handleCanvasDrop}
               onClick={(e) => {
@@ -874,6 +927,7 @@ export const ReceptionFloorPlanCanvas = ({
               }}
                 className="relative bg-white border-2 border-foreground/70 shadow-inner mx-auto"
                 style={{
+                ...({ '--reception-presentation-scale': presentationScale } as React.CSSProperties),
                 width: displayRoomW,
                 height: displayRoomH,
                 backgroundImage:
@@ -1233,13 +1287,13 @@ const PlacedTable = ({
 
       {selected && (
         <>
-          <SelectionToolbar
+          {!isHeadTable && <SelectionToolbar
             rotation={pos.rotation}
             locked={pos.locked}
             onRotate={onRotate}
             onToggleLock={onToggleLock}
             onRemove={onRemove}
-          />
+          />}
           {isHeadTable && !pos.locked && <FixtureResizeHandles onPointerDown={onResizePointerDown} onPointerMove={onPointerMove} onPointerUp={onPointerUp}
         onPointerCancel={onPointerUp} />}
         </>
@@ -1426,7 +1480,12 @@ const FixtureResizeHandles = ({
         onPointerUp={onPointerUp}
         onPointerCancel={onPointerCancel}
         className="absolute z-[6] h-4 w-4 rounded-sm border-2 border-white bg-primary shadow"
-        style={{ ...style, cursor, touchAction: 'none' }}
+        style={{ ...style, cursor, touchAction: 'none',
+          width: 'calc(24px / var(--reception-presentation-scale, 1))',
+          height: 'calc(24px / var(--reception-presentation-scale, 1))',
+          ...(handle.includes('w') ? { left: 'calc(-12px / var(--reception-presentation-scale, 1))' } : handle.includes('e') ? { right: 'calc(-12px / var(--reception-presentation-scale, 1))' } : {}),
+          ...(handle.includes('n') ? { top: 'calc(-12px / var(--reception-presentation-scale, 1))' } : handle.includes('s') ? { bottom: 'calc(-12px / var(--reception-presentation-scale, 1))' } : {}),
+        }}
       />
     ))}
   </>
@@ -1446,9 +1505,10 @@ const SelectionToolbar = ({ rotation, locked, onRotate, onToggleLock, onRemove }
     data-reception-screen-only="true"
     style={{
       position: 'absolute',
-      top: -44,
+      top: 'calc(-56px / var(--reception-presentation-scale, 1))',
       left: '50%',
-      transform: `translateX(-50%) rotate(${-rotation}deg)`,
+      transform: `translateX(-50%) rotate(${-rotation}deg) scale(calc(1 / var(--reception-presentation-scale, 1)))`,
+      transformOrigin: 'top center',
     }}
     className="flex items-center gap-1 bg-card border border-border rounded-md shadow-md px-1 py-1"
   >

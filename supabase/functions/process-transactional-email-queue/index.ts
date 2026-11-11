@@ -28,7 +28,13 @@ Deno.serve(async (req) => {
   const admin = createClient(supabaseUrl, serviceKey)
   const { data: claimed, error: claimError } = await admin.rpc('claim_transactional_email', { p_queue_id: queueId })
   const item = Array.isArray(claimed) ? claimed[0] : claimed
-  if (claimError || !item) return json({ error: 'Email queue item is unavailable' }, 409)
+  if (claimError || !item) {
+    if (!claimError) {
+      const {data: prior, error: priorError} = await admin.from('transactional_email_queue').select('status').eq('id',queueId).maybeSingle()
+      if (!priorError && prior?.status === 'sent') return json({success:true,accepted:true,delivered:false,alreadyAccepted:true})
+    }
+    return json({ error: 'Email queue item is unavailable' }, 409)
+  }
 
   const payload = item.payload as Record<string, unknown>
   const messageId = String(payload.message_id || '')

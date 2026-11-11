@@ -1,4 +1,22 @@
 {
+  "guestbookSuccess": {
+    "thankYou": "谢谢您，{{name}}！",
+    "another": "再留一条留言",
+    "return": "返回应用",
+    "received": "感谢您在留言簿中留言。"
+  },
+  "guestbookMessages": {
+    "textTitle": "写下留言",
+    "audioTitle": "录制语音留言",
+    "videoTitle": "录制视频留言",
+    "textAgain": "再写一条留言",
+    "audioAgain": "再录一条语音留言",
+    "videoAgain": "再录一条视频留言",
+    "textSaved": "您的文字留言已保存。",
+    "audioSaved": "您的语音留言已保存。",
+    "videoSaved": "您的视频留言已保存。"
+  },
+  "guestbookBackToApp": "返回应用",
   "privacyPolicy": "隐私政策",
   "termsOfService": "服务条款",
   "contact": "联系我们",
@@ -51,5 +69,17 @@
     "codeSentDesc": "新的验证码已发送到您的电子邮件。",
     "welcomeTitle": "欢迎来到 Wedding Waitress 🎉",
     "welcomeDesc": "您的账户已成功创建！"
+  },
+  "guestbookPrivacy": {
+    "intro": "留下文字、语音或视频留言，也可以任意组合。",
+    "notice": "您的文字、语音和视频留言会分享到活动相册和实时幻灯片中。"
+  },
+  "photoBoothSession": {
+    "capturedPhoto": "已拍摄的照片{{number}}",
+    "captureNote": "4张照片 - 8秒倒计时",
+    "nameLabel": "请先填写您的全名",
+    "namePlaceholder": "例如：王小明",
+    "partial": "已保存 {{saved}} 张，共 {{total}} 张。点击“下载并保存”重试剩余图片，已保存的照片不会重复上传。",
+    "captureFailed": "无法从相机捕获画面，请重新开始拍摄。"
   }
 }

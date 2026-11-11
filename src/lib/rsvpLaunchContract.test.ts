@@ -14,7 +14,7 @@ describe('launch RSVP purchase contract', () => {
     expect(planModal).toContain('Email &amp; SMS credits included with your plan');
     expect(planModal).toContain('Included</p>');
     expect(planModal).toContain('Used</p>');
-    expect(planModal).toContain('Left</p>');
+    expect(planModal).toContain('Remaining</p>');
   });
 
   it('retains the approved A$49 top-up for 100 shared credits', () => {

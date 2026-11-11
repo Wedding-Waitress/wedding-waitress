@@ -63,7 +63,7 @@ describe('event budget calculations', () => {
   });
 
   it('preserves a saved legacy currency but defaults every new budget to AUD', () => {
-    expect(formatBudgetCurrency('AUD', 20000)).toBe('A$20,000.00');
+    expect(formatBudgetCurrency('AUD', 20000)).toBe('$20,000.00');
     expect(formatBudgetCurrency('USD', 20000)).toBe('US$20,000.00');
     expect(formatBudgetCurrency('GBP', 20000)).toBe('£20,000.00');
     expect(formatBudgetCurrency('EUR', 20000)).toBe('€20,000.00');

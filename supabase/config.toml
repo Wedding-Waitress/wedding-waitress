@@ -100,7 +100,11 @@ verify_jwt = true
 [functions.process-transactional-email-queue]
 verify_jwt = true
 
+[functions.process-access-expiry-reminders]
+verify_jwt = true
 
+[functions.stripe-access-extension-webhook]
+verify_jwt = false
 
 [functions.purge-expired-access-accounts]
 verify_jwt = true
@@ -151,4 +155,14 @@ verify_jwt = false
 
 # Anonymous interest registration; private service-only persistence and throttling.
 [functions.register-prelaunch-interest]
+verify_jwt = false
+
+[functions.admin-support]
+verify_jwt = true
+
+[functions.admin-billing-report]
+verify_jwt = true
+
+# Guest capabilities are validated in the handler and private service-only reservation RPCs.
+[functions.guest-verification]
 verify_jwt = false

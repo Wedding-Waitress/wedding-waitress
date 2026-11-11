@@ -1,4 +1,6 @@
-import { useCallback, useEffect, useState } from 'react';
+import { useEffect, useRef, useState } from 'react';
+import { getCacheGeneration, getCacheUserId, registerCache, registerEventCache } from '@/lib/cacheRegistry';
+import { normalizeRsvp } from '@/lib/rsvp';
 import { supabase } from '@/integrations/supabase/client';
 import { parseHeadSeatingOrder, type HeadSeatEntry, type TablePurpose } from '@/lib/headTable';
 
@@ -55,82 +57,68 @@ export function receptionTablesFromRecords(tableRows:ReceptionTableSource[],gues
     });
 }
 
-export const useReceptionTables = (eventId: string | null) => {
-  const [tables, setTables] = useState<ReceptionTable[]>([]);
-  const [loading, setLoading] = useState(false);
-  const [readyEventId, setReadyEventId] = useState<string | null>(null);
-
-  const fetchTables = useCallback(async () => {
-    if (!eventId) return [] as ReceptionTable[];
-
-    const [{ data: tableRows, error: tablesError }, { data: guestRows, error: guestsError }] =
-      await Promise.all([
-        supabase
-          .from('tables')
-          .select('id, name, table_no, limit_seats, table_type, notes, table_purpose, head_seating_order')
-          .eq('event_id', eventId)
-          .order('table_no', { ascending: true }),
-        supabase
-          .from('guests')
-          .select('table_id, seat_no')
-          .eq('event_id', eventId)
-          .not('table_id', 'is', null),
-      ]);
-
-    if (tablesError) throw tablesError;
-    if (guestsError) throw guestsError;
-
-    return receptionTablesFromRecords(tableRows??[],guestRows??[]);
-  }, [eventId]);
-
-  useEffect(() => {
-    if (!eventId) {
-      setTables([]);
-      setLoading(false);
-      setReadyEventId(null);
-      return;
-    }
-    let cancelled = false;
-    let requestVersion = 0;
-    const refresh = async (showLoading = false) => {
-      const version = ++requestVersion;
-      if (showLoading) setLoading(true);
-      try {
-        const next = await fetchTables();
-        if (!cancelled && version === requestVersion) {
-          setTables(next);
-          setReadyEventId(eventId);
-        }
-      } catch (error) {
-        console.error('useReceptionTables: failed to load tables', error);
-      } finally {
-        if (!cancelled && version === requestVersion) setLoading(false);
-      }
-    };
-
-    void refresh(true);
-
-    const channel = supabase
-      .channel(`reception-tables:${eventId}`)
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'tables', filter: `event_id=eq.${eventId}` },
-        () => void refresh(),
-      )
-      .on(
-        'postgres_changes',
-        { event: '*', schema: 'public', table: 'guests', filter: `event_id=eq.${eventId}` },
-        () => void refresh(),
-      )
-      .subscribe();
-    const pollId = window.setInterval(() => void refresh(), 5000);
-
-    return () => {
-      cancelled = true;
-      window.clearInterval(pollId);
-      void supabase.removeChannel(channel);
-    };
-  }, [eventId, fetchTables]);
-
-  return { tables: readyEventId === eventId ? tables : [], loading, ready: !!eventId && readyEventId === eventId };
+interface ReceptionSnapshot {tables: ReceptionTable[]; attendingCount: number}
+const snapshots = new Map<string, {value:ReceptionSnapshot;loadedAt:number;eventId:string}>();
+const reads = new Map<string, Promise<ReceptionSnapshot>>();
+const snapshotKey = (eventId:string) => [getCacheGeneration(),getCacheUserId(),eventId].join('|');
+registerCache(()=>{snapshots.clear();reads.clear();});
+registerEventCache(eventId=>{for(const [key,value] of snapshots)if(value.eventId===eventId)snapshots.delete(key);});
+function readReceptionTables(eventId:string) {
+ const key=snapshotKey(eventId);const pending=reads.get(key);if(pending)return pending;
+ const request=(async()=>{
+  const [{data:tableRows,error:tablesError},{data:guestRows,error:guestsError}]=await Promise.all([
+   supabase.from('tables').select('id, name, table_no, limit_seats, table_type, notes, table_purpose, head_seating_order').eq('event_id',eventId).order('table_no',{ascending:true}),
+   supabase.from('guests').select('table_id, seat_no, rsvp').eq('event_id',eventId),
+  ]);
+  if(tablesError)throw tablesError;if(guestsError)throw guestsError;
+  const value={tables:receptionTablesFromRecords(tableRows??[],guestRows??[]),attendingCount:(guestRows??[]).filter(guest=>normalizeRsvp(guest.rsvp)==='Attending').length};
+  snapshots.set(key,{value,loadedAt:Date.now(),eventId});return value;
+ })().finally(()=>{if(reads.get(key)===request)reads.delete(key);});
+ reads.set(key,request);return request;
+}
+export const useReceptionTables = (eventId: string | null, activeView = true) => {
+ const activeViewRef=useRef(activeView);activeViewRef.current=activeView;
+ const wasActive=useRef(activeView);
+ const refreshRef=useRef<(() => Promise<void>) | null>(null);
+ const stateEvent=useRef(eventId);
+ const cached=eventId?snapshots.get(snapshotKey(eventId)):undefined;
+ const valid=cached && Date.now()-cached.loadedAt<5000 ? cached.value : null;
+ const [snapshot,setSnapshot]=useState<ReceptionSnapshot|null>(valid);
+ const [readyEventId,setReadyEventId]=useState<string|null>(valid?eventId:null);
+ const [loading,setLoading]=useState(!!eventId&&!valid);
+ const [error,setError]=useState<string|null>(null);
+ const [retryVersion,setRetryVersion]=useState(0);
+ useEffect(()=>{
+  stateEvent.current=eventId;
+  if(!eventId){setSnapshot(null);setReadyEventId(null);setLoading(false);setError(null);return;}
+  const entry=snapshots.get(snapshotKey(eventId));
+  const reuse=entry&&Date.now()-entry.loadedAt<5000?entry.value:null;
+  setSnapshot(reuse);setReadyEventId(reuse?eventId:null);setLoading(!reuse);setError(null);
+  let cancelled=false,active:Promise<void>|null=null,changed=false;
+  const refresh=(showLoading=false,fromChange=false):Promise<void>=>{
+   if(active){if(fromChange)changed=true;return active;}
+   if(showLoading)setLoading(true);
+   const request=(async()=>{
+    try{const next=await readReceptionTables(eventId);if(!cancelled){setSnapshot(next);setReadyEventId(eventId);setError(null);}}
+    catch(cause){if(!cancelled){console.error('useReceptionTables: failed to load tables',cause);setError('Could not load reception tables and guests. Please try again.');}}
+    finally{active=null;if(!cancelled){setLoading(false);if(changed){changed=false;void refresh(false);}}}
+   })();active=request;return request;
+  };
+  refreshRef.current=refresh;
+  const change=()=>{snapshots.delete(snapshotKey(eventId));void refresh(false,true);};
+  if(!reuse || retryVersion > 0)void refresh(!reuse);
+  const channel=supabase.channel('reception-tables:'+eventId)
+   .on('postgres_changes',{event:'*',schema:'public',table:'tables',filter:'event_id=eq.'+eventId},change)
+   .on('postgres_changes',{event:'*',schema:'public',table:'guests',filter:'event_id=eq.'+eventId},change).subscribe();
+  const pollId=window.setInterval(()=>{if(activeViewRef.current)void refresh();},5000);
+  return()=>{cancelled=true;if(refreshRef.current===refresh)refreshRef.current=null;window.clearInterval(pollId);void supabase.removeChannel(channel);};
+ },[eventId,retryVersion]);
+ useEffect(()=>{
+  if(activeView && !wasActive.current && eventId){const entry=snapshots.get(snapshotKey(eventId));if(!entry || Date.now()-entry.loadedAt>=5000)void refreshRef.current?.();}
+  wasActive.current=activeView;
+ },[activeView,eventId]);
+ const visibleError=stateEvent.current===eventId?error:null;
+ const ready=!!eventId&&readyEventId===eventId;
+ return {tables:ready?snapshot?.tables??[]:[],attendingCount:ready?snapshot?.attendingCount??0:0,
+  loading:!!eventId&&(!ready||loading)&&!visibleError,ready,error:visibleError,retry:()=>setRetryVersion(value=>value+1)};
 };

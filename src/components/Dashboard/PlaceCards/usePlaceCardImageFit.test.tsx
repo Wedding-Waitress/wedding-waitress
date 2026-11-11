@@ -90,3 +90,4 @@ it('keeps the tab-only fallback when persistent storage is unavailable', async (
     expect(m.confirmFit).not.toHaveBeenCalled();
   } finally { access.mockRestore(); }
 });
+it('does not save if template application is cancelled while fitting is pending',async()=>{let finish:(value:boolean)=>void=()=>{};m.confirmFit.mockReturnValue(new Promise(resolve=>finish=resolve));const save=vi.fn().mockResolvedValue(true),settings=normalizePlaceCardSettings({background_image_type:'full_front'},'test'),controller=new AbortController();const {result}=renderHook(()=>usePlaceCardImageFit(settings,save));let operation:Promise<boolean>;act(()=>{operation=(result.current.updateSettings as any)({background_image_url:'/pending.png'},controller.signal)});controller.abort();await act(async()=>{finish(true);await operation});expect(save).not.toHaveBeenCalled();});

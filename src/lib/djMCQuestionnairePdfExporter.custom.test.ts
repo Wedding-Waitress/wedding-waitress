@@ -11,3 +11,11 @@ it('exports custom headings and cell content in section and entire PDFs',async()
  for(const [pdf] of saved.mock.calls){const content=pdf.internal.pages.flat().join(' ');expect(content).toContain('Person');expect(content).toContain('Instructions');expect(content).toContain('Alice');expect(content).toContain('Bring flowers');expect(content).toContain('10 Tf');expect(pdf.getNumberOfPages()).toBe(1);}
  vi.unstubAllGlobals();
 });
+
+it('does not save either PDF when the event or questionnaire changed during rendering',async()=>{
+ saved.mockClear();vi.stubGlobal('fetch',vi.fn().mockResolvedValue({ok:false}));
+ const section:any={section_type:'cocktail',section_label:'Section',items:[]},event:any={name:'Fixture',date:'2027-03-19'};
+ await expect(exportSectionPDF(section,event,'standard',()=>false)).rejects.toThrow('changed during export');
+ await expect(exportEntireQuestionnairePDF({sections:[section]} as any,event,'standard',()=>false)).rejects.toThrow('changed during export');
+ expect(saved).not.toHaveBeenCalled();vi.unstubAllGlobals();
+});

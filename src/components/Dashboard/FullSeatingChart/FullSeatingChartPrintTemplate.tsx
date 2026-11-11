@@ -2,6 +2,7 @@ import React from 'react';
 import { Guest } from '@/hooks/useGuests';
 import { FullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
 import { normalizeRsvp } from '@/lib/rsvp';
+import { getRelationDisplayText } from '@/lib/relationUtils';
 
 
 interface FullSeatingChartPrintTemplateProps {
@@ -166,10 +167,11 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
             const guestName = formatGuestName(guest);
             const tableInfo = guest.table_no ? `Table ${guest.table_no}` : 'Unassigned';
             const hasDietary = settings.showDietary && guest.dietary && guest.dietary !== 'NA';
-            const hasRelation = settings.showRelation && guest.relation_display;
+            const relationship = getRelationDisplayText(guest.relation_display, guest.relation_role);
+            const hasRelation = settings.showRelation && relationship;
             const infoParts: string[] = [];
             if (hasDietary) infoParts.push(`Dietary: ${guest.dietary}`);
-            if (hasRelation) infoParts.push(guest.relation_display || '');
+            if (hasRelation) infoParts.push(relationship);
             const inlineInfo = infoParts.join(' — ');
             
             return (
@@ -214,10 +216,11 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
             const guestName = formatGuestName(guest);
             const tableInfo = guest.table_no ? `Table ${guest.table_no}` : 'Unassigned';
             const hasDietary = settings.showDietary && guest.dietary && guest.dietary !== 'NA';
-            const hasRelation = settings.showRelation && guest.relation_display;
+            const relationship = getRelationDisplayText(guest.relation_display, guest.relation_role);
+            const hasRelation = settings.showRelation && relationship;
             const infoParts: string[] = [];
             if (hasDietary) infoParts.push(`Dietary: ${guest.dietary}`);
-            if (hasRelation) infoParts.push(guest.relation_display || '');
+            if (hasRelation) infoParts.push(relationship);
             const inlineInfo = infoParts.join(' — ');
             
             return (

@@ -1,3 +1,5 @@
+import {TrialLimitChoice}from'@/components/Subscription/TrialLimitChoice';
+import {UpgradePlanModal}from'@/components/Subscription/UpgradePlanModal';
 import React from 'react';
 import { useNavigate, useSearchParams } from 'react-router-dom';
 import {
@@ -11,7 +13,7 @@ import { useIsAdmin } from '@/hooks/useIsAdmin';
 import {
   beginGuidedSetup, BUDGET_LABELS, CELEBRATION_LABELS, completeGuidedSetup, GUIDED_SETUP_ROUTE,
   EVENT_FORMAT_LABELS, getGuidedEventImageHeading, getGuidedEventImageValue, getGuidedGuestSummary,
-  getGuidedStepIssues, getGuidedTableSummary, getGuidedVenueAddress, PARTS_LABELS,
+  getGuidedStepIssues, getGuidedTableSummary, getGuidedVenueAddress, getGuidedCreationPlan, PARTS_LABELS,
   type BudgetChoice, type CelebrationType, type GuidedSetupAnswers, type GuidedSetupDraft,
   type GuidedSetupMode, isCoupleCelebration, loadActiveGuidedSetup, parseBudgetAmount,
   normalizeGuidedAnswers, saveGuidedSetup, suggestedGuestTableCount, suggestEventName,
@@ -94,7 +96,7 @@ export const GuidedEventSetup = () => {
   const navigate = useNavigate();
   const [searchParams] = useSearchParams();
   const { session } = useAuthenticatedSession();
-  const { profile, loading: profileLoading } = useProfile();
+  const { profile, loading: profileLoading, refreshProfile } = useProfile();
   const { plan, loading: planLoading } = useUserPlan();
   const { isAdmin, loading: adminLoading } = useIsAdmin();
   const requestedMode: GuidedSetupMode = searchParams.get('mode') === 'additional' ? 'additional_event' : 'first_event';
@@ -106,6 +108,8 @@ export const GuidedEventSetup = () => {
   const [saving, setSaving] = React.useState(false);
   const [creating, setCreating] = React.useState(false);
   const [createdEventId, setCreatedEventId] = React.useState<string | null>(null);
+  const [trialChoice,setTrialChoice]=React.useState<'guests'|'tables'|null>(null);
+  const [upgradeOpen,setUpgradeOpen]=React.useState(false);
   const [error, setError] = React.useState('');
   const [validationAttempted, setValidationAttempted] = React.useState(false);
   const headingRef = React.useRef<HTMLHeadingElement>(null);
@@ -131,9 +135,17 @@ export const GuidedEventSetup = () => {
     saveQueueRef.current = pending;
     return pending;
   }, []);
+  const updateTableEstimate = (key: 'tableCapacity' | 'headTableCount' | 'headTable', value: string) => {
+    setError('');
+    setAnswers((current) => {
+      const next = { ...current, [key]: value };
+      return { ...next, guestTableCount: String(suggestedGuestTableCount(next)) };
+    });
+  };
   React.useEffect(() => { headingRef.current?.focus(); }, [step]);
   React.useEffect(() => {
     if (!draft) return;
+    if (draft.completed_at) { if (step !== 10) setStep(10); return; }
     const urlStep = Number(searchParams.get('step'));
     if (Number.isInteger(urlStep) && urlStep >= 1 && urlStep <= 10 && urlStep !== step) setStep(urlStep);
   }, [draft, searchParams, step]);
@@ -191,7 +203,7 @@ export const GuidedEventSetup = () => {
     });
   };
 
-  const persistAndGo = async (nextStep: number) => {
+  const persistAndGo = async (nextStep: number, continueTrialEstimate=false) => {
     if (!draft) return;
     setError('');
     let nextAnswers = answers;
@@ -201,6 +213,12 @@ export const GuidedEventSetup = () => {
       setValidationAttempted(true);
       const issues = getGuidedStepIssues(step, nextAnswers);
       if (issues.length) { focusFirstInvalid(issues[0].field); return; }
+      if(step===6&&!continueTrialEstimate&&!isAdmin&&plan&&plan.plan_name === 'Starter'&&Number(nextAnswers.expectedAttending||0)>20){setTrialChoice('guests');return;}
+      if (step === 7 && plan?.table_limit != null && getGuidedCreationPlan(nextAnswers).requestedTables > plan.table_limit) {
+        if(!isAdmin&&plan.plan_name === 'Starter')setTrialChoice('tables');
+        setError(`Your current plan supports ${plan.table_limit} starting tables. Reduce the table count or create them later.`);
+        return;
+      }
     }
     setSaving(true);
     try {
@@ -245,6 +263,8 @@ export const GuidedEventSetup = () => {
       if (autosaveTimerRef.current !== null) window.clearTimeout(autosaveTimerRef.current);
       const latest = await queueSave(draft.id, answers, 9);
       const eventId = await completeGuidedSetup(latest, plan?.guest_limit ?? null, plan?.table_limit ?? null);
+      // Refresh the shared cache so Account Info shows the private copy on entry.
+      void refreshProfile?.().catch(() => undefined);
       setDraft({ ...latest, created_event_id: eventId, completed_at: new Date().toISOString(), current_step: 10 });
       setCreatedEventId(eventId);
     } catch (reason) { setError(reason instanceof Error ? reason.message : 'Your event could not be created. Your answers are safe—please try again.'); }
@@ -284,7 +304,7 @@ export const GuidedEventSetup = () => {
       const couple = isCoupleCelebration(answers.celebrationType);
       return <div className={styles.formGrid}>
         {couple && <><Field label="Your first name" field="customerFirstName" error={fieldErrors.customerFirstName} required><input value={answers.customerFirstName || ''} onChange={(e) => update('customerFirstName', e.target.value)} /></Field><Field label="Your surname" field="customerSurname"><input value={answers.customerSurname || ''} onChange={(e) => update('customerSurname', e.target.value)} /></Field><Field label="Your partner’s first name" field="partnerFirstName" error={fieldErrors.partnerFirstName} required><input value={answers.partnerFirstName || ''} onChange={(e) => update('partnerFirstName', e.target.value)} /></Field><Field label="Your partner’s surname" field="partnerSurname"><input value={answers.partnerSurname || ''} onChange={(e) => update('partnerSurname', e.target.value)} /></Field></>}
-        {answers.celebrationType === 'birthday' && <><Field label="Name of the person celebrating" field="honoureeName" error={fieldErrors.honoureeName} required><input value={answers.honoureeName || ''} onChange={(e) => update('honoureeName', e.target.value)} /></Field><NumberField label="Age" field="age" value={answers.age} onChange={(v) => update('age', v)} min={1} /></>}
+        {answers.celebrationType === 'birthday' && <><Field label="Name of the person celebrating" field="honoureeName" error={fieldErrors.honoureeName} required><input value={answers.honoureeName || ''} onChange={(e) => update('honoureeName', e.target.value)} /></Field><NumberField label="Age" field="age" value={answers.age} onChange={(v) => update('age', v)} min={1} error={fieldErrors.age} /></>}
         {!couple && answers.celebrationType !== 'birthday' && <><Field label="Organiser’s name" field="organiserName" error={fieldErrors.organiserName} required><input value={answers.organiserName || ''} onChange={(e) => update('organiserName', e.target.value)} /></Field>{['corporate', 'school', 'christmas'].includes(answers.celebrationType || '') && <Field label={answers.celebrationType === 'school' ? 'School name' : 'Company or organisation name'} field="organisationName"><input value={answers.organisationName || ''} onChange={(e) => update('organisationName', e.target.value)} /></Field>}</>}
         <Field label="Event name" field="eventName" hint="You can edit this suggestion." error={fieldErrors.eventName} required><input value={answers.eventName || suggestEventName(answers)} onFocus={() => { if (!answers.eventName) update('eventName', suggestEventName(answers)); }} onChange={(e) => update('eventName', e.target.value)} /></Field>
         <EventImageEditor
@@ -310,7 +330,7 @@ export const GuidedEventSetup = () => {
     if (step === 7) {
       if (answers.eventFormat === 'cocktail') return <div className={styles.notice}><GlassWater aria-hidden /><p>No allocated guest tables will be created for this stand-up cocktail event. Go Back if that choice is incorrect.</p></div>;
       if (answers.eventFormat === 'undecided') return <div className={styles.notice}><TableProperties aria-hidden /><p>Your undecided table status is recorded. You can prepare tables later from the Tables page.</p></div>;
-      return <><ChoiceGroup label="Table creation" field="tableCreation" error={fieldErrors.tableCreation}><Choice selected={answers.tableCreation === 'automatic'} onClick={() => update('tableCreation', 'automatic')}>Automatically create my starting tables</Choice><Choice selected={answers.tableCreation === 'later'} onClick={() => update('tableCreation', 'later')}>I’ll create my tables later</Choice></ChoiceGroup>{answers.tableCreation === 'automatic' && <><ChoiceGroup label="Preferred table style" field="tableStyle" error={fieldErrors.tableStyle}>{(['round', 'square', 'long', 'mixed'] as const).map((shape) => <Choice key={shape} selected={answers.tableStyle === shape} onClick={() => update('tableStyle', shape)}>{shape[0].toUpperCase() + shape.slice(1)}</Choice>)}</ChoiceGroup><div className={styles.formGrid}><NumberField label="Typical guests per table" field="tableCapacity" value={answers.tableCapacity} onChange={(v) => { update('tableCapacity', v); window.setTimeout(() => update('guestTableCount', String(suggestedGuestTableCount({ ...answers, tableCapacity: v }))), 0); }} min={1} error={fieldErrors.tableCapacity} required /><Field label="Will you have a Head Table?" field="headTable" error={fieldErrors.headTable} required><select value={answers.headTable || ''} onChange={(e) => update('headTable', e.target.value as 'yes' | 'no')}><option value="">Choose</option><option value="yes">Yes</option><option value="no">No</option></select></Field>{answers.headTable === 'yes' && <NumberField label="People at the Head Table" field="headTableCount" value={answers.headTableCount} onChange={(v) => { update('headTableCount', v); window.setTimeout(() => update('guestTableCount', String(suggestedGuestTableCount({ ...answers, headTableCount: v }))), 0); }} min={1} error={fieldErrors.headTableCount} required />}<NumberField label="Number of guest tables to create" field="guestTableCount" value={answers.guestTableCount} onChange={(v) => update('guestTableCount', v)} error={fieldErrors.guestTableCount} required /></div><div className={styles.calculation}>Based on {Number(answers.expectedAttending || 0)} expected guests, {answers.headTable === 'yes' ? Number(answers.headTableCount || 0) : 0} people at the Head Table and {Number(answers.tableCapacity || 0)} guests per table, we suggest creating <strong>{suggestedGuestTableCount(answers)} guest tables</strong>.</div>{answers.tableStyle === 'mixed' && <p className={styles.intro}>Starting guest tables will use Round as the supported default. You can mix individual shapes later in Tables.</p>}</>}</>;
+      return <><ChoiceGroup label="Table creation" field="tableCreation" error={fieldErrors.tableCreation}><Choice selected={answers.tableCreation === 'automatic'} onClick={() => update('tableCreation', 'automatic')}>Automatically create my starting tables</Choice><Choice selected={answers.tableCreation === 'later'} onClick={() => update('tableCreation', 'later')}>I’ll create my tables later</Choice></ChoiceGroup>{answers.tableCreation === 'automatic' && <><ChoiceGroup label="Preferred table style" field="tableStyle" error={fieldErrors.tableStyle}>{(['round', 'square', 'long', 'mixed'] as const).map((shape) => <Choice key={shape} selected={answers.tableStyle === shape} onClick={() => update('tableStyle', shape)}>{shape[0].toUpperCase() + shape.slice(1)}</Choice>)}</ChoiceGroup><div className={styles.formGrid}><NumberField label="Typical guests per table" field="tableCapacity" value={answers.tableCapacity} onChange={(v) => updateTableEstimate('tableCapacity', v)} min={1} error={fieldErrors.tableCapacity} required /><Field label="Will you have a Head Table?" field="headTable" error={fieldErrors.headTable} required><select value={answers.headTable || ''} onChange={(e) => updateTableEstimate('headTable', e.target.value)}><option value="">Choose</option><option value="yes">Yes</option><option value="no">No</option></select></Field>{answers.headTable === 'yes' && <NumberField label="People at the Head Table" field="headTableCount" value={answers.headTableCount} onChange={(v) => updateTableEstimate('headTableCount', v)} min={1} error={fieldErrors.headTableCount} required />}<NumberField label="Number of guest tables to create" field="guestTableCount" value={answers.guestTableCount} onChange={(v) => update('guestTableCount', v)} error={fieldErrors.guestTableCount} required /></div><div className={styles.calculation}>Based on {Number(answers.expectedAttending || 0)} expected guests, {answers.headTable === 'yes' ? Number(answers.headTableCount || 0) : 0} people at the Head Table and {Number(answers.tableCapacity || 0)} guests per table, we suggest creating <strong>{suggestedGuestTableCount(answers)} guest tables</strong>.</div>{answers.tableStyle === 'mixed' && <p className={styles.intro}>Starting guest tables will use Round as the supported default. You can mix individual shapes later in Tables.</p>}</>}</>;
     }
     if (step === 8) return <><p className={styles.intro}>This is your overall planned budget. You can change it later; no expenses or category allocations will be invented.</p><ChoiceGroup label="Overall planned budget" field="budgetChoice" error={fieldErrors.budgetChoice}>{BUDGET_OPTIONS.map(([value, label]) => <Choice key={value} selected={answers.budgetChoice === value} onClick={() => update('budgetChoice', value)}>{label}</Choice>)}</ChoiceGroup>{answers.budgetChoice === 'exact' && <Field label="Exact amount (AUD)" field="budgetExact" error={fieldErrors.budgetExact} required><input className={styles.currencyInput} inputMode="decimal" value={answers.budgetExact || ''} onChange={(e) => update('budgetExact', e.target.value)} /></Field>}</>;
     if (step === 9) {
@@ -320,12 +340,12 @@ export const GuidedEventSetup = () => {
         ['People', isCoupleCelebration(answers.celebrationType) ? `${answers.customerFirstName} & ${answers.partnerFirstName}` : answers.honoureeName || answers.organiserName, 3],
         ['Date & time', answers.dateChoice === 'exact' ? `${formatDate(answers.exactDate)}${answers.timesUndecided ? '' : ` · ${answers.startTime}–${answers.finishTime}`}` : answers.dateChoice === 'month' ? `${answers.month}/${answers.year}` : 'Not decided yet', 4],
         ['Location', answers.locationChoice === 'undecided' ? 'Not decided yet' : <>{answers.venueName || 'Location in mind'}{fullAddress(answers) ? ` · ${fullAddress(answers)}` : ''}{answers.venueContactName && <><br />Contact: {answers.venueContactName}</>}{answers.venuePhone && <> · {answers.venuePhone}</>}{answers.venueContactEmail && <><br />{answers.venueContactEmail}</>}</>, 4],
-        ['Celebration and locations', <>{answers.partsChoice ? PARTS_LABELS[answers.partsChoice] : 'Not decided yet'}{answers.partsChoice === 'ceremony-reception' && answers.sameVenue && <> · {answers.sameVenue === 'yes' ? 'Same location' : answers.sameVenue === 'no' ? 'Different locations' : 'We haven’t decided yet'}</>}{answers.partsChoice === 'ceremony-reception' && answers.sameVenue === 'no' && <><br />Ceremony: {answers.ceremonyVenue} · {answers.ceremonyAddress}<br />Reception: {answers.receptionVenue} · {answers.receptionAddress}</>}</>, 5],
+        ['Celebration and locations', <>{answers.partsChoice ? PARTS_LABELS[answers.partsChoice] : 'Not decided yet'}{answers.partsChoice === 'ceremony-reception' && answers.sameVenue && <> · {answers.sameVenue === 'yes' ? 'Same location' : answers.sameVenue === 'no' ? 'Different locations' : 'We haven’t decided yet'}</>}{answers.partsChoice === 'ceremony-reception' && answers.sameVenue === 'no' && <><br />Ceremony: {answers.ceremonyVenue} · {answers.ceremonyAddress}<br />Reception: {answers.receptionVenue} · {answers.receptionAddress}</>}{answers.celebrationType !== 'wedding' && answers.partsChoice === 'multiple' && <><br />First: {answers.ceremonyVenue} · {answers.ceremonyAddress}<br />Second: {answers.receptionVenue} · {answers.receptionAddress}</>}</>, 5],
         ['Guests', <>{answers.eventFormat ? EVENT_FORMAT_LABELS[answers.eventFormat] : 'Not decided yet'}<br />{getGuidedGuestSummary(answers)}</>, 6],
         ['Tables', getGuidedTableSummary(answers), 7],
         ['Budget', answers.budgetChoice === 'exact' ? `A$${parseBudgetAmount(answers.budgetExact)?.toLocaleString('en-AU')}` : BUDGET_LABELS[answers.budgetChoice!], 8],
       ];
-      return <><div className={styles.review}>{rows.map(([label, value, target]) => <section key={label}><div><h3>{label}</h3><p>{value}</p></div><button type="button" onClick={() => void persistAndGo(target)} aria-label={`Edit ${label}`}>Edit</button></section>)}</div>{createdEventId && <div className={styles.success} role="status"><PartyPopper aria-hidden /><div><h3>Your event is ready</h3><p>We created the event, saved the budget choice and prepared the requested starting tables.</p></div></div>}</>;
+      return <><div className={styles.review}>{rows.map(([label, value, target]) => <section key={label}><div><h3>{label}</h3><div style={{ marginTop: 5, lineHeight: 1.5 }}>{value}</div></div><button type="button" onClick={() => void persistAndGo(target)} aria-label={`Edit ${label}`}>Edit</button></section>)}</div>{createdEventId && <div className={styles.success} role="status"><PartyPopper aria-hidden /><div><h3>Your event is ready</h3><p>We created the event, saved the budget choice and prepared the requested starting tables.</p></div></div>}</>;
     }
     return <div className={styles.ready}><div className={styles.sparkles} aria-hidden><Sparkles /><PartyPopper /><Sparkles /></div><p className={styles.kicker}>Your Wedding Waitress is ready</p><p>Your event workspace has been prepared from the information you provided. Everything remains editable, and we’re excited to help make planning simpler.</p><section><h3>Already prepared for you</h3><ul><li>Your event in My Events</li><li>Your overall planned budget status</li><li>{answers.tableCreation === 'automatic' ? 'Your requested starting tables' : 'Tables ready for you to add later'}</li><li>Guest List ready for real guest records</li><li>Ceremony and reception availability for Floor Plan</li></ul></section>{GUIDED_SETUP_READY_VIDEO && <video className={styles.video} controls preload="metadata" src={GUIDED_SETUP_READY_VIDEO} />}<h3>Here’s what Wedding Waitress can help you do next</h3><div className={styles.roadmap}>{ROADMAP.map(([name, description]) => <article key={name}><Check aria-hidden /><div><h4>{name}</h4><p>{description}</p></div></article>)}</div><p>Wedding Waitress is here to keep everything organised and help you enjoy your celebration. Let’s start planning!</p></div>;
   };
@@ -341,8 +361,10 @@ export const GuidedEventSetup = () => {
         {step < 9 && <button type="button" className={styles.primary} disabled={nextDisabled} onClick={() => void persistAndGo(step + 1)}>{saving ? 'Saving…' : 'Next'}<ChevronRight aria-hidden /></button>}
         {step === 9 && !createdEventId && <button type="button" className={styles.primary} disabled={creating} onClick={() => void createEvent()}><ClipboardCheck aria-hidden />{creating ? 'Creating Your Event…' : 'Create My Event'}</button>}
         {step === 9 && createdEventId && <button type="button" className={styles.primary} onClick={() => void persistAndGo(10)}>Next<ChevronRight aria-hidden /></button>}
-        {step === 10 && <button type="button" className={styles.primary} onClick={() => navigate('/dashboard?tab=guest-list', { replace: true })}><ChevronRight aria-hidden />Enter Wedding Waitress</button>}
+        {step === 10 && <button type="button" className={styles.primary} onClick={() => navigate('/dashboard?tab=my-events', { replace: true })}><ChevronRight aria-hidden />Enter Wedding Waitress</button>}
       </footer>
-    </section></div>
+    </section><TrialLimitChoice trialStartedAt={plan?.trial_started_at} trialEndsAt={plan?.expires_at} open={trialChoice!==null} onContinue={()=>{const reason=trialChoice;setTrialChoice(null);if(reason==='guests')void persistAndGo(7,true);}} onChoosePackage={()=>{void(async()=>{if(!draft)return;try{await queueSave(draft.id,answers,step);setTrialChoice(null);setUpgradeOpen(true);}catch{setError('Your answers could not be saved.');}})();}}/>
+    {upgradeOpen&&<UpgradePlanModal open onOpenChange={setUpgradeOpen}/>}
+    </div>
   </main>;
 };

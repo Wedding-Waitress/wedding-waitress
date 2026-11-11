@@ -1,4 +1,22 @@
 {
+  "guestbookSuccess": {
+    "thankYou": "Teşekkürler, {{name}}!",
+    "another": "Başka Bir Mesaj Bırakın",
+    "return": "Uygulamaya Dön",
+    "received": "Ziyaretçi defterine mesaj bıraktığınız için teşekkürler."
+  },
+  "guestbookMessages": {
+    "textTitle": "Mesaj Yazın",
+    "audioTitle": "Sesli Mesaj Kaydedin",
+    "videoTitle": "Video Mesaj Kaydedin",
+    "textAgain": "Başka Bir Mesaj Yazın",
+    "audioAgain": "Başka Bir Sesli Mesaj Kaydedin",
+    "videoAgain": "Başka Bir Video Mesaj Kaydedin",
+    "textSaved": "Yazılı mesajınız kaydedildi.",
+    "audioSaved": "Sesli mesajınız kaydedildi.",
+    "videoSaved": "Video mesajınız kaydedildi."
+  },
+  "guestbookBackToApp": "Uygulamaya dön",
   "privacyPolicy": "Gizlilik Politikası",
   "termsOfService": "Hizmet Koşulları",
   "contact": "İletişim",
@@ -21,5 +39,17 @@
   "edit": "Düzenle",
   "close": "Kapat",
   "submit": "Gönder",
-  "language": "Dil"
+  "language": "Dil",
+  "guestbookPrivacy": {
+    "intro": "Yazılı, sesli veya görüntülü bir mesaj bırakın; dilediğiniz türleri birlikte kullanabilirsiniz.",
+    "notice": "Yazılı, sesli ve görüntülü mesajlarınız etkinlik galerisinde ve canlı slayt gösterisinde paylaşılır."
+  },
+  "photoBoothSession": {
+    "capturedPhoto": "Çekilen fotoğraf {{number}}",
+    "captureNote": "4 fotoğraf - 8 saniyelik geri sayım",
+    "nameLabel": "Lütfen önce adınızı ve soyadınızı girin",
+    "namePlaceholder": "örn. Ayşe Yılmaz",
+    "partial": "{{total}} görüntüden {{saved}} tanesi kaydedildi. Kalanları yeniden denemek için İndir ve Kaydet'e dokunun. Kaydedilen fotoğraflar tekrar yüklenmez.",
+    "captureFailed": "Kameradan görüntü alınamadı. Lütfen çekimi yeniden deneyin."
+  }
 }

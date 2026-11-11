@@ -103,11 +103,17 @@ export const EventImageEditor: React.FC<EventImageEditorProps> = ({ heading, con
       if (uploadError) throw uploadError;
 
       const next: EventImageValue = { path: uploadedPath, ...defaultDisplay };
+      const signedUrl = await createEventImageSignedUrl(uploadedPath);
       await onChange(next);
       const oldPath = current?.path;
       setCurrent(next);
-      setPreviewUrl(await createEventImageSignedUrl(uploadedPath));
-      if (oldPath && oldPath !== uploadedPath) await removeEventImageIfUnreferenced(oldPath);
+      setPreviewUrl(signedUrl);
+      if (oldPath && oldPath !== uploadedPath) {
+        // The new reference is already saved. Old-object cleanup must never
+        // turn success into rollback of the currently referenced photo.
+        try { await removeEventImageIfUnreferenced(oldPath); }
+        catch (cleanupError) { console.error('Previous event photo cleanup failed', cleanupError); }
+      }
     } catch (reason) {
       if (uploadedPath) await removeEventImageIfUnreferenced(uploadedPath);
       if (isEventImageBackendUnavailable(reason)) setAvailable(false);

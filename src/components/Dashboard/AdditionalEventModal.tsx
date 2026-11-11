@@ -7,6 +7,7 @@ import { supabase } from "@/integrations/supabase/client";
 import { ADDITIONAL_EVENT } from "@/lib/planRegistry";
 import { CURRENCIES, formatPrice } from "@/lib/currencyPricing";
 import styles from './MyEventsPage.module.css';
+import { gstInclusiveAud } from '@/lib/packagePricing';
 
 interface Props {
   isOpen: boolean;
@@ -29,7 +30,7 @@ export const AdditionalEventModal: React.FC<Props> = ({
   const [busy, setBusy] = useState(false);
 
   const sku = ADDITIONAL_EVENT.prices.AUD;
-  const priceLabel = formatPrice('AUD', sku.price);
+  const priceLabel = `${formatPrice('AUD', gstInclusiveAud(sku.price))} including GST`;
 
   const handleAdd = async () => {
     setBusy(true);

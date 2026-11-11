@@ -67,7 +67,7 @@ export const SeatingIntelligenceSection = ({
       {noTables ? (
         <EmptyHint>Create tables to unlock seating insights.</EmptyHint>
       ) : ins.attendingTotal === 0 ? (
-        <EmptyHint>No attending guests yet — seating insights will appear after RSVPs come in.</EmptyHint>
+        <EmptyHint>No guests awaiting seating — declined guests are excluded.</EmptyHint>
       ) : (
         <div className="space-y-4">
           {/* Top stats */}
@@ -92,7 +92,7 @@ export const SeatingIntelligenceSection = ({
               />
             </div>
             <div className="text-[11.5px] text-[#6E6E73] mt-1.5">
-              {ins.assigned} of {ins.attendingTotal} attending guest{ins.attendingTotal === 1 ? '' : 's'} seated
+              {ins.assigned} of {ins.attendingTotal} expected guest{ins.attendingTotal === 1 ? '' : 's'} seated
             </div>
           </div>
 

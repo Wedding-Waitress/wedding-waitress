@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-const landing = readFileSync('src/pages/Landing.tsx', 'utf8');
+import { readEnglishPublicSource } from '@/test/readEnglishPublicSource';
+const landing = readEnglishPublicSource('src/pages/Landing.tsx');
 const publicSiteCss = readFileSync('src/styles/PublicSite.css', 'utf8');
 
 describe('homepage journey card description typography', () => {

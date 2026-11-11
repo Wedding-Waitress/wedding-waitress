@@ -1,0 +1,14 @@
+import React from 'react';
+import {render,screen,fireEvent,waitFor} from '@testing-library/react';
+import {beforeEach,it,expect,vi} from 'vitest';
+import {UpgradePlanModal} from './UpgradePlanModal';
+const state=vi.hoisted(()=>({owner:true,name:'Starter',navigate:vi.fn()}));
+vi.mock('react-router-dom',()=>({useNavigate:()=>state.navigate}));
+vi.mock('@/hooks/useUserPlan',()=>({useUserPlan:()=>({plan:{plan_name:state.name,guest_limit:20,status:'expired',expires_at:'2020-01-01',is_read_only:true},hasPlatformOwnerAccess:state.owner})}));
+vi.mock('@/hooks/useEventLimits',()=>({useEventLimits:()=>({includedEvents:1,additionalPurchased:0,currentEvents:1})}));
+vi.mock('@/hooks/useAccountSeats',()=>({useAccountSeats:()=>({usedSeats:1,maxSeats:3})}));
+vi.mock('@/integrations/supabase/client',()=>({supabase:{auth:{getUser:async()=>({data:{user:null}})}}}));
+vi.mock('@/components/Dashboard/RsvpOverageModal',()=>({RsvpOverageModal:()=>null}));
+beforeEach(()=>{state.owner=true;state.name='Starter';state.navigate.mockClear();});
+it('lets an owner browse all three truthful customer packages without a checkout action or fake trial',async()=>{render(<UpgradePlanModal open onOpenChange={()=>{}}/>);expect(screen.getByRole('heading',{name:'View customer packages'})).toBeInTheDocument();expect(screen.getByText('Platform Owner Access')).toBeInTheDocument();for(const name of ['Essential Plan','Premium Plan','Ultimate Plan'])expect(screen.getByText(name)).toBeInTheDocument();expect(screen.getByText('Up to 100 guests',{exact:false})).toBeInTheDocument();expect(screen.getByText(/checkout is disabled for this account/)).toBeInTheDocument();const actions=screen.getAllByRole('button',{name:'Included with owner access'});expect(actions).toHaveLength(3);for(const button of actions){expect(button).toBeDisabled();fireEvent.click(button);}expect(state.navigate).not.toHaveBeenCalled();expect(screen.queryByRole('button',{name:'Continue to checkout'})).not.toBeInTheDocument();expect(screen.queryByText('Free Trial')).not.toBeInTheDocument();expect(screen.getByText('no guest limit with owner access',{exact:false})).toBeInTheDocument();});
+it.each([['Starter','essential',''],['Essential','premium','&from=essential'],['Premium','unlimited','&from=premium']])('preserves the customer package route for %s',(name,target,from)=>{state.owner=false;state.name=name;render(<UpgradePlanModal open onOpenChange={()=>{}}/>);const button=screen.getAllByRole('button',{name:'Continue to checkout'})[0];expect(button).toBeEnabled();fireEvent.click(button);expect(state.navigate).toHaveBeenCalledWith('/dashboard/upgrade/checkout?plan='+target+from);});

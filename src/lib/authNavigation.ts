@@ -4,7 +4,16 @@ export type SignInRedirectState = {
   };
 };
 
-const protectedRoutePrefixes = ['/dashboard', '/account', '/admin'] as const;
+const protectedRoutePrefixes = ['/dashboard', '/account', '/admin', '/accept-team-invitation'] as const;
+
+export const MY_EVENTS_ENTRY_ROUTE = '/dashboard?tab=my-events';
+
+// Only account entry normalises a dashboard return destination. In-session
+// navigation and refreshes continue to use the explicitly requested URL.
+export const getAccountEntryDestination = (value?: unknown) => {
+  const destination = getSafeAuthenticatedReturnTo(value, MY_EVENTS_ENTRY_ROUTE);
+  return /^\/dashboard(?:[/?#]|$)/.test(destination) ? MY_EVENTS_ENTRY_ROUTE : destination;
+};
 
 export const getSafeAuthenticatedReturnTo = (
   value: unknown,

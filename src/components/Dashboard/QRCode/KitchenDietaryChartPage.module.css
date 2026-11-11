@@ -351,6 +351,13 @@
 
 .settingsPanel { margin-top: 2rem; }
 
+/* These two dashboard labels override the legacy light span text rule. */
+:global(#root) .headerPanel span.headerLabel {
+  color: var(--dietary-text) !important;
+  -webkit-text-fill-color: var(--dietary-text) !important;
+  opacity: 1 !important;
+}
+
 .exportPanel,
 .statsPill,
 .displayRow {

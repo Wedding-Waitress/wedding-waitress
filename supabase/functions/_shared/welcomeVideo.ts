@@ -1,7 +1,10 @@
-/** Server-only helpers. All video operations remain scoped to an authenticated event owner. */
+/** Server-only helpers. Existing caller-scoped RLS plus active event access applies. */
 export async function requireVideoOwner(db: any, eventId: string, userId: string) {
-  const result = await db.from('events').select('id').eq('id', eventId).eq('user_id', userId).single();
+  const access = await db.rpc('can_access_event', { _user_id: userId, _event_id: eventId });
+  if (access.error || access.data !== true) throw new Error('Event not found or unauthorized');
+  const result = await db.from('events').select('id,user_id').eq('id', eventId).single();
   if (result.error || !result.data) throw new Error('Event not found or unauthorized');
+  return result.data.user_id as string;
 }
 
 export async function deleteStreamVideo(uid: string, account: string, token: string, request = fetch) {
@@ -45,7 +48,7 @@ export async function retireVideos(db: any, eventId: string, userId: string, row
 }
 
 export async function removeWelcomeVideos(db: any, eventId: string, userId: string, removeHosted: (uid: string) => Promise<void>) {
-  await requireVideoOwner(db, eventId, userId);
+  userId = await requireVideoOwner(db, eventId, userId);
   const previous = await readVideoConfig(db, eventId);
   const uploads = await db.from('welcome_video_uploads').select('id,cloudflare_uid').eq('event_id', eventId).eq('user_id', userId);
   if (uploads.error) throw uploads.error;
@@ -70,7 +73,7 @@ export async function removeWelcomeVideos(db: any, eventId: string, userId: stri
 }
 
 export async function checkWelcomeVideo(db: any, eventId: string, userId: string, streamUid: string, account: string, token: string, request = fetch) {
-    await requireVideoOwner(db, eventId, userId);
+    userId = await requireVideoOwner(db, eventId, userId);
     const uploads = await db.from('welcome_video_uploads').select('*').eq('event_id', eventId).eq('user_id', userId).order('created_at', { ascending: false }).order('id', { ascending: false });
     if (uploads.error) throw uploads.error;
     const upload = uploads.data?.find((row: { cloudflare_uid: string; id: string; status: string }) => row.cloudflare_uid === streamUid);

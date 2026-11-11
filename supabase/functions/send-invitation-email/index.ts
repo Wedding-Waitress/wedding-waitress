@@ -1,3 +1,4 @@
+import { requirePlanningEventOwner } from '../_shared/team-planning-access.ts';
 import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 import { beginOperationalEmail, acceptOperationalEmail, failOperationalEmail } from '../_shared/customer-email-data.ts';
@@ -33,7 +34,7 @@ Deno.serve(async (req) => {
     if (claimsError || !claimsData?.claims) {
       return new Response(JSON.stringify({ error: 'Unauthorized' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
-    const userId = claimsData.claims.sub;
+    let userId = claimsData.claims.sub as string;
     const { data: operational } = await supabase.rpc('is_account_operational', { p_user_id: userId });
     if (operational !== true) return new Response(JSON.stringify({ error: 'Account access is closed' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
@@ -43,6 +44,7 @@ Deno.serve(async (req) => {
     }
 
     const adminClient = createClient(supabaseUrl, serviceRoleKey);
+    userId = await requirePlanningEventOwner(adminClient, userId, event_id);
 
     // Verify event ownership
     const { data: event, error: eventError } = await adminClient

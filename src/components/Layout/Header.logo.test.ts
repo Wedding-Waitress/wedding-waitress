@@ -26,7 +26,7 @@ describe('shared public header logo', () => {
     expect(header).toContain("!user ? 'min-[1320px]:-translate-x-2 min-[1320px]:pr-3' : ''");
     expect(header).toContain('ww-public-nav-link whitespace-nowrap');
     expect(header).toContain('hidden min-[1320px]:flex');
-    expect(header).toContain('min-[1320px]:hidden relative');
+    expect(header).toContain('ww-header-mobile-actions min-[1320px]:hidden');
     expect(footer).toContain('className="ww-public-dashboard-background px-4 py-14 text-white"');
     expect(footer).toContain('className="mx-auto max-w-7xl"');
   });
@@ -40,7 +40,7 @@ describe('shared public header logo', () => {
     expect(header).toContain('<PublicHomeLogoLink');
     expect(header).toContain('ww-public-header-home-logo');
     expect(footer).toContain('<PublicHomeLogoLink className="ww-public-footer-home-logo inline-flex">');
-    expect(homeLogoLink).toContain('aria-label="Wedding Waitress home"');
+    expect(homeLogoLink).toContain("aria-label={copy('Wedding Waitress home')}");
     expect(homeLogoLink).toContain('scrollPageToTop();');
     expect(homeLogoLink).not.toContain("behavior: 'smooth'");
     expect(publicCss).toContain('.ww-public-home-logo:active');

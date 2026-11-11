@@ -96,19 +96,20 @@ export function RunningSheetPage({ selectedEventId, onEventSelect, events }: Run
   const hasDJMCData = !!(questionnaire && questionnaire.sections.length > 0);
 
   const handleInsertFromDJMC = useCallback((itemId: string, type: 'ceremony' | 'introductions' | 'speeches', includeSongs: boolean) => {
+    if (!sheet || sheet.event_id !== selectedEventId) return false;
     if (!questionnaire) {
       toast({ title: 'No DJ-MC data found', description: 'Please fill in the DJ-MC Questionnaire first.', variant: 'destructive' });
-      return;
+      return false;
     }
 
     const formatted = formatDJMCInsert(questionnaire.sections, type, includeSongs);
     if (!formatted) {
       toast({ title: 'No data found', description: `No ${type} data found in the DJ-MC Questionnaire.`, variant: 'destructive' });
-      return;
+      return false;
     }
 
     const currentItem = sheet?.items.find(i => i.id === itemId);
-    if (!currentItem) return;
+    if (!currentItem) return false;
 
     const existingText = typeof currentItem.description_rich === 'string'
       ? currentItem.description_rich
@@ -120,35 +121,29 @@ export function RunningSheetPage({ selectedEventId, onEventSelect, events }: Run
 
     updateItem(itemId, { description_rich: { ...(typeof currentItem.description_rich === 'object' ? currentItem.description_rich : {}), text: newText } });
     toast({ title: 'Inserted', description: `${type.charAt(0).toUpperCase() + type.slice(1)} data inserted from DJ-MC Questionnaire.` });
-  }, [questionnaire, sheet, updateItem, toast]);
+    return true;
+  }, [questionnaire, sheet, updateItem, toast, selectedEventId]);
 
   const selectedEvent = events.find(e => e.id === selectedEventId);
 
+  const exportLock = React.useRef(false);
+  const exportContext = JSON.stringify([selectedEventId, selectedEvent, sheet, sectionLabel, sectionNotes, rowTextSize]);
+  const exportContextRef = React.useRef(exportContext); exportContextRef.current = exportContext;
+  const mounted = React.useRef(true);
+  React.useEffect(() => {mounted.current=true;return()=>{mounted.current=false;};}, []);
+  const exportBlocked = loading || saving || downloadingPDF || sheet?.event_id !== selectedEventId;
   const handleDownloadEntirePDF = async () => {
-    if (!sheet || !selectedEvent) return;
-    setDownloadingPDF(true);
+    if (!sheet || !selectedEvent || exportBlocked || exportLock.current) return;
+    exportLock.current=true;setDownloadingPDF(true);
+    const snapshot=exportContextRef.current;
+    const isCurrent=()=>mounted.current && exportContextRef.current===snapshot;
     try {
-      const { exportRunningSheetPDF } = await import('@/lib/runningSheetPdfExporter');
-      await exportRunningSheetPDF(sheet.items, selectedEvent, sectionLabel, sectionNotes, rowTextSize);
-      toast({ title: 'PDF Downloaded', description: 'Your Run Sheet has been downloaded.' });
-    } catch (error) {
-      console.error('Failed to download PDF:', error);
-      toast({ title: 'Download Failed', description: 'There was an error generating the PDF.', variant: 'destructive' });
-    } finally {
-      setDownloadingPDF(false);
-    }
-  };
-
-  const handleDownloadSectionPDF = async () => {
-    if (!selectedEvent || !sheet) return;
-    try {
-      const { exportRunningSheetSectionPDF } = await import('@/lib/runningSheetPdfExporter');
-      await exportRunningSheetSectionPDF(sheet.items, selectedEvent, sectionLabel, sectionNotes, rowTextSize);
-      toast({ title: 'Section PDF Downloaded', description: `"${sectionLabel}" has been downloaded.` });
-    } catch (error) {
-      console.error('Failed to download section PDF:', error);
-      toast({ title: 'Download Failed', description: 'There was an error generating the PDF.', variant: 'destructive' });
-    }
+      const {exportRunningSheetPDF}=await import('@/lib/runningSheetPdfExporter');
+      await exportRunningSheetPDF(sheet.items,selectedEvent,sectionLabel,sectionNotes,rowTextSize,isCurrent);
+      if(isCurrent())toast({title:'PDF Downloaded',description:'Your Run Sheet has been downloaded.'});
+    } catch(error) {
+      if(isCurrent()){console.error('Failed to download PDF:',error);toast({title:'Download Failed',description:'There was an error generating the PDF.',variant:'destructive'});}
+    } finally {exportLock.current=false;if(mounted.current)setDownloadingPDF(false);}
   };
 
   return (
@@ -195,7 +190,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect, events }: Run
                 <div className="flex items-center gap-3 flex-wrap max-sm:flex-col max-sm:items-stretch">
                   <button
                     onClick={() => setShowShareModal(true)}
-                    disabled={downloadingPDF}
+                    disabled={exportBlocked}
                     aria-label="Share run sheet"
                     className={`inline-flex items-center justify-center gap-1.5 h-10 px-4 text-sm font-semibold rounded-full transition-all disabled:opacity-50 max-sm:w-full ${styles.greenAction}`}
                   >
@@ -204,7 +199,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect, events }: Run
                   </button>
                   <button
                     onClick={handleDownloadEntirePDF}
-                    disabled={downloadingPDF}
+                    disabled={exportBlocked}
                     aria-label="Download run sheet PDF"
                     className={`inline-flex items-center justify-center gap-1.5 h-10 px-4 text-sm font-semibold rounded-full transition-all disabled:opacity-50 max-sm:w-full ${styles.greenAction}`}
                   >
@@ -292,6 +287,8 @@ export function RunningSheetPage({ selectedEventId, onEventSelect, events }: Run
 
           {/* Section */}
           <RunningSheetSection
+            disabled={downloadingPDF || sheet?.event_id !== selectedEventId}
+            readOnly={false}
             rowTextSize={rowTextSize}
             onRowTextSizeChange={setRowTextSize}
             key={sheet.id}

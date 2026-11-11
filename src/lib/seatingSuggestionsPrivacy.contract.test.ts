@@ -10,8 +10,10 @@ describe('seating suggestion privacy fallback', () => {
     expect(sql).toContain("status IN('pending','accepted','rejected')");
   });
 
-  it('uses private rules when no external AI gateway key is configured', () => {
-    expect(fn).toContain('if (!lovableApiKey)');
+  it('always uses private rules without an external AI gateway', () => {
+    expect(fn).not.toContain('ai.gateway.lovable.dev');
+    expect(fn).not.toContain('LOVABLE_API_KEY');
+    expect(fn).not.toContain('await fetch(');
   });
 
   it('uses family grouping then remaining capacity', () => {

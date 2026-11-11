@@ -1,0 +1,8 @@
+/* Scoped to the read-only Admin Centre customer preview. */
+[aria-label="Read-only customer account preview"] { min-width:0; }
+[aria-label="Read-only customer sections"] { display:flex;flex-wrap:wrap;gap:8px;margin:16px 0;padding:12px;border:1px solid #cdb99e;border-radius:14px;background:#f8f0e5; }
+[aria-label="Read-only customer sections"] button { display:inline-flex;align-items:center;justify-content:center;min-height:40px;max-width:100%;padding:10px 14px;border:1px solid #b99b78;border-radius:10px;background:#fffaf2;color:#4a3025;font:600 13px/1.4 var(--ww-interface-font-family, sans-serif);white-space:normal;text-align:center;cursor:pointer; }
+[aria-label="Read-only customer sections"] button:hover { background:#eadbc8; }
+[aria-label="Read-only customer sections"] button[aria-pressed="true"] { border-color:#654735;background:#654735;color:#fff; }
+[aria-label="Read-only customer sections"] button:focus-visible { outline:2px solid #806344;outline-offset:3px; }
+@media(max-width:639px) { [aria-label="Read-only customer sections"] { gap:8px;padding:10px; } [aria-label="Read-only customer sections"] button { flex:1 1 135px; } }

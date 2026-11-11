@@ -1,3 +1,5 @@
+import {notifyTrialTableLimit}from'@/lib/trialUpgrade';
+import {withTrialUpgradeChoice}from'@/components/Subscription/TrialUpgradeController';
 import React, { useState, useEffect, useMemo, useRef, useCallback, lazy, Suspense, useDeferredValue } from 'react';
 import { useLocation, useNavigate, useSearchParams } from 'react-router-dom';
 import { StatsBar } from "@/components/Dashboard/StatsBar";
@@ -50,6 +52,7 @@ const FullSeatingChartPage = lazy(() => import('@/components/Dashboard/FullSeati
 const IndividualTableSeatingChartPage = lazy(() => import('@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage').then(m => ({ default: m.IndividualTableSeatingChartPage })));
 const LiveSlideshowSetup = lazy(() => import('@/components/Dashboard/LiveSlideshow/LiveSlideshowSetup').then(m => ({ default: m.LiveSlideshowSetup })));
 const FloorPlanPage = lazy(() => import('@/components/Dashboard/FloorPlan').then(m => ({ default: m.FloorPlanPage })));
+const PhotoCalloutPage = lazy(() => import('@/components/Dashboard/PhotoCallout/PhotoCalloutPage').then(m => ({ default: m.PhotoCalloutPage })));
 const RunningSheetPage = lazy(() => import('@/components/Dashboard/RunningSheet').then(m => ({ default: m.RunningSheetPage })));
 const DJMCQuestionnairePage = lazy(() => import('@/components/Dashboard/DJMCQuestionnaire').then(m => ({ default: m.DJMCQuestionnairePage })));
 const InvitationsPage = lazy(() => import('@/components/Dashboard/Invitations/InvitationsPage').then(m => ({ default: m.InvitationsPage })));
@@ -59,6 +62,7 @@ const GalleryUploadFeaturePage = lazy(() => import('@/pages/GalleryUploadFeature
 const GalleryViewFeaturePage = lazy(() => import('@/pages/GalleryViewFeaturePage').then(m => ({ default: m.GalleryViewFeaturePage })));
 const GalleryPhotoBoothFeaturePage = lazy(() => import('@/pages/GalleryPhotoBoothFeaturePage').then(m => ({ default: m.GalleryPhotoBoothFeaturePage })));
 const GalleryTextGuestbookFeaturePage = lazy(() => import('@/pages/GalleryTextGuestbookFeaturePage').then(m => ({ default: m.GalleryTextGuestbookFeaturePage })));
+const UpgradePlanModal = lazy(() => import('@/components/Subscription/UpgradePlanModal').then(m => ({ default: m.UpgradePlanModal })));
 const GallerySlideshowFeaturePage = lazy(() => import('@/pages/GallerySlideshowFeaturePage').then(m => ({ default: m.GallerySlideshowFeaturePage })));
 
 // Feature flags removed — Running Sheet always enabled
@@ -71,6 +75,8 @@ import { useDashboardSession } from '@/hooks/useDashboardSession';
 import { scheduleIdleWork, loadAccountRoute } from '@/lib/authenticatedRoutePreload';
 import { preloadAllDashboardPages, preloadDashboardPage } from '@/lib/dashboardPagePreload';
 import { calculateDashboardSeatStats } from '@/lib/dashboardSeatStats';
+import { effectiveEventGuestLimit, isTrialGuestPlan } from '@/lib/guestEntitlement';
+import { useRsvpPurchase } from '@/hooks/useRsvpPurchase';
 
 /* Organiser pages that use the standardised 1px #472c1d neutral border pass.
    Photo & Video Sharing and its workspaces are intentionally excluded. */
@@ -90,6 +96,7 @@ const BROWN_OUTLINE_TABS = new Set([
   'live-slideshow',
   'dj-mc-questionnaire',
   'running-sheet',
+  'photo-callout-cards',
 ]);
 
 /* These redesigned workspaces share one shell-level espresso surface. Keeping the
@@ -119,12 +126,12 @@ const DashboardPageSkeleton = () => (
   </div>
 );
 
-export const Dashboard = () => {
+const DashboardContent = () => {
   const [searchParams] = useSearchParams();
   const location = useLocation();
   const navigate = useNavigate();
   const isPhotoVideoWorkspace = location.pathname.startsWith('/dashboard/photo-video-gallery/');
-  const requestedTab = isPhotoVideoWorkspace ? 'photo-video-gallery' : searchParams.get('tab') || 'dashboard';
+  const requestedTab = isPhotoVideoWorkspace ? 'photo-video-gallery' : searchParams.get('tab') || 'my-events';
   const urlTab = requestedTab === 'kiosk-live-view' ? 'live-slideshow' : requestedTab;
   // The URL is the single source of truth for navigation. Keeping a second tab
   // state caused a click to render new -> old -> new while the URL transition
@@ -159,8 +166,9 @@ export const Dashboard = () => {
     error: authError,
     retry: retryAuth,
   } = useDashboardSession();
-  const { plan, isTrialExpired, isStarterPlan } = useUserPlan();
+  const { plan, isTrialExpired, isStarterPlan, hasPlatformOwnerAccess } = useUserPlan();
   const [showPlanExpired, setShowPlanExpired] = useState(false);
+  const [showUpgradePlanModal, setShowUpgradePlanModal] = useState(false);
 
   // Show plan expired modal when trial expires
   useEffect(() => {
@@ -189,6 +197,12 @@ export const Dashboard = () => {
   // Backward-compat aliases — both names now refer to the same value.
   const globalSelectedEventId = selectedEventId;
   const setGlobalSelectedEventId = setSelectedEventId;
+  const { overageGuests: purchasedGuestCapacity } = useRsvpPurchase(selectedEventId);
+  const tableGuestLimit = effectiveEventGuestLimit({
+    eventGuestLimit: selectedEvent?.guest_limit,
+    entitledGuestLimit: plan?.guest_limit == null ? null : plan.guest_limit + purchasedGuestCapacity,
+    isPlatformOwner: hasPlatformOwnerAccess,
+  });
 
   const seatingWorkspaceEventId = renderedTab === 'table-list' || renderedTab === 'guest-list'
     ? selectedEventId
@@ -287,6 +301,7 @@ export const Dashboard = () => {
 
   // Handle table operations
   const handleCreateTable = () => {
+    if(!hasPlatformOwnerAccess&&isStarterPlan&&tables.length>=(plan?.table_limit??5)){notifyTrialTableLimit();return;}
     setEditingTable(null);
     setShowCreateTableModal(true);
   };
@@ -504,15 +519,15 @@ export const Dashboard = () => {
     if (isPhotoVideoWorkspace) {
       switch (location.pathname) {
         case '/dashboard/photo-video-gallery/photo-video-sharing':
-          return <GalleryUploadFeaturePage {...workspaceSelection} />;
+          return <GalleryUploadFeaturePage key={selectedEventId || 'no-event'} {...workspaceSelection} />;
         case '/dashboard/photo-video-gallery/gallery-view':
-          return <GalleryViewFeaturePage {...workspaceSelection} />;
+          return <GalleryViewFeaturePage key={selectedEventId || 'no-event'} {...workspaceSelection} />;
         case '/dashboard/photo-video-gallery/digital-photo-booth':
-          return <GalleryPhotoBoothFeaturePage {...workspaceSelection} />;
+          return <GalleryPhotoBoothFeaturePage key={selectedEventId || 'no-event'} {...workspaceSelection} />;
         case '/dashboard/photo-video-gallery/digital-guestbook':
-          return <GalleryTextGuestbookFeaturePage {...workspaceSelection} />;
+          return <GalleryTextGuestbookFeaturePage key={selectedEventId || 'no-event'} {...workspaceSelection} />;
         case '/dashboard/photo-video-gallery/live-slideshow':
-          return <GallerySlideshowFeaturePage {...workspaceSelection} />;
+          return <GallerySlideshowFeaturePage key={selectedEventId || 'no-event'} {...workspaceSelection} />;
         default:
           return <PhotoVideoGalleryPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} />;
       }
@@ -743,9 +758,9 @@ export const Dashboard = () => {
             </Card>
           );
         }
-        return <FloorPlanPage selectedEventId={selectedEventId} onEventSelect={setSelectedEventId} events={events} eventsLoading={eventsLoading} />;
+        return <><SeoHead title="Floor Plan | Wedding Waitress" description="Design and export your ceremony and reception floor plans." noIndex /><FloorPlanPage selectedEventId={selectedEventId} onEventSelect={setSelectedEventId} events={events} eventsLoading={eventsLoading} /></>;
       case 'signage':
-        return <SignagePage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} events={events} eventsLoading={eventsLoading} />;
+        return <><SeoHead title="Seating Chart Signs | Wedding Waitress" description="Create and export your wedding seating chart signs." noIndex /><SignagePage selectedEventId={selectedEventId} onEventSelect={handleEventSelect} events={events} eventsLoading={eventsLoading} /></>;
       case 'qr-code':
         return (
           <>
@@ -758,22 +773,24 @@ export const Dashboard = () => {
           </>
         );
       case 'live-slideshow':
-        return <LiveSlideshowSetup selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} />;
+        return <><SeoHead title="Live Slideshow | Wedding Waitress" description="Configure and preview your guest seating slideshow." noIndex /><LiveSlideshowSetup selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} /></>;
       case 'dietary-chart':
-        return <KitchenDietaryChart eventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} />;
+        return <><SeoHead title="Dietary Requirements | Wedding Waitress" description="Review and export guest dietary requirements for your venue." noIndex /><KitchenDietaryChart eventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} /></>;
       case 'full-seating-chart':
-        return <FullSeatingChartPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} />;
+        return <><SeoHead title="Full Seating Chart | Wedding Waitress" description="Review and export your full guest seating chart." noIndex /><FullSeatingChartPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} /></>;
       case 'place-cards':
-        return <PlaceCardsPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} />;
+        return <><SeoHead title="Name Place Cards | Wedding Waitress" description="Design and export personalized name place cards for your wedding guests." noIndex /><PlaceCardsPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} /></>;
       case 'individual-table-chart':
         // Individual table seating chart feature
-        return <IndividualTableSeatingChartPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} />;
+        return <><SeoHead title="Individual Table Charts | Wedding Waitress" description="Preview and export seating charts for each wedding table." noIndex /><IndividualTableSeatingChartPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} /></>;
+      case 'photo-callout-cards':
+        return <><SeoHead title="Photo Group List | Wedding Waitress" description="Plan and share your wedding photo groups." noIndex /><PhotoCalloutPage key={globalSelectedEventId} selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} /></>;
       case 'running-sheet':
-        return <RunningSheetPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} />;
+        return <><SeoHead title="Run Sheet | Wedding Waitress" description="Plan and export your event schedule." noIndex /><RunningSheetPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} /></>;
       case 'dj-mc-questionnaire':
-        return <DJMCQuestionnairePage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} />;
+        return <><SeoHead title="DJ & MC Questionnaire | Wedding Waitress" description="Plan your event music and entertainment." noIndex /><DJMCQuestionnairePage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} /></>;
       case 'invitations':
-        return <InvitationsPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} />;
+        return <><SeoHead title="Invitations & Cards | Wedding Waitress" description="Design and export your wedding invitations, save the dates and thank you cards." noIndex /><InvitationsPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} /></>;
       case 'photo-video-gallery':
         return <PhotoVideoGalleryPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} />;
       case 'account':
@@ -875,10 +892,10 @@ export const Dashboard = () => {
         </div>
         
         {/* Main Content - Mobile optimized padding */}
-        <main data-dashboard-content data-solid-text-surface={contentTab === 'photo-video-gallery' ? 'dark' : 'light'} className={`ww-application-background flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 min-w-0 overflow-x-hidden${BROWN_OUTLINE_TABS.has(contentTab) ? ` ${pageSpacingStyles.corePageBottomSpacing}` : ''}${contentTab === 'dashboard' ? ` ${dashboardOverviewStyles.mainSurface}` : ''}${ESPRESSO_FULL_PAGE_TABS.has(contentTab) ? ` ${signagePageStyles.fullPageSurface}` : ''}${contentTab === 'signage' ? ` ${signagePageStyles.signageWorkspaceSurface}` : ''}${contentTab === 'invitations' ? ` ${invitationsPageStyles.invitationsWorkspaceSurface}` : ''}${contentTab === 'place-cards' ? ` ${placeCardsPageStyles.placeCardsWorkspaceSurface}` : ''}${contentTab === 'individual-table-chart' ? ` ${individualTableChartStyles.workspaceSurface}` : ''}${contentTab === 'dietary-chart' ? ` ${kitchenDietaryStyles.dietaryWorkspaceSurface}` : ''}${contentTab === 'full-seating-chart' ? ` ${fullSeatingChartStyles.fullSeatingWorkspaceSurface}` : ''}${contentTab === 'photo-video-gallery' ? ` ${photoVideoManagementStyles.photoVideoWorkspaceMain}` : ''}${contentTab === 'my-events' ? ` ${myEventsStyles.mainSurface}` : ''}${contentTab === 'table-list' ? ` ${tablesPageStyles.mainSurface}` : ''}${contentTab === 'guest-list' ? ` ${guestListStyles.mainSurface}` : ''}${contentTab === 'qr-code' ? ` ${qrCodePageStyles.mainSurface}` : ''}${BROWN_OUTLINE_TABS.has(contentTab) ? ' ww-brown-outline-core' : ''}${BROWN_OUTLINE_TABS.has(contentTab) && contentTab !== 'running-sheet' ? ' ww-heading-system' : ''}${BROWN_OUTLINE_TABS.has(contentTab) || contentTab === 'photo-video-gallery' ? ' ww-solid-text' : ''}${contentTab === 'floor-plan' ? ' ww-floorplan-brown' : ''}${contentTab === 'live-slideshow' ? ' ww-live-slideshow-brown' : ''}${contentTab === 'running-sheet' ? ' ww-running-sheet-main' : ''}${contentTab === 'dj-mc-questionnaire' ? ' ww-djmc-main' : ''}`}>
+        <main data-dashboard-content style={contentTab === 'running-sheet' || contentTab === 'photo-callout-cards' ? { '--ww-application-background-color': '#f3eadc', '--ww-application-background-image': 'none' } as React.CSSProperties : undefined} data-solid-text-surface={contentTab === 'photo-video-gallery' ? 'dark' : 'light'} className={`ww-application-background flex-1 w-full px-3 sm:px-4 md:px-6 lg:px-8 py-4 sm:py-6 min-w-0 overflow-x-hidden${BROWN_OUTLINE_TABS.has(contentTab) ? ` ${pageSpacingStyles.corePageBottomSpacing}` : ''}${contentTab === 'dashboard' ? ` ${dashboardOverviewStyles.mainSurface}` : ''}${ESPRESSO_FULL_PAGE_TABS.has(contentTab) ? ` ${signagePageStyles.fullPageSurface}` : ''}${contentTab === 'signage' ? ` ${signagePageStyles.signageWorkspaceSurface}` : ''}${contentTab === 'invitations' ? ` ${invitationsPageStyles.invitationsWorkspaceSurface}` : ''}${contentTab === 'place-cards' ? ` ${placeCardsPageStyles.placeCardsWorkspaceSurface}` : ''}${contentTab === 'individual-table-chart' ? ` ${individualTableChartStyles.workspaceSurface}` : ''}${contentTab === 'dietary-chart' ? ` ${kitchenDietaryStyles.dietaryWorkspaceSurface}` : ''}${contentTab === 'full-seating-chart' ? ` ${fullSeatingChartStyles.fullSeatingWorkspaceSurface}` : ''}${contentTab === 'photo-video-gallery' ? ` ${photoVideoManagementStyles.photoVideoWorkspaceMain}` : ''}${contentTab === 'my-events' ? ` ${myEventsStyles.mainSurface}` : ''}${contentTab === 'table-list' ? ` ${tablesPageStyles.mainSurface}` : ''}${contentTab === 'guest-list' ? ` ${guestListStyles.mainSurface}` : ''}${contentTab === 'qr-code' ? ` ${qrCodePageStyles.mainSurface}` : ''}${BROWN_OUTLINE_TABS.has(contentTab) ? ' ww-brown-outline-core' : ''}${BROWN_OUTLINE_TABS.has(contentTab) && contentTab !== 'running-sheet' ? ' ww-heading-system' : ''}${BROWN_OUTLINE_TABS.has(contentTab) || contentTab === 'photo-video-gallery' ? ' ww-solid-text' : ''}${contentTab === 'floor-plan' ? ' ww-floorplan-brown' : ''}${contentTab === 'live-slideshow' ? ' ww-live-slideshow-brown' : ''}${contentTab === 'running-sheet' ? ' ww-running-sheet-main' : ''}${contentTab === 'dj-mc-questionnaire' ? ' ww-djmc-main' : ''}`}>
           <div className="w-full max-w-none">
             {/* Stats Bar excluded from: My Events, QR Code, Dashboard, Vendor Team, Planner, Wishing Well, RSVP, Floor Plan, Live Slideshow, Printables, Place Cards, Dietary Requirements, Full Seating Chart, DJ & MC Questionnaire, Running Sheet, AI Features */}
-            {contentTab !== 'my-events' && contentTab !== 'qr-code' && contentTab !== 'dashboard' && contentTab !== 'vendor-team' && contentTab !== 'planner' && contentTab !== 'wishing-well' && contentTab !== 'rsvp-invite' && contentTab !== 'floor-plan' && contentTab !== 'live-slideshow' && contentTab !== 'printables' && contentTab !== 'individual-table-chart' && contentTab !== 'place-cards' && contentTab !== 'dietary-chart' && contentTab !== 'full-seating-chart' && contentTab !== 'dj-mc-questionnaire' && contentTab !== 'running-sheet' && contentTab !== 'invitations' && contentTab !== 'signage' && contentTab !== 'account' && contentTab !== 'photo-video-gallery' && <div className={`print:hidden${contentTab === 'table-list' || contentTab === 'guest-list' ? ' ww-tables-stats' : ''}${contentTab === 'table-list' ? ` ${tablesPageStyles.stats}` : ''}${contentTab === 'guest-list' ? ` ${guestListStyles.stats}` : ''}`}>
+            {contentTab !== 'my-events' && contentTab !== 'qr-code' && contentTab !== 'dashboard' && contentTab !== 'vendor-team' && contentTab !== 'planner' && contentTab !== 'wishing-well' && contentTab !== 'rsvp-invite' && contentTab !== 'floor-plan' && contentTab !== 'live-slideshow' && contentTab !== 'printables' && contentTab !== 'individual-table-chart' && contentTab !== 'place-cards' && contentTab !== 'dietary-chart' && contentTab !== 'full-seating-chart' && contentTab !== 'dj-mc-questionnaire' && contentTab !== 'running-sheet' && contentTab !== 'photo-callout-cards' && contentTab !== 'invitations' && contentTab !== 'signage' && contentTab !== 'account' && contentTab !== 'photo-video-gallery' && <div className={`print:hidden${contentTab === 'table-list' || contentTab === 'guest-list' ? ' ww-tables-stats' : ''}${contentTab === 'table-list' ? ` ${tablesPageStyles.stats}` : ''}${contentTab === 'guest-list' ? ` ${guestListStyles.stats}` : ''}`}>
               {(contentTab === 'table-list' || contentTab === 'guest-list') ? (
                   <StatsBar stats={statsData} />
               ) : (
@@ -907,13 +924,28 @@ export const Dashboard = () => {
             onSave={handleSaveTable}
             editingTable={editingTable}
             existingTables={tables}
-            eventGuestLimit={events.find(e => e.id === selectedEventId)?.guest_limit}
+            eventGuestLimit={tableGuestLimit ?? undefined}
             currentEventName={events.find(e => e.id === selectedEventId)?.name}
             primaryParticipant1={selectedEvent?.partner1_name}
             primaryParticipant2={selectedEvent?.partner2_name}
+            planName={plan?.plan_name}
+            planGuestLimit={plan?.guest_limit}
+            isTrial={isTrialGuestPlan(plan?.plan_name)}
+            onUpgradePlan={() => {
+              setShowCreateTableModal(false);
+              setShowUpgradePlanModal(true);
+            }}
+            onBuyGuestCapacity={!hasPlatformOwnerAccess && /^(essential|premium|ultimate|unlimited)$/i.test(plan?.plan_name || '') ? () => {
+              setShowCreateTableModal(false);
+              navigate('/dashboard?tab=guest-list&guest-upgrade=1');
+            } : undefined}
           />
         </Suspense>
       )}
+
+      <Suspense fallback={null}>
+        <UpgradePlanModal open={showUpgradePlanModal} onOpenChange={setShowUpgradePlanModal} />
+      </Suspense>
 
       {/* Plan Expired Modal */}
       <PlanExpiredModal
@@ -931,3 +963,5 @@ export const Dashboard = () => {
     </div>
   </SidebarProvider>;
 };
+
+export const Dashboard = withTrialUpgradeChoice(DashboardContent,UpgradePlanModal);

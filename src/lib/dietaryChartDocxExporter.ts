@@ -433,7 +433,7 @@ const createGuestTable = (
                     event.partner1_name,
                     event.partner2_name,
                     []
-                  ) || 'Guest',
+                  ),
                   size: fontSize,
                 }),
               ],

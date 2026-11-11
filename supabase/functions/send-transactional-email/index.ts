@@ -29,7 +29,8 @@ Deno.serve(async (req) => {
   const caller = auth.user && !auth.user.is_anonymous ? auth.user : null
   const contact = templateName === 'contact-form-message'
   if (!internal && !contact && (!caller || !['welcome', 'admin-new-signup'].includes(templateName))) return json({ error: 'Authentication required' }, 401)
-  const recipient = String(template.to || body.recipientEmail || body.recipient_email || '').trim().toLowerCase()
+  const publicContact = contact && (body.supportContext?.source || 'public_contact') === 'public_contact'
+  const recipient = String(publicContact ? 'info@weddingwaitress.com.au' : template.to || body.recipientEmail || body.recipient_email || '').trim().toLowerCase()
   if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(recipient) || recipient.length > 255) return json({ error: 'Invalid recipient' }, 400)
   if (!internal && templateName === 'welcome' && recipient !== caller?.email?.toLowerCase()) return json({ error: 'Recipient access denied' }, 403)
   // Registry remains transactional only: no campaigns or promotions enabled.

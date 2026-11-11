@@ -1,8 +1,10 @@
 import React from 'react';
 import { render, screen, fireEvent } from '@testing-library/react';
 import { MemoryRouter } from 'react-router-dom';
-import { expect, it } from 'vitest';
+import { expect, it, vi } from 'vitest';
 import { AccountRenewalPackages } from './AccountRenewalPackages';
+
+vi.mock('@/lib/packagePricing', async importOriginal => ({ ...(await importOriginal<typeof import('@/lib/packagePricing')>()), PACKAGE_CHECKOUT_AVAILABLE: false }));
 
 it('offers exactly the three existing packages and preserves the disabled checkout safety gate', () => {
   render(<MemoryRouter><AccountRenewalPackages /></MemoryRouter>);

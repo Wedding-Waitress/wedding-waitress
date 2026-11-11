@@ -4,58 +4,47 @@
   background-image: none !important;
 }
 
-.page,
+.page:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
 .statePage {
   color: #f3e7d8;
 }
 
 /* Typography is scoped to the QR Code Seating Chart public Guest Live View. */
-.page h1,
+.page h1:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
 .statePage h1 {
   font-size: 24px !important;
   font-weight: 600 !important;
   overflow-wrap: anywhere;
 }
 
-.page :is(h2, h3, h4),
-.statePage :is(h2, h3, h4),
-.page .sectionHeading,
-.statePage .sectionHeading,
-:global(.ww-public-live-dialog) .sectionHeading:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
-.sectionHeading {
+.page :is(h2, h3, h4):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)), .statePage :is(h2, h3, h4), .page .sectionHeading:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)), .statePage .sectionHeading, :global(.ww-public-live-dialog) .sectionHeading:not(:where([data-print-mirror-document], [data-print-mirror-document] *)), .sectionHeading {
   font-size: 20px !important;
   font-weight: 500 !important;
 }
 
-.page :is(p, [data-live-body]),
-.statePage :is(p, [data-live-body]),
-.page :is(input, textarea, button[role="combobox"]),
-.page :is(input, textarea)::placeholder {
+.page :is(p, [data-live-body]):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)), .statePage :is(p, [data-live-body]), .page :is(input, textarea, button[role="combobox"]):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)), .page :is(input, textarea):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *))::placeholder {
   font-size: 13px !important;
   font-weight: 400 !important;
   line-height: 18px !important;
 }
 
-.page :is(label, strong, [data-live-label]),
-.statePage :is(label, strong, [data-live-label]) {
+.page :is(label, strong, [data-live-label]):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)), .statePage :is(label, strong, [data-live-label]) {
   font-size: 13px !important;
   font-weight: 600 !important;
   line-height: 18px !important;
 }
 
-.page :is(span, div)[class*="font-semibold"]:not(h1):not(h2):not(h3):not(h4),
-.page :is(span, div)[class*="font-bold"]:not(h1):not(h2):not(h3):not(h4),
-.statePage :is(span, div)[class*="font-semibold"]:not(h1):not(h2):not(h3):not(h4) {
+.page :is(span, div)[class*="font-semibold"]:not(h1):not(h2):not(h3):not(h4):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)), .page :is(span, div)[class*="font-bold"]:not(h1):not(h2):not(h3):not(h4):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)), .statePage :is(span, div)[class*="font-semibold"]:not(h1):not(h2):not(h3):not(h4) {
   font-size: 13px !important;
   font-weight: 600 !important;
 }
 
-.page [data-live-section-heading] {
+.page [data-live-section-heading]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   font-size: 20px !important;
   font-weight: 500 !important;
 }
 
-.page button,
+.page button:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
 .statePage button,
 .tableBackButton,
 .moduleTray button,
@@ -88,9 +77,9 @@
   -webkit-backdrop-filter: blur(14px);
 }
 
-:global(#root) .page .eventDetails [class*="text-foreground"],
-:global(#root) .page .eventDetails span,
-:global(#root) .page .eventDetails p {
+:global(#root) .page .eventDetails [class*="text-foreground"]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+:global(#root) .page .eventDetails span:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+:global(#root) .page .eventDetails p:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   color: #ffffff !important;
 }
 
@@ -154,9 +143,9 @@
   background: linear-gradient(180deg, rgba(30, 111, 61, 0.62), rgba(15, 62, 34, 0.74)) !important;
 }
 
-.searchCard,
+.searchCard:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
 .stateCard,
-.page :global(.ww-box) {
+.page :global(.ww-box):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   color: #f3e7d8 !important;
   border: 1px solid rgba(201, 151, 93, 0.42) !important;
   background: rgba(33, 19, 15, 0.68) !important;
@@ -167,39 +156,39 @@
   -webkit-backdrop-filter: blur(18px);
 }
 
-:global(#root) .page h2,
-:global(#root) .page h3,
-:global(#root) .page h4,
-:global(#root) .page h5,
-:global(#root) .page label,
-:global(#root) .page [class*="text-foreground"],
-:global(#root) .page [class*="text-\[\#1D1D1F\]"] {
+:global(#root) .page h2:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+:global(#root) .page h3:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+:global(#root) .page h4:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+:global(#root) .page h5:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+:global(#root) .page label:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+:global(#root) .page [class*="text-foreground"]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+:global(#root) .page [class*="text-\[\#1D1D1F\]"]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   color: #ffffff !important;
 }
 
-:global(#root) .page p,
-:global(#root) .page [class*="text-muted-foreground"] {
+:global(#root) .page p:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+:global(#root) .page [class*="text-muted-foreground"]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   color: #eadbc9 !important;
   opacity: 1 !important;
 }
 
-.page svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-warning"]):not([class*="text-white"]) {
+.page svg:not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-warning"]):not([class*="text-white"]):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   color: #d9b77f !important;
   stroke: currentColor !important;
 }
 
-.page [class*="bg-background-subtle"],
-.page [class*="bg-gradient-card"],
-.page [class*="bg-accent"] {
+.page [class*="bg-background-subtle"]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+.page [class*="bg-gradient-card"]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+.page [class*="bg-accent"]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   color: #f3e7d8 !important;
   border-color: rgba(201, 151, 93, 0.3) !important;
   background: rgba(17, 9, 7, 0.48) !important;
   box-shadow: inset 0 1px 0 rgba(255, 239, 218, 0.08);
 }
 
-.page input,
-.page textarea,
-.page button[role="combobox"] {
+.page input:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+.page textarea:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+.page button[role="combobox"]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   color: #ffffff !important;
   border: 1px solid rgba(201, 151, 93, 0.54) !important;
   background: linear-gradient(180deg, rgba(255, 239, 218, 0.06), rgba(16, 8, 6, 0.8)) !important;
@@ -208,22 +197,22 @@
     inset 0 1px 0 rgba(255, 239, 218, 0.1) !important;
 }
 
-.page input::placeholder,
-.page textarea::placeholder {
+.page input:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *))::placeholder,
+.page textarea:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *))::placeholder {
   color: #ffffff !important;
 }
 
-.page input:focus-visible,
-.page textarea:focus-visible,
-.page button:focus-visible,
-.page [role="button"]:focus-visible {
+.page input:focus-visible:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+.page textarea:focus-visible:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+.page button:not(:global(.guest-rsvp-action)):focus-visible:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+.page [role="button"]:focus-visible:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   outline: none !important;
   box-shadow:
     0 0 0 2px rgba(22, 11, 8, 0.98),
     0 0 0 4px rgba(217, 183, 127, 0.72) !important;
 }
 
-.searchCard button:not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not([class*="bg-success"]) {
+.searchCard button:not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not([class*="bg-success"]):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   color: #ffffff !important;
   border: 1px solid rgba(201, 151, 93, 0.54) !important;
   background: linear-gradient(180deg, rgba(105, 59, 41, 0.88), rgba(31, 16, 12, 0.94)) !important;
@@ -232,21 +221,21 @@
     0 8px 18px rgba(3, 1, 1, 0.25) !important;
 }
 
-.searchCard button:not(:disabled):hover {
+.searchCard button:not(:disabled):not(:global(.guest-rsvp-action)):hover:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   filter: brightness(1.08);
 }
 
-.searchCard button:not(:disabled):active {
+.searchCard button:not(:disabled):not(:global(.guest-rsvp-action)):active:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   transform: translateY(1px);
 }
 
-.searchCard button:disabled,
+.searchCard button:disabled:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
 .moduleTray button:disabled {
   cursor: not-allowed;
   opacity: 0.5 !important;
 }
 
-.searchCardContent {
+.searchCardContent:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   display: grid;
   grid-template-rows: auto minmax(4.5rem, 1fr) auto minmax(4.5rem, 1fr) auto;
   min-height: 25rem;
@@ -308,8 +297,8 @@
   opacity: 0.5 !important;
 }
 
-.page :global(.card-elevated) [class*="border-border"],
-.page :global(.card-elevated) [class*="border-t"] {
+.page :global(.card-elevated) [class*="border-border"]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+.page :global(.card-elevated) [class*="border-t"]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   border-color: rgba(201, 151, 93, 0.32) !important;
 }
 
@@ -337,10 +326,7 @@
   font-weight: 500 !important;
 }
 
-:global(.ww-public-live-dialog) :is(p, li, [data-live-body]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
-:global(.ww-public-live-dialog) :is(input, textarea, button[role="combobox"]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
-:global(.ww-public-live-dialog) :is(input, textarea):not(:where([data-print-mirror-document], [data-print-mirror-document] *))::placeholder,
-:global(.ww-public-live-menu) [role="option"] {
+:global(.ww-public-live-dialog) :is(p, li, [data-live-body]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)), :global(.ww-public-live-dialog) :is(input, textarea, button[role="combobox"]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)), :global(.ww-public-live-dialog) :is(input, textarea):not(:where([data-print-mirror-document], [data-print-mirror-document] *))::placeholder, :global(.ww-public-live-menu) [role="option"] {
   font-size: 13px !important;
   font-weight: 400 !important;
   line-height: 18px !important;
@@ -352,23 +338,17 @@
   line-height: 18px !important;
 }
 
-:global(.ww-public-live-dialog) button:not([aria-label]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
-:global(.ww-public-live-dialog) [role="button"]:not([aria-label]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
+:global(.ww-public-live-dialog) button:not([aria-label]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)), :global(.ww-public-live-dialog) [role="button"]:not([aria-label]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
   font-size: 13px !important;
   font-weight: 500 !important;
   line-height: 18px !important;
 }
 
-:global(.ww-public-live-dialog) h2:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
-:global(.ww-public-live-dialog) h3:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
-:global(.ww-public-live-dialog) h4:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
-:global(.ww-public-live-dialog) label:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
-:global(.ww-public-live-dialog) [class*="text-foreground"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
+:global(.ww-public-live-dialog) h2:not(:where([data-print-mirror-document], [data-print-mirror-document] *)), :global(.ww-public-live-dialog) h3:not(:where([data-print-mirror-document], [data-print-mirror-document] *)), :global(.ww-public-live-dialog) h4:not(:where([data-print-mirror-document], [data-print-mirror-document] *)), :global(.ww-public-live-dialog) label:not(:where([data-print-mirror-document], [data-print-mirror-document] *)), :global(.ww-public-live-dialog) [class*="text-foreground"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
   color: #ffffff !important;
 }
 
-:global(.ww-public-live-dialog) p:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
-:global(.ww-public-live-dialog) [class*="text-muted-foreground"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
+:global(.ww-public-live-dialog) p:not(:where([data-print-mirror-document], [data-print-mirror-document] *)), :global(.ww-public-live-dialog) [class*="text-muted-foreground"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
   color: #eadbc9 !important;
   opacity: 1 !important;
 }
@@ -378,31 +358,23 @@
   stroke: currentColor !important;
 }
 
-:global(.ww-public-live-dialog) input:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
-:global(.ww-public-live-dialog) textarea:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
-:global(.ww-public-live-dialog) button[role="combobox"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
-:global(.ww-public-live-dialog) [class*="bg-background"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
+:global(.ww-public-live-dialog) input:not(:where([data-print-mirror-document], [data-print-mirror-document] *)), :global(.ww-public-live-dialog) textarea:not(:where([data-print-mirror-document], [data-print-mirror-document] *)), :global(.ww-public-live-dialog) button[role="combobox"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)), :global(.ww-public-live-dialog) [class*="bg-background"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
   color: #ffffff !important;
   border-color: rgba(201, 151, 93, 0.44) !important;
   background: rgba(17, 9, 7, 0.7) !important;
 }
 
-:global(.ww-public-live-dialog) input:not(:where([data-print-mirror-document], [data-print-mirror-document] *))::placeholder,
-:global(.ww-public-live-dialog) textarea:not(:where([data-print-mirror-document], [data-print-mirror-document] *))::placeholder {
+:global(.ww-public-live-dialog) input:not(:where([data-print-mirror-document], [data-print-mirror-document] *))::placeholder, :global(.ww-public-live-dialog) textarea:not(:where([data-print-mirror-document], [data-print-mirror-document] *))::placeholder {
   color: #ffffff !important;
 }
 
-:global(.ww-public-live-dialog) button[aria-label="Close"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
-:global(.ww-public-live-dialog) > button:last-child:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
+:global(.ww-public-live-dialog) button[aria-label="Close"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)), :global(.ww-public-live-dialog) > button:last-child:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
   color: #f3e7d8 !important;
   border-color: rgba(217, 183, 127, 0.62) !important;
   background: rgba(31, 16, 12, 0.88) !important;
 }
 
-:global(.ww-public-live-dialog) button:focus-visible:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
-:global(.ww-public-live-dialog) input:focus-visible:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
-:global(.ww-public-live-dialog) textarea:focus-visible:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
-:global(.ww-public-live-dialog) [role="button"]:focus-visible:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
+:global(.ww-public-live-dialog) button:focus-visible:not(:where([data-print-mirror-document], [data-print-mirror-document] *)), :global(.ww-public-live-dialog) input:focus-visible:not(:where([data-print-mirror-document], [data-print-mirror-document] *)), :global(.ww-public-live-dialog) textarea:focus-visible:not(:where([data-print-mirror-document], [data-print-mirror-document] *)), :global(.ww-public-live-dialog) [role="button"]:focus-visible:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
   outline: none !important;
   box-shadow:
     0 0 0 2px rgba(22, 11, 8, 0.98),
@@ -439,10 +411,10 @@
     background-position: 48% center !important;
   }
 
-  .page,
-  .page > *,
+  .page:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+  .page > *:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
   .liveContent,
-  .searchCard {
+  .searchCard:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
     min-width: 0;
     max-width: 100%;
   }
@@ -459,12 +431,12 @@
     max-width: 100%;
   }
 
-  .searchCard {
+  .searchCard:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
     width: calc(100vw - 2rem);
     overflow: hidden;
   }
 
-  .searchCardContent {
+  .searchCardContent:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
     grid-template-rows: auto minmax(4rem, 1fr) auto minmax(4rem, 1fr) auto;
     min-height: 23rem;
   }
@@ -476,14 +448,14 @@
 
 @media (prefers-reduced-motion: reduce) {
   .moduleTray button,
-  .searchCard button {
+  .searchCard button:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
     transition: none !important;
   }
 }
 
 
 /* Public QR guest app uses the Photo & Video Sharing surfaces. */
-.page, .statePage, :global(.ww-public-live-dialog), :global(.ww-public-live-menu) {
+.page:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)), .statePage, :global(.ww-public-live-dialog), :global(.ww-public-live-menu) {
   --foreground: 0 0% 100%;
   --muted-foreground: 29 32% 86%;
   --background: 18 33% 8%;
@@ -493,7 +465,7 @@
   --popover-foreground: 0 0% 100%;
   color-scheme: dark;
 }
-.searchCard, .stateCard, .page :global(.ww-box), :global(.ww-public-live-dialog) {
+.searchCard:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)), .stateCard, .page :global(.ww-box):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)), :global(.ww-public-live-dialog) {
   color: #fff !important;
   border-color: rgba(201, 151, 93, .38) !important;
   background: linear-gradient(180deg, rgba(101, 57, 40, .72), rgba(42, 23, 17, .76)) !important;
@@ -505,58 +477,50 @@
 .moduleTray {
   background: linear-gradient(180deg, rgba(35,22,15,.92), rgba(6,4,3,.98));
 }
-.moduleTray button, .tableBackButton,
-.searchCard button:not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not([class*="bg-success"]),
-:global(.ww-public-live-dialog) button:not([role="combobox"]):not([role="checkbox"]):not([role="switch"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not([class*="bg-success"]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
+.moduleTray button, .tableBackButton, .searchCard button:not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not([class*="bg-success"]):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)), :global(.ww-public-live-dialog) button:not([data-family-member-update]):not([role="combobox"]):not([role="checkbox"]):not([role="switch"]):not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not([class*="bg-success"]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
   color: #fff !important;
   -webkit-text-fill-color: #fff;
   border-color: rgba(216,173,121,.55) !important;
   background: linear-gradient(180deg, rgba(77,43,31,.78), rgba(18,10,8,.86)) !important;
   box-shadow: inset 0 1px 0 rgba(255,239,218,.15), inset 0 -1px 0 rgba(0,0,0,.24), 0 4px 12px rgba(0,0,0,.26) !important;
 }
-.page .moduleTray button svg,
-.page .searchCard button svg,
+.page .moduleTray button svg:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+.page .searchCard button svg:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
 :global(.ww-public-live-dialog) button svg:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
   color: #fff !important;
   stroke: currentColor !important;
 }
-.page input, .page textarea, .page button[role="combobox"],
-:global(.ww-public-live-dialog) :is(input, textarea, button[role="combobox"]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
+.page input:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)), .page textarea:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)), .page button[role="combobox"]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)), :global(.ww-public-live-dialog) :is(input, textarea, button[role="combobox"]):not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
   color: #fff !important;
   -webkit-text-fill-color: #fff;
   border-color: rgba(211,161,101,.42) !important;
   background: linear-gradient(180deg, rgba(62,35,26,.62), rgba(18,10,8,.82)) !important;
   box-shadow: inset 0 1px 0 rgba(255,239,218,.12), 0 3px 9px rgba(0,0,0,.22) !important;
 }
-.page input::placeholder, .page textarea::placeholder,
-:global(.ww-public-live-dialog) input::placeholder, :global(.ww-public-live-dialog) textarea::placeholder {
+.page input:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *))::placeholder, .page textarea:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *))::placeholder, :global(.ww-public-live-dialog) input::placeholder, :global(.ww-public-live-dialog) textarea::placeholder {
   color: #cbbcaf !important;
   -webkit-text-fill-color: #cbbcaf;
 }
 :global(.ww-public-live-dialog) [class*="bg-white"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
   background: #24120d !important;
 }
-:global(.ww-public-live-dialog) [class*="text-gray"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
-.page [class*="text-gray"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)) {
+:global(.ww-public-live-dialog) [class*="text-gray"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)), .page [class*="text-gray"]:not(:where([data-print-mirror-document], [data-print-mirror-document] *)):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   color: #e8ddd2 !important;
 }
-.page .footerLogo img { filter: grayscale(1) brightness(0) invert(1); }
+.page .footerLogo img:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) { filter: grayscale(1) brightness(0) invert(1); }
 
 .fallbackHero {
   background: linear-gradient(180deg, rgba(0,0,0,.7), rgba(0,0,0,.6) 50%, rgba(0,0,0,.8)), url('/default-hero-bg.png') center / cover;
 }
-:global(#root) .page :is(p, span, label, h1, h2, h3, h4, button, a, strong, li),
-:global(#root) .statePage :is(p, span, h1, h2, h3),
-:global(.ww-public-live-dialog.ww-public-live-dialog) :is(p, span, label, h1, h2, h3, h4, button, a, strong, li):not(:where([data-print-mirror-document], [data-print-mirror-document] *)),
-:global(.ww-public-live-menu.ww-public-live-menu) :is(span, [role="option"]) {
+:global(#root) .page :is(p, span, label, h1, h2, h3, h4, button, a, strong, li):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)), :global(#root) .statePage :is(p, span, h1, h2, h3), :global(.ww-public-live-dialog.ww-public-live-dialog) :is(p, span, label, h1, h2, h3, h4, button, a, strong, li):not(:where([data-print-mirror-document], [data-print-mirror-document] *)), :global(.ww-public-live-menu.ww-public-live-menu) :is(span, [role="option"]) {
   -webkit-text-fill-color: currentColor !important;
 }
-:global(#root) .page .moduleTray button,
-:global(#root) .page .moduleTray button span,
-:global(#root) .page .moduleTray button svg,
-:global(#root) .page .shareInvite button,
-:global(#root) .page .shareInvite button span,
-:global(#root) .page .shareInvite button svg {
+:global(#root) .page .moduleTray button:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+:global(#root) .page .moduleTray button span:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+:global(#root) .page .moduleTray button svg:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+:global(#root) .page .shareInvite button:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+:global(#root) .page .shareInvite button span:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+:global(#root) .page .shareInvite button svg:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   color: #fff !important;
 }
 
@@ -581,7 +545,7 @@
 }
 
 /* Match table centre labels to the seated guest heading. */
-:global(#root) .page [data-live-table-centre] > div {
+:global(#root) .page [data-live-table-centre] > div:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   font-size: 20px !important;
   line-height: 1.3 !important;
 }
@@ -655,21 +619,37 @@
   .welcomeVideoMedia { max-width: none; }
 }
 
-.page :global(.guest-rsvp-action) {
+.page :global(.guest-rsvp-action):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   text-shadow: 0 1px 2px rgba(0,0,0,.4);
 }
-.page :global(.guest-rsvp-action) svg {
+.page :global(.guest-rsvp-action) svg:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   filter: drop-shadow(0 1px 1px rgba(0,0,0,.4));
 }
 
-:global(#root) .page input[data-guest-name-search] {
+/* Preserve the established mobile action unchanged. Desktop uses the paired
+   fallback action so one reliably visible control exists at every width. */
+.page :global(.recipient-update-action--desktop):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  display: none;
+}
+
+@media (min-width: 768px) {
+  .page :global([data-recipient-update-action]:not(.recipient-update-action--desktop)):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+    display: none !important;
+  }
+
+  .page :global(.recipient-update-action--desktop):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+    display: flex !important;
+  }
+}
+
+:global(#root) .page input[data-guest-name-search]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   font-size: 20px !important;
 }
-:global(#root) .page input[data-guest-name-search]::placeholder {
+:global(#root) .page input[data-guest-name-search]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *))::placeholder {
   font-size: 13px !important;
 }
 
-:global(#root) .page [data-guest-welcome] > span {
+:global(#root) .page [data-guest-welcome] > span:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   font-size: inherit !important;
   line-height: inherit !important;
 }
@@ -697,18 +677,66 @@
   min-width: 0;
 }
 
+/* The guest page uses compact four-column controls. The base grid remains
+   available for non-compact consumers; the final compact rule below wins at all widths. */
+.moduleGrid {
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+}
+
+.moduleButton {
+  display: flex;
+  min-width: 0;
+  min-height: 44px;
+  height: 72px;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  padding: 8px 6px;
+  border-radius: 12px;
+  text-align: center;
+}
+
+:global(#root) .moduleTray[data-module-density="compact"] .moduleGrid {
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+}
+
+:global(#root) .moduleTray[data-module-density="compact"] .moduleButton {
+  height: 72px;
+  flex-direction: column;
+  gap: 3px;
+  padding: 7px 3px;
+}
+
+:global(#root) .moduleTray[data-module-density="compact"] .moduleButton svg {
+  width: 18px !important;
+  height: 18px !important;
+}
+
+:global(#root) .moduleTray[data-module-density="compact"] .moduleButton span {
+  font-size: 11px !important;
+  line-height: 13px !important;
+  text-align: center;
+  overflow-wrap: anywhere;
+}
+
+@media (max-width: 340px) {
+  :global(#root) .moduleTray[data-module-density="compact"] .moduleGrid {
+    grid-template-columns: repeat(3, minmax(0, 1fr));
+  }
+}
+
 /* Keep vertical tray spacing consistent across screen sizes. */
 .moduleTray {
   padding-top: 15px;
   padding-bottom: 15px;
 }
 
-:global(#root) .page [data-guest-details-heading] {
+:global(#root) .page [data-guest-details-heading]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   color: rgba(217, 183, 127, 0.72) !important;
   -webkit-text-fill-color: rgba(217, 183, 127, 0.72) !important;
 }
 
-:global(#root) .page .eventDetails :is([data-live-body], span, p) {
+:global(#root) .page .eventDetails :is([data-live-body], span, p):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   font-size: 14px !important;
 }
 
@@ -716,11 +744,11 @@
   transform: translateY(25svh);
   padding-inline: 12px;
 }
-:global(#root) .page .heroTitleGroup p {
+:global(#root) .page .heroTitleGroup p:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   font-size: 16px !important;
   line-height: 1.4 !important;
 }
-:global(#root) .page .heroTitleGroup h1 {
+:global(#root) .page .heroTitleGroup h1:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   font-size: 27px !important;
   line-height: 1.3 !important;
 }
@@ -729,31 +757,31 @@
   padding-bottom: 15px;
 }
 
-:global(#root) .page .heroTitleGroup h1 {
+:global(#root) .page .heroTitleGroup h1:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   font-weight: 400 !important;
   font-synthesis: none;
   text-shadow: none !important;
   filter: none !important;
 }
 
-:global(#root) .page .heroTitleGroup p {
+:global(#root) .page .heroTitleGroup p:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   transform: translateY(-1.4em);
 }
-.searchCardContent {
+.searchCardContent:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   grid-template-rows: auto 55px auto 55px auto;
 }
 
-.searchCard[data-search-empty="true"] .searchCardContent {
+.searchCard[data-search-empty="true"] .searchCardContent:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   min-height: 0;
   grid-template-rows: auto 60px auto 60px auto;
   align-content: start;
 }
 
-:global(#root) .page input[data-guest-name-search]:placeholder-shown {
+:global(#root) .page input[data-guest-name-search]:placeholder-shown:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   text-align: center;
   padding-right: 40px;
 }
-:global(#root) .page input[data-guest-name-search]::placeholder {
+:global(#root) .page input[data-guest-name-search]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *))::placeholder {
   font-size: 20px !important;
   text-align: center;
 }
@@ -777,39 +805,39 @@
   }
 }
 
-:global(#root) .page .heroTitleGroup h1 {
+:global(#root) .page .heroTitleGroup h1:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   font-size: 28px !important;
 }
-:global(#root) .page .heroTitleGroup p {
+:global(#root) .page .heroTitleGroup p:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   font-size: 17px !important;
   font-weight: 500 !important;
 }
 
-:global(#root) .page [data-live-table-centre] > [data-live-body] {
+:global(#root) .page [data-live-table-centre] > [data-live-body]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   font-size: 18px !important;
 }
 
-.page [data-round-guest-table] {
+.page [data-round-guest-table]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   --guest-seat-size: 64px;
   width: min(100%, 316px);
   aspect-ratio: 1;
 }
-.page [data-round-table-surface] {
+.page [data-round-table-surface]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   inset: calc(var(--guest-seat-size) + 4px);
 }
-.page [data-round-guest-seat] {
+.page [data-round-guest-seat]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
   width: var(--guest-seat-size);
   height: var(--guest-seat-size);
 }
 @media (min-width: 768px) {
-  .page [data-round-guest-table] {
+  .page [data-round-guest-table]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
     --guest-seat-size: 80px;
     width: min(100%, 448px);
   }
 }
 
 @media (max-width: 767px) {
-  .page :global(.ww-box):has([data-round-guest-table]) {
+  .page :global(.ww-box):has([data-round-guest-table]):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
     padding-inline: 12px;
   }
 }
@@ -841,3 +869,147 @@
   text-align: left;
 }
 .guestViewerHeader > * { margin-top: 0 !important; }
+
+/* The approved invitation email uses regular Arial above regular Georgia. */
+:global(#root) .page .heroTitleGroup .invitationEyebrow:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  font-family: Arial, sans-serif !important;
+  font-size: clamp(17px, 2vw, 20px) !important;
+  font-weight: 400 !important;
+  line-height: 1.4 !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  margin: 0 0 12px !important;
+  transform: none;
+  text-align: center;
+}
+:global(#root) .page .heroTitleGroup .invitationEventName:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  font-family: Georgia, 'Times New Roman', serif !important;
+  font-size: clamp(28px, 3.4vw, 40px) !important;
+  font-weight: 400 !important;
+  line-height: 1.2353 !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  margin: 0;
+  max-width: 100%;
+  min-width: 0;
+  white-space: normal;
+  overflow-wrap: anywhere;
+  text-wrap: balance;
+  text-align: center;
+}
+:global(#root) .moduleTray[data-module-density="compact"] .moduleGrid { grid-template-columns: repeat(4, minmax(0, 1fr)); }
+
+/* White brand mark belongs only to the no-photo hero branch. */
+.heroShell .fallbackBrandMark {
+ position:absolute; inset:auto; top:35%; left:50%; transform:translate(-50%,-50%);
+ width:min(calc(100vw - 32px),clamp(360px,56vw,720px),60svh); height:auto; max-height:60svh;
+ object-fit:contain; filter:brightness(0) invert(1); pointer-events:none;
+}
+.page :global(.guest-rsvp-action):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)), .page .shareInvite button:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) { min-height:30px !important; height:auto !important; padding:5px 12px !important; line-height:20px !important; }
+
+/* Approved QR guest-app colour study: light navigation and lookup cards only.
+   Hero, event-details strip, page surroundings and portal dialogs stay intact. */
+:global(#root#root) .page .moduleTray:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  border-color: #b89a70;
+  background: linear-gradient(180deg, #f1e4d0, #e6d4b8);
+  box-shadow: inset 0 1px 0 #fff5e5, 0 14px 34px rgba(3, 1, 1, .28);
+}
+
+:global(#root#root) .page .moduleTray button:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  color: #21120b !important;
+  border-color: #ad8c60 !important;
+  background: linear-gradient(180deg, #fff8ec, #ead9be) !important;
+  box-shadow: inset 0 1px 0 #fffdf7, inset 0 -1px 0 #b99b7040, 0 4px 12px #10090626 !important;
+}
+
+:global(#root#root) .page .moduleTray button :is(span, svg):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  color: #21120b !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+:global(#root#root) .page .moduleTray button:hover:not(:disabled):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  color: #21120b !important;
+  border-color: #80613c !important;
+  background: linear-gradient(180deg, #fffaf0, #e1ccaa) !important;
+}
+
+:global(#root#root) .page .moduleTray button:active:not(:disabled):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+:global(#root#root) .page .moduleTray button[data-state="active"]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  color: #21120b !important;
+  border-color: #80613c !important;
+  background: linear-gradient(180deg, #dec6a1, #f2e2ca) !important;
+  box-shadow: inset 0 2px 5px #21120b26 !important;
+}
+
+:global(#root#root) .page .searchCard:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  --foreground: 20 50% 9%;
+  --card-foreground: 20 50% 9%;
+  --muted-foreground: 25 22% 30%;
+  --ww-text-on-light: #21120b;
+  color-scheme: light;
+  color: #21120b !important;
+  border-color: #b89a70 !important;
+  background: linear-gradient(180deg, #fff9f0, #f5eadb) !important;
+  box-shadow: inset 0 1px 0 #fffdf8, 0 12px 26px rgba(3, 1, 1, .32) !important;
+}
+
+:global(#root#root) .page .searchCard :is(h2, h3, h4, h5, p, label, strong, [data-live-body], [data-live-label], [class*="text-foreground"], [class*="text-muted-foreground"], [class*="text-gray"]):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)), :global(#root#root) .page .searchCard [data-guest-details-heading]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  color: #21120b !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+:global(#root#root) .page .searchCard :is(:global(.ww-box), [class*="bg-background-subtle"], [class*="bg-gradient-card"], [class*="bg-accent"]):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  color: #21120b !important;
+  border-color: #c6ad88 !important;
+  background: #f1e5d3 !important;
+  box-shadow: inset 0 1px 0 #fff9ef;
+}
+
+:global(#root#root) .page .searchCard :is(input, textarea, button[role="combobox"]):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  color: #21120b !important;
+  -webkit-text-fill-color: #21120b !important;
+  border-color: #b89a70 !important;
+  background: linear-gradient(180deg, #f6eddf, #ecddc7) !important;
+  box-shadow: inset 0 1px 3px #21120b12, inset 0 1px 0 #fffaf0 !important;
+}
+
+:global(#root#root) .page .searchCard :is(input, textarea):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *))::placeholder {
+  color: #594434 !important;
+  -webkit-text-fill-color: #594434 !important;
+  opacity: 1;
+}
+
+:global(#root#root) .page .searchCard svg:not(button svg):not([class*="text-green"]):not([class*="text-red"]):not([class*="text-destructive"]):not([class*="text-warning"]):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  color: #3a2618 !important;
+  stroke: currentColor !important;
+}
+
+:global(#root#root) .page .searchCard button:not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not([class*="bg-success"]):not(:global(.guest-rsvp-action)):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  color: #21120b !important;
+  -webkit-text-fill-color: #21120b !important;
+  border-color: #ad8c60 !important;
+  background: linear-gradient(180deg, #f9ecd6, #e5cfaa) !important;
+  box-shadow: inset 0 1px 0 #fff9ed, inset 0 -1px 0 #ad8c6040, 0 4px 12px #10090626 !important;
+}
+
+:global(#root#root) .page .searchCard button:not([class*="bg-green"]):not([class*="bg-red"]):not([class*="bg-destructive"]):not([class*="bg-success"]):not(:global(.guest-rsvp-action)) :is(span, svg):not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  color: #21120b !important;
+  -webkit-text-fill-color: currentColor !important;
+}
+
+:global(#root#root) .page .moduleTray button:focus-visible:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+:global(#root#root) .page .searchCard :is(input, textarea, button, [role="button"]):not(:global(.guest-rsvp-action)):focus-visible:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  box-shadow: 0 0 0 2px #fff4e1, 0 0 0 4px #80613c !important;
+}
+
+:global(#root#root) .page .footerLogo img:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) { filter: none; }
+
+/* Existing global live-view rules set icon strokes independently of text. */
+:global(#root#root#root) .page .moduleTray button svg:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)),
+:global(#root#root#root) .page .shareInvite button svg:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) {
+  color: #21120b !important;
+  stroke: #21120b !important;
+}
+
+
+@media (max-width:767px) { .page input[data-guest-name-search]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) { scroll-margin-top:24px; } }

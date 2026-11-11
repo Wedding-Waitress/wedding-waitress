@@ -1,8 +1,9 @@
 import React from 'react';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SignagePage } from './SignagePage';
+import { exportSignagePDF } from '@/lib/signagePdfExporter';
 
 const testState = vi.hoisted(() => ({
   galleryLoading: true,
@@ -87,7 +88,7 @@ vi.mock('@/hooks/use-toast', () => ({
 }));
 
 vi.mock('@/lib/imagePipeline', () => ({
-  checkPrintFit: vi.fn(),
+  checkPrintFit: vi.fn(() => ({ ok: true })),
   useOptimizedPreview: () => ({ url: null }),
 }));
 
@@ -102,7 +103,7 @@ vi.mock('@/lib/invitationExporter', () => ({
 }));
 
 vi.mock('../Invitations/InvitationCardPreview', () => ({
-  InvitationCardPreview: () => <div>Seating sign preview</div>,
+  InvitationCardPreview: ({ documentRef }: any) => <div ref={documentRef}>Seating sign preview</div>,
 }));
 
 vi.mock('@/components/ui/PinchZoomContainer', () => ({
@@ -136,6 +137,23 @@ vi.mock('./SignageBulkUploader', () => ({
 }));
 
 describe('Seating Chart Signs route runtime', () => {
+  it.each([1440, 768, 390])('orders sizes smallest first and exports each selected size at %ipx', async width => {
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
+    vi.mocked(exportSignagePDF).mockClear();
+    render(<MemoryRouter><SignagePage selectedEventId="event-1" onEventSelect={vi.fn()} events={[{ id: 'event-1', name: 'Test Wedding' } as any]} eventsLoading={false} /></MemoryRouter>);
+    const cards = screen.getAllByRole('button').filter(button => /^\s*A[0-3]/.test(button.textContent || ''));
+    expect(cards.map(card => card.textContent?.trim().match(/^A[0-3]/)?.[0])).toEqual(['A3', 'A2', 'A1', 'A0']);
+    expect(cards[2]).toHaveAttribute('aria-pressed', 'true');
+    const sizes = [[297, 420], [420, 594], [594, 841], [841, 1189]];
+    for (let index = 0; index < cards.length; index++) {
+      fireEvent.click(cards[index]);
+      expect(cards[index]).toHaveAttribute('aria-pressed', 'true');
+      fireEvent.click(screen.getByRole('button', { name: 'Download Print-Ready PDF' }));
+      await waitFor(() => expect(exportSignagePDF).toHaveBeenCalledTimes(index + 1));
+      expect(vi.mocked(exportSignagePDF).mock.calls[index][0]).toMatchObject({ widthMm: sizes[index][0], heightMm: sizes[index][1] });
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Download Print-Ready PDF' })).toBeEnabled());
+    }
+  });
   beforeEach(() => {
     testState.galleryLoading = true;
     testState.isAdmin = true;

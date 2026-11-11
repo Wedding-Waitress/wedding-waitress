@@ -1,0 +1,21 @@
+import React from 'react';
+import {render,screen,fireEvent,waitFor} from '@testing-library/react';
+import {describe,it,expect,vi,beforeEach} from 'vitest';
+const control=vi.hoisted(()=>({fail:false,save:vi.fn(),initial:{event_id:'event',revision:3,cards:[{id:'one',title:'Family',people:[],minutes:3,completed:true},{id:'two',title:'Friends',people:[],minutes:3,completed:false}],private_notes:{one:'Private note'}}}));
+vi.mock('@/hooks/usePhotoCallout',async()=>{const React=await import('react');return {photoDb:{},usePhotoCallout:()=>{const [plan,setPlan]=React.useState(control.initial);return {plan,loading:false,saving:false,error:'',save:async(cards:any,notes:any)=>{control.save(cards,notes);if(control.fail)return false;setPlan({...plan,cards,private_notes:notes,revision:plan.revision+1});return true;},setError:vi.fn()};}};});
+vi.mock('@/hooks/useGuests',()=>({useGuests:()=>({guests:[],loading:false})}));
+vi.mock('@/hooks/useTables',()=>({useTables:()=>({tables:[],loading:false})}));
+vi.mock('@/hooks/use-toast',()=>({useToast:()=>({toast:vi.fn()})}));
+vi.mock('../StandardEventSelector',()=>({StandardEventSelector:()=>null}));
+vi.mock('./PhotoEventBanner',()=>({PhotoEventBanner:()=>null}));
+vi.mock('./PhotoCalloutShareModal',()=>({PhotoCalloutShareModal:()=>null}));
+vi.mock('./PhotoCalloutDocument',()=>({PhotoCalloutDocument:({cards,onSelect}:any)=><div>{cards.map((card:any)=><button key={card.id} onClick={()=>onSelect(card)}>{card.title}</button>)}</div>}));
+vi.mock('./PhotoCardEditor',()=>({PhotoCardEditor:({onDelete}:any)=><button onClick={onDelete}>Delete selected photo</button>}));
+import {PhotoCalloutPage} from './PhotoCalloutPage';
+const setup=()=>render(<PhotoCalloutPage selectedEventId="event" onEventSelect={()=>{}} events={[{id:'event',name:'Example Wedding'}] as any}/>);
+beforeEach(()=>{control.fail=false;control.save.mockClear();vi.spyOn(window,'confirm').mockReturnValue(true);});
+describe('delete and undo save flow',()=>{
+ it('restores a single deletion including private notes and completion ticks',async()=>{setup();fireEvent.click(screen.getByRole('button',{name:'Family'}));fireEvent.click(screen.getByRole('button',{name:'Delete selected photo'}));await screen.findByRole('button',{name:'Undo Deletion'});expect(control.save.mock.calls[0][0].map((c:any)=>c.id)).toEqual(['two']);fireEvent.click(screen.getByRole('button',{name:'Undo Deletion'}));await waitFor(()=>expect(control.save).toHaveBeenCalledTimes(2));expect(control.save.mock.calls[1][0]).toEqual(control.initial.cards);expect(control.save.mock.calls[1][1]).toEqual({one:'Private note'});});
+ it('restores the entire list after clearing it',async()=>{setup();fireEvent.click(screen.getByRole('button',{name:'Delete All Cards'}));await screen.findByRole('button',{name:'Undo Deletion'});expect(control.save.mock.calls[0]).toEqual([[],{}]);fireEvent.click(screen.getByRole('button',{name:'Undo Deletion'}));await waitFor(()=>expect(control.save).toHaveBeenCalledTimes(2));expect(control.save.mock.calls[1]).toEqual([control.initial.cards,control.initial.private_notes]);});
+ it('does not offer undo for a deletion that failed to save',async()=>{control.fail=true;setup();fireEvent.click(screen.getByRole('button',{name:'Delete All Cards'}));await waitFor(()=>expect(control.save).toHaveBeenCalledTimes(1));expect(screen.queryByRole('button',{name:'Undo Deletion'})).toBeNull();expect(screen.getByRole('button',{name:'Family'})).toBeTruthy();});
+});

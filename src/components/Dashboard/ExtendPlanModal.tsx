@@ -1,9 +1,15 @@
 import React, { useState } from 'react';
 import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import { Button } from '@/components/ui/button';
-import { Badge } from '@/components/ui/badge';
-import { Calendar, Star } from 'lucide-react';
-import { EXTENSION_PRICES, ExtensionOption } from '@/lib/stripeExtensionPrices';
+import { Input } from '@/components/ui/input';
+import { Calendar } from 'lucide-react';
+import {
+  calculateExtensionTotalAud,
+  ACCESS_EXTENSION_MAX_MONTHS,
+  DEFAULT_EXTENSION_OPTIONS,
+  isValidExtensionMonths,
+  normalizePublicPlanName,
+} from '@/lib/stripeExtensionPrices';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 
@@ -20,20 +26,21 @@ export const ExtendPlanModal: React.FC<ExtendPlanModalProps> = ({
   planName,
   expiresAt,
 }) => {
-  const [selectedMonths, setSelectedMonths] = useState<number | null>(null);
+  const [selectedMonths, setSelectedMonths] = useState(1);
+  const [customMonths, setCustomMonths] = useState('');
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
 
-  const options: ExtensionOption[] = EXTENSION_PRICES[planName] || [];
+  const options = DEFAULT_EXTENSION_OPTIONS;
+  const publicPlanName = normalizePublicPlanName(planName);
   const expiryDate = expiresAt ? new Date(expiresAt).toLocaleDateString('en-AU', { day: '2-digit', month: '2-digit', year: 'numeric' }) : '';
 
   const handleExtend = async () => {
-    const selected = options.find(o => o.months === selectedMonths);
-    if (!selected) return;
+    if (!isValidExtensionMonths(selectedMonths)) return;
 
     setLoading(true);
     try {
-      const body = { price_id: selected.price_id, extension_months: selected.months };
+      const body = { extension_months: selectedMonths };
 
       const invokeAttempt = async () => {
         const { data, error } = await supabase.functions.invoke('create-extension-checkout', { body });
@@ -42,16 +49,12 @@ export const ExtendPlanModal: React.FC<ExtendPlanModalProps> = ({
         return data;
       };
 
-      let data;
-      try {
-        data = await invokeAttempt();
-      } catch {
-        await new Promise(r => setTimeout(r, 2000));
-        data = await invokeAttempt();
-      }
+      // An uncertain response may already have created a session. Never retry blindly.
+      const data = await invokeAttempt();
 
       if (data?.url) {
-        window.open(data.url, '_blank');
+        try { sessionStorage.setItem('ww:returnTab', 'account'); } catch { /* storage may be unavailable */ }
+        window.location.assign(data.url);
       }
     } catch (err: any) {
       toast({
@@ -70,17 +73,16 @@ export const ExtendPlanModal: React.FC<ExtendPlanModalProps> = ({
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Calendar className="w-5 h-5 text-primary" />
-            Extend Your {planName} Plan
+            Extend Your {publicPlanName} Access
           </DialogTitle>
           <DialogDescription>
-            Your account expires on <strong>{expiryDate}</strong>. Choose an extension duration below.
+            Your account expires on <strong>{expiryDate}</strong>. Access costs A$22 per month including 10% GST and is paid upfront.
           </DialogDescription>
         </DialogHeader>
 
         <div className="grid gap-2 mt-4">
           {options.map(option => {
             const isSelected = selectedMonths === option.months;
-            const isBestValue = option.months === 12;
             return (
               <button
                 key={option.months}
@@ -100,29 +102,48 @@ export const ExtendPlanModal: React.FC<ExtendPlanModalProps> = ({
                     {isSelected && <div className="w-2 h-2 rounded-full bg-primary" />}
                   </div>
                   <span className="font-medium text-sm">{option.label}</span>
-                  {isBestValue && (
-                    <Badge className="bg-primary text-primary-foreground text-[10px] px-1.5 py-0">
-                      <Star className="w-3 h-3 mr-0.5" />
-                      Best Value
-                    </Badge>
-                  )}
                 </div>
-                <span className="font-bold text-sm">${option.price_aud} AUD</span>
+                <span className="font-bold text-sm">A${calculateExtensionTotalAud(option.months)}</span>
               </button>
             );
           })}
         </div>
 
+        <div className="mt-3 space-y-2">
+          <label htmlFor="custom-extension-months" className="text-sm font-medium">
+            Or choose any number of whole months
+          </label>
+          <Input
+            id="custom-extension-months"
+            type="number"
+            inputMode="numeric"
+            min={1}
+            max={ACCESS_EXTENSION_MAX_MONTHS}
+            step={1}
+            value={customMonths}
+            placeholder="Enter months"
+            onChange={(event) => {
+              const value = event.target.value;
+              setCustomMonths(value);
+              const months = Number(value);
+              if (isValidExtensionMonths(months)) setSelectedMonths(months);
+            }}
+          />
+          <p className="text-xs text-muted-foreground">
+            {selectedMonths} {selectedMonths === 1 ? 'month' : 'months'} · A${calculateExtensionTotalAud(selectedMonths)} including GST, paid once
+          </p>
+        </div>
+
         <div className="flex justify-end gap-2 mt-4">
-          <Button variant="outline" onClick={onClose} className="rounded-full">
-            Cancel
-          </Button>
           <Button
             onClick={handleExtend}
-            disabled={!selectedMonths || loading}
+            disabled={!isValidExtensionMonths(selectedMonths) || loading}
             className="rounded-full"
           >
-            {loading ? 'Processing...' : 'Pay Now'}
+            {loading ? 'Processing...' : `Pay A$${calculateExtensionTotalAud(selectedMonths)} Now`}
+          </Button>
+          <Button variant="outline" onClick={onClose} className="rounded-full">
+            Cancel
           </Button>
         </div>
       </DialogContent>

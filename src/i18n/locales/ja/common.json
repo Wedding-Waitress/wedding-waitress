@@ -1,4 +1,22 @@
 {
+  "guestbookSuccess": {
+    "thankYou": "{{name}}さん、ありがとうございます！",
+    "another": "別のメッセージを残す",
+    "return": "アプリに戻る",
+    "received": "芳名帳へのメッセージをありがとうございます。"
+  },
+  "guestbookMessages": {
+    "textTitle": "メッセージを書く",
+    "audioTitle": "音声メッセージを録音する",
+    "videoTitle": "動画メッセージを録画する",
+    "textAgain": "別のメッセージを書く",
+    "audioAgain": "別の音声メッセージを録音する",
+    "videoAgain": "別の動画メッセージを録画する",
+    "textSaved": "文字メッセージを保存しました。",
+    "audioSaved": "音声メッセージを保存しました。",
+    "videoSaved": "動画メッセージを保存しました。"
+  },
+  "guestbookBackToApp": "アプリに戻る",
   "privacyPolicy": "プライバシーポリシー",
   "termsOfService": "利用規約",
   "contact": "お問い合わせ",
@@ -21,5 +39,17 @@
   "edit": "編集",
   "close": "閉じる",
   "submit": "送信",
-  "language": "言語"
+  "language": "言語",
+  "guestbookPrivacy": {
+    "intro": "テキスト、音声、動画のメッセージを、お好きな組み合わせで残せます。",
+    "notice": "テキスト・音声・動画メッセージは、イベントのギャラリーとライブスライドショーで共有されます。"
+  },
+  "photoBoothSession": {
+    "capturedPhoto": "撮影した写真{{number}}",
+    "captureNote": "4枚の写真 - 8秒のカウントダウン",
+    "nameLabel": "先にフルネームを入力してください",
+    "namePlaceholder": "例：山田花子",
+    "partial": "{{total}} 枚中 {{saved}} 枚を保存しました。「ダウンロードして保存」をタップして残りを再試行してください。保存済みの写真は再アップロードされません。",
+    "captureFailed": "カメラの画像を撮影できませんでした。撮影をやり直してください。"
+  }
 }

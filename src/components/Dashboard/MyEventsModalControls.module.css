@@ -1,0 +1,49 @@
+
+/* Opt-in only for My Events row edit/delete dialogs, including their portals. */
+.root.root .action {
+  position: relative;
+  min-height: 30px !important;
+  height: auto !important;
+  padding: 4px 12px !important;
+  border-radius: 999px !important;
+  line-height: 20px !important;
+  gap: 6px !important;
+  white-space: normal;
+  max-width: 100%;
+}
+.root.root .action svg { width: 16px !important; height: 16px !important; margin: 0 !important; flex-shrink: 0; }
+.root.root .footer { gap: 16px; padding-top: 14px !important; padding-bottom: max(16px, env(safe-area-inset-bottom)) !important; }
+.root.root > button:is(:last-child, [aria-label='Close']) {
+  display: inline-flex !important;
+  align-items: center;
+  justify-content: center;
+  top: 16px !important;
+  right: 16px !important;
+  width: 44px !important;
+  height: 44px !important;
+  min-width: 44px !important;
+  min-height: 44px !important;
+  padding: 0 !important;
+  border: 1px solid #cdb99e !important;
+  border-radius: 50% !important;
+  background: #f5ebdd !important;
+  color: #2f1b14 !important;
+  opacity: 1 !important;
+  box-shadow: inset 0 1px 0 #ffffffbf, 0 3px 8px #4f301e14;
+}
+.root.root > button:is(:last-child, [aria-label='Close']) svg { width: 20px !important; height: 20px !important; color: #2f1b14 !important; stroke: #2f1b14 !important; }
+.root.root > button:is(:last-child, [aria-label='Close']):focus-visible,
+.root.root .action:focus-visible { outline: 2px solid #755332 !important; outline-offset: 3px !important; }
+.root.root > button:is(:last-child, [aria-label='Close']):hover { background: #eadbc8 !important; }
+.root.root .deleteHeader { padding-right: 52px; }
+@media (max-width: 1023px), (any-pointer: coarse) {
+  .root.root .action { min-width: 44px; }
+  .root.root .action::after { content: ''; position: absolute; inset: -7px 0; border-radius: inherit; }
+}
+
+/* Both opted-in My Events portals preview semibold body and field text. */
+.root.root :is(p,input,textarea,select,[role='combobox'],[role='option']) { font-weight:600 !important; }
+:global(body.ww-my-events-medium-editor) [data-radix-popper-content-wrapper] :is(input,textarea,select,[role='combobox'],[role='option']) { font-weight:600 !important; }
+
+:global(body.ww-my-events-medium-editor) [data-radix-popper-content-wrapper] :is(button,button span) { font-weight:600 !important; }
+.root.root p span[class*='font-medium'] { font-weight:600 !important; }

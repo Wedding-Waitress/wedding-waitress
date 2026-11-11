@@ -1,3 +1,5 @@
+// Supabase provides this host API; the standalone Deno CLI does not.
+declare const EdgeRuntime: { waitUntil<T>(promise: Promise<T>): Promise<T> };
 /**
  * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY
  * Branded auth OTP email (logo + brown #967A59 palette). Locked 2026-04-18.

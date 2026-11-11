@@ -1,0 +1,30 @@
+﻿import React from 'react';
+import { renderHook, waitFor, act } from '@testing-library/react';
+import { QueryClient, QueryClientProvider } from '@tanstack/react-query';
+import { describe, expect, it, vi } from 'vitest';
+import { useInvitationGallery } from './useInvitationGallery';
+const mocks = vi.hoisted(() => ({ read: vi.fn() }));
+vi.mock('@/integrations/supabase/client', () => ({ supabase: { from: () => ({ select: () => ({ order: mocks.read }) }) } }));
+const rows = Array.from({ length: 355 }, (_, index) => ({ id: String(index), name: `Design ${index}`, category: 'Legacy',
+ image_url: '/master.png', preview_url: '/preview.png', thumbnail_url: '/thumb.png', invitation_image_categories: [{ invitation_categories: { name: 'Floral' } }] }));
+it('shares one catalogue request across consumers and reuses it when reopening', async () => {
+ mocks.read.mockResolvedValue({ data: rows, error: null });
+ const client = new QueryClient({ defaultOptions: { queries: { retry: false } } });
+ const wrapper = ({ children }: React.PropsWithChildren) => <QueryClientProvider client={client}>{children}</QueryClientProvider>;
+ const page = renderHook(useInvitationGallery, { wrapper });
+ const library = renderHook(useInvitationGallery, { wrapper });
+ await waitFor(() => expect(library.result.current.images).toHaveLength(355));
+ expect(mocks.read).toHaveBeenCalledTimes(1);
+ expect(page.result.current.images).toBe(library.result.current.images);
+ expect(library.result.current.categoriesWithCounts).toEqual([{ name: 'Floral', count: 355 }]);
+ library.unmount();
+ const reopened = renderHook(useInvitationGallery, { wrapper });
+ expect(reopened.result.current.images).toHaveLength(355);
+ expect(mocks.read).toHaveBeenCalledTimes(1);
+ act(() => reopened.result.current.removeImageFromGallery('0'));
+ await waitFor(() => expect(page.result.current.images).toHaveLength(354));
+ expect(reopened.result.current.categoriesWithCounts).toEqual([{ name: 'Floral', count: 354 }]);
+ await act(async () => { await reopened.result.current.refetch(); });
+ expect(mocks.read).toHaveBeenCalledTimes(2);
+ await waitFor(() => expect(reopened.result.current.images).toHaveLength(355));
+});

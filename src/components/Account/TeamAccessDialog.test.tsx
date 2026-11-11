@@ -7,7 +7,7 @@ const mocks = vi.hoisted(() => ({ invite: vi.fn(), revoke: vi.fn(), remove: vi.f
 
 vi.mock('@/hooks/use-toast', () => ({ useToast: () => ({ toast: mocks.toast }) }));
 vi.mock('@/hooks/useTeamAccess', () => ({
-  useTeamAccess: () => ({
+  useTeamAccess: () => ({ ready: true,
     members: [
       { id: 'master-1', member_user_id: 'master-1', member_email: 'owner@example.com', first_name: 'Wendy', last_name: 'Owner', mobile: '0400 000 000', role: 'master', invited_at: '', accepted_at: '' },
       { id: 'member-1', member_user_id: 'member-1', member_email: 'helper@example.com', first_name: 'Alex', last_name: 'Helper', mobile: '0400 000 001', role: 'standard', invited_at: '', accepted_at: '' },

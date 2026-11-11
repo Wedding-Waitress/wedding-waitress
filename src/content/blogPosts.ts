@@ -1,3 +1,4 @@
+import { cleanBlogPost } from './blogProseStyle';
 /**
  * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY
  * Part of the approved public homepage surface (locked 2026-04-18).
@@ -51,7 +52,7 @@ const BLOG_POSTS_STATIC: BlogPostStatic[] = [
       { label: 'Wedding Guest List Manager', href: '/guest-list' },
       { label: 'Tables & Seating', href: '/tables' },
       { label: 'Compare printed vs digital wedding signage costs', href: '/blog/wedding-signage-cost-australia' },
-      { label: 'How to create a QR code seating chart in 5 minutes', href: '/blog/how-to-create-qr-code-seating-chart' },
+      { label: 'Create your QR code seating chart', href: '/blog/how-to-create-qr-code-seating-chart' },
     ],
   },
   {
@@ -86,7 +87,7 @@ const BLOG_POSTS_STATIC: BlogPostStatic[] = [
     internalLinks: [
       { label: 'Full Seating Chart (printed backup)', href: '/full-seating-chart' },
       { label: 'QR Code Seating Chart', href: '/qr-code-seating-chart' },
-      { label: 'How to create a QR code seating chart in 5 minutes', href: '/blog/how-to-create-qr-code-seating-chart' },
+      { label: 'Create your QR code seating chart', href: '/blog/how-to-create-qr-code-seating-chart' },
     ],
   },
   {
@@ -120,7 +121,7 @@ const BLOG_POSTS_STATIC: BlogPostStatic[] = [
       { label: 'QR Code Seating Chart', href: '/qr-code-seating-chart' },
       { label: 'Guest List Manager', href: '/guest-list' },
       { label: 'Tables & Seating', href: '/tables' },
-      { label: 'How to create a QR code seating chart in 5 minutes', href: '/blog/how-to-create-qr-code-seating-chart' },
+      { label: 'Create your QR code seating chart', href: '/blog/how-to-create-qr-code-seating-chart' },
       { label: 'How to handle last-minute seating changes', href: '/blog/last-minute-wedding-seating-changes' },
     ],
   },
@@ -190,7 +191,7 @@ export const useBlogPosts = (): BlogPost[] => {
       intro: t(`${base}.intro`),
       sections: Array.isArray(sections) ? sections : [],
     };
-  });
+  }).map(cleanBlogPost);
 };
 
 export const useBlogPostBySlug = (slug: string | undefined): BlogPost | undefined => {

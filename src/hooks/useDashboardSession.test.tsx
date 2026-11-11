@@ -189,6 +189,19 @@ describe('useDashboardSession', () => {
     );
   });
 
+  it('keeps an already verified dashboard ready during a same-user token refresh', async () => {
+    mocks.getSession.mockResolvedValue({ data: { session }, error: null });
+    const { result } = renderHook(() => useDashboardSession(), { wrapper });
+    await waitFor(() => expect(result.current.loading).toBe(false));
+    expect(mocks.rpc).toHaveBeenCalledTimes(1);
+
+    act(() => mocks.authCallback?.('TOKEN_REFRESHED', { ...session, access_token: 'refreshed-token' }));
+
+    expect(result.current.loading).toBe(false);
+    expect(result.current.session?.access_token).toBe('refreshed-token');
+    expect(mocks.rpc).toHaveBeenCalledTimes(1);
+  });
+
   it('exposes a recoverable error and retries without bypassing auth', async () => {
     mocks.getSession
       .mockRejectedValueOnce(new Error('Session storage unavailable'))

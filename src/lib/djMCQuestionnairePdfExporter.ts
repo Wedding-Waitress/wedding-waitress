@@ -421,7 +421,8 @@ const drawHeader = (pdf: jsPDF, event: Event): number => {
 export const exportSectionPDF = async (
   section: DJMCSection,
   event: Event,
-  rowTextSize: "standard" | "larger" = "standard"
+  rowTextSize: "standard" | "larger" = "standard",
+  isCurrent: () => boolean = () => true
 ): Promise<void> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
@@ -462,6 +463,7 @@ export const exportSectionPDF = async (
   const dateObj = event.date ? new Date(event.date + 'T00:00:00') : new Date();
   const formattedDate = `${String(dateObj.getDate()).padStart(2, '0')}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${dateObj.getFullYear()}`;
   const fileName = `${safeEventName}-${safeSectionName}-${formattedDate}.pdf`;
+  if (!isCurrent()) throw new Error("Questionnaire changed during export. Please try again.");
   await savePdfAsync(pdf, fileName);
 };
 
@@ -469,7 +471,8 @@ export const exportSectionPDF = async (
 export const exportEntireQuestionnairePDF = async (
   questionnaire: DJMCQuestionnaire,
   event: Event,
-  rowTextSize: "standard" | "larger" = "standard"
+  rowTextSize: "standard" | "larger" = "standard",
+  isCurrent: () => boolean = () => true
 ): Promise<void> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
@@ -520,5 +523,6 @@ export const exportEntireQuestionnairePDF = async (
   const dateObj = event.date ? new Date(event.date + 'T00:00:00') : new Date();
   const formattedDate = `${String(dateObj.getDate()).padStart(2, '0')}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${dateObj.getFullYear()}`;
   const fileName = `${safeEventName}-DJ-MC Questionnaire-${formattedDate}.pdf`;
+  if (!isCurrent()) throw new Error("Questionnaire changed during export. Please try again.");
   await savePdfAsync(pdf, fileName);
 };

@@ -1,14 +1,17 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-const source = readFileSync('src/components/Pricing/PublicPricingSection.tsx', 'utf8');
+import { readEnglishPublicSource } from '@/test/readEnglishPublicSource';
+const source = readEnglishPublicSource('src/components/Pricing/PublicPricingSection.tsx');
 
 describe('public pricing package-card copy and typography', () => {
   it('places the approved recovery wording directly with the duration without duplicate list copy', () => {
-    expect(source).toMatch(/>One event for 12 months<\/p>\s*<p[^>]*>Additional events available to purchase<\/p>\s*<p[^>]*>Account recovery: 6 months after access ends\.<\/p>\s*<p[^>]*>Complete platform access<\/p>/);
-    expect(source).toContain('Account recovery: 6 months after access ends.');
+    expect(source).toMatch(/>One event for 12 months<\/p>\s*<p[^>]*>Additional events available to purchase<\/p>\s*<p[^>]*>Account recovery: 6 months free after expiry\.<\/p>/);
+    expect(source).toContain('Account recovery: 6 months free after expiry.');
+    expect(source).not.toContain('Complete platform access');
+    expect(source).not.toContain('Account recovery: 6 months after access ends.');
     expect(source).not.toContain('Six-month account recovery after access ends');
-    expect(source).toContain('Free Email &amp; SMS Credits Included');
+    expect(readFileSync('src/components/Pricing/PublicPricingSection.tsx', 'utf8')).toContain('Free Email & SMS Included ($${communicationCredits} worth)');
     expect(source).not.toContain('Extend anytime for A$20 per month, paid upfront');
     expect(source).not.toContain("'12 months of access'");
     expect(source).not.toMatch(/\[[^\]]*'Complete platform access'/);
@@ -18,24 +21,25 @@ describe('public pricing package-card copy and typography', () => {
 
   it('matches the two feature-section headings at the approved typography', () => {
     expect(source).toContain("const featureHeadingClass = 'text-base font-semibold leading-5'");
-    expect(source).toContain('<h4 className={`flex w-full items-center justify-center gap-2 border-2 border-[#70452f] px-3 py-2 text-center ${featureHeadingClass} ${text}`}>');
+    expect(source).toContain('<h4 data-pricing-metallic-heading className={`flex w-full items-center justify-center gap-2 border-2 border-[#70452f] px-3 py-2 text-center ${featureHeadingClass} ${text}`}>');
     expect(source).toContain('src="/images/brand/wedding-waitress-favicon-dark-brown.png"');
     expect(source).toContain('className="h-6 w-6 shrink-0 object-contain"');
     expect(source).toContain('What’s Included');
-    expect(source).toContain('<h5 className={`flex w-full items-center justify-center gap-2 border-2 border-[#70452f] px-3 py-2 text-center text-base font-semibold leading-5 ${text}`}>');
+    expect(source).toContain('<h5 data-pricing-metallic-heading className={`flex w-full items-center justify-center gap-2 border-2 border-[#70452f] px-3 py-2 text-center text-base font-semibold leading-5 ${text}`}>');
   });
 
   it('uses controlled desktop line breaks while allowing narrower layouts to wrap naturally', () => {
     expect(source).toContain('<br className="hidden 2xl:block" />');
     expect(source).toContain('<span className="2xl:hidden"> </span>');
-    expect(source).toContain("emphasisLines: ['Invitations, Save the Dates and', 'Thank You Cards']");
+    expect(source).toContain("emphasisLines: ['Invitations, Save the Date and', 'Thank You Cards']");
     expect(source).toContain("emphasisLines: ['Kitchen Dietary', 'Requirement Reports']");
     expect(source).not.toContain('firstLine="Download your photos, videos" secondLine="and platform exports."');
   });
 
   it('uses the public AUD formatter for all active couple plans', () => {
     expect(source).toContain("formatPublicPricingPrice('AUD', amount)");
-    expect(source).toContain('displayCouplePrice(AUD_BASE_PRICES[key])');
+    expect(source).toContain('displayCouplePrice(basePrice)');
+    expect(source).not.toContain('Includes 10% GST worldwide.');
     expect(source).not.toContain('useLiveExchangeRates');
     expect(source).not.toContain('<PricingCurrencyPanel');
     expect(source).not.toContain('Vendor Pro');
@@ -43,7 +47,7 @@ describe('public pricing package-card copy and typography', () => {
 
   it('places plan credits first under What’s included and removes the redundant lower event row', () => {
     expect(source).toContain('<PlanFeatureList communicationCredits={details.communicationCredits} />');
-    expect(source).toMatch(/What’s Included\s*<\/h4>\s*<ul[^>]*>\s*<li[^>]*font-bold[^>]*>[\s\S]*?\{communicationCredits\} Free Email &amp; SMS Credits Included<\/span>/);
+    expect(readFileSync('src/components/Pricing/PublicPricingSection.tsx', 'utf8')).toContain('<PublicCopy text={`${communicationCredits} Free Email & SMS Included ($${communicationCredits} worth)`} />');
     expect(source).not.toContain("[`${details.communicationCredits} Email & SMS credits included`, 'One event']");
   });
 
@@ -78,25 +82,21 @@ describe('public pricing package-card copy and typography', () => {
   });
 
   it('emphasises only the capitalised Photo and Video Sharing App phrase without resizing it', () => {
-    expect(source).toContain("{ prefix: 'Customize your', name: 'Photo and Video Sharing App' }");
-    expect(source).toContain("{ prefix: 'Create a guest', name: 'Photo and Video Gallery' }");
-    expect(source).toContain("{ prefix: '', name: 'Digital Guestbook' }");
-    expect(source).toContain("{ prefix: 'Customise your', name: 'Digital Photo Booth' }");
+    expect(source).toContain("{ prefix: 'Customise your', name: 'Photo and Video Sharing App' }");
     expect(source).toContain("{ prefix: 'Display', name: 'Guest Uploads in a Live Slideshow' }");
+    expect(source).not.toContain('Guest Lookup Live Slideshow');
     expect(source).toContain('<span>{feature.prefix} <span className="font-bold">{feature.name}</span></span>');
     expect(source).not.toContain('Customise your photo and video sharing app');
   });
 
-  it('renders the approved bold guestbook wording with one decorative espresso heart icon', () => {
-    expect(source).toContain("feature.name === 'Digital Guestbook'");
-    expect(source).toContain('<span className="font-bold">Digital Guestbook</span>');
-    expect(source).toContain('<span className="font-bold">Audio &amp; Video</span>');
-    expect(source).not.toContain('Audio Guestbook');
-    expect(source).not.toContain('Video Guestbook');
-    const sharingSection = source.slice(source.indexOf("{sharingFeatures.map"), source.indexOf('const Cta:'));
-    expect(sharingSection.match(/<Heart size=\{11\} strokeWidth=\{2\} aria-hidden="true" className="text-\[#412419\]" \/>/g)).toHaveLength(1);
-    expect(source.match(/<span className="sr-only">, <\/span>/g)).toHaveLength(1);
-    expect(source).not.toContain("'Personalise your'");
+  it('renders the four approved guestbook and photo booth bullets in order', () => {
+    const sharing = source.slice(source.indexOf('const sharingFeatures'), source.indexOf('type CoupleKey'));
+    const labels = [...sharing.matchAll(/\{ text: '([^']+)' \}/g)].map(match => match[1]);
+    expect(labels).toEqual(["Create a digital guestbook.","Create a video guestbook.","Create a voice-audio guestbook.","Create a digital photo booth."]);
+    expect(sharing).not.toContain('Photo and Video Gallery');
+    expect(source).not.toContain("feature.name === 'Digital Guestbook'");
+    expect(sharing).toContain("{ prefix: 'Customise your', name: 'Photo and Video Sharing App' }");
+    expect(sharing).toContain("{ prefix: 'Display', name: 'Guest Uploads in a Live Slideshow' }");
   });
 
   it('keeps the selected pricing introduction while removing the standalone GST sentence', () => {
@@ -156,3 +156,4 @@ describe('public pricing package-card copy and typography', () => {
     expect(source).toContain('<Wine size={20} strokeWidth={1.8} className="absolute right-0 top-0.5 rotate-12 text-[#5b3425]" />');
   });
 });
+

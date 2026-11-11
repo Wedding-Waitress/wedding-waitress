@@ -48,6 +48,13 @@ export const CeremonyFloorPlanA4 = React.forwardRef<HTMLDivElement, CeremonyFloo
 }, ref) => {
   const [editing, setEditing] = React.useState<EditTarget | null>(null);
   const [editingValue, setEditingValue] = React.useState('');
+  const editSession = React.useRef<{ target: EditTarget; value: string; planId: string; saving: boolean } | null>(null);
+  const [editError, setEditError] = React.useState(false);
+  React.useEffect(() => {
+    editSession.current = null;
+    setEditing(null);
+    setEditError(false);
+  }, [floorPlan.id]);
   const layout = getCeremonyA4Layout({ chairsPerRow: floorPlan.chairs_per_row, totalRows: floorPlan.total_rows });
   const isGroomLeft = floorPlan.couple_side_arrangement !== 'bride_left';
   const leftCount = Math.min(10, floorPlan.bridal_party_count_left || 0);
@@ -66,33 +73,56 @@ export const CeremonyFloorPlanA4 = React.forwardRef<HTMLDivElement, CeremonyFloo
 
   const beginEdit = (target: EditTarget, value: string) => {
     const enabled = target.kind === 'seat' ? onSeatUpdate : target.kind === 'party' ? onBridalPartyUpdate : onBridalPartyRoleUpdate;
-    if (!enabled) return;
+    if (!enabled || editSession.current?.saving) return;
+    editSession.current = { target, value, planId: floorPlan.id, saving: false };
     setEditing(target);
     setEditingValue(value);
+    setEditError(false);
   };
 
   const saveEdit = async () => {
-    if (!editing) return;
-    if (editing.kind === 'seat' && editing.row && editing.seat && onSeatUpdate) {
-      await onSeatUpdate(editing.side, editing.row, editing.seat, editingValue);
-    } else if (editing.kind === 'party' && editing.index !== undefined && onBridalPartyUpdate) {
-      await onBridalPartyUpdate(editing.side, editing.index, editingValue);
-    } else if (editing.kind === 'role' && editing.index !== undefined && onBridalPartyRoleUpdate) {
-      await onBridalPartyRoleUpdate(editing.side, editing.index, editingValue);
+    const session = editSession.current;
+    if (!session || session.saving || session.planId !== floorPlan.id) return;
+    session.saving = true;
+    const target = session.target;
+    let saved = false;
+    try {
+      if (target.kind === 'seat' && target.row && target.seat && onSeatUpdate) {
+        saved = await onSeatUpdate(target.side, target.row, target.seat, session.value);
+      } else if (target.kind === 'party' && target.index !== undefined && onBridalPartyUpdate) {
+        saved = await onBridalPartyUpdate(target.side, target.index, session.value);
+      } else if (target.kind === 'role' && target.index !== undefined && onBridalPartyRoleUpdate) {
+        saved = await onBridalPartyRoleUpdate(target.side, target.index, session.value);
+      }
+    } catch {
+      saved = false;
+    } finally {
+      session.saving = false;
+      if (editSession.current === session) {
+        if (saved) { editSession.current = null; setEditing(null); }
+        else setEditError(true);
+      }
     }
-    setEditing(null);
   };
 
   const editInput = (label: string) => <input
     autoFocus
     aria-label={label}
+    aria-invalid={editError || undefined}
+    title={editError ? 'Could not save. Press Enter to retry or Escape to cancel.' : undefined}
     className={styles.editor}
     value={editingValue}
-    onChange={(event) => setEditingValue(event.target.value)}
+    onChange={(event) => {
+      const session = editSession.current;
+      if (!session || session.saving) return;
+      session.value = event.target.value;
+      setEditingValue(session.value);
+      setEditError(false);
+    }}
     onBlur={() => void saveEdit()}
     onKeyDown={(event) => {
-      if (event.key === 'Enter') void saveEdit();
-      if (event.key === 'Escape') setEditing(null);
+      if (event.key === 'Enter') { event.preventDefault(); void saveEdit(); }
+      if (event.key === 'Escape') { event.preventDefault(); editSession.current = null; setEditing(null); setEditError(false); }
     }}
   />;
 

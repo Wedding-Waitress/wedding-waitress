@@ -30,7 +30,7 @@ export const StandardEventSelector: React.FC<StandardEventSelectorProps> = ({
           onEventSelect(value);
         }}
       >
-        <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary">
+        <SelectTrigger aria-label="Choose Event" className="w-full sm:w-[300px] border-primary focus:ring-primary">
           <SelectValue placeholder="Choose Event" />
         </SelectTrigger>
         <SelectContent className={`bg-popover border-border z-50 ${menuClassName || ''}`}>

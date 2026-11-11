@@ -24,7 +24,7 @@ export function AdminReadOnlyGuestbook({ownerId,eventId,eventName,gallery,items,
  if(!complete)return <p role="alert">Complete saved Guestbook messages and media classification are unavailable.</p>;
  return <section aria-label="Read-only saved Digital Guestbook">
   <p>Saved customer messages and recordings. Administrator preview does not change moderation, publish recordings or send notifications.</p>
-  <GalleryGuestbookMessagesCard eventId={eventId} eventName={eventName} items={items as GalleryItem[]} onSetItemModeration={noWrite} onSetGuestbookShare={noWrite}
+  <GalleryGuestbookMessagesCard eventId={eventId} eventName={eventName} items={items as GalleryItem[]} onSetItemModeration={noWrite}
    appearance="espresso-glass" readOnly readOnlyTextRows={textRows}
    readOnlyRecordingPlayer={item=><VerifiedRecording key={item.id} ownerId={ownerId} eventId={eventId} item={item}/>}/>
  </section>;

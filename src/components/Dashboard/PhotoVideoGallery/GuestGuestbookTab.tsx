@@ -2,13 +2,17 @@
 // Option A: written message. Option B: audio message (max 60s). Option C: video message (max 60s).
 // All three are PRIVATE guestbook content (never public gallery media).
 import React, { useCallback, useEffect, useRef, useState } from 'react';
+import { useTranslation } from 'react-i18next';
+import { createPortal } from 'react-dom';
+import { GuestMediaSuccessCard } from './GuestMediaSuccessCard';
+import { GalleryFooterLogo } from './GalleryFooterLogo';
 import { supabase } from '@/integrations/supabase/client';
 import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Textarea } from '@/components/ui/textarea';
 import {
-  Loader2, AlertCircle, Mic, Video as VideoIcon, Square, RotateCcw, Trash2, CheckCircle2,
+  Loader2, AlertCircle, Mic, Video as VideoIcon, Square, RotateCcw, Trash2, CheckCircle2, ArrowLeft,
 } from 'lucide-react';
 import type { GalleryTheme } from '@/lib/galleryTheme';
 import { useGuestbookUpload } from '@/hooks/useGuestbookUpload';
@@ -20,10 +24,12 @@ interface Props {
   accent: string;
   /** Bumped by the parent after a successful upload to force an immediate refresh. */
   refreshKey?: number;
-  /** Audio Guestbook (audio + video recordings) enabled by the host. */
+  /** @deprecated Legacy setting ignored: Guestbook is always available. */
   voiceEnabled?: boolean;
-  /** Digital Guestbook (written messages) enabled by the host. */
+  /** @deprecated Legacy setting ignored: Guestbook is always available. */
   textEnabled?: boolean;
+  onBackToApp?: () => void;
+  successStyle?: React.CSSProperties;
 }
 
 const MAX_SECONDS = 60;
@@ -146,11 +152,27 @@ function useRecorder(kind: 'audio' | 'video', onError: (m: string) => void) {
 }
 
 export const GuestGuestbookTab: React.FC<Props> = ({
-  token, theme, accent: _accent, refreshKey: _refreshKey = 0, voiceEnabled = true, textEnabled = true,
+  token, theme, accent: _accent, refreshKey: _refreshKey = 0, onBackToApp, successStyle,
 }) => {
+  const { t } = useTranslation('common');
+  const backToApp = () => onBackToApp && (
+    <Button type="button" variant="outline" className={`w-full sm:flex-1 h-12 text-base ${publicUploadStyles.successSecondaryAction}`} onClick={onBackToApp}>
+      <ArrowLeft className="h-4 w-4 mr-2" aria-hidden="true" />{t('guestbookBackToApp')}
+    </Button>
+  );
   const [name, setName] = useState('');
   const [formError, setFormError] = useState<string | null>(null);
-  const [done, setDone] = useState<string | null>(null);
+  const [hasSubmission, setHasSubmission] = useState(false);
+  const [success, setSuccess] = useState<{ kind: 'text' | 'audio' | 'video'; name: string } | null>(null);
+  const successHeading = useRef<HTMLHeadingElement>(null);
+  useEffect(() => {
+    if (!success) return;
+    const previousFocus = document.activeElement as HTMLElement | null;
+    const previousOverflow = document.body.style.overflow;
+    document.body.style.overflow = 'hidden';
+    successHeading.current?.focus();
+    return () => { document.body.style.overflow = previousOverflow; previousFocus?.focus(); };
+  }, [success]);
   const [message, setMessage] = useState('');
   const [textSubmitted, setTextSubmitted] = useState(false);
   const [recordingSubmitted, setRecordingSubmitted] = useState({ audio: false, video: false });
@@ -192,8 +214,12 @@ export const GuestGuestbookTab: React.FC<Props> = ({
     return false;
   };
 
-  const thanks = 'Thank you - your message has been added to the guestbook. You can leave another message below.';
-  const showTextActions = textEnabled && message.trim().length > 0;
+  const showTextActions = message.trim().length > 0;
+  const confirmation = (kind: 'text' | 'audio' | 'video') => (
+    <div className={`rounded-md border text-sm p-3 flex items-start gap-2 ${publicUploadStyles.guestbookSuccess}`} role="status">
+      <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" aria-hidden="true" /><span>{t(`guestbookMessages.${kind}Saved`)}</span>
+    </div>
+  );
 
   const saveText = async () => {
     if (saveLock.current.text) return;
@@ -203,7 +229,6 @@ export const GuestGuestbookTab: React.FC<Props> = ({
     if (!requireName()) return;
     saveLock.current.text = true;
     setSavingText(true);
-    setDone(null);
     try {
       const { error } = await (supabase as any).rpc('submit_event_guestbook_text', {
         _token: token, _uploader_name: name.trim(), _message: value,
@@ -211,7 +236,8 @@ export const GuestGuestbookTab: React.FC<Props> = ({
       if (error) throw error;
       setMessage('');
       setTextSubmitted(true);
-      setDone(thanks);
+      setHasSubmission(true);
+      setSuccess({ kind: 'text', name: name.trim().split(/\s+/)[0] });
     } catch (e: any) {
       setFormError(e?.message || 'Could not save your message. Please try again.');
     } finally {
@@ -220,7 +246,7 @@ export const GuestGuestbookTab: React.FC<Props> = ({
     }
   };
 
-  const removeText = () => { setMessage(''); setFormError(null); setDone(null); };
+  const removeText = () => { setMessage(''); setFormError(null); };
 
   const saveRecording = async (kind: 'audio' | 'video') => {
     if (saveLock.current.audio || saveLock.current.video) return;
@@ -230,7 +256,6 @@ export const GuestGuestbookTab: React.FC<Props> = ({
     if (!requireName()) return;
     saveLock.current[kind] = true;
     setSavingKind(kind);
-    setDone(null);
     try {
       const mime = normalizeMime(rec.mime || rec.blob.type || (kind === 'audio' ? 'audio/webm' : 'video/webm'));
       const result = await upload(rec.blob, {
@@ -242,7 +267,8 @@ export const GuestGuestbookTab: React.FC<Props> = ({
       if (!result) throw new Error('Could not save your ' + kind + ' message. Your recording is still here - please try again.');
       rec.discard();
       setRecordingSubmitted(previous => ({ ...previous, [kind]: true }));
-      setDone(thanks);
+      setHasSubmission(true);
+      setSuccess({ kind, name: name.trim().split(/\s+/)[0] });
     } catch (e: any) {
       setFormError(e?.message || 'Could not save your recording. Please try again.');
     } finally {
@@ -254,7 +280,6 @@ export const GuestGuestbookTab: React.FC<Props> = ({
   const removeRecording = (kind: 'audio' | 'video') => {
     (kind === 'audio' ? audio : video).discard();
     setFormError(null);
-    setDone(null);
   };
 
   const recordAgain = async (kind: 'audio' | 'video') => {
@@ -280,12 +305,44 @@ export const GuestGuestbookTab: React.FC<Props> = ({
   );
 
   return (
-    <div className="space-y-6">
+    <>
+    {success && createPortal(
+      <div className="fixed inset-0 z-[110] overflow-y-auto" role="dialog" aria-modal="true" aria-label={t('guestbookSuccess.thankYou', { name: success.name })} onKeyDown={event => {
+        if (event.key !== 'Tab') return;
+        const controls = event.currentTarget.querySelectorAll<HTMLElement>('button, a[href]');
+        const first = controls[0];
+        const last = controls[controls.length - 1];
+        if (event.shiftKey && (document.activeElement === first || document.activeElement === successHeading.current)) { event.preventDefault(); last?.focus(); }
+        else if (!event.shiftKey && document.activeElement === last) { event.preventDefault(); first?.focus(); }
+      }}>
+        <div className="min-h-screen flex items-center justify-center px-4 py-10 overflow-x-hidden" style={successStyle}>
+          <GuestMediaSuccessCard theme={theme} greeting={t('guestbookSuccess.thankYou', { name: success.name })} headingRef={successHeading}>
+            <p className={`text-base mt-3 leading-relaxed ${publicUploadStyles.successCopy}`}>{t('guestbookSuccess.received')}</p>
+            <div role="status" className={`mt-5 rounded-xl border-2 p-3.5 flex items-center justify-center gap-2 text-sm ${publicUploadStyles.successStatus}`}>
+              <CheckCircle2 aria-hidden="true" className={`h-4 w-4 shrink-0 ${publicUploadStyles.statusSuccess}`} />
+              <span>{t(`guestbookMessages.${success.kind}Saved`)}</span>
+            </div>
+            <div className="mt-6 space-y-2.5">
+              <Button type="button" className={`w-full min-h-12 h-auto whitespace-normal py-3 text-base font-semibold rounded-xl px-3 ${publicUploadStyles.successPrimaryAction}`} onClick={() => {
+                if (success.kind === 'text') setTextSubmitted(false);
+                else setRecordingSubmitted(previous => ({ ...previous, [success.kind]: false }));
+                setSuccess(null);
+              }}>{t('guestbookSuccess.another')}</Button>
+              {onBackToApp && <Button type="button" variant="outline" className={`w-full min-h-12 h-auto whitespace-normal py-3 text-base ${publicUploadStyles.successSecondaryAction}`} onClick={() => { setSuccess(null); onBackToApp(); }}>
+                <ArrowLeft aria-hidden="true" className="h-4 w-4 mr-2" />{t('guestbookSuccess.return')}
+              </Button>}
+            </div>
+            {theme.showBranding && <GalleryFooterLogo className={`mt-3 ${publicUploadStyles.successLogo}`} tone="brown" />}
+          </GuestMediaSuccessCard>
+        </div>
+      </div>, document.body,
+    )}
+    <div className="space-y-6" hidden={success !== null}>
       <div className={`${cardClass} ${publicUploadStyles.uploadPanel} ${publicUploadStyles.guestbookPanel} space-y-6 overflow-hidden min-w-0`}>
         <div className="text-center">
           <h2 className={`text-xl font-bold ${publicUploadStyles.sectionHeading}`}>Sign the Guestbook</h2>
           <p className={`text-sm mt-1 ${publicUploadStyles.secondaryText}`}>
-            Leave a written, audio or video message—or any combination.<br />The host may share your message in the guest gallery. Only submit content you are happy for other guests to see.
+            {t('guestbookPrivacy.intro')}<br />{t('guestbookPrivacy.notice')}
           </p>
         </div>
 
@@ -304,16 +361,19 @@ export const GuestGuestbookTab: React.FC<Props> = ({
         </div>
 
         {/* Option A — written message */}
-        {textEnabled && (
+        {(
           <div className={optionClass} style={{ borderColor: "#967A59" }}>
             <div className="flex items-center gap-2">
-              {badge('A')}
-              <h3 className={`text-base font-semibold ${publicUploadStyles.sectionHeading}`}>Leave a Digital Guestbook Message</h3>
+              {badge('1')}
+              <h3 className={`text-base font-semibold ${publicUploadStyles.sectionHeading}`}>{t('guestbookMessages.textTitle')}</h3>
             </div>
             {textSubmitted ? (
-              <Button type="button" className={`ww-emboss-green w-full h-12 text-base ${publicUploadStyles.primaryAction}`} onClick={() => { setTextSubmitted(false); setDone(null); }}>
-                Write Another Message
+              <div className="space-y-3">
+              {confirmation('text')}
+              <Button type="button" className={`ww-emboss-green w-full min-h-12 h-auto whitespace-normal py-3 text-base ${publicUploadStyles.primaryAction}`} onClick={() => { setTextSubmitted(false); }}>
+                {t('guestbookMessages.textAgain')}
               </Button>
+              </div>
             ) : <Textarea
               id="gb-text"
               disabled={savingText}
@@ -351,22 +411,25 @@ export const GuestGuestbookTab: React.FC<Props> = ({
         )}
 
         {/* Option B — audio message */}
-        {voiceEnabled && (
+        {(
           <div className={optionClass} style={{ borderColor: "#967A59" }}>
             <div className="flex items-center gap-2">
-              {badge('B')}
-              <h3 className={`text-base font-semibold ${publicUploadStyles.sectionHeading}`}>Leave an Audio Guestbook Message</h3>
+              {badge('2')}
+              <h3 className={`text-base font-semibold ${publicUploadStyles.sectionHeading}`}>{t('guestbookMessages.audioTitle')}</h3>
             </div>
             <p className={`text-xs ${publicUploadStyles.secondaryText}`}>Record an audio message of up to 60 seconds.</p>
 
             {audio.phase === 'idle' && (
+              <div className="space-y-3">
+              {recordingSubmitted.audio && confirmation('audio')}
               <Button
                 type="button"
-                className={`ww-emboss-green ww-emboss-green-no-drop w-full h-12 text-base ${publicUploadStyles.primaryAction}`}
-                onClick={() => { setDone(null); setFormError(null); void audio.start(); }}
+                className={`ww-emboss-green ww-emboss-green-no-drop w-full min-h-12 h-auto whitespace-normal py-3 text-base ${publicUploadStyles.primaryAction}`}
+                onClick={() => { setRecordingSubmitted(previous => ({ ...previous, audio: false })); setFormError(null); void audio.start(); }}
               >
-                <Mic className="h-5 w-5 mr-2 text-white" /> {recordingSubmitted.audio ? 'Record Again' : 'Start Audio Message'}
+                <Mic className="h-5 w-5 mr-2 text-white" /> {recordingSubmitted.audio ? t('guestbookMessages.audioAgain') : 'Start Audio Message'}
               </Button>
+              </div>
             )}
 
             {(audio.phase === 'preview' || audio.phase === 'recording') && (
@@ -432,22 +495,25 @@ export const GuestGuestbookTab: React.FC<Props> = ({
         )}
 
         {/* Option C — video message */}
-        {voiceEnabled && (
+        {(
           <div className={optionClass} style={{ borderColor: "#967A59" }}>
             <div className="flex items-center gap-2">
-              {badge('C')}
-              <h3 className={`text-base font-semibold ${publicUploadStyles.sectionHeading}`}>Leave a Video Guestbook Message</h3>
+              {badge('3')}
+              <h3 className={`text-base font-semibold ${publicUploadStyles.sectionHeading}`}>{t('guestbookMessages.videoTitle')}</h3>
             </div>
             <p className={`text-xs ${publicUploadStyles.secondaryText}`}>Record a video message of up to 60 seconds.</p>
 
             {video.phase === 'idle' && (
+              <div className="space-y-3">
+              {recordingSubmitted.video && confirmation('video')}
               <Button
                 type="button"
-                className={`ww-emboss-green ww-emboss-green-no-drop w-full h-12 text-base ${publicUploadStyles.primaryAction}`}
-                onClick={() => { setDone(null); setFormError(null); void video.start(); }}
+                className={`ww-emboss-green ww-emboss-green-no-drop w-full min-h-12 h-auto whitespace-normal py-3 text-base ${publicUploadStyles.primaryAction}`}
+                onClick={() => { setRecordingSubmitted(previous => ({ ...previous, video: false })); setFormError(null); void video.start(); }}
               >
-                <VideoIcon className="h-5 w-5 mr-2 text-white" /> {recordingSubmitted.video ? 'Record Again' : 'Start Video Message'}
+                <VideoIcon className="h-5 w-5 mr-2 text-white" /> {recordingSubmitted.video ? t('guestbookMessages.videoAgain') : 'Start Video Message'}
               </Button>
+              </div>
             )}
 
             {(video.phase === 'preview' || video.phase === 'recording') && (
@@ -523,13 +589,10 @@ export const GuestGuestbookTab: React.FC<Props> = ({
             <AlertCircle className="h-4 w-4 mt-0.5 shrink-0" /> <span className="break-words">{formError}</span>
           </div>
         )}
-        {done && (
-          <div className={`rounded-md border text-sm p-3 flex items-start gap-2 ${publicUploadStyles.guestbookSuccess}`} role="status">
-            <CheckCircle2 className="h-4 w-4 mt-0.5 shrink-0" /> <span>{done}</span>
-          </div>
-        )}
+        {hasSubmission && backToApp()}
       </div>
     </div>
+    </>
   );
 };
 

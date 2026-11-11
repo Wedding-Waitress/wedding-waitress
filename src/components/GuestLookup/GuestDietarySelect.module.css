@@ -1,0 +1,25 @@
+.trigger {
+  background: linear-gradient(180deg, #302017, #160d08) !important;
+  color: #fff !important;
+  border-color: #806344 !important;
+  touch-action: manipulation;
+}
+.menu.menu {
+  z-index: 12000 !important;
+  max-height: min(320px, var(--radix-select-content-available-height));
+  max-width: calc(100vw - 24px);
+  background: #24160f !important;
+  border: 1px solid #806344 !important;
+  color: #fff !important;
+}
+.menu.menu .option {
+  min-height: 40px;
+  background: #24160f !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+.menu.menu .option[data-highlighted],
+.menu.menu .option[data-state="checked"] {
+  background: #4b3020 !important;
+  color: #fff !important;
+}

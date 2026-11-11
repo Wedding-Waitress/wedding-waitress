@@ -2,8 +2,7 @@
 // Written Messages · Audio Messages · Video Messages.
 // Written messages come from public.event_guestbook_messages (plus notes attached to recordings).
 // Audio / video recordings come from event_media_items (source_category = 'guestbook_recording').
-// Recordings stay PRIVATE unless the organiser deliberately clicks "Add to Gallery".
-import { GuestbookAutoShare } from './GuestbookAutoShare';
+// All Guestbook content stays private to event organisers.
 import React, { useCallback, useEffect, useMemo, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
@@ -13,7 +12,7 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import {
   MessageSquareText, Mic2, Video, Play, Search, CircleCheck, EyeOff, Download, RotateCcw,
-  LoaderCircle, TriangleAlert, ImagePlus, ImageMinus,
+  LoaderCircle, TriangleAlert,
 } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -49,7 +48,7 @@ interface Props {
   loading?: boolean;
   error?: string | null;
   onSetItemModeration: (id: string, status: Status) => Promise<void>;
-  onSetGuestbookShare: (id: string, shared: boolean) => Promise<void>;
+  onRefreshRecordings?: () => Promise<void>;
   appearance?: 'default' | 'espresso-glass';
   readOnly?: boolean;
   readOnlyTextRows?: TextRow[];
@@ -75,7 +74,7 @@ function csvCell(v: string) {
 const GRID = 'grid gap-3 grid-cols-1 min-[420px]:grid-cols-2 md:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8';
 
 export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
-  eventId, items, eventName, loading, error, onSetItemModeration, onSetGuestbookShare, appearance = 'default', readOnly = false, readOnlyTextRows, readOnlyRecordingPlayer,
+  eventId, items, eventName, loading, error, onSetItemModeration, onRefreshRecordings, appearance = 'default', readOnly = false, readOnlyTextRows, readOnlyRecordingPlayer,
 }) => {
   const isGlass = appearance === 'espresso-glass';
   const { toast } = useToast();
@@ -83,6 +82,8 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
   const [textRows, setTextRows] = useState<TextRow[]>([]);
   const [textLoading, setTextLoading] = useState(false);
   const [textError, setTextError] = useState<string | null>(null);
+  const [refreshing, setRefreshing] = useState(false);
+  const [refreshError, setRefreshError] = useState<string | null>(null);
   const [search, setSearch] = useState('');
   const [sort, setSort] = useState<'newest' | 'oldest'>('newest');
   const [statusFilter, setStatusFilter] = useState<'all' | Status>('all');
@@ -116,6 +117,18 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
   }, [eventId,readOnly,readOnlyTextRows]);
 
   useEffect(() => { load(); }, [load]);
+
+  const refreshMessages = async () => {
+    setRefreshing(true);
+    setRefreshError(null);
+    try {
+      const results = await Promise.allSettled([load(), readOnly ? undefined : onRefreshRecordings?.()]);
+      const failure = results.find(result => result.status === 'rejected');
+      if (failure?.status === 'rejected') throw failure.reason;
+    } catch (cause) {
+      setRefreshError(cause instanceof Error ? cause.message : 'Could not refresh recordings');
+    } finally { setRefreshing(false); }
+  };
 
   // Written notes attached to recordings — surfaced in the Written tab, recording untouched.
   const noteRows: TextRow[] = useMemo(() => items
@@ -211,32 +224,6 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
   };
 
   // ---- Recording actions ----
-  const handleShare = async (item: GalleryItem, shared: boolean) => {
-    if (readOnly) return;
-    try {
-      await onSetGuestbookShare(item.id, shared);
-      toast({ title: shared ? 'Added to gallery' : 'Removed from gallery' });
-    } catch (e: any) {
-      toast({ title: 'Could not update', description: e?.message || 'Please try again.', variant: 'destructive' });
-    }
-  };
-
-  const handleShareBulk = async (shared: boolean) => {
-    if (readOnly) return;
-    const list = tab === 'audio' ? audioRows : videoRows;
-    const targets = list.filter(i => selected.has(i.id));
-    if (targets.length === 0) return;
-    setBusy(true);
-    try {
-      for (const t of targets) await onSetGuestbookShare(t.id, shared);
-      toast({ title: shared ? 'Added to gallery' : 'Removed from gallery', description: `${targets.length} recording${targets.length === 1 ? '' : 's'} updated.` });
-      resetSelection();
-      setSelectMode(false);
-    } catch (e: any) {
-      toast({ title: 'Could not update', description: e?.message || 'Please try again.', variant: 'destructive' });
-    } finally { setBusy(false); }
-  };
-
   const handleDownload = async (item: GalleryItem) => {
     if (!item.signed_url) {
       toast({ title: 'Recording unavailable', description: 'This file is still processing. Please refresh and try again.', variant: 'destructive' });
@@ -290,7 +277,6 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
   ];
 
   const renderRecordingCard = (item: GalleryItem) => {
-    const shared = item.shared_to_gallery === true;
     return (
       <li key={item.id} className={cn('rounded-xl border border-border bg-[#FBF8F3] overflow-hidden min-w-0 flex flex-col', isGlass && managementStyles.guestbookMessageCard, selected.has(item.id) && isGlass && managementStyles.guestbookMessageCardSelected)}>
         <button
@@ -331,11 +317,6 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
           <span className={`absolute bottom-1.5 right-1.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full ${item.moderation_status === 'hidden' ? 'bg-white/90 text-[#6E6E73]' : 'bg-green-100 text-green-800'}`}>
             {item.moderation_status === 'hidden' ? 'Hidden' : 'Approved'}
           </span>
-          {shared && (
-            <span className="absolute top-1.5 right-1.5 text-[10px] font-semibold px-1.5 py-0.5 rounded-full bg-[#967A59] text-white">
-              In Gallery
-            </span>
-          )}
         </button>
 
         <div className={cn('p-2 space-y-1 flex-1 flex flex-col min-w-0', isGlass && managementStyles.guestbookMessageBody)}>
@@ -350,15 +331,6 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
           )}
           {!item.signed_url && <p className={cn('text-[11px] text-muted-foreground', isGlass && managementStyles.gallerySecondaryText)}>{readOnly ? 'Open to verify recording.' : 'Still processing.'}</p>}
           <div className="flex gap-1 pt-1 mt-auto">
-            {!readOnly && (shared ? (
-              <Button size="sm" variant="outline" className={cn('lv-premium-shade flex-1 h-8 px-1 text-[11px]', isGlass && managementStyles.galleryControl)} onClick={() => handleShare(item, false)}>
-                <ImageMinus className="h-3.5 w-3.5 mr-1" strokeWidth={1.8} /> Remove
-              </Button>
-            ) : (
-              <Button size="sm" variant="outline" className={cn('lv-premium-shade flex-1 h-8 px-1 text-[11px]', isGlass && managementStyles.galleryControl)} onClick={() => handleShare(item, true)}>
-                <ImagePlus className="h-3.5 w-3.5 mr-1" strokeWidth={1.8} /> Add to Gallery
-              </Button>
-            ))}
             <Button size="sm" variant="outline" className={cn('lv-premium-shade h-8 px-2', isGlass && managementStyles.galleryControl)} title="Download" aria-label="Download recording" onClick={() => handleDownload(item)} disabled={!item.signed_url}>
               <Download className="h-3.5 w-3.5" strokeWidth={1.8} />
             </Button>
@@ -379,8 +351,8 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
             <span className="min-w-0 break-words">Guestbook Messages ({allWritten.length + recordings.length})</span>
           </h2>
         <div className="grid w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end lg:w-auto lg:shrink-0" data-guestbook-toolbar="actions">
-          <Button variant="outline" size="sm" className={cn('lv-premium-shade h-10', isGlass && managementStyles.galleryControl)} onClick={() => load()} disabled={textLoading}>
-            {textLoading ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <RotateCcw className="h-4 w-4 mr-1" strokeWidth={1.8} />} Refresh
+          <Button variant="outline" size="sm" className={cn('lv-premium-shade h-10', isGlass && managementStyles.galleryControl)} onClick={() => void refreshMessages()} disabled={textLoading || refreshing}>
+            {textLoading || refreshing ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <RotateCcw className="h-4 w-4 mr-1" strokeWidth={1.8} />} Refresh
           </Button>
           <Button
             variant="outline"
@@ -397,7 +369,6 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
           </Button>
         </div>
       </div>
-      {!readOnly && <GuestbookAutoShare key={eventId} eventId={eventId} />}
 
       <div
         className="grid grid-cols-2 items-center gap-3 xl:grid-cols-[minmax(220px,1fr)_repeat(3,max-content)_140px_140px]"
@@ -408,6 +379,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
           <Input
             value={search}
             onChange={(e) => setSearch(e.target.value)}
+            aria-label="Search by guest name or message"
             placeholder="Search by guest name or message…"
             className={cn('h-11 pl-9 text-base', isGlass && managementStyles.galleryControl)}
           />
@@ -433,14 +405,14 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
           ))}
         </div>
         <Select value={sort} onValueChange={(v) => setSort(v as 'newest' | 'oldest')}>
-          <SelectTrigger className={cn('h-11 w-full min-w-0', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+          <SelectTrigger aria-label="Sort messages" className={cn('h-11 w-full min-w-0', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
           <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
             <SelectItem value="newest" className={cn(isGlass && managementStyles.gallerySelectItem)}>Newest first</SelectItem>
             <SelectItem value="oldest" className={cn(isGlass && managementStyles.gallerySelectItem)}>Oldest first</SelectItem>
           </SelectContent>
         </Select>
         <Select value={statusFilter} onValueChange={(v) => setStatusFilter(v as 'all' | Status)}>
-          <SelectTrigger className={cn('h-11 w-full min-w-0', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+          <SelectTrigger aria-label="Filter messages by status" className={cn('h-11 w-full min-w-0', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
           <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
             <SelectItem value="all" className={cn(isGlass && managementStyles.gallerySelectItem)}>All statuses</SelectItem>
             <SelectItem value="approved" className={cn(isGlass && managementStyles.gallerySelectItem)}>Approved</SelectItem>
@@ -448,10 +420,6 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
           </SelectContent>
         </Select>
       </div>
-
-
-
-
 
       {!readOnly && selectMode && (
         <div className={cn('flex flex-wrap items-center gap-3 rounded-lg border border-border bg-muted/40 p-3', isGlass && managementStyles.galleryViewInsetPanel)}>
@@ -464,7 +432,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
           </label>
           <span className={cn('text-sm text-[#6E6E73]', isGlass && managementStyles.gallerySecondaryText)}>{selected.size} selected</span>
           <div className="flex flex-wrap gap-2 ml-auto">
-            {tab === 'written' ? (
+            {tab === 'written' && (
               <>
                 <Button size="sm" variant="outline" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} disabled={busy || selected.size === 0} onClick={() => handleWrittenBulk('approved')}>
                   {busy ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <CircleCheck className="h-4 w-4 mr-1" strokeWidth={1.8} />} Approve
@@ -473,24 +441,15 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
                   {busy ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <EyeOff className="h-4 w-4 mr-1" strokeWidth={1.8} />} Hide
                 </Button>
               </>
-            ) : (
-              <>
-                <Button size="sm" variant="outline" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} disabled={busy || selected.size === 0} onClick={() => handleShareBulk(true)}>
-                  {busy ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <ImagePlus className="h-4 w-4 mr-1" strokeWidth={1.8} />} Add to Gallery
-                </Button>
-                <Button size="sm" variant="outline" className={cn('lv-premium-shade', isGlass && managementStyles.galleryControl)} disabled={busy || selected.size === 0} onClick={() => handleShareBulk(false)}>
-                  {busy ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <ImageMinus className="h-4 w-4 mr-1" strokeWidth={1.8} />} Remove from Gallery
-                </Button>
-              </>
             )}
           </div>
         </div>
       )}
 
-      {(error || textError) && (
+      {(error || textError || refreshError) && (
         <div className={cn('flex items-start gap-2 p-3 rounded-md border border-destructive/40 bg-destructive/5', isGlass && managementStyles.guestbookStatePanel)}>
           <TriangleAlert className="h-4 w-4 text-destructive mt-0.5 shrink-0" strokeWidth={1.8} />
-          <p className="text-sm text-destructive break-words">{error || textError}</p>
+          <p className="text-sm text-destructive break-words">{error || textError || refreshError}</p>
         </div>
       )}
 

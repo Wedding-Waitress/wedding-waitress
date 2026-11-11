@@ -1,3 +1,4 @@
+import {TrialLimitChoice}from'@/components/Subscription/TrialLimitChoice';
 import React, { useEffect, useState } from 'react';
 import {
   Dialog,
@@ -7,13 +8,20 @@ import {
   DialogFooter,
 } from "@/components/ui/dialog";
 import { Button } from "@/components/ui/enhanced-button";
-import { PartyPopper, AlertTriangle, Plus } from 'lucide-react';
+import { PartyPopper, AlertTriangle, Plus, Sparkles } from 'lucide-react';
+import { guestPlanDisplayName } from '@/lib/guestEntitlement';
 
 interface GuestLimitDialogProps {
   isOpen: boolean;
   onClose: () => void;
   variant: 'congratulations' | 'exceeded';
   guestLimit: number;
+  planName?: string | null;
+  planGuestLimit?: number | null;
+  isTrial?: boolean;
+  trialStartedAt?: string | null;
+  trialEndsAt?: string | null;
+  onUpgradePlan?: () => void;
   onBuyCapacity?: () => void;
 }
 
@@ -37,6 +45,12 @@ export const GuestLimitDialog: React.FC<GuestLimitDialogProps> = ({
   onClose,
   variant,
   guestLimit,
+  planName,
+  planGuestLimit,
+  isTrial = false,
+  trialStartedAt,
+  trialEndsAt,
+  onUpgradePlan,
   onBuyCapacity,
 }) => {
   const [showConfetti, setShowConfetti] = useState(false);
@@ -49,6 +63,7 @@ export const GuestLimitDialog: React.FC<GuestLimitDialogProps> = ({
     }
   }, [isOpen, variant]);
 
+  if(isTrial&&onUpgradePlan)return <TrialLimitChoice trialStartedAt={trialStartedAt} trialEndsAt={trialEndsAt} open={isOpen} onContinue={onClose} onChoosePackage={onUpgradePlan}/>;
   if (variant === 'congratulations') {
     return (
       <Dialog open={isOpen} onOpenChange={onClose}>
@@ -81,7 +96,7 @@ export const GuestLimitDialog: React.FC<GuestLimitDialogProps> = ({
               </p>
               <p className="text-sm text-green-600">
                 {onBuyCapacity
-                  ? 'You can add more space in whole blocks of 10 guests for A$10 per block.'
+                  ? 'You can add more space in whole blocks of 10 guests for A$11 per block including GST.'
                   : <>If you want to add more guests, please change your guest limit in <span className="font-semibold">My Events</span>.</>}
               </p>
             </div>
@@ -100,6 +115,8 @@ export const GuestLimitDialog: React.FC<GuestLimitDialogProps> = ({
   }
 
   // Exceeded variant
+  const displayPlanName = guestPlanDisplayName(planName);
+  const includedGuests = planGuestLimit ?? guestLimit;
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
       <DialogContent className="ww-table-limit-dialog ww-guest-list-typography max-w-md border-red-300">
@@ -113,20 +130,20 @@ export const GuestLimitDialog: React.FC<GuestLimitDialogProps> = ({
             Guest Limit Reached
           </h2>
           <p className="text-base text-red-600">
-            You have reached your guest limit of {guestLimit}.
-          </p>
-          <p className="text-sm text-red-500">
-            {onBuyCapacity
-              ? 'Add more capacity in whole blocks of 10 guests for A$10 per block.'
-              : <>If you want to add more guests, please change your guest limit in <span className="font-semibold">My Events</span> first.</>}
+            You&rsquo;re currently on the {isTrial ? displayPlanName : `${displayPlanName} plan`}, which includes up to {includedGuests} guests. You have reached your guest limit.
           </p>
         </div>
-        <DialogFooter className="mt-4 gap-2">
-          {onBuyCapacity && <Button onClick={onBuyCapacity} className="bg-green-500 hover:bg-green-600 text-white rounded-full">
-            <Plus className="mr-2 h-4 w-4" /> Add Guest Capacity
+        <DialogFooter className="mt-4 gap-2 sm:flex-col">
+          {onUpgradePlan && <Button onClick={onUpgradePlan} className="w-full bg-green-500 hover:bg-green-600 text-white rounded-full">
+            <Sparkles className="mr-2 h-4 w-4" /> Upgrade Plan &mdash; Pay Only the Difference
           </Button>}
-          <Button onClick={onClose} className="bg-red-500 hover:bg-red-600 text-white rounded-full">
-            Understood
+          {isTrial
+            ? onUpgradePlan && <Button variant="outline" onClick={onUpgradePlan} className="w-full rounded-full">View Plans</Button>
+            : onBuyCapacity && <Button variant="outline" onClick={onBuyCapacity} className="w-full rounded-full">
+                <Plus className="mr-2 h-4 w-4" /> Add 10 More Guests
+              </Button>}
+          <Button variant="ghost" onClick={onClose} className="w-full rounded-full">
+            Not now
           </Button>
         </DialogFooter>
       </DialogContent>

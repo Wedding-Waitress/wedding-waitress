@@ -1,5 +1,13 @@
 # Protected feature baselines
 
+## Public multilingual content contract
+
+- Every future public frontend copy addition or change must include reviewed translations for every language offered by the shared header dropdown. This includes headings, paragraphs, navigation, buttons, form validation, placeholders, captions, meaningful image alt text and accessible labels. Keep the source and translations synchronized in the same change; missing translations are unfinished work, not an acceptable silent English fallback.
+- Reuse shared header, footer and copy catalogues. Preserve the selected public language across navigation, Arabic RTL and responsive usability. Dashboards/admin remain English. Blog article bodies are intentionally excluded; the blog index/interface, header and footer remain multilingual.
+- Share images without meaningful embedded text. Prefer translated HTML text outside images; otherwise provide reviewed localized assets and translated alt text. Do not translate customer-entered data or identifiers.
+- Run `npm.cmd run check:public-translations` and relevant source-based translation tests for each public copy change, followed by browser review of the affected sections in the selected languages. A coverage check does not establish linguistic accuracy or full visual correctness.
+- These requirements are a development contract, not runtime automatic translation. Do not introduce paid external translation services without explicit approval. Do not change deployment authorization.
+
 ## Preview–Print–PDF mirror contract
 
 All printable document work must follow [docs/PRINT_PDF_MIRROR_CONTRACT.md](docs/PRINT_PDF_MIRROR_CONTRACT.md). A preview, browser print, and PDF must use one authoritative renderer and intrinsic geometry. Export-only code may neutralise external preview presentation, but must not alter document content or layout. Every printable change requires a rendered-PDF comparison; passing unit tests alone is not sufficient.
@@ -48,3 +56,7 @@ Treat the Individual Table Charts feature as an approved, protected baseline.
 - Owner approved Event Budget as the reference across existing Export Controls panels on 8 September 2026: Manrope 14px semibold, 21px line height, espresso #2f1b14 text, left 16px printer icon in #806344, 6px icon gap, and 12px panel padding on every side.
 - Use src/styles/exportControlsReference.css and the data-export-controls-heading / data-export-controls-panel attributes. Remove visible explanatory subheadings from these panels; preserve functional progress/error feedback and accessible descriptions.
 - Budget's Print Budget and Download PDF buttons sit side by side in that order below its heading. Other action layouts remain page-specific.
+
+## Public blog prose and CTA consistency
+- Owner requested on 22 October 2026: avoid dash punctuation and hyphenated prose throughout the blog listing and article copy. Preserve slugs, URLs, dates and technical identifiers. Use cleanBlogPost/cleanBlogProse in the shared blog content path so future posts follow the same presentation rule.
+- Every article planning CTA uses the shared embossed espresso gradient/shadow, white wording and a thin white outline through ww-blog-cta-button. Preserve its signup action.

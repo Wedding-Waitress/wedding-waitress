@@ -16,3 +16,5 @@ describe('recorded subscription, without billing operations',()=>{
   render(<AdminReadOnlyRecordedSubscription ownerId="owner" subscription={subscription}/>);expect(screen.getByRole('alert')).toHaveTextContent('Complete owned subscription information is unavailable.');
  });
 });
+
+it.each([['Essential',100,'Essential'],['Premium',200,'Premium'],['Unlimited',400,'Ultimate'],['Ultimate',400,'Ultimate']])('shows stored %s plan identity and actual cap',(plan_name,guest_limit,display)=>{render(<AdminReadOnlyRecordedSubscription ownerId="owner" subscription={{...saved,plan_name,guest_limit}}/>);expect(screen.getByText(display)).toBeInTheDocument();expect(screen.getByText('Plan guest capacity').parentElement).toHaveTextContent(String(guest_limit));});

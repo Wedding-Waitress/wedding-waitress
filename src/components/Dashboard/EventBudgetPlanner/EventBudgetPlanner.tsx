@@ -39,8 +39,7 @@ const SORT_OPTIONS: Array<[SortKey, string]> = [
 
 const expenseCategory = (expense: EventBudgetExpense): string => expense.category === 'Other' ? expense.custom_category || 'Other' : expense.category;
 const expenseTitle = (expense: EventBudgetExpense): string => expense.vendor_name || expense.expense_name || expenseCategory(expense);
-const formatBudgetDisplay = (currency: CurrencyCode, value: number): string =>
-  currency === 'AUD' ? formatBudgetCurrency(currency, value).replace(/^A\$/, '$') : formatBudgetCurrency(currency, value);
+const formatBudgetDisplay = formatBudgetCurrency;
 
 const MoneyBagIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
   <svg
@@ -230,15 +229,15 @@ export const EventBudgetPlannerView: React.FC<{event:BudgetPlannerEvent;exportTa
 
       {visibleExpenses.length > 0 && <>
         <div className={styles.tableRegion} aria-label="Event budget expenses table">
-          <table className={styles.expenseTable}><thead><tr><th>Category</th><th>Business Name</th><th>Contact Details</th><th>Budgeted Cost</th><th>Actual Cost</th><th>Amount Paid</th><th>Amount Outstanding</th><th>Payment Date</th><th>Balance Due</th><th>Status</th><th>Actions</th></tr></thead>
+          <table className={styles.expenseTable}><colgroup><col className={styles.categoryColumn}/><col className={styles.businessColumn}/><col className={styles.contactColumn}/><col className={styles.budgetedColumn}/><col className={styles.actualColumn}/><col className={styles.paidColumn}/><col className={styles.outstandingColumn}/><col className={styles.dateColumn}/><col className={styles.dateColumn}/><col className={styles.notesColumn}/><col className={styles.statusColumn}/><col className={styles.actionsColumn}/></colgroup><thead><tr><th className={styles.textHeaderColumn}>Category</th><th className={styles.textHeaderColumn}>Business Name</th><th className={styles.textHeaderColumn}>Contact Details</th><th className={styles.centeredColumn}>Budgeted Cost</th><th className={styles.centeredColumn}>Actual Cost</th><th className={styles.centeredColumn}>Amount Paid</th><th className={styles.centeredColumn}>Amount Outstanding</th><th className={styles.centeredColumn}>Payment Date</th><th className={styles.centeredColumn}>Balance Due</th><th className={styles.centeredColumn}>Notes</th><th className={styles.centeredColumn}>Status</th><th className={styles.centeredColumn}>Actions</th></tr></thead>
             <tbody>{visibleExpenses.map(expense => { const paymentStatus = getBudgetPaymentStatus(expense); return <tr key={expense.id}>
-              <td>{expenseCategory(expense)}</td><td><strong>{expenseTitle(expense)}</strong></td>
-              <td>{[expense.contact_person, expense.phone, expense.email, expense.address].filter(Boolean).map(line => <span key={line}>{line}</span>)}</td>
-              <td className={styles.money}>{expense.estimated_cost === null ? '—' : formatBudgetDisplay(currency, expense.estimated_cost)}</td><td className={styles.money}>{expense.actual_cost === null ? '—' : formatBudgetDisplay(currency, expense.actual_cost)}</td>
-              <td className={styles.money}>{formatBudgetDisplay(currency, expense.amount_paid)}</td><td className={styles.money}>{formatBudgetDisplay(currency, expenseOutstanding(expense))}</td>
-              <td>{formatAustralianDate(expense.payment_date)}</td><td>{formatAustralianDate(expense.balance_due_date)}</td>
-              <td><span className={styles.statusPill} data-status={paymentStatus}>{statusIcon(paymentStatus)}{paymentStatus}</span></td>
-              <td><button type="button" disabled={readOnly} className={`${styles.successButton} ${styles.tableEditButton}`} aria-label={`Edit ${expenseTitle(expense)}`} onClick={event => openEdit(expense, event.currentTarget)}><Edit3 size={14} aria-hidden="true" />Edit</button></td>
+              <td className={styles.textColumn}>{expenseCategory(expense)}</td><td className={styles.textColumn}><strong>{expenseTitle(expense)}</strong></td>
+              <td className={styles.textColumn}>{[expense.contact_person, expense.phone, expense.email, expense.address].filter(Boolean).map(line => <span key={line}>{line}</span>)}</td>
+              <td className={`${styles.money} ${styles.centeredColumn}`}>{expense.estimated_cost === null ? '—' : formatBudgetDisplay(currency, expense.estimated_cost)}</td><td className={`${styles.money} ${styles.centeredColumn}`}>{expense.actual_cost === null ? '—' : formatBudgetDisplay(currency, expense.actual_cost)}</td>
+              <td className={`${styles.money} ${styles.centeredColumn}`}>{formatBudgetDisplay(currency, expense.amount_paid)}</td><td className={`${styles.money} ${styles.centeredColumn}`}>{formatBudgetDisplay(currency, expenseOutstanding(expense))}</td>
+              <td className={styles.centeredColumn}>{formatAustralianDate(expense.payment_date)}</td><td className={styles.centeredColumn}>{formatAustralianDate(expense.balance_due_date)}</td><td className={styles.centeredColumn}>{expense.notes?.trim() ? 'Yes' : 'No'}</td>
+              <td className={styles.centeredColumn}><span className={styles.statusPill} data-status={paymentStatus}>{statusIcon(paymentStatus)}{paymentStatus}</span></td>
+              <td className={styles.centeredColumn}><button type="button" disabled={readOnly} className={`${styles.successButton} ${styles.tableEditButton}`} aria-label={`Edit ${expenseTitle(expense)}`} onClick={event => openEdit(expense, event.currentTarget)}><Edit3 size={14} aria-hidden="true" />Edit</button></td>
             </tr>; })}</tbody></table>
         </div>
         <div className={styles.mobileExpenses}>{visibleExpenses.map(expense => { const paymentStatus = getBudgetPaymentStatus(expense); return <article key={expense.id} className={styles.mobileExpenseCard}>

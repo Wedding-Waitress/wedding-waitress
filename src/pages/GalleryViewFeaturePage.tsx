@@ -9,9 +9,7 @@ import { FeatureWorkspaceStatePanel } from '@/components/Dashboard/PhotoVideoGal
 import { GalleryViewAccessCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryViewAccessCard';
 import { GalleryPasswordCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordCard';
 import { GalleryBrandingCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryBrandingCard';
-import { Button } from '@/components/ui/enhanced-button';
 import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
-import { Eye } from 'lucide-react';
 import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 
 export const GalleryViewFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelection>> = (selection) => {
@@ -40,6 +38,7 @@ export const GalleryViewFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelecti
     <>
       <SeoHead title="Photo & Video Gallery View | Wedding Waitress" description="Control how guests access, view and experience your shared gallery." noIndex />
       <FeatureWorkspaceLayout
+        hideSelectedEventPanel
         brownOutline
         backgroundAppearance="photo-video-sharing"
         controlsAppearance="photo-video-sharing"
@@ -51,17 +50,8 @@ export const GalleryViewFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelecti
         toggleDisabled={saving || !meta}
         onToggle={handleToggle}
         onBack={goBack}
+        guestPreviewToken={meta?.primary_token ?? null}
         disabledNotice="This feature is currently turned off for your guests. You can still manage its settings and preview the gallery."
-        headerAction={
-          <button
-            type="button"
-            onClick={() => guestGalleryUrl && window.open(guestGalleryUrl, '_blank', 'noopener,noreferrer')}
-            disabled={!guestGalleryUrl}
-            className={`inline-flex items-center gap-1.5 rounded-full border px-4 py-1.5 min-h-[44px] text-sm font-medium text-white transition-all duration-200 active:translate-y-[1px] focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-[#e4b97e]/70 focus-visible:ring-offset-2 focus-visible:ring-offset-[#28140e] disabled:opacity-50 ${managementStyles.glassAction}`}
-          >
-            <Eye className="h-4 w-4 shrink-0" strokeWidth={1.8} /> Preview as Guest
-          </button>
-        }
       >
         {selectionStatus !== 'selected' || !meta ? (
           <FeatureWorkspaceStatePanel

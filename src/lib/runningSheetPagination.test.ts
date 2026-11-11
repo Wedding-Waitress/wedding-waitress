@@ -1,0 +1,6 @@
+import{it,expect}from'vitest';import{paginateRunSheet}from'./runningSheetPagination';
+it('fills the first page when a wrapped paragraph exceeds the remaining space',()=>{const slices=paginateRunSheet(1600,[{top:180,bottom:1100,keepTogether:false}],1000,950,(end)=>end-4);expect(slices[0].height).toBe(996);expect(slices).toHaveLength(2);expect(slices.at(-1)!.start+slices.at(-1)!.height).toBe(1600)});
+it('keeps a table heading with its first row',()=>{const slices=paginateRunSheet(1200,[{top:950,bottom:1040,keepTogether:true},{top:980,bottom:1040,keepTogether:true}],1000,950,end=>end);expect(slices[0].height).toBe(950)});
+it('keeps a normal row whole',()=>{const slices=paginateRunSheet(1400,[{top:940,bottom:1050,keepTogether:true}],1000,950,end=>end);expect(slices[0].height).toBe(940)});
+it('splits an oversized row and advances through every source pixel',()=>{const slices=paginateRunSheet(3300,[{top:170,bottom:3300,keepTogether:true}],1000,950,end=>end-5);expect(slices[0].height).toBe(995);expect(slices.every(s=>s.height>0)).toBe(true);for(let i=1;i<slices.length;i++)expect(slices[i].start).toBe(slices[i-1].start+slices[i-1].height);expect(slices.reduce((n,s)=>n+s.height,0)).toBe(3300)});
+it('rejects an invalid gap without losing progress',()=>{const slices=paginateRunSheet(2100,[],1000,950,()=>-1);expect(slices.map(s=>s.height)).toEqual([1000,950,150])});

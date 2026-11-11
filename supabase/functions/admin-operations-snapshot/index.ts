@@ -1,9 +1,13 @@
+import { readAdminProviderHealth } from '../_shared/adminProviderHealth.ts';
+import { OPERATIONAL_PAGE_SIZE, parseOperationalCursor, operationalPage } from '../_shared/adminOperationalPagination.ts';
+import { hasRecentAdminVerification } from '../_shared/adminVerifiedSession.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.58.0';
 import { isOwnerAdminEmail } from '../_shared/owner-admin.ts';
 const headers={'Access-Control-Allow-Origin':'*','Access-Control-Allow-Headers':'authorization,x-client-info,apikey,content-type','Content-Type':'application/json'};
 const reply=(value:unknown,status=200)=>new Response(JSON.stringify(value),{status,headers});
+let providerHealthCache: { expires: number; result: Awaited<ReturnType<typeof readAdminProviderHealth>> } | null = null;
 const sources={
-  tickets:['support_tickets','id,customer_id,event_id,full_name,contact_email,category,message,source,status,created_at,updated_at','created_at'],
+  tickets:['support_tickets','id,customer_id,event_id,full_name,contact_email,category,message,source,status,priority,created_at,updated_at','created_at'],
   support_activity:['support_ticket_activity','id,ticket_id,actor_id,status,reason,recorded_at','recorded_at'],
   emails:['email_send_log','id,customer_id,event_id,support_ticket_id,template_name,purpose,provider,status,created_at,accepted_at,delivered_at','created_at'],
   email_queue:['transactional_email_queue','id,queue_name,status,attempts,available_at,locked_at,created_at,updated_at','created_at'],
@@ -27,24 +31,44 @@ Deno.serve(async req=>{
     const {data,error}=await caller.auth.getClaims(auth.slice(7));
     if(error||!data?.claims||!isOwnerAdminEmail(data.claims.email)||data.claims.is_anonymous===true)return reply({error:'Administrator access denied'},403);
     const {data:owner}=await caller.rpc('is_owner_admin');if(owner!==true)return reply({error:'Administrator access denied'},403);
+    if (!await hasRecentAdminVerification(caller)) return reply({ error: 'Recent administrator verification required.' }, 403);
     const body=await req.json(),grant=String(body.admin_grant||''),signature=String(body.admin_grant_signature||'');
     const hash=await crypto.subtle.digest('SHA-256',new TextEncoder().encode(`${grant}|${key}`));
     const expected=Array.from(new Uint8Array(hash)).map(b=>b.toString(16).padStart(2,'0')).join('');
     if(!grant||!signature||signature!==expected)return reply({error:'Recent administrator verification required'},403);
     let decoded:{user_id?:string;exp?:number};try{decoded=JSON.parse(atob(grant));}catch{return reply({error:'Invalid administrator verification'},403);}
     if(decoded.user_id!==data.claims.sub||Number(decoded.exp)<=Date.now()||!Number.isFinite(Number(decoded.exp)))return reply({error:'Administrator verification expired'},403);
-    const admin=createClient(url,key,{auth:{persistSession:false}}),records:Record<string,unknown>={},availability:Record<string,string>={};
-    await Promise.all(Object.entries(sources).map(async([name,[table,columns,order]])=>{
-      const result=await admin.from(table).select(columns).order(order,{ascending:false}).limit(500);
-      if(result.error){availability[name]='unavailable';records[name]=null;}else{availability[name]='available';records[name]=result.data||[];}
+    const requestedSource=body.source;
+    if (requestedSource !== undefined && (typeof requestedSource !== 'string' || !Object.prototype.hasOwnProperty.call(sources,requestedSource))) return reply({error:'Unknown reporting source'},400);
+    let cursor: ReturnType<typeof parseOperationalCursor> | null = null;
+    try { if (body.cursor !== undefined) cursor=parseOperationalCursor(body.cursor); } catch { return reply({error:'Invalid history cursor'},400); }
+    if (cursor && requestedSource === undefined) return reply({error:'A history source is required'},400);
+    const admin=createClient(url,key,{auth:{persistSession:false}}),records:Record<string,unknown>={},availability:Record<string,string>={},pagination:Record<string,unknown>={};
+    await Promise.all(Object.entries(sources).filter(([name])=>requestedSource===undefined||name===requestedSource).map(async([name,[table,columns,order]])=>{
+      const selected=columns.split(',').includes(order)?columns:columns+','+order;
+      let query=admin.from(table).select(selected).order(order,{ascending:false,nullsFirst:false}).order('id',{ascending:false});
+      if (cursor) {
+        if (cursor.at===null) query=query.is(order,null).lt('id',cursor.id);
+        else query=query.or(order+'.lt.'+cursor.at+',and('+order+'.eq.'+cursor.at+',id.lt.'+cursor.id+'),'+order+'.is.null');
+      }
+      const result=await query.limit(OPERATIONAL_PAGE_SIZE+1);
+      if(result.error){availability[name]='unavailable';records[name]=null;pagination[name]={has_more:false,cursor:null};}
+      else{const page=operationalPage(result.data||[],order);availability[name]='available';records[name]=page.records;pagination[name]=page.page;}
     }));
+    if (requestedSource!==undefined) return reply({generated_at:new Date().toISOString(),records,availability,pagination,row_limit:OPERATIONAL_PAGE_SIZE});
     const queue:Record<string,number|null>={};
     await Promise.all(['pending','processing','sent','failed'].map(async status=>{
       const result=await admin.from('transactional_email_queue').select('id',{count:'exact',head:true}).eq('status',status);
       queue[status]=result.error?null:result.count;
     }));
-    return reply({generated_at:new Date().toISOString(),records,availability,row_limit:500,queue,
+    let health: Record<string,unknown> | undefined;
+    if(body.health===true){
+      const {data:evidence,error:healthError}=await admin.rpc('admin_get_system_health');
+      if(!providerHealthCache||providerHealthCache.expires<=Date.now())providerHealthCache={result:await readAdminProviderHealth(name=>Deno.env.get(name)),expires:Date.now()+60000};
+      health={evidence:healthError?null:evidence,evidence_state:healthError?'unavailable':'available',providers:providerHealthCache.result};
+    }
+    return reply({health,generated_at:new Date().toISOString(),records,availability,pagination,row_limit:OPERATIONAL_PAGE_SIZE,queue,
       configuration:{email_provider_configured:!!Deno.env.get('RESEND_API_KEY'),delivery_signature_configured:!!Deno.env.get('RESEND_WEBHOOK_SECRET'),queue_secret_configured:!!Deno.env.get('TRANSACTIONAL_EMAIL_PROCESSOR_SECRET')},
-      limitations:['Configuration presence does not prove provider availability.','SMS sent/accepted is not carrier delivery confirmation.','Up to 500 most recent rows per source; no historical records are inferred.','Provider error bodies are intentionally not exposed.']});
+      limitations:['Configuration presence does not prove provider availability.','SMS sent/accepted is not carrier delivery confirmation.','History loads in pages of 500 records per source. Search and status filters apply to loaded records.','Provider error bodies are intentionally not exposed.']});
   }catch{return reply({error:'Operational reporting could not be checked'},503);}
 });

@@ -79,6 +79,17 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
   const [exporting, setExporting] = useState(false);
+  const [artworkBusy, setArtworkBusy] = useState(false);
+  const artworkBusyRef = useRef(false);
+  const renameSavingRef = useRef(false);
+  const renameCancelledRef = useRef(false);
+  const runArtworkOperation = async (operation: () => Promise<unknown>) => {
+    if (artworkBusyRef.current) return null;
+    artworkBusyRef.current = true;
+    setArtworkBusy(true);
+    try { return await operation(); }
+    finally { artworkBusyRef.current = false; setArtworkBusy(false); }
+  };
   const previewDocumentRef = useRef<HTMLDivElement | null>(null);
 
   const { confirmFit, rememberFit, dialog: imageFitDialog } = useSignageImageFit();
@@ -87,6 +98,18 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
     const dimensions = INVITATION_CARD_SIZES[activeArtwork?.card_size as InvitationCardSize] || INVITATION_CARD_SIZES.A5;
     return { label: activeArtwork?.card_size || 'A5', widthMm: activeArtwork?.orientation === 'landscape' ? dimensions.h : dimensions.w, heightMm: activeArtwork?.orientation === 'landscape' ? dimensions.w : dimensions.h };
   }, [activeArtwork?.card_size, activeArtwork?.orientation]);
+  const galleryScope = useRef({ key: '', version: 0 });
+  const nextGalleryScope = `${selectedEventId}|${activeArtworkId}|${cardPaper.widthMm}|${cardPaper.heightMm}`;
+  if (galleryScope.current.key !== nextGalleryScope) galleryScope.current = { key: nextGalleryScope, version: galleryScope.current.version + 1 };
+  const onGallerySelect = async (url: string, measurementUrl = url, signal?: AbortSignal) => {
+    const scope = galleryScope.current;
+    if (!selectedEventId || !activeArtworkId) return false;
+    if (!await confirmFit(url, cardPaper, 50, 50, measurementUrl, signal)) return false;
+    if (signal?.aborted || galleryScope.current !== scope) return false;
+    // The settings hook updates the canvas immediately and reports background save failures.
+    void updateSettings({ background_image_url: url, background_image_type: 'full', background_image_x_position: 50, background_image_y_position: 50 });
+    return true;
+  };
   const beforeBackgroundUpload = async (file: File) => {
     const url = URL.createObjectURL(file);
     try {
@@ -183,10 +206,11 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   };
 
   const handleOpenCreateDialog = () => {
+    if (artworkBusyRef.current) return;
     const sizes = ALLOWED_SIZES[activeCardType];
     if (sizes.length === 1) {
       // One supported size needs no size dialog
-      createArtwork(activeCardType, `New ${CARD_TYPE_LABELS[activeCardType]}`, sizes[0]);
+      void runArtworkOperation(() => createArtwork(activeCardType, `New ${CARD_TYPE_LABELS[activeCardType]}`, sizes[0]));
       return;
     }
     setNewArtworkName(`New ${CARD_TYPE_LABELS[activeCardType]}`);
@@ -196,7 +220,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
 
   const handleConfirmCreate = async () => {
     const name = newArtworkName.trim() || `New ${CARD_TYPE_LABELS[activeCardType]}`;
-    const created = await createArtwork(activeCardType, name, newArtworkSize);
+    const created = await runArtworkOperation(() => createArtwork(activeCardType, name, newArtworkSize));
     if (created) setCreateDialogOpen(false);
   };
 
@@ -206,15 +230,22 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   };
 
   const handleStartRename = (id: string, currentName: string) => {
+    if (artworkBusyRef.current || renameSavingRef.current) return;
+    renameCancelledRef.current = false;
     setRenamingId(id);
     setRenameValue(currentName);
   };
 
   const handleFinishRename = async () => {
-    if (renamingId && renameValue.trim()) {
-      await renameArtwork(renamingId, renameValue.trim());
-    }
-    setRenamingId(null);
+    if (renameCancelledRef.current || renameSavingRef.current) return;
+    const name = renameValue.trim();
+    const existing = artworks.find(artwork => artwork.id === renamingId);
+    if (!renamingId || !name || name === existing?.name) { setRenamingId(null); return; }
+    renameSavingRef.current = true;
+    try {
+      const saved = await renameArtwork(renamingId, name);
+      if (saved) setRenamingId(null);
+    } finally { renameSavingRef.current = false; }
   };
 
   if (eventsLoading) {
@@ -255,11 +286,11 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
 
           <div className="flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-8 lg:flex-nowrap pt-2">
             <div className="flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4 w-full lg:w-auto">
-              <label className="text-sm font-medium text-foreground whitespace-nowrap">
+              <label htmlFor="invitations-event-selection" className="text-sm font-medium text-foreground whitespace-nowrap">
                 Choose Event:
               </label>
               <Select value={selectedEventId || "no-event"} onValueChange={handleEventChange}>
-                <SelectTrigger className={`${styles.selectTrigger} w-full lg:w-[300px] border-primary focus:ring-primary font-bold text-primary`}>
+                <SelectTrigger id="invitations-event-selection" className={`${styles.selectTrigger} w-full lg:w-[300px] border-primary focus:ring-primary font-bold text-primary`}>
                   <SelectValue placeholder="Choose Event" />
                 </SelectTrigger>
                 <SelectContent className="ww-invitations-premium-portal ww-invitations-studio-portal bg-popover border-border z-50">
@@ -357,21 +388,25 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                   }`}
                 >
                   {/* Thumbnail */}
-                  <div className={`${styles.thumbnail} h-20 max-sm:h-40 rounded-lg bg-muted mb-2 overflow-hidden flex items-center justify-center`}>
+                  <button type="button" aria-label={`Select card: ${artwork.name}`} aria-pressed={activeArtworkId === artwork.id} onClick={e => { e.stopPropagation(); setActiveArtwork(artwork.id!); }} className={`${styles.thumbnail} w-full border-0 p-0 h-20 max-sm:h-40 rounded-lg bg-muted mb-2 overflow-hidden flex items-center justify-center`}>
                     {artwork.background_image_url ? (
                       <img src={artwork.background_image_url} alt={artwork.name} className="w-full h-full object-cover" />
                     ) : (
                       <div className={`${styles.blankThumbnail} w-full h-full`} />
                     )}
-                  </div>
+                  </button>
 
                   {/* Name */}
                   {renamingId === artwork.id ? (
                     <Input
+                      aria-label="Card name"
                       value={renameValue}
                       onChange={e => setRenameValue(e.target.value)}
                       onBlur={handleFinishRename}
-                      onKeyDown={e => e.key === 'Enter' && handleFinishRename()}
+                      onKeyDown={e => {
+                        if (e.key === 'Enter') { e.preventDefault(); void handleFinishRename(); }
+                        if (e.key === 'Escape') { e.preventDefault(); renameCancelledRef.current = true; setRenamingId(null); }
+                      }}
                       className="h-7 text-xs"
                       autoFocus
                       onClick={e => e.stopPropagation()}
@@ -396,7 +431,8 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                       size="sm"
                       variant="ghost"
                       className="h-6 w-6 p-0"
-                      onClick={() => duplicateArtwork(artwork.id!)}
+                      disabled={artworkBusy}
+                      onClick={() => void runArtworkOperation(() => duplicateArtwork(artwork.id!))}
                       aria-label="Duplicate card"
                       title="Duplicate card"
                     >
@@ -425,6 +461,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
 
               {/* New Artwork Button */}
               <button
+                disabled={artworkBusy}
                 onClick={handleOpenCreateDialog}
                 className={`${styles.newArtwork} flex-shrink-0 w-48 h-[140px] max-sm:w-full max-sm:h-[160px] rounded-xl border-dashed transition-all flex flex-col items-center justify-center gap-2 cursor-pointer`}
               >
@@ -472,8 +509,8 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
           </DialogHeader>
           <div className="space-y-4 py-2">
             <div>
-              <Label className="mb-2 block">Card Size</Label>
-              <RadioGroup value={newArtworkSize} onValueChange={setNewArtworkSize}>
+              <Label id="invitation-new-card-size-label" className="mb-2 block">Card Size</Label>
+              <RadioGroup aria-labelledby="invitation-new-card-size-label" value={newArtworkSize} onValueChange={setNewArtworkSize}>
                 {ALLOWED_SIZES[activeCardType].map(size => (
                   <div key={size} className="flex items-center space-x-2">
                     <RadioGroupItem value={size} id={`size-${size}`} />
@@ -487,8 +524,9 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
               </RadioGroup>
             </div>
             <div>
-              <Label className="mb-2 block">Design Name</Label>
+              <Label htmlFor="invitation-new-design-name" className="mb-2 block">Design Name</Label>
               <Input
+                id="invitation-new-design-name"
                 value={newArtworkName}
                 onChange={e => setNewArtworkName(e.target.value)}
                 placeholder="e.g. Main Save the Date"
@@ -496,8 +534,8 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
             </div>
           </div>
           <DialogFooter>
-            <Button className="ww-invitations-cancel-action" variant="outline" onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
-            <Button className="ww-invitations-create-action" onClick={handleConfirmCreate}>Create</Button>
+            <Button className="ww-invitations-create-action" disabled={artworkBusy} onClick={handleConfirmCreate}>{artworkBusy ? 'Creating…' : 'Create'}</Button>
+            <Button className="ww-invitations-cancel-action" disabled={artworkBusy} variant="outline" onClick={() => setCreateDialogOpen(false)}>Cancel</Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>
@@ -513,6 +551,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
               notes={activeArtwork.notes || ''}
               onNotesChange={notes => updateSettings({ notes })}
               onSettingsChange={updateCardSettings}
+              onGallerySelect={onGallerySelect}
               beforeBackgroundUpload={beforeBackgroundUpload}
               eventData={eventData}
               events={events}
@@ -524,12 +563,14 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
               portalScopeClassName="ww-invitations-studio-portal"
             />
           </div>
-          <div className={`${styles.previewStage} ww-invitations-preview 2xl:col-span-3 2xl:mt-12 w-full max-w-full mx-auto pb-6 max-sm:pb-2 max-sm:px-0 max-sm:overflow-x-auto max-sm:overflow-y-hidden md:max-2xl:overflow-hidden md:max-2xl:flex md:max-2xl:justify-center`}>
+          <div className={`${styles.previewStage} ww-invitations-preview 2xl:col-span-3 w-full max-w-full mx-auto pb-6 max-sm:pb-2 max-sm:px-0 max-sm:overflow-x-auto max-sm:overflow-y-hidden md:max-2xl:overflow-hidden md:max-2xl:flex md:max-2xl:justify-center`}>
             <div className="w-full min-w-0">
             <div className="w-full min-w-0 mx-auto">
             <InvitationCardPreview
               documentRef={previewDocumentRef}
               documentId="invitation-card"
+              fixedPreviewWidthMm={213.84}
+              normaliseQrControls
               fitToContainer
               fitToWidth
               qrWhitePlate

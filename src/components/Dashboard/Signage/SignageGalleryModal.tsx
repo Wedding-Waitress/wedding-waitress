@@ -1,4 +1,4 @@
-import React, { useMemo, useState } from 'react';
+import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import {
   Dialog,
   DialogContent,
@@ -19,6 +19,9 @@ import { replaceImageCategories } from './signageUploadUtils';
 import { supabase } from '@/integrations/supabase/client';
 import { previewUrlFor } from '@/lib/imagePipeline';
 import styles from './SignageGalleryModal.module.css';
+import { SignageGalleryCard } from './SignageGalleryCard';
+import { SignageLibraryImage } from './SignageLibraryImage';
+import { loadSignageImageSize } from '@/lib/signageImageCache';
 
 const getErrorMessage = (err: unknown, fallback: string) => (
   err instanceof Error ? err.message : fallback
@@ -27,7 +30,7 @@ const getErrorMessage = (err: unknown, fallback: string) => (
 interface SignageGalleryModalProps {
   open: boolean;
   onOpenChange: (open: boolean) => void;
-  onSelectImage: (imageUrl: string, printUrl?: string) => void;
+  onSelectImage: (imageUrl: string, printUrl?: string, signal?: AbortSignal) => void | boolean | Promise<void | boolean>;
 }
 
 export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
@@ -42,33 +45,42 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   const [selectedCategory, setSelectedCategory] = useState<string>('all');
   const [previewImage, setPreviewImage] = useState<SignageGalleryImage | null>(null);
   const [selectedImage, setSelectedImage] = useState<SignageGalleryImage | null>(null);
+  const [applying, setApplying] = useState(false);
+  const applyRequest = useRef<AbortController | null>(null);
+  useEffect(() => {
+    if (!open) { applyRequest.current?.abort(); setApplying(false); }
+    return () => { applyRequest.current?.abort(); };
+  }, [open]);
+  const selectImage = useCallback((image: SignageGalleryImage) => {
+    applyRequest.current?.abort();
+    setApplying(false);
+    setSelectedImage(image);
+    // Prefetch only the chosen preview, never all 355 masters.
+    void loadSignageImageSize(image.preview_url || previewUrlFor(image.image_url) || image.image_url).catch(() => undefined);
+  }, []);
+  const viewImage = useCallback((image: SignageGalleryImage) => {
+    applyRequest.current?.abort();
+    setApplying(false);
+    setPreviewImage(image);
+  }, []);
 
   // Admin upload state
   const [showUpload, setShowUpload] = useState(false);
   const [deleteTarget, setDeleteTarget] = useState<SignageGalleryImage | null>(null);
   const [deleting, setDeleting] = useState(false);
-  const [categorizeOpenId, setCategorizeOpenId] = useState<string | null>(null);
-  const [categorizeMode, setCategorizeMode] = useState<'list' | 'create'>('list');
-  const [newCategoryName, setNewCategoryName] = useState('');
-  const [assigningCategory, setAssigningCategory] = useState(false);
-
-  const handleAssignCategory = async (image: SignageGalleryImage, categoryName: string) => {
-    const name = categoryName.trim();
-    if (!name || assigningCategory) return;
+  const categoryRequest = useRef(false);
+  const handleAssignCategory = useCallback(async (image: SignageGalleryImage, categoryName: string) => {
+    const name = categoryName.trim(); if (!name || categoryRequest.current) return false;
+    categoryRequest.current = true;
     try {
-      setAssigningCategory(true);
       await replaceImageCategories(image.id, [name]);
-      toast({ title: 'Category updated', description: `${image.name} → ${name}` });
-      setCategorizeOpenId(null);
-      setCategorizeMode('list');
-      setNewCategoryName('');
-      await refetch();
-    } catch (err) {
-      toast({ title: 'Update failed', description: err instanceof Error ? err.message : 'Could not assign category.', variant: 'destructive' });
-    } finally {
-      setAssigningCategory(false);
-    }
-  };
+      toast({ title: 'Category updated', description: image.name + ' → ' + name });
+      await refetch(); return true;
+    } catch (error) {
+      toast({ title: 'Update failed', description: getErrorMessage(error, 'Could not assign category.'), variant: 'destructive' });
+      return false;
+    } finally { categoryRequest.current = false; }
+  }, [refetch, toast]);
 
   const storagePathsForDelete = useMemo(() => {
     if (!deleteTarget) return [];
@@ -116,22 +128,49 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
   const showCategoryDropdown = !previewImage && images.length > 0 && categoriesWithCounts.length > 1;
   const effectiveCategory = showCategoryDropdown ? selectedCategory : 'all';
 
-  const filteredImages = images.filter(img => {
+  const filteredImages = useMemo(() => images.filter(img => {
     const matchesSearch = img.name.toLowerCase().includes(searchQuery.toLowerCase());
     const matchesCategory = effectiveCategory === 'all' || img.categories.includes(effectiveCategory);
     return matchesSearch && matchesCategory;
-  });
+  }), [images, searchQuery, effectiveCategory]);
+  const [visibleCards, setVisibleCards] = useState(32);
+  useEffect(() => {
+    if (!open) return;
+    let count = Math.min(32, filteredImages.length);
+    let cancelled = false;
+    let timer: ReturnType<typeof setTimeout>;
+    setVisibleCards(count);
+    // Commit the visible rows first. Populate the unchanged grid in small
+    // batches so creating hundreds of admin controls cannot block opening it.
+    const append = () => {
+      if (cancelled || count >= filteredImages.length) return;
+      count = Math.min(count + 32, filteredImages.length);
+      setVisibleCards(count);
+      timer = setTimeout(append, 16);
+    };
+    timer = setTimeout(append, 16);
+    return () => { cancelled = true; clearTimeout(timer); };
+  }, [open, filteredImages]);
 
-  const handleSelectImage = (image: SignageGalleryImage) => {
+  const handleSelectImage = async (image: SignageGalleryImage) => {
     // Editor uses the MASTER url (server-resized to ~2400px by useOptimizedPreview).
     // Never the 400px thumbnail — that produced a blurry editor preview.
-    onSelectImage(image.preview_url || image.image_url, image.image_url);
-    setPreviewImage(null);
-    onOpenChange(false);
+    applyRequest.current?.abort();
+    const controller = new AbortController();
+    applyRequest.current = controller;
+    setApplying(true);
+    try {
+      const applied = await onSelectImage(image.preview_url || image.image_url, image.image_url, controller.signal);
+      if (controller.signal.aborted || applied === false) return;
+      setPreviewImage(null);
+      onOpenChange(false);
+    } catch (error) {
+      if (!controller.signal.aborted) toast({ title: 'Template could not be applied', description: getErrorMessage(error, 'Please try again.'), variant: 'destructive' });
+    } finally { if (applyRequest.current === controller) setApplying(false); }
   };
 
   return (
-    <Dialog open={open} onOpenChange={(val) => { if (!val) { setPreviewImage(null); setSelectedImage(null); setShowUpload(false); } onOpenChange(val); }}>
+    <Dialog open={open} onOpenChange={(val) => { if (!val) { applyRequest.current?.abort(); setPreviewImage(null); setSelectedImage(null); setShowUpload(false); } onOpenChange(val); }}>
       <DialogContent className={`${styles.libraryDialog} max-h-[95vh] flex flex-col gap-0 bg-white p-0 [&~[data-radix-scroll-area-viewport]]:!border-0`} style={{ zIndex: 110 }} overlayClassName="z-[105] bg-black/95">
         <DialogHeader className="shrink-0 border-b border-border px-4 py-4 pr-16 sm:px-6 sm:pr-[4.75rem]">
           <div className="flex flex-col gap-3 lg:flex-row lg:items-start lg:justify-between">
@@ -168,7 +207,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
         {previewImage ? (
           <div className="flex-1 flex flex-col min-h-0 p-4 sm:p-6">
             <div className="flex items-center gap-3 mb-2">
-              <Button variant="outline" size="sm" onClick={() => setPreviewImage(null)}>
+              <Button variant="outline" size="sm" onClick={() => { applyRequest.current?.abort(); setApplying(false); setPreviewImage(null); }}>
                 <ArrowLeft className="h-4 w-4 mr-1" />
                 Back to Gallery
               </Button>
@@ -178,17 +217,17 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
               </div>
             </div>
             <div className="flex justify-center mb-4">
-              <Button className="bg-green-500 hover:bg-green-600 text-white lv-premium-shade" onClick={() => handleSelectImage(previewImage)}>
+              <Button disabled={applying} className="bg-green-500 hover:bg-green-600 text-white lv-premium-shade" onClick={() => void handleSelectImage(previewImage)}>
                 <Check className="h-4 w-4 mr-1" />
                 Use This Image
               </Button>
             </div>
-            <div className="flex-1 flex items-center justify-center bg-muted/30 rounded-xl border border-border overflow-hidden min-h-[400px]">
-              <img
-                src={previewImage.image_url}
-                alt={previewImage.name}
-                className="max-w-full max-h-[60vh] object-contain"
-              />
+            <div className="relative flex-1 flex items-center justify-center bg-muted/30 rounded-xl border border-border overflow-hidden min-h-[400px]">
+              <SignageLibraryImage key={previewImage.id}
+                src={previewImage.preview_url || previewUrlFor(previewImage.image_url) || previewImage.image_url}
+                fallback={previewImage.image_url} placeholder={previewImage.thumbnail_url} alt={previewImage.name}
+                eager className="max-w-full max-h-[60vh] object-contain" />
+              {applying && <span role="status" className="absolute bottom-3 text-xs">Applying template...</span>}
             </div>
           </div>
         ) : (
@@ -197,6 +236,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
               <div className="relative min-w-0">
                 <Search className="absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground" />
                 <Input
+                  aria-label="Search sign templates"
                   placeholder="Search templates by name"
                   value={searchQuery}
                   onChange={(e) => setSearchQuery(e.target.value)}
@@ -205,7 +245,7 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
               </div>
               {showCategoryDropdown ? (
                 <Select value={selectedCategory} onValueChange={setSelectedCategory}>
-                  <SelectTrigger className="h-10 text-sm font-normal bg-background">
+                  <SelectTrigger aria-label="Filter sign templates by category" className="h-10 text-sm font-normal bg-background">
                     <SelectValue placeholder="All Categories" />
                   </SelectTrigger>
                   <SelectContent className={`${styles.portal} z-[120] max-h-[60vh]`}>
@@ -224,185 +264,43 @@ export const SignageGalleryModal: React.FC<SignageGalleryModalProps> = ({
                   <Loader2 className="h-8 w-8 animate-spin text-primary" />
                 </div>
               ) : error ? (
-                <div className="flex items-center justify-center h-64 text-destructive">
-                  {error}
+                <div className="flex flex-col gap-3 items-center justify-center h-64 text-destructive" role="alert">
+                  <span>{error}</span>
+                  <Button variant="outline" onClick={() => { void refetch(); }}>Try again</Button>
                 </div>
               ) : filteredImages.length === 0 ? (
                 <div className="flex flex-col items-center justify-center h-64 text-muted-foreground">
                   <ImageIcon className="h-12 w-12 mb-4 opacity-50" />
-                  <p>No images available yet</p>
-                  <p className="text-sm">Gallery images will be added by the admin</p>
+                  <p>{images.length ? 'No templates match your filters' : 'No images available yet'}</p>
+                  <p className="text-sm">{images.length ? 'Try another name or category.' : 'Gallery images will be added by the admin'}</p>
+                  {images.length > 0 && <Button type="button" variant="outline" className="mt-3" onClick={() => { setSearchQuery(''); setSelectedCategory('all'); }}>Clear filters</Button>}
                 </div>
               ) : (
                 <div className="flex-1 min-h-0 overflow-y-auto overscroll-contain pr-2 custom-scrollbar [scrollbar-gutter:stable]">
                   <div className={styles.templateGrid} data-testid="signage-template-grid">
-                    {filteredImages.map(image => (
-                      <div
-                        key={image.id}
-                        className={`${styles.templateCard} ${selectedImage?.id === image.id ? styles.templateCardSelected : ''}`}
-                      >
-                        <div className="aspect-[4/5] overflow-hidden bg-muted">
-                          <img
-                            src={image.thumbnail_url || image.image_url}
-                            alt={image.name}
-                            loading="lazy"
-                            className="h-full w-full object-contain"
-                            onError={(e) => {
-                              const img = e.currentTarget;
-                              if (image.image_url && img.src !== image.image_url) img.src = image.image_url;
-                            }}
-                          />
-                        </div>
-                        <div className="border-t border-border bg-white px-2 py-1.5">
-                          <p className={`${styles.templateName} truncate text-xs font-semibold text-foreground`} title={image.name}>{image.name}</p>
-                        </div>
-                        <div className="grid grid-cols-2 gap-1.5 border-t border-border bg-white p-1.5">
-                          <button
-                            onClick={() => setPreviewImage(image)}
-                            className={styles.cardAction}
-                          >
-                            <Eye className="h-3.5 w-3.5" />
-                            View
-                          </button>
-                          <button
-                            onClick={() => setSelectedImage(image)}
-                            className={`${styles.cardAction} ${styles.selectAction}`}
-                          >
-                            <Check className="h-3.5 w-3.5" />
-                            Select
-                          </button>
-                          {isAdmin && (
-                            <button
-                              onClick={() => setDeleteTarget(image)}
-                              className={`${styles.cardAction} ${styles.deleteAction}`}
-                            >
-                              <Trash2 className="h-3.5 w-3.5" />
-                              Delete
-                            </button>
-                          )}
-                          {isAdmin && (
-                            <Popover
-                              open={categorizeOpenId === image.id}
-                              onOpenChange={(o) => {
-                                setCategorizeOpenId(o ? image.id : null);
-                                if (!o) { setCategorizeMode('list'); setNewCategoryName(''); }
-                              }}
-                            >
-                              <PopoverTrigger asChild>
-                                <button
-                                  onClick={(e) => e.stopPropagation()}
-                                  className={`${styles.cardAction} ${styles.categorizeAction}`}
-                                >
-                                  <Tag className="h-3.5 w-3.5" />
-                                  Categorize
-                                </button>
-                              </PopoverTrigger>
-                              <PopoverContent
-                                className={`${styles.portal} w-64 p-2 z-[130]`}
-                                align="center"
-                                onClick={(e) => e.stopPropagation()}
-                              >
-                                {categorizeMode === 'list' ? (
-                                  <>
-                                    <div className="px-2 py-1 text-xs font-semibold text-muted-foreground">
-                                      Assign to category
-                                    </div>
-                                    <div
-                                      className="max-h-56 overflow-y-auto overscroll-contain"
-                                      onWheel={(e) => {
-                                        const el = e.currentTarget;
-                                        if (el.scrollHeight > el.clientHeight) {
-                                          el.scrollTop += e.deltaY;
-                                          e.stopPropagation();
-                                        }
-                                      }}
-                                    >
-                                      {categoriesWithCounts.length === 0 && (
-                                        <div className="px-2 py-2 text-xs text-muted-foreground">No categories yet</div>
-                                      )}
-                                      {categoriesWithCounts.map(({ name, count }) => {
-                                        const isCurrent = image.categories.includes(name);
-                                        return (
-                                          <button
-                                            key={name}
-                                            disabled={assigningCategory || isCurrent}
-                                            onClick={() => handleAssignCategory(image, name)}
-                                            className={`w-full flex items-center justify-between gap-2 px-2 py-1.5 text-sm rounded-md text-left hover:bg-muted disabled:opacity-60 disabled:cursor-not-allowed ${isCurrent ? 'bg-muted/60' : ''}`}
-                                          >
-                                            <span className="truncate">{name}</span>
-                                            <span className={`${styles.compactIndicator} text-xs text-muted-foreground`}>{count}{isCurrent ? ' ✓' : ''}</span>
-                                          </button>
-                                        );
-                                      })}
-                                    </div>
-                                    <div className="border-t border-border my-1" />
-                                    <button
-                                      onClick={() => { setCategorizeMode('create'); setNewCategoryName(''); }}
-                                      className="w-full flex items-center gap-2 px-2 py-1.5 text-sm rounded-md text-left text-primary hover:bg-muted"
-                                    >
-                                      <Plus className="h-3.5 w-3.5" />
-                                      Create New Category
-                                    </button>
-                                  </>
-                                ) : (
-                                  <div className="flex flex-col gap-2 p-1">
-                                    <label className="text-xs font-semibold text-muted-foreground">New category name</label>
-                                    <Input
-                                      autoFocus
-                                      value={newCategoryName}
-                                      onChange={(e) => setNewCategoryName(e.target.value)}
-                                      placeholder="e.g. Welcome Sign"
-                                      className="h-9"
-                                      onKeyDown={(e) => {
-                                        if (e.key === 'Enter' && newCategoryName.trim()) {
-                                          e.preventDefault();
-                                          handleAssignCategory(image, newCategoryName);
-                                        }
-                                      }}
-                                    />
-                                    <div className="flex justify-end gap-2">
-                                      <Button
-                                        size="sm"
-                                        variant="outline"
-                                        className="lv-premium-shade"
-                                        disabled={assigningCategory}
-                                        onClick={() => { setCategorizeMode('list'); setNewCategoryName(''); }}
-                                      >
-                                        Cancel
-                                      </Button>
-                                      <Button
-                                        size="sm"
-                                        className="bg-green-600 hover:bg-green-700 text-white lv-premium-shade"
-                                        disabled={assigningCategory || !newCategoryName.trim()}
-                                        onClick={() => handleAssignCategory(image, newCategoryName)}
-                                      >
-                                        {assigningCategory ? <Loader2 className="h-4 w-4 animate-spin" /> : 'Save'}
-                                      </Button>
-                                    </div>
-                                  </div>
-                                )}
-                              </PopoverContent>
-                            </Popover>
-                          )}
-                        </div>
-                      </div>
+                    {filteredImages.slice(0, visibleCards).map(image => (
+                      <SignageGalleryCard key={image.id} image={image} selected={selectedImage?.id === image.id} isAdmin={isAdmin}
+                        categoriesWithCounts={categoriesWithCounts} onView={viewImage} onSelect={selectImage} onDelete={setDeleteTarget} onCategoryChange={handleAssignCategory} />
                     ))}
                   </div>
+                  {visibleCards < filteredImages.length && <p role="status" className="text-xs py-2">Loading more templates...</p>}
                 </div>
               )}
             </div>
 
             <div className="sticky bottom-0 z-50 flex shrink-0 justify-end gap-2 border-t border-border bg-white px-4 py-3 sm:px-6">
-              <Button variant="outline" className="lv-premium-shade" onClick={() => onOpenChange(false)}>
-                Close
-              </Button>
+              {applying && <span role="status" className="self-center text-xs">Applying template...</span>}
+              
               <Button
                 className="bg-green-600 text-white hover:bg-green-700 lv-premium-shade"
-                disabled={!selectedImage}
-                onClick={() => selectedImage && handleSelectImage(selectedImage)}
+                disabled={!selectedImage || applying}
+                onClick={() => selectedImage && void handleSelectImage(selectedImage)}
               >
-                <Check className="mr-1 h-4 w-4" />
+                {applying ? <Loader2 className="mr-1 h-4 w-4 animate-spin" aria-hidden="true" /> : <Check className="mr-1 h-4 w-4" />}
                 Select Template
+              </Button>
+              <Button variant="outline" className="lv-premium-shade" onClick={() => { applyRequest.current?.abort(); onOpenChange(false); }}>
+                Close
               </Button>
             </div>
           </>

@@ -105,6 +105,29 @@
     0 0 0 4px rgba(13, 7, 5, 0.92) !important;
 }
 
+.field.photoBoothNameRequired,
+.field.photoBoothNameRequired:focus-visible {
+  animation: photoBoothNamePulse 2.4s ease-in-out infinite;
+  border-color: #ef7770 !important;
+  box-shadow:
+    inset 0 1px 0 rgba(255, 239, 218, 0.12),
+    0 0 0 2px rgba(239, 119, 112, 0.24),
+    0 0 10px rgba(239, 119, 112, 0.18) !important;
+}
+
+@keyframes photoBoothNamePulse {
+  0%, 100% { filter: drop-shadow(0 0 1px rgba(239, 119, 112, 0.08)); }
+  50% { filter: drop-shadow(0 0 5px rgba(239, 119, 112, 0.32)); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .field.photoBoothNameRequired,
+  .field.photoBoothNameRequired:focus-visible {
+    animation: none;
+    filter: none;
+  }
+}
+
 .field option {
   color: #fff;
   background: #24120d;

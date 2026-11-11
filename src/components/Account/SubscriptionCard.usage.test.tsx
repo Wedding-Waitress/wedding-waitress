@@ -6,14 +6,15 @@ vi.mock('react-router-dom', () => ({ useNavigate: () => vi.fn() }));
 vi.mock('@/components/ui/button', () => ({ Button: (props: React.ButtonHTMLAttributes<HTMLButtonElement>) => <button {...props} /> }));
 vi.mock('@/components/ui/badge', () => ({ Badge: ({ children }: { children: React.ReactNode }) => <span>{children}</span> }));
 vi.mock('./SectionCard', () => ({ SectionCard: ({ children }: { children: React.ReactNode }) => <section>{children}</section> }));
-vi.mock('@/hooks/useUserPlan', () => ({ useUserPlan: () => ({ plan: { plan_name: 'Free', guest_limit: null }, isTrialExpired: false }) }));
+const planState = vi.hoisted(() => ({ owner: false, name: 'Free', guestLimit: null as number | null, usageError: true }));
+vi.mock('@/hooks/useUserPlan', () => ({ useUserPlan: () => ({ plan: { plan_name: planState.name, guest_limit: planState.guestLimit, expires_at: '2025-09-16T08:16:00Z' }, isTrialExpired: false, hasPlatformOwnerAccess: planState.owner }) }));
 vi.mock('@/hooks/useAccountBilling', () => ({ useAccountBilling: () => ({ data: null }) }));
 vi.mock('@/hooks/useEventLimits', () => ({
   useEventLimits: () => ({
     loading: false,
     eventsError: 'Unable to load event usage.',
     additionalEventsError: null,
-    guestsError: 'Unable to load guest usage.',
+    guestsError: planState.usageError ? 'Unable to load guest usage.' : null,
     includedEvents: 1,
     additionalPurchased: 0,
     remaining: 1,
@@ -50,3 +51,19 @@ describe('SubscriptionCard usage states', () => {
     expect(screen.getByText('Additional events purchased').parentElement).toHaveTextContent('0');
   });
 });
+
+describe('owner expiry presentation',()=>{
+ it('does not present an old subscription expiry as the owner access expiry',()=>{
+  planState.owner=true;try {render(<SubscriptionCard icon={CreditCard}/>);
+   expect(screen.getByText('Expiry date').parentElement).toHaveTextContent('No expiry — platform owner access');
+   expect(screen.getByText('Full Access')).toBeInTheDocument();
+  }finally{planState.owner=false;}
+ });
+ it('retains the real recorded expiry for ordinary accounts',()=>{
+  planState.owner=false;render(<SubscriptionCard icon={CreditCard}/>);
+  expect(screen.getByText('Expiry date').parentElement).toHaveTextContent(new Date('2025-09-16T08:16:00Z').toLocaleDateString(undefined,{day:'2-digit',month:'short',year:'numeric'}));
+  expect(screen.queryByText('No expiry — platform owner access')).not.toBeInTheDocument();
+ });
+});
+
+it.each([['Essential',100,'Essential'],['Premium',200,'Premium'],['Unlimited',400,'Ultimate'],['Ultimate',400,'Ultimate']])('shows confirmed %s account plan with its stored allowance',(name,limit,display)=>{planState.name=name as string;planState.guestLimit=limit as number;planState.usageError=false;try{render(<SubscriptionCard icon={CreditCard}/>);expect(screen.getByText(display)).toBeInTheDocument();expect(screen.getByText('Guest allowance').parentElement).toHaveTextContent('0 / '+limit);}finally{planState.name='Free';planState.guestLimit=null;planState.usageError=true;}});

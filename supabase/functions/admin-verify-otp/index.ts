@@ -50,41 +50,26 @@ Deno.serve(async (req) => {
     }
 
     const admin = createClient(supabaseUrl, serviceKey);
-    const { data: row } = await admin.from('admin_otp_codes')
-      .select('*')
-      .eq('user_id', userId)
-      .is('consumed_at', null)
-      .order('created_at', { ascending: false })
-      .limit(1)
-      .maybeSingle();
-
-    if (!row) {
-      return new Response(JSON.stringify({ error: 'No active code. Please request a new one.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    const sessionId = claims.claims.session_id;
+    if (typeof sessionId !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(sessionId)) {
+      return new Response(JSON.stringify({ error: 'Please sign in again before verifying.' }), { status: 401, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
-
-    if (new Date(row.expires_at).getTime() < Date.now()) {
-      return new Response(JSON.stringify({ error: 'Code expired. Please request a new one.' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    const { data: proof, error: proofError } = await admin.rpc('consume_admin_verification_code', {
+      p_user: userId, p_session: sessionId, p_code_hash: await sha256Hex(code),
+    });
+    if (proofError) {
+      console.error('Admin verification transaction failed');
+      return new Response(JSON.stringify({ error: 'Verification unavailable. Please request a new code.' }), { status: 503, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
-
-    if (row.attempts >= 5) {
-      await admin.from('admin_otp_codes').update({ consumed_at: new Date().toISOString() }).eq('id', row.id);
-      return new Response(JSON.stringify({ error: 'Too many attempts. Please request a new code.' }), { status: 429, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
+    const expiry = Date.parse(proof?.expires_at || '');
+    if (proof?.result !== 'verified' || !Number.isFinite(expiry) || expiry <= Date.now()) {
+      const messages: Record<string, string> = {
+        invalid_code: 'Invalid code', expired: 'Code expired. Please request a new one.',
+        too_many_attempts: 'Too many attempts. Please request a new code.',
+      };
+      return new Response(JSON.stringify({ error: messages[proof?.result] || 'No active code. Please request a new one.' }), { status: proof?.result === 'too_many_attempts' ? 429 : 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
     }
-
-    const codeHash = await sha256Hex(code);
-    if (codeHash !== row.code_hash) {
-      await admin.from('admin_otp_codes').update({ attempts: row.attempts + 1 }).eq('id', row.id);
-      return new Response(JSON.stringify({ error: 'Invalid code' }), { status: 400, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
-    }
-
-    // Mark consumed
-    await admin.from('admin_otp_codes').update({ consumed_at: new Date().toISOString() }).eq('id', row.id);
-
-    // Issue a short-lived signed grant (10 minutes)
-    const grant = {
-      user_id: userId,
-      exp: Date.now() + 10 * 60 * 1000,
-    };
+    const grant = { user_id: userId, session_id: sessionId, exp: expiry };
     const grantStr = btoa(JSON.stringify(grant));
     const signature = await sha256Hex(grantStr + '|' + serviceKey);
 

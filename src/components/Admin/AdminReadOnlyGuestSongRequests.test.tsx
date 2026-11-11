@@ -15,7 +15,7 @@ describe('read-only saved Guest Song Requests',()=>{
   expect(screen.getByText(row.guest_name)).toBeInTheDocument();expect(screen.getByText(row.song_title)).toBeInTheDocument();
   expect(screen.getByRole('link',{name:row.music_link!})).toHaveAttribute('href',row.music_link);
   expect(screen.getByRole('button',{name:'Delete song request'})).toBeDisabled();
-  expect(screen.getByRole('combobox')).toBeDisabled();
+  expect(screen.getByRole('combobox', {name:'Request status: Wedding song'})).toBeDisabled();
   expect(mocks.rowsHook).not.toHaveBeenCalled();expect(mocks.settingsHook).not.toHaveBeenCalled();
   fireEvent.click(screen.getByRole('button',{name:'Download PDF'}));
   await waitFor(()=>expect(mocks.pdf).toHaveBeenCalled());

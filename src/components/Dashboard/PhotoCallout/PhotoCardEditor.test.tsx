@@ -1,0 +1,13 @@
+import React from 'react';
+import {render,screen,fireEvent,waitFor,cleanup} from '@testing-library/react';
+import {describe,it,expect,vi,afterEach} from 'vitest';
+import {PhotoCardEditor} from './PhotoCardEditor';
+import {createPhotoCard} from '@/types/photoCallout';
+afterEach(cleanup);
+const setup=()=>{const onSave=vi.fn().mockResolvedValue(true);render(<PhotoCardEditor card={{...createPhotoCard(),title:'Ceremony family'}} privateNote="" guests={[]} tables={[]} event={{id:'event',name:'Wedding'}} saving={false} includeAllGuests={false} onSave={onSave} onClose={()=>{}}/>);return onSave;};
+describe('manual photo group names',()=>{
+ it('saves a pending family name without requiring Add or a guest list entry',async()=>{const save=setup();fireEvent.change(screen.getByLabelText('Add a name manually'),{target:{value:'  Uncle John and his family  '}});fireEvent.click(screen.getByRole('button',{name:'Save Photo Group'}));await waitFor(()=>expect(save).toHaveBeenCalledTimes(1));expect(save.mock.calls[0][0].people).toEqual([{id:expect.any(String),name:'Uncle John and his family'}]);});
+ it('keeps added names and includes the next pending name once',async()=>{const save=setup();const field=screen.getByLabelText('Add a name manually');fireEvent.change(field,{target:{value:'Ceremony friend'}});fireEvent.click(screen.getByRole('button',{name:'Add typed guest name'}));fireEvent.change(field,{target:{value:'Uncle John and his family'}});fireEvent.click(screen.getByRole('button',{name:'Save Photo Group'}));await waitFor(()=>expect(save).toHaveBeenCalledTimes(1));expect(save.mock.calls[0][0].people.map((p:any)=>p.name)).toEqual(['Ceremony friend','Uncle John and his family']);});
+ it('does not accept whitespace as a person',()=>{const save=setup();fireEvent.change(screen.getByLabelText('Add a name manually'),{target:{value:'   '}});fireEvent.click(screen.getByRole('button',{name:'Save Photo Group'}));expect(save).not.toHaveBeenCalled();expect(screen.getByRole('alert').textContent).toContain('Add at least one person');});
+ it('checks the text limit against the pending name too',()=>{const save=vi.fn();render(<PhotoCardEditor card={{...createPhotoCard(),title:'Family',notes:'n'.repeat(1000)}} privateNote="" guests={[]} tables={[]} event={{id:'event',name:'Wedding'}} saving={false} includeAllGuests={false} onSave={save} onClose={()=>{}}/>);fireEvent.change(screen.getByLabelText('Add a name manually'),{target:{value:'a'.repeat(100)}});fireEvent.click(screen.getByRole('button',{name:'Save Photo Group'}));expect(save).not.toHaveBeenCalled();expect(screen.getByRole('alert').textContent).toContain('too much text');});
+});

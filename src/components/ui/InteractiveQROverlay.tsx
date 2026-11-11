@@ -124,7 +124,8 @@ export const InteractiveQROverlay: React.FC<InteractiveQROverlayProps> = ({
     dragStartRef.current = null;
     resizeStartRef.current = null;
     rotateStartRef.current = null;
-    (e.currentTarget as HTMLElement).releasePointerCapture(e.pointerId);
+    const target = e.currentTarget as HTMLElement;
+    if (target.hasPointerCapture?.(e.pointerId)) target.releasePointerCapture(e.pointerId);
   }, []);
 
   const handleCornerDown = useCallback((e: React.PointerEvent, corner: string) => {
@@ -161,6 +162,8 @@ export const InteractiveQROverlay: React.FC<InteractiveQROverlayProps> = ({
       onPointerDown={handlePointerDown}
       onPointerMove={handlePointerMove}
       onPointerUp={handlePointerUp}
+      onPointerCancel={handlePointerUp}
+      onLostPointerCapture={handlePointerUp}
       onClick={(e) => { e.stopPropagation(); onSelect(); }}
     >
       <img

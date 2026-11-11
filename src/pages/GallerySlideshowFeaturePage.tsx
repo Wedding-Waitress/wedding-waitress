@@ -1,5 +1,6 @@
 // Feature workspace: Live Slideshow
 import React, { useEffect, useMemo, useState } from 'react';
+import { useSharedGuestbookText } from '@/hooks/useSharedGuestbookText';
 import { useNavigate } from 'react-router-dom';
 import { usePhotoVideoFeatureWorkspace, type PhotoVideoWorkspaceSelection } from '@/hooks/usePhotoVideoFeatureWorkspace';
 import { useToast } from '@/hooks/use-toast';
@@ -18,6 +19,7 @@ export const GallerySlideshowFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSe
   const navigate = useNavigate();
   const { toast } = useToast();
   const { selectedEventId, selectedEvent, selectionStatus, meta, items, loading, error, setSlideshowEnabled, updateSlideshowSettings } = usePhotoVideoFeatureWorkspace(selection);
+  const writtenMemories = useSharedGuestbookText(selectedEventId);
   const [saving, setSaving] = useState(false);
   const [draft, setDraft] = useState<SlideshowSettings | null>(null);
 
@@ -49,6 +51,7 @@ export const GallerySlideshowFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSe
         noIndex
       />
       <FeatureWorkspaceLayout
+        hideSelectedEventPanel
         brownOutline
         backgroundAppearance="photo-video-sharing"
         controlsAppearance="photo-video-sharing"
@@ -91,7 +94,7 @@ export const GallerySlideshowFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSe
               appearance="espresso-glass"
             />
 
-            <GallerySlideshowPreviewCard onExit={goBack} eventName={selectedEvent?.name} items={items} settings={effective} loading={loading && items.length === 0} appearance="espresso-glass" />
+            <GallerySlideshowPreviewCard onExit={goBack} eventName={selectedEvent?.name} items={[...items, ...writtenMemories]} settings={effective} loading={loading && items.length === 0} appearance="espresso-glass" />
           </div>
         )}
       </FeatureWorkspaceLayout>

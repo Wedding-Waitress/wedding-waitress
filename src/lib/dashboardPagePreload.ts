@@ -12,6 +12,7 @@ export const dashboardPageLoaders = {
   'full-seating-chart': () => import('@/components/Dashboard/FullSeatingChart/FullSeatingChartPage'),
   'live-slideshow': () => import('@/components/Dashboard/LiveSlideshow/LiveSlideshowSetup'),
   'dj-mc-questionnaire': () => import('@/components/Dashboard/DJMCQuestionnaire'),
+  'photo-callout-cards': () => import('@/components/Dashboard/PhotoCallout/PhotoCalloutPage'),
   'running-sheet': () => import('@/components/Dashboard/RunningSheet'),
   'photo-video-gallery': () => import('@/components/Dashboard/PhotoVideoGallery'),
 } as const;

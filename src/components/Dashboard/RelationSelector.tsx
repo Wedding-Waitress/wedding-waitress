@@ -88,6 +88,15 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
   const handleAddCustomRole = async () => {
     const roleName = newCustomRole.trim();
     if (!roleName) return;
+
+    if (roleName.toLowerCase() === 'guest') {
+      toast({
+        title: "Relationship Unavailable",
+        description: "Guest is not a relationship option. Leave the relationship unset instead.",
+        variant: "destructive",
+      });
+      return;
+    }
     
     // Check if already exists (case-insensitive)
     if (customRoles.some(r => r.toLowerCase() === roleName.toLowerCase())) {

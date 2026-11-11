@@ -452,3 +452,7 @@
     transition-duration: 0.01ms;
   }
 }
+
+/* Account panels and rectangular form controls follow the approved square style. */
+.dialog, .input, .codeInput, .primaryButton { border-radius: 0 !important; }
+

@@ -1,3 +1,4 @@
+import { normalizePublicPlanName } from '@/lib/stripeExtensionPrices';
 /**
  * ⚠️ PRODUCTION-READY — LOCKED FOR PRODUCTION ⚠️
  * 
@@ -17,6 +18,7 @@
  */
 
 import React, { lazy, Suspense, useState, useEffect, useMemo, useCallback, useRef } from 'react';
+import { matchesGuestListSearch } from '@/lib/guestListSearch';
 import { readGuestImportFile } from '@/lib/guestImportFile';
 import { normalizeGuestPhone } from '@/lib/guestPhone';
 import { Card } from "@/components/ui/card";
@@ -96,7 +98,7 @@ import { RelationBadge } from './RelationBadge';
 import { supabase } from "@/integrations/supabase/client";
 import { getDefaultRsvpInviteRecipientIds, getRsvpBadgeVariant, getRsvpDisplayLabel, hasGuestResponded } from "@/lib/rsvp";
 import { formatDisplayDate } from '@/lib/utils';
-import { RELATION_ROLE_LABELS, computeRelationDisplay } from "@/lib/relationUtils";
+import { RELATION_ROLE_LABELS, computeRelationDisplay, getRelationDisplayText, isLegacyGuestRelation } from "@/lib/relationUtils";
 import { whoIsAnalytics } from '@/lib/analytics';
 import { GuestBulkActionsBar } from './GuestBulkActionsBar';
 import { getCreditHealth } from './SmartSmsCreditStatus';
@@ -136,14 +138,18 @@ import {
 } from '@/lib/guestGroupClassification';
 import { useGuestAdditionNotifications } from '@/hooks/useGuestAdditionNotifications';
 import { CommunicationCreditSummaryCard, normalizeCommunicationCredits } from './CommunicationCreditSummaryCard';
+import { effectiveEventGuestLimit, isTrialGuestPlan } from '@/lib/guestEntitlement';
+import type { RsvpDeliveryMethod } from '@/lib/rsvpInviteWorkflow';
 
-const AddGuestModal = lazy(() => import('./AddGuestModal').then(module => ({ default: module.AddGuestModal })));
+import { AddGuestModal } from './AddGuestModal';
 const GuestDeleteConfirmationModal = lazy(() => import('./GuestDeleteConfirmationModal').then(module => ({ default: module.GuestDeleteConfirmationModal })));
 const ImportErrorModal = lazy(() => import('./ImportErrorModal').then(module => ({ default: module.ImportErrorModal })));
-const GuestLimitDialog = lazy(() => import('./GuestLimitDialog').then(module => ({ default: module.GuestLimitDialog })));
+import { GuestLimitDialog } from './GuestLimitDialog';
+import { PlanUpgradeStatus } from '@/components/Subscription/PlanUpgradeStatus';
 const BulkTableAssignmentModal = lazy(() => import('./BulkTableAssignmentModal').then(module => ({ default: module.BulkTableAssignmentModal })));
 const BulkRsvpUpdateModal = lazy(() => import('./BulkRsvpUpdateModal').then(module => ({ default: module.BulkRsvpUpdateModal })));
 const SendRsvpConfirmModal = lazy(() => import('./SendRsvpConfirmModal').then(module => ({ default: module.SendRsvpConfirmModal })));
+const ManualInviteConfirmModal = lazy(() => import('./ManualInviteConfirmModal').then(module => ({ default: module.ManualInviteConfirmModal })));
 const RsvpAlreadyPaidModal = lazy(() => import('./RsvpAlreadyPaidModal').then(module => ({ default: module.RsvpAlreadyPaidModal })));
 const RsvpOverageModal = lazy(() => import('./RsvpOverageModal').then(module => ({ default: module.RsvpOverageModal })));
 const ResendSmartRsvpModal = lazy(() => import('./ResendSmartRsvpModal').then(module => ({ default: module.ResendSmartRsvpModal })));
@@ -151,6 +157,7 @@ const SmartRsvpAnalyticsPanel = lazy(() => import('./SmartRsvpAnalyticsPanel').t
 const GuestIntelligencePanel = lazy(() => import('./GuestIntelligence/GuestIntelligencePanel').then(module => ({ default: module.GuestIntelligencePanel })));
 const GuestListUtilityDrawer = lazy(() => import('./GuestListUtilityDrawer').then(module => ({ default: module.GuestListUtilityDrawer })));
 const GuestAdditionSmsVerificationDialog = lazy(() => import('./GuestAdditionSmsVerificationDialog').then(module => ({ default: module.GuestAdditionSmsVerificationDialog })));
+const UpgradePlanModal = lazy(() => import('@/components/Subscription/UpgradePlanModal').then(module => ({ default: module.UpgradePlanModal })));
 
 type GuestListCentre = 'communications' | 'delivery' | 'intelligence' | 'sms' | 'guest-live-view' | null;
 
@@ -269,6 +276,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   // Dashboard supplies the shared event selection; local state remains a standalone fallback.
   const selectedEventId = propSelectedEventId !== undefined ? propSelectedEventId : localSelectedEventId;
+  const selectedEvent = events.find(event => event.id === selectedEventId);
   const guests = useMemo(
     () => normalizeGuidedSetupGuestGroups(persistedGuests),
     [persistedGuests],
@@ -352,14 +360,23 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const [showSmsVerification, setShowSmsVerification] = useState(false);
   const [activeCentre, setActiveCentre] = useState<GuestListCentre>(null);
   const utilityTileRef = useRef<HTMLButtonElement | null>(null);
-  const [sendChannel, setSendChannel] = useState<'email' | 'sms'>('email');
-  const { sendEmailInvites, sendSmsInvites, sending } = useRsvpInvites();
-  const { credits: smsCredits, loading: smsCreditsLoading, error: smsCreditsError } = useSmsCredits(selectedEventId);
+  const [sendChannel, setSendChannel] = useState<RsvpDeliveryMethod>('email');
+  const [pendingManualMethod, setPendingManualMethod] = useState<string | null>(null);
+  const [showManualInviteConfirm, setShowManualInviteConfirm] = useState(false);
+  const [manualInviteUpdating, setManualInviteUpdating] = useState(false);
+  const { sendEmailInvites, sendSmsInvites, sendRsvpInvites, sending } = useRsvpInvites();
+  const { credits: smsCredits, loading: smsCreditsLoading, error: smsCreditsError, refetch: refetchSmsCredits } = useSmsCredits(selectedEventId);
   const { hasPurchased: hasRsvpPurchase, purchase: rsvpPurchase, loading: rsvpPurchaseLoading, overageGuests: purchasedGuestCapacity, refetch: refetchRsvpPurchase } = useRsvpPurchase(selectedEventId);
   const { plan, hasPlatformOwnerAccess } = useUserPlan();
   const canBuyGuestCapacity = !hasPlatformOwnerAccess && /^(essential|premium|ultimate|unlimited)$/i.test(plan?.plan_name || '');
-  const planBaseGuestCapacity = canBuyGuestCapacity && plan?.guest_limit != null ? plan.guest_limit : null;
-  const totalGuestCapacity = planBaseGuestCapacity == null ? null : planBaseGuestCapacity + purchasedGuestCapacity;
+  const planBaseGuestCapacity = !hasPlatformOwnerAccess && plan?.guest_limit != null ? plan.guest_limit : null;
+  const entitledGuestCapacity = planBaseGuestCapacity == null ? null : planBaseGuestCapacity + purchasedGuestCapacity;
+  const allowedGuestLimit = effectiveEventGuestLimit({
+    eventGuestLimit: selectedEvent?.guest_limit,
+    entitledGuestLimit: entitledGuestCapacity,
+    isPlatformOwner: hasPlatformOwnerAccess,
+    isTrial: !!plan && isTrialGuestPlan(plan.plan_name),
+  });
   const planCommunicationCredits = hasPlatformOwnerAccess ? 450 : getPlanCommunicationCredits(plan?.plan_name);
   const communicationBalance = normalizeCommunicationCredits(smsCredits, planCommunicationCredits);
   const smsHealth = getCreditHealth(communicationBalance.remaining, communicationBalance.total);
@@ -459,7 +476,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       ? `${creditsAdded} shared Email & SMS credits added • $${amount.toFixed(2)} AUD`
       : ptype === 'rsvp_overage' || ptype === 'guest_capacity_topup'
       ? `${storedCount} additional guest spaces • Capacity add-on • $${amount.toFixed(2)} AUD`
-      : `${storedCount} ${storedCount === 1 ? 'guest' : 'guests'} invited${tierLabel ? ` • ${tierLabel}` : ''} • $${amount.toFixed(2)} AUD`;
+      : `${storedCount} ${storedCount === 1 ? 'guest' : 'guests'} invited${tierLabel ? ` • ${normalizePublicPlanName(tierLabel)}` : ''} • $${amount.toFixed(2)} AUD`;
 
     sonnerToast.success(
       ptype === 'communication_topup'
@@ -505,8 +522,17 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   // Guest limit dialog state
   const [showGuestLimitDialog, setShowGuestLimitDialog] = useState(false);
   const [showGuestCapacityTopup, setShowGuestCapacityTopup] = useState(false);
+  const [showUpgradePlan, setShowUpgradePlan] = useState(false);
   const [guestLimitDialogVariant, setGuestLimitDialogVariant] = useState<'congratulations' | 'exceeded'>('exceeded');
   const guestLimitCongratulationsShownRef = React.useRef(false);
+
+  useEffect(() => {
+    if (searchParams.get('guest-upgrade') !== '1' || !canBuyGuestCapacity || !selectedEventId) return;
+    setShowGuestCapacityTopup(true);
+    const next = new URLSearchParams(searchParams);
+    next.delete('guest-upgrade');
+    setSearchParams(next, { replace: true });
+  }, [canBuyGuestCapacity, searchParams, selectedEventId, setSearchParams]);
   // Selection handlers
   const handleSelectGuest = (guestId: string, checked: boolean) => {
     setSelectedGuestIds(prev => {
@@ -722,7 +748,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       relationSettings.custom_roles || []
     );
 
-    return computedDisplay || guest.relation_display || '';
+    return computedDisplay || getRelationDisplayText(guest.relation_display, guest.relation_role);
   }, [relationSettings.custom_roles]);
 
   const handleSavePartnerNames = async (nextPartner1Name?: string, nextPartner2Name?: string) => {
@@ -813,7 +839,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     }
 
     // Check if we just reached the guest limit (show congratulations once)
-    const eventGuestLimit = totalGuestCapacity ?? selectedEvent?.guest_limit ?? 0;
+    const eventGuestLimit = allowedGuestLimit ?? 0;
     if (eventGuestLimit > 0 && !guestLimitCongratulationsShownRef.current) {
       // We need to re-check after refetch. Use a small delay to let state update.
       setTimeout(() => {
@@ -891,9 +917,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     // Reset search
     setSearchTerm('');
   };
-
-  // Get selected event
-  const selectedEvent = events.find(event => event.id === selectedEventId);
 
   // Older Guided Setup couples have an origin label but may predate family_group
   // persistence. Repair only those exact paired origin records, then let the
@@ -1078,14 +1101,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     });
 
     // Apply search filter
-    const filtered = searchTerm
-      ? allSortedGuests.filter(guest =>
-          guest.first_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          guest.last_name?.toLowerCase().includes(searchTerm.toLowerCase()) ||
-          `${guest.first_name || ''} ${guest.last_name || ''}`.trim().toLowerCase().includes(searchTerm.toLowerCase()) ||
-          guest.family_group?.toLowerCase().includes(searchTerm.toLowerCase())
-        )
-      : allSortedGuests;
+    const filtered = allSortedGuests.filter(guest => matchesGuestListSearch(guest, searchTerm));
 
     // For first_name, last_name, table_name: flatten all guests into individual rows
     const shouldFlatten = sortBy === 'first_name' || sortBy === 'last_name' || sortBy === 'table_name';
@@ -1197,15 +1213,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     if (!guests.length) return guests;
     
     // Filter guests by search term first
-    const filtered = guests.filter(guest => {
-      if (!searchTerm.trim()) return true;
-      
-      const searchLower = searchTerm.toLowerCase();
-      const firstNameMatch = (guest.first_name || '').toLowerCase().includes(searchLower);
-      const lastNameMatch = (guest.last_name || '').toLowerCase().includes(searchLower);
-      
-      return firstNameMatch || lastNameMatch;
-    });
+    const filtered = guests.filter(guest => matchesGuestListSearch(guest, searchTerm));
     
     const smartTableCompareExport = (nameA: string, nameB: string) => {
       const numA = nameA.match(/^(?:table\s+)?(\d+)$/i);
@@ -1264,20 +1272,23 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     const XLSX = await import('xlsx-js-style');
     if (!selectedEvent || !sortedGuests.length) return;
     
-    const rows = sortedGuests.map(guest => [
-      guest.first_name || '',
-      guest.last_name || '',
-      getTableName(guest) || '',
-      guest.seat_no || '',
-      guest.rsvp || 'Pending',
-      guest.dietary || 'NA',
-      guest.mobile || '',
-      guest.email || '',
-      (guest.notes || '').replace(/^\[NEW\+\]/, ''),
-      guest.relation_partner || '',
-      guest.relation_role || '',
-      guest.relation_display || ''
-    ]);
+    const rows = sortedGuests.map(guest => {
+      const hasLegacyGuestRelation = isLegacyGuestRelation(guest.relation_role, guest.relation_display);
+      return [
+        guest.first_name || '',
+        guest.last_name || '',
+        getTableName(guest) || '',
+        guest.seat_no || '',
+        guest.rsvp || 'Pending',
+        guest.dietary || 'NA',
+        guest.mobile || '',
+        guest.email || '',
+        (guest.notes || '').replace(/^\[NEW\+\]/, ''),
+        hasLegacyGuestRelation ? '' : guest.relation_partner || '',
+        hasLegacyGuestRelation ? '' : guest.relation_role || '',
+        hasLegacyGuestRelation ? '' : guest.relation_display || '',
+      ];
+    });
     
     const ws = XLSX.utils.aoa_to_sheet([DISPLAY_EXPORT_HEADERS, ...rows]);
     // Bold header row
@@ -1366,17 +1377,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           
           const dataRows = lines.slice(1);
           const currentGuestCount = guests.length;
-          const guestLimit = selectedEvent.guest_limit || 50;
+          const guestLimit = allowedGuestLimit;
           
           // Update analytics with actual row count
           whoIsAnalytics.importStarted(selectedEvent.id, dataRows.length);
           
-          if (currentGuestCount + dataRows.length > guestLimit) {
-            toast({ 
-              title: "Import failed", 
-              description: `Adding ${dataRows.length} guests would exceed the limit of ${guestLimit}. Current: ${currentGuestCount}`,
-              variant: "destructive"
-            });
+          if (guestLimit != null && currentGuestCount + dataRows.length > guestLimit) {
+            setGuestLimitDialogVariant('exceeded');
+            setShowGuestLimitDialog(true);
             return;
           }
           
@@ -1605,6 +1613,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 
               if (error) {
                 console.error('Import error:', error);
+                if (error.message?.includes('WW_GUEST_LIMIT_REACHED')) {
+                  setGuestLimitDialogVariant('exceeded');
+                  setShowGuestLimitDialog(true);
+                  return;
+                }
                 toast({ 
                   title: "Import failed", 
                   description: "Error importing guests. Please try again.",
@@ -1647,16 +1660,17 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
   const handleAddGuest = () => {
     if (!selectedEvent) return;
-
-    const prerequisite = getGuestCreationPrerequisite(selectedEventId, tablesLoading, tables.length);
-    if (prerequisite === 'loading-tables') {
-      toast({
-        title: "Loading tables",
-        description: "Please wait while the table setup is checked.",
-      });
+    // A full guest list always opens its upgrade choice, even if another
+    // setup prerequisite is still loading or a saved event limit is stale.
+    if (allowedGuestLimit != null && guests.length >= allowedGuestLimit) {
+      setGuestLimitDialogVariant('exceeded');
+      setShowGuestLimitDialog(true);
       return;
     }
 
+    const prerequisite = getGuestCreationPrerequisite(selectedEventId, tablesLoading, tables.length);
+    // Open the form immediately while seating choices load; required table/seat
+    // validation still prevents saving without a valid assignment.
     if (prerequisite === 'create-tables') {
       setShowAddModal(false);
       toast({
@@ -1692,13 +1706,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       return;
     }
 
-    // Guest limit check - block if already at or over limit
-    const eventGuestLimit = totalGuestCapacity ?? selectedEvent?.guest_limit ?? 0;
-    if (eventGuestLimit > 0 && guestCount >= eventGuestLimit) {
-      setGuestLimitDialogVariant('exceeded');
-      setShowGuestLimitDialog(true);
-      return;
-    }
     
     // Normal flow - open the add guest modal after all prerequisites pass.
     setEditingGuest(null);
@@ -1770,10 +1777,10 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   const renderAddressPill = (g: any) => {
     const received = g?.address_received === true;
     if (!received) {
-      return <Badge className="text-white lv-premium-shade bg-red-500">NO</Badge>;
+      return <Badge data-tone="inverse" className={`${styles.addressBadge} text-white lv-premium-shade bg-red-500`}>NO</Badge>;
     }
     const lines = getMailingLines(g);
-    const pill = <Badge className="text-white lv-premium-shade bg-green-500 cursor-default">YES</Badge>;
+    const pill = <Badge data-tone="inverse" className={`${styles.addressBadge} text-white lv-premium-shade bg-green-500 cursor-default`}>YES</Badge>;
     if (lines.length === 0) return pill;
     return (
       <TooltipProvider>
@@ -1804,6 +1811,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
       <Card className={styles.pagePanel}>
         <div className="p-8 text-center space-y-4">
           <div className="text-muted-foreground">Select an event to view its guest list</div>
+          <PlanUpgradeStatus />
           
           {/* Event dropdown */}
           <div className="flex justify-center">
@@ -1852,18 +1860,18 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 <p className="text-sm text-muted-foreground">
                   Manage your event guests, track RSVPs, assign tables, and organize seating arrangements
                 </p>
-                {totalGuestCapacity != null && (
+                {allowedGuestLimit != null && (
                   <span
                     className={`ml-auto inline-flex items-center gap-1.5 rounded-full border px-3 py-1 text-xs font-semibold whitespace-nowrap ${
-                      guests.length >= totalGuestCapacity
+                      guests.length >= allowedGuestLimit
                         ? 'border-red-300 bg-red-50 text-red-700'
                         : 'border-primary/30 bg-primary/5 text-primary'
                     }`}
                     title="Guest capacity for this event"
                   >
-                    Guest Capacity: {guests.length} of {totalGuestCapacity}
+                    Guest Capacity: {guests.length} of {allowedGuestLimit}
                     {purchasedGuestCapacity > 0 && ` • +${purchasedGuestCapacity} purchased`}
-                    <button type="button" className="ml-1 underline underline-offset-2" onClick={() => setShowGuestCapacityTopup(true)}>Add capacity</button>
+                    {canBuyGuestCapacity && <button type="button" className="ml-1 underline underline-offset-2" onClick={() => setShowGuestCapacityTopup(true)}>Add capacity</button>}
                   </span>
                 )}
               </div>
@@ -2096,7 +2104,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                           {!useDefaultNames && (
                             <div className="flex flex-col gap-2 pl-2 mt-1">
                               <div className="flex items-center gap-2">
-                                <Label className="text-sm font-medium w-24 shrink-0 flex items-center gap-1.5"><UserRound size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Partner 1:</Label>
+                                <Label htmlFor="partner1-name" className="text-sm font-medium w-24 shrink-0 flex items-center gap-1.5"><UserRound size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Partner 1:</Label>
                                 <Input
                                   id="partner1-name"
                                   value={partner1Name}
@@ -2110,8 +2118,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                 />
                               </div>
                               <div className="flex items-center gap-2">
-                                <Label className="text-sm font-medium w-24 shrink-0 flex items-center gap-1.5"><UserRound size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Partner 2:</Label>
+                                <Label htmlFor="partner2-name" className="text-sm font-medium w-24 shrink-0 flex items-center gap-1.5"><UserRound size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Partner 2:</Label>
                                 <Input
+                                  id="partner2-name"
                                   value={partner2Name}
                                   onChange={(e) => {
                                     setPartner2Name(e.target.value);
@@ -2240,9 +2249,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   <h3 className="text-lg font-bold text-primary mb-0.5 flex items-center gap-2"><UserPlus size={20} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Step 5: Add Your Guests</h3>
                   <p className="text-sm text-muted-foreground mb-6">Start building your guest list</p>
                   <div className="flex-1 flex flex-col items-center justify-center">
-                  {getGuestCreationPrerequisite(selectedEventId, tablesLoading, tables.length) === 'loading-tables' ? (
-                    <p className="text-sm text-muted-foreground" role="status">Checking table setup...</p>
-                  ) : getGuestCreationPrerequisite(selectedEventId, tablesLoading, tables.length) === 'create-tables' ? (
+                  {getGuestCreationPrerequisite(selectedEventId, tablesLoading, tables.length) === 'create-tables' ? (
                     <div className="flex flex-col items-center text-center gap-3" role="status">
                       <p className="text-sm text-muted-foreground">Create at least one table before adding guests.</p>
                       {onNavigateToTables && (
@@ -2350,7 +2357,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       variant="channel"
                       ariaLabel="Plan and shared Email and SMS credit summary"
                       eventId={selectedEventId}
-                      canPurchaseCredits={!hasPlatformOwnerAccess && /^(essential|premium|ultimate|unlimited)$/i.test(plan?.plan_name || '')}
+                      
                     />
                   </div>
 
@@ -2394,139 +2401,17 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               )}
             </div>
 
-            {/* RIGHT SIDE: Sort By, Import/Export, Add Guest */}
-            <div className="flex items-center gap-2 flex-wrap">
 
-              <TooltipProvider>
-                {/* Sort By Dropdown - hidden on mobile */}
-                <div className="hidden sm:block lg:hidden">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <button 
-                              data-tone="inverse" className="ww-guest-toolbar-button inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
-                              disabled={!selectedEventId}
-                            >
-                              <ArrowUpDown size={16} strokeWidth={1.8} aria-hidden="true"  className="text-white" />
-                              Sort By
-                              <ChevronDown className="text-white w-3 h-3" />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="ww-guest-list-menu w-40">
-                            {SORT_OPTIONS.map((option) => (
-                              <DropdownMenuItem
-                                key={option.value}
-                                onClick={() => handleSortChange(option.value)}
-                                className={`gap-2 ${sortBy === option.value ? "bg-accent" : ""} ${option.value === 'individuals_first' ? 'text-pink-500' : option.value === 'couples_first' ? 'text-orange-500' : option.value === 'families_first' ? 'text-blue-600' : option.value === 'default' ? 'text-red-500' : ''}`}
-                              >
-                                <option.icon className="h-4 w-4" />
-                                {option.label}
-                              </DropdownMenuItem>
-                            ))}
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </TooltipTrigger>
-                    {!selectedEventId && (
-                      <TooltipContent>
-                        <p>Choose an event first</p>
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </div>
-
-                {/* Import/Export CSV Dropdown - hidden on mobile */}
-                <div className="hidden sm:block lg:hidden">
-                  <Tooltip>
-                    <TooltipTrigger asChild>
-                      <div>
-                        <DropdownMenu>
-                          <DropdownMenuTrigger asChild>
-                            <button 
-                              data-tone="inverse" className="ww-guest-toolbar-button inline-flex items-center gap-2 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none"
-                              disabled={!selectedEventId}
-                            >
-                              <FileUp size={16} strokeWidth={1.8} aria-hidden="true" className="text-white" />
-                              Import / Export CSV
-                              <ChevronDown className="text-white w-3 h-3" />
-                            </button>
-                          </DropdownMenuTrigger>
-                          <DropdownMenuContent align="end" className="ww-guest-list-menu w-48">
-                            <DropdownMenuItem onClick={downloadTemplate}>
-                              <Download className="w-4 h-4 mr-2" />
-                              Download Template
-                            </DropdownMenuItem>
-                            <DropdownMenuItem onClick={handleImportCSV}>
-                              <FileUp size={16} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
-                              Import CSV
-                            </DropdownMenuItem>
-                            <DropdownMenuItem 
-                              onClick={exportGuestList}
-                              disabled={guestCount === 0}
-                            >
-                              <FileDown size={16} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
-                              Export Guest List
-                            </DropdownMenuItem>
-                          </DropdownMenuContent>
-                        </DropdownMenu>
-                      </div>
-                    </TooltipTrigger>
-                    {!selectedEventId && (
-                      <TooltipContent>
-                        <p>Choose an event first</p>
-                      </TooltipContent>
-                    )}
-                  </Tooltip>
-                </div>
-              </TooltipProvider>
-
-            </div>
           </div>
         </div>
 
-        {/* MOBILE-ONLY layout: filters → search+total → instruction */}
-        <div className="lg:hidden mt-3 mb-3 mx-4 flex flex-col gap-3">
-          {/* Filter tabs row */}
-          <div className="grid grid-cols-3 gap-2">
-            <div data-tone="inverse" className={`${styles.guestCountBadge} inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-pink-500 text-white lv-premium-shade`}>
-              {individualCount} Individual
-            </div>
-            <div data-tone="inverse" className={`${styles.guestCountBadge} inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-orange-500 text-white lv-premium-shade`}>
-              {coupleCount} Couple
-            </div>
-            <div data-tone="inverse" className={`${styles.guestCountBadge} inline-flex items-center justify-center gap-1 whitespace-nowrap rounded-full text-xs font-medium h-8 px-3 bg-blue-600 text-white lv-premium-shade`}>
-              {familyCount} Family
-            </div>
-          </div>
-
-          {/* Search + Total Guests row */}
-          <div className="flex items-center gap-2">
-            <div className="relative flex-1">
-              <Search size={18} strokeWidth={1.8} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
-              <Input
-                placeholder="Search guests..."
-                value={searchTerm}
-                onChange={(e) => setSearchTerm(e.target.value)}
-                className="pl-10 w-full border-2 border-primary h-10 rounded-full text-sm"
-              />
-            </div>
-            <div className="inline-flex items-center justify-center gap-1.5 whitespace-nowrap rounded-full text-xs font-medium h-10 px-3 bg-white border-2 border-primary text-foreground flex-shrink-0 lv-premium-shade">
-              <Users className="w-3.5 h-3.5" />
-              {guestCount} Total Guest{guestCount !== 1 ? 's' : ''}
-            </div>
-          </div>
-
-        </div>
-
-        {/* DESKTOP layout */}
-        <div className="hidden lg:flex mt-2 mb-8 mx-3 sm:mx-6 items-center justify-between gap-3 flex-wrap">
-          <div className="flex items-center gap-2 flex-wrap">
+        {/* Shared table controls: counts, plan information, then guest actions. */}
+        <div data-guest-table-toolbar className="ww-guest-plan-toolbar mt-2 mb-8 mx-3 sm:mx-6">
+          <div className="ww-guest-count-controls flex items-center gap-2 flex-wrap">
             <div className="relative">
               <Search size={18} strokeWidth={1.8} className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground" aria-hidden="true" />
               <Input
-                placeholder="Search guests..."
+                placeholder="Search guests..." aria-label="Search guests"
                 value={searchTerm}
                 onChange={(e) => setSearchTerm(e.target.value)}
                 className="pl-10 w-[180px] sm:w-[200px] border-2 border-primary h-8 sm:h-9 rounded-full text-xs sm:text-sm"
@@ -2547,8 +2432,13 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             </div>
           </div>
 
-          {/* RIGHT SIDE: Sort By + Import/Export (desktop only — tablet keeps them in the upper row) */}
-          <div className="flex items-center gap-2 flex-wrap">
+          <div data-plan-controls-location="guest-table-toolbar" className="ww-guest-plan-slot"><PlanUpgradeStatus /></div>
+          {/* Existing add, sort and CSV actions retain their handlers. */}
+          <div className="ww-guest-table-actions flex items-center gap-2 flex-wrap">
+            <Button variant="default" size="lg" onClick={handleAddGuest} disabled={!selectedEventId} data-tone="inverse" className="ww-guest-toolbar-button ww-setup-green-action bg-green-500 hover:bg-green-600 text-white rounded-full flex items-center gap-2 px-8 py-3 text-base lv-premium-shade shrink-0">
+                  <UserPlus size={16} strokeWidth={1.8} aria-hidden="true" />
+                  + Add Guest
+                </Button>
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
@@ -2574,6 +2464,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               </DropdownMenuContent>
             </DropdownMenu>
 
+            <div className="ww-guest-csv-control">
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <button
@@ -2603,6 +2494,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 </DropdownMenuItem>
               </DropdownMenuContent>
             </DropdownMenu>
+            </div>
           </div>
         </div>
 
@@ -3234,6 +3126,25 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         </div>
       )}
 
+        {showGuestLimitDialog && <GuestLimitDialog
+          isOpen={showGuestLimitDialog}
+          onClose={() => setShowGuestLimitDialog(false)}
+          variant={guestLimitDialogVariant}
+          guestLimit={allowedGuestLimit ?? 0}
+          planName={plan?.plan_name}
+          planGuestLimit={planBaseGuestCapacity}
+          isTrial={!hasPlatformOwnerAccess && isTrialGuestPlan(plan?.plan_name)}
+          trialStartedAt={plan?.trial_started_at}
+          trialEndsAt={plan?.expires_at}
+          onUpgradePlan={() => {
+            setShowGuestLimitDialog(false);
+            setShowUpgradePlan(true);
+          }}
+          onBuyCapacity={canBuyGuestCapacity && entitledGuestCapacity != null ? () => {
+            setShowGuestLimitDialog(false);
+            setShowGuestCapacityTopup(true);
+          } : undefined}
+        />}
       <Suspense fallback={null}>
       {showSmsVerification && selectedEventId && <GuestAdditionSmsVerificationDialog
         open={showSmsVerification}
@@ -3250,8 +3161,16 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         eventId={selectedEventId}
         onGuestAdded={handleGuestSuccess}
         editGuest={editingGuest}
+        savedEventGuests={guests}
         isEdit={!!editingGuest}
         relationsHidden={relationsHidden}
+        currentGuestCount={guests.length}
+        allowedGuestLimit={allowedGuestLimit}
+        onGuestLimitReached={() => {
+          setShowAddModal(false);
+          setGuestLimitDialogVariant('exceeded');
+          setShowGuestLimitDialog(true);
+        }}
       />}
         {showDeleteModal && <GuestDeleteConfirmationModal
           isOpen={showDeleteModal}
@@ -3278,14 +3197,14 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             return ids.length > 0 && selectedGuestIds.size === ids.length
               && ids.every((id) => selectedGuestIds.has(id));
           })()}
-          selectedGuests={sortedGuests.filter(g => selectedGuestIds.has(g.id)).map(g => ({ id: g.id, first_name: g.first_name, last_name: g.last_name }))}
+          selectedGuests={sortedGuests.filter(g => selectedGuestIds.has(g.id)).map(g => ({ id: g.id, first_name: g.first_name, last_name: g.last_name, email: g.email, mobile: g.mobile }))}
           allGuests={sortedGuests.map(g => ({ id: g.id, first_name: g.first_name, last_name: g.last_name }))}
           onSelectGuests={(ids) => setSelectedGuestIds(new Set(ids))}
           onSelectAll={handleSelectAll}
           onDeselectAll={handleDeselectAll}
           onUpdateRsvp={() => setShowBulkRsvpModal(true)}
           onDelete={() => setShowBulkDeleteModal(true)}
-          onSendEmail={() => {
+          onChooseDelivery={() => {
              if (selectedGuestIds.size === 0) {
                toast({
                  title: "No guests selected",
@@ -3295,52 +3214,55 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                });
                return;
              }
-             setSendChannel('email');
             setShowAlreadyPaidModal(true);
           }}
-          onSendSms={() => {
-             if (selectedGuestIds.size === 0) {
-               toast({
-                 title: "No guests selected",
-                 description: "Please select at least one guest, use 'Select All Guests', or add guests from the search bar before sending.",
-                 variant: "destructive",
-                 className: "[&_*]:text-white",
-               });
-               return;
-             }
-             setSendChannel('sms');
-            setShowAlreadyPaidModal(true);
-          }}
-          onMarkManualInvite={async (method: string) => {
-            try {
-              const ids = Array.from(selectedGuestIds);
-              if (!selectedEventId || ids.length === 0) return;
-              const { data: updatedGuests, error } = await supabase
-                .from('guests')
-                .update({ rsvp_invite_status: method, rsvp_invite_sent_at: new Date().toISOString() })
-                .eq('event_id', selectedEventId)
-                .in('id', ids)
-                .select('id');
-              if (error) throw error;
-              if (updatedGuests?.length !== ids.length) {
-                throw new Error('Some selected guests could not be updated');
-              }
-              toast({
-                title: "Success",
-                description: `${ids.length} guest(s) marked as invite sent`,
-              });
-              handleDeselectAll();
-              refetchGuests();
-            } catch (error) {
-              console.error('Error marking manual invite:', error);
-              toast({
-                title: "Error",
-                description: "Failed to update invite status",
-                variant: "destructive",
-              });
-            }
+          onMarkManualInvite={(method: string) => {
+            if (selectedGuestIds.size === 0) return;
+            setPendingManualMethod(method);
+            setShowManualInviteConfirm(true);
           }}
         />
+
+        {showManualInviteConfirm && pendingManualMethod && (
+          <ManualInviteConfirmModal
+            isOpen
+            guestCount={selectedGuestIds.size}
+            isUpdating={manualInviteUpdating}
+            onClose={() => {
+              if (manualInviteUpdating) return;
+              setShowManualInviteConfirm(false);
+              setPendingManualMethod(null);
+            }}
+            onConfirm={async () => {
+              const ids = Array.from(selectedGuestIds);
+              if (!selectedEventId || ids.length === 0 || !pendingManualMethod) return;
+              setManualInviteUpdating(true);
+              try {
+                const { data: updatedGuests, error } = await supabase
+                  .from('guests')
+                  .update({ rsvp_invite_status: pendingManualMethod, rsvp_invite_sent_at: new Date().toISOString() })
+                  .eq('event_id', selectedEventId)
+                  .in('id', ids)
+                  .select('id');
+                if (error) throw error;
+                if (updatedGuests?.length !== ids.length) throw new Error('Some selected guests could not be updated');
+                toast({
+                  title: 'Success',
+                  description: ids.length === 1 ? '1 guest marked as invite sent' : `${ids.length} guests marked as invite sent`,
+                });
+                setShowManualInviteConfirm(false);
+                setPendingManualMethod(null);
+                handleDeselectAll();
+                await refetchGuests();
+              } catch (error) {
+                console.error('Error marking manual invite:', error);
+                toast({ title: 'Error', description: 'Failed to update invite status', variant: 'destructive' });
+              } finally {
+                setManualInviteUpdating(false);
+              }
+            }}
+          />
+        )}
 
         {/* Bulk Table Assignment Modal */}
         {showBulkTableModal && <BulkTableAssignmentModal
@@ -3415,19 +3337,17 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         {showSendModal && <SendRsvpConfirmModal
           isOpen={showSendModal}
           onClose={() => setShowSendModal(false)}
-          channel={sendChannel}
+          method={sendChannel}
           selectedGuests={sortedGuests.filter(g => selectedGuestIds.has(g.id))}
-          totalGuestCount={guests.length}
+          creditsRemaining={communicationBalance.remaining}
           isSending={sending}
           onConfirm={async () => {
             const guestIds = Array.from(selectedGuestIds);
-            const result = sendChannel === 'email'
-              ? await sendEmailInvites(selectedEventId!, guestIds)
-              : await sendSmsInvites(selectedEventId!, guestIds);
-            if (result) {
+            const result = await sendRsvpInvites(sendChannel, selectedEventId!, guestIds);
+            if (result.accepted > 0) {
+              await Promise.all([refetchGuests(), refetchSmsCredits()]);
               setShowSendModal(false);
               setSelectedGuestIds(new Set());
-              await refetchGuests();
             }
           }}
         />}
@@ -3436,18 +3356,23 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           <RsvpAlreadyPaidModal
             isOpen={showAlreadyPaidModal}
             onClose={() => setShowAlreadyPaidModal(false)}
-            onContinue={() => {
+            onContinue={(method) => {
+              setSendChannel(method);
               setShowAlreadyPaidModal(false);
               setShowSendModal(true);
+            }}
+            onEditGuest={(guest) => {
+              setShowAlreadyPaidModal(false);
+              setSelectedGuestIds(new Set());
+              handleEditGuest(guest);
             }}
             eventId={selectedEventId}
             planName={hasPlatformOwnerAccess ? 'Ultimate' : (plan?.plan_name || 'No active')}
             included={planCommunicationCredits}
             used={communicationBalance.used}
             remaining={communicationBalance.remaining}
-            selectedCount={selectedGuestIds.size}
-            channel={sendChannel}
-            canPurchaseCredits={!hasPlatformOwnerAccess && /^(essential|premium|ultimate|unlimited)$/i.test(plan?.plan_name || '')}
+            selectedGuests={sortedGuests.filter(g => selectedGuestIds.has(g.id))}
+            
           />
         )}
 
@@ -3502,25 +3427,17 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           />
         )}
 
-        {showGuestLimitDialog && <GuestLimitDialog
-          isOpen={showGuestLimitDialog}
-          onClose={() => setShowGuestLimitDialog(false)}
-          variant={guestLimitDialogVariant}
-          guestLimit={totalGuestCapacity ?? selectedEvent?.guest_limit ?? 0}
-          onBuyCapacity={canBuyGuestCapacity && totalGuestCapacity != null ? () => {
-            setShowGuestLimitDialog(false);
-            setShowGuestCapacityTopup(true);
-          } : undefined}
-        />}
 
-        {selectedEventId && totalGuestCapacity != null && <RsvpOverageModal
+
+        {selectedEventId && entitledGuestCapacity != null && <RsvpOverageModal
           isOpen={showGuestCapacityTopup}
           onClose={() => setShowGuestCapacityTopup(false)}
           eventId={selectedEventId}
           currentGuestCount={guests.length}
-          totalCapacity={totalGuestCapacity}
+          totalCapacity={entitledGuestCapacity}
           tierLabel={plan?.plan_name || 'Plan'}
         />}
+        <UpgradePlanModal open={showUpgradePlan} onOpenChange={setShowUpgradePlan} />
       </Suspense>
     </div>
     );

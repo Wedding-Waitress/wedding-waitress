@@ -1,8 +1,10 @@
-import { useState, useEffect, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { retiredLiveViewAsset } from '@/lib/liveViewAssetCleanup';
 import { syncEventHeroImage } from '@/lib/eventHeroImage';
+import { useOptimisticEventSettings } from './useOptimisticEventSettings';
+import { useEffect, useRef, useState } from 'react';
+import { getCacheGeneration } from '@/lib/cacheRegistry';
 
 export interface LiveViewModuleSettings {
   id?: string;
@@ -21,187 +23,80 @@ export interface LiveViewModuleSettings {
   updated_at?: string;
 }
 
+const configKeys = ['rsvp_invite_config', 'update_details_config', 'search_config', 'ceremony_config',
+  'reception_config', 'invite_video_config', 'welcome_video_config', 'floor_plan_config', 'menu_config',
+  'hero_image_config', 'reception_floor_plan_config'] as const;
+const normalize = (data: any): LiveViewModuleSettings => ({
+  ...data, ...Object.fromEntries(configKeys.map(key => [key, data[key] || {}])),
+});
 export const useLiveViewModuleSettings = (eventId: string | undefined) => {
-  const [settings, setSettings] = useState<LiveViewModuleSettings | null>(null);
-  const [loading, setLoading] = useState(true);
   const { toast } = useToast();
-
-  const generation = useRef(0);
-  const [saving, setSaving] = useState(false);
-  const [revision, setRevision] = useState(0);
-
-  // Fetch settings on mount
-  useEffect(() => {
-    const current = ++generation.current;
-    setSettings(null);
-    setLoading(!!eventId);
-    if (!eventId) {
-      setLoading(false);
-      return;
-    }
-
-    const fetchSettings = async () => {
-      try {
-        try { await syncEventHeroImage(eventId); }
-        catch { toast({ title: 'Event photo could not be synced', description: 'Your existing guest-app image has been kept. Reload to retry.', variant: 'destructive' }); }
-        const { data, error } = await supabase
-          .from('live_view_module_settings')
-          .select('*')
-          .eq('event_id', eventId)
-          .maybeSingle();
-
-        if (error && error.code !== 'PGRST116') {
-          throw error;
-        }
-
-        if (generation.current !== current) return;
-        if (data) {
-          setSettings({
-            ...data,
-            rsvp_invite_config: data.rsvp_invite_config as Record<string, any>,
-            update_details_config: data.update_details_config as Record<string, any>,
-            search_config: data.search_config as Record<string, any>,
-            ceremony_config: data.ceremony_config as Record<string, any>,
-            reception_config: data.reception_config as Record<string, any>,
-            invite_video_config: data.invite_video_config as Record<string, any>,
-            welcome_video_config: data.welcome_video_config as Record<string, any>,
-            floor_plan_config: data.floor_plan_config as Record<string, any> || {},
-            menu_config: data.menu_config as Record<string, any> || {},
-            hero_image_config: (data as any).hero_image_config as Record<string, any> || {},
-            reception_floor_plan_config: (data as any).reception_floor_plan_config as Record<string, any> || {},
-          });
-        } else {
-          // Upsert default settings if none exist
-          const defaultSettings = {
-            event_id: eventId,
-            rsvp_invite_config: {},
-            update_details_config: {},
-            search_config: {},
-            ceremony_config: {},
-            reception_config: {},
-            invite_video_config: {},
-            welcome_video_config: {},
-            floor_plan_config: {},
-            menu_config: {},
-            hero_image_config: {},
-            reception_floor_plan_config: {}
-          };
-
-          const { data: newData, error: upsertError } = await supabase
-            .from('live_view_module_settings')
-            .upsert(defaultSettings)
-            .select()
-            .single();
-
-          if (upsertError) throw upsertError;
-          if (generation.current !== current) return;
-          setSettings({
-            ...newData,
-            rsvp_invite_config: newData.rsvp_invite_config as Record<string, any>,
-            update_details_config: newData.update_details_config as Record<string, any>,
-            search_config: newData.search_config as Record<string, any>,
-            ceremony_config: newData.ceremony_config as Record<string, any>,
-            reception_config: newData.reception_config as Record<string, any>,
-            invite_video_config: newData.invite_video_config as Record<string, any>,
-            welcome_video_config: newData.welcome_video_config as Record<string, any>,
-            floor_plan_config: newData.floor_plan_config as Record<string, any> || {},
-            menu_config: newData.menu_config as Record<string, any> || {},
-            hero_image_config: (newData as any).hero_image_config as Record<string, any> || {},
-            reception_floor_plan_config: (newData as any).reception_floor_plan_config as Record<string, any> || {},
-          });
-        }
-      } catch (error) {
-        if (generation.current !== current) return;
-        console.error('Error fetching module settings:', error);
-        toast({
-          title: 'Error loading module settings',
-          description: 'Could not load module configuration.',
-          variant: 'destructive'
-        });
-      } finally {
-        if (generation.current === current) setLoading(false);
-      }
-    };
-
-    fetchSettings();
-    return () => { generation.current++; };
-  }, [eventId, toast, revision]);
-
-  // Update a specific module's config
-  const updateModuleConfig = async (
-    module: keyof Omit<LiveViewModuleSettings, 'id' | 'event_id' | 'updated_at'>,
-    config: Record<string, any>
-  ) => {
-    if (!eventId || !settings || settings.event_id !== eventId || loading || saving) return false;
-    const current = generation.current;
-    setSaving(true);
-
-    try {
-      // Optimistic update
-      setSettings(prev => prev ? { ...prev, [module]: config } : null);
-
-      const { error } = await supabase
-        .from('live_view_module_settings')
-        .update({ [module]: config })
-        .eq('event_id', eventId).select('id').single();
-
+  const syncAttempt = useRef<string | null>(null);
+  const [syncFailure, setSyncFailure] = useState<string | null>(null);
+  const [syncRevision, setSyncRevision] = useState(0);
+  const state = useOptimisticEventSettings<LiveViewModuleSettings>({
+    namespace: 'live-view-module-settings', eventId,
+    read: async id => {
+      const { data, error } = await supabase.from('live_view_module_settings').select('*').eq('event_id', id).maybeSingle();
+      if (error && error.code !== 'PGRST116') throw error;
+      if (data) return normalize(data);
+      const defaults = { event_id: id, ...Object.fromEntries(configKeys.map(key => [key, {}])) };
+      const created = await supabase.from('live_view_module_settings').upsert(defaults, { onConflict: 'event_id', ignoreDuplicates: true }).select().maybeSingle();
+      if (created.error) throw created.error;
+      if (created.data) return normalize(created.data);
+      const existing = await supabase.from('live_view_module_settings').select('*').eq('event_id', id).single();
+      if (existing.error) throw existing.error;
+      return normalize(existing.data);
+    },
+    write: async (id, updates, confirmed) => {
+      const { data, error } = await supabase.from('live_view_module_settings').update(updates).eq('event_id', id).select().single();
       if (error) throw error;
-
-      const retired = retiredLiveViewAsset(
-        settings[module]?.file_url || settings[module]?.video_url, config.file_url || config.video_url,
-        Object.entries(settings).filter(([key]) => key !== module).map(([, value]) => typeof value === 'object' && value ? value.file_url : undefined),
-        eventId, import.meta.env.VITE_SUPABASE_URL,
-      );
-      if (retired) {
-        const { error: cleanupError } = await supabase.storage.from(retired.bucket).remove([retired.path]);
-        if (cleanupError) toast({ title: 'Settings saved; file cleanup failed', description: 'The previous upload could not be removed.', variant: 'destructive' });
+      for (const module of configKeys) {
+        const config = updates[module];
+        if (!config) continue;
+        const retired = retiredLiveViewAsset(
+          confirmed[module]?.file_url || confirmed[module]?.video_url, config.file_url || config.video_url,
+          Object.entries(data).filter(([key]) => key !== module).map(([, value]) => typeof value === 'object' && value ? (value as any).file_url : undefined),
+          id, import.meta.env.VITE_SUPABASE_URL,
+        );
+        if (retired) {
+          // Cleanup failure must not roll back a settings write that succeeded.
+          try {
+            const cleanup = await supabase.storage.from(retired.bucket).remove([retired.path]);
+            if (cleanup.error) throw cleanup.error;
+          } catch { toast({ title: 'Settings saved; file cleanup failed', description: 'The previous upload could not be removed.', variant: 'destructive' }); }
+        }
       }
-      toast({
-        title: 'Settings saved',
-        description: 'Module configuration updated successfully.'
-      });
-      return true;
-    } catch (error) {
-      console.error('Error updating module config:', error);
-      toast({
-        title: 'Error saving settings',
-        description: 'Could not update module configuration.',
-        variant: 'destructive'
-      });
-      
-      // Restore the last saved state even if the recovery request also fails.
-      if (generation.current === current) setSettings(settings);
-      const { data } = await supabase
-        .from('live_view_module_settings')
-        .select('*')
-        .eq('event_id', eventId)
-        .single();
-      
-      if (data && generation.current === current) {
-        setSettings({
-          ...data,
-          rsvp_invite_config: data.rsvp_invite_config as Record<string, any>,
-          update_details_config: data.update_details_config as Record<string, any>,
-          search_config: data.search_config as Record<string, any>,
-          ceremony_config: data.ceremony_config as Record<string, any>,
-          reception_config: data.reception_config as Record<string, any>,
-          invite_video_config: data.invite_video_config as Record<string, any>,
-          welcome_video_config: data.welcome_video_config as Record<string, any>,
-          floor_plan_config: data.floor_plan_config as Record<string, any> || {},
-          menu_config: data.menu_config as Record<string, any> || {},
-          hero_image_config: (data as any).hero_image_config as Record<string, any> || {},
-          reception_floor_plan_config: (data as any).reception_floor_plan_config as Record<string, any> || {},
-        });
-      }
-      return false;
-    } finally { setSaving(false); }
+      return normalize(data);
+    },
+    onError: () => toast({ title: 'Error saving settings', description: 'The last saved module configuration has been restored. Please try again.', variant: 'destructive' }),
+  });
+  useEffect(() => {
+    if (!eventId || !state.settings || syncAttempt.current === eventId) return;
+    const id = eventId;
+    const generation = getCacheGeneration();
+    let active = true;
+    syncAttempt.current = id;
+    setSyncFailure(null);
+    // Saved settings are visible before image sync. Its server compare-and-set
+    // prevents background image publishing from overwriting concurrent edits.
+    void syncEventHeroImage(id).then(changed => {
+      if (active && generation === getCacheGeneration() && changed) void state.refresh();
+    }).catch(() => {
+      if (active && generation === getCacheGeneration()) setSyncFailure(id);
+    });
+    return () => { active = false; };
+  }, [eventId, !!state.settings, syncRevision]);
+  const retrySettings = () => {
+    syncAttempt.current = null;
+    setSyncFailure(null);
+    setSyncRevision(value => value + 1);
+    void state.refresh();
   };
-
   return {
-    settings,
-    loading,
-    saving,
-    updateModuleConfig,
-    refreshSettings: () => setRevision(value => value + 1),
+    settings: state.settings ?? null, loading: state.isLoading, saving: state.isSaving, error: state.isError,
+    photoSyncError: !!eventId && syncFailure === eventId, retrySettings,
+    updateModuleConfig: (module: keyof Omit<LiveViewModuleSettings, 'id' | 'event_id' | 'updated_at'>, config: Record<string, any>) => state.update({ [module]: config }),
+    refreshSettings: state.refresh,
   };
 };

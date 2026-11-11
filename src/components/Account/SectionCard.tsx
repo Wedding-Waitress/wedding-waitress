@@ -9,6 +9,8 @@ interface SectionCardProps {
   description?: string;
   children: React.ReactNode;
   className?: string;
+  showHeader?: boolean;
+  showIcon?: boolean;
 }
 
 export const SectionCard: React.FC<SectionCardProps> = ({
@@ -17,6 +19,8 @@ export const SectionCard: React.FC<SectionCardProps> = ({
   description,
   children,
   className,
+  showHeader = true,
+  showIcon = true,
 }) => {
   return (
     <section
@@ -26,13 +30,13 @@ export const SectionCard: React.FC<SectionCardProps> = ({
         className
       )}
     >
-      <header className="flex items-start gap-3 mb-5">
-        <div
+      {showHeader && <header className="flex items-start gap-3 mb-5">
+        {showIcon && <div
           data-account-section-icon
           className="flex items-center justify-center w-10 h-10 rounded-xl bg-[#EDE0D0] text-[#806344] ring-1 ring-[#CDB99E] flex-shrink-0 [&>svg]:!text-[#806344] [&>svg]:!stroke-[#806344]"
         >
           <Icon className="w-5 h-5" />
-        </div>
+        </div>}
         <div className="flex-1 min-w-0">
           <h2 className="text-lg sm:text-xl font-semibold text-foreground leading-tight">
             {title}
@@ -41,7 +45,7 @@ export const SectionCard: React.FC<SectionCardProps> = ({
             <p className="text-sm text-muted-foreground mt-0.5">{description}</p>
           )}
         </div>
-      </header>
+      </header>}
       <div>{children}</div>
     </section>
   );

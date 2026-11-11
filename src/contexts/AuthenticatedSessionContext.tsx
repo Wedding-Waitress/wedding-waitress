@@ -2,7 +2,7 @@ import React, { createContext, useCallback, useContext, useEffect, useRef, useSt
 import type { Session } from '@supabase/supabase-js';
 import { useNavigate } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
-import { clearAllCaches, registerCache } from '@/lib/cacheRegistry';
+import { clearAllCaches, registerCache, setCacheUserId } from '@/lib/cacheRegistry';
 import type { AccountAccess } from '@/components/auth/SuspensionNotice';
 import { useAuthenticatedCustomerActivity } from '@/hooks/useCustomerActivity';
 import { useCustomerCountry } from '@/hooks/useCustomerCountry';
@@ -164,12 +164,14 @@ export const AuthenticatedSessionProvider: React.FC<React.PropsWithChildren<{ su
     const nextUserId = nextSession?.user.id ?? null;
     const previousUserId = currentUserId.current;
     if (previousUserId !== nextUserId) {
-      if (!nextUserId && previousUserId) {
-        window.dispatchEvent(new Event('ww:auth-cleared'));
-      } else {
-        clearAllCaches();
-      }
+      // Never let module caches cross an authenticated account boundary. This
+      // also invalidates in-flight reads through cacheRegistry's generation.
+      clearAllCaches();
+      setCacheUserId(nextUserId);
+      if (!nextUserId && previousUserId) window.dispatchEvent(new Event('ww:auth-cleared'));
       setAccessLoading(Boolean(nextSession));
+    } else if (nextUserId && previousUserId === null) {
+      setCacheUserId(nextUserId);
     }
     if (!nextUserId && previousUserId) {
       clearLifecycleCache();

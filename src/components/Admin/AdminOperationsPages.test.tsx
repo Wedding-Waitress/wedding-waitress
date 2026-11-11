@@ -66,3 +66,27 @@ describe('owner operational pages',()=>{
     expect(await screen.findByRole('alert')).toHaveTextContent('Account is no longer blocked');expect(screen.getByRole('button',{name:'Retry session revocation'})).toBeDisabled();expect(invoke).toHaveBeenCalledTimes(2);
   });
 });
+
+describe('older operational history',()=>{
+ const cursor={at:'2026-09-12T00:00:00Z',id:'11111111-1111-4111-8111-111111111111'};
+ const first=()=>({...snapshot,pagination:{tickets:{has_more:true,cursor}}});
+ it('loads older records, preserves newer rows and removes duplicates',async()=>{
+  invoke.mockResolvedValueOnce({data:first(),error:null});show(<AdminSupportPage/>);await screen.findByText('Alice');
+  invoke.mockResolvedValueOnce({data:{records:{tickets:[snapshot.records.tickets![0],{...snapshot.records.tickets![0],id:'older',full_name:'Older guest'}]},availability:{tickets:'available'},pagination:{tickets:{has_more:false,cursor:null}}},error:null});
+  fireEvent.click(screen.getByRole('button',{name:'Load older Support tickets'}));expect(await screen.findByText('Older guest')).toBeInTheDocument();expect(screen.getAllByText('Alice')).toHaveLength(1);expect(screen.queryByRole('button',{name:'Load older Support tickets'})).not.toBeInTheDocument();expect(screen.getByText('All recorded entries in this source are loaded.')).toBeInTheDocument();expect(invoke).toHaveBeenLastCalledWith('admin-operations-snapshot',{body:expect.objectContaining({source:'tickets',cursor})});
+ });
+ it('preserves the current page and retry cursor on older-history failure',async()=>{
+  invoke.mockResolvedValueOnce({data:first(),error:null});show(<AdminSupportPage/>);await screen.findByText('Alice');invoke.mockResolvedValueOnce({data:{availability:{tickets:'unavailable'},records:{tickets:null}},error:null});fireEvent.click(screen.getByRole('button',{name:'Load older Support tickets'}));expect(await screen.findByRole('alert')).toHaveTextContent('Older records could not be checked');expect(screen.getByText('Alice')).toBeInTheDocument();expect(screen.getByRole('button',{name:'Load older Support tickets'})).toBeEnabled();
+ });
+ it('applies active filters to older records after loading them',async()=>{
+  invoke.mockResolvedValueOnce({data:first(),error:null});show(<AdminSupportPage/>);await screen.findByText('Alice');fireEvent.change(screen.getByLabelText('Search operational records'),{target:{value:'Historical'}});expect(screen.getByText('No recorded entries match these filters.')).toBeInTheDocument();
+  invoke.mockResolvedValueOnce({data:{records:{tickets:[{...snapshot.records.tickets![0],id:'old',full_name:'Historical customer'}]},availability:{tickets:'available'},pagination:{tickets:{has_more:false,cursor:null}}},error:null});fireEvent.click(screen.getByRole('button',{name:'Load older Support tickets'}));expect(await screen.findByText('Historical customer')).toBeInTheDocument();expect(screen.queryByText('Alice')).not.toBeInTheDocument();
+ });
+});
+
+describe('System Health execution evidence',()=>{
+ it('shows actual failed and stale jobs independently of provider configuration',async()=>{
+  invoke.mockResolvedValueOnce({data:{...snapshot,health:{evidence_state:'available',providers:{checked_at:'2026-10-19T09:00:00Z',checks:{email_webhook:{state:'read_permission_missing',detail:'Webhook read access is unavailable.'}}},evidence:{scheduler:{state:'available',jobs:[{name:'cleanup',label:'Closed account cleanup',state:'failed',schedule:'30 3 * * *',last_started_at:null,last_finished_at:null},{name:'notifications',label:'Notification scheduler',state:'stale',schedule:'*/2 * * * *',last_started_at:null,last_finished_at:null}]},email_delivery_observations:{delivered_records:2,last_delivery_at:'2026-09-20T10:23:38Z'},limitations:['Scheduler success is not provider delivery.']}}},error:null});show(<AdminSystemHealthPage/>);expect((await screen.findAllByText('Closed account cleanup')).length).toBeGreaterThan(0);fireEvent.click(screen.getByText(/^All checks/));expect(screen.getByRole('cell',{name:'failed'})).toBeInTheDocument();expect(screen.getByRole('cell',{name:'stale'})).toBeInTheDocument();expect(screen.getAllByText('Webhook read access is unavailable.').length).toBeGreaterThan(0);expect(invoke).toHaveBeenCalledWith('admin-operations-snapshot',{body:expect.objectContaining({health:true})});
+ });
+ it('does not show scheduler success when its evidence read fails',async()=>{invoke.mockResolvedValueOnce({data:{...snapshot,health:{evidence_state:'unavailable',evidence:null,providers:{checked_at:'2026-10-19T09:00:00Z',checks:{email_provider:{state:'unknown',detail:'Provider read access is unavailable.'}}}}},error:null});show(<AdminSystemHealthPage/>);expect(await screen.findByText('Scheduler evidence is unavailable; no successful state has been inferred.')).toBeInTheDocument();expect(screen.queryByRole('cell',{name:'succeeded'})).not.toBeInTheDocument();});
+});

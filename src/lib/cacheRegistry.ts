@@ -9,6 +9,7 @@
 const clearers = new Set<() => void>();
 const eventClearers = new Set<(eventId: string) => void>();
 let cacheGeneration = 0;
+let cacheUserId: string | null = null;
 
 export function registerCache(clear: () => void): void {
   clearers.add(clear);
@@ -37,6 +38,18 @@ export function clearAllCaches(): void {
       /* ignore individual cache failures */
     }
   });
+}
+
+/**
+ * The authenticated-session provider is the only writer for this value. Hooks
+ * use it to scope any in-memory result to the account that obtained it.
+ */
+export function setCacheUserId(userId: string | null): void {
+  cacheUserId = userId;
+}
+
+export function getCacheUserId(): string | null {
+  return cacheUserId;
 }
 
 export function getCacheGeneration(): number {

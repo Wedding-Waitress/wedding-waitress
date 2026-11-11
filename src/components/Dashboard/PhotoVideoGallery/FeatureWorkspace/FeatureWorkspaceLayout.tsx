@@ -1,6 +1,7 @@
 // Reusable full-width feature workspace layout for the six Guest Experience Features.
 // No dashboard sidebar — slim header + large content panel on the gallery dark-brown background.
 import React from 'react';
+import { GuestAppPreviewButton } from './GuestAppPreviewButton';
 import { ArrowLeft } from 'lucide-react';
 import { Switch } from '@/components/ui/switch';
 import logoImage from '@/assets/wedding-waitress-full-logo.png';
@@ -14,10 +15,15 @@ export interface FeatureWorkspaceLayoutProps {
   enabled: boolean;
   onToggle: (v: boolean) => void;
   toggleDisabled?: boolean;
+  hideAvailabilityControl?: boolean;
+  /** Header-only cleanup; does not change selected event or saved availability. */
+  hideSelectedEventPanel?: boolean;
   onBack: () => void;
   backLabel?: string;
   /** Optional extra action rendered in the header (e.g. Preview as Guest). */
   headerAction?: React.ReactNode;
+  /** Event guest-app token; null renders the standard disabled preview action. */
+  guestPreviewToken?: string | null;
   /** Optional override for the "feature is off" notice. */
   disabledNotice?: string;
   /** Adds the 2px brown outline pass to neutral cards, panels, inputs and grey buttons. */
@@ -42,9 +48,12 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
   enabled,
   onToggle,
   toggleDisabled,
+  hideAvailabilityControl = false,
+  hideSelectedEventPanel = false,
   onBack,
   backLabel = 'Back to Photo & Video Sharing',
   headerAction,
+  guestPreviewToken,
   disabledNotice,
   brownOutline,
   appearance = 'default',
@@ -58,6 +67,8 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
   const isPhotoVideoSharing = appearance === 'photo-video-sharing';
   const usesPhotoVideoSharingBackground = isPhotoVideoSharing || backgroundAppearance === 'photo-video-sharing';
   const usesPhotoVideoSharingControls = isPhotoVideoSharing || controlsAppearance === 'photo-video-sharing';
+
+  const headerContent = guestPreviewToken !== undefined ? <GuestAppPreviewButton token={guestPreviewToken} /> : headerAction;
 
   return (
     <div
@@ -105,9 +116,9 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
               <span className="truncate">{backLabel}</span>
             </button>
 
-            <div className="flex w-full flex-col items-center gap-4 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end sm:gap-5">
-              {headerAction && <div className="shrink-0">{headerAction}</div>}
-              <div className={cn(
+            {(headerContent || !hideSelectedEventPanel) && <div className="flex w-full flex-col items-center gap-4 sm:w-auto sm:flex-row sm:flex-wrap sm:justify-end sm:gap-5">
+              {headerContent && <div className="shrink-0">{headerContent}</div>}
+              {!hideSelectedEventPanel && <div className={cn(
                 'flex flex-wrap items-center justify-center gap-3 sm:gap-4',
                 usesPhotoVideoSharingControls && `px-4 py-2.5 ${managementStyles.glassStatus}`,
               )}>
@@ -125,7 +136,7 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
                     )}>{eventName}</p>
                   </div>
                 )}
-                <div className="flex items-center gap-3 shrink-0">
+                {!hideAvailabilityControl && <div className="flex items-center gap-3 shrink-0">
                   <span className={cn(
                     'text-white',
                     usesPhotoVideoSharingControls ? 'text-sm font-medium text-white/85' : 'text-sm sm:text-base font-bold',
@@ -137,16 +148,16 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
                     aria-label={`${title} enabled`}
                     className={cn('shrink-0 data-[state=checked]:bg-green-500 data-[state=unchecked]:bg-red-500', toggleClassName)}
                   />
-                </div>
-              </div>
-            </div>
+                </div>}
+              </div>}
+            </div>}
           </div>
         </div>
 
         {/* Level 4 — Separator */}
         <div className="border-b border-white/15" />
 
-        {selectionStatus === 'selected' && !enabled && (
+        {!hideAvailabilityControl && selectionStatus === 'selected' && !enabled && (
           <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8">
             <div className="mt-4 rounded-xl border border-white/25 bg-white/10 px-4 py-3">
               <p className="text-sm text-white break-words">

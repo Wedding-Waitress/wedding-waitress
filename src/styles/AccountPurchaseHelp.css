@@ -1,0 +1,10 @@
+[aria-label="Purchase summary"]{min-width:0;box-sizing:border-box;border:1px solid #dbc6a4;border-radius:12px;background:#fff;padding:20px;margin:20px 0;max-width:576px;color:#2f1b14}
+[aria-label="Purchase summary"] dl{display:grid;grid-template-columns:minmax(0,1fr) minmax(0,1fr);column-gap:16px;row-gap:12px;margin-top:12px}
+[aria-label="Purchase summary"] dd{margin:0;text-align:right;overflow-wrap:anywhere}
+[aria-label="Purchase summary"] dt{overflow-wrap:anywhere}
+[aria-labelledby="package-help-heading"]{box-sizing:border-box;min-width:0;margin:0 auto 24px;max-width:768px;border:1px solid #cdb99e;border-radius:12px;background:#fbf8f2;padding:24px;color:#2b1711}
+[aria-labelledby="package-help-heading"] details{padding:16px 0}
+[aria-labelledby="package-help-heading"] details+details{border-top:1px solid #cdb99e}
+[aria-labelledby="package-help-heading"] summary{cursor:pointer;font-weight:600;line-height:1.5}
+[aria-labelledby="package-help-heading"] summary:focus-visible{outline:2px solid #806344;outline-offset:4px}
+[aria-labelledby="package-help-heading"] details p{margin-top:12px;line-height:1.65}

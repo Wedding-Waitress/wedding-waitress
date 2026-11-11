@@ -328,6 +328,7 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
               <DropdownMenu>
                 <DropdownMenuTrigger asChild>
                   <Button 
+                    aria-label="Text Style"
                     variant="outline" 
                     className={`${styles.control} w-full justify-between mt-1`}
                   >
@@ -344,6 +345,8 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
                 <DropdownMenuContent className={`${styles.portalSurface} w-[var(--radix-dropdown-menu-trigger-width)]`}>
                   <DropdownMenuItem 
                     className={`${styles.portalItem} flex items-center justify-between cursor-pointer`}
+                    role="menuitemcheckbox"
+                    aria-checked={settings.isBold}
                     onClick={() => onSettingsChange({ isBold: !settings.isBold })}
                   >
                     <div className="flex items-center gap-2">
@@ -354,6 +357,8 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     className={`${styles.portalItem} flex items-center justify-between cursor-pointer`}
+                    role="menuitemcheckbox"
+                    aria-checked={settings.isItalic}
                     onClick={() => onSettingsChange({ isItalic: !settings.isItalic })}
                   >
                     <div className="flex items-center gap-2">
@@ -364,6 +369,8 @@ export const IndividualTableChartCustomizer: React.FC<IndividualTableChartCustom
                   </DropdownMenuItem>
                   <DropdownMenuItem 
                     className={`${styles.portalItem} flex items-center justify-between cursor-pointer`}
+                    role="menuitemcheckbox"
+                    aria-checked={settings.isUnderline}
                     onClick={() => onSettingsChange({ isUnderline: !settings.isUnderline })}
                   >
                     <div className="flex items-center gap-2">

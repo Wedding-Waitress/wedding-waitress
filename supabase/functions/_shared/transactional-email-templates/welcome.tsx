@@ -1,3 +1,4 @@
+import { EmailBrandFooter } from './email-brand-footer.tsx';
 /**
  * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY without explicit owner approval.
  * Welcome email sent to new users immediately after sign-up verification.
@@ -35,15 +36,17 @@ const WelcomeEmail = ({ firstName }: WelcomeProps) => (
           <li style={listItem}>And much more</li>
         </ul>
         <Text style={text}>
-          After your trial ends, you can choose a plan that suits your needs.
+          When your seven days are up, you will be prompted to choose Essential, Premium or Ultimate to continue with a package that suits your needs.
         </Text>
         <Section style={buttonSection}>
           <Button href="https://weddingwaitress.com.au/dashboard" style={button}>
             Start planning your event
           </Button>
         </Section>
-        <Text style={text}>We're excited to have you!</Text>
+        <Text style={text}>Have a question or need a hand? Reply to this email or contact support@weddingwaitress.com.au.</Text>
+        <Text style={text}>Thank you for choosing us!</Text>
         <Text style={signoff}>– The Wedding Waitress Team</Text>
+      <EmailBrandFooter />
       </Container>
     </Body>
   </Html>

@@ -1,4 +1,22 @@
 {
+  "guestbookSuccess": {
+    "thankYou": "Thank you, {{name}}!",
+    "another": "Leave Another Message",
+    "return": "Return to App",
+    "received": "Thank you for adding to the guestbook."
+  },
+  "guestbookMessages": {
+    "textTitle": "Write a Message",
+    "audioTitle": "Record an Audio Message",
+    "videoTitle": "Record a Video Message",
+    "textAgain": "Write Another Message",
+    "audioAgain": "Record Another Audio Message",
+    "videoAgain": "Record Another Video Message",
+    "textSaved": "Your written message has been saved.",
+    "audioSaved": "Your audio message has been saved.",
+    "videoSaved": "Your video message has been saved."
+  },
+  "guestbookBackToApp": "Back to App",
   "privacyPolicy": "Privacy Policy",
   "termsOfService": "Terms of Service",
   "contact": "Contact",
@@ -51,5 +69,17 @@
     "codeSentDesc": "A new verification code has been sent to your email.",
     "welcomeTitle": "Welcome to Wedding Waitress 🎉",
     "welcomeDesc": "Your account has been created successfully!"
+  },
+  "guestbookPrivacy": {
+    "intro": "Leave a written, audio or video message—or any combination.",
+    "notice": "Your written, audio and video messages are shared in the event gallery and live slideshow."
+  },
+  "photoBoothSession": {
+    "capturedPhoto": "Captured photo {{number}}",
+    "captureNote": "4 photos - 8 seconds countdown",
+    "nameLabel": "Please add your full name first",
+    "namePlaceholder": "e.g. Sarah Jones",
+    "partial": "{{saved}} of {{total}} outputs saved. Tap Download and Save to retry the remaining outputs. Already saved photos will not be uploaded again.",
+    "captureFailed": "Could not capture a camera frame. Please retry the session."
   }
 }

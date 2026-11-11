@@ -1,3 +1,4 @@
+import { cleanBlogProse } from '@/content/blogProseStyle';
 /**
  * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY
  * Part of the approved public homepage surface (locked 2026-04-18).
@@ -62,7 +63,7 @@ export const Blog = () => {
       <Header />
 
       <main className="flex-1">
-        <PublicPageHero compact asset={publicHeroForRoute('/blog')} eyebrow="Planning journal" title={t('blog.title')} description={t('blog.subtitleLong')} />
+        <PublicPageHero compact asset={publicHeroForRoute('/blog')} eyebrow="Planning journal" title={t('blog.title')} description={cleanBlogProse(t('blog.subtitleLong'))} />
 
         {/* Posts grid */}
         <section className="w-full max-w-6xl mx-auto px-6 py-16 md:py-20">

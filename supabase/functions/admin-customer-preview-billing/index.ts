@@ -1,3 +1,4 @@
+import { hasRecentAdminVerification } from '../_shared/adminVerifiedSession.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.58.0';
 import { isOwnerAdminEmail } from '../_shared/owner-admin.ts';
 import { readAdminBilling } from '../_shared/adminReadOnlyBilling.ts';
@@ -21,6 +22,7 @@ Deno.serve(async req => {
     if (identityError || !identity.user || identity.user.is_anonymous || !isOwnerAdminEmail(identity.user.email)) return reply({ error: 'Administrator access denied' }, 403);
     const { data: owner, error: ownerError } = await caller.rpc('is_owner_admin');
     if (ownerError || owner !== true) return reply({ error: 'Administrator access denied' }, 403);
+    if (!await hasRecentAdminVerification(caller)) return reply({ error: 'Recent administrator verification required.' }, 403);
     const body = await req.json();
     if (!body || typeof body !== 'object' || Array.isArray(body) || Object.keys(body).some(key => !allowedKeys.has(key))
       || typeof body.customer_id !== 'string' || !uuid.test(body.customer_id)

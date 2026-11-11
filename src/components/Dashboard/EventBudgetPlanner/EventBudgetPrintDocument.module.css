@@ -1,20 +1,20 @@
 .document { display: grid; gap: 1rem; }
 .presentation { width: 297mm; height: 210mm; flex: 0 0 auto; border: 1px solid #cdb99e; box-shadow: 0 10px 30px rgba(43,23,17,.18); }
 .page { display: flex; width: 297mm; height: 210mm; min-width: 297mm; max-width: 297mm; box-sizing: border-box; flex-direction: column; overflow: hidden; padding: 8mm 9mm 7mm; color: #2b1711; background: #fffdfa; font-family: 'Manrope', Arial, sans-serif; print-color-adjust: exact; -webkit-print-color-adjust: exact; }
-.header { display: flex; min-height: 24mm; align-items: flex-start; justify-content: space-between; gap: 8mm; border-bottom: .35mm solid #806344; }
+.header { display: flex; flex-shrink: 0; min-height: 24mm; align-items: flex-start; justify-content: space-between; gap: 8mm; border-bottom: .35mm solid #806344; }
 .header h1 { margin: 0; font-size: 16pt; font-weight: 700; line-height: 1.2; }
 .header h2 { margin: 1mm 0 0; color: #684b40; font-size: 11pt; font-weight: 600; line-height: 1.25; }
 .header p { margin: 1mm 0 0; font-size: 8pt; line-height: 1.25; }
 .headerBudget { display: flex; flex-direction: column; align-items: flex-end; font-size: 8pt; line-height: 1.3; }
 .headerBudget strong { margin-top: 1mm; font-size: 14pt; }
-.summary { display: grid; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 2mm; padding: 3mm 0; }
-.summary div { min-width: 0; border: .25mm solid #cdb99e; border-radius: 1.5mm; padding: 1.6mm; background: #f5ebdd; }
+.summary { display: grid; flex-shrink: 0; grid-template-columns: repeat(6,minmax(0,1fr)); gap: 2mm; padding: 3mm 0; }
+.summary div { min-width: 0; border: .25mm solid #cdb99e; border-radius: 1.5mm; padding: 3mm 1.6mm; background: #f5ebdd; }
 .summary span { display: block; color: #684b40; font-size: 8pt; line-height: 1.2; }
 .summary strong { display: block; margin-top: .8mm; font-size: 9pt; line-height: 1.2; }
 .summary div[data-negative="true"] { color: #b91c1c; border-color: #ef4444; background: #fff1f1; }
-.table { width: 100%; table-layout: fixed; border-collapse: collapse; font-size: 8pt; line-height: 1.25; }
-.table th { padding: 1.4mm 1mm; border: .25mm solid #806344; color: #fff; background: #684b40; font-weight: 700; text-align: left; }
-.table td { height: 12.5mm; box-sizing: border-box; padding: 1.1mm 1mm; border: .25mm solid #cdb99e; vertical-align: top; overflow-wrap: anywhere; }
+.table { width: 100%; flex-shrink: 0; table-layout: fixed; border-collapse: collapse; font-size: 8pt; line-height: 1.25; }
+.table th { padding: 2.5mm 1mm; border: .25mm solid #806344; color: #fff; background: #684b40; font-weight: 700; text-align: left; }
+.table td { box-sizing: border-box; padding: 3mm 1mm; border: .25mm solid #cdb99e; vertical-align: top; overflow-wrap: anywhere; }
 .table tbody tr { break-inside: avoid; page-break-inside: avoid; }
 .table tbody tr:nth-child(even) td { background: #fbf8f2; }
 .table td span { display: block; margin-top: .5mm; }

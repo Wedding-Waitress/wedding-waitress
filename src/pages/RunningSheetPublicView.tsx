@@ -500,6 +500,11 @@ export function RunningSheetPublicView() {
     } catch { setSaveStatus('error'); await fetchData({silent:true}); } finally { setResetting(false); }
   }, [token, canEdit, data, saveStatus, resetting, fetchData]);
 
+  const exportLock = useRef(false);
+  const exportContext = JSON.stringify([token,data,sectionLabel,sectionNotes,rowTextSize]);
+  const exportContextRef=useRef(exportContext);exportContextRef.current=exportContext;
+  const exportMounted=useRef(true);useEffect(()=>{exportMounted.current=true;return()=>{exportMounted.current=false;};},[]);
+
   if (loading) {
     return (
       <div className={`${styles.publicPage} ${styles.page} ww-application-background flex items-center justify-center p-4`} data-public-running-sheet-state="loading">
@@ -575,8 +580,10 @@ export function RunningSheetPublicView() {
               </span>
               <button
                 className={`inline-flex items-center justify-center px-4 py-2 text-sm font-medium rounded-full transition-all disabled:opacity-50 ${styles.greenAction}`}
-                disabled={downloadingPDF}
+                disabled={downloadingPDF || resetting || saveStatus === "saving"}
                 onClick={async () => {
+                  if(exportLock.current || downloadingPDF || resetting || saveStatus === "saving")return;
+                  exportLock.current=true;const snapshot=exportContextRef.current;const isCurrent=()=>exportMounted.current && exportContextRef.current===snapshot;
                   setDownloadingPDF(true);
                   try {
                     const eventObj = {
@@ -591,11 +598,11 @@ export function RunningSheetPublicView() {
                       ceremony_start_time: data.ceremony_start_time,
                       ceremony_finish_time: data.ceremony_finish_time,
                     };
-                    await exportRunningSheetPDF(data.items as any, eventObj, sectionLabel, sectionNotes, rowTextSize);
+                    await exportRunningSheetPDF(data.items as any, eventObj, sectionLabel, sectionNotes, rowTextSize, isCurrent);
                   } catch (err) {
                     console.error('PDF export error:', err);
                   } finally {
-                    setDownloadingPDF(false);
+                    exportLock.current=false;if(exportMounted.current)setDownloadingPDF(false);
                   }
                 }}
               >
@@ -680,7 +687,7 @@ export function RunningSheetPublicView() {
               onResetToDefault={handleResetToDefault}
           hasDJMCData={false}
           readOnly={!canEdit}
-          disabled={!canEdit || resetting}
+          disabled={!canEdit || resetting || downloadingPDF}
         />
       </main>
 

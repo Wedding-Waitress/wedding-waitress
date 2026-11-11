@@ -1,6 +1,7 @@
 // Shared Live Slideshow settings — used by the host workspace preview and the public Live View.
 // Only approved, non-hidden, uploaded media ever reaches these helpers (enforced server-side).
 
+import { isPrivateGuestbook } from '@/lib/mediaPrivacy';
 import { normaliseGalleryAlbum } from '@/lib/galleryAlbumOptions';
 
 export type SlideshowOrder = 'newest' | 'oldest' | 'shuffle';
@@ -65,6 +66,9 @@ export function slideshowSettingsFromRow(row: any): SlideshowSettings {
 }
 
 interface SlideshowEligible {
+  source_category?: string | null;
+  shared_to_slideshow?: boolean;
+  is_guestbook?: boolean | null;
   id: string;
   kind: string;
   album?: string | null;
@@ -84,9 +88,11 @@ function hashId(id: string): number {
 /** Filter + order approved media according to the saved slideshow settings. */
 export function applySlideshowSettings<T extends SlideshowEligible>(items: T[], s: SlideshowSettings): T[] {
   const filtered = items.filter((i) => {
+    if (isPrivateGuestbook(i)) return false;
+    if (i.source_category==='video_wishes' && i.shared_to_slideshow!==true) return false;
     if (i.kind === 'photo' && !s.include_photos) return false;
     if (i.kind === 'video' && !s.include_videos) return false;
-    if (i.kind !== 'photo' && i.kind !== 'video') return false;
+    if (i.kind !== 'photo' && i.kind !== 'video' && i.kind !== 'audio') return false;
     if (s.albums.length > 0) {
       const selectedAlbums = new Set(s.albums.map(normaliseGalleryAlbum));
       if (!selectedAlbums.has(normaliseGalleryAlbum(i.album))) return false;

@@ -36,7 +36,7 @@ describe('homepage real experience section', () => {
 
   it('delivers responsive optimized image sources with intrinsic dimensions', () => {
     expect(landing).toContain('width="1536" height="1024"');
-    expect(landing).toContain('alt="Experienced wedding professional helping a couple review reception details at their venue"');
+    expect(landing).toContain('alt={copy("Experienced wedding professional helping a couple review reception details at their venue")}');
     for (const asset of deliveryAssets) {
       expect(existsSync(asset), asset).toBe(true);
       expect(statSync(asset).size, asset).toBeGreaterThan(20_000);

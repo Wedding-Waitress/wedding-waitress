@@ -1,4 +1,7 @@
+import { validatePromotionExpiry } from '../_shared/promotionExpiryRules.ts';
+import { hasRecentAdminVerification } from '../_shared/adminVerifiedSession.ts';
 import { createClient } from 'npm:@supabase/supabase-js@2.57.2';
+import { validatePromotionAudience, promotionAccountSearchEmail } from '../_shared/promotionAudienceRules.ts';
 import { isOwnerAdminEmail } from '../_shared/owner-admin.ts';
 import { normalizePromotionCode, validatePromotionPercent } from '../_shared/promotionRules.ts';
 import { authenticatePromotionRequest } from '../_shared/promotionRequestAuth.ts';
@@ -19,6 +22,7 @@ Deno.serve(async req => {
     if (!isOwnerAdminEmail(user.email)) return reply({ error: 'Verified owner administrator required.' }, 403);
     const { data: owner, error: ownerError } = await caller.rpc('is_owner_admin');
     if (ownerError || owner !== true) return reply({ error: 'Owner administrator required.' }, 403);
+    if (!await hasRecentAdminVerification(caller)) return reply({ error: 'Recent administrator verification required.' }, 403);
     const body = await req.json();
     const grant = typeof body.admin_grant === 'string' ? body.admin_grant : '';
     const signature = typeof body.admin_grant_signature === 'string' ? body.admin_grant_signature : '';
@@ -30,19 +34,46 @@ Deno.serve(async req => {
     try { verified = JSON.parse(atob(grant)); } catch { return reply({ error: 'Administrator verification required.' }, 403); }
     if (verified.user_id !== user.id || typeof verified.exp !== 'number' || !Number.isFinite(verified.exp) || verified.exp <= Date.now()) return reply({ error: 'Administrator verification expired.' }, 403);
     let payload: Record<string, unknown> = {};
-    if (body.action === 'create') {
+    // A distinct action makes old deployed functions reject new audience requests instead of creating uncapped codes.
+    if (body.action === 'create_audience_campaign' || body.action === 'create' || body.action === 'create_expiring_campaign') {
       let code: string, percent: number;
       try { code = normalizePromotionCode(body.code); percent = validatePromotionPercent(body.percent_off); }
       catch { return reply({ error: 'Enter a valid manual code and whole percentage from 1 to 100.' }, 400); }
       if (typeof body.campaign_name !== 'string' || !body.campaign_name.trim() || body.campaign_name.trim().length > 120) return reply({ error: 'Enter a campaign name of 1–120 characters.' }, 400);
-      payload = { code, percent_off: percent, campaign_name: body.campaign_name.trim() };
+      let audience;
+      try { audience = validatePromotionAudience(body); }
+      catch (error) { return reply({ error: (error as Error).message }, 400); }
+      if (body.action === 'create_expiring_campaign' && !Object.hasOwn(body, 'expiry_date')) return reply({ error: 'Choose No expiry or an expiry date.' }, 400);
+      let expiry_date;
+      try { expiry_date = validatePromotionExpiry(body.expiry_date); }
+      catch (error) { return reply({ error: (error as Error).message }, 400); }
+      payload = { code, percent_off: percent, campaign_name: body.campaign_name.trim(), ...audience, expiry_date };
+    } else if (body.action === 'search_accounts') {
+      try { payload = { email: promotionAccountSearchEmail(body.email) }; }
+      catch (error) { return reply({ error: (error as Error).message }, 400); }
+    } else if (body.action === 'set_usage_limit') {
+      if (typeof body.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body.id)
+        || typeof body.usage_limit !== 'number' || !Number.isInteger(body.usage_limit) || body.usage_limit < 0 || body.usage_limit > 100) return reply({ error: 'Choose a whole usage limit from 0 to 100 for a valid campaign.' }, 400);
+      payload = { id: body.id, usage_limit: body.usage_limit };
+    } else if (body.action === 'delete') {
+      if (typeof body.id !== 'string' || !/^[0-9a-f]{8}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{4}-[0-9a-f]{12}$/i.test(body.id)) return reply({ error: 'Choose a valid campaign.' }, 400);
+      payload = { id: body.id };
     } else if (body.action === 'set_active') {
       if (typeof body.active !== 'boolean' || typeof body.id !== 'string' || !/^[0-9a-f-]{36}$/i.test(body.id)) return reply({ error: 'Choose a valid campaign and status.' }, 400);
       payload = { id: body.id, active: body.active };
     } else if (body.action !== 'list') return reply({ error: 'Unsupported action.' }, 400);
     const admin = createClient(url, service, { auth: { persistSession: false } });
-    const { data, error } = await admin.rpc('admin_manage_promotion', { p_actor: user.id, p_action: body.action, p_payload: payload });
-    if (error) return reply({ error: error.code === '23505' ? 'That promo code already exists.' : 'Promotion management is unavailable. No success is confirmed.' }, 503);
+    const { data, error } = await admin.rpc('admin_manage_promotion', { p_actor: user.id, p_action: body.action === 'create' ? 'create_audience_campaign' : body.action, p_payload: payload });
+    if (error) {
+      if (body.action === 'set_usage_limit' && error.code === 'P0001' && /^Minimum allocation is [0-9]+: [0-9]+ used and [0-9]+ reserved\.$/.test(error.message)) {
+        let details: Record<string, any> = {};
+        try { details = JSON.parse(error.details); } catch { /* Keep the safe database validation message. */ }
+        return reply({ error: error.message, minimum: details.minimum, campaign: details.campaign?.id === body.id ? details.campaign : undefined }, 409);
+      }
+      if (body.action === 'set_usage_limit' && error.code === 'P0002') return reply({ error: 'This campaign is no longer available. Load campaigns again.' }, 404);
+      if (error.message === 'Expired campaigns cannot be reactivated') return reply({ error: error.message }, 409);
+      return reply({ error: error.code === '23505' ? 'That promo code already exists.' : 'Promotion management is unavailable. No success is confirmed.' }, 503);
+    }
     return reply({ success: true, data });
   } catch { return reply({ error: 'Promotion management could not be confirmed.' }, 503); }
 });

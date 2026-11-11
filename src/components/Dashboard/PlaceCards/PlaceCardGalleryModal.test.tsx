@@ -1,7 +1,7 @@
 import React from 'react';
 import fs from 'node:fs';
 import path from 'node:path';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { act, cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 
 let admin = false;
@@ -18,7 +18,7 @@ import { getPlaceCardDesignColour } from './placeCardTemplateFilters';
 afterEach(() => { admin = false; cleanup(); });
 
 describe('Name Place Cards Template Library', () => {
-  it('renders dynamic controls and applies a selected landscape template', () => {
+  it('renders dynamic controls and applies a selected landscape template', async () => {
     const onSelectImage = vi.fn(); const onOpenChange = vi.fn();
     render(<PlaceCardGalleryModal open onOpenChange={onOpenChange} onSelectImage={onSelectImage} />);
     expect(screen.getByRole('heading', { name: 'Template Library' })).toBeVisible();
@@ -28,8 +28,8 @@ describe('Name Place Cards Template Library', () => {
     expect(screen.queryByRole('button', { name: 'Admin Upload' })).not.toBeInTheDocument();
     fireEvent.change(screen.getByRole('textbox', { name: 'Search templates by name' }), { target: { value: 'Ivory' } });
     expect(screen.queryByText('Blue Gold Landscape')).not.toBeInTheDocument();
-    fireEvent.click(screen.getByRole('button', { name: 'Select' }));
-    expect(onSelectImage).toHaveBeenCalledWith('/two.jpg');
+    await act(async()=>{fireEvent.click(screen.getByRole('button', { name: 'Select' }));});
+    expect(onSelectImage).toHaveBeenCalledWith('/two.jpg', expect.any(AbortSignal));
     expect(onOpenChange).toHaveBeenCalledWith(false);
   });
 
@@ -58,3 +58,7 @@ describe('Name Place Cards Template Library', () => {
     expect(getPlaceCardDesignColour({ name: 'Minimal Line Art' })).toBe('Neutral');
   });
 });
+
+it('waits for fitting and saving and retains the library if a template is rejected',async()=>{let finish:(value:boolean)=>void=()=>{};const apply=vi.fn().mockReturnValue(new Promise(resolve=>finish=resolve)),close=vi.fn();render(<PlaceCardGalleryModal open onOpenChange={close}onSelectImage={apply}/>);fireEvent.click(screen.getAllByRole('button',{name:'Select'})[0]);expect(close).not.toHaveBeenCalled();expect(screen.getByRole('status')).toHaveTextContent(/Applying/);await act(async()=>finish(false));expect(close).not.toHaveBeenCalled();expect(screen.getAllByRole('button',{name:'Select'})[0]).toBeEnabled();});
+it('aborts an unfinished template application when the library is closed',()=>{const apply=vi.fn().mockReturnValue(new Promise(()=>{})),close=vi.fn();const page=render(<PlaceCardGalleryModal open onOpenChange={close}onSelectImage={apply}/>);fireEvent.click(screen.getAllByRole('button',{name:'Select'})[0]);page.rerender(<PlaceCardGalleryModal open={false}onOpenChange={close}onSelectImage={apply}/>);expect(apply.mock.calls[0][1].aborted).toBe(true);});
+it('places template confirmation before Close',()=>{render(<PlaceCardGalleryModal open onOpenChange={vi.fn()}onSelectImage={vi.fn()}/>);expect(screen.getByRole('button',{name:'Select Template'}).compareDocumentPosition(screen.getByRole('button',{name:'Close'}))&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();});

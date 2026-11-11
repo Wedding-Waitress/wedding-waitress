@@ -1,4 +1,22 @@
 {
+  "guestbookSuccess": {
+    "thankYou": "Grazie, {{name}}!",
+    "another": "Lascia un altro messaggio",
+    "return": "Torna all’app",
+    "received": "Grazie per il tuo messaggio nel libro degli ospiti."
+  },
+  "guestbookMessages": {
+    "textTitle": "Scrivi un messaggio",
+    "audioTitle": "Registra un messaggio audio",
+    "videoTitle": "Registra un videomessaggio",
+    "textAgain": "Scrivi un altro messaggio",
+    "audioAgain": "Registra un altro messaggio audio",
+    "videoAgain": "Registra un altro videomessaggio",
+    "textSaved": "Il tuo messaggio scritto è stato salvato.",
+    "audioSaved": "Il tuo messaggio audio è stato salvato.",
+    "videoSaved": "Il tuo videomessaggio è stato salvato."
+  },
+  "guestbookBackToApp": "Torna all’app",
   "privacyPolicy": "Informativa sulla Privacy",
   "termsOfService": "Termini di Servizio",
   "contact": "Contatto",
@@ -21,5 +39,17 @@
   "edit": "Modifica",
   "close": "Chiudi",
   "submit": "Invia",
-  "language": "Lingua"
+  "language": "Lingua",
+  "guestbookPrivacy": {
+    "intro": "Lascia un messaggio scritto, audio o video, o una qualsiasi combinazione.",
+    "notice": "I tuoi messaggi scritti, audio e video vengono condivisi nella galleria dell’evento e nella presentazione dal vivo."
+  },
+  "photoBoothSession": {
+    "capturedPhoto": "Foto scattata {{number}}",
+    "captureNote": "4 foto - conto alla rovescia di 8 secondi",
+    "nameLabel": "Inserisci prima il tuo nome completo",
+    "namePlaceholder": "es. Sarah Jones",
+    "partial": "{{saved}} di {{total}} immagini salvate. Tocca Scarica e salva per riprovare con le immagini rimanenti. Le foto già salvate non saranno caricate di nuovo.",
+    "captureFailed": "Impossibile acquisire un fotogramma dalla fotocamera. Riprova la sessione."
+  }
 }

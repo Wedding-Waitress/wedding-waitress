@@ -1,0 +1,47 @@
+import React,{useEffect,useRef,useState} from 'react';
+import {Camera,CalendarDays,Printer,Share2,FileDown,Plus,Trash2,LoaderCircle,Undo2} from 'lucide-react';
+import {Card,CardContent} from '@/components/ui/card';
+import {StandardEventSelector} from '../StandardEventSelector';
+import {usePhotoCallout,photoDb} from '@/hooks/usePhotoCallout';
+import {useGuests} from '@/hooks/useGuests';
+import {useTables} from '@/hooks/useTables';
+import {useToast} from '@/hooks/use-toast';
+import type {Event} from '@/hooks/useEvents';
+import {createPhotoCard,type PhotoCard} from '@/types/photoCallout';
+import {capturePhotoDeletion,restorePhotoDeletion,type PhotoDeletion} from '@/lib/photoCalloutUndo';
+import {withGroupPhoto} from '@/lib/photoGroupChoice';
+import {PhotoEventBanner} from './PhotoEventBanner';
+import {PhotoCalloutDocument} from './PhotoCalloutDocument';
+import {PhotoCardEditor} from './PhotoCardEditor';
+import {PhotoCalloutShareModal} from './PhotoCalloutShareModal';
+import theme from '../RunningSheet/RunningSheetTheme.module.css';
+import s from './PhotoCalloutPage.module.css';
+export function PhotoCalloutPage({selectedEventId,onEventSelect,events}:{selectedEventId:string|null;onEventSelect:(id:string)=>void;events:Event[]}){
+ const state=usePhotoCallout(selectedEventId);const {plan,save,saving,error,loading}=state;const {guests,loading:guestLoading}=useGuests(selectedEventId);const {tables,loading:tableLoading}=useTables(selectedEventId);const {toast}=useToast();
+ const [editing,setEditing]=useState<PhotoCard|null>(null);const [sharing,setSharing]=useState(false);const [exporting,setExporting]=useState(false);const [generatedAt]=useState(()=>new Date());const documentRef=useRef<HTMLDivElement>(null);const exportLock=useRef(false);const current=useRef('');
+ const event=events.find(e=>e.id===selectedEventId);const cards=plan?.cards||[];current.current=JSON.stringify([selectedEventId,plan]);
+ const [deletion,setDeletion]=useState<PhotoDeletion|null>(null);
+ useEffect(()=>setDeletion(null),[selectedEventId]);
+ const undoAvailable=deletion?.eventId===selectedEventId;
+ const choiceMade=!!plan&&plan.revision>0;const includeAllGuests=cards.some(card=>card.everyone);
+ const busy=saving||exporting||loading;const blocked=busy||!plan||!event||!choiceMade||!cards.length;
+ async function download(){if(blocked||!documentRef.current||exportLock.current)return;exportLock.current=true;setExporting(true);const snapshot=current.current;try{const {downloadPhotoCalloutPDF}=await import('@/lib/photoCalloutPdf');await downloadPhotoCalloutPDF(documentRef.current,event!.name,()=>current.current===snapshot&&documentRef.current!==null);toast({title:'PDF downloaded',description:'Your Photo Call-Out Cards are ready.'});}catch(err){toast({title:'Could not download PDF',description:err instanceof Error?err.message:'Please try again.',variant:'destructive'});}finally{exportLock.current=false;setExporting(false);}}
+ async function persist(next:PhotoCard[],notes=plan?.private_notes||{}){return await save(next,notes);}
+ async function check(card:PhotoCard){if(busy)return;await persist(cards.map(c=>c.id===card.id?{...c,completed:!c.completed}:c));}
+ async function removeCard(card:PhotoCard|undefined){if(!card||card.everyone||busy)return;if(!window.confirm(`Delete the photo group “${card.title}”?`))return;const snapshot=capturePhotoDeletion(plan!,[card.id]);const notes={...plan?.private_notes};delete notes[card.id];if(await persist(cards.filter(c=>c.id!==card.id),notes)){setDeletion(snapshot);setEditing(null);}}
+ async function clearAll(){if(busy||!cards.length)return;if(!window.confirm(`Delete all ${cards.length} photo cards? This removes every group and its private planning notes. You can restore this deletion with Undo Deletion while this page remains open.`))return;const snapshot=capturePhotoDeletion(plan!,cards.map(c=>c.id));if(await persist([],{})){setDeletion(snapshot);setEditing(null);}}
+ async function undoDeletion(){if(busy||!plan||!deletion||!undoAvailable)return;try{const restored=restorePhotoDeletion(plan,deletion);if(await persist(restored.cards,restored.notes)){setDeletion(null);toast({title:'Deletion undone',description:'Your photo groups have been restored.'});}}catch(err){state.setError(err instanceof Error?err.message:'Could not restore photo groups.');}}
+ return <div className={`${theme.page} ${s.page} space-y-6`} data-photo-callout-page>
+ <Card className={`${theme.glassCard} ${theme.topCard}`}><CardContent className="py-4"><div className="flex items-center justify-between gap-4 flex-wrap max-sm:flex-col max-sm:items-stretch"><div className="flex flex-col gap-5 min-w-0 max-sm:w-full"><div className={theme.pageHeader}><div className="flex items-start gap-2"><div className={theme.headingIcon}><Camera size={25} strokeWidth={1.8} aria-hidden="true"/></div><div><h1 className="text-2xl font-bold">Photo Group List</h1><p className={theme.supportingText}>Plan your groups. Keep every call-out clear.</p></div></div></div><div className="flex items-center gap-2"><CalendarDays size={17} strokeWidth={1.8} aria-hidden="true"/><StandardEventSelector events={events} selectedEventId={selectedEventId} onEventSelect={onEventSelect} menuClassName="ww-running-sheet-menu"/></div></div>
+ {plan&&<div data-export-controls-panel className={`border border-primary rounded-xl p-3 flex flex-col gap-3 ${theme.exportPanel}`}><span data-export-controls-heading><Printer size={16} strokeWidth={2} aria-hidden="true"/>Export Controls</span><div className="flex gap-3 flex-wrap"><button className={`inline-flex items-center gap-1.5 ${theme.greenAction}`} disabled={blocked} onClick={async()=>{try{if(plan.revision===0&&!await save(cards))return;await state.refreshShares();setSharing(true);}catch{state.setError('Could not load share links. Please try again.');}}}><Share2 size={16} strokeWidth={1.8}/>Share</button><button className={`inline-flex items-center gap-1.5 ${theme.greenAction}`} onClick={download} disabled={blocked}>{exporting?<LoaderCircle size={16} className="animate-spin"/>:<FileDown size={16} strokeWidth={1.8}/>}Download PDF</button></div></div>}
+ </div></CardContent></Card>
+ {event&&<PhotoEventBanner event={event}/>}
+ {error&&<div role="alert" className={s.error}>{error}<button className={`${s.action} ml-3`} disabled={saving} onClick={()=>{setEditing(null);void state.load();}}>Reload saved plan</button></div>}
+ {!selectedEventId?<div className={s.empty}>Select an event to start planning your photo groups.</div>:loading?<div className={s.empty}><LoaderCircle className="animate-spin mx-auto"/>Loading photo cards…</div>:plan&&event?<>
+ <div className={s.toolbar}><div className={s.summary}><p className={s.editHint}>Click a card to edit</p><div className={s.stats} aria-label="Photo group statistics"><span className={s.stat}>{cards.length} Photo {cards.length===1?'Group':'Groups'}</span><span className={s.stat}>{cards.filter(c=>c.mustHave).length} Must Have</span><span className={s.stat}>{cards.reduce((sum,c)=>sum+c.minutes,0)} Minutes Estimated</span><span className={s.stat}>{cards.filter(c=>c.completed).length} Completed</span></div>{saving&&<span className={s.help} role="status">Saving…</span>}</div><div className={s.actions}>{undoAvailable&&<button className={s.action} disabled={busy} onClick={()=>void undoDeletion()}><Undo2 size={16}/>Undo Deletion</button>}<button className={`${s.action} ${theme.primaryAction} ${s.green}`} disabled={busy||guestLoading||tableLoading||cards.length>=200} onClick={()=>setEditing(createPhotoCard())}><Plus size={16}/>Add Photo Group</button><button className={`${s.action} ${s.danger}`} disabled={busy||!cards.length} onClick={()=>void clearAll()}><Trash2 size={16} strokeWidth={1.8}/>Delete All Cards</button></div></div>
+ {choiceMade&&cards.length>0?<div className={s.documentArea}><PhotoCalloutDocument cards={cards} event={event} generatedAt={generatedAt} documentRef={documentRef} onSelect={busy?undefined:card=>{setEditing(card);}} onCheck={busy?undefined:check}/></div>:<div className={s.empty}>Add your first photo group to start your cards.</div>}
+ {editing&&<PhotoCardEditor key={editing.id} card={editing} privateNote={plan.private_notes[editing.id]||''} guests={guests} tables={tables} event={event} includeAllGuests={choiceMade?includeAllGuests:null} saving={saving} onDelete={!editing.everyone&&cards.some(c=>c.id===editing.id)?()=>removeCard(editing):undefined} onClose={()=>setEditing(null)} onSave={async(card,note,includeGroupPhoto)=>{const exists=cards.some(c=>c.id===card.id);const success=await persist(withGroupPhoto(exists?cards.map(c=>c.id===card.id?card:c):[...cards,card],includeGroupPhoto),{...plan.private_notes,[card.id]:note});return success;}}/>}
+ <PhotoCalloutShareModal eventSlug={event.name} eventDate={event.date||event.ceremony_date} open={sharing} onOpenChange={setSharing} shareTokens={state.shares} onGenerateToken={async(permission,recipientName)=>{const {data,error:failure}=await photoDb.from('photo_callout_shares').insert({event_id:plan.event_id,user_id:event.user_id,permission,recipient_name:recipientName||null}).select('token').single();if(failure)throw failure;await state.refreshShares();return data.token;}} onDeleteToken={async(id)=>{const {error:failure}=await photoDb.from('photo_callout_shares').delete().eq('id',id);if(failure){state.setError(failure.message);return;}await state.refreshShares();}} onTokensUpdated={()=>{void state.refreshShares().catch(()=>state.setError('Could not refresh share links.'));}}/>
+ </>:null}
+ </div>;
+}

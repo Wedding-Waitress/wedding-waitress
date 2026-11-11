@@ -1,3 +1,5 @@
+import { MobileLanguageMenu } from '@/components/Layout/MobileLanguageMenu';
+import { PublicCopy } from '@/i18n/PublicCopy';
 /**
  * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY
  * Part of the approved public homepage surface (locked 2026-04-18).
@@ -5,22 +7,25 @@
  */
 import React, { useEffect, useState, useRef } from 'react';
 import { Button } from "@/components/ui/enhanced-button";
-import { Globe, ChevronDown, ChevronUp, Menu, X, CircleUserRound, ArrowRight, LogIn, UserPlus, HeartHandshake, Gem, CakeSlice, Building2, Gift, Flower2, type LucideIcon } from "lucide-react";
+import { Globe, ChevronDown, ChevronUp, Menu, X, UserPlus, HeartHandshake, Gem, CakeSlice, Building2, Gift, Flower2, type LucideIcon } from "lucide-react";
 import { Link, useNavigate, useLocation } from "react-router-dom";
 import { DropdownMenu, DropdownMenuContent, DropdownMenuItem, DropdownMenuTrigger } from "@/components/ui/dropdown-menu";
 import { SignUpModal } from "@/components/auth/SignUpModal";
 import { AuthGatedCtaLink } from "@/components/auth/AuthGatedCtaLink";
 import { SignInModal } from "@/components/auth/SignInModal";
 import { useTranslation } from 'react-i18next';
+import { usePublicCopy } from '@/i18n/usePublicCopy';
 import { productsByGroup } from '@/content/publicProducts';
 import { publicEventTypes, type PublicEventTypeId } from '@/content/publicEventTypes';
 import { readSignInRedirectState } from '@/lib/authNavigation';
 import { getActivePublicNavigation, isCurrentPublicPath } from '@/lib/publicNavigation';
 import { PublicHomeLogoLink } from '@/components/Layout/PublicHomeLogoLink';
 import '@/styles/PublicSite.css';
+import './HeaderPhone.css';
+import { HomepageSoundToggle } from './HomepageSoundToggle';
 
 const headerLanguages = [
-  { code: 'en', name: 'English', flagSrc: '/flags/us.svg' },
+  { code: 'en', name: 'English', flagSrc: '/flags/gb.svg' },
   { code: 'it', name: 'Italiano', flagSrc: '/flags/it.svg' },
   { code: 'ar', name: 'العربية', flagSrc: '/flags/sa.svg' },
   { code: 'zh', name: '中文', flagSrc: '/flags/cn.svg' },
@@ -68,6 +73,7 @@ export const Header: React.FC<HeaderProps> = ({
   const signUpButtonRef = useRef<HTMLButtonElement>(null);
   const productsMenuTabDestinationRef = useRef<HTMLAnchorElement | null>(null);
   const { t, i18n } = useTranslation('landing');
+  const copy = usePublicCopy();
   const currentLang = headerLanguages.find(l => l.code === i18n.language) || headerLanguages[0];
   const navigate = useNavigate();
   const location = useLocation();
@@ -136,11 +142,33 @@ export const Header: React.FC<HeaderProps> = ({
     }
   };
 
+  const renderLanguageSelector = (mobile = false) => mobile ? <MobileLanguageMenu languages={headerLanguages} currentLanguage={currentLang.code} onChange={handleLanguageChange} label={copy('Choose language')} /> : (
+<DropdownMenu onOpenChange={(open) => { if (open) window.requestAnimationFrame(() => document.querySelector<HTMLElement>('.ww-selector-menu[data-state="open"]')?.scrollTo({ top: 0 })); }}>
+                      <DropdownMenuTrigger asChild>
+                        <Button variant="ghost" size="sm" aria-label={copy('Choose language')} className="ww-public-control min-h-[44px] min-w-[44px]">
+                          <Globe className="w-4 h-4 mr-1" />
+                          <span className="text-[14px]">{currentLang.code.toUpperCase()}</span>
+                          <ChevronDown className="w-3 h-3 ml-1" />
+                        </Button>
+                      </DropdownMenuTrigger>
+                      <DropdownMenuContent align="end" collisionPadding={16} data-public-language-menu style={{ maxHeight: 'min(60dvh, var(--radix-dropdown-menu-content-available-height, 60dvh))', overflowY: 'auto', overscrollBehavior: 'contain' }} className="ww-selector-menu bg-white border shadow-[0_12px_40px_rgba(43,23,17,0.14)] rounded-2xl p-2 z-50 max-h-[60vh] overflow-y-auto">
+                        {headerLanguages.map((lang) => (
+                          <DropdownMenuItem key={lang.code} data-language-code={lang.code} style={lang.code === 'en' ? { position: 'sticky', top: 0, zIndex: 1, background: '#fff' } : undefined} onClick={() => handleLanguageChange(lang.code)} data-selected={i18n.language === lang.code} dir={lang.code === 'ar' ? 'rtl' : 'ltr'} className="ww-selector-item cursor-pointer rounded-xl">
+                            <img className="ww-language-flag" src={lang.flagSrc} alt="" aria-hidden="true" width="18" height="14" />
+                    <span>{lang.name}</span>
+                          </DropdownMenuItem>
+                        ))}
+                      </DropdownMenuContent>
+                    </DropdownMenu>
+  );
+
+  const renderPhoneLink = () => <a className="ww-header-phone" href="tel:+61411569505">0411 569 505</a>;
+
   return (
-    <header className="bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
+    <header className="ww-public-phone-header bg-white/95 backdrop-blur-md border-b border-gray-100 sticky top-0 z-50">
       <div className="w-full px-4 py-3">
         <div
-          className={`mx-auto flex items-center justify-between ${
+          className={`mx-auto flex items-center justify-between ww-header-phone-layout ${
             !user ? 'max-w-[81rem] min-[1320px]:justify-end min-[1320px]:gap-2' : 'max-w-7xl'
           }`}
         >
@@ -163,7 +191,7 @@ export const Header: React.FC<HeaderProps> = ({
           {!user && (
             <>
               {/* Desktop Nav — right side (lg+ only) */}
-              <div className="hidden min-[1320px]:flex items-center gap-1 lg:gap-2">
+              <div className="ww-header-desktop-actions hidden min-[1320px]:flex items-center gap-1 lg:gap-2">
                 <nav className="flex items-center space-x-1 lg:space-x-2">
                   <Link to="/how-it-works" aria-current={activeNavigation === 'how-it-works' ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-public-nav-link whitespace-nowrap text-[15px] font-medium transition-colors px-3 py-2 rounded-lg">
                     {t('nav.howItWorks')}
@@ -179,7 +207,7 @@ export const Header: React.FC<HeaderProps> = ({
                         {t('nav.products')}
                       </Link>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" aria-label="Open products menu" title="Open products menu" className="ww-public-control min-h-[44px] px-2">
+                        <Button variant="ghost" size="sm" aria-label={copy('Open products menu')} title={copy('Open products menu')} className="ww-public-control min-h-[44px] px-2">
                           <ChevronDown size={18} strokeWidth={1.8} aria-hidden="true" />
                         </Button>
                       </DropdownMenuTrigger>
@@ -199,14 +227,14 @@ export const Header: React.FC<HeaderProps> = ({
                     >
                       <div className="ww-products-menu-grid">
                         {productsByGroup.map((group) => <div key={group.name}>
-                          <p className="ww-products-menu-heading">{group.name}</p>
+                          <p className="ww-products-menu-heading"><PublicCopy text={group.name} /></p>
                           {group.products.map((product) => {
                             const ProductIcon = product.navigationIcon;
-                            return <DropdownMenuItem key={product.path} asChild><Link to={product.path} aria-current={isCurrentPath(product.path) ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-products-menu-link ww-product-menu-item cursor-pointer rounded-xl px-3 py-2 text-[13px] font-medium"><ProductIcon size={18} strokeWidth={1.8} aria-hidden="true" className="ww-product-menu-icon" /><span className="min-w-0">{product.name}</span></Link></DropdownMenuItem>;
+                            return <DropdownMenuItem key={product.path} asChild><Link to={product.path} aria-current={isCurrentPath(product.path) ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-products-menu-link ww-product-menu-item cursor-pointer rounded-xl px-3 py-2 text-[13px] font-medium"><ProductIcon size={18} strokeWidth={1.8} aria-hidden="true" className="ww-product-menu-icon" /><span className="min-w-0"><PublicCopy text={product.name} /></span></Link></DropdownMenuItem>;
                           })}
                         </div>)}
                       </div>
-                      <Link to="/products" className="ww-products-menu-cta ww-button-espresso ww-focus px-5 py-2.5 text-sm">Explore all products →</Link>
+                      <Link to="/products" className="ww-products-menu-cta ww-button-espresso ww-focus px-5 py-2.5 text-sm"><PublicCopy text={"Explore all products →"} /></Link>
                     </DropdownMenuContent>
                   </DropdownMenu>
                   <DropdownMenu open={eventsMenuOpen} onOpenChange={setEventsMenuOpen}>
@@ -217,23 +245,23 @@ export const Header: React.FC<HeaderProps> = ({
                         aria-current={activeNavigation === 'events' ? 'page' : undefined}
                         className="ww-public-nav-link text-[15px] font-medium transition-colors px-3 py-2 rounded-lg"
                       >
-                        Events
+                        {copy('Events')}
                       </Link>
                       <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" aria-label="Open event types menu" title="Open event types menu" className="ww-public-control min-h-[44px] px-2">
+                        <Button variant="ghost" size="sm" aria-label={copy('Open event types menu')} title={copy('Open event types menu')} className="ww-public-control min-h-[44px] px-2">
                           <ChevronDown size={18} strokeWidth={1.8} aria-hidden="true" />
                         </Button>
                       </DropdownMenuTrigger>
                     </div>
                     <DropdownMenuContent align="center" collisionPadding={16} className="ww-events-menu bg-white border shadow-[0_18px_55px_rgba(43,23,17,0.16)] rounded-2xl p-5 z-50">
-                      <p className="ww-products-menu-heading">Plan by event type</p>
+                      <p className="ww-products-menu-heading"><PublicCopy text={"Plan by event type"} /></p>
                       <div className="ww-events-menu-grid">
                         {publicEventTypes.map((eventType) => {
                           const EventIcon = eventNavigationIconById[eventType.id];
-                          return <DropdownMenuItem key={eventType.path} asChild><Link to={eventType.path} aria-current={isCurrentPath(eventType.path) ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-products-menu-link ww-product-menu-item cursor-pointer rounded-xl px-3 py-2 text-[13px] font-medium"><EventIcon size={18} strokeWidth={1.8} aria-hidden="true" className="ww-product-menu-icon" /><span className="min-w-0">{eventType.name}</span></Link></DropdownMenuItem>;
+                          return <DropdownMenuItem key={eventType.path} asChild><Link to={eventType.path} aria-current={isCurrentPath(eventType.path) ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-products-menu-link ww-product-menu-item cursor-pointer rounded-xl px-3 py-2 text-[13px] font-medium"><EventIcon size={18} strokeWidth={1.8} aria-hidden="true" className="ww-product-menu-icon" /><span className="min-w-0"><PublicCopy text={eventType.name} /></span></Link></DropdownMenuItem>;
                         })}
                       </div>
-                      <Link to="/events" className="ww-products-menu-cta ww-button-espresso ww-focus px-5 py-2.5 text-sm">Explore all event types →</Link>
+                      <Link to="/events" className="ww-products-menu-cta ww-button-espresso ww-focus px-5 py-2.5 text-sm"><PublicCopy text={"Explore all event types →"} /></Link>
                     </DropdownMenuContent>
                   </DropdownMenu>
                   <Link to="/pricing" aria-current={activeNavigation === 'pricing' ? 'page' : undefined} onClick={() => window.scrollTo(0, 0)} className="ww-public-nav-link text-[15px] font-medium transition-colors px-3 py-2 rounded-lg">
@@ -250,46 +278,32 @@ export const Header: React.FC<HeaderProps> = ({
                   </Link>
                 </nav>
 
+                {renderPhoneLink()}
                 {!hideDashboardElements && (
                   <>
-                    <Button variant="ghost" size="sm" onClick={openSignIn} className="ww-public-control min-h-[44px] text-[15px] font-medium">
-                      <CircleUserRound size={18} strokeWidth={1.8} aria-hidden="true" className="mr-1.5 shrink-0" />
+                    <button type="button" onClick={openSignIn} className="ww-header-sign-in">
                       {t('nav.signIn')}
-                    </Button>
+                    </button>
                     <AuthGatedCtaLink to="/dashboard" asChild alwaysSignUp>
-                      <Button ref={signUpButtonRef} size="sm" className="ww-button-espresso min-h-[44px] text-sm rounded-xl px-6">
-                        Start Planning Free
-                        <ArrowRight size={18} strokeWidth={1.8} aria-hidden="true" className="ml-1.5 shrink-0" />
+                      <Button ref={signUpButtonRef} size="sm" className="ww-button-espresso min-h-[44px] text-sm rounded-xl px-4">
+                        {copy('Start Planning Free')}
                       </Button>
                     </AuthGatedCtaLink>
-                    <DropdownMenu>
-                      <DropdownMenuTrigger asChild>
-                        <Button variant="ghost" size="sm" className="ww-public-control min-h-[44px] min-w-[44px]">
-                          <Globe className="w-4 h-4 mr-1" />
-                          <span className="text-[14px]">{currentLang.code.toUpperCase()}</span>
-                          <ChevronDown className="w-3 h-3 ml-1" />
-                        </Button>
-                      </DropdownMenuTrigger>
-                      <DropdownMenuContent align="end" collisionPadding={16} className="ww-selector-menu bg-white border shadow-[0_12px_40px_rgba(43,23,17,0.14)] rounded-2xl p-2 z-50 max-h-[60vh] overflow-y-auto">
-                        {headerLanguages.map((lang) => (
-                          <DropdownMenuItem key={lang.code} onClick={() => handleLanguageChange(lang.code)} data-selected={i18n.language === lang.code} dir={lang.code === 'ar' ? 'rtl' : 'ltr'} className="ww-selector-item cursor-pointer rounded-xl">
-                            <img className="ww-language-flag" src={lang.flagSrc} alt="" aria-hidden="true" width="18" height="14" />
-                            <span>{lang.name}</span>
-                          </DropdownMenuItem>
-                        ))}
-                      </DropdownMenuContent>
-                    </DropdownMenu>
+                    {renderLanguageSelector()}
+                    <HomepageSoundToggle />
                   </>
                 )}
               </div>
 
               {/* Mobile + Tablet hamburger */}
-              <div className="min-[1320px]:hidden relative">
+              <div className="ww-header-mobile-actions min-[1320px]:hidden flex items-center gap-2">
+                <HomepageSoundToggle />
+                {renderPhoneLink()}
                 <button
                   onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                   className="ww-button-espresso min-h-[44px] min-w-[44px] p-2 rounded-xl flex items-center justify-center"
-                  aria-label={mobileMenuOpen ? "Close menu" : "Open menu"}
-                  title={mobileMenuOpen ? "Close menu" : "Open menu"}
+                  aria-label={copy(mobileMenuOpen ? "Close menu" : "Open menu")}
+                  title={copy(mobileMenuOpen ? "Close menu" : "Open menu")}
                   aria-expanded={mobileMenuOpen}
                 >
                   {mobileMenuOpen
@@ -304,16 +318,15 @@ export const Header: React.FC<HeaderProps> = ({
                   const eventItemStyle: React.CSSProperties = { ...itemStyle, minHeight: '44px', height: '44px' };
                   const eventLinkStyle: React.CSSProperties = { ...itemStyle, minHeight: '44px', height: 'auto' };
                   return (
-                  <div className="ww-public-mobile-menu absolute top-full right-0 mt-1 w-[min(92vw,360px)] bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 pt-4 z-50 max-h-[82vh] overflow-y-auto">
+                  <div style={{ maxHeight: 'min(82dvh, calc(100dvh - 112px))' }} data-public-mobile-menu className="ww-public-mobile-menu absolute top-full right-4 mt-1 w-[min(92vw,360px)] bg-white border border-gray-100 shadow-[0_12px_40px_rgba(0,0,0,0.10)] rounded-2xl p-2 pt-4 z-50 max-h-[82vh] overflow-y-auto">
                     {/* Sign In / Sign Up — universal small pill, perfectly centered */}
                     <div className="flex items-center justify-center gap-3 px-1 pb-2">
                       <button
                         type="button"
                         onClick={() => { setMobileMenuOpen(false); openSignIn(); }}
-                        className="ww-small-pill"
+                        className="ww-header-sign-in"
                         style={{ minWidth: '100px' }}
                       >
-                        <LogIn size={14} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
                         {t('nav.signIn')}
                       </button>
                       <SignUpModal>
@@ -323,7 +336,7 @@ export const Header: React.FC<HeaderProps> = ({
                           style={{ minWidth: '145px' }}
                         >
                           <UserPlus size={14} strokeWidth={1.8} aria-hidden="true" className="shrink-0" />
-                        Start Planning Free
+                        {copy('Start Planning Free')}
                         </button>
                       </SignUpModal>
                     </div>
@@ -356,13 +369,13 @@ export const Header: React.FC<HeaderProps> = ({
                     {mobileProductsOpen && (
                       <div className="ww-mobile-product-grid my-2">
                         {productsByGroup.map((group) => <div key={group.name} className="min-w-0">
-                          <p className="ww-products-menu-heading">{group.name}</p>
+                          <p className="ww-products-menu-heading"><PublicCopy text={group.name} /></p>
                           {group.products.map((product) => {
                             const ProductIcon = product.navigationIcon;
-                            return <Link key={product.path} to={product.path} aria-current={isCurrentPath(product.path) ? 'page' : undefined} onClick={() => { setMobileMenuOpen(false); setMobileProductsOpen(false); window.scrollTo(0, 0); }} className="ww-products-menu-link ww-product-menu-item ww-product-menu-item-mobile w-full rounded-xl px-3"><ProductIcon size={20} strokeWidth={1.8} aria-hidden="true" className="ww-product-menu-icon" /><span className="min-w-0">{product.name}</span></Link>;
+                            return <Link key={product.path} to={product.path} aria-current={isCurrentPath(product.path) ? 'page' : undefined} onClick={() => { setMobileMenuOpen(false); setMobileProductsOpen(false); window.scrollTo(0, 0); }} className="ww-products-menu-link ww-product-menu-item ww-product-menu-item-mobile w-full rounded-xl px-3"><ProductIcon size={20} strokeWidth={1.8} aria-hidden="true" className="ww-product-menu-icon" /><span className="min-w-0"><PublicCopy text={product.name} /></span></Link>;
                           })}
                         </div>)}
-                        <Link to="/products" onClick={() => { setMobileMenuOpen(false); setMobileProductsOpen(false); window.scrollTo(0, 0); }} className="ww-button-espresso ww-focus col-span-full mt-1 flex min-h-[44px] items-center justify-center rounded-xl px-4 text-sm font-semibold">Explore all products →</Link>
+                        <Link to="/products" onClick={() => { setMobileMenuOpen(false); setMobileProductsOpen(false); window.scrollTo(0, 0); }} className="ww-button-espresso ww-focus col-span-full mt-1 flex min-h-[44px] items-center justify-center rounded-xl px-4 text-sm font-semibold"><PublicCopy text={"Explore all products →"} /></Link>
                       </div>
                     )}
 
@@ -374,7 +387,7 @@ export const Header: React.FC<HeaderProps> = ({
                       className={`ww-public-nav-link w-full flex items-center justify-between px-3 rounded-xl ${mobileEventsOpen ? 'font-semibold' : ''}`}
                       style={eventItemStyle}
                     >
-                      <span>Events</span>
+                      <span>{copy('Events')}</span>
                       {mobileEventsOpen
                         ? <ChevronUp size={18} strokeWidth={1.8} aria-hidden="true" />
                         : <ChevronDown size={18} strokeWidth={1.8} aria-hidden="true" />}
@@ -383,9 +396,9 @@ export const Header: React.FC<HeaderProps> = ({
                       <div className="my-2 grid grid-cols-1 gap-1 sm:grid-cols-2">
                         {publicEventTypes.map((eventType) => {
                           const EventIcon = eventNavigationIconById[eventType.id];
-                          return <Link key={eventType.path} to={eventType.path} aria-current={isCurrentPath(eventType.path) ? 'page' : undefined} onClick={() => { setMobileMenuOpen(false); setMobileEventsOpen(false); window.scrollTo(0, 0); }} className="ww-products-menu-link ww-product-menu-item w-full rounded-xl px-3" style={eventLinkStyle}><EventIcon size={18} strokeWidth={1.8} aria-hidden="true" className="ww-product-menu-icon" /><span className="min-w-0">{eventType.name}</span></Link>;
+                          return <Link key={eventType.path} to={eventType.path} aria-current={isCurrentPath(eventType.path) ? 'page' : undefined} onClick={() => { setMobileMenuOpen(false); setMobileEventsOpen(false); window.scrollTo(0, 0); }} className="ww-products-menu-link ww-product-menu-item w-full rounded-xl px-3" style={eventLinkStyle}><EventIcon size={18} strokeWidth={1.8} aria-hidden="true" className="ww-product-menu-icon" /><span className="min-w-0"><PublicCopy text={eventType.name} /></span></Link>;
                         })}
-                        <Link to="/events" onClick={() => { setMobileMenuOpen(false); setMobileEventsOpen(false); window.scrollTo(0, 0); }} className="ww-button-espresso ww-focus col-span-full mt-1 flex min-h-[44px] items-center justify-center rounded-xl px-4 text-sm font-semibold">Explore all event types →</Link>
+                        <Link to="/events" onClick={() => { setMobileMenuOpen(false); setMobileEventsOpen(false); window.scrollTo(0, 0); }} className="ww-button-espresso ww-focus col-span-full mt-1 flex min-h-[44px] items-center justify-center rounded-xl px-4 text-sm font-semibold"><PublicCopy text={"Explore all event types →"} /></Link>
                       </div>
                     )}
 
@@ -425,6 +438,7 @@ export const Header: React.FC<HeaderProps> = ({
                     >
                       {t('nav.contact')}
                     </Link>
+                    <div className="mt-2 border-t border-[#E8E1D6] px-3 pt-2">{renderLanguageSelector(true)}</div>
                   </div>
                   );
                 })()}
@@ -434,9 +448,9 @@ export const Header: React.FC<HeaderProps> = ({
 
           {/* Logged-in user actions */}
           {user && !hideDashboardElements && (
-            <Button variant="outline" className="glass min-h-[44px]" onClick={onSignOut}>
+            <div className="ww-header-user-actions flex items-center gap-3">{renderPhoneLink()}<Button variant="outline" className="glass min-h-[44px]" onClick={onSignOut}>
               {t('nav.logout')}
-            </Button>
+            </Button></div>
           )}
         </div>
       </div>

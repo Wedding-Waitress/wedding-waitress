@@ -1,0 +1,12 @@
+import React from 'react';
+import {fireEvent,render,screen,waitFor} from '@testing-library/react';
+import {it,expect,vi} from 'vitest';
+import {InvitationExporter} from './InvitationExporter';
+const mock=vi.hoisted(()=>({png:vi.fn(async()=>{}),toast:vi.fn()}));
+vi.mock('@/hooks/useUserPlan',()=>({useUserPlan:()=>({plan:{plan_name:'Starter'},isStarterPlan:true})}));
+vi.mock('@/hooks/useGuests',()=>({useGuests:()=>({guests:[]})}));
+vi.mock('@/hooks/use-toast',()=>({useToast:()=>({toast:mock.toast})}));
+vi.mock('@/lib/invitationExporter',()=>({exportInvitationPNG:mock.png,exportInvitationPDF:vi.fn(),exportInvitation2Up:vi.fn(),exportBulkPDF:vi.fn()}));
+vi.mock('./InvitationSendModal',()=>({InvitationSendModal:()=>null}));
+vi.mock('@/components/Subscription/UpgradePlanModal',()=>({UpgradePlanModal:({open}:any)=>open?<div role="dialog" aria-label="Shared package picker"/>:null}));
+it('opens the shared package chooser when the trial export cap is reached, without another export',async()=>{render(<InvitationExporter template={{background_url:'',orientation:'portrait',width_mm:148,height_mm:210,text_zones:[]} as any} customText={{}} customStyles={{}} eventData={{}} eventId="fixture-event"/>);for(let i=1;i<=3;i++){fireEvent.click(screen.getByRole('button',{name:/Download PNG/}));await waitFor(()=>expect(mock.png).toHaveBeenCalledTimes(i));await waitFor(()=>expect(screen.getByRole('button',{name:/Download PNG/})).not.toBeDisabled());}fireEvent.click(screen.getByRole('button',{name:/Download PNG/}));expect(await screen.findByRole('dialog',{name:'Shared package picker'})).toBeInTheDocument();expect(mock.png).toHaveBeenCalledTimes(3);expect(screen.queryByText('Unlimited guests')).not.toBeInTheDocument();});
