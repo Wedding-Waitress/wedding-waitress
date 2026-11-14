@@ -6,6 +6,12 @@ import {useEventMediaGallery} from './useEventMediaGallery';
 import {clearAllCaches} from '@/lib/cacheRegistry';
 const deferred=()=>{let resolve:any;const promise=new Promise<any>(r=>resolve=r);return{promise,resolve}};
 const row=(event:string)=>({gallery_id:event,event_id:event,is_open:true});
+it('keeps cached gallery content visible during a return-visit refresh',async()=>{
+ const first=renderHook(()=>useEventMediaGallery('warm',{loadItems:false}));await waitFor(()=>expect(first.result.current.meta?.gallery_id).toBe('warm'));first.unmount();
+ const slow=deferred();backend.rpc.mockReturnValue(slow.promise);const again=renderHook(()=>useEventMediaGallery('warm',{loadItems:false}));
+ expect(again.result.current.meta?.gallery_id).toBe('warm');expect(again.result.current.loading).toBe(false);
+ await act(async()=>slow.resolve({data:[row('warm')],error:null}));expect(again.result.current.loading).toBe(false);
+});
 beforeEach(()=>{clearAllCaches();backend.rpc.mockReset();backend.rpc.mockImplementation(async(name:string,args:any)=>({data:name==='get_event_media_gallery_host'?[row(args._event_id)]:[],error:null}));});
 it('ignores a slow metadata response after selecting another event',async()=>{
  const slow=deferred();backend.rpc.mockImplementation(async(name:string,args:any)=>name==='get_event_media_gallery_host'&&args._event_id==='old'?slow.promise:{data:name==='get_event_media_gallery_host'?[row(args._event_id)]:[],error:null});

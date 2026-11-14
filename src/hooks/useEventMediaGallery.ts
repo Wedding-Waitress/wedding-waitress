@@ -254,7 +254,7 @@ export function useEventMediaGallery(eventId: string | null, options: { loadItem
     const generation = getCacheGeneration();
     const current = () => currentEvent.current === eid && generation === getCacheGeneration();
     if (!eid || !current()) return;
-    setLoading(true);
+    setLoading(!galleryMetaCache.has(eid) || (shouldLoadItems && !galleryItemsCache.has(eid)));
     setError(null);
     try {
       const [existing] = await Promise.all([fetchMeta(eid), loadRequestedItems(eid)]);
@@ -275,7 +275,7 @@ export function useEventMediaGallery(eventId: string | null, options: { loadItem
     } finally {
       if (current()) setLoading(false);
     }
-  }, [eventId, ensureGallery, fetchMeta, loadRequestedItems, setMeta]);
+  }, [eventId, ensureGallery, fetchMeta, loadRequestedItems, setMeta, shouldLoadItems]);
 
   useEffect(() => {
     if (!eventId) { setMeta(null); setItems([]); setError(null); return; }

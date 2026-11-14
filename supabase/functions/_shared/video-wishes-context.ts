@@ -2,13 +2,22 @@
 export async function resolveVideoWishesContext(db: any, slug: string, invitationToken?: string, password='') {
   const {data:event,error:eventError} = await db.from('events').select('id,user_id,name,date,slug').eq('slug',slug).maybeSingle();
   if(eventError || !event) throw new Error('Event not found');
-  const {data:operational,error:accessError} = await db.rpc('is_account_operational',{p_user_id:event.user_id});
+  // These reads all depend only on the event. Run them together; every result
+  // still passes the same fail-closed checks before any context is returned.
+  const [access, plan, settingResult, galleryResult, limitResult] = await Promise.all([
+    db.rpc('is_account_operational',{p_user_id:event.user_id}),
+    db.rpc('subscription_allows_event_edit',{owner_id:event.user_id}),
+    db.from('video_wishes_settings').select('enabled').eq('event_id',event.id).maybeSingle(),
+    db.from('event_media_galleries').select('id,is_open,password_enabled').eq('event_id',event.id).maybeSingle(),
+    db.from('event_media_limits').select('max_video_bytes,max_video_duration_sec').eq('event_id',event.id).maybeSingle(),
+  ]);
+  const {data:operational,error:accessError} = access;
   if(accessError || operational !== true) throw new Error('Video Wishes is unavailable for this event');
-  const {data:editable,error:planError}=await db.rpc('subscription_allows_event_edit',{owner_id:event.user_id});
+  const {data:editable,error:planError}=plan;
   if(planError || editable !== true) throw new Error('Video uploads are unavailable for this event');
-  const {data:settings,error:settingsError} = await db.from('video_wishes_settings').select('enabled').eq('event_id',event.id).maybeSingle();
+  const {data:settings,error:settingsError} = settingResult;
   if(settingsError || settings?.enabled !== true) throw new Error('Video Wishes is not displayed for this event');
-  const {data:gallery,error:galleryError} = await db.from('event_media_galleries').select('id,is_open,password_enabled').eq('event_id',event.id).maybeSingle();
+  const {data:gallery,error:galleryError} = galleryResult;
   if(galleryError || !gallery?.is_open) throw new Error('The event gallery is closed');
   if(gallery.password_enabled) {
     const {data:galleryToken,error:galleryTokenError}=await db.from('event_media_upload_tokens').select('token,expires_at').eq('gallery_id',gallery.id).order('created_at',{ascending:false}).limit(1).maybeSingle();
@@ -16,7 +25,7 @@ export async function resolveVideoWishesContext(db: any, slug: string, invitatio
     const {data:passwordOk,error:passwordError}=await db.rpc('verify_event_media_password',{_token:galleryToken.token,_password:password});
     if(passwordError || passwordOk!==true) throw new Error('PASSWORD_REQUIRED');
   }
-  const {data:limits,error:limitsError} = await db.from('event_media_limits').select('max_video_bytes,max_video_duration_sec').eq('event_id',event.id).maybeSingle();
+  const {data:limits,error:limitsError} = limitResult;
   if(limitsError || !limits) throw new Error('The event upload limits could not be checked');
   const maxBytes=Math.min(100*1024*1024,Number(limits.max_video_bytes));
   const maxSeconds=Math.min(120,Number(limits.max_video_duration_sec));

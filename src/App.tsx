@@ -1,4 +1,5 @@
 import { useEffect, lazy, Suspense } from "react";
+import { loadVideoWishesRoute } from '@/lib/guestRoutePreload';
 import "./App.css";
 import { DashboardInterfaceStyleScope } from '@/components/Dashboard/DashboardInterfaceStyleScope';
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
@@ -24,7 +25,7 @@ const Landing = lazy(() => import("./pages/Landing").then(m => ({ default: m.Lan
 const NotFound = lazy(() => import("./pages/NotFound"));
 const GuestMediaUpload = lazy(() => import("./pages/GuestMediaUpload").then(m => ({ default: m.GuestMediaUpload })));
 const GalleryLiveView = lazy(() => import("./pages/GalleryLiveView"));
-const GuestVideoWishes = lazy(() => import('./pages/GuestVideoWishes'));
+const GuestVideoWishes = lazy(loadVideoWishesRoute);
 const GuestVideoGuestbook = lazy(() => import("./pages/GuestVideoGuestbook"));
 const GuestPhotoBooth = lazy(() => import("./pages/GuestPhotoBooth"));
 // Lazy: split everything else into separate chunks for instant initial load

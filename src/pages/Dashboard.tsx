@@ -236,8 +236,7 @@ const DashboardContent = () => {
   // Warm sidebar feature chunks after the first dashboard paint. Intent
   // preloading below remains the fastest path during the idle window.
   useEffect(() => scheduleIdleWork(() => {
-    preloadAllDashboardPages();
-    void loadAccountRoute();
+    void preloadAllDashboardPages().then(() => loadAccountRoute()).catch(() => {});
   }), []);
 
   // Bulk selection state
@@ -807,11 +806,12 @@ const DashboardContent = () => {
 
   // Route changes are optimistic; cached/realtime data remains mounted in this shell.
   const handleTabChange = (tabId: string) => {
+    void preloadDashboardPage(tabId)?.catch(() => {});
     setActiveTab(tabId);
   };
 
   const handleTabIntent = (tabId: string) => {
-    void preloadDashboardPage(tabId);
+    void preloadDashboardPage(tabId)?.catch(() => {});
   };
 
   // Only block on authentication check — data loads in background with cached UI

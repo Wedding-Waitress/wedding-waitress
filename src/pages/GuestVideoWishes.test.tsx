@@ -30,3 +30,8 @@ it('defaults to the invitation guest, allows a family selection, and returns to 
  fireEvent.change(select,{target:{value:'member'}});expect((select as HTMLSelectElement).value).toBe('member');expect(screen.getByRole('option',{name:'Our family'})).toBeTruthy();
  expect(mock.invoke.mock.calls[0][1].body.invite).toBe('secure-context');fireEvent.click(screen.getByRole('button',{name:'Back to Invitation'}));await screen.findByText('Invitation destination');
 });
+it('opens the form without constructing an uploader or requesting the camera',async()=>{
+ mount();await screen.findByRole('textbox');
+ expect(mock.uploads).not.toHaveBeenCalled();expect(mock.open).not.toHaveBeenCalled();
+ expect(mock.invoke.mock.calls.map(([,options])=>options.body.action)).toEqual(['context']);
+});

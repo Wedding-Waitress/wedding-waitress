@@ -2,7 +2,7 @@ import { useQrGuestTheme } from '@/hooks/useQrGuestTheme';
 import React,{useEffect,useRef,useState} from 'react';
 import {useLocation,useNavigate,useParams} from 'react-router-dom';
 import {Video,Upload,ArrowLeft,Send,Square} from 'lucide-react';
-import * as tus from 'tus-js-client';
+import type * as tus from 'tus-js-client';
 import {supabase,SUPABASE_URL,SUPABASE_PUBLISHABLE_KEY} from '@/integrations/supabase/client';
 import uploadHeaderLogo from '@/assets/upload-header-logo.png';
 import {GalleryFooterLogo} from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
@@ -59,6 +59,8 @@ export default function GuestVideoWishes(){
    if(reservation.status==='uploaded'){setSuccess(true);return;}
    if(reservation.filePresent)current.uploaded=true;
    if(!current.uploaded){
+    const tus = await import('tus-js-client');
+    if(!active.current)return;
     await new Promise<void>((resolve,reject)=>{
      const up=new tus.Upload(blob,{endpoint:`${SUPABASE_URL}/storage/v1/upload/resumable`,headers:{authorization:`Bearer ${SUPABASE_PUBLISHABLE_KEY}`,apikey:SUPABASE_PUBLISHABLE_KEY,'x-upsert':'false'},
       retryDelays:[0,1000,3000,5000],chunkSize:6*1024*1024,uploadDataDuringCreation:true,removeFingerprintOnSuccess:true,

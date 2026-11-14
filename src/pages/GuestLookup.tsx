@@ -1,4 +1,5 @@
 import { useGuestVerification } from '@/hooks/useGuestVerification';
+import { preloadVideoWishesRoute } from '@/lib/guestRoutePreload';
 import { GuestVerificationGate } from '@/components/GuestLookup/GuestVerificationGate';
 import { publicGuestVerificationRows } from '@/i18n/publicGuestVerificationCopy';
 import { useMobileGuestSearchViewport } from '@/hooks/useMobileGuestSearchViewport';
@@ -932,7 +933,7 @@ export const GuestLookup: React.FC = () => {
                     <span>Song Requests</span>
                   </button>
                 )}
-              {wishesEnabled&&<button className={styles.moduleButton} onClick={openVideoWishes}><Video aria-hidden="true"/><span>{wishesCopy.title}</span></button>}
+              {wishesEnabled&&<button className={styles.moduleButton} onPointerEnter={preloadVideoWishesRoute} onPointerDown={preloadVideoWishesRoute} onFocus={preloadVideoWishesRoute} onClick={openVideoWishes}><Video aria-hidden="true"/><span>{wishesCopy.title}</span></button>}
               </TabsList>
             </div>
 
