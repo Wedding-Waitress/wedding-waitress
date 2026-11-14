@@ -119,7 +119,7 @@ export function RunningSheetShareModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`max-w-lg ${styles.shareModal}`} data-running-sheet-share-modal>
+      <DialogContent data-document-sharing className={`max-w-lg ${styles.shareModal}`} data-running-sheet-share-modal>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <Share2 size={18} strokeWidth={1.8} className="text-primary" aria-hidden="true" />

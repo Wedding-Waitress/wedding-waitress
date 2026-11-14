@@ -573,7 +573,7 @@ export function DJMCPublicView() {
 
   if (loading) {
     return (
-      <div className={`${theme.page} ${shared.page} flex items-center justify-center`}>
+      <div data-dashboard-content className={`${theme.page} ${shared.page} flex items-center justify-center`}>
         <div className="text-center">
           <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className={`text-muted-foreground ${theme.bodyText}`}>Loading questionnaire...</p>
@@ -584,7 +584,7 @@ export function DJMCPublicView() {
 
   if (error) {
     return (
-      <div className={`${theme.page} ${shared.page} flex items-center justify-center p-4`}>
+      <div data-dashboard-content className={`${theme.page} ${shared.page} flex items-center justify-center p-4`}>
         <Card className={`${theme.statusCard} max-w-md w-full`}>
           <CardContent className="pt-6 text-center">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
@@ -602,7 +602,7 @@ export function DJMCPublicView() {
   if (!data) return null;
 
   return (
-    <div data-row-text-size={rowTextSize} className={`${theme.page} ${shared.page}`}>
+    <div data-dashboard-content data-row-text-size={rowTextSize} className={`${theme.page} ${shared.page}`}>
       {/* Header */}
       <header className={`${theme.glassCard} mx-4 mt-4 rounded-xl print:static`}>
         <div className="w-full mx-auto px-4 py-4">

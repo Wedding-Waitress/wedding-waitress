@@ -477,7 +477,7 @@ export const GuestMediaUpload: React.FC = () => {
   const availableTabs = ([
     gallery.guest_upload_enabled !== false ? 'upload' : null,
     gallery.gallery_view_enabled !== false ? 'gallery' : null,
-    'guestbook',
+    gallery.guestbook_text_enabled || gallery.video_guestbook_enabled ? 'guestbook' : null,
     gallery.photo_booth_enabled ? 'booth' : null,
   ].filter(Boolean)) as Array<'upload' | 'gallery' | 'guestbook' | 'booth'>;
   const heroTab = availableTabs.includes(activeTab) ? activeTab : (availableTabs[0] ?? 'upload');
@@ -619,7 +619,7 @@ export const GuestMediaUpload: React.FC = () => {
         const uploadOn = gallery.guest_upload_enabled !== false;
         const galleryOn = gallery.gallery_view_enabled !== false;
         const boothOn = !!gallery.photo_booth_enabled;
-        const guestbookOn = true;
+        const guestbookOn = !!gallery.guestbook_text_enabled || !!gallery.video_guestbook_enabled;
         type TabKey = 'upload' | 'gallery' | 'booth' | 'guestbook';
         const tabs = ([
           uploadOn ? 'upload' : null,
@@ -708,7 +708,7 @@ export const GuestMediaUpload: React.FC = () => {
         )}
 
 
-        {token && (
+        {token && guestbookOn && (
           <div hidden={current !== 'guestbook'}><GuestGuestbookTab successStyle={LEATHER_STYLE} token={token} theme={lowerTheme} accent={accent} refreshKey={galleryRefresh} onBackToApp={handleGuestbookReturnToApp} /></div>
         )}
 

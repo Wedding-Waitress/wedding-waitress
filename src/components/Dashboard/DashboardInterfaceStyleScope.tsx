@@ -6,7 +6,8 @@ import '@/styles/DashboardInterface.css';
 export const DashboardInterfaceStyleScope = () => {
   const { pathname } = useLocation();
   useLayoutEffect(() => {
-    const enabled = /^\/(dashboard|account|admin)(\/|$)/.test(pathname);
+    const enabled = /^\/(dashboard|account|admin)(\/|$)/.test(pathname)
+      || /^\/(dj-mc|djmc|shared-running-sheet|running-sheet)\/[^/]+(?:\/[^/]+)?\/?$/.test(pathname);
     if (enabled) document.body.setAttribute('data-ww-dashboard-ui', 'true');
     else document.body.removeAttribute('data-ww-dashboard-ui');
     return () => document.body.removeAttribute('data-ww-dashboard-ui');

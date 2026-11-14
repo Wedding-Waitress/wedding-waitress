@@ -112,7 +112,7 @@ export function DJMCShareModal({
 
   return (
     <Dialog open={open} onOpenChange={onOpenChange}>
-      <DialogContent className={`${theme.shareModal} max-w-lg`}>
+      <DialogContent data-document-sharing className={`${theme.shareModal} max-w-lg`}>
         <DialogHeader>
           <DialogTitle className="flex items-center gap-2">
             <UsersRound size={18} strokeWidth={1.8} className="text-primary" />

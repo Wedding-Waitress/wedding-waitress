@@ -13,12 +13,13 @@ interface Props {
   meta: GalleryMeta;
   onToggleUpload: (value: boolean) => Promise<void>;
   onToggleGalleryView: (value: boolean) => Promise<void>;
+  onToggleGuestbook: (value: boolean) => Promise<void>;
   onTogglePhotoBooth: (value: boolean) => Promise<void>;
   onToggleSlideshow: (value: boolean) => Promise<void>;
 }
 
 export const GalleryGuestFeaturesCard: React.FC<Props> = ({
-  meta, onToggleUpload, onToggleGalleryView,
+  meta, onToggleUpload, onToggleGalleryView, onToggleGuestbook,
   onTogglePhotoBooth, onToggleSlideshow,
 }) => {
   const navigate = useNavigate();
@@ -50,7 +51,7 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
   }[] = [
     { key: 'upload', Icon: CloudUpload, title: 'Photo & Video Sharing', desc: 'Let guests share photos and videos from your event', checked: !!meta.guest_upload_enabled, fn: onToggleUpload, href: '/dashboard/photo-video-gallery/photo-video-sharing' },
     { key: 'view', Icon: Images, title: 'Photo & Video Gallery View', desc: 'Let guests browse the shared gallery', checked: !!meta.gallery_view_enabled, fn: onToggleGalleryView, href: '/dashboard/photo-video-gallery/gallery-view' },
-    { key: 'guestbook', Icon: BookHeart, title: 'Digital Guestbook', desc: 'Always available: guests can leave written, audio or video messages, in any combination.', checked: true, fn: async () => {}, href: '/dashboard/photo-video-gallery/digital-guestbook' },
+    { key: 'guestbook', Icon: BookHeart, title: 'Digital Guestbook', desc: 'Let guests leave written, audio or video messages, in any combination.', checked: !!meta.guestbook_text_enabled || !!meta.voice_guestbook_enabled, fn: onToggleGuestbook, href: '/dashboard/photo-video-gallery/digital-guestbook' },
     { key: 'booth', Icon: Camera, title: 'Digital Photo Booth', desc: 'Let guests use the on-screen digital photo booth', checked: !!meta.photo_booth_enabled, fn: onTogglePhotoBooth, href: '/dashboard/photo-video-gallery/digital-photo-booth' },
     { key: 'slideshow', Icon: Presentation, title: 'Live Slideshow', desc: 'Display uploaded photos in a live slideshow', checked: !!meta.slideshow_enabled, fn: onToggleSlideshow, href: '/dashboard/photo-video-gallery/live-slideshow' },
   ];
@@ -101,7 +102,7 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
                 <ChevronRight size={13} strokeWidth={1.8} aria-hidden="true" />
               </button>
 
-              {feature.key !== 'guestbook' && <div className={styles.switchControl}>
+              <div className={styles.switchControl}>
                 <span>{feature.checked ? 'On' : 'Off'}</span>
                 <Switch
                   checked={feature.checked}
@@ -110,7 +111,7 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
                   aria-label={feature.title}
                   className={styles.featureSwitch}
                 />
-              </div>}
+              </div>
             </div>
           </div>
         ))}

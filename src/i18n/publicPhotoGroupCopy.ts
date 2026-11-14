@@ -1,6 +1,6 @@
 // Public feature copy. Customer names, event details and share tokens are never translated.
 export const publicPhotoGroupSources = [
- 'Photo Group List', 'Photo Call Out Cards', 'Photo Group List | Wedding Waitress',
+ 'Group Photo List', 'Photo Call Out Cards', 'Group Photo List | Wedding Waitress',
  'Plan photo groups, print call out cards and share them with your MC or photographer.',
  'Choose guests, add timing and table details, and tick off completed photos.',
  'Choose your groups', 'Select guests from your event or type a name.',

@@ -33,7 +33,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({
   const navigate = useNavigate();
   const {
     meta, loading, error, refresh, setPhotoBoothEnabled,
-    setSlideshowEnabled, setGuestFeature,
+    setSlideshowEnabled, setGuestFeature, setGuestbookEnabled,
   } = useEventMediaGallery(selectedEventId);
   const planningAccessEnded = error === PLANNING_ACCESS_ENDED_ERROR;
 
@@ -124,6 +124,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({
               meta={meta}
               onToggleUpload={(value) => setGuestFeature('guest_upload_enabled', value)}
               onToggleGalleryView={(value) => setGuestFeature('gallery_view_enabled', value)}
+              onToggleGuestbook={setGuestbookEnabled}
               onTogglePhotoBooth={setPhotoBoothEnabled}
               onToggleSlideshow={setSlideshowEnabled}
             />

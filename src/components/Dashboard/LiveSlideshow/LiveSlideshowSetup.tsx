@@ -31,7 +31,6 @@ import type { Event } from '@/hooks/useEvents';
 import { useToast } from '@/hooks/use-toast';
 import { buildLiveSlideshowUrl } from '@/lib/urlUtils';
 import { LiveSlideshowConfig } from './LiveSlideshowConfig';
-import { LiveSlideshowAutoProtection } from './LiveSlideshowAutoProtection';
 import { useLiveViewModuleSettings } from '@/hooks/useLiveViewModuleSettings';
 import styles from './LiveSlideshowSetup.module.css';
 
@@ -177,8 +176,8 @@ export const LiveSlideshowSetup: React.FC<LiveSlideshowSetupProps> = ({
 
 
 
-          {/* Three equal boxes: Live Slideshow controls, instructions, and auto-protection. */}
-          <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-3 gap-6 items-stretch">
+          {/* Equal-width controls and instructions, centred within the page. */}
+          <div className="grid grid-cols-1 md:grid-cols-2 gap-6 items-stretch w-full max-w-6xl mx-auto" data-live-slideshow-setup-panels>
             {/* Live Slideshow URL and controls. */}
             <div className={`${styles.innerPanel} h-full rounded-lg border border-[#472c1d] p-4 space-y-3`}>
               <div>
@@ -329,16 +328,6 @@ export const LiveSlideshowSetup: React.FC<LiveSlideshowSetupProps> = ({
               </div>
             </div>
 
-            {/* THIRD: 7-Day Auto-Protection */}
-            <div className={`${styles.innerPanel} h-full rounded-lg border border-[#472c1d] p-4 md:col-span-2 xl:col-span-1`}>
-              {selectedEvent ? (
-                <LiveSlideshowAutoProtection eventId={selectedEvent.id} moduleState={moduleState} />
-              ) : (
-                <p className="text-sm text-muted-foreground">
-                  Choose an event above to configure 7-Day Auto-Protection.
-                </p>
-              )}
-            </div>
           </div>
 
         </CardContent>

@@ -4,10 +4,10 @@ import { productIconById, productNavigationItems } from './productNavigation';
 import { PLANNING_WORKFLOW_STEPS } from './planningWorkflow';
 
 describe('shared product navigation icon configuration', () => {
-  it('defines the 15 established product mappings alongside the budget workflow mapping', () => {
-    expect(productNavigationItems).toHaveLength(15);
-    expect(new Set(productNavigationItems.map((item) => item.productId)).size).toBe(15);
-    expect(new Set(productNavigationItems.map((item) => item.sidebarId)).size).toBe(15);
+  it('defines the 16 established product mappings alongside the budget workflow mapping', () => {
+    expect(productNavigationItems).toHaveLength(16);
+    expect(new Set(productNavigationItems.map((item) => item.productId)).size).toBe(16);
+    expect(new Set(productNavigationItems.map((item) => item.sidebarId)).size).toBe(16);
   });
 
   it('gives every public product navigation link the same icon reference as its dashboard item', () => {

@@ -507,7 +507,7 @@ export function RunningSheetPublicView() {
 
   if (loading) {
     return (
-      <div className={`${styles.publicPage} ${styles.page} ww-application-background flex items-center justify-center p-4`} data-public-running-sheet-state="loading">
+      <div data-dashboard-content className={`${styles.publicPage} ${styles.page} ww-application-background flex items-center justify-center p-4`} data-public-running-sheet-state="loading">
         <div className={`${styles.statusCard} rounded-2xl p-8 text-center`}>
           <div className="h-8 w-8 border-2 border-primary border-t-transparent rounded-full animate-spin mx-auto mb-4" />
           <p className="text-muted-foreground">Loading run sheet...</p>
@@ -518,7 +518,7 @@ export function RunningSheetPublicView() {
 
   if (error) {
     return (
-      <div className={`${styles.publicPage} ${styles.page} ww-application-background flex items-center justify-center p-4`} data-public-running-sheet-state="unavailable">
+      <div data-dashboard-content className={`${styles.publicPage} ${styles.page} ww-application-background flex items-center justify-center p-4`} data-public-running-sheet-state="unavailable">
         <Card className={styles.statusCard}>
           <CardContent className="pt-6 text-center">
             <AlertCircle className="h-12 w-12 text-destructive mx-auto mb-4" />
@@ -539,7 +539,7 @@ export function RunningSheetPublicView() {
   const hasReception = !!(data.event_date || data.event_venue);
 
   return (
-    <div className={`${styles.publicPage} ${styles.page} ww-application-background`} data-public-running-sheet-state="ready" data-running-sheet-page>
+    <div data-dashboard-content className={`${styles.publicPage} ${styles.page} ww-application-background`} data-public-running-sheet-state="ready" data-running-sheet-page>
       {/* Header */}
       <header className={`${styles.publicHeader} print:static`}>
         <div className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-4">

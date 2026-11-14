@@ -6,16 +6,16 @@ import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 import { GalleryGuestFeaturesCard } from './GalleryGuestFeaturesCard';
 
 afterEach(cleanup);
-it.each([[true, false], [false, true], [false, false]])('keeps guestbook available without a switch regardless of legacy settings (%s, %s)', async (text, recordings) => {
+it.each([[true, true], [false, false]])('shows a working guestbook switch for persisted settings (%s, %s)', async (text, recordings) => {
   const toggle = vi.fn();
   render(<MemoryRouter><GalleryGuestFeaturesCard
     meta={{ guestbook_text_enabled: text, voice_guestbook_enabled: recordings } as GalleryMeta}
-    onToggleUpload={toggle} onToggleGalleryView={toggle}
+    onToggleUpload={toggle} onToggleGalleryView={toggle} onToggleGuestbook={toggle}
     onTogglePhotoBooth={toggle} onToggleSlideshow={toggle}
   /></MemoryRouter>);
   expect(screen.queryByText('Partially on')).not.toBeInTheDocument();
-  expect(screen.getByText(/Always available: guests/)).toBeVisible();
-  expect(screen.getAllByRole('switch')).toHaveLength(4);
+  expect(screen.getByRole('switch',{name:'Digital Guestbook'})).toHaveAttribute('aria-checked',String(text || recordings));
+  expect(screen.getAllByRole('switch')).toHaveLength(5);
   expect(toggle).not.toHaveBeenCalled();
   for (const [index, control] of screen.getAllByRole('switch').entries()) {
     fireEvent.click(control);

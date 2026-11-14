@@ -43,7 +43,7 @@ export const productNavigationItems: ProductNavigationItem[] = [
   { productId: 'live-slideshow', sidebarId: 'live-slideshow', sidebarLabel: 'Live Slideshow', icon: Presentation },
   { productId: 'dj-mc-questionnaire', sidebarId: 'dj-mc-questionnaire', sidebarLabel: 'DJ & MC Questionnaire', icon: Music },
   { productId: 'running-sheet', sidebarId: 'running-sheet', sidebarLabel: 'Run Sheet', icon: ClipboardList },
-  { productId: 'photo-callout-cards', sidebarId: 'photo-callout-cards', sidebarLabel: 'Photo Group List', icon: Camera },
+  { productId: 'photo-callout-cards', sidebarId: 'photo-callout-cards', sidebarLabel: 'Group Photo List', icon: Camera },
   { productId: 'photo-video-sharing', sidebarId: 'photo-video-gallery', sidebarLabel: 'Photo & Video Sharing', icon: Camera },
 ];
 

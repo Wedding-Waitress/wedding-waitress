@@ -124,7 +124,13 @@ async function chooseMedia(container: HTMLElement, files: File[]) {
 }
 
 describe('guest-facing Photo & Video Sharing Upload experience', () => {
-  it.each([true, false])('keeps Guestbook available and returns to the app start with legacy flags set to %s', async enabled => {
+  it('hides the disabled Guestbook and its form while retaining other guest features',async()=>{
+    mocks.rpc.mockImplementation(async(name:string)=>({data:name==='get_event_media_gallery_public'?[{...gallery,guestbook_text_enabled:false,video_guestbook_enabled:false}]:name==='get_event_media_gallery_usage_public'?[usage]:null,error:null}));
+    const {container}=renderPage();await screen.findByRole('heading',{name:gallery.event_name,level:1});
+    expect(within(container.querySelector('[data-public-upload-navigation]') as HTMLElement).queryByRole('button',{name:'Guestbook'})).not.toBeInTheDocument();
+    expect(screen.queryByTestId('guestbook')).not.toBeInTheDocument();
+  });
+  it.each([true])('keeps an enabled Guestbook available and returns to the app start (%s)', async enabled => {
     mocks.rpc.mockImplementation(async (name: string) => {
       if (name === 'get_event_media_gallery_public') return { data: [{ ...gallery, guestbook_text_enabled: enabled, video_guestbook_enabled: enabled }], error: null };
       if (name === 'get_event_media_gallery_usage_public') return { data: [usage], error: null };

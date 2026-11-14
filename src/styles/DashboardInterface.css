@@ -3,6 +3,13 @@
    changing their source, layout, responsive breakpoints or export renderers.
    Scope limits exclude artwork itself and its descendants. */
 @layer dashboard-interface {
+  body[data-ww-dashboard-ui] [data-document-sharing] {
+    border-radius: 0 !important;
+    font-family: 'Segoe UI', Arial, sans-serif !important;
+    color: #000 !important;
+    background: #fbf8f2 !important;
+    border-color: #cdb99e !important;
+  }
   @scope (
     body[data-ww-dashboard-ui] [data-dashboard-content],
     body[data-ww-dashboard-ui] [data-account-shell] main,
@@ -24,7 +31,7 @@
       font-family: 'Segoe UI', Arial, sans-serif !important;
     }
 
-    :is(div,section,article,fieldset,button,a,input,textarea,select,span,[role="dialog"],[role="alertdialog"],[role="combobox"],[role="menu"],[role="listbox"],[role="option"],[role="menuitem"]):not([role="switch"]):not([role="switch"] *):not([role="slider"]):not([role="slider"] *):not([role="progressbar"]):not([role="progressbar"] *):not([type="radio"]):not([type="checkbox"]):not([type="range"]):not([type="color"]):not([class*="avatar" i]):not([class*="avatar" i] *):not(span:has(> img)):not([class*="spinner" i]):not([class*="animate-spin"]):not([class*="loadingMark"]):not([data-radix-scroll-area-viewport]) {
+    :is(div,section,article,header,fieldset,button,a,input,textarea,select,span,[role="dialog"],[role="alertdialog"],[role="combobox"],[role="menu"],[role="listbox"],[role="option"],[role="menuitem"]):not([role="switch"]):not([role="switch"] *):not([role="slider"]):not([role="slider"] *):not([role="progressbar"]):not([role="progressbar"] *):not([type="radio"]):not([type="checkbox"]):not([type="range"]):not([type="color"]):not([class*="avatar" i]):not([class*="avatar" i] *):not(span:has(> img)):not([class*="spinner" i]):not([class*="animate-spin"]):not([class*="loadingMark"]):not([data-radix-scroll-area-viewport]) {
       border-radius: 0 !important;
     }
 

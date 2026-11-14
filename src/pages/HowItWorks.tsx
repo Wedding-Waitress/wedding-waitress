@@ -26,7 +26,7 @@ const stages = [
     links: [[step.label, publicWorkflowPaths[step.id]]] as readonly (readonly [string, string])[],
   })),
   { icon: Palette, title: 'Design and Prepare Everything', text: 'Create invitations, cards, signage, floor plans, place cards, seating references and kitchen-ready dietary lists from the same event data.', links: [['Invitations & Cards','/invitations-cards'],['Floor Plans','/floor-plan'],['Seating Chart Signs','/seating-chart-signs']] },
-  { icon: Share2, title: 'Share With Guests and Run Your Day', text: 'Help guests find seats, brief your DJ and MC, share the run sheet, and bring guest photos, messages and the live slideshow together.', links: [['QR Seating','/qr-code-seating-chart'],['Run Sheet','/running-sheet'],['Photo Group List','/photo-group-list'],['Photo & Video Sharing','/photo-video-sharing']] },
+  { icon: Share2, title: 'Share With Guests and Run Your Day', text: 'Help guests find seats, brief your DJ and MC, share the run sheet, and bring guest photos, messages and the live slideshow together.', links: [['QR Seating','/qr-code-seating-chart'],['Run Sheet','/running-sheet'],['Group Photo List','/photo-group-list'],['Photo & Video Sharing','/photo-video-sharing']] },
 ] as const;
 
 export const HowItWorks = () => (

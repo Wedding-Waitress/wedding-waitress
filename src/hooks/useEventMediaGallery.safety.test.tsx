@@ -41,3 +41,14 @@ it('keeps the existing status if a same-status moderation request fails',async()
  const view=renderHook(()=>useEventMediaGallery('event'));await waitFor(()=>expect(view.result.current.items).toHaveLength(1));
  backend.rpc.mockResolvedValue({data:null,error:{message:'Denied'}});await act(async()=>{await expect(view.result.current.setModeration('item','approved')).rejects.toThrow('Denied')});expect(view.result.current.items[0].moderation_status).toBe('approved');
 });
+
+it('saves all Guestbook message modes atomically and restores the exact prior state on failure',async()=>{
+ backend.rpc.mockImplementation(async(name:string,args:any)=>({data:name==='get_event_media_gallery_host'?[{...row(args._event_id),guestbook_text_enabled:true,video_guestbook_enabled:true}]:[],error:null}));
+ const view=renderHook(()=>useEventMediaGallery('event',{loadItems:false}));await waitFor(()=>expect(view.result.current.meta?.guestbook_text_enabled).toBe(true));
+ await act(async()=>view.result.current.setGuestbookEnabled(false));
+ expect(backend.rpc).toHaveBeenCalledWith('set_event_media_digital_guestbook',{_event_id:'event',_enabled:false});
+ expect(view.result.current.meta?.voice_guestbook_enabled).toBe(false);
+ backend.rpc.mockRejectedValue(new Error('Connection failed'));
+ await act(async()=>{await expect(view.result.current.setGuestbookEnabled(true)).rejects.toThrow('Connection failed')});
+ expect(view.result.current.meta?.guestbook_text_enabled).toBe(false);expect(view.result.current.meta?.voice_guestbook_enabled).toBe(false);
+});

@@ -777,7 +777,7 @@ const DashboardContent = () => {
         // Individual table seating chart feature
         return <><SeoHead title="Individual Table Charts | Wedding Waitress" description="Preview and export seating charts for each wedding table." noIndex /><IndividualTableSeatingChartPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} eventsLoading={eventsLoading} /></>;
       case 'photo-callout-cards':
-        return <><SeoHead title="Photo Group List | Wedding Waitress" description="Plan and share your wedding photo groups." noIndex /><PhotoCalloutPage key={globalSelectedEventId} selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} /></>;
+        return <><SeoHead title="Group Photo List | Wedding Waitress" description="Plan and share your wedding photo groups." noIndex /><PhotoCalloutPage key={globalSelectedEventId} selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} /></>;
       case 'running-sheet':
         return <><SeoHead title="Run Sheet | Wedding Waitress" description="Plan and export your event schedule." noIndex /><RunningSheetPage selectedEventId={globalSelectedEventId} onEventSelect={handleGlobalEventSelect} events={events} /></>;
       case 'dj-mc-questionnaire':

@@ -36,7 +36,7 @@ export const pricingComparisonRows: PricingComparisonRow[] = [
   { category: 'Print and export', product: 'Prepare kitchen dietary-requirement reports', replaces: 'Catering dietary report', cost: standaloneEstimate() },
   { category: 'Event-day planning', product: 'Complete your DJ & MC questionnaire', replaces: 'Entertainment briefing workflow', cost: standaloneEstimate() },
   { category: 'Event-day planning', product: 'Create and share your event run sheet and timeline', replaces: 'Specialist wedding timeline software', cost: standaloneEstimate() },
-  { category: 'Event-day planning', product: 'Photo Group List', replaces: 'Photo Call Out Cards', cost: { display: '—' } },
+  { category: 'Event-day planning', product: 'Group Photo List', replaces: 'Photo Call Out Cards', cost: { display: '—' } },
   { category: 'Photo & Video Sharing Suite', product: 'Photo & Video Sharing Suite', replaces: 'Wedding photo-sharing package', cost: standaloneEstimate() },
   { category: 'Photo & Video Sharing Suite', product: 'Customisable photo and video sharing app', replaces: 'Gallery branding and guest uploads', cost: { display: 'Included in A$147 Photo & Video Sharing estimate' }, indent: true },
   { category: 'Photo & Video Sharing Suite', product: 'Guest photo and video gallery', replaces: 'Hosted event gallery', cost: { display: 'Included in A$147 Photo & Video Sharing estimate' }, indent: true },

@@ -72,7 +72,7 @@ export const PricingValueComparison: React.FC = () => {
                       {copy(row.product).replace(/[-‐‑–—]/g, ' ')}
                       <span className="mt-1 block font-normal text-[#6f625b]">{copy(row.replaces).replace(/[-‐‑–—]/g, ' ')}</span>
                     </th>
-                    <td className="border-l border-[#e7d8c7]/60 px-4 py-3.5 text-[#412419]">{row.product==='Photo Group List'?'—':<PublicCopy text={comparisonPriceLabel} />}</td>
+                    <td className="border-l border-[#e7d8c7]/60 px-4 py-3.5 text-[#412419]">{row.product==='Group Photo List'?'—':<PublicCopy text={comparisonPriceLabel} />}</td>
                     <td className="border-l border-[#e7d8c7]/60 px-4 py-3.5">
                       <span className="inline-flex items-center gap-2 font-semibold text-[#412419]">
                         <CircleCheck size={16} strokeWidth={1.8} aria-hidden="true" /><PublicCopy text={"Included"} /></span>
@@ -104,7 +104,7 @@ export const PricingValueComparison: React.FC = () => {
                 </div>
                 <div>
                   <dt className="font-semibold text-[#412419]"><PublicCopy text={"Estimated separate cost"} /></dt>
-                  <dd className="mt-1 text-[#6f625b]">{row.product==='Photo Group List'?'—':<PublicCopy text={comparisonPriceLabel} />}</dd>
+                  <dd className="mt-1 text-[#6f625b]">{row.product==='Group Photo List'?'—':<PublicCopy text={comparisonPriceLabel} />}</dd>
                 </div>
               </dl>
               <p className="mt-4 inline-flex items-center gap-2 text-[13px] font-semibold text-[#412419]">

@@ -27,8 +27,8 @@ export function GuestVerificationGate({eventId,guestId,fullName,copy,onVerified}
   <p data-qr-verification-explanation>{copy[1].split('\n').map((line,index)=><span key={index}>{line}</span>)}</p>
   {!challenge?<Button data-qr-verification-send type="button" onClick={request} disabled={busy||now<resendAt}>{busy?copy[10]:copy[2]}</Button>:<form onSubmit={verify} className="space-y-3">
    <Label htmlFor={'guest-code-'+guestId}>{copy[3]}</Label>
-   <Input id={'guest-code-'+guestId} inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={e=>setCode(e.target.value.replace(/[^0-9]/g,'').slice(0,6))} disabled={busy} className="text-center" />
-   <div className="flex flex-wrap justify-center gap-3"><Button type="submit" disabled={busy||!/^\d{6}$/.test(code)}>{busy?copy[11]:copy[4]}</Button><Button type="button" variant="outline" onClick={request} disabled={busy||now<resendAt}>{copy[5]}</Button></div>
+   <Input data-qr-verification-code id={'guest-code-'+guestId} inputMode="numeric" autoComplete="one-time-code" maxLength={6} value={code} onChange={e=>setCode(e.target.value.replace(/[^0-9]/g,'').slice(0,6))} disabled={busy} className="text-center" />
+   <div className="flex flex-wrap justify-center gap-3"><Button data-qr-verification-confirm type="submit" disabled={busy||!/^\d{6}$/.test(code)}>{busy?copy[11]:copy[4]}</Button><Button type="button" variant="outline" onClick={request} disabled={busy||now<resendAt}>{copy[5]}</Button></div>
   </form>}
   {now<resendAt&&<p className="text-sm">{copy[6]}</p>}
   <p role="status" className="text-sm">{message}</p>

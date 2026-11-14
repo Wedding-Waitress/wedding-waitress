@@ -70,3 +70,5 @@
 @media(max-width:767px){.headerLayout {grid-template-columns:minmax(0,1fr);}.headerIdentity {grid-column:1;grid-row:1;}.headerEvent {grid-column:1;grid-row:2;}.headerExport {grid-column:1;grid-row:3;}}
 
 @media(min-width:768px) and (max-width:1199px){.headerLayout {grid-template-columns:minmax(0,1fr);}.headerIdentity {grid-column:1;grid-row:1;}.headerEvent {grid-column:1;grid-row:2;}.headerExport {grid-column:1;grid-row:3;justify-self:end;}}
+
+.page .toolbar, .page .documentArea, .page .action {border-radius:0!important;}
