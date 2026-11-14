@@ -1,4 +1,5 @@
 import { useState, useEffect } from 'react';
+import { PLAN_ENTITLEMENT_CHANGED_EVENT } from '@/lib/planEntitlementEvents';
 import { supabase } from '@/integrations/supabase/client';
 import { getCacheGeneration, registerCache } from '@/lib/cacheRegistry';
 
@@ -14,9 +15,11 @@ export interface UserPlan {
   is_read_only: boolean;
   expires_at: string | null;
   trial_extended: boolean;
+  trial_started_at?: string | null;
 }
 
 // Module-level cache for instant loading
+const planListeners = new Set<(plan: UserPlan | null) => void>();
 let planCache: UserPlan | null = null;
 let planRequest: Promise<UserPlan | null> | null = null;
 let platformOwnerAccessCache: boolean | null = null;
@@ -56,11 +59,11 @@ const requestUserPlan = () => {
     if (!data?.length) return null;
     const row = data[0];
     const { data: subData } = await supabase
-      .from('user_subscriptions').select('plan_id, trial_extended').eq('user_id', user.id).limit(1).single();
+      .from('user_subscriptions').select('plan_id, trial_extended, started_at').eq('user_id', user.id).limit(1).single();
     let tableLimit: number | null = null;
-    if (subData?.plan_id) {
+    if (row.plan_name) {
       const { data: planData } = await supabase
-        .from('subscription_plans').select('table_limit').eq('id', subData.plan_id).single();
+        .from('subscription_plans').select('table_limit').eq('name', row.plan_name).single();
       tableLimit = planData?.table_limit ?? null;
     }
     const nextPlan: UserPlan = {
@@ -75,9 +78,14 @@ const requestUserPlan = () => {
       is_read_only: row.is_read_only,
       expires_at: row.expires_at,
       trial_extended: subData?.trial_extended ?? false,
+      // The immutable trial lifecycle synchronises started_at with first_signup_at.
+      trial_started_at: subData?.started_at ?? null,
     };
     if (generation !== getCacheGeneration()) throw new Error('Plan request superseded by an account change.');
+    const changed = !!planCache && JSON.stringify(planCache) !== JSON.stringify(nextPlan);
     planCache = nextPlan;
+    planListeners.forEach(listener => listener(nextPlan));
+    if (changed && typeof window !== 'undefined') window.dispatchEvent(new Event(PLAN_ENTITLEMENT_CHANGED_EVENT));
     return planCache;
   })().finally(() => { planRequest = null; });
   return planRequest;
@@ -88,6 +96,22 @@ export const useUserPlan = () => {
   const [loading, setLoading] = useState(!planCache);
   const [hasPlatformOwnerAccess, setHasPlatformOwnerAccess] = useState(platformOwnerAccessCache === true);
   const [ownerAccessLoading, setOwnerAccessLoading] = useState(platformOwnerAccessCache === null);
+
+  useEffect(() => {
+    planListeners.add(setPlan);
+    return () => { planListeners.delete(setPlan); };
+  }, []);
+
+  // Returning from checkout in another tab must reflect confirmed entitlement.
+  // Requests are deduplicated across mounted plan controls.
+  useEffect(() => {
+    if (!plan || hasPlatformOwnerAccess || !['active', 'trial'].includes(plan.status)) return;
+    const refresh = () => { void requestUserPlan().catch(err => console.error('Error refreshing trial plan:', err)); };
+    const resume = () => { if (document.visibilityState !== 'hidden') refresh(); };
+    window.addEventListener('focus', resume);
+    document.addEventListener('visibilitychange', resume);
+    return () => { window.removeEventListener('focus', resume); document.removeEventListener('visibilitychange', resume); };
+  }, [plan, hasPlatformOwnerAccess]);
 
   // Keep cache in sync
   useEffect(() => {

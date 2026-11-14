@@ -6,13 +6,14 @@ const backend = vi.hoisted(() => ({
   rpc: vi.fn(),
   createSignedUrls: vi.fn(),
   createSignedUrl: vi.fn(),
+  mediaChange: null as (()=>void) | null,
 }));
 
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     rpc: backend.rpc,
     channel: () => ({
-      on() { return this; },
+      on(_event:unknown,_filter:unknown,handler:()=>void) { backend.mediaChange=handler;return this; },
       subscribe() { return this; },
     }),
     removeChannel: vi.fn(),
@@ -54,6 +55,7 @@ describe('useEventMediaGallery album persistence', () => {
     backend.rpc.mockReset();
     backend.createSignedUrls.mockReset();
     backend.createSignedUrl.mockReset();
+    backend.mediaChange=null;
     backend.createSignedUrls.mockResolvedValue({
       data: [{ signedUrl: 'https://example.com/media-1.jpg' }],
       error: null,
@@ -91,6 +93,48 @@ describe('useEventMediaGallery album persistence', () => {
     expect(backend.createSignedUrls).not.toHaveBeenCalled();
     expect(backend.createSignedUrl).not.toHaveBeenCalled();
     landing.unmount();
+  });
+
+  it('does not fan out a failed signing batch into per-item retries', async () => {
+    backend.createSignedUrls.mockResolvedValueOnce({data:null,error:{message:'Storage timed out'}});
+    const view=renderHook(()=>useEventMediaGallery('event-1'));
+    await waitFor(()=>expect(view.result.current.error).toBe('Storage timed out'));
+    expect(backend.createSignedUrl).not.toHaveBeenCalled();
+    await act(async()=>{await view.result.current.refresh();});
+    expect(view.result.current.items).toHaveLength(1);
+    expect(view.result.current.error).toBeNull();
+    view.unmount();
+  });
+
+  it('coalesces thirteen realtime changes into one read and one follow-up', async () => {
+    const view=renderHook(()=>useEventMediaGallery('event-1'));
+    await waitFor(()=>expect(view.result.current.items).toHaveLength(1));
+    let finish!:(value:unknown)=>void;
+    backend.rpc.mockClear();
+    backend.rpc.mockImplementationOnce(()=>new Promise(resolve=>{finish=resolve;}));
+    await act(async()=>{for(let i=0;i<13;i++)backend.mediaChange?.();});
+    expect(backend.rpc.mock.calls.filter(call=>call[0]==='get_event_media_items_host')).toHaveLength(1);
+    await act(async()=>{finish({data:[storedItem()],error:null});});
+    await waitFor(()=>expect(backend.rpc.mock.calls.filter(call=>call[0]==='get_event_media_items_host')).toHaveLength(2));
+    expect(view.result.current.items).toHaveLength(1);
+    view.unmount();
+  });
+
+  it('queues a fresh recording query when Refresh is pressed during an older read', async () => {
+    const view = renderHook(() => useEventMediaGallery('event-1'));
+    await waitFor(() => expect(view.result.current.items).toHaveLength(1));
+    backend.rpc.mockClear();
+    let finish!: (value: unknown) => void;
+    backend.rpc.mockImplementationOnce(() => new Promise(resolve => { finish = resolve; }));
+    let first!: Promise<void>;
+    let second!: Promise<void>;
+    await act(async () => { first = view.result.current.refreshRecordings(); });
+    await act(async () => { second = view.result.current.refreshRecordings(); });
+    expect(backend.rpc.mock.calls.filter(call => call[0] === 'get_event_media_items_host')).toHaveLength(1);
+    await act(async () => { finish({ data: [storedItem()], error: null }); await Promise.all([first, second]); });
+    expect(backend.rpc.mock.calls.filter(call => call[0] === 'get_event_media_items_host')).toHaveLength(2);
+    expect(backend.rpc).toHaveBeenCalledWith('get_event_media_items_host', { _event_id: 'event-1' });
+    view.unmount();
   });
 
   it('saves through the existing RPC and reloads the changed album after a fresh mount', async () => {

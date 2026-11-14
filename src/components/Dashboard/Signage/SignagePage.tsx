@@ -1,3 +1,4 @@
+import choiceStyles from '../EventSelectorReference.module.css';
 import { Printer as ExportControlsPrinter } from 'lucide-react';
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
 import { Card, CardContent, CardDescription, CardTitle } from '@/components/ui/card';
@@ -67,10 +68,10 @@ const PRINT_SIZES: ReadonlyArray<{
   icon: LucideIcon;
 }> = [
 
-  { id: 'a0', label: 'A0', dims: '841 × 1189 mm', best: 'Best for extra-large foyer seating charts', icon: FileText },
-  { id: 'a1', label: 'A1', dims: '594 × 841 mm', best: 'Best for foyer seating charts & easels', recommended: true, icon: FileText },
-  { id: 'a2', label: 'A2', dims: '420 × 594 mm', best: 'Best for entry-table signs', icon: FileText },
   { id: 'a3', label: 'A3', dims: '297 × 420 mm', best: 'Best for welcome signs', icon: FileText },
+  { id: 'a2', label: 'A2', dims: '420 × 594 mm', best: 'Best for entry-table signs', recommended: true, icon: FileText },
+  { id: 'a1', label: 'A1', dims: '594 × 841 mm', best: 'Best for foyer seating charts & easels', icon: FileText },
+  { id: 'a0', label: 'A0', dims: '841 × 1189 mm', best: 'Best for extra-large foyer seating charts', icon: FileText },
 ];
 
 
@@ -89,7 +90,9 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const signDocumentRef = useRef<HTMLDivElement | null>(null);
-  const [qrDataUrl, setQrDataUrl] = useState<string | null>(null);
+  const [generatedQr, setGeneratedQr] = useState<{identity: string; url: string} | null>(null);
+  const qrIdentity = settings?.qr_config?.enabled ? `${settings.qr_config.event_id}:${events.find(event => event.id === settings.qr_config.event_id)?.slug || ''}` : null;
+  const qrDataUrl = qrIdentity && generatedQr?.identity === qrIdentity ? generatedQr.url : null;
   const [exporting, setExporting] = useState<null | 'pdf' | 'png'>(null);
   const [printSize, setPrintSize] = useState<string | null>(() => {
     const rec = PRINT_SIZES.find(p => p.recommended) || PRINT_SIZES[0];
@@ -114,6 +117,10 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
   // when the user switches to a non-gallery source (Choose File / Remove) and drop
   // the now-stale master print URL.
   const lastGalleryPreviewRef = useRef<string | null>(null);
+  const galleryEventScope = useRef({ id: selectedEventId, version: 0 });
+  if (galleryEventScope.current.id !== selectedEventId) {
+    galleryEventScope.current = { id: selectedEventId, version: galleryEventScope.current.version + 1 };
+  }
 
   // Adapter: shared InvitationCardCustomizer expects onSelectImage(url) → background_image_url.
   // We bypass the customizer's single-field path and persist BOTH the lightweight preview URL
@@ -128,8 +135,10 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
       <SignageGalleryModal
         open={adapterProps.open}
         onOpenChange={adapterProps.onOpenChange}
-        onSelectImage={async (previewUrl, printUrl) => {
-          if (!(await confirmFit(printUrl || previewUrl, paperRef.current))) return;
+        onSelectImage={async (previewUrl, printUrl, signal) => {
+          const scope = galleryEventScope.current;
+          if (!(await confirmFit(printUrl || previewUrl, paperRef.current, 50, 50, previewUrl, signal))) return false;
+          if (signal?.aborted || scope !== galleryEventScope.current) return false;
           lastGalleryPreviewRef.current = previewUrl;
           updateSettings({
             background_image_url: previewUrl,
@@ -138,7 +147,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
             background_image_x_position: 50,
             background_image_y_position: 50,
           });
-          adapterProps.onOpenChange(false);
+          return true;
         }}
       />
     );
@@ -170,18 +179,18 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
   useEffect(() => {
     const qrConfig = settings?.qr_config;
     if (!qrConfig?.enabled || !qrConfig.event_id) {
-      setQrDataUrl(null);
+      setGeneratedQr(null);
       return;
     }
     const qrEvent = events.find(e => e.id === qrConfig.event_id);
     if (!qrEvent?.slug) {
-      setQrDataUrl(null);
+      setGeneratedQr(null);
       return;
     }
     let cancelled = false;
     generateInvitationQR(qrEvent.slug, qrEvent.id)
-      .then(url => { if (!cancelled) setQrDataUrl(url); })
-      .catch(() => { if (!cancelled) setQrDataUrl(null); });
+      .then(url => { if (!cancelled) setGeneratedQr({identity: `${qrEvent.id}:${qrEvent.slug}`, url}); })
+      .catch(() => { if (!cancelled) { setGeneratedQr(null); toast({ title: 'Could not generate QR code', description: 'Reload the page to try again before exporting.', variant: 'destructive' }); } });
     return () => { cancelled = true; };
   }, [settings?.qr_config?.enabled, settings?.qr_config?.event_id, events]);
 
@@ -458,12 +467,12 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
           <div className={styles.divider} />
 
           {!selectedEvent && (
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 pt-1">
-              <label className="text-sm font-medium text-foreground whitespace-nowrap">
-                Choose Event:
+            <div className={`flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 pt-1 ${choiceStyles.row}`}>
+              <label htmlFor="signage-event-selection" className={`text-sm font-medium text-foreground whitespace-nowrap ${choiceStyles.label}`}>
+                <CalendarDays size={18} strokeWidth={1.8} aria-hidden="true" />Choose Event:
               </label>
               <Select value={selectedEventId || 'no-event'} onValueChange={handleEventChange}>
-                <SelectTrigger className={`${styles.selectTrigger} w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-primary`}>
+                <SelectTrigger id="signage-event-selection" className={`${styles.selectTrigger} w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-primary ${choiceStyles.trigger} ${choiceStyles.leadingCalendar}`}>
                   <div className="flex items-center gap-[7px] min-w-0">
                     <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                     <SelectValue placeholder="Choose Event" />
@@ -543,7 +552,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                               </span>
                             </div>
                             {size.recommended && (
-                              <span className={`${styles.compactIndicator} mt-0.5 rounded-full uppercase text-[10px] font-semibold tracking-wider px-2 py-0.5 border whitespace-nowrap transition-all duration-200 ease-out ${
+                              <span data-signage-popular className={`${styles.compactIndicator} mt-0.5 rounded-full uppercase text-[10px] font-semibold tracking-wider px-2 py-0.5 border whitespace-nowrap transition-all duration-200 ease-out ${
                                 active
                                   ? 'bg-green-100 border-green-300 text-green-700'
                                   : 'bg-[hsl(var(--primary)/0.14)] text-primary border-primary/25'
@@ -569,12 +578,12 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
               </div>
 
               <div className={`${styles.exportRow} flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-8 lg:flex-nowrap`}>
-                <div className={`${styles.eventControl} flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4 w-full lg:w-auto`}>
-                  <label className="text-sm font-medium text-foreground whitespace-nowrap">
-                    Choose Event:
+                <div className={`${choiceStyles.row} ${styles.eventControl} flex flex-col lg:flex-row lg:items-center gap-2 lg:gap-4 w-full lg:w-auto`}>
+                  <label htmlFor="signage-event-selection" className={`text-sm font-medium text-foreground whitespace-nowrap ${choiceStyles.label}`}>
+                    <CalendarDays size={18} strokeWidth={1.8} aria-hidden="true" />Choose Event:
                   </label>
                   <Select value={selectedEventId || 'no-event'} onValueChange={handleEventChange}>
-                    <SelectTrigger className={`${styles.selectTrigger} w-full lg:w-[300px] border-primary focus:ring-primary font-bold text-primary`}>
+                    <SelectTrigger id="signage-event-selection" className={`${styles.selectTrigger} w-full lg:w-[300px] border-primary focus:ring-primary font-bold text-primary ${choiceStyles.trigger} ${choiceStyles.leadingCalendar}`}>
                       <div className="flex items-center gap-[7px] min-w-0">
                         <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                         <SelectValue placeholder="Choose Event" />
@@ -598,6 +607,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                   const missing: string[] = [];
                   if (!settings) missing.push('Sign settings are still loading');
                   if (!printSize) missing.push('Select a print size below');
+                  if (settings?.qr_config?.enabled && !qrDataUrl) missing.push('Wait for the QR code to appear before exporting');
                   if (settings && !hasBackground) missing.push('Choose a background image or color');
                   const disabled = exporting !== null || missing.length > 0;
                   return (
@@ -606,6 +616,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                         <span data-export-controls-heading><ExportControlsPrinter size={16} strokeWidth={2} aria-hidden="true" />Export Controls</span>
 
                       </div>
+                      {missing.length > 0 && <p role="status" className="text-xs text-muted-foreground">{missing.join(". ")}</p>}
                       <div className="flex items-center gap-2">
                         <button
                           disabled={disabled}
@@ -662,6 +673,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
               presetYPositions={SIGNAGE_PRESET_Y_POSITIONS}
               presetStyles={SIGNAGE_PRESET_STYLES}
               textZonesIntro="Add text zones to your sign. Preset zones auto-fill from event data and can be edited."
+              textZonesEmptyMessage="Start by adding a preset or custom text zone to build your sign."
               bgSectionTitle="QR Code Sign Customisation"
               qrTabTitle="Add QR Code to Sign"
               notesPlaceholder="Add any notes or captions for this QR code seating chart sign design…"
@@ -684,9 +696,10 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
           }`}>
             <div className="w-full min-w-0">
               <div className="w-full min-w-0 mx-auto">
-                <PinchZoomContainer className="h-full">
+                <PinchZoomContainer className="h-full" minScale={1} maxScale={1} initialScale={1} showHint={false}>
                   <InvitationCardPreview
                     fitToContainer
+                    fixedZoomPercent={36}
                     backgroundFit="cover"
                     paperSize={PRINT_DIMENSIONS[printSize]}
                     documentRef={signDocumentRef}

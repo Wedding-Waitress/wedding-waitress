@@ -1,3 +1,4 @@
+import { EmailBrandFooter } from './email-brand-footer.tsx';
 /**
  * Confirmation email sent to the event owner after a successful RSVP
  * tier or RSVP overage purchase. Triggered from the verify-payment
@@ -73,7 +74,8 @@ const RsvpInvitationsSentEmail = ({
           </Text>
 
           <Text style={signoff}>– The Wedding Waitress Team</Text>
-        </Container>
+        <EmailBrandFooter />
+      </Container>
       </Body>
     </Html>
   )

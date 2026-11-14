@@ -1,7 +1,8 @@
 import { readFileSync } from 'node:fs';
 import { describe, expect, it } from 'vitest';
 
-const source = readFileSync('src/components/Layout/ProductPageLayout.tsx', 'utf8');
+import { readEnglishPublicSource } from '@/test/readEnglishPublicSource';
+const source = readEnglishPublicSource('src/components/Layout/ProductPageLayout.tsx');
 
 describe('public product final CTA copy', () => {
   it('preserves the DJ & MC acronym only for the questionnaire product', () => {

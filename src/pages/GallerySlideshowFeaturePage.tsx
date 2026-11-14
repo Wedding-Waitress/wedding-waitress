@@ -1,5 +1,6 @@
 // Feature workspace: Live Slideshow
 import React, { useEffect, useMemo, useState } from 'react';
+import { useSharedGuestbookText } from '@/hooks/useSharedGuestbookText';
 import { useNavigate } from 'react-router-dom';
 import { usePhotoVideoFeatureWorkspace, type PhotoVideoWorkspaceSelection } from '@/hooks/usePhotoVideoFeatureWorkspace';
 import { useToast } from '@/hooks/use-toast';
@@ -9,7 +10,7 @@ import { FeatureWorkspaceStatePanel } from '@/components/Dashboard/PhotoVideoGal
 import { buildLiveSlideshowUrl } from '@/components/Dashboard/PhotoVideoGallery/GallerySlideshowAccessCard';
 import { GallerySlideshowSettingsCard } from '@/components/Dashboard/PhotoVideoGallery/GallerySlideshowSettingsCard';
 import { GallerySlideshowPreviewCard } from '@/components/Dashboard/PhotoVideoGallery/GallerySlideshowPreviewCard';
-import { slideshowSettingsFromRow, type SlideshowSettings } from '@/lib/slideshowSettings';
+import { automaticSharedMemorySettings, slideshowSettingsFromRow, type SlideshowSettings } from '@/lib/slideshowSettings';
 import { Button } from '@/components/ui/enhanced-button';
 import { ExternalLink } from 'lucide-react';
 import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
@@ -18,6 +19,7 @@ export const GallerySlideshowFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSe
   const navigate = useNavigate();
   const { toast } = useToast();
   const { selectedEventId, selectedEvent, selectionStatus, meta, items, loading, error, setSlideshowEnabled, updateSlideshowSettings } = usePhotoVideoFeatureWorkspace(selection);
+  const writtenMemories = useSharedGuestbookText(selectedEventId);
   const [saving, setSaving] = useState(false);
   const [draft, setDraft] = useState<SlideshowSettings | null>(null);
 
@@ -28,7 +30,7 @@ export const GallerySlideshowFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSe
 
   const goBack = () => navigate('/dashboard?tab=photo-video-gallery');
   const liveUrl = buildLiveSlideshowUrl(meta?.primary_token ?? null);
-  const effective = useMemo(() => draft ?? slideshowSettingsFromRow(meta), [draft, meta]);
+  const effective = useMemo(() => automaticSharedMemorySettings(draft ?? slideshowSettingsFromRow(meta)), [draft, meta]);
 
   const handleToggle = async (v: boolean) => {
     setSaving(true);
@@ -45,17 +47,19 @@ export const GallerySlideshowFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSe
     <>
       <SeoHead
         title="Live Slideshow | Wedding Waitress"
-        description="Display approved guest photos and videos in a beautiful, continuously updating slideshow."
+        description="Display shared photos, videos and guestbook memories in a continuously updating slideshow."
         noIndex
       />
       <FeatureWorkspaceLayout
+        managerChrome
+        hideSelectedEventPanel
         brownOutline
         backgroundAppearance="photo-video-sharing"
         controlsAppearance="photo-video-sharing"
         contentWidth="wide"
         toggleClassName={managementStyles.galleryViewToggle}
         title="Live Slideshow"
-        description="Display approved guest photos and videos in a beautiful, continuously updating slideshow."
+        description="Display shared photos, videos and guestbook memories in a continuously updating slideshow."
         eventName={(selectedEvent as any)?.name}
         selectionStatus={selectionStatus}
         enabled={!!meta?.slideshow_enabled}
@@ -84,6 +88,7 @@ export const GallerySlideshowFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSe
         ) : (
           <div className={`space-y-6 sm:space-y-8 ${managementStyles.slideshowWorkspace}`} data-appearance="espresso-glass">
             <GallerySlideshowSettingsCard
+              automaticInclusion
               meta={meta}
               value={effective}
               onChange={setDraft}
@@ -91,7 +96,7 @@ export const GallerySlideshowFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSe
               appearance="espresso-glass"
             />
 
-            <GallerySlideshowPreviewCard onExit={goBack} eventName={selectedEvent?.name} items={items} settings={effective} loading={loading && items.length === 0} appearance="espresso-glass" />
+            <GallerySlideshowPreviewCard onExit={goBack} eventName={selectedEvent?.name} items={[...items, ...writtenMemories]} settings={effective} loading={loading && items.length === 0} appearance="espresso-glass" />
           </div>
         )}
       </FeatureWorkspaceLayout>

@@ -1,3 +1,4 @@
+import { publicSongRequestViewRows } from '@/i18n/publicSongRequestViewCopy';
 import React, { useMemo, useState } from 'react';
 import { ListMusic, Trash2, ExternalLink, FileDown, LoaderCircle, Clock3, CircleCheck, CircleX } from 'lucide-react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
@@ -16,6 +17,7 @@ import theme from './DJMCQuestionnaireTheme.module.css';
 
 interface Props {
   eventId: string | null;
+  language?: string;
   disabled?: boolean;
   onRunUndoable?: (action:()=>unknown|Promise<unknown>,rows:GuestSongRequestRow[])=>Promise<unknown>;
   eventName?: string | null;
@@ -47,8 +49,24 @@ export const GuestSongRequestsView: React.FC<Omit<Props,'eventId'> & {
   loading: boolean;
   updateStatus: (id:string,status:SongRequestStatus)=>Promise<void>;
   deleteRequest: (id:string)=>Promise<void>;
-}> = ({eventName,eventDate,disabled=false,onRunUndoable,settings,rows,loading,updateStatus,deleteRequest}) => {
+}> = ({eventName,eventDate,disabled=false,onRunUndoable,settings,rows,loading,updateStatus,deleteRequest,language='en'}) => {
   const [exporting, setExporting] = useState(false);
+  const [viewBy, setViewBy] = useState<'all' | 'guest' | SongRequestStatus>('all');
+  const copy = publicSongRequestViewRows[language.split('-')[0]] || publicSongRequestViewRows.en;
+  const visibleRows = useMemo(() => ['pending', 'approved', 'rejected'].includes(viewBy)
+    ? rows.filter(row => row.status === viewBy) : rows, [rows, viewBy]);
+  const guestGroups = useMemo(() => {
+    const grouped = new Map<string, { id: string; name: string; rows: GuestSongRequestRow[] }>();
+    for (const row of rows) {
+      const id = row.guest_id || row.id;
+      const group = grouped.get(id) || { id, name: row.guest_name || 'Guest', rows: [] };
+      group.rows.push(row); grouped.set(id, group);
+    }
+    return [...grouped.values()].sort((a,b) => a.name.localeCompare(b.name, language, { sensitivity: 'base', numeric: true }) || a.id.localeCompare(b.id));
+  }, [rows, language]);
+  const requestCard = (row: GuestSongRequestRow) => <RequestRow key={row.id} row={row} disabled={disabled} requestStatusLabel={copy[9]}
+    onStatusChange={status => onRunUndoable ? void onRunUndoable(() => updateStatus(row.id, status), [row]) : void updateStatus(row.id, status)}
+    onDelete={() => onRunUndoable ? void onRunUndoable(() => deleteRequest(row.id), [row]) : void deleteRequest(row.id)} />;
 
   const counts = useMemo(() => {
     const c = { total: rows.length, pending: 0, approved: 0, rejected: 0 };
@@ -84,6 +102,18 @@ export const GuestSongRequestsView: React.FC<Omit<Props,'eventId'> & {
             <Badge className={`${theme.statusPending} inline-flex items-center gap-1.5`}><Clock3 size={15} strokeWidth={1.8} aria-hidden="true" />Pending {counts.pending}</Badge>
             <Badge className={`${theme.statusApproved} inline-flex items-center gap-1.5`}><CircleCheck size={15} strokeWidth={1.8} aria-hidden="true" />Approved {counts.approved}</Badge>
             <Badge className={`${theme.statusRejected} inline-flex items-center gap-1.5`}><CircleX size={15} strokeWidth={1.8} aria-hidden="true" />Rejected {counts.rejected}</Badge>
+            <Select value={viewBy} onValueChange={value => setViewBy(value as typeof viewBy)}>
+              <SelectTrigger aria-label={copy[0]} className="h-10 w-[195px] max-w-full shrink-0 text-xs">
+                <span className="inline-flex min-w-0 items-center gap-1"><span>{copy[0]}:</span><SelectValue /></span>
+              </SelectTrigger>
+              <SelectContent className="ww-djmc-portal">
+                <SelectItem value="guest">{copy[2]}</SelectItem>
+                <SelectItem value="pending">{copy[3]}</SelectItem>
+                <SelectItem value="approved">{copy[4]}</SelectItem>
+                <SelectItem value="rejected">{copy[5]}</SelectItem>
+                <SelectItem value="all">{copy[1]}</SelectItem>
+              </SelectContent>
+            </Select>
             <Button
               size="sm"
               variant="outline"
@@ -115,15 +145,16 @@ export const GuestSongRequestsView: React.FC<Omit<Props,'eventId'> & {
           </div>
         ) : (
           <div className="space-y-2">
-            {rows.map((r) => (
-              <RequestRow
-                key={r.id}
-                row={r}
-                disabled={disabled}
-                onStatusChange={(s) => onRunUndoable ? void onRunUndoable(()=>updateStatus(r.id,s),[r]) : void updateStatus(r.id,s)}
-                onDelete={() => onRunUndoable ? void onRunUndoable(()=>deleteRequest(r.id),[r]) : void deleteRequest(r.id)}
-              />
-            ))}
+            {viewBy === 'guest' ? guestGroups.map(group => (
+              <details key={group.id} className="rounded-lg border border-primary/25 p-3">
+                <summary className={theme.bodyText + ' cursor-pointer font-semibold'}>
+                  {copy[7]} {group.name} <Badge variant="outline" className={'ml-2 ' + theme.countBadge}>{copy[6]}: {group.rows.length}</Badge>
+                </summary>
+                <div className="mt-3 space-y-2">{group.rows.map(requestCard)}</div>
+              </details>
+            )) : visibleRows.length ? visibleRows.map(requestCard) : (
+              <p role="status" className={theme.bodyText + ' py-4 text-muted-foreground'}>{copy[8]}</p>
+            )}
           </div>
         )}
       </CardContent>
@@ -133,10 +164,11 @@ export const GuestSongRequestsView: React.FC<Omit<Props,'eventId'> & {
 
 const RequestRow: React.FC<{
   row: GuestSongRequestRow;
+  requestStatusLabel?: string;
   disabled?:boolean;
   onStatusChange: (s: SongRequestStatus) => void;
   onDelete: () => void;
-}> = ({ row, onStatusChange, onDelete, disabled }) => {
+}> = ({ row, onStatusChange, onDelete, disabled, requestStatusLabel='Request status' }) => {
   return (
     <div className={`${theme.managedLink} flex flex-wrap items-start gap-3 rounded-lg p-3`}>
       <div className="flex-1 min-w-[240px] space-y-1">
@@ -170,7 +202,7 @@ const RequestRow: React.FC<{
       </div>
       <div className="flex items-center gap-2">
         <Select disabled={disabled} value={row.status} onValueChange={(v) => onStatusChange(v as SongRequestStatus)}>
-          <SelectTrigger className="h-9 w-[130px] text-xs">
+          <SelectTrigger aria-label={requestStatusLabel + ': ' + (row.song_title || 'Untitled song')} className="h-9 w-[130px] text-xs">
             <SelectValue />
           </SelectTrigger>
           <SelectContent className="ww-djmc-portal">

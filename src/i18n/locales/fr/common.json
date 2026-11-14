@@ -1,4 +1,22 @@
 {
+  "guestbookSuccess": {
+    "thankYou": "Merci, {{name}} !",
+    "another": "Laisser un autre message",
+    "return": "Retour à l’application",
+    "received": "Merci pour votre message dans le livre d’or."
+  },
+  "guestbookMessages": {
+    "textTitle": "Écrire un message",
+    "audioTitle": "Enregistrer un message audio",
+    "videoTitle": "Enregistrer un message vidéo",
+    "textAgain": "Écrire un autre message",
+    "audioAgain": "Enregistrer un autre message audio",
+    "videoAgain": "Enregistrer un autre message vidéo",
+    "textSaved": "Votre message écrit a été enregistré.",
+    "audioSaved": "Votre message audio a été enregistré.",
+    "videoSaved": "Votre message vidéo a été enregistré."
+  },
+  "guestbookBackToApp": "Retour à l’application",
   "privacyPolicy": "Politique de Confidentialité",
   "termsOfService": "Conditions d'Utilisation",
   "contact": "Contact",
@@ -21,5 +39,17 @@
   "edit": "Modifier",
   "close": "Fermer",
   "submit": "Soumettre",
-  "language": "Langue"
+  "language": "Langue",
+  "guestbookPrivacy": {
+    "intro": "Laissez un message écrit, audio ou vidéo, ou combinez ces formats.",
+    "notice": "Vos messages écrits, audio et vidéo sont partagés dans la galerie de l’événement et le diaporama en direct."
+  },
+  "photoBoothSession": {
+    "capturedPhoto": "Photo prise {{number}}",
+    "captureNote": "4 photos - Compte à rebours de 8 secondes",
+    "nameLabel": "Veuillez d’abord saisir votre nom complet",
+    "namePlaceholder": "p. ex. Sarah Dupont",
+    "partial": "{{saved}} images sur {{total}} ont été enregistrées. Appuyez sur Télécharger et enregistrer pour réessayer les images restantes. Les photos déjà enregistrées ne seront pas téléversées à nouveau.",
+    "captureFailed": "Impossible de capturer une image de la caméra. Veuillez recommencer la séance."
+  }
 }

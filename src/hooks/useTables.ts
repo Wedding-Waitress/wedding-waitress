@@ -1,3 +1,4 @@
+import {notifyTrialTableLimit}from'@/lib/trialUpgrade';
 /**
  * ⚠️ PRODUCTION-READY — LOCKED FOR PRODUCTION ⚠️
  * 
@@ -87,6 +88,7 @@ export const useTables = (eventId: string | null) => {
   const cached = eventId ? tablesCache.get(eventId) : undefined;
   const [tables, setTables] = useState<TableWithGuestCount[]>(cached ?? []);
   const [loading, setLoading] = useState(false);
+  const [loadedEventId, setLoadedEventId] = useState<string | null>(cached !== undefined ? eventId : null);
   const { toast } = useToast();
 
   // Single source of truth for table guest counts
@@ -113,6 +115,7 @@ export const useTables = (eventId: string | null) => {
       const sortedTables = await requestTables(eventId);
       tablesCache.set(eventId, sortedTables);
       setTables(sortedTables);
+      setLoadedEventId(eventId);
     } catch (error) {
       console.error('Error fetching tables:', error);
       toast({
@@ -158,6 +161,7 @@ export const useTables = (eventId: string | null) => {
       return true;
     } catch (error: any) {
       console.error('Error creating table:', error);
+      if(notifyTrialTableLimit(error))return false;
       
       // Handle unique constraint violation for table numbers
       if (error?.code === '23505' && error?.message?.includes('uq_tables_one_head_per_event')) {
@@ -171,6 +175,12 @@ export const useTables = (eventId: string | null) => {
           title: "Error",
           description: "You already added this table number. Choose another table number.",
           variant: "destructive",
+        });
+      } else if (error?.message?.includes('WW_TABLE_CAPACITY_EXCEEDED')) {
+        toast({
+          title: 'Guest limit reached',
+          description: 'The combined seating capacity of all tables cannot exceed this event’s allowed guest limit.',
+          variant: 'destructive',
         });
       } else {
         toast({
@@ -255,6 +265,12 @@ export const useTables = (eventId: string | null) => {
           title: "Error",
           description: "You already added this table number. Choose another table number.",
           variant: "destructive",
+        });
+      } else if (error?.message?.includes('WW_TABLE_CAPACITY_EXCEEDED')) {
+        toast({
+          title: 'Guest limit reached',
+          description: 'The combined seating capacity of all tables cannot exceed this event’s allowed guest limit.',
+          variant: 'destructive',
         });
       } else {
         toast({
@@ -350,6 +366,7 @@ export const useTables = (eventId: string | null) => {
   return {
     tables,
     loading,
+    loadedEventId,
     fetchTables,
     createTable,
     updateTable,

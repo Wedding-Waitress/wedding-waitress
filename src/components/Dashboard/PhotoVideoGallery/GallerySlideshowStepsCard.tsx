@@ -11,8 +11,9 @@ const STEPS = [
   { icon: RotateCcw, title: 'It updates itself', text: 'Newly approved uploads automatically join the slideshow.' },
 ];
 
-export const GallerySlideshowStepsCard: React.FC<{ appearance?: 'default' | 'espresso-glass'; embedded?: boolean }> = ({ appearance = 'default', embedded = false }) => {
+export const GallerySlideshowStepsCard: React.FC<{ appearance?: 'default' | 'espresso-glass'; embedded?: boolean; automaticInclusion?: boolean }> = ({ appearance = 'default', embedded = false, automaticInclusion = false }) => {
   const isGlass = appearance === 'espresso-glass';
+  const steps = automaticInclusion ? [ {...STEPS[0],title:'Guests share their memories',text:'Photos, videos, booth captures and guestbook messages join automatically.'}, STEPS[1], {...STEPS[2],text:'New uploads join the display automatically. No approval step is needed.'} ] : STEPS;
   return (
   <Card className={cn(
     'overflow-hidden',
@@ -29,7 +30,7 @@ export const GallerySlideshowStepsCard: React.FC<{ appearance?: 'default' | 'esp
     </div>
 
     <ol className="space-y-4">
-      {STEPS.map((s, i) => (
+      {steps.map((s, i) => (
         <li key={s.title} className="flex items-start gap-3 min-w-0">
           <div className={cn('w-9 h-9 rounded-full bg-[#967A59]/10 flex items-center justify-center shrink-0', isGlass && managementStyles.guestbookStepIcon)}>
             <s.icon size={18} strokeWidth={1.8} className="text-[#967A59]" />

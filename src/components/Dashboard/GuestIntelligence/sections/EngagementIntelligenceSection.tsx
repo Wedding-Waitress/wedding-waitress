@@ -4,6 +4,7 @@ import IntelligenceSection from '../IntelligenceSection';
 import EmptyHint from '../EmptyHint';
 import { useEventGuestActivities } from '@/hooks/useEventGuestActivities';
 import { normalizeRsvp } from '@/lib/rsvp';
+import { hasSentInvitation } from '@/lib/messagingAnalytics';
 import type { Guest } from '@/hooks/useGuests';
 
 interface Props {
@@ -71,6 +72,7 @@ export const EngagementIntelligenceSection = ({ guests, eventId }: Props) => {
     const todayStart = new Date(); todayStart.setHours(0, 0, 0, 0);
 
     for (const a of activities) {
+      if (!byId.has(a.guest_id)) continue;
       const t = new Date(a.occurred_at).getTime();
       if (a.activity_type === 'opened') {
         const p = ensure(a.guest_id); p.opens++; p.interactions++; p.lastInteractionAt = Math.max(p.lastInteractionAt ?? 0, t);
@@ -87,17 +89,18 @@ export const EngagementIntelligenceSection = ({ guests, eventId }: Props) => {
     for (const a of activities) {
       if (SEND_TYPES.has(a.activity_type)) sentByActivity.add(a.guest_id);
     }
-    let invited = 0;
+    const invitedIds = new Set<string>();
     for (const g of guests) {
-      const s = (g.rsvp_invite_status || '').toLowerCase();
-      const sentStatus = s && s !== 'not_sent' && s !== 'pending';
-      if (sentStatus || sentByActivity.has(g.id)) invited++;
+      if (hasSentInvitation(g) || sentByActivity.has(g.id)) invitedIds.add(g.id);
     }
+
+    const invited = invitedIds.size;
 
     // Engaged set
     const engaged = Array.from(per.entries()).filter(([, p]) => p.interactions > 0);
     const engagedIds = new Set(engaged.map(([id]) => id));
-    const engagementCompletionPct = invited ? engagedIds.size / invited : 0;
+    const engagedInvitedCount = [...engagedIds].filter(id => invitedIds.has(id)).length;
+    const engagementCompletionPct = invited ? engagedInvitedCount / invited : 0;
 
     // Top engaged guests
     const mostEngaged = engaged
@@ -127,9 +130,7 @@ export const EngagementIntelligenceSection = ({ guests, eventId }: Props) => {
     // Low engagement: invited but 0 interactions
     let lowEngagement = 0;
     for (const g of guests) {
-      const s = (g.rsvp_invite_status || '').toLowerCase();
-      const sentStatus = s && s !== 'not_sent' && s !== 'pending';
-      const wasInvited = sentStatus || sentByActivity.has(g.id);
+      const wasInvited = invitedIds.has(g.id);
       if (!wasInvited) continue;
       if (!engagedIds.has(g.id)) lowEngagement++;
     }
@@ -159,6 +160,7 @@ export const EngagementIntelligenceSection = ({ guests, eventId }: Props) => {
       total,
       invited,
       engagedCount: engagedIds.size,
+      engagedInvitedCount,
       engagementCompletionPct,
       mostEngaged,
       openedNoResponse: openedNoResponse.slice(0, 5),
@@ -219,7 +221,7 @@ export const EngagementIntelligenceSection = ({ guests, eventId }: Props) => {
               <div className="h-full bg-[#967A59] transition-all" style={{ width: `${completionPctRound}%` }} />
             </div>
             <div className="text-[11.5px] text-[#6E6E73] mt-1.5">
-              {ins.engagedCount} of {ins.invited} invited guest{ins.invited === 1 ? '' : 's'} have interacted
+              {ins.engagedInvitedCount} of {ins.invited} invited guest{ins.invited === 1 ? '' : 's'} have interacted
             </div>
           </div>
         )}

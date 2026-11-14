@@ -1,4 +1,22 @@
 {
+  "guestbookSuccess": {
+    "thankYou": "Cảm ơn bạn, {{name}}!",
+    "another": "Để lại lời nhắn khác",
+    "return": "Quay lại ứng dụng",
+    "received": "Cảm ơn bạn đã để lại lời nhắn trong sổ lưu bút."
+  },
+  "guestbookMessages": {
+    "textTitle": "Viết lời nhắn",
+    "audioTitle": "Ghi lời nhắn âm thanh",
+    "videoTitle": "Quay lời nhắn video",
+    "textAgain": "Viết lời nhắn khác",
+    "audioAgain": "Ghi lời nhắn âm thanh khác",
+    "videoAgain": "Quay lời nhắn video khác",
+    "textSaved": "Lời nhắn bằng văn bản của bạn đã được lưu.",
+    "audioSaved": "Lời nhắn âm thanh của bạn đã được lưu.",
+    "videoSaved": "Lời nhắn video của bạn đã được lưu."
+  },
+  "guestbookBackToApp": "Quay lại ứng dụng",
   "privacyPolicy": "Chính Sách Bảo Mật",
   "termsOfService": "Điều Khoản Dịch Vụ",
   "contact": "Liên Hệ",
@@ -21,5 +39,17 @@
   "edit": "Chỉnh Sửa",
   "close": "Đóng",
   "submit": "Gửi",
-  "language": "Ngôn Ngữ"
+  "language": "Ngôn Ngữ",
+  "guestbookPrivacy": {
+    "intro": "Để lại lời nhắn bằng văn bản, âm thanh hoặc video, hay kết hợp bất kỳ hình thức nào.",
+    "notice": "Tin nhắn văn bản, âm thanh và video của bạn được chia sẻ trong thư viện sự kiện và trình chiếu trực tiếp."
+  },
+  "photoBoothSession": {
+    "capturedPhoto": "Ảnh đã chụp {{number}}",
+    "captureNote": "4 ảnh - Đếm ngược 8 giây",
+    "nameLabel": "Vui lòng nhập họ và tên trước",
+    "namePlaceholder": "Ví dụ: Nguyễn Thị Lan",
+    "partial": "Đã lưu {{saved}} trên {{total}} ảnh. Nhấn Tải xuống và lưu để thử lại các ảnh còn lại. Ảnh đã lưu sẽ không được tải lên lần nữa.",
+    "captureFailed": "Không thể chụp ảnh từ camera. Vui lòng thử lại phiên chụp."
+  }
 }

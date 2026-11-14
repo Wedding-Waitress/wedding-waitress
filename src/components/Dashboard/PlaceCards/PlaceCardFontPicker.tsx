@@ -97,6 +97,7 @@ const FontItem: React.FC<{
 export const PlaceCardFontPicker: React.FC<PlaceCardFontPickerProps> = ({
   value,
   onValueChange,
+  label,
   contentClassName,
 }) => {
   const [open, setOpen] = useState(false);
@@ -126,6 +127,7 @@ export const PlaceCardFontPicker: React.FC<PlaceCardFontPickerProps> = ({
         <Button
           variant="outline"
           role="combobox"
+          aria-label={label}
           aria-expanded={open}
           className="h-9 w-full justify-between text-sm font-normal"
         >

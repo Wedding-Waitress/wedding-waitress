@@ -1,3 +1,97 @@
 /sitemap.xml
   Cache-Control: public, max-age=0, must-revalidate
   Content-Type: text/xml; charset=utf-8
+
+/robots.txt
+  Cache-Control: public, max-age=0, must-revalidate
+  Content-Type: text/plain; charset=utf-8
+
+/dashboard
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/dashboard/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/admin
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/admin/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/account
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/account/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/account-recovery
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/account-renewal-checkout
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/accept-team-invitation
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/onboarding/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/reset-password
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/payment-success
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/unsubscribe
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/venue-floor-plan-upload
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/gallery/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/gallery-live/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/gallery-guestbook/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/gallery-photobooth/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/s/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/kiosk/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/live-slideshow/:eventId
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/shared-running-sheet/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/running-sheet/:eventId
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/dj-mc/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/djmc/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/seating-chart/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/share/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/qr/*
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/not-found
+  X-Robots-Tag: noindex, nofollow, noarchive
+
+/404.html
+  X-Robots-Tag: noindex, nofollow, noarchive

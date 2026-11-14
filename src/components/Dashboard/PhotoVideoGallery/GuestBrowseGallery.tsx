@@ -10,7 +10,7 @@ import { downloadSignedUrl } from '@/components/Dashboard/PhotoVideoGallery/gall
 import { sharedMediaFilename } from '@/lib/sharedPhotoFilename';
 import { galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/GalleryPasswordGate';
 import type { GalleryTheme } from '@/lib/galleryTheme';
-import { categoryOf } from '@/lib/mediaPrivacy';
+import { categoryOf, isPublicGalleryMedia } from '@/lib/mediaPrivacy';
 import { orderPhotoBoothItems } from '@/lib/photoBoothSessions';
 
 export interface BrowseItem {
@@ -60,7 +60,6 @@ interface Props {
 }
 
 export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refreshKey = 0, eventName }) => {
-  const [messages, setMessages] = useState<Array<{id: string; uploader_name: string; message: string}>>([]);
   const [items, setItems] = useState<BrowseItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -100,8 +99,8 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
       const rows = (((data as any)?.items || []) as BrowseItem[]);
       if (!mounted.current) return;
       // Newest memories first for browsing, with each Photo Booth session shown strip-first.
-      setMessages(data?.guestbook_messages || []);
-      setItems(orderBoothSessionsInPlace([...rows].reverse()));
+
+      setItems(orderBoothSessionsInPlace(rows.filter(row => isPublicGalleryMedia(row) || row.source_category === 'video_wishes').reverse()));
       setError(null);
     } catch (e) {
       if (mounted.current && showSpinner) setError((e as Error).message || 'Could not load the gallery');
@@ -154,7 +153,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
   // Photos: exactly 6s. Videos: advance only when playback finishes (see onEnded).
   useEffect(() => {
     if (!slideshow || openIndex === null || items.length < 2) return;
-    if (current?.kind === 'video') return;
+    if (current?.kind === 'video' || current?.kind === 'audio') return;
     const id = window.setTimeout(() => step(1), 6000);
     return () => window.clearTimeout(id);
   }, [slideshow, openIndex, items.length, step, current?.kind]);
@@ -251,13 +250,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
         <p className={`text-sm mt-1 ${theme.mutedClass}`}>Tap a photo to view it full screen</p>
       </div>
 
-      {messages.length > 0 && <section aria-label="Shared Guestbook messages" className="grid gap-4 sm:grid-cols-2 mb-6">
-        {messages.map(message => <article key={message.id} className={`rounded-xl border p-4 ${theme.textClass}`}>
-          <p className="whitespace-pre-wrap break-words">{message.message}</p>
-          <p className="mt-3 text-sm">From {fullNameOf(message.uploader_name)}</p>
-        </article>)}
-      </section>}
-      {count === 0 && messages.length === 0 ? (
+      {count === 0 ? (
         <div className={`rounded-2xl border border-dashed p-10 text-center ${theme.isDark ? 'border-white/15 bg-white/5' : 'border-[#E0D3B8] bg-white/70'}`}>
           <ImageIcon className="h-8 w-8 mx-auto mb-3" style={{ color: accent }} />
           <p className={`text-sm font-medium ${theme.textClass}`}>No memories yet</p>
@@ -305,7 +298,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
       {current && createPortal(
         <div ref={lightboxRef} className="fixed inset-0 z-[100] bg-black" role="dialog" aria-modal="true">
           {/* Full-bleed media */}
-          {current.kind === 'audio' ? <audio src={current.signed_url} controls autoPlay className="absolute top-1/2 left-[10%] w-[80%]" /> : current.kind === 'video' ? (
+          {current.kind === 'audio' ? <audio src={current.signed_url} controls autoPlay onEnded={() => { if(slideshow) step(1); }} className="absolute top-1/2 left-[10%] w-[80%]" /> : current.kind === 'video' ? (
             <video
               key={current.id}
               src={current.signed_url}
@@ -369,7 +362,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
                 label: 'Delete',
                 icon: <Trash2 className="h-6 w-6" />,
                 onClick: () => { setDeleteError(null); setConfirmDelete(true); },
-                show: isAuthed,
+                show: isAuthed && current.source_category !== 'guestbook_text',
               },
             ].filter(b => b.show).map(b => (
               <div key={b.key} className="relative group flex items-center">

@@ -1,3 +1,4 @@
+import { hasRecentAdminVerification } from '../_shared/adminVerifiedSession.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2.58.0';
 import { isOwnerAdminEmail } from '../_shared/owner-admin.ts';
 
@@ -23,7 +24,8 @@ Deno.serve(async(req)=>{
   const actor=identity.user.id;
   const {data:owner,error:ownerError}=await caller.rpc('is_owner_admin');
   if(ownerError||owner!==true)return reply({error:'Administrator access denied'},403);
-  const body=await req.json();
+  if (!await hasRecentAdminVerification(caller)) return reply({ error: 'Recent administrator verification required.' }, 403);
+    const body=await req.json();
   if(!body||typeof body!=='object'||Array.isArray(body)||Object.keys(body).some(k=>!allowedKeys.has(k)))return reply({error:'Invalid read-only media request'},400);
   const target=body.customer_id,eventId=body.event_id,kind=body.kind,recordId=body.record_id;
   if(typeof target!=='string'||!uuid.test(target)||!['event_image','live_view_invitation','live_view_welcome','live_view_reception','live_view_menu','live_view_hero','reception_background','questionnaire_audio','invitation_background','signage_background','place_card_background','qr_logo','profile_image','booth_strip_logo','booth_strip_template','gallery_cover','gallery_logo','gallery_background','event_media'].includes(kind)

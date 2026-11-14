@@ -49,7 +49,7 @@ const ColorSwatches = ({ name, selected, onChange }: {
   selected: DietaryAccentColor;
   onChange: (color: DietaryAccentColor) => void;
 }) => (
-  <div className="flex items-center gap-0.5 shrink-0" role="group" aria-label={`${name} colour`}>
+  <div className={styles.swatchGroup} role="group" aria-label={`${name} colour`}>
     {DIETARY_ACCENT_COLORS.map(color => {
       const isSelected = selected === color;
       const label = COLOR_LABELS[color];
@@ -194,6 +194,7 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
             <DropdownMenu>
               <DropdownMenuTrigger asChild>
                 <Button
+                  aria-label="Text Style"
                   variant="outline"
                   className={`${styles.control} w-full justify-between mt-1`}
                 >
@@ -204,6 +205,8 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
               <DropdownMenuContent className={`${styles.portalSurface} w-[var(--radix-dropdown-menu-trigger-width)]`}>
                 <DropdownMenuItem
                   className={`${styles.portalItem} flex items-center justify-between cursor-pointer`}
+                  role="menuitemcheckbox"
+                  aria-checked={settings.isBold}
                   onClick={() => onSettingsChange({ isBold: !settings.isBold })}
                 >
                   <div className="flex items-center gap-2">
@@ -214,6 +217,8 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className={`${styles.portalItem} flex items-center justify-between cursor-pointer`}
+                  role="menuitemcheckbox"
+                  aria-checked={settings.isItalic}
                   onClick={() => onSettingsChange({ isItalic: !settings.isItalic })}
                 >
                   <div className="flex items-center gap-2">
@@ -224,6 +229,8 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   className={`${styles.portalItem} flex items-center justify-between cursor-pointer`}
+                  role="menuitemcheckbox"
+                  aria-checked={settings.isUnderline}
                   onClick={() => onSettingsChange({ isUnderline: !settings.isUnderline })}
                 >
                   <div className="flex items-center gap-2">
@@ -241,3 +248,4 @@ export const DietaryChartCustomizer: React.FC<DietaryChartCustomizerProps> = ({
     </Card>
   );
 };
+

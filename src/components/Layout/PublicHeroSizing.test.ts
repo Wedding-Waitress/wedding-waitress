@@ -27,7 +27,7 @@ describe('public hero viewport sizing contract', () => {
 
     expect(contentRule).toContain('box-sizing: border-box');
     expect(contentRule).toContain('padding-inline: var(--ww-public-hero-gutter)');
-    expect(contentRule).toContain('text-align: left');
+    expect(contentRule).toContain('text-align: start');
     expect(publicSiteCss).toMatch(/--ww-public-hero-gutter:\s*clamp\(1\.25rem,\s*6vw,\s*1\.5rem\)/);
     expect(publicSiteCss).toMatch(/@media \(min-width:\s*640px\) and \(max-width:\s*1023px\)[\s\S]*--ww-public-hero-gutter:\s*2\.5rem/);
     expect(publicSiteCss).toMatch(/@media \(min-width:\s*1024px\)[\s\S]*--ww-public-hero-gutter:\s*clamp\(3rem,\s*7vw,\s*8\.75rem\)/);

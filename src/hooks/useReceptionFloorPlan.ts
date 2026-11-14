@@ -1,3 +1,4 @@
+import { getCacheGeneration, getCacheUserId, registerCache } from '@/lib/cacheRegistry';
 import {createReceptionDefaultFixtures, RECEPTION_DEFAULT_ROOM} from '@/lib/receptionDefaultLayout';
 import { useCallback, useEffect, useRef, useState } from 'react';
 import { supabase } from '@/integrations/supabase/client';
@@ -152,6 +153,15 @@ export const receptionFloorPlanFromRow = (row: Omit<Row,'share_token'> & {share_
   };
 };
 
+const receptionPlanReads = new Map<string, Promise<any>>();
+function readReceptionPlan(eventId: string) {
+ const key = [getCacheGeneration(), getCacheUserId(), eventId].join('|');
+ const pending = receptionPlanReads.get(key); if (pending) return pending;
+ const request = Promise.all([supabase.auth.getUser(), supabase.from('reception_floor_plans').select('*').eq('event_id', eventId).maybeSingle()])
+  .finally(() => { if (receptionPlanReads.get(key) === request) receptionPlanReads.delete(key); });
+ receptionPlanReads.set(key, request); return request;
+}
+registerCache(() => receptionPlanReads.clear());
 const BUCKET = 'reception-floor-plan-backgrounds';
 const ACCEPTED = ['image/png', 'image/jpeg', 'application/pdf'];
 const MAX_BYTES = 25 * 1024 * 1024; // 25MB
@@ -191,7 +201,7 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
     setLoading(true);
     (async () => {
       try {
-      const { data: userRes } = await supabase.auth.getUser();
+      const [{ data: userRes }, { data, error }] = await readReceptionPlan(eventId);
       if (cancelled) return;
       const user = userRes.user;
       if (!user) {
@@ -199,11 +209,6 @@ export const useReceptionFloorPlan = (eventId: string | null) => {
         setLoading(false);
         return;
       }
-      const { data, error } = await supabase
-        .from('reception_floor_plans')
-        .select('*')
-        .eq('event_id', eventId)
-        .maybeSingle();
       if (cancelled) return;
       if (error) {
         console.error('load reception plan', error);

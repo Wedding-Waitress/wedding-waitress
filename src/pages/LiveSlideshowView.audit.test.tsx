@@ -30,3 +30,19 @@ describe('Live Slideshow guest behaviour',()=>{
   fireEvent.click(button);expect(await screen.findByText(/Fullscreen is unavailable/)).toBeInTheDocument();
  });
 });
+
+describe('Live Slideshow authoritative named seating',()=>{
+ it('resolves a named table without a numeric table number and preserves seat 9',async()=>{
+  api.rpc.mockImplementation(async(name,args)=>name==='get_public_table_data'?{data:[{table_id:'named-table',table_name:'1. Brides Family',table_no:null}],error:null}:{data:[{...row,guest_table_id:'named-table',guest_table_no:null,guest_seat_no:9}],error:null});
+  render(<LiveSlideshowView/>);const input=await screen.findByRole('textbox',{name:'Search guest names'});fireEvent.change(input,{target:{value:'Amelia'}});
+  expect(screen.getByText('1. Brides Family')).toBeInTheDocument();expect(screen.getByText('Seat 9')).toBeInTheDocument();expect(screen.queryByText('Table assignment pending')).toBeNull();
+  expect(api.rpc).toHaveBeenCalledWith('get_public_table_data',{p_event_id:'event',p_table_id:'named-table'});
+ });
+ it('shows pending for a genuinely unassigned guest, then reflects a saved assignment on refresh',async()=>{
+  api.rpc.mockResolvedValue({data:[{...row,guest_table_no:null,guest_table_id:null,guest_seat_no:null}],error:null});
+  render(<LiveSlideshowView/>);const input=await screen.findByRole('textbox',{name:'Search guest names'});fireEvent.change(input,{target:{value:'Amelia'}});expect(screen.getByText('Table assignment pending')).toBeInTheDocument();
+  api.rpc.mockResolvedValue({data:[row],error:null});fireEvent(window,new Event('focus'));await waitFor(()=>expect(screen.getByText('Table 1')).toBeInTheDocument());expect(screen.queryByText('Table assignment pending')).toBeNull();
+ });
+});
+
+it('normalizes spaces in saved names and full-name searches',async()=>{api.rpc.mockResolvedValue({data:[{...row,guest_first_name:'  Amelia  ',guest_last_name:'  Van   Reed  '}],error:null});render(<LiveSlideshowView/>);const input=await screen.findByRole('textbox',{name:'Search guest names'});fireEvent.change(input,{target:{value:' Amelia   Van Reed '}});expect(screen.getByText('Table 1')).toBeInTheDocument();expect(screen.queryByText('No guests found')).toBeNull();});

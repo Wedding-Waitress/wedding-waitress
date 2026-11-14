@@ -1,3 +1,4 @@
+import {GuestbookDownloadAllButton} from '@/components/Dashboard/PhotoVideoGallery/GuestbookDownloadAllButton';
 // Feature workspace: Photo & Video Sharing (stage 1 — layout foundation).
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -7,7 +8,8 @@ import { SeoHead } from '@/components/SEO/SeoHead';
 import { FeatureWorkspaceLayout } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceLayout';
 import { FeatureWorkspaceStatePanel } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceStatePanel';
 import { GalleryUploadAccessCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryUploadAccessCard';
-import { publicGalleryItems } from '@/lib/mediaPrivacy';
+import { categoryOf, publicGalleryItems, guestbookRecordings } from '@/lib/mediaPrivacy';
+import { GalleryGuestbookMessagesCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryGuestbookMessagesCard';
 import { GalleryUsageCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryUsageCard';
 import { GalleryGrid } from '@/components/Dashboard/PhotoVideoGallery/GalleryGrid';
 import { GalleryDownloadsCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryDownloadsCard';
@@ -16,11 +18,11 @@ import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVide
 export const GalleryUploadFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelection>> = (selection) => {
   const navigate = useNavigate();
   const { toast } = useToast();
-  const { selectedEventId, selectedEvent, selectionStatus, meta, items, error, setOpen, deleteItem, deleteItems, setModeration, setAlbum, bulkSetAlbum, setGuestFeature } = usePhotoVideoFeatureWorkspace(selection);
+  const { selectedEventId, selectedEvent, selectionStatus, meta, items, loading, error, refreshRecordings, setOpen, deleteItem, deleteItems, setModeration, setAlbum, bulkSetAlbum, setGuestFeature } = usePhotoVideoFeatureWorkspace(selection);
   const [saving, setSaving] = useState(false);
 
-  // Public gallery media only — private Guestbook recordings never appear here.
-  const publicItems = useMemo(() => publicGalleryItems(items), [items]);
+  // Keep the photo/video ZIPs separate from the guestbook recordings download.
+  const publicItems = useMemo(() => publicGalleryItems(items).filter(item => categoryOf(item) !== 'guestbook_recording' && categoryOf(item) !== 'guestbook_text'), [items]);
 
   const goBack = () => navigate('/dashboard?tab=photo-video-gallery');
 
@@ -39,6 +41,7 @@ export const GalleryUploadFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelec
     <>
       <SeoHead title="Photo & Video Sharing | Wedding Waitress" description="Manage the photos and videos shared by your guests." noIndex />
       <FeatureWorkspaceLayout
+        hideSelectedEventPanel
         brownOutline
         appearance="photo-video-sharing"
         title="Photo & Video Sharing"
@@ -49,6 +52,7 @@ export const GalleryUploadFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelec
         toggleDisabled={saving || !meta}
         onToggle={handleToggle}
         onBack={goBack}
+        guestPreviewToken={meta?.primary_token ?? null}
       >
         {selectionStatus !== 'selected' || !meta ? (
           <FeatureWorkspaceStatePanel
@@ -59,7 +63,7 @@ export const GalleryUploadFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelec
           />
         ) : (
           <div className="space-y-6 sm:space-y-8">
-          <div className="grid grid-cols-1 lg:grid-cols-[2fr_1fr_1fr] gap-6 items-stretch">
+          <div className={`grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-[2fr_1fr_1fr] gap-6 items-stretch ${managementStyles.sharingUpperGrid}`}>
             <GalleryUploadAccessCard meta={meta} onToggleOpen={setOpen} appearance="espresso-glass" />
             <GalleryUsageCard meta={meta} items={publicItems} appearance="espresso-glass" />
             <GalleryDownloadsCard
@@ -67,10 +71,13 @@ export const GalleryUploadFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelec
               eventName={(selectedEvent as any)?.name}
               galleryTitle={meta.gallery_title}
               layout="vertical"
+              scopes={['all', 'photos', 'videos']}
+              additionalDownloadAction={<GuestbookDownloadAllButton items={guestbookRecordings(items)} eventName={selectedEvent?.name} appearance="espresso-glass" label="Download Guestbook Recordings" className={managementStyles.guestbookGroupedDownload} />}
               appearance="espresso-glass"
             />
           </div>
 
+          <GalleryGuestbookMessagesCard streamlinedToolbar eventId={selectedEventId} items={items} eventName={selectedEvent?.name} loading={loading} error={error} onSetItemModeration={setModeration} onRefreshRecordings={refreshRecordings} appearance="espresso-glass" />
           <GalleryGrid
             items={publicItems}
             onDelete={deleteItem}
@@ -80,8 +87,10 @@ export const GalleryUploadFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelec
             onBulkSetAlbum={bulkSetAlbum}
             eventName={(selectedEvent as any)?.name}
             title="Shared Photos & Videos"
-            description="Review, organise, approve, hide and download guest photos and videos."
+            description="Organise and download guest photos and videos."
             hideCardActions
+            hideStatusShortcuts
+            hideApprovedBadges
             dark
             appearance="espresso-glass"
           />

@@ -100,3 +100,5 @@ describe('My Events controls and incomplete states', () => {
     expect(props.setActiveEventId).not.toHaveBeenCalled();
   });
 });
+
+it('includes one plan-control group while preserving the event title and allowance/actions',()=>{const view=setup({selectedEvent:event,planControls:<button>Plan controls fixture</button>});const button=screen.getByRole('button',{name:'Plan controls fixture'});const slot=button.closest('[data-plan-controls-location="events-actions"]')!;expect(slot.previousElementSibling).toHaveClass('ww-events-title');expect(slot.nextElementSibling).toHaveClass('ww-events-actions');expect(slot.nextElementSibling).toHaveTextContent('Events:');expect(screen.getAllByRole('button',{name:'Plan controls fixture'})).toHaveLength(1);expect(screen.getByRole('button',{name:'Create Event'})).toBeInTheDocument();expect(screen.getByRole('button',{name:'Guided Setup'})).toBeInTheDocument();});

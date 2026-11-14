@@ -1,4 +1,22 @@
 {
+  "guestbookSuccess": {
+    "thankYou": "¡Gracias, {{name}}!",
+    "another": "Dejar otro mensaje",
+    "return": "Volver a la aplicación",
+    "received": "Gracias por dejar tu mensaje en el libro de visitas."
+  },
+  "guestbookMessages": {
+    "textTitle": "Escribir un mensaje",
+    "audioTitle": "Grabar un mensaje de audio",
+    "videoTitle": "Grabar un mensaje de vídeo",
+    "textAgain": "Escribir otro mensaje",
+    "audioAgain": "Grabar otro mensaje de audio",
+    "videoAgain": "Grabar otro mensaje de vídeo",
+    "textSaved": "Tu mensaje escrito se ha guardado.",
+    "audioSaved": "Tu mensaje de audio se ha guardado.",
+    "videoSaved": "Tu mensaje de vídeo se ha guardado."
+  },
+  "guestbookBackToApp": "Volver a la aplicación",
   "privacyPolicy": "Política de Privacidad",
   "termsOfService": "Términos de Servicio",
   "contact": "Contacto",
@@ -21,5 +39,17 @@
   "edit": "Editar",
   "close": "Cerrar",
   "submit": "Enviar",
-  "language": "Idioma"
+  "language": "Idioma",
+  "guestbookPrivacy": {
+    "intro": "Deja un mensaje escrito, de audio o de vídeo, o cualquier combinación.",
+    "notice": "Tus mensajes escritos, de audio y de vídeo se comparten en la galería del evento y en la presentación en directo."
+  },
+  "photoBoothSession": {
+    "capturedPhoto": "Foto capturada {{number}}",
+    "captureNote": "4 fotos - Cuenta atrás de 8 segundos",
+    "nameLabel": "Introduce primero tu nombre completo",
+    "namePlaceholder": "p. ej., Sara García",
+    "partial": "Se han guardado {{saved}} de {{total}} imágenes. Pulsa Descargar y guardar para reintentar las restantes. Las fotos ya guardadas no se volverán a subir.",
+    "captureFailed": "No se pudo capturar una imagen de la cámara. Vuelve a iniciar la sesión."
+  }
 }

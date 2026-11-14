@@ -32,7 +32,8 @@ export function usePlaceCardImageFit(settings: PlaceCardSettings | null, save: (
     }
   };
   const currentKey = keyFor(settings);
-  const ensureFit = async (next = settings) => {
+  const ensureFit = async (next = settings, signal?: AbortSignal) => {
+    if (signal?.aborted) return false;
     const paper = placeCardImagePaper(next?.background_image_type);
     if (!paper || !next?.background_image_url) return true;
     const key = keyFor(next);
@@ -41,7 +42,8 @@ export function usePlaceCardImageFit(settings: PlaceCardSettings | null, save: (
       setApprovedKey(known ? key : null);
       return true; // Export the accepted crop or the unchanged, uncropped image.
     }
-    const approved = await confirmFit(next.background_image_url, paper, next.background_image_x_position ?? 50, next.background_image_y_position ?? 50);
+    const approved = await confirmFit(next.background_image_url, paper, next.background_image_x_position ?? 50, next.background_image_y_position ?? 50, undefined, signal);
+    if (signal?.aborted) return false;
     if (approved) { rememberDecision(key, true); setApprovedKey(key); }
     return approved;
   };
@@ -75,14 +77,16 @@ export function usePlaceCardImageFit(settings: PlaceCardSettings | null, save: (
       return approved;
     } finally { URL.revokeObjectURL(url); }
   };
-  const updateSettings = async (updates: Partial<PlaceCardSettings>) => {
+  const updateSettings = async (updates: Partial<PlaceCardSettings>, signal?: AbortSignal) => {
+    if (signal?.aborted) return false;
     if (updates.background_image_url && updates.background_image_url !== settings?.background_image_url) {
       updates = { ...updates, background_image_x_position: 50, background_image_y_position: 50 };
       if (pendingUpload.current) rememberFit(updates.background_image_url, pendingUpload.current);
       pendingUpload.current = null;
     }
     const next = { ...settings, ...updates } as PlaceCardSettings;
-    if (keyFor(next) !== currentKey && !await ensureFit(next)) return false;
+    if (keyFor(next) !== currentKey && !await ensureFit(next, signal)) return false;
+    if (signal?.aborted) return false;
     const saved = await save(updates);
     if (saved === false) setApprovedKey(approvedKey);
     return saved;

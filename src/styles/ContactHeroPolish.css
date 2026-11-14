@@ -1,0 +1,15 @@
+/* Unpublished Contact-only hero colour and lighting; photo assets and layout stay intact. */
+/* Same image asset, crop, dimensions and object positions; compositor-only colour. */
+#root#root .ww-contact-page .ww-public-photo-hero > .ww-public-hero-picture img {
+  filter: saturate(1.16) contrast(1.08) brightness(1.05);
+}
+
+#root#root .ww-contact-page .ww-public-photo-hero > .ww-public-hero-shade {
+  background: radial-gradient(ellipse at 12% 2%, #db94413d, transparent 45%), radial-gradient(ellipse at 8% 95%, #a95b1c1c, transparent 47%), linear-gradient(90deg, #180b0773 0%, #1d0e094d 38%, #0f08050f 70%, transparent 100%), linear-gradient(0deg, #14090524, transparent 45%);
+}
+
+@media (max-width: 639px) {
+  #root#root .ww-contact-page .ww-public-photo-hero > .ww-public-hero-shade {
+    background: radial-gradient(ellipse at 10% 0%, #db944133, transparent 60%), linear-gradient(90deg, #180b079e 0%, #1d0e0952 42%, #0f08050d 74%, transparent 100%);
+  }
+}

@@ -25,7 +25,7 @@ describe('EventBudgetPrintDocument', () => {
     expect(screen.getAllByText('Business Name')).toHaveLength(3);
     expect(screen.getAllByText('Budgeted Costs')).toHaveLength(3);
     expect(screen.getAllByText('Budgeted')).toHaveLength(3);
-    expect(screen.getAllByText('Total Anticipated Budget · GBP')).toHaveLength(3);
+    expect(screen.getAllByText('Total Anticipated Budget')).toHaveLength(3);
     expect(screen.getAllByText('£5,000.00').length).toBeGreaterThan(0);
     expect(screen.getByText('Page 1 of 3')).toBeInTheDocument();
     expect(screen.getByText('Page 3 of 3')).toBeInTheDocument();

@@ -100,7 +100,11 @@ verify_jwt = true
 [functions.process-transactional-email-queue]
 verify_jwt = true
 
+[functions.process-access-expiry-reminders]
+verify_jwt = true
 
+[functions.stripe-access-extension-webhook]
+verify_jwt = false
 
 [functions.purge-expired-access-accounts]
 verify_jwt = true
@@ -145,12 +149,20 @@ verify_jwt = true
 [functions.get-promotion-state]
 verify_jwt = true
 
-# Signed raw-body verification in the deployed handler.
+# Signed raw-body verification in handler; not registered or deployed.
 [functions.stripe-promotion-webhook]
 verify_jwt = false
 
-# Stripe authenticates with the signature verified by this handler, not a JWT.
-[functions.stripe-access-extension-webhook]
+# Anonymous interest registration; private service-only persistence and throttling.
+[functions.register-prelaunch-interest]
 verify_jwt = false
 
-# Historical prelaunch registration endpoint retired from current source.
+[functions.admin-support]
+verify_jwt = true
+
+[functions.admin-billing-report]
+verify_jwt = true
+
+# Guest capabilities are validated in the handler and private service-only reservation RPCs.
+[functions.guest-verification]
+verify_jwt = false

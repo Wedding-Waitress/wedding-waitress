@@ -1,0 +1,11 @@
+import React from 'react';
+import {render,screen,fireEvent,cleanup} from '@testing-library/react';
+import {describe,it,expect,vi,afterEach} from 'vitest';
+import {PhotoCardEditor} from './PhotoCardEditor';
+import {createPhotoCard} from '@/types/photoCallout';
+afterEach(cleanup);
+const setup=()=>{const save=vi.fn().mockResolvedValue(true);render(<PhotoCardEditor card={createPhotoCard()} privateNote="" guests={[]} tables={[]} event={{id:'event',name:'Wedding'}} saving={false} includeAllGuests={null} onSave={save} onClose={()=>{}}/>);return save;};
+describe('persistent required field validation',()=>{
+ it('marks all missing required entries after Save and retains them after scrolling',()=>{const save=setup();const title=screen.getByLabelText('Group title');expect(title.getAttribute('aria-invalid')).toBe('false');fireEvent.click(screen.getByRole('button',{name:'Save Photo Group'}));expect(title.getAttribute('aria-invalid')).toBe('true');expect(screen.getByRole('group',{name:'Would you like a group photo?'}).getAttribute('aria-invalid')).toBe('true');expect(screen.getByLabelText('Add a name manually').getAttribute('aria-invalid')).toBe('true');fireEvent.scroll(screen.getByRole('dialog'));expect(title.getAttribute('aria-invalid')).toBe('true');expect(screen.getByText('Enter a group title.',{selector:'span'})).toBeTruthy();expect(save).not.toHaveBeenCalled();});
+ it('clears each error as it is fixed and saves when the requirements are met',()=>{const save=setup();fireEvent.click(screen.getByRole('button',{name:'Save Photo Group'}));const title=screen.getByLabelText('Group title');fireEvent.change(title,{target:{value:'   '}});expect(title.getAttribute('aria-invalid')).toBe('true');fireEvent.change(title,{target:{value:'Ceremony family'}});expect(title.getAttribute('aria-invalid')).toBe('false');fireEvent.click(screen.getByLabelText('No'));expect(screen.getByRole('group',{name:'Would you like a group photo?'}).getAttribute('aria-invalid')).toBe('false');fireEvent.change(screen.getByLabelText('Add a name manually'),{target:{value:'Uncle John and his family'}});expect(screen.getByLabelText('Add a name manually').getAttribute('aria-invalid')).toBe('false');expect(screen.queryByRole('alert')).toBeNull();fireEvent.click(screen.getByRole('button',{name:'Save Photo Group'}));expect(save).toHaveBeenCalledTimes(1);});
+});

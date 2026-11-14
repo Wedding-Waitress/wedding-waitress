@@ -1,10 +1,11 @@
 import React from 'react';
-import { cleanup, fireEvent, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen, within } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter, Route, Routes } from 'react-router-dom';
 import { AppErrorBoundary } from '@/components/core/AppErrorBoundary';
 import { GalleryGuestFeaturesCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryGuestFeaturesCard';
 import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
+import type { PhotoVideoWorkspaceSelection } from '@/hooks/usePhotoVideoFeatureWorkspace';
 import { GalleryUploadFeaturePage } from './GalleryUploadFeaturePage';
 import { GalleryTextGuestbookFeaturePage } from './GalleryTextGuestbookFeaturePage';
 import { GalleryPhotoBoothFeaturePage } from './GalleryPhotoBoothFeaturePage';
@@ -20,9 +21,6 @@ const hooks = vi.hoisted(() => ({
 
 vi.mock('@/hooks/useEvents', () => ({ useEvents: hooks.events }));
 vi.mock('@/hooks/useSelectedEvent', () => ({ useSelectedEvent: hooks.selected }));
-vi.mock('@/hooks/usePhotoVideoFeatureWorkspace', () => ({
-  usePhotoVideoFeatureWorkspace: () => ({ ...hooks.gallery(), ...hooks.selected(), selectionStatus: 'selected' }),
-}));
 vi.mock('@/hooks/useEventMediaGallery', () => ({
   useEventMediaGallery: hooks.gallery,
   GALLERY_ALBUMS: ['Ceremony', 'Reception', 'Dance Floor', 'Speeches', 'Bridal Party', 'Other'],
@@ -109,10 +107,11 @@ const affectedRoutes = [
   },
 ] as const;
 
-const renderDirectRoute = (path: string, Page: React.ComponentType) => render(
+const selection: PhotoVideoWorkspaceSelection = { selectedEventId: event.id, selectedEvent: event, selectionStatus: 'selected' };
+const renderDirectRoute = (path: string, Page: React.ComponentType<Partial<PhotoVideoWorkspaceSelection>>) => render(
   <MemoryRouter initialEntries={[path]}>
     <AppErrorBoundary>
-      <Routes><Route path={path} element={<Page />} /></Routes>
+      <Routes><Route path={path} element={<Page {...selection} />} /></Routes>
     </AppErrorBoundary>
   </MemoryRouter>,
 );
@@ -131,6 +130,7 @@ describe('affected gallery feature routes', () => {
     hooks.events.mockReturnValue({ events: [event], loading: false });
     hooks.selected.mockReturnValue({ selectedEventId: event.id, selectedEvent: event, setSelectedEventId: vi.fn() });
     hooks.gallery.mockReturnValue(gallery);
+    hooks.gallery.mockClear();
     hooks.getSession.mockResolvedValue({ data: { session: { user: { id: 'user-1' } } } });
     vi.spyOn(console, 'error').mockImplementation(() => undefined);
   });
@@ -141,18 +141,35 @@ describe('affected gallery feature routes', () => {
   });
 
   for (const { path, Page, title } of affectedRoutes) {
+    it(`keeps the correct header guest action for ${title}`, async () => {
+      const open = vi.spyOn(window, 'open').mockReturnValue(null);
+      renderDirectRoute(path, Page);
+      const header = within(screen.getByRole('banner'));
+      const isSlideshow = title === 'Live Slideshow';
+      const action = header.getByRole('button', {name:isSlideshow ? 'Launch Live Slideshow' : 'Preview as Guest'});
+      expect(action).toBeEnabled();
+      fireEvent.click(action);
+      expect(open).toHaveBeenCalledTimes(1);
+      const url = new URL(open.mock.calls[0][0] as string);
+      expect(url.pathname).toBe(isSlideshow ? '/gallery/token/slideshow' : '/gallery/token');
+      expect(url.search).toBe('');
+      expect(open.mock.calls[0].slice(1)).toEqual(['_blank','noopener,noreferrer']);
+    });
     it(`opens ${title} directly and again after a refresh remount`, async () => {
       const firstMount = renderDirectRoute(path, Page);
 
       expect(await screen.findByRole('heading', { name: title, level: 1 })).toBeInTheDocument();
-      expect(screen.getAllByText(event.name).length).toBeGreaterThan(0);
+      expect(within(screen.getByRole('banner')).queryByText(event.name)).not.toBeInTheDocument();
+      expect(within(screen.getByRole('banner')).queryByRole('switch')).not.toBeInTheDocument();
+      expect(hooks.gallery).toHaveBeenCalledWith(event.id);
       expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
 
       firstMount.unmount();
       renderDirectRoute(path, Page);
 
       expect(await screen.findByRole('heading', { name: title, level: 1 })).toBeInTheDocument();
-      expect(screen.getAllByText(event.name).length).toBeGreaterThan(0);
+      expect(within(screen.getByRole('banner')).queryByText('Selected event')).not.toBeInTheDocument();
+      expect(hooks.gallery).toHaveBeenCalledWith(event.id);
       expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
     });
 
@@ -162,7 +179,7 @@ describe('affected gallery feature routes', () => {
           <AppErrorBoundary>
             <Routes>
               <Route path="/" element={<GalleryGuestFeaturesCard {...featureProps} />} />
-              <Route path={path} element={<Page />} />
+              <Route path={path} element={<Page {...selection} />} />
             </Routes>
           </AppErrorBoundary>
         </MemoryRouter>,
@@ -171,8 +188,18 @@ describe('affected gallery feature routes', () => {
       fireEvent.click(screen.getByRole('button', { name: `Manage ${title}` }));
 
       expect(await screen.findByRole('heading', { name: title, level: 1 })).toBeInTheDocument();
-      expect(screen.getAllByText(event.name).length).toBeGreaterThan(0);
+      expect(within(screen.getByRole('banner')).queryByText('Selected event')).not.toBeInTheDocument();
+      expect(hooks.gallery).toHaveBeenCalledWith(event.id);
       expect(screen.queryByText('Something went wrong')).not.toBeInTheDocument();
+    });
+
+    it(`retains the no-event state on ${title}`, async () => {
+      hooks.gallery.mockReturnValue({ ...gallery, meta: null });
+      render(<MemoryRouter><Page selectedEventId={null} selectedEvent={null} selectionStatus="empty" /></MemoryRouter>);
+      expect(await screen.findByRole('heading', { name: title, level: 1 })).toBeInTheDocument();
+      expect(hooks.gallery).toHaveBeenCalledWith(null);
+      expect(screen.getByText(/Select an event/)).toBeInTheDocument();
+      expect(within(screen.getByRole('banner')).queryByRole('switch')).not.toBeInTheDocument();
     });
   }
 });

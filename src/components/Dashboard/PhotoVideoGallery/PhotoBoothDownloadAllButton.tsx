@@ -1,5 +1,5 @@
 // Digital Photo Booth: single "Download All" ZIP action shown in the captures header.
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/enhanced-button';
 import { FolderDown, LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -28,6 +28,11 @@ export const PhotoBoothDownloadAllButton: React.FC<{
 }> = ({ items, eventName, galleryTitle, className, appearance = 'default' }) => {
   const isGlass = appearance === 'espresso-glass';
   const { toast } = useToast();
+  const flight = useRef(false);
+  const mounted = useRef(true);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const source = JSON.stringify([eventName, items.map(i => [i.id, i.signed_url])]);
+  const sourceRef = useRef(source); sourceRef.current = source;
   const [busy, setBusy] = useState(false);
   const [done, setDone] = useState(0);
 
@@ -38,11 +43,14 @@ export const PhotoBoothDownloadAllButton: React.FC<{
   const total = useMemo(() => sessions.reduce((n, s) => n + s.items.length, 0), [sessions]);
 
   const run = async () => {
-    if (busy || total === 0) return;
+    if (flight.current || total === 0) return;
+    const current = () => mounted.current && sourceRef.current === source;
+    flight.current = true;
     setBusy(true);
     setDone(0);
     try {
       const { default: JSZip } = await import('jszip');
+      if (!current()) return;
       const zip = new JSZip();
       let failures = 0;
       let count = 0;
@@ -51,6 +59,7 @@ export const PhotoBoothDownloadAllButton: React.FC<{
         const folder = `set-${String(session.index).padStart(3, '0')}`;
         let individual = 0;
         for (const item of session.items) {
+        if (!current()) return;
           const isStrip = !!item.is_photo_booth_strip;
           if (!isStrip) individual += 1;
           const prefix = boothSetPrefix(isStrip ? 0 : individual, isStrip);
@@ -64,6 +73,7 @@ export const PhotoBoothDownloadAllButton: React.FC<{
             failures++;
           }
           count += 1;
+          if (!current()) return;
           setDone(count);
         }
       }
@@ -71,6 +81,7 @@ export const PhotoBoothDownloadAllButton: React.FC<{
       if (Object.keys(zip.files).length === 0) throw new Error('All files failed to download.');
 
       const blob = await zip.generateAsync({ type: 'blob', compression: 'STORE' });
+      if (!current()) return;
       const filename = `${slugify(galleryTitle || eventName, 'wedding')}-photo-booth-all.zip`;
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -88,12 +99,15 @@ export const PhotoBoothDownloadAllButton: React.FC<{
           : `${filename} downloaded.`,
       });
     } catch (e: any) {
+      if (!current()) return;
       toast({
         title: 'ZIP failed',
         description: e?.message || 'Could not prepare ZIP. Please try again.',
         variant: 'destructive',
       });
     } finally {
+      flight.current = false;
+      if (!mounted.current) return;
       setBusy(false);
       setDone(0);
     }

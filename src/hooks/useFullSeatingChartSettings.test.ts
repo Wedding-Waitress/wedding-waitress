@@ -37,7 +37,7 @@ describe('Full Seating Chart settings persistence', () => {
 
   it('keeps loads and queued saves isolated by event', () => {
     expect(source).toContain(".eq('event_id', eventId)");
-    expect(source).toContain(".eq('user_id', user.id)");
+    expect(source).not.toContain(".eq('user_id', user.id)");
     expect(source).toContain('eventId: jobEventId');
     expect(source).toContain('loadGeneration !== loadGenerationRef.current');
   });

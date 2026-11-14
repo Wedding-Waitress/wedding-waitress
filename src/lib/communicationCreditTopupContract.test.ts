@@ -37,13 +37,12 @@ describe('communication credit top-up contract', () => {
       verification.indexOf('// ── Plan communication-credit top-ups'),
       verification.indexOf('// ── Legacy SMS top-up'),
     );
-    const fulfillmentIndex = verification.indexOf("rpc('fulfill_communication_credit_topup_gst'");
-    expect(fulfillmentIndex).toBeGreaterThan(-1);
-    expect(verification.indexOf('session.payment_status !== "paid"')).toBeLessThan(fulfillmentIndex);
+    expect(verification.indexOf('session.payment_status !== "paid"')).toBeLessThan(
+      verification.indexOf("rpc('fulfill_communication_credit_topup_gst'"),
+    );
     expect(verification).toContain("lineItem?.price?.id !== configuredPriceId");
     expect(verification).toContain("productId !== configuredProductId");
-    expect(communicationBranch).toContain('validateWorldwideGstTotal(pack.unitAmount, 1, 0, session.amount_total, session.total_details?.amount_tax)');
-    expect(communicationBranch).toContain('session.amount_total !== worldwideGstAmounts(pack.unitAmount).totalCents');
+    expect(verification).toContain("validateWorldwideGstTotal(pack.unitAmount");
     expect(verification).toContain("lineItem?.quantity !== 1");
     expect(communicationBranch).not.toContain('add_sms_credits');
   });

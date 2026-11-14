@@ -28,6 +28,7 @@ vi.mock('@/components/Dashboard/DJMCQuestionnaire/DJMCQuestionnaireSection', () 
     <section>
       <span>{disabled ? 'Public view only section' : 'Public editable section'}</span>
       <button disabled={disabled} onClick={() => onUpdateItem('item-1', { value_text: 'Saved edit' })}>Edit row</button>
+      <button disabled={disabled} onClick={() => onUpdateItem('item-1', { music_url: 'https://example.com/song' })}>Edit link</button>
     </section>
   ),
 }));
@@ -78,4 +79,11 @@ describe('DJMCPublicView secure share flow', () => {
     renderRoute(`/dj-mc/fixture-wedding/${token}`);
     expect(await screen.findByText('This link is invalid, expired, or revoked.')).toBeInTheDocument();
   });
+});
+
+it('merges successive fields into a single save instead of losing the first edit',async()=>{
+ rpc.mockImplementation((name:string)=>Promise.resolve(name==='get_dj_mc_questionnaire_by_token'?{data:[row('can_edit')],error:null}:{data:true,error:null}));
+ renderRoute(`/dj-mc/fixture-wedding/${token}`);
+ fireEvent.click(await screen.findByRole('button',{name:'Edit row'}));fireEvent.click(screen.getByRole('button',{name:'Edit link'}));
+ await waitFor(()=>expect(rpc).toHaveBeenCalledWith('update_dj_mc_item_by_token',expect.objectContaining({new_value_text:'Saved edit',new_music_url:'https://example.com/song'})),{timeout:1200});
 });

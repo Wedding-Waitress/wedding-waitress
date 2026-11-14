@@ -1,3 +1,5 @@
+import { PublicCopy } from '@/i18n/PublicCopy';
+import { usePublicCopy } from '@/i18n/usePublicCopy';
 /**
  * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY
  * Part of the approved public homepage surface (locked 2026-04-18).
@@ -53,6 +55,7 @@ const saveConsent = (consent: ConsentRecord) => {
 };
 
 export const CookieBanner = () => {
+  const copy = usePublicCopy();
   const [visible, setVisible] = useState(false);
   const [prefsOpen, setPrefsOpen] = useState(false);
   const [analytics, setAnalytics] = useState(false);
@@ -110,12 +113,11 @@ export const CookieBanner = () => {
             <div className="flex items-start gap-3 flex-1">
               <Cookie size={24} strokeWidth={1.8} aria-hidden="true" className="text-primary shrink-0 mt-0.5" />
               <div>
-                <h3 className="font-semibold text-foreground text-sm mb-1">We use cookies</h3>
-                <p className="text-xs text-muted-foreground leading-relaxed">
-                  We use cookies to improve your experience, analyse traffic, and personalise content. You can accept or manage your preferences.{' '}
-                  <Link to="/cookies" className="text-primary hover:underline">Cookie Policy</Link>
+                <h3 className="font-semibold text-foreground text-sm mb-1"><PublicCopy text={"We use cookies"} /></h3>
+                <p className="text-xs text-muted-foreground leading-relaxed"><PublicCopy text={"We use cookies to improve your experience, analyse traffic, and personalise content. You can accept or manage your preferences."} />{' '}
+                  <Link to="/cookies" className="text-primary hover:underline"><PublicCopy text={"Cookie Policy"} /></Link>
                   {' · '}
-                  <Link to="/privacy" className="text-primary hover:underline">Privacy Policy</Link>
+                  <Link to="/privacy" className="text-primary hover:underline"><PublicCopy text={"Privacy Policy"} /></Link>
                 </p>
               </div>
             </div>
@@ -126,44 +128,32 @@ export const CookieBanner = () => {
                 onClick={handleOpenPreferences}
                 className="flex-1 sm:flex-none rounded-xl text-xs"
               >
-                <Settings2 size={16} strokeWidth={1.8} aria-hidden="true" className="mr-1.5 shrink-0" />
-                Manage Preferences
-              </Button>
+                <Settings2 size={16} strokeWidth={1.8} aria-hidden="true" className="mr-1.5 shrink-0" /><PublicCopy text={"Manage Preferences"} /></Button>
               <Button
                 size="sm"
                 onClick={handleAcceptAll}
                 className="ww-button-espresso flex-1 sm:flex-none rounded-xl text-xs"
               >
-                <CircleCheck size={16} strokeWidth={1.8} aria-hidden="true" className="mr-1.5 shrink-0" />
-                Accept All
-              </Button>
+                <CircleCheck size={16} strokeWidth={1.8} aria-hidden="true" className="mr-1.5 shrink-0" /><PublicCopy text={"Accept All"} /></Button>
             </div>
           </div>
         </div>
       )}
 
       <Dialog open={prefsOpen} onOpenChange={setPrefsOpen}>
-        <DialogContent className="sm:max-w-md">
-          <DialogHeader>
+        <DialogContent className="sm:max-w-md" closeLabel={copy('Close')} closeButtonClassName="rtl:left-4 rtl:right-auto">
+          <DialogHeader className="ltr:pr-10 rtl:pl-10">
             <DialogTitle className="flex items-center gap-2">
-              <ShieldCheck size={20} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
-              Cookie Preferences
-            </DialogTitle>
-            <DialogDescription>
-              Choose which cookies you want to allow. You can change these at any time.
-            </DialogDescription>
+              <ShieldCheck size={20} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" /><PublicCopy text={"Cookie Preferences"} /></DialogTitle>
+            <DialogDescription><PublicCopy text={"Choose which cookies you want to allow. You can change these at any time."} /></DialogDescription>
           </DialogHeader>
 
           <div className="space-y-4 py-2">
             <div className="flex items-start justify-between gap-4 p-3 rounded-lg border border-border">
               <div>
                 <p className="flex items-center gap-2 text-sm font-medium text-foreground">
-                  <ShieldCheck size={17} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
-                  Necessary Cookies
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Required for the site to function. Always enabled.
-                </p>
+                  <ShieldCheck size={17} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" /><PublicCopy text={"Necessary Cookies"} /></p>
+                <p className="text-xs text-muted-foreground mt-1"><PublicCopy text={"Required for the site to function. Always enabled."} /></p>
               </div>
               <Switch checked disabled />
             </div>
@@ -171,12 +161,8 @@ export const CookieBanner = () => {
             <div className="flex items-start justify-between gap-4 p-3 rounded-lg border border-border">
               <div>
                 <p className="flex items-center gap-2 text-sm font-medium text-foreground">
-                  <BarChart3 size={17} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
-                  Analytics Cookies
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Help us understand how visitors use the site.
-                </p>
+                  <BarChart3 size={17} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" /><PublicCopy text={"Analytics Cookies"} /></p>
+                <p className="text-xs text-muted-foreground mt-1"><PublicCopy text={"Help us understand how visitors use the site."} /></p>
               </div>
               <Switch checked={analytics} onCheckedChange={setAnalytics} />
             </div>
@@ -184,12 +170,8 @@ export const CookieBanner = () => {
             <div className="flex items-start justify-between gap-4 p-3 rounded-lg border border-border">
               <div>
                 <p className="flex items-center gap-2 text-sm font-medium text-foreground">
-                  <Megaphone size={17} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" />
-                  Marketing Cookies
-                </p>
-                <p className="text-xs text-muted-foreground mt-1">
-                  Used to deliver relevant ads and measure campaigns.
-                </p>
+                  <Megaphone size={17} strokeWidth={1.8} aria-hidden="true" className="shrink-0 text-primary" /><PublicCopy text={"Marketing Cookies"} /></p>
+                <p className="text-xs text-muted-foreground mt-1"><PublicCopy text={"Used to deliver relevant ads and measure campaigns."} /></p>
               </div>
               <Switch checked={marketing} onCheckedChange={setMarketing} />
             </div>
@@ -211,16 +193,12 @@ export const CookieBanner = () => {
               }}
               className="rounded-xl"
             >
-              <Ban size={16} strokeWidth={1.8} aria-hidden="true" className="mr-1.5 shrink-0" />
-              Reject All
-            </Button>
+              <Ban size={16} strokeWidth={1.8} aria-hidden="true" className="mr-1.5 shrink-0" /><PublicCopy text={"Reject All"} /></Button>
             <Button
               onClick={handleSavePreferences}
               className="ww-button-espresso rounded-xl"
             >
-              <Save size={16} strokeWidth={1.8} aria-hidden="true" className="mr-1.5 shrink-0" />
-              Save Preferences
-            </Button>
+              <Save size={16} strokeWidth={1.8} aria-hidden="true" className="mr-1.5 shrink-0" /><PublicCopy text={"Save Preferences"} /></Button>
           </DialogFooter>
         </DialogContent>
       </Dialog>

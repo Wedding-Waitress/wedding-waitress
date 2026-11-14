@@ -1,62 +1,33 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-
+import { useOptimisticEventSettings } from './useOptimisticEventSettings';
 export interface GuestSongRequestSettings {
   id: string;
   event_id: string;
   enabled: boolean;
   max_requests_per_guest: number;
 }
-
 export const useGuestSongRequestSettings = (eventId: string | null) => {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  const { data: settings, isLoading } = useQuery({
-    queryKey: ['guest-song-request-settings', eventId],
-    queryFn: async () => {
-      if (!eventId) return null;
-      const { data, error } = await (supabase as any)
-        .from('guest_song_request_settings')
-        .select('*')
-        .eq('event_id', eventId)
-        .maybeSingle();
+  const state = useOptimisticEventSettings<GuestSongRequestSettings>({
+    namespace: 'guest-song-request-settings', eventId,
+    read: async id => {
+      const { data, error } = await (supabase as any).from('guest_song_request_settings').select('*').eq('event_id', id).maybeSingle();
       if (error) throw error;
-      if (!data) {
-        const { data: created, error: insErr } = await (supabase as any)
-          .from('guest_song_request_settings')
-          .insert({ event_id: eventId, enabled: false, max_requests_per_guest: 2 })
-          .select()
-          .single();
-        if (insErr) throw insErr;
-        return created as GuestSongRequestSettings;
-      }
-      return data as GuestSongRequestSettings;
+      if (data) return data;
+      const created = await (supabase as any).from('guest_song_request_settings').upsert({ event_id: id, enabled: false, max_requests_per_guest: 2 }, { onConflict: 'event_id', ignoreDuplicates: true }).select().maybeSingle();
+      if (created.error) throw created.error;
+      if (created.data) return created.data;
+      const existing = await (supabase as any).from('guest_song_request_settings').select('*').eq('event_id', id).single();
+      if (existing.error) throw existing.error;
+      return existing.data;
     },
-    enabled: !!eventId,
-  });
-
-  const updateMutation = useMutation({
-    mutationFn: async (updates: Partial<GuestSongRequestSettings>) => {
-      if (!eventId) throw new Error('No event');
-      const { error } = await (supabase as any)
-        .from('guest_song_request_settings')
-        .update(updates)
-        .eq('event_id', eventId);
+    write: async (id, updates) => {
+      const { data, error } = await (supabase as any).from('guest_song_request_settings').update(updates).eq('event_id', id).select().single();
       if (error) throw error;
+      return data;
     },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['guest-song-request-settings', eventId] });
-    },
-    onError: (e: any) => {
-      toast({ title: 'Error', description: e.message ?? 'Failed to save', variant: 'destructive' });
-    },
+    onError: () => toast({ title: 'Song request settings could not be saved', description: 'The last saved settings have been restored. Please try again.', variant: 'destructive' }),
   });
-
-  return {
-    settings,
-    isLoading,
-    updateSettings: (updates: Partial<GuestSongRequestSettings>) => updateMutation.mutate(updates),
-  };
+  return { ...state, updateSettings: (updates: Partial<GuestSongRequestSettings>) => { void state.update(updates); } };
 };

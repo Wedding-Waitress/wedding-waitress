@@ -60,6 +60,10 @@ export const GalleryGrid: React.FC<{
    * (Photo & Video Sharing workspace). Actions move to selection mode only.
    */
   hideCardActions?: boolean;
+  /** Sharing manager: omit redundant status shortcuts while always showing all statuses. */
+  hideStatusShortcuts?: boolean;
+  /** Sharing manager: omit repeated approved overlays; meaningful hidden badges remain. */
+  hideApprovedBadges?: boolean;
   /** Digital Photo Booth: order each capture set strip-first. */
   boothSetOrder?: boolean;
   /** Optional controls rendered at the far right of the header row. */
@@ -70,11 +74,12 @@ export const GalleryGrid: React.FC<{
   /** Owner-support mode: local browsing only; no moderation, sharing or deletion. */
   readOnly?: boolean;
   readOnlyMediaRenderer?: (item: GalleryItem, photoFit: 'cover' | 'contain') => React.ReactNode;
-}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, appearance = 'default', eventName, hideCardActions, boothSetOrder, headerRight, toolbarRight, hideAlbumFeature, readOnly = false, readOnlyMediaRenderer }) => {
+}> = ({ items: itemsProp, onDelete, onDeleteMany, onSetModeration, onSetAlbum, onBulkSetAlbum, title, description, emptyText, dark, appearance = 'default', eventName, hideCardActions, hideStatusShortcuts = false, hideApprovedBadges = false, boothSetOrder, headerRight, toolbarRight, hideAlbumFeature, readOnly = false, readOnlyMediaRenderer }) => {
   // Defence in depth: private Guestbook content is never rendered in a gallery grid.
   const items = React.useMemo(() => publicGalleryItems(itemsProp), [itemsProp]);
   const [lightboxId, setLightboxId] = useState<string | null>(null);
-  const [filter, setFilter] = useState<Filter>('all');
+  const [selectedFilter, setFilter] = useState<Filter>('all');
+  const filter: Filter = hideStatusShortcuts ? 'all' : selectedFilter;
   const [albumFilter, setAlbumFilter] = useState<AlbumFilter>('all');
   const [mediaType, setMediaType] = useState<MediaTypeFilter>('all');
   const [sortMode, setSortMode] = useState<SortMode>('newest');
@@ -412,11 +417,12 @@ export const GalleryGrid: React.FC<{
 
       {/* Search + status + type + sort + select */}
       <div data-testid="gallery-toolbar" className="flex flex-wrap items-center gap-2 mb-3">
-        <div className="relative flex-1 min-w-[15rem] max-w-[38rem]">
+        <div data-gallery-search className="relative flex-1 min-w-[15rem] max-w-[38rem]">
           <Search className={`h-4 w-4 absolute left-3 top-1/2 -translate-y-1/2 text-muted-foreground pointer-events-none ${isEspressoGallery ? managementStyles.galleryWarmIcon : ''}`} />
           <Input
             value={search}
             onChange={e => setSearch(e.target.value)}
+            aria-label="Search uploader, caption or message"
             placeholder="Search uploader, caption or message…"
             className={`h-9 pl-9 bg-white text-[#1D1D1F] ${isEspressoGallery ? managementStyles.galleryControl : ''}`}
           />
@@ -432,8 +438,8 @@ export const GalleryGrid: React.FC<{
           )}
         </div>
         <FilterBtn value="all" label="All Statuses" count={counts.all} />
-        <FilterBtn value="approved" label="Approved" count={counts.approved} />
-        <FilterBtn value="hidden" label="Hidden" count={counts.hidden} />
+        {!hideStatusShortcuts && <FilterBtn value="approved" label="Approved" count={counts.approved} />}
+        {!hideStatusShortcuts && <FilterBtn value="hidden" label="Hidden" count={counts.hidden} />}
         <Select value={mediaType} onValueChange={(v) => setMediaType(v as MediaTypeFilter)}>
           <SelectTrigger aria-label="Filter by media type" className={`h-9 w-full sm:w-[140px] shrink-0 bg-white text-[#1D1D1F] ${isEspressoGallery ? `bg-transparent ${managementStyles.galleryControl}` : ''}`}><SelectValue /></SelectTrigger>
           <SelectContent className={isEspressoGallery ? managementStyles.gallerySelectContent : undefined}>
@@ -641,21 +647,17 @@ export const GalleryGrid: React.FC<{
                     </button>
                   )}
 
-                  {/* Status badge */}
-                  <div className="absolute top-1 left-1 z-10 flex flex-col items-start gap-1 pointer-events-none">
-                    <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded uppercase tracking-wide ${
-                      isHidden ? 'bg-black/70 text-white' : 'bg-green-600/85 text-white'
-                    }`}>
-                      {isHidden ? 'Hidden' : 'Approved'}
-                    </span>
-                  </div>
+                  {/* Approved overlays are optional; hidden status remains meaningful. */}
+                  {(isHidden || !hideApprovedBadges) && <div className="absolute top-1 left-1 z-10 flex flex-col items-start gap-1 pointer-events-none">
+                    <span className={`text-[9px] font-medium px-1.5 py-0.5 rounded uppercase tracking-wide ${isHidden ? 'bg-black/70 text-white' : 'bg-green-600/85 text-white'}`}>{isHidden ? 'Hidden' : 'Approved'}</span>
+                  </div>}
 
                   {!readOnly && !selectMode && !hideCardActions && (
-                    <div className="absolute top-1 right-1 flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 transition-opacity z-10">
+                    <div data-gallery-media-actions className="absolute top-1 right-1 grid grid-cols-2 sm:flex gap-1 opacity-100 sm:opacity-0 sm:group-hover:opacity-100 sm:group-focus-within:opacity-100 transition-opacity z-10">
                       {it.signed_url && (
                         <button
                           onClick={() => window.open(it.signed_url!, '_blank', 'noopener,noreferrer')}
-                          className="bg-white/90 rounded-md p-1 hover:bg-white"
+                          className="bg-white/90 rounded-md p-1 hover:bg-white min-h-11 min-w-11 sm:min-h-0 sm:min-w-0"
                           title="Open in new tab"
                         >
                           <ExternalLink className="h-3.5 w-3.5" />
@@ -664,7 +666,7 @@ export const GalleryGrid: React.FC<{
                       {it.signed_url && (
                         <button
                           onClick={() => downloadSignedUrl(it.signed_url!, filenameFor(it, eventName))}
-                          className="bg-white/90 rounded-md p-1 hover:bg-white"
+                          className="bg-white/90 rounded-md p-1 hover:bg-white min-h-11 min-w-11 sm:min-h-0 sm:min-w-0"
                           title="Download"
                         >
                           <Download className="h-3.5 w-3.5" />
@@ -672,14 +674,14 @@ export const GalleryGrid: React.FC<{
                       )}
                       <button
                         onClick={() => toggleModeration(it)}
-                        className="bg-white/90 rounded-md p-1 hover:bg-white"
+                        className="bg-white/90 rounded-md p-1 hover:bg-white min-h-11 min-w-11 sm:min-h-0 sm:min-w-0"
                         title={isHidden ? 'Approve / show again' : 'Hide from guests'}
                       >
                         {isHidden ? <Check className="h-3.5 w-3.5 text-green-600" /> : <EyeOff className="h-3.5 w-3.5 text-amber-600" />}
                       </button>
                       <button
                         onClick={() => { if (confirm('Delete this upload? This also removes the file from storage.')) runDelete([it.id]); }}
-                        className="bg-white/90 rounded-md p-1 hover:bg-white text-red-600"
+                        className="bg-white/90 rounded-md p-1 hover:bg-white min-h-11 min-w-11 sm:min-h-0 sm:min-w-0 text-red-600"
                         title="Delete"
                       >
                         <Trash2 className="h-3.5 w-3.5" />

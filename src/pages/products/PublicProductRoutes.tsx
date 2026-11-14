@@ -17,3 +17,5 @@ export const ProductLiveSlideshow = () => <ProductPageLayout productId="live-sli
 export const ProductDjMcQuestionnaire = () => <ProductPageLayout productId="dj-mc-questionnaire" />;
 export const ProductRunningSheet = () => <ProductPageLayout productId="running-sheet" />;
 export const ProductPhotoVideoSharing = () => <ProductPageLayout productId="photo-video-sharing" />;
+
+export const ProductPhotoGroupList = () => <ProductPageLayout productId="photo-callout-cards" />;

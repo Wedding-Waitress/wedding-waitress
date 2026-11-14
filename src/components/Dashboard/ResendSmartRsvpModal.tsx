@@ -248,7 +248,7 @@ export const ResendSmartRsvpModal = ({ isOpen, onClose, eventId, onSend }: Props
           {smsEmpty && (
             <div className="flex items-start gap-2 text-xs text-red-700 bg-red-50 border border-red-200 rounded-md p-2">
               <AlertTriangle className="w-4 h-4 shrink-0 mt-0.5" />
-              <span>Email &amp; SMS credits required. Add 10 credits for A$10 or 100 credits for A$49 to continue sending invites.</span>
+              <span>Email &amp; SMS credits required. Add 10 credits for A$11 or 100 credits for A$53.90 including GST to continue sending invites.</span>
             </div>
           )}
         </div>

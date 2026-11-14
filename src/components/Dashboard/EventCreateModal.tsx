@@ -24,6 +24,7 @@ import { LocationDetailsPopover } from './LocationDetailsPopover';
 import { EventNameCombobox } from './EventNameCombobox';
 import { format } from 'date-fns';
 import styles from './EventCreateModal.module.css';
+import { useUserPlan } from '@/hooks/useUserPlan';
 
 interface EventCreateModalProps {
   isOpen: boolean;
@@ -36,6 +37,8 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
   onClose,
   onCreate
 }) => {
+  const { plan, hasPlatformOwnerAccess } = useUserPlan();
+  const maximumGuestLimit = hasPlatformOwnerAccess ? null : plan?.guest_limit ?? null;
   const [formData, setFormData] = useState({
     // Top-level event name
     event_name: '',
@@ -288,7 +291,8 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
     } else {
       const parsed = parseInt(value, 10);
       if (!isNaN(parsed) && parsed >= 0) {
-        setFormData(prev => ({ ...prev, [field]: parsed }));
+        const bounded = maximumGuestLimit == null ? parsed : Math.min(parsed, maximumGuestLimit);
+        setFormData(prev => ({ ...prev, [field]: bounded }));
       }
     }
   };
@@ -332,6 +336,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
       <Button
         onClick={handleCreate}
         disabled={isSaving}
+        aria-busy={isSaving}
         className={`lv-premium-shade flex-1 lg:flex-none lg:order-2 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full ${styles.createButton}`}
       >
         {isSaving ? 'Creating...' : 'Create Event'}
@@ -399,7 +404,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-xs">Guest Limit</Label>
-                <Input type="number" min="0" value={formData.ceremony_guest_limit}
+                <Input type="number" min="0" max={maximumGuestLimit ?? undefined} value={formData.ceremony_guest_limit}
                   onChange={(e) => handleGuestLimitChange(e.target.value, 'ceremony_guest_limit')}
                   placeholder="10" className={`h-10 sm:h-9 ${getInputClass(formData.ceremony_guest_limit !== '')}`} />
               </div>
@@ -481,7 +486,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-xs">Guest Limit</Label>
-                <Input type="number" min="0" value={formData.guest_limit}
+                <Input type="number" min="0" max={maximumGuestLimit ?? undefined} value={formData.guest_limit}
                   onChange={(e) => { markReceptionOverride('guest_limit'); handleGuestLimitChange(e.target.value, 'guest_limit'); }}
                   placeholder="10" className={getInputClass(formData.guest_limit !== '')} />
               </div>
@@ -569,6 +574,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           <Button
             onClick={handleCreate}
             disabled={isSaving}
+            aria-busy={isSaving}
             className={`lv-premium-shade flex-1 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white ${styles.createButton}`}
           >
             <CalendarPlus className="w-5 h-5 mr-2 text-white" />
@@ -616,6 +622,7 @@ export const EventCreateModal: React.FC<EventCreateModalProps> = ({
           <Button
             onClick={handleCreate}
             disabled={isSaving}
+            aria-busy={isSaving}
             className={`lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-1 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full ${styles.createButton}`}
           >
             <CalendarPlus className="w-5 h-5 mr-2 text-white" />

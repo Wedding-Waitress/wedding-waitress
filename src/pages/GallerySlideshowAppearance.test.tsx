@@ -22,6 +22,7 @@ vi.mock('@/components/SEO/SeoHead', () => ({ SeoHead: () => null }));
 vi.mock('qrcode', () => ({ default: { toDataURL: mocks.qrToDataUrl } }));
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
+    from: () => ({select: () => ({eq: () => ({eq: async () => ({data: [],error: null})})})}),
     auth: {
       getSession: mocks.getSession,
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe: vi.fn() } } }),
@@ -73,9 +74,7 @@ describe('Live Slideshow premium appearance', () => {
     expect(launchAction).toHaveClass(managementStyles.glassAction);
     expect(launchAction).toHaveClass(managementStyles.workspaceHeaderAction);
     expect(launchAction).toBeEnabled();
-    expect(screen.getByText('Selected event')).toHaveClass(managementStyles.selectedEventLabel);
-    expect(screen.getAllByText(event.name).find(node => node.classList.contains(managementStyles.selectedEventName))).toHaveClass(managementStyles.selectedEventName);
-    expect(screen.getByRole('switch', { name: 'Live Slideshow enabled' })).toHaveClass(managementStyles.galleryViewToggle);
+    expect(screen.queryByRole('switch', { name: 'Live Slideshow enabled' })).not.toBeInTheDocument();
 
     for (const heading of ['How the Live Slideshow Works', 'Live Slideshow Access', 'Slideshow Settings', 'Slideshow Preview']) {
       expect(screen.getByRole('heading', { name: heading }).closest('[data-appearance="espresso-glass"]')).toHaveClass(managementStyles.glassCard);
@@ -174,24 +173,20 @@ describe('Live Slideshow premium appearance', () => {
     expect(screen.getByRole('heading', { name: 'Slideshow Preview' }).closest('[data-appearance="espresso-glass"]')).not.toBe(settingsPanel);
   });
 
-  it('shows only the shared album options, normalises legacy selections, and preserves save behaviour', async () => {
+  it('includes every album and media type automatically while preserving playback save behaviour', async () => {
     render(<MemoryRouter><GallerySlideshowFeaturePage /></MemoryRouter>);
     await screen.findByRole('heading', { name: 'Slideshow Settings' });
 
     const albumsPanel = screen.getByText('Albums').parentElement!;
-    for (const label of ['All Albums', 'Ceremony', 'Reception', 'Other']) {
-      expect(within(albumsPanel).getByRole('button', { name: new RegExp(label) })).toBeInTheDocument();
-    }
-    for (const retired of ['Dance Floor', 'Speeches', 'Bridal Party']) {
-      expect(within(albumsPanel).queryByRole('button', { name: retired })).not.toBeInTheDocument();
-    }
-    expect(within(albumsPanel).getByRole('button', { name: /Other/ })).toHaveClass(managementStyles.galleryControlActive);
-
-    fireEvent.click(within(albumsPanel).getByRole('button', { name: /Reception/ }));
+    expect(within(albumsPanel).getByText('All albums are included automatically.')).toBeVisible();
+    expect(within(albumsPanel).queryByRole('button')).toBeNull();
+    expect(screen.queryByRole('switch',{name:'Include Photos'})).toBeNull();
+    expect(screen.queryByRole('switch',{name:'Include Videos'})).toBeNull();
+    fireEvent.click(screen.getByRole('switch',{name:'Loop continuously'}));
     const save = screen.getByRole('button', { name: 'Save Settings' });
     expect(save).not.toBeDisabled();
     fireEvent.click(save);
-    await waitFor(() => expect(updateSlideshowSettings).toHaveBeenCalledWith(expect.objectContaining({ albums: ['Other', 'Reception'] })));
+    await waitFor(() => expect(updateSlideshowSettings).toHaveBeenCalledWith(expect.objectContaining({ albums: [], include_photos: true, include_videos: true, loop: false })));
 
     const order = screen.getAllByRole('combobox')[0];
     expect(order).toHaveClass(managementStyles.galleryControl);

@@ -1,8 +1,20 @@
-import { isInitialSearchAvailable, matchesGuestSearch } from '@/lib/guestNameSearch';
+import { useGuestVerification } from '@/hooks/useGuestVerification';
+import { GuestVerificationGate } from '@/components/GuestLookup/GuestVerificationGate';
+import { publicGuestVerificationRows } from '@/i18n/publicGuestVerificationCopy';
+import { useMobileGuestSearchViewport } from '@/hooks/useMobileGuestSearchViewport';
+import { useQrGuestTheme } from '@/hooks/useQrGuestTheme';
+import { shareGuestLookup } from '@/lib/guestLookupShare';
+import {useVideoWishesCopy} from '@/i18n/useVideoWishesCopy';
+import { useTranslation } from 'react-i18next';
+import { GuestSeatingResult } from '@/components/GuestLookup/GuestSeatingResult';
+import { publicGuestSeatingRows } from '@/i18n/publicGuestSeatingCopy';
+import { publicGuestSearchRows } from '@/i18n/publicGuestSearchCopy';
+import { publicGuestLoadingRows } from '@/i18n/publicGuestLoadingCopy';
+import { eventCalendarDayDistance, isInitialSearchAvailable, matchesGuestSearch } from '@/lib/guestNameSearch';
 import { ResponsiveWelcomeVideo } from '@/components/GuestLookup/ResponsiveWelcomeVideo';
 import React, { useState, useEffect, useMemo, useRef, useCallback } from 'react';
 import { loadGoogleFont } from '@/lib/googleFonts';
-import { useParams } from 'react-router-dom';
+import { useParams, useSearchParams, useNavigate } from 'react-router-dom';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/button';
@@ -23,6 +35,7 @@ import {
   Mail,
   Video,
   UtensilsCrossed,
+  Music2,
   MailOpen,
   PlayCircle,
   LayoutGrid,
@@ -39,6 +52,7 @@ import { formatDisplayTime } from '@/lib/utils';
 import { TableVisualization } from '@/components/GuestLookup/TableVisualization';
 import { GuestProfileModal } from '@/components/GuestLookup/GuestProfileModal';
 import { GuestUpdateModal } from '@/components/GuestLookup/GuestUpdateModal';
+import { GuestSongRequestsModal } from '@/components/GuestLookup/GuestSongRequestsModal';
 import { ReadOnlyCeremonyFloorPlan } from '@/components/GuestView/ReadOnlyCeremonyFloorPlan';
 import { ReadOnlyReceptionFloorPlan } from '@/components/GuestView/ReadOnlyReceptionFloorPlan';
 import { PublicAddGuestModal } from '@/components/GuestLookup/PublicAddGuestModal';
@@ -125,7 +139,17 @@ const ExistingFloorPlanView: React.FC<{
 };
 
 export const GuestLookup: React.FC = () => {
+  useQrGuestTheme();
+  useMobileGuestSearchViewport();
   const { eventSlug } = useParams<{ eventSlug: string }>();
+  const [searchParams] = useSearchParams();
+  const navigateWishes=useNavigate();
+  const {copy:wishesCopy}=useVideoWishesCopy();
+  const [wishesEnabled,setWishesEnabled]=useState(false);
+  const inviteToken = searchParams.get('invite')?.trim() || null;
+  const isRecipientInvitation = Boolean(inviteToken);
+  const [recipientGuestId, setRecipientGuestId] = useState<string | null>(null);
+
   const [searchTerm, setSearchTerm] = useState('');
   const [selectedSearchGuestId, setSelectedSearchGuestId] = useState<string | null>(null);
   const [searchClock, setSearchClock] = useState(() => Date.now());
@@ -135,11 +159,29 @@ export const GuestLookup: React.FC = () => {
   }, []);
   const [guests, setGuests] = useState<Guest[]>([]);
   const [event, setEvent] = useState<Event | null>(null);
+  const verification = useGuestVerification(event?.id);
+  const verifiedGuests = useMemo(() => guests.map(guest => verification.party.find(member => member.id === guest.id) || guest), [guests, verification.party]);
+  useEffect(()=>{let active=true;setWishesEnabled(false);if(event?.id)(supabase as any).rpc('video_wishes_available',{_event_id:event.id}).then(({data}:any)=>{if(active)setWishesEnabled(data===true);});return()=>{active=false;};},[event?.id]);
   const [loading, setLoading] = useState(true);
-  const [searching, setSearching] = useState(false);
+  const [loadFailed, setLoadFailed] = useState(false);
+  const [loadAttempt, setLoadAttempt] = useState(0);
+  const { i18n } = useTranslation();
+  const loadLanguage = (i18n.resolvedLanguage || i18n.language || 'en').split('-')[0];
+  const loadCopy = publicGuestLoadingRows[loadLanguage] || publicGuestLoadingRows.en;
+  const searchCopy = publicGuestSearchRows[loadLanguage] || publicGuestSearchRows.en;
+  const verificationCopy = publicGuestVerificationRows[loadLanguage] || publicGuestVerificationRows.en;
+  const seatingCopy = publicGuestSeatingRows[loadLanguage] || publicGuestSeatingRows.en;
+  const guestRefreshVersion = useRef(0);
+  const searching = false; // Matching uses the already-loaded public guest data.
   const [selectedGuest, setSelectedGuest] = useState<Guest | null>(null);
   const [showProfileModal, setShowProfileModal] = useState(false);
   const [isUpdateModalOpen, setIsUpdateModalOpen] = useState(false);
+  const [inlineDirty, setInlineDirty] = useState(false);
+  const [dismissRequest, setDismissRequest] = useState(0);
+  const [videoNavigationPending, setVideoNavigationPending] = useState(false);
+  const consumedInlineQuery = useRef('');
+  const [isSongRequestsModalOpen, setIsSongRequestsModalOpen] = useState(false);
+  const [songRequestGuestId, setSongRequestGuestId] = useState<string | null>(null);
   const [activeTab, setActiveTabState] = useState('search');
   const tableTabRef = useRef<HTMLDivElement>(null);
   const searchResultsRef = useRef<HTMLDivElement>(null);
@@ -155,7 +197,7 @@ export const GuestLookup: React.FC = () => {
   const returnToSearch = useCallback(() => {
     setActiveTab('search');
     window.setTimeout(() => {
-      searchInputRef.current?.scrollIntoView({ behavior: 'smooth', block: 'center' });
+      searchInputRef.current?.scrollIntoView({ behavior: window.matchMedia('(max-width: 767px)').matches ? 'auto' : 'smooth', block: window.matchMedia('(max-width: 767px)').matches ? 'start' : 'center' });
       searchInputRef.current?.focus({ preventScroll: true });
     }, 50);
   }, [setActiveTab]);
@@ -208,13 +250,10 @@ export const GuestLookup: React.FC = () => {
   // (timezone-aware via the event's configured timezone). Past events do not trigger this.
   const isWithin7DayAutoProtection = useMemo(() => {
     if (!event?.date) return false;
-    const tz = event.event_timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: tz });
-    const today = new Date(todayStr + 'T00:00:00');
-    const eventDay = new Date(event.date + 'T00:00:00');
-    const diffDays = Math.floor((eventDay.getTime() - today.getTime()) / (1000 * 60 * 60 * 24));
-    return diffDays >= 0 && diffDays <= 7;
-  }, [event?.date, event?.event_timezone]);
+    const tz = verification.eventTimezone || 'Australia/Sydney';
+    const distance = eventCalendarDayDistance(event.date, tz, new Date(searchClock));
+    return distance !== null && distance >= 0 && distance <= 7;
+  }, [event?.date, event?.event_timezone, searchClock]);
 
   // Per-action overrides stored inside rsvp_invite_config JSON (no DB schema change).
   // Default OFF — when in 7-day window, actions are hidden unless organiser flips ON.
@@ -224,23 +263,18 @@ export const GuestLookup: React.FC = () => {
 
   const showRsvpButtons = !isWithin7DayAutoProtection || overrideRsvp;
   const showAddPlusOne = !isWithin7DayAutoProtection || overridePlusOne;
-  const showUpdateDetails = !isWithin7DayAutoProtection || overrideUpdateDetails;
+  const showUpdateDetails = verification.phase === 'invitation';
 
 
   // Auto-detect event day to switch header wording
   const isEventDay = useMemo(() => {
     if (!event?.date) return false;
-    const tz = event.event_timezone || Intl.DateTimeFormat().resolvedOptions().timeZone;
-    const todayStr = new Date().toLocaleDateString('en-CA', { timeZone: tz }); // YYYY-MM-DD
-    return todayStr === event.date;
-  }, [event?.date, event?.event_timezone]);
+    const tz = verification.eventTimezone || 'Australia/Sydney';
+    return eventCalendarDayDistance(event.date, tz, new Date(searchClock)) === 0;
+  }, [event?.date, event?.event_timezone, searchClock]);
 
-  // First-name plus surname-prefix search starts seven local calendar days before the event.
-  const isOpenSearchMode = useMemo(() => isInitialSearchAvailable(
-    event?.date,
-    event?.event_timezone || Intl.DateTimeFormat().resolvedOptions().timeZone,
-    new Date(searchClock),
-  ), [event?.date, event?.event_timezone, searchClock]);
+  // The server's event-local clock determines the inclusive seven-day boundary.
+  const isOpenSearchMode = verification.phase === 'seating';
   // Check for tab parameter in URL - default to search
   useEffect(() => {
     const params = new URLSearchParams(window.location.search);
@@ -255,14 +289,14 @@ export const GuestLookup: React.FC = () => {
 
   // Handle deep-link for editing a specific guest (?edit=<guest_id>)
   useEffect(() => {
-    if (guests.length === 0 || !isEditable || !showUpdateDetails) return;
+    if (guests.length === 0 || !isEditable || !showUpdateDetails || isOpenSearchMode) return;
 
     const params = new URLSearchParams(window.location.search);
     const editGuestId = params.get('edit');
 
     if (editGuestId) {
       const guestToEdit = guests.find(g => g.id === editGuestId);
-      if (guestToEdit) {
+      if (guestToEdit && verification.verifiedFor(guestToEdit.id)) {
         setSelectedGuest(guestToEdit);
         setIsUpdateModalOpen(true);
 
@@ -272,31 +306,49 @@ export const GuestLookup: React.FC = () => {
         window.history.replaceState({}, '', newUrl.toString());
       }
     }
-  }, [guests, isEditable, showUpdateDetails]);
+  }, [guests, isEditable, showUpdateDetails, isOpenSearchMode, verification.token, verification.party]);
 
   // Fetch event and guests data using public RPC function
   useEffect(() => {
+    let cancelled = false;
+    const lookupControllers = new Set<AbortController>();
+    const withLookupTimeout = async <T,>(request: (signal: AbortSignal) => PromiseLike<T>): Promise<T> => {
+      const controller = new AbortController();
+      lookupControllers.add(controller);
+      let timeout: number;
+      const deadline = new Promise<never>((_, reject) => {
+        timeout = window.setTimeout(() => {
+          reject(new Error('Event lookup timed out'));
+          controller.abort();
+        }, 15_000);
+      });
+      try {
+        // Abort alone cannot settle a request waiting on auth/session initialization.
+        return await Promise.race([Promise.resolve().then(() => request(controller.signal)), deadline]);
+      } finally {
+        window.clearTimeout(timeout);
+        lookupControllers.delete(controller);
+      }
+    };
+
     const fetchEventData = async () => {
       if (!eventSlug) return;
 
+      ++guestRefreshVersion.current;
       setLoading(true);
+      setLoadFailed(false);
+      setEvent(null);
+      setGuests([]);
+      setRecipientGuestId(null);
       try {
         // Use the new public RPC function that bypasses RLS
-        const { data: publicData, error: rpcError } = await supabase.rpc(
-          'get_public_event_with_data_secure',
-          { event_slug: eventSlug }
-        );
+        const { data: publicData, error: rpcError } = await withLookupTimeout(signal => supabase
+          .rpc('qr_guest_public_event', { event_slug: eventSlug, access_token: null })
+          .abortSignal(signal));
 
-        if (rpcError) {
-          console.error('Error fetching public event data:', rpcError);
-          toast({
-            title: "Event Not Found",
-            description: "The requested event could not be found.",
-            variant: "destructive",
-          });
-          setEvent(null);
-          return;
-        }
+        if (cancelled) return;
+
+        if (rpcError) throw rpcError;
 
         if (!publicData || publicData.length === 0) {
           toast({
@@ -311,14 +363,7 @@ export const GuestLookup: React.FC = () => {
         // Extract event data from first row
         const firstRow = publicData[0];
 
-        // Fetch event timezone (not returned by RPC)
-        const { data: tzData } = await supabase
-          .from('events')
-          .select('event_timezone')
-          .eq('id', firstRow.event_id)
-          .maybeSingle();
-
-            const eventData = {
+        const eventData = {
               id: firstRow.event_id,
               name: firstRow.event_name,
               date: firstRow.event_date,
@@ -327,7 +372,7 @@ export const GuestLookup: React.FC = () => {
               partner2_name: firstRow.partner2_name,
               start_time: firstRow.event_start_time,
               finish_time: firstRow.event_finish_time,
-              event_timezone: tzData?.event_timezone ?? null,
+              event_timezone: (firstRow as any).event_timezone ?? null,
               ceremony_venue: (firstRow as any).ceremony_venue ?? null,
               ceremony_start_time: (firstRow as any).ceremony_start_time ?? null,
               ceremony_finish_time: (firstRow as any).ceremony_finish_time ?? null,
@@ -376,6 +421,23 @@ export const GuestLookup: React.FC = () => {
 
         setGuests(transformedGuests);
 
+        if (inviteToken) {
+          const { data: tokenGuest, error: tokenError } = await withLookupTimeout<{ data: { guest_id: string }[] | null; error: unknown }>(signal => (supabase as any)
+            .rpc('qr_guest_invite_recipient', { _access_token: inviteToken })
+            .abortSignal(signal));
+          if (cancelled) return;
+          const recipientId = tokenGuest?.[0]?.guest_id;
+          if (tokenError) throw tokenError;
+          if (!recipientId || !transformedGuests.some((guest) => guest.id === recipientId)) {
+            setEvent(null);
+            return;
+          }
+          const recipient = transformedGuests.find((guest) => guest.id === recipientId)!;
+          setRecipientGuestId(recipientId);
+          setSearchTerm(`${recipient.first_name} ${recipient.last_name}`.trim());
+          setSelectedSearchGuestId(recipientId);
+        }
+
         // Extract live view settings from RPC response (already fetched securely)
         if (firstRow) {
           setLiveViewSettings({
@@ -395,29 +457,34 @@ export const GuestLookup: React.FC = () => {
           });
         }
       } catch (error) {
+        if (cancelled) return;
         console.error('Error fetching event data:', error);
-        toast({
-          title: "Error",
-          description: "An unexpected error occurred.",
-          variant: "destructive",
-        });
+        setEvent(null);
+        setRecipientGuestId(null);
+        setLoadFailed(true);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
-    fetchEventData();
-  }, [eventSlug, toast]);
+    void fetchEventData();
+    return () => {
+      cancelled = true;
+      ++guestRefreshVersion.current;
+      lookupControllers.forEach(controller => controller.abort());
+      lookupControllers.clear();
+    };
+  }, [eventSlug, inviteToken, toast, loadAttempt]);
 
   // Normalise input for strict matching (trim, lowercase, collapse whitespace)
   const normalize = (str: string) => str.trim().toLowerCase().replace(/\s+/g, ' ');
 
-  const searchCandidates = useMemo(() => guests.filter(guest =>
+  const searchCandidates = useMemo(() => verifiedGuests.filter(guest =>
     matchesGuestSearch(guest, searchTerm, isOpenSearchMode)
-  ), [guests, searchTerm, isOpenSearchMode]);
+  ), [verifiedGuests, searchTerm, isOpenSearchMode]);
   const filteredGuests = useMemo(() => isOpenSearchMode
     ? searchCandidates.filter(guest => guest.id === selectedSearchGuestId)
-    : searchCandidates, [searchCandidates, selectedSearchGuestId, isOpenSearchMode]);
+    : selectedSearchGuestId ? searchCandidates.filter(guest => guest.id === selectedSearchGuestId) : searchCandidates, [searchCandidates, selectedSearchGuestId, isOpenSearchMode]);
   // Dedicated fetch for Guest Song Request settings, keyed on event.id so the
   // public Live View always loads it reliably (decoupled from the main event RPC).
   useEffect(() => {
@@ -450,37 +517,39 @@ export const GuestLookup: React.FC = () => {
   }, [event?.id]);
 
 
-  // Smooth-scroll to search results when a match appears
+  // Desktop may reveal results; mobile keeps the name field visible while typing.
   useEffect(() => {
-    if (searchTerm.length >= 2 && !searching && filteredGuests.length > 0) {
+    if (window.matchMedia('(max-width: 767px)').matches) return;
+    if (searchTerm.length >= 2 && filteredGuests.length > 0 && (selectedSearchGuestId || (!isOpenSearchMode && filteredGuests.length === 1))) {
       const t = setTimeout(() => {
         searchResultsRef.current?.scrollIntoView({ behavior: 'smooth', block: 'start' });
       }, 150);
       return () => clearTimeout(t);
     }
-  }, [searchTerm, searching, filteredGuests.length]);
+  }, [selectedSearchGuestId, isOpenSearchMode, filteredGuests.length]);
 
   const handleSearchChange = (value: string) => {
+    consumedInlineQuery.current = '';
+
     setSearchTerm(value);
     setSelectedSearchGuestId(null);
-    if (value.length >= 2) {
-      setSearching(true);
-      // Simulate search delay for better UX
-      setTimeout(() => setSearching(false), 300);
-    }
+
   };
 
   const refreshGuestData = async () => {
     if (!eventSlug) return;
+    const refreshVersion = ++guestRefreshVersion.current;
+    void verification.refresh();
 
     try {
       console.log('🔄 Live View: Manually refreshing guest data...');
       // Use the same public RPC function for refreshing data
       const { data: publicData, error: rpcError } = await supabase.rpc(
-        'get_public_event_with_data_secure',
-        { event_slug: eventSlug }
+        'qr_guest_public_event',
+        { event_slug: eventSlug, access_token: null }
       );
 
+      if (refreshVersion !== guestRefreshVersion.current) return;
       if (!rpcError && publicData) {
         // Transform guest data
         const transformedGuests = publicData
@@ -512,6 +581,24 @@ export const GuestLookup: React.FC = () => {
           }));
 
         setGuests(transformedGuests);
+        if (publicData[0]) {
+          const firstRow = publicData[0];
+          setLiveViewSettings({
+            show_rsvp_invite: firstRow.show_rsvp_invite || false,
+            show_welcome_video: firstRow.show_welcome_video || false,
+            show_floor_plan: firstRow.show_floor_plan || false,
+            show_menu: firstRow.show_menu || false,
+            show_reception_floor_plan: (firstRow as any).show_reception_floor_plan || false,
+          });
+          setModuleSettings({
+            rsvp_invite_config: firstRow.rsvp_invite_config || null,
+            welcome_video_config: firstRow.welcome_video_config || null,
+            floor_plan_config: firstRow.floor_plan_config || null,
+            menu_config: firstRow.menu_config || null,
+            hero_image_config: firstRow.hero_image_config || null,
+            reception_floor_plan_config: (firstRow as any).reception_floor_plan_config || null,
+          });
+        }
         setLastUpdated(new Date());
         console.log('✅ Live View: Guest data refreshed successfully');
       }
@@ -520,107 +607,12 @@ export const GuestLookup: React.FC = () => {
     }
   };
 
-  // Set up realtime subscription for instant RSVP sync - using the shared legacy channel name.
+  // Poll the sanitized public API; never subscribe this guest page to raw private guest rows.
   useEffect(() => {
     if (!event?.id) return;
-
-    const channel = supabase
-      .channel(`kiosk-guests:event:${event.id}`)
-      .on(
-        'postgres_changes',
-        {
-          event: '*',
-          schema: 'public',
-          table: 'guests',
-          filter: `event_id=eq.${event.id}`
-        },
-        (payload) => {
-          console.log('QR Code App realtime guest update received:', payload);
-
-          const { eventType, new: newRecord, old: oldRecord } = payload;
-
-          setGuests(currentGuests => {
-            switch (eventType) {
-              case 'INSERT':
-                if (newRecord && !currentGuests.some(g => g.id === newRecord.id)) {
-                  const transformedGuest = {
-                    id: newRecord.id,
-                    event_id: newRecord.event_id,
-                    first_name: newRecord.first_name,
-                    last_name: newRecord.last_name,
-                    table_id: newRecord.table_id,
-                    table_no: newRecord.table_no,
-                    seat_no: newRecord.seat_no,
-                    relation_display: newRecord.relation_display,
-                    rsvp: normalizeRsvp(newRecord.rsvp),
-                    dietary: newRecord.dietary,
-                    mobile: newRecord.mobile,
-                    email: newRecord.email,
-                    notes: newRecord.notes,
-                    family_group: newRecord.family_group,
-                    added_by_guest_id: newRecord.added_by_guest_id,
-                    table_name: null // Will be updated if needed
-                  };
-                  return [...currentGuests, transformedGuest];
-                }
-                return currentGuests;
-
-              case 'UPDATE':
-                if (newRecord) {
-                  console.log('QR Code App processing UPDATE for guest:', newRecord.id, 'RSVP:', newRecord.rsvp, 'Normalized:', normalizeRsvp(newRecord.rsvp));
-                  return currentGuests.map(g =>
-                    g.id === newRecord.id
-                      ? {
-                          ...g,
-                          first_name: newRecord.first_name,
-                          last_name: newRecord.last_name,
-                          table_id: newRecord.table_id,
-                          table_no: newRecord.table_no,
-                          seat_no: newRecord.seat_no,
-                          relation_display: newRecord.relation_display,
-                          rsvp: normalizeRsvp(newRecord.rsvp),
-                          dietary: newRecord.dietary,
-                          mobile: newRecord.mobile,
-                          email: newRecord.email,
-                          notes: newRecord.notes,
-                          family_group: newRecord.family_group
-                        }
-                      : g
-                  );
-                }
-                return currentGuests;
-
-              case 'DELETE':
-                if (oldRecord) {
-                  return currentGuests.filter(g => g.id !== oldRecord.id);
-                }
-                return currentGuests;
-
-              default:
-                return currentGuests;
-            }
-          });
-        }
-      )
-      .subscribe((status) => {
-        console.log(`Live View realtime subscription status: ${status} for kiosk-guests:event:${event.id}`);
-
-        if (status === 'SUBSCRIBED') {
-          console.log(`✅ Live View successfully subscribed to kiosk-guests:event:${event.id}`);
-        } else if (status === 'CHANNEL_ERROR') {
-          console.error('❌ Live View realtime subscription error');
-        } else if (status === 'CLOSED') {
-          console.error('❌ Live View realtime subscription closed');
-        } else if (status === 'TIMED_OUT') {
-          console.error('⏱️ Live View realtime subscription timed out');
-        }
-      });
-
-    return () => {
-      console.log('🧹 Live View: Cleaning up realtime subscription');
-      supabase.removeChannel(channel);
-    };
-  }, [event?.id]);
+    const timer = window.setInterval(() => { if (!document.hidden) void refreshGuestData(); }, 30000);
+    return () => window.clearInterval(timer);
+  }, [event?.id, eventSlug, verification.token]);
 
   // Add visibility change handler to refresh data when tab becomes visible (cache busting)
   useEffect(() => {
@@ -636,17 +628,57 @@ export const GuestLookup: React.FC = () => {
     return () => {
       document.removeEventListener('visibilitychange', handleVisibilityChange);
     };
-  }, [event?.id, eventSlug]);
+  }, [event?.id, eventSlug, inviteToken]);
 
   const handleEditGuest = (guest: Guest) => {
+    if (isOpenSearchMode) return;
+    if (!verification.verifiedFor(guest.id)) return;
     setSelectedGuest(guest);
     setIsUpdateModalOpen(true);
+  };
+
+  useEffect(() => {
+    const query = normalize(searchTerm);
+    if (!query) { consumedInlineQuery.current = ''; return; }
+    if (isOpenSearchMode || !isEditable || !showUpdateDetails || isUpdateModalOpen || activeTab !== 'search' || !query.includes(' ') || filteredGuests.length !== 1 || (searchCandidates.length !== 1 && !selectedSearchGuestId)) return;
+    const match = filteredGuests[0];
+    if (!verification.verifiedFor(match.id)) return;
+    const key = query + ':' + match.id;
+    if (consumedInlineQuery.current === key) return;
+    consumedInlineQuery.current = key; setSelectedGuest(match); setIsUpdateModalOpen(true);
+  }, [searchTerm, filteredGuests, searchCandidates.length, selectedSearchGuestId, isOpenSearchMode, isEditable, showUpdateDetails, isUpdateModalOpen, activeTab, verification.token, verification.party]);
+  useEffect(() => {
+    if (!verification.token || isOpenSearchMode) { setIsUpdateModalOpen(false); setSelectedGuest(null); setInlineDirty(false); consumedInlineQuery.current = ''; }
+  }, [verification.token, isOpenSearchMode]);
+  const navigateToVideoWishes = () => navigateWishes('/s/'+encodeURIComponent(eventSlug||'')+'/video-wishes',{state:{videoWishesInvite:inviteToken}});
+  const closeInlineEditor = (next: boolean) => {
+    setIsUpdateModalOpen(next);
+    if (!next) { setInlineDirty(false); if (videoNavigationPending) { setVideoNavigationPending(false); navigateToVideoWishes(); } }
+  };
+  const openVideoWishes = () => {
+    if (isUpdateModalOpen && inlineDirty) { setVideoNavigationPending(true); setDismissRequest(value=>value+1); return; }
+    navigateToVideoWishes();
   };
 
   const handleAddGuest = (guest: Guest) => {
     setSelectedGuest(guest);
     setAddGuestForId(guest.id);
     setShowAddGuestModal(true);
+  };
+
+  const openSongRequests = () => {
+    if (!songRequestSettings?.enabled || songRequestSettings.max_requests_per_guest < 1) return;
+    const recipient = recipientGuestId ? guests.find(guest => guest.id === recipientGuestId) : null;
+    const searchedGuest = !searching && filteredGuests.length === 1 ? filteredGuests[0] : null;
+    const requestGuest = recipient || searchedGuest;
+    if (requestGuest) {
+      setSongRequestGuestId(requestGuest.id);
+      setIsSongRequestsModalOpen(true);
+      return;
+    }
+    setActiveTab('search');
+    toast({ title: searchCopy[3], description: searchCopy[4] });
+    window.setTimeout(() => searchInputRef.current?.focus({ preventScroll: true }), 50);
   };
 
   // Install PWA prompt
@@ -684,21 +716,22 @@ export const GuestLookup: React.FC = () => {
         <Card className={`${styles.stateCard} ww-box w-full max-w-md`}>
           <CardContent className="p-8 text-center">
             <AlertCircle className="w-16 h-16 mx-auto text-destructive mb-4" />
-            <CardTitle className={`${styles.sectionHeading} mb-2`}>Event Not Found</CardTitle>
+            <CardTitle className={`${styles.sectionHeading} mb-2`}>{loadFailed ? loadCopy[0] : "Event Not Found"}</CardTitle>
             <CardDescription>
-              The requested event could not be found. Please check the QR code or contact the event organiser.
+              {loadFailed ? loadCopy[1] : "The requested event could not be found. Please check the QR code or contact the event organiser."}
             </CardDescription>
+            {loadFailed && <Button type="button" onClick={() => { setLoading(true); setLoadAttempt(attempt => attempt + 1); }}>{loadCopy[2]}</Button>}
           </CardContent>
         </Card>
       </div>
     );
   }
 
-  const heroImageUrl = moduleSettings?.hero_image_config?.file_url;
+  const heroImageUrl = moduleSettings?.hero_image_config?.enabled === false ? null : moduleSettings?.hero_image_config?.file_url;
   const welcomeVideoUrl = resolveWelcomeVideoUrl(moduleSettings?.welcome_video_config);
 
   return (
-    <div className={`${styles.mainSurface} ${styles.page} ww-application-background ww-dark-surface min-h-screen font-inter`}>
+    <div data-qr-guest-page className={`${styles.mainSurface} ${styles.page} ww-application-background ww-dark-surface min-h-screen font-inter`}>
       {/* Hero Section */}
       <div data-has-hero-photo={!!heroImageUrl} className={`${styles.heroShell} relative`}>
         {heroImageUrl ? (
@@ -710,25 +743,26 @@ export const GuestLookup: React.FC = () => {
             />
             <div className="absolute inset-0 bg-black/40 flex items-center justify-center">
               <div className={`${styles.heroTitleGroup} text-center text-white`}>
-                <p className="text-white/90 text-lg md:text-xl font-medium mb-2">
+                <p className={styles.invitationEyebrow}>
                   You're Invited
                 </p>
-                <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold" style={{ fontFamily: "'Great Vibes', cursive" }}>
-                  {event.name}
+                <h1 className={styles.invitationEventName}>
+                  {event.name.replace(/\band\b/gi, '&')}
                 </h1>
               </div>
             </div>
           </div>
         ) : (
           <div className={`${styles.fallbackHero} text-white`}>
+            <img src="/wedding-waitress-favicon-source.png" alt="" aria-hidden="true" className={styles.fallbackBrandMark} />
             <div className="w-full px-4 pt-16 pb-16 md:pt-24 md:pb-24">
               <div className={`${styles.heroTitleGroup} text-center`}>
-                <p className="text-white/90 text-lg md:text-xl font-medium mb-2">
+                <p className={styles.invitationEyebrow}>
                   You're Invited
                 </p>
                 <div className="flex items-center justify-center mb-4">
-                  <h1 className="text-3xl md:text-4xl lg:text-5xl font-bold" style={{ fontFamily: "'Great Vibes', cursive" }}>
-                    {event.name}
+                  <h1 className={styles.invitationEventName}>
+                    {event.name.replace(/\band\b/gi, '&')}
                   </h1>
                 </div>
               </div>
@@ -833,90 +867,94 @@ export const GuestLookup: React.FC = () => {
       <div className={`${styles.liveContent} w-full px-4 pt-4 pb-1`}>
         <div className="max-w-4xl mx-auto">
           <Tabs value={activeTab} onValueChange={setActiveTab} className="w-full">
-             <div className={`${styles.moduleTray} p-2.5 rounded-xl`}>
-              <TabsList className="grid w-full h-auto grid-cols-3 p-0 bg-transparent border-0 shadow-none gap-2">
-                {/* Row 1: RSVP Invite, Welcome Video, Table */}
+             <div
+               className={`${styles.moduleTray} p-2.5 rounded-xl`}
+               data-module-density="compact"
+             >
+              <TabsList className={`${styles.moduleGrid} grid w-full h-auto p-0 bg-transparent border-0 shadow-none gap-2 grid-cols-4`}>
                 {liveViewSettings?.show_rsvp_invite && (
                   <button
                     onClick={() => setShowRsvpInviteModal(true)}
-                    className="flex flex-col items-center justify-center h-[72px] py-2 px-1 rounded-xl border border-primary bg-transparent text-primary transition-all duration-200"
+                    className={styles.moduleButton}
                   >
-                    <MailOpen className="w-5 h-5 mb-1" />
-                    <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">RSVP Invite</span>
+                    <MailOpen aria-hidden="true" />
+                    <span>RSVP</span>
                   </button>
                 )}
                 {liveViewSettings?.show_welcome_video && (
                   <button
                     onClick={() => setShowWelcomeVideoModal(true)}
-                    className="flex flex-col items-center justify-center h-[72px] py-2 px-1 rounded-xl border border-primary bg-transparent text-primary transition-all duration-200"
+                    className={styles.moduleButton}
                   >
-                    <PlayCircle className="w-5 h-5 mb-1" />
-                    <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Welcome Video</span>
+                    <PlayCircle aria-hidden="true" />
+                    <span>Welcome</span>
                   </button>
                 )}
                 <TabsTrigger
                   value="visualization"
-                  className="flex flex-col items-center justify-center h-[72px] py-2 px-1 rounded-xl border border-primary bg-transparent text-primary data-[state=active]:border-green-400 data-[state=active]:bg-green-50 data-[state=active]:text-green-700 data-[state=active]:shadow-md transition-all duration-200"
+                  className={styles.moduleButton}
                 >
-                  <LayoutGrid className="w-5 h-5 mb-1" />
-                  <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Table</span>
+                  <LayoutGrid aria-hidden="true" />
+                  <span>Table</span>
                 </TabsTrigger>
 
-                {/* Row 2: Ceremony Floor Plan, Reception Floor Plan, Menu */}
+                {liveViewSettings?.show_menu && (
+                  <button
+                    onClick={() => setShowMenuModal(true)}
+                    className={styles.moduleButton}
+                  >
+                    <UtensilsCrossed aria-hidden="true" />
+                    <span>Menu</span>
+                  </button>
+                )}
                 {liveViewSettings?.show_floor_plan && (
                   <button
                     onClick={() => setShowFloorPlanModal(true)}
-                    className="flex flex-row items-center justify-center gap-2 h-[72px] py-2 px-1 rounded-xl border border-primary bg-transparent text-primary transition-all duration-200"
+                    className={styles.moduleButton}
                   >
-                    <MapPin className="w-5 h-5 shrink-0" />
-                    <div className="flex flex-col items-center">
-                      <span className="text-xs font-bold leading-tight">Ceremony</span>
-                      <span className="text-xs font-bold leading-tight">Floor Plan</span>
-                    </div>
+                    <MapPin aria-hidden="true" />
+                    <span>Ceremony Plan</span>
                   </button>
                 )}
                 {liveViewSettings?.show_reception_floor_plan && (
                   <button
                     onClick={() => setShowReceptionFloorPlanModal(true)}
-                    className="flex flex-row items-center justify-center gap-2 h-[72px] py-2 px-1 rounded-xl border border-primary bg-transparent text-primary transition-all duration-200"
+                    className={styles.moduleButton}
                   >
-                    <MapPin className="w-5 h-5 shrink-0" />
-                    <div className="flex flex-col items-center">
-                      <span className="text-xs font-bold leading-tight">Reception</span>
-                      <span className="text-xs font-bold leading-tight">Floor Plan</span>
-                    </div>
+                    <MapPin aria-hidden="true" />
+                    <span>Reception Plan</span>
                   </button>
                 )}
-                {liveViewSettings?.show_menu && (
-                  <button
-                    onClick={() => setShowMenuModal(true)}
-                    className="flex flex-col items-center justify-center h-[72px] py-2 px-1 rounded-xl border border-primary bg-transparent text-primary transition-all duration-200"
-                  >
-                    <UtensilsCrossed className="w-5 h-5 mb-1" />
-                    <span className="text-xs font-bold leading-tight text-center whitespace-nowrap">Menu</span>
+
+                {songRequestSettings?.enabled && (
+                  <button onClick={openSongRequests} className={styles.moduleButton}>
+                    <Music2 aria-hidden="true" />
+                    <span>Song Requests</span>
                   </button>
                 )}
+              {wishesEnabled&&<button className={styles.moduleButton} onClick={openVideoWishes}><Video aria-hidden="true"/><span>{wishesCopy.title}</span></button>}
               </TabsList>
             </div>
 
             <div className="pt-3">
-            <TabsContent value="search" className="mt-0 pt-[18px]">
+            <TabsContent forceMount={isUpdateModalOpen ? true : undefined} hidden={activeTab !== 'search'} value="search" className="mt-0 pt-[18px]">
 
               <Card data-search-empty={!searchTerm.trim()} className={`${styles.searchCard} ww-box card-elevated pt-2 md:pt-2`}>
                 <CardContent className={`${styles.searchCardContent} pt-2`}>
                   <div className={styles.searchArea}>
-                    <p data-live-section-heading data-guest-details-heading className={`${styles.sectionHeading} text-center text-base md:text-lg font-semibold text-foreground mb-[17px]`}>Update & Confirm Your Details</p>
+                    <p data-live-section-heading data-guest-details-heading data-qr-invitation-heading={isOpenSearchMode ? undefined : true} className={`${styles.sectionHeading} text-center text-base md:text-lg font-semibold text-foreground mb-[17px]`}>{isOpenSearchMode ? seatingCopy[0] : verificationCopy[0].split('\n').map((line,index) => <span key={index}>{line}</span>)}</p>
                     {/* Search Input */}
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                       <Input
-                        ref={searchInputRef} data-guest-name-search
+                        ref={searchInputRef} data-guest-name-search disabled={isUpdateModalOpen}
                         type="text"
-                        placeholder={moduleSettings?.update_details_config?.search_placeholder || "Type your full name here..."}
+                        aria-label={searchCopy[2]}
+                        placeholder={isOpenSearchMode ? searchCopy[1] : (!moduleSettings?.update_details_config?.search_placeholder || /^Type your full first and last name(?:\.{3}|…)?$/i.test(moduleSettings.update_details_config.search_placeholder.trim())) ? searchCopy[0] : moduleSettings.update_details_config.search_placeholder}
                         value={searchTerm}
                         onChange={(e) => handleSearchChange(e.target.value)}
-                        className="pl-10 text-base md:text-lg h-11 md:h-12 border-primary border-2 focus-visible:ring-primary"
-                        autoFocus
+                        className="px-10 text-center text-base md:text-lg h-11 md:h-12 border-primary border-2 focus-visible:ring-primary"
+                        autoFocus={!window.matchMedia('(max-width: 767px)').matches}
                       />
                     </div>
 
@@ -930,20 +968,20 @@ export const GuestLookup: React.FC = () => {
 
                     {/* Search Results */}
                     {(() => {
-                    if (searching) return null;
+                    if (searching || !verification.phase) return null;
                     const normalizedInput = normalize(searchTerm || '');
                     const isFullNameAttempt = normalizedInput.includes(' ');
                     // Strict mode: hide everything until a full-name attempt
-                    if (!isFullNameAttempt) return null;
-                    // Open mode: keep original 2+ char gate
-                    if (isOpenSearchMode && searchTerm.length < 2) return null;
+                    if (!isOpenSearchMode && !isFullNameAttempt) return null;
+                    // Open mode: show matching names automatically after three characters.
+                    if (isOpenSearchMode && normalizedInput.length < 3) return null;
 
                     return (
                       <div ref={searchResultsRef} className="pt-6">
                         <div className="space-y-4 animate-fade-in">
-                          {isOpenSearchMode && !selectedSearchGuestId && searchCandidates.length > 0 ? (
+                          {!selectedSearchGuestId && searchCandidates.length > 0 && (isOpenSearchMode || searchCandidates.length > 1) ? (
                             <div className="space-y-3 text-center">
-                              <p>Choose your name to view your details.</p>
+                              <p>{isOpenSearchMode ? seatingCopy[9] : verificationCopy[9]}</p>
                               {searchCandidates.map(guest => (
                                 <Button key={guest.id} className="lv-premium-btn w-full whitespace-normal h-auto min-h-10" onClick={() => setSelectedSearchGuestId(guest.id)}>
                                   {guest.first_name} {guest.last_name}
@@ -952,19 +990,28 @@ export const GuestLookup: React.FC = () => {
                             </div>
                           ) : filteredGuests.length > 0 ? (
                             filteredGuests.map((guest) => (
+                              <React.Fragment key={guest.id}>
+                              {isOpenSearchMode ? (
+                                <GuestSeatingResult guest={guest} eventId={event.id} copy={seatingCopy} />
+                              ) : !verification.verifiedFor(guest.id) ? (
+                                <GuestVerificationGate eventId={event.id} guestId={guest.id} fullName={`${guest.first_name} ${guest.last_name}`} copy={verificationCopy} onVerified={verification.accept} />
+                              ) : (<>
                               <EnhancedGuestCard
-                                key={guest.id}
                                 guest={guest}
                                 onUpdate={refreshGuestData}
                                 isEditable={isEditable}
-                                onEdit={showUpdateDetails ? handleEditGuest : undefined}
-                                onAddGuest={(event as any)?.allow_guest_plus_ones ? () => handleAddGuest(guest) : undefined}
+                                onAddGuest={undefined}
                                 rsvpDeadline={event?.rsvp_deadline}
-                                additionalGuestCount={guests.filter(g => (g as any).added_by_guest_id === guest.id).length}
+                                additionalGuestCount={verification.party.filter(g => g.added_by_guest_id === guest.id).length}
+                                partyMembers={guest.family_group
+                                  ? verification.party.filter((member) => member.family_group === guest.family_group)
+                                  : [guest]}
                                 showRsvpButtons={false}
                                 showAddPlusOne={false}
-                                showUpdateDetails={showUpdateDetails}
                               />
+
+                              </>)}
+                              </React.Fragment>
                             ))
                           ) : isOpenSearchMode ? (
                             <div className="text-center py-8">
@@ -985,6 +1032,29 @@ export const GuestLookup: React.FC = () => {
                       </div>
                     );
                     })()}
+      {/* Existing family editor, rendered inline beneath the Welcome summary. */}
+      {!isOpenSearchMode && !!selectedGuest && verification.verifiedFor(selectedGuest.id) && filteredGuests.some(candidate => candidate.id === selectedGuest?.id) && <GuestUpdateModal
+        inline onDirtyChange={setInlineDirty} dismissRequest={dismissRequest} onDismissCancel={() => setVideoNavigationPending(false)}
+        editOnUpdate
+        guest={selectedGuest ? {
+          ...selectedGuest,
+          event_id: event?.id || ''
+        } : null}
+        event={event}
+        open={isUpdateModalOpen && !isOpenSearchMode}
+        onOpenChange={closeInlineEditor}
+        onUpdate={refreshGuestData}
+        helperText={moduleSettings?.update_details_config?.helper_text}
+        allowNameEdit={moduleSettings?.update_details_config?.allow_name_edit ?? false}
+        showMessageField={moduleSettings?.update_details_config?.show_message_field ?? true}
+        isEditable={!isOpenSearchMode && !!selectedGuest && verification.verifiedFor(selectedGuest.id)}
+        allGuests={verification.party}
+        allowRsvp={!isOpenSearchMode}
+        enableGroupRsvp
+        accessToken={verification.token}
+        songRequestsEnabled={false}
+        songRequestsMax={0}
+      />}
                   </div>
 
                   {/* Wedding Waitress Logo - Footer */}
@@ -1005,12 +1075,16 @@ export const GuestLookup: React.FC = () => {
                   {/* Share Button */}
                   <div className={`${styles.shareInvite} flex justify-center`}>
                     <button
-                      onClick={() => {
-                        if (navigator.share) {
-                          navigator.share({
-                            title: `${event.partner1_name && event.partner2_name ? `${event.partner1_name} & ${event.partner2_name}` : event.name}`,
-                            url: window.location.href
-                          });
+                      onClick={async () => {
+                        try {
+                          const result = await shareGuestLookup(
+                            event.partner1_name && event.partner2_name ? `${event.partner1_name} & ${event.partner2_name}` : event.name,
+                            window.location.href,
+                          );
+                          if (result === 'copied') toast({ title: searchCopy[5] });
+                        } catch (error) {
+                          if (error instanceof DOMException && error.name === 'AbortError') return;
+                          toast({ title: searchCopy[6], variant: 'destructive' });
                         }
                       }}
                       className="lv-premium-btn flex items-center gap-2 h-[36px] px-[18px] py-0 border border-primary/40 bg-primary/10 text-primary"
@@ -1109,24 +1183,15 @@ export const GuestLookup: React.FC = () => {
         onUpdate={refreshGuestData}
       />
 
-      {/* Guest Update Modal */}
-      <GuestUpdateModal
-        guest={selectedGuest ? {
-          ...selectedGuest,
-          event_id: event?.id || ''
-        } : null}
-        event={event}
-        open={isUpdateModalOpen}
-        onOpenChange={setIsUpdateModalOpen}
-        onUpdate={refreshGuestData}
-        helperText={moduleSettings?.update_details_config?.helper_text}
-        allowNameEdit={moduleSettings?.update_details_config?.allow_name_edit ?? false}
-        showMessageField={moduleSettings?.update_details_config?.show_message_field ?? true}
-        isEditable={isEditable && showUpdateDetails}
-        allGuests={guests}
-        allowRsvp={showRsvpButtons}
-        songRequestsEnabled={!!songRequestSettings?.enabled}
-        songRequestsMax={songRequestSettings?.enabled ? (songRequestSettings.max_requests_per_guest || 0) : 0}
+
+
+      <GuestSongRequestsModal
+        open={isSongRequestsModalOpen}
+        onOpenChange={setIsSongRequestsModalOpen}
+        accessToken={inviteToken || undefined}
+        guestId={songRequestGuestId || undefined}
+        eventId={event?.id}
+        maxRequests={songRequestSettings?.enabled ? songRequestSettings.max_requests_per_guest : 0}
       />
 
       {/* Public Add Guest Modal */}
@@ -1251,7 +1316,7 @@ export const GuestLookup: React.FC = () => {
               Ceremony Floor Plan
             </DialogTitle>
           </DialogHeader>
-          <div className={moduleSettings?.floor_plan_config?.source === 'upload' ? styles.inviteViewport : 'mt-4'}>
+          <div data-qr-media-document={moduleSettings?.floor_plan_config?.source === 'existing' ? '' : undefined} className={moduleSettings?.floor_plan_config?.source === 'upload' ? styles.inviteViewport : 'mt-4'}>
             {moduleSettings?.floor_plan_config?.source === 'upload' && moduleSettings?.floor_plan_config?.file_url ? (
               <img
                 src={moduleSettings.floor_plan_config.file_url}
@@ -1290,7 +1355,7 @@ export const GuestLookup: React.FC = () => {
               Reception Floor Plan
             </DialogTitle>
           </DialogHeader>
-          <div className={moduleSettings?.reception_floor_plan_config?.source === 'upload' ? styles.inviteViewport : 'mt-4'}>
+          <div data-qr-media-document={moduleSettings?.reception_floor_plan_config?.source === 'existing' ? '' : undefined} className={moduleSettings?.reception_floor_plan_config?.source === 'upload' ? styles.inviteViewport : 'mt-4'}>
             {moduleSettings?.reception_floor_plan_config?.source === 'upload' && moduleSettings?.reception_floor_plan_config?.file_url ? (
               <img
                 src={moduleSettings.reception_floor_plan_config.file_url}
@@ -1356,3 +1421,4 @@ export const GuestLookup: React.FC = () => {
     </div>
   );
 };
+

@@ -1,5 +1,5 @@
 // Phase 3A — Bulk ZIP downloads for the host
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Card } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
 import { Progress } from '@/components/ui/progress';
@@ -110,14 +110,21 @@ export const GalleryDownloadsCard: React.FC<{
   layout?: 'grid' | 'vertical';
   /** Optional className for the outer card. */
   className?: string;
+  /** Optional sibling download workflow shown after the existing media scopes. */
+  additionalDownloadAction?: React.ReactNode;
   appearance?: 'default' | 'espresso-glass';
-}> = ({ items: itemsProp, eventName, galleryTitle, scopes: scopesProp, labels, title, description, filePrefix, emptyText, privacyScope = 'public', layout = 'grid', className, appearance = 'default' }) => {
+}> = ({ items: itemsProp, eventName, galleryTitle, scopes: scopesProp, labels, title, description, filePrefix, emptyText, privacyScope = 'public', layout = 'grid', className, additionalDownloadAction, appearance = 'default' }) => {
   const { toast } = useToast();
   const isGlass = appearance === 'espresso-glass';
   const items = useMemo(
     () => (privacyScope === 'guestbook' ? itemsProp : publicGalleryItems(itemsProp)),
     [itemsProp, privacyScope],
   );
+  const flight = useRef(false);
+  const mounted = useRef(true);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const source = JSON.stringify([eventName, galleryTitle, privacyScope, items.map(i => [i.id, i.signed_url, i.moderation_status, i.source_category, i.shared_to_gallery])]);
+  const sourceRef = useRef(source); sourceRef.current = source;
   const [busy, setBusy] = useState<ZipScope | null>(null);
   const [progress, setProgress] = useState<{ done: number; total: number }>({ done: 0, total: 0 });
   const [zipPct, setZipPct] = useState(0);
@@ -137,24 +144,28 @@ export const GalleryDownloadsCard: React.FC<{
   }, [galleryTitle, eventName, filePrefix]);
 
   const buildZip = async (scope: ZipScope) => {
-    if (busy) return;
+    if (flight.current) return;
+    const current = () => mounted.current && sourceRef.current === source;
     const list = filterFor(scope, items);
     if (list.length === 0) {
       toast({ title: 'Nothing to download', description: 'No items match this selection.', variant: 'destructive' });
       return;
     }
 
+    flight.current = true;
     setBusy(scope);
     setProgress({ done: 0, total: list.length });
     setZipPct(0);
 
     try {
       const { default: JSZip } = await import('jszip');
+      if (!current()) return;
       const zip = new JSZip();
       const used = new Set<string>();
       let failures = 0;
 
       for (let i = 0; i < list.length; i++) {
+        if (!current()) return;
         const item = list[i];
         try {
           const res = await fetch(item.signed_url!);
@@ -164,6 +175,7 @@ export const GalleryDownloadsCard: React.FC<{
         } catch {
           failures++;
         }
+        if (!current()) return;
         setProgress({ done: i + 1, total: list.length });
       }
 
@@ -173,9 +185,10 @@ export const GalleryDownloadsCard: React.FC<{
 
       const blob = await zip.generateAsync(
         { type: 'blob', compression: 'STORE' },
-        (meta) => setZipPct(Math.round(meta.percent)),
+        (meta) => { if (current()) setZipPct(Math.round(meta.percent)); },
       );
 
+      if (!current()) return;
       const filename = `${prefix}-${SCOPE_SUFFIX[scope]}.zip`;
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -193,12 +206,15 @@ export const GalleryDownloadsCard: React.FC<{
           : `${filename} downloaded.`,
       });
     } catch (e: any) {
+      if (!current()) return;
       toast({
         title: 'ZIP failed',
         description: e?.message || 'Could not prepare ZIP. Please try again.',
         variant: 'destructive',
       });
     } finally {
+      flight.current = false;
+      if (!mounted.current) return;
       setBusy(null);
       setProgress({ done: 0, total: 0 });
       setZipPct(0);
@@ -239,6 +255,7 @@ export const GalleryDownloadsCard: React.FC<{
             </Button>
           );
         })}
+        {additionalDownloadAction}
       </div>
 
 
@@ -262,7 +279,7 @@ export const GalleryDownloadsCard: React.FC<{
       )}
 
       {!busy && counts.all === 0 && (
-        <div className={cn('flex items-center gap-2 text-xs text-muted-foreground', isGlass && '!text-[#e8ddd2]')}>
+        <div className={cn('flex items-center gap-2 text-xs text-muted-foreground', isGlass && managementStyles.zipEmptyMessage)}>
           <TriangleAlert className="h-3.5 w-3.5" />
           {emptyText || 'No uploaded media yet — ZIP downloads will activate once guests upload.'}
         </div>

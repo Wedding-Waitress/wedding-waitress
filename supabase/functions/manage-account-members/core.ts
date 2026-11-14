@@ -1,6 +1,6 @@
 export const DEFAULT_ACCOUNT_SEATS = 5
 
-export type TeamAction = 'list' | 'invite' | 'revoke-invitation' | 'remove-member' | 'preview' | 'accept'
+export type TeamAction = 'readiness' | 'list' | 'invite' | 'revoke-invitation' | 'remove-member' | 'preview' | 'accept'
 
 export const normalizeEmail = (value: unknown): string =>
   typeof value === 'string' ? value.trim().toLowerCase() : ''
@@ -26,7 +26,7 @@ export const isValidMobile = (value: unknown): boolean => {
 }
 
 export const isTeamAction = (value: unknown): value is TeamAction =>
-  value === 'list' || value === 'invite' || value === 'revoke-invitation'
+  value === 'readiness' || value === 'list' || value === 'invite' || value === 'revoke-invitation'
   || value === 'remove-member' || value === 'preview' || value === 'accept'
 
 export const safeRedirectOrigin = (configuredOrigin: string | undefined): string | null => {

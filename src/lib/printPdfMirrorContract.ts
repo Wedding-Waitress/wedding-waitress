@@ -93,6 +93,14 @@ export const PRINT_PDF_MIRROR_DECLARATIONS: readonly PrintPdfMirrorDeclaration[]
     status: 'compliant', auditNote: 'Protected approved baseline; preview and transient export use the same print-page component.',
   },
   {
+    id: 'dietary-cards', feature: 'Dietary Cards',
+    authoritativeRenderer: 'DietaryCardsSheet', documentReference: 'sheetRef (single visible sheet)',
+    intrinsicPaper: '210 × 297 mm', orientation: 'portrait',
+    captureSource: 'visible authoritative card sheet; paginate and restore for all-sheet export', pdfPageSize: 'A4 portrait',
+    permittedPresentationStyles: MIRROR_PRESENTATION_STYLE_PROPERTIES,
+    status: 'compliant', auditNote: 'Six 105 × 99 mm flat tent cards fill A4, matching Name Place Cards; both faces share guest data. PDF captures the visible sheet without content changes.',
+  },
+  {
     id: 'dietary-requirements', feature: 'Dietary Requirements',
     authoritativeRenderer: 'KitchenDietaryChart A4 page markup', documentReference: 'a4PreviewRef',
     intrinsicPaper: '210 × 297 mm', orientation: 'portrait',
@@ -186,3 +194,4 @@ export const preparePrintMirrorClone = (
   presentation.style.border = '0';
   presentation.style.boxShadow = 'none';
 };
+

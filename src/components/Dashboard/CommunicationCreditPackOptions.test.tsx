@@ -1,6 +1,6 @@
 import React from 'react';
 import { render, screen } from '@testing-library/react';
-import { describe, expect, it } from 'vitest';
+import { describe, expect, it, vi } from 'vitest';
 import { PaymentProcessingProvider } from '@/contexts/PaymentProcessingContext';
 import { CommunicationCreditPackOptions } from './CommunicationCreditPackOptions';
 
@@ -12,8 +12,8 @@ describe('CommunicationCreditPackOptions', () => {
       </PaymentProcessingProvider>,
     );
     expect(screen.getByText('Add shared Email & SMS credits:')).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Buy 10 shared Email and SMS credits for A$10' })).toBeEnabled();
-    expect(screen.getByRole('button', { name: 'Buy 100 shared Email and SMS credits for A$49' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Buy 10 shared Email and SMS credits for A$11 including GST' })).toBeEnabled();
+    expect(screen.getByRole('button', { name: 'Buy 100 shared Email and SMS credits for A$53.90 including GST' })).toBeEnabled();
   });
 
   it('does not expose checkout actions without an eligible plan', () => {
@@ -26,3 +26,5 @@ describe('CommunicationCreditPackOptions', () => {
     expect(screen.queryByRole('button')).not.toBeInTheDocument();
   });
 });
+
+vi.mock('@/hooks/useSmsTopup',()=>({useSmsTopup:()=>({startTopup:vi.fn(),loading:false,activePack:null,eligibility:{status:'eligible',message:''},retryEligibility:vi.fn()})}));

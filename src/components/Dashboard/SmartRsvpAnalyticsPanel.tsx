@@ -15,6 +15,7 @@ import { GuestDeliveryBadges } from './GuestDeliveryBadges';
 import { SmartSmsCreditStatus, getCreditHealth } from './SmartSmsCreditStatus';
 import { useSmsCredits } from '@/hooks/useSmsCredits';
 import { hasGuestResponded, normalizeRsvp } from '@/lib/rsvp';
+import { hasSentInvitation, invitedResponseMetrics } from '@/lib/messagingAnalytics';
 import { Search } from 'lucide-react';
 
 interface Props {
@@ -161,16 +162,15 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
         else if (lastStatus === 'blocked') deliveryStatus = 'Blocked';
         else if (isFailedStatus) deliveryStatus = 'Failed';
         else if (isPendingSent) deliveryStatus = 'Pending';
-      } else if (status && status !== 'not_sent') {
-        // fallback for email-only or pre-webhook history
-        deliveryStatus = 'Delivered';
       }
-      const credits = sms.filter(l => ['sent','delivered'].includes((l.status || '').toLowerCase())).length;
+      const credits = [...sms, ...emails].filter(l => ['sent','delivered'].includes((l.status || '').toLowerCase())).length;
       const responded = hasGuestResponded(g.rsvp, g.rsvp_date);
       const sendsCount = sms.length + emails.length;
-      const isResend = sendsCount > 1;
+      // A first invitation sent by both channels is not itself a resend.
+      const isResend = Math.max(sms.length, emails.length) > 1;
       const respondedAt = g.rsvp_date ? new Date(g.rsvp_date).getTime() : null;
-      const sentAtIso = g.rsvp_invite_sent_at || lastSms?.created_at || null;
+      const lastEmail = [...emails].sort((a,b) => +new Date(b.sent_at) - +new Date(a.sent_at))[0];
+      const sentAtIso = g.rsvp_invite_sent_at || lastSms?.created_at || lastEmail?.sent_at || null;
       const sentAtMs = sentAtIso ? new Date(sentAtIso).getTime() : null;
       const responseMs = responded && respondedAt && sentAtMs && respondedAt >= sentAtMs
         ? respondedAt - sentAtMs
@@ -180,7 +180,7 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
       let intel: IntelTag = null;
       if (deliveryStatus === 'Failed' || deliveryStatus === 'Blocked') intel = 'delivery_issue';
       else if (responded && responseMs !== null && responseMs <= 24 * 3_600_000) intel = 'fast_responder';
-      else if (!responded && sendsCount >= 2) intel = 'multiple_resends';
+      else if (!responded && isResend) intel = 'multiple_resends';
       else if (!responded && daysSinceSent !== null && daysSinceSent >= 7) intel = 'needs_followup';
 
       return {
@@ -195,6 +195,7 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
         deliveryStatus,
         rsvp: normalizeRsvp(g.rsvp),
         responded,
+        invited: hasSentInvitation(g) || sms.some(l => ['sent', 'delivered'].includes(l.status)) || emails.some(l => l.status === 'sent'),
         respondedAt,
         responseMs,
         isResend,
@@ -213,13 +214,11 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
 
   // Intelligence KPI calculations
   const intelligence = useMemo(() => {
-    const invited = rows.filter(r => r.sentAt).length;
+    const { invited, respondedCount, responseRate } = invitedResponseMetrics(rows);
     const deliveredCount = rows.filter(r => r.deliveryStatus === 'Delivered').length;
     const failedCount = rows.filter(r => r.deliveryStatus === 'Failed' || r.deliveryStatus === 'Blocked').length;
     const deliveryDenom = deliveredCount + failedCount;
     const deliveryRate = deliveryDenom > 0 ? Math.round((deliveredCount / deliveryDenom) * 100) : null;
-    const respondedCount = rows.filter(r => r.responded).length;
-    const responseRate = invited > 0 ? Math.round((respondedCount / invited) * 100) : null;
 
     const responseTimes = rows.map(r => r.responseMs).filter((v): v is number => v !== null && v > 0);
     const avgResponseMs = responseTimes.length >= 2
@@ -349,7 +348,7 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
             return (
               <div className="flex flex-wrap gap-2">
                 {intelChip('Delivery Rate', intelligence.deliveryRate === null ? '—' : `${intelligence.deliveryRate}%`, undefined, 'Percentage of invitations successfully delivered.', 'border-emerald-200/70 bg-emerald-50/40')}
-                {intelChip('Response Rate', intelligence.responseRate === null ? '—' : `${intelligence.responseRate}%`, undefined, 'Percentage of invited guests who submitted an RSVP.', 'border-primary/30 bg-primary/5')}
+                {intelChip('Invited Response Rate', intelligence.responseRate === null ? '—' : `${intelligence.responseRate}%`, undefined, 'Percentage of invited guests who submitted an RSVP.', 'border-primary/30 bg-primary/5')}
                 {intelChip('Avg. Response', intelligence.avgResponseMs === null ? 'Not enough responses yet' : humanizeDuration(intelligence.avgResponseMs), undefined, 'Average time between invitation sent and RSVP received.')}
                 {intelChip('Best Method', bestLabel, intelligence.bestMethod ? 'Highest response performance.' : undefined, 'Delivery method with the strongest RSVP response rate.')}
                 {intelChip('Resend Success', intelligence.resendSuccessRate === null ? '—' : `${intelligence.resendSuccessRate}%`, undefined, 'Guests who responded after receiving a resend.', 'border-amber-200/70 bg-amber-50/40')}
@@ -369,6 +368,7 @@ export const SmartRsvpAnalyticsPanel: React.FC<Props> = ({ eventId, open, onOpen
             <div className="relative flex-1 min-w-[180px]">
               <Search className="absolute left-3 top-1/2 -translate-y-1/2 w-4 h-4 text-muted-foreground" />
               <Input
+                aria-label="Search communication history"
                 placeholder="Search guest or contact…"
                 value={search}
                 onChange={(e) => setSearch(e.target.value)}

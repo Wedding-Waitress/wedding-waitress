@@ -1033,9 +1033,8 @@
           {
             "heading": "Le coût réel des plans de table de mariage en Australie",
             "paragraphs": [
-              "La signalétique de table imprimée traditionnelle en Australie coûte rapidement cher : signalétique acrylique 600–1 000 AU$, calligraphie ou design 400–700 AU$, réimpressions de dernière minute 200–450 AU$, et installation ou location de chevalet 300–500 AU$. Total : 1 600–2 800 AU$.",
-              "Numérique avec Wedding Waitress : une petite impression QR Code 5–100 AU$, et des mises à jour illimitées gratuitement. Total : coût minime.",
-              "C'est exactement pourquoi les couples à la recherche des meilleurs outils de planification de mariage en Australie passent au numérique."
+              "Les frais d’impression varient selon le matériau, le format et le prestataire. Comparez les devis actuels ; l’accès aux formules Wedding Waitress est un coût distinct indiqué dans Tarifs.",
+              "Pendant votre période d’accès actif, les modifications enregistrées des invités et des tables apparaissent dans la recherche en ligne. Les invités ont besoin d’internet ; conservez une copie imprimée."
             ]
           },
           {
@@ -1048,8 +1047,7 @@
           {
             "heading": "Questions fréquemment posées",
             "paragraphs": [
-              "Les plans de table avec code QR fonctionnent-ils pour les grands mariages ? Oui, ils évitent les embouteillages à l'entrée et permettent aux invités de trouver leur place instantanément, quelle que soit la taille de la liste d'invités.",
-              "Puis-je modifier le plan de table le jour du mariage ? Oui. Les mises à jour se synchronisent instantanément et se reflètent sur le même QR code, vous n'avez donc jamais besoin de réimprimer.",
+              "Pendant votre période d’accès actif, les modifications enregistrées des invités et des tables apparaissent dans la recherche en ligne. Les invités ont besoin d’internet ; conservez une copie imprimée.",
               "Que faire si mon lieu de réception a un mauvais Wi-Fi ? Les invités peuvent scanner en entrant là où le signal est le plus fort, ou vous pouvez fournir une petite liste imprimée de secours pour plus de tranquillité d'esprit."
             ]
           },
@@ -1065,32 +1063,20 @@
         "title": "Le vrai coût de la signalisation de mariage en Australie : plans imprimés vs numériques",
         "metaTitle": "Wedding Signage Cost Australia | Printed vs Digital",
         "metaDescription": "Compare printed vs digital wedding seating charts in Australia. See how much you can save by going digital.",
-        "excerpt": "Les plans imprimés en Australie coûtent 150 à 400 $. Voici une ventilation claire — et comment le numérique économise des centaines.",
+        "excerpt": "Les frais d’impression varient selon le matériau, le format et le prestataire. Comparez les devis actuels ; l’accès aux formules Wedding Waitress est un coût distinct indiqué dans Tarifs.",
         "readingTime": "5 min de lecture",
-        "intro": "L'affichage de mariage en Australie est l'un de ces coûts qui augmente discrètement. Le plan de table à lui seul peut coûter entre 150 et 400 dollars, et ce avant même les panneaux de bienvenue, les numéros de table et les menus. Voici une comparaison claire entre l'imprimé et le numérique, afin que vous sachiez exactement où votre argent est dépensé.",
+        "intro": "Les frais d’impression varient selon le matériau, le format et le prestataire. Comparez les devis actuels ; l’accès aux formules Wedding Waitress est un coût distinct indiqué dans Tarifs.",
         "sections": [
           {
             "heading": "Coût des plans de table de mariage imprimés en Australie",
             "paragraphs": [
-              "Un plan de table imprimé standard (acrylique, miroir ou panneau de mousse) coûte généralement entre 150 et 400 dollars australiens, selon la taille, le matériau et le styliste.",
-              "Vous aurez également besoin d'un chevalet (30 à 80 dollars), d'une livraison ou d'un ramassage (20 à 50 dollars), et de toute réimpression de dernière minute si un invité annule (50 à 120 dollars). Soudain, votre « panneau à 200 dollars » se rapproche de 400 dollars.",
               "Et une fois imprimé, il ne peut plus être modifié."
             ]
           },
           {
             "heading": "Comparaison des coûts d'un plan de table numérique",
             "paragraphs": [
-              "Un plan de table de mariage numérique avec QR code ne nécessite qu'un petit panneau imprimé à l'entrée — généralement 20 à 50 dollars pour un A4 en acrylique ou en panneau de mousse.",
-              "Les données des places sont en ligne, donc les annulations, les changements de place et les échanges de table ne coûtent rien à mettre à jour. Le même QR code continue de fonctionner toute la nuit.",
-              "Économie nette pour le mariage australien moyen : 150 à 350 dollars rien que sur l'affichage."
-            ]
-          },
-          {
-            "heading": "Côte à côte : imprimé vs numérique",
-            "paragraphs": [
-              "Imprimé : 150–400 dollars d'emblée, 50–120 dollars par réimpression, zéro modification, difficile à lire par faible éclairage.",
-              "QR code numérique : 20–50 dollars d'emblée, modifications illimitées gratuites, facile à lire sur un téléphone, accessible à tous les invités.",
-              "L'imprimé offre un seul et magnifique « moment Instagram ». Le numérique offre un mariage sans stress."
+              "Pendant votre période d’accès actif, les modifications enregistrées des invités et des tables apparaissent dans la recherche en ligne. Les invités ont besoin d’internet ; conservez une copie imprimée."
             ]
           },
           {
@@ -1103,46 +1089,44 @@
         ]
       },
       "how-to-create-qr-code-seating-chart": {
-        "title": "Comment créer un plan de table de mariage par QR code en 5 minutes",
-        "metaTitle": "How to Create QR Code Seating Chart | Easy Guide",
-        "metaDescription": "Step-by-step guide to creating a QR code wedding seating chart in minutes. Simple, fast, and stress-free.",
-        "excerpt": "Un guide simple en 5 étapes pour créer votre propre plan de table par QR code — de la liste des invités au panneau imprimé — en seulement 5 minutes.",
+        "title": "Créez votre plan de table avec code QR",
+        "metaTitle": "Créez votre plan de table avec code QR | Wedding Waitress",
+        "metaDescription": "Importez un CSV ou ajoutez les invités un par un dans la Liste des invités.",
+        "excerpt": "Wedding Waitress relie les informations que vous ajoutez, afin que chaque étape soutienne la papeterie, les places, les prestataires et les expériences des invités qui suivent.",
         "readingTime": "5 min de lecture",
-        "intro": "Vous n'avez pas besoin d'être un expert en technologie pour créer un plan de table de mariage avec QR code. L'ensemble du processus prend environ 5 minutes et, une fois en ligne, chaque mise à jour se fait automatiquement. Voici exactement comment procéder.",
+        "intro": "Wedding Waitress relie les informations que vous ajoutez, afin que chaque étape soutienne la papeterie, les places, les prestataires et les expériences des invités qui suivent.",
         "sections": [
           {
-            "heading": "Étape 1 — Importez votre liste d'invités",
+            "heading": "Étape 1",
             "paragraphs": [
-              "Commencez avec une liste d'invités propre. Vous pouvez coller les noms d'une feuille de calcul ou les ajouter un par un dans votre gestionnaire de liste d'invités de mariage.",
-              "Suivez les RSVP au fur et à mesure afin de ne placer que les invités qui ont réellement confirmé."
+              "Créez et gérez d’abord votre événement. Ensuite, passez au planificateur du budget."
             ]
           },
           {
-            "heading": "Étape 2 — Créez vos tables",
+            "heading": "Étape 2",
             "paragraphs": [
-              "Ajoutez chaque table avec un nom, un numéro et une capacité. Les tables rondes peuvent généralement accueillir 8 à 10 personnes, les longues tables de banquet 12 à 24 personnes.",
-              "Dans l'outil de tables, vous pouvez étiqueter votre table d'honneur séparément afin qu'elle se distingue des autres."
+              "Planifiez et gérez le budget de l’événement. Ensuite, passez aux tables."
             ]
           },
           {
-            "heading": "Étape 3 — Faites glisser les invités sur les tables",
+            "heading": "Étape 3",
             "paragraphs": [
-              "Faites glisser chaque invité sur une table. Le système vous avertit si vous dépassez la capacité, ce qui vous évite de devoir faire des ajustements délicats à la dernière minute.",
-              "Enregistrez les régimes alimentaires en même temps – cela simplifie considérablement la coordination du traiteur."
+              "Créez la table principale et les autres tables des invités. Ensuite, passez à la liste d’invités."
             ]
           },
           {
-            "heading": "Étape 4 — Générez votre QR code personnalisé",
+            "heading": "Étape 4",
+            "paragraphs": [
+              "Ajoutez et gérez les invités, puis affectez-les aux tables. Ensuite, passez au plan de table par QR code.",
+              "Importez un CSV ou ajoutez les invités un par un dans la Liste des invités."
+            ]
+          },
+          {
+            "heading": "Étape 5",
             "paragraphs": [
               "Personnalisez les couleurs, la forme et le logo central de votre QR code pour qu'il corresponde à la palette de couleurs de votre mariage, puis téléchargez un PNG haute résolution.",
-              "Testez-le une fois avec votre propre téléphone pour vous assurer qu'il scanne correctement même en basse lumière."
-            ]
-          },
-          {
-            "heading": "Étape 5 — Imprimez votre panneau et le tour est joué",
-            "paragraphs": [
-              "Imprimez le QR code sur un petit panneau en acrylique, en mousse ou en papier pour l'entrée de la salle.",
-              "Le jour J, les invités scannent, cherchent leur nom et voient instantanément leur table et leur place. Si quelque chose change, il suffit de réaffecter l'invité depuis votre téléphone — le QR code continue de fonctionner."
+              "Testez-le une fois avec votre propre téléphone pour vous assurer qu'il scanne correctement même en basse lumière.",
+              "Imprimez le QR code sur un petit panneau en acrylique, en mousse ou en papier pour l'entrée de la salle."
             ]
           }
         ]
@@ -1203,7 +1187,7 @@
           {
             "heading": "Comment un plan de table numérique résout le problème en 60 secondes",
             "paragraphs": [
-              "Avec un QR Code Seating Chart, votre demoiselle d'honneur ou votre coordinatrice peut ouvrir l'outil de placement sur un téléphone, retirer l'invité annulé de la table et réaffecter toute autre personne qui doit se déplacer.",
+              "Utilisez Tables et Liste des invités pour attribuer ou modifier tables et places. La planification partagée nécessite une invitation d’équipe autorisée.",
               "Le prochain invité qui scanne le code QR voit immédiatement le placement mis à jour. Pas de réimpression, pas de gribouillis, pas de stress."
             ]
           },
@@ -1251,7 +1235,7 @@
             "heading": "La solution : Une feuille de route numérique",
             "paragraphs": [
               "Avec Wedding Waitress, vous pouvez planifier toute votre chronologie en un seul endroit, mettre à jour votre programme instantanément et garder tout organisé et accessible.",
-              "Chaque changement estT reflétée en temps réel, donc la dernière version est toujours la source de vérité — plus de PDF obsolètes qui circulent dans les discussions de groupe."
+              "Partagez le lien du déroulé enregistré avec le lieu ou les prestataires. Les PDF téléchargés sont des copies fixes ; envoyez une version actualisée après modification."
             ]
           },
           {
@@ -1264,7 +1248,7 @@
           {
             "heading": "Restez flexible le jour J",
             "paragraphs": [
-              "Les choses changent – et ce n'est pas grave. Avec une running sheet numérique, vous pouvez ajuster les horaires instantanément, informer tout le monde rapidement et assurer le bon déroulement de votre événement.",
+              "Enregistrez les modifications, puis demandez aux destinataires de rouvrir le lien partagé ou envoyez un nouveau PDF.",
               "Que la cérémonie commence avec 10 minutes de retard ou que les discours s'allongent, votre équipe peut voir les mises à jour immédiatement."
             ]
           },

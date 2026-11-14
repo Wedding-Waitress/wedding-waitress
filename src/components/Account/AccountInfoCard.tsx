@@ -44,7 +44,8 @@ export const AccountInfoCard: React.FC<Props> = ({ icon, loginEmail = '' }) => {
   const fullName = [profile?.first_name, profile?.last_name].filter(Boolean).join(' ') || '—';
 
   return (
-    <SectionCard icon={icon} title="Account Info" description="Your personal details">
+    <SectionCard icon={icon} title="Account Info" showHeader={false}>
+      <h3 className="mb-5 text-[17px] font-bold text-[#2b1711]">Your personal details</h3>
       <ProfileImageEditor />
       <AccountInfoDetails accountId={profile?.account_id||'—'} fullName={fullName}
         email={authDetails?.email||loginEmail||profile?.email||'—'} pendingEmail={authDetails?.pendingEmail}

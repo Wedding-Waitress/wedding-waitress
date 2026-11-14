@@ -2,55 +2,49 @@ import { supabase } from '@/integrations/supabase/client';
 import { deleteOwnedEventRow, EventDeletionError } from './eventDeletion';
 import { EVENT_IMAGE_BUCKET } from './eventImage';
 
-export const deleteOwnedEventWithImage = async (eventId: string, ownerId: string) => {
+const isOwnedEventImagePath = (path: string, ownerId: string, eventId: string) => {
+  const segments = path.split('/');
+  if (segments.length !== 4 || segments.some((segment) => !segment || segment === '.' || segment === '..')) return false;
+  if (segments[0] !== ownerId) return false;
+  return segments[1] === 'drafts' || (segments[1] === 'events' && segments[2] === eventId);
+};
+
+const logImageCleanupFailure = (stage: 'reference-check' | 'remove', error: unknown) => {
+  const code = error && typeof error === 'object'
+    ? 'code' in error ? String(error.code) : 'statusCode' in error ? String(error.statusCode) : 'status' in error ? String(error.status) : 'unknown'
+    : 'unknown';
+  console.warn('Event image cleanup failed after event deletion', { stage, code });
+};
+
+export const deleteOwnedEventWithImage = async (eventId: string, callerId: string) => {
+  if (!callerId) throw new EventDeletionError('not-authenticated', 'Authentication required.');
   // Read the current attachment rather than relying on a potentially stale UI cache.
-  const event = await supabase.from('events').select('event_image_path')
-    .eq('id', eventId).eq('user_id', ownerId).maybeSingle();
+  const event = await supabase.from('events').select('user_id,event_image_path')
+    .eq('id', eventId).maybeSingle();
   if (event.error) throw new EventDeletionError('database', event.error.message, event.error.code);
-  if (!event.data) throw new EventDeletionError('not-authorized', 'This event was not found or is not owned by your account.');
+  if (!event.data?.user_id) throw new EventDeletionError('not-authorized', 'This event was not found or is not accessible to your account.');
+  // A readable event can belong to another account. The RPC must authorize the
+  // authenticated caller; its returned owner must match this authoritative read.
+  const ownerId = event.data.user_id;
   const path = event.data.event_image_path;
-  if (!path) return deleteOwnedEventRow(eventId, ownerId);
+  // The secure RPC remains authoritative for ownership, authorization and
+  // related-record cleanup. Storage is never a prerequisite for deletion.
+  const deleted = await deleteOwnedEventRow(eventId, ownerId);
+  if (!path || !isOwnedEventImagePath(path, ownerId, eventId)) return deleted;
 
-  const references = await supabase.from('events').select('id')
-    .eq('event_image_path', path).neq('id', eventId).limit(1);
-  if (references.error) throw new EventDeletionError('image-cleanup', 'Unable to check the event image. Nothing was deleted. Please try again.');
-  // Another event still needs this image.
-  if (references.data?.length) return deleteOwnedEventRow(eventId, ownerId);
-
-  const storage = supabase.storage.from(EVENT_IMAGE_BUCKET);
-  const backup = await storage.download(path);
-  if (backup.error || !backup.data) {
-    throw new EventDeletionError('image-cleanup', 'Unable to prepare the event image for deletion. Nothing was deleted. Please try again.');
-  }
-
-  // Storage requires an existing owner event AND an unreferenced image.
-  const detached = await supabase.from('events').update({ event_image_path: null })
-    .eq('id', eventId).eq('user_id', ownerId).eq('event_image_path', path).select('id');
-  if (detached.error || detached.data?.length !== 1) {
-    throw new EventDeletionError('image-cleanup', 'The event image could not be prepared for deletion. Please refresh and try again.');
-  }
-
-  let imageRemoved = false;
   try {
-    const removed = await storage.remove([path]);
-    if (removed.error || !removed.data?.some((object) => object.name === path)) {
-      throw new EventDeletionError('image-cleanup', 'The image could not be removed. The event has been kept. Please try again.');
+    // Do not remove an object that another surviving event still references.
+    const references = await supabase.from('events').select('id').eq('event_image_path', path).limit(1);
+    if (references.error) {
+      logImageCleanupFailure('reference-check', references.error);
+      return deleted;
     }
-    imageRemoved = true;
-    return await deleteOwnedEventRow(eventId, ownerId);
+    if (references.data?.length) return deleted;
+
+    const removed = await supabase.storage.from(EVENT_IMAGE_BUCKET).remove([path]);
+    if (removed.error) logImageCleanupFailure('remove', removed.error);
   } catch (error) {
-    // Restore the attachment when deletion fails, instead of silently losing it.
-    if (imageRemoved) {
-      const restored = await storage.upload(path, backup.data, { contentType: backup.data.type, upsert: false });
-      if (restored.error) {
-        throw new EventDeletionError('image-cleanup', 'Event deletion failed, and its image could not be restored. Please upload the image again.');
-      }
-    }
-    const linked = await supabase.from('events').update({ event_image_path: path })
-      .eq('id', eventId).eq('user_id', ownerId).is('event_image_path', null).select('id');
-    if (linked.error || linked.data?.length !== 1) {
-      throw new EventDeletionError('image-cleanup', 'Event deletion failed, and its image attachment could not be restored. Please refresh before trying again.');
-    }
-    throw error;
+    logImageCleanupFailure('remove', error);
   }
+  return deleted;
 };

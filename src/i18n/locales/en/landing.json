@@ -462,14 +462,14 @@
     },
     "invitations": {
       "title": "Digital Wedding Invitations & RSVP Management",
-      "description": "Design and send beautiful wedding invitations, save the dates, and thank you cards with ease. Create stunning digital or printable designs, customise your wording, and share instantly via email, SMS, or QR code.",
+      "description": "Design and send beautiful wedding invitations, save the date, and thank you cards with ease. Create stunning digital or printable designs, customise your wording, and share instantly via email, SMS, or QR code.",
       "pageTitle": "Digital Wedding Invitations & RSVP Cards | Easy Online Invites",
-      "metaDesc": "Design and send beautiful digital wedding invitations, save the dates, and RSVP cards. Share instantly or download for print.",
+      "metaDesc": "Design and send beautiful digital wedding invitations, save the date, and RSVP cards. Share instantly or download for print.",
       "seo1Heading": "Send Online Wedding Invitations",
       "seo1Text": "Create gorgeous digital invitations and share them instantly with guests from your <0>wedding guest list</0>. No printing, no postage, no delays.",
       "seo2Heading": "Manage RSVPs Digitally",
       "seo2Text": "Track every response in real time. Guests can also RSVP via your <0>QR code RSVP system</0> for a seamless, modern experience.",
-      "seo3Heading": "Create Beautiful Save the Dates",
+      "seo3Heading": "Create Beautiful Save the Date",
       "seo3Text": "Design stunning save the date cards that match your wedding style. Once guests respond, assign them to tables using your <0>seating chart planner</0>.",
       "related1": "Guest List Manager",
       "related2": "QR Code RSVP",
@@ -1086,9 +1086,8 @@
           {
             "heading": "The Real Cost of Wedding Seating Charts in Australia",
             "paragraphs": [
-              "Traditional printed seating signage in Australia adds up quickly: acrylic signage $600–$1,000+, calligraphy or design $400–$700, last-minute reprints $200–$450, and setup or easel hire $300–$500. Total: $1,600–$2,800.",
-              "Digital with Wedding Waitress: a small QR code print $5–$100, and unlimited updates for free. Total: minimal cost.",
-              "This is exactly why couples searching for the best wedding planning tools in Australia are switching to digital."
+              "Printing costs vary by material, size and supplier. Compare current quotes; Wedding Waitress package access is a separate cost shown on the Pricing page.",
+              "During your active access period, saved guest and table changes appear in the online lookup. Guests need an internet connection; keep a printed backup."
             ]
           },
           {
@@ -1101,8 +1100,7 @@
           {
             "heading": "Frequently Asked Questions",
             "paragraphs": [
-              "Do QR code seating charts work for large weddings? Yes — they prevent entrance bottlenecks and let guests find their seat instantly, no matter how big the guest list.",
-              "Can I change the seating chart on the wedding day? Yes. Updates sync instantly and reflect on the same QR code, so you never need to reprint.",
+              "During your active access period, saved guest and table changes appear in the online lookup. Guests need an internet connection; keep a printed backup.",
               "What if my venue has bad Wi-Fi? Guests can scan as they enter where signal is strongest, or you can provide a small backup printed list for peace of mind."
             ]
           },
@@ -1118,32 +1116,20 @@
         "title": "The Real Cost of Wedding Signage in Australia: Printed vs Digital Seating Charts",
         "metaTitle": "Wedding Signage Cost Australia | Printed vs Digital",
         "metaDescription": "Compare printed vs digital wedding seating charts in Australia. See how much you can save by going digital.",
-        "excerpt": "Printed seating boards in Australia cost $150–$400. Here is a clear breakdown of where the money goes — and how going digital saves hundreds.",
+        "excerpt": "Printing costs vary by material, size and supplier. Compare current quotes; Wedding Waitress package access is a separate cost shown on the Pricing page.",
         "readingTime": "5 min read",
-        "intro": "Wedding signage in Australia is one of those costs that quietly grows. The seating chart alone can run $150–$400, and that is before welcome signs, table numbers, and menus. Here is a clear printed-vs-digital comparison so you know exactly where your money is going.",
+        "intro": "Printing costs vary by material, size and supplier. Compare current quotes; Wedding Waitress package access is a separate cost shown on the Pricing page.",
         "sections": [
           {
             "heading": "Printed wedding seating chart costs in Australia",
             "paragraphs": [
-              "A standard printed seating board (acrylic, mirror, or foam-board) typically costs between $150 and $400 in Australia, depending on size, material, and stylist.",
-              "You also need an easel ($30–$80), delivery or pickup ($20–$50), and any last-minute reprints if a guest cancels ($50–$120). Suddenly your \"$200 sign\" is closer to $400.",
               "And once it is printed, it cannot be changed."
             ]
           },
           {
             "heading": "Digital seating chart cost comparison",
             "paragraphs": [
-              "A [digital QR code wedding seating chart](/qr-code-seating-chart) only requires one small printed sign at the entrance — usually $20–$50 for an A4 acrylic or foam-board.",
-              "The seating data lives online, so cancellations, reseats, and table swaps cost nothing to update. The same QR code keeps working all night.",
-              "Net saving for the average Australian wedding: $150–$350 on signage alone. For a deeper walkthrough, see our [step-by-step seating chart guide](/blog/how-to-create-a-wedding-seating-chart-step-by-step)."
-            ]
-          },
-          {
-            "heading": "Side-by-side: printed vs digital",
-            "paragraphs": [
-              "Printed: $150–$400 upfront, $50–$120 per reprint, zero edits, hard to read in low light.",
-              "Digital QR code: $20–$50 upfront, free unlimited edits, easy to read on a phone, accessible for all guests.",
-              "Printed gives a single beautiful \"Instagram moment\". Digital gives a stress-free wedding."
+              "During your active access period, saved guest and table changes appear in the online lookup. Guests need an internet connection; keep a printed backup."
             ]
           },
           {
@@ -1156,46 +1142,44 @@
         ]
       },
       "how-to-create-qr-code-seating-chart": {
-        "title": "How to Create a QR Code Wedding Seating Chart in 5 Minutes",
-        "metaTitle": "How to Create QR Code Seating Chart | Easy Guide",
-        "metaDescription": "Step-by-step guide to creating a QR code wedding seating chart in minutes. Simple, fast, and stress-free.",
-        "excerpt": "A simple 5-step guide to building your own QR code wedding seating chart — from guest list to printed sign — in just 5 minutes.",
+        "title": "Create your QR code seating chart",
+        "metaTitle": "Create your QR code seating chart | Wedding Waitress",
+        "metaDescription": "Import a CSV or add guests individually in Guest List.",
+        "excerpt": "Wedding Waitress keeps the information you add connected, so each step supports the stationery, seating, supplier and guest experiences that follow.",
         "readingTime": "5 min read",
-        "intro": "You do not need to be tech-savvy to set up a QR code wedding seating chart. The whole process takes about 5 minutes, and once it is live, every update happens automatically. Here is exactly how to do it.",
+        "intro": "Wedding Waitress keeps the information you add connected, so each step supports the stationery, seating, supplier and guest experiences that follow.",
         "sections": [
           {
-            "heading": "Step 1 — Import your guest list",
+            "heading": "Stage 1",
             "paragraphs": [
-              "Start with a clean guest list. You can paste names from a spreadsheet or add them one by one in your [wedding seating chart tool](/).",
-              "Track RSVPs as you go so you only seat guests who have actually confirmed. For more on the bigger picture, see our [step-by-step seating chart guide](/blog/how-to-create-a-wedding-seating-chart-step-by-step)."
+              "Create and manage your event first. When complete, continue to the Event Budget Planner."
             ]
           },
           {
-            "heading": "Step 2 — Create your tables",
+            "heading": "Stage 2",
             "paragraphs": [
-              "Add each table with a name, number, and capacity. Round tables typically seat 8–10, long banquet tables seat 12–24.",
-              "Inside the tables tool you can label your bridal table separately so it stands out from the rest."
+              "Plan and manage the event budget. When complete, continue to Tables."
             ]
           },
           {
-            "heading": "Step 3 — Drag guests onto tables",
+            "heading": "Stage 3",
             "paragraphs": [
-              "Drag each guest onto a table. The system warns you if you exceed capacity, so you avoid awkward last-minute squeezing.",
-              "Save dietary requirements at the same time — it makes catering coordination far simpler."
+              "Create the Head Table and remaining guest tables. When complete, continue to Guest List."
             ]
           },
           {
-            "heading": "Step 4 — Generate your branded QR code",
+            "heading": "Stage 4",
+            "paragraphs": [
+              "Add and manage guests and allocate them to tables. When complete, continue to the QR Code Seating Chart.",
+              "Import a CSV or add guests individually in Guest List."
+            ]
+          },
+          {
+            "heading": "Stage 5",
             "paragraphs": [
               "Customise the colours, shape, and centre logo of your QR code to match your wedding palette, then download a high-resolution PNG.",
-              "Test it once with your own phone to make sure it scans cleanly under low light."
-            ]
-          },
-          {
-            "heading": "Step 5 — Print your sign and you are done",
-            "paragraphs": [
-              "Print the [QR code](/qr-code-seating-chart) onto a small acrylic, foam-board, or paper sign for the venue entrance.",
-              "On the day, guests scan, search their name, and instantly see their table and seat. If anything changes, just reassign the guest from your phone — the QR code keeps working."
+              "Test it once with your own phone to make sure it scans cleanly under low light.",
+              "Print the [QR code](/qr-code-seating-chart) onto a small acrylic, foam-board, or paper sign for the venue entrance."
             ]
           }
         ]
@@ -1256,7 +1240,7 @@
           {
             "heading": "How a digital seating chart fixes it in 60 seconds",
             "paragraphs": [
-              "With a [QR code wedding seating chart](/qr-code-seating-chart), your maid of honour or coordinator can open the seating tool on a phone, drag the cancelled guest off the table, and reassign anyone else who needs to move.",
+              "Use Tables and Guest List to assign or change tables and seats. Shared planning access requires an authorised team invitation.",
               "The next guest who scans the QR code sees the updated seating immediately. No reprint, no scribbles, no stress. For more pitfalls to plan around, read our guide to [common seating chart mistakes](/blog/common-wedding-seating-chart-mistakes)."
             ]
           },
@@ -1304,7 +1288,7 @@
             "heading": "The Solution: A Digital Running Sheet",
             "paragraphs": [
               "With our [wedding planning tool](/), you can plan your entire timeline in one place, update your schedule instantly, and keep everything organised and accessible.",
-              "Every change is reflected in real time, so the latest version is always the source of truth — no more outdated PDFs flying around in group chats."
+              "Share the saved Run Sheet link with your venue or suppliers. Downloaded PDFs are snapshots; send an updated copy after changes."
             ]
           },
           {
@@ -1317,7 +1301,7 @@
           {
             "heading": "Stay Flexible on the Day",
             "paragraphs": [
-              "Things change — and that's okay. With a digital running sheet, you can adjust timings instantly, notify everyone quickly, and keep your event running smoothly.",
+              "Save changes, then ask recipients to reopen the shared link or send them a new PDF.",
               "Whether the ceremony starts 10 minutes late or speeches run long, your team can see the updates immediately."
             ]
           },

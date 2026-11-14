@@ -1,6 +1,7 @@
 import QRCode from 'qrcode';
 import { buildGalleryUploadUrl } from '@/lib/urlUtils';
 import slideshowLogo from '@/assets/wedding-waitress-slideshow-logo.png';
+import { guestbookMemoryPoster } from '../../supabase/functions/_shared/guestbook-memory-poster';
 import React, { useCallback, useEffect, useMemo, useRef, useState } from 'react';
 import { useLocation, useParams } from 'react-router-dom';
 import { Maximize, Minimize, Play, Pause, Heart } from 'lucide-react';
@@ -12,6 +13,7 @@ import { fetchLikedItemIds, toggleGalleryLike } from '@/lib/galleryLikes';
 import { formatDisplayDate } from '@/lib/utils';
 import {
   applySlideshowSettings,
+  automaticSharedMemorySettings,
   slideshowSettingsFromRow,
   DEFAULT_SLIDESHOW_SETTINGS,
   type SlideshowSettings,
@@ -39,7 +41,7 @@ interface LiveMeta {
 
 interface LiveItem {
   id: string;
-  kind: 'photo' | 'video';
+  kind: 'photo' | 'video' | 'audio';
   mime_type: string;
   storage_path: string;
   duration_sec: number | null;
@@ -49,6 +51,7 @@ interface LiveItem {
   album: string | null;
   signed_url: string;
   like_count?: number;
+  source_category?: string;
 }
 
 const DEFAULT_PHOTO_INTERVAL_SEC = 5;
@@ -120,6 +123,7 @@ const GalleryLiveView: React.FC = () => {
   const [likeBusy, setLikeBusy] = useState(false);
   const passwordRef = useRef<string>('');
   const videoRef = useRef<HTMLVideoElement | null>(null);
+  const audioRef = useRef<HTMLAudioElement | null>(null);
   const photoTimerRef = useRef<number | null>(null);
   const indexRef = useRef(0);
   const isPausedRef = useRef(isPaused);
@@ -143,8 +147,8 @@ const GalleryLiveView: React.FC = () => {
     [meta?.settings],
   );
 
-  // Only approved, non-hidden media reaches the client; apply saved filters + order.
-  const items = useMemo(() => applySlideshowSettings(rawItems, settings), [rawItems, settings]);
+  // The password-checked feed preserves hidden/private records; include every returned type and album.
+  const items = useMemo(() => applySlideshowSettings(rawItems, automaticSharedMemorySettings(settings)), [rawItems, settings]);
 
   const photoIntervalMs = useMemo(() => {
     const s = settings.slide_duration_sec ?? DEFAULT_PHOTO_INTERVAL_SEC;
@@ -177,7 +181,7 @@ const GalleryLiveView: React.FC = () => {
   }, [handleExitSlideshow, isSlideshow]);
 
   const loadItems = useCallback(async (t: string) => {
-    const body: Record<string, string> = { token: t };
+    const body: Record<string, string> = { token: t, purpose: 'slideshow' };
     if (passwordRef.current) body.password = passwordRef.current;
     const { data, error: err } = await supabase.functions.invoke('gallery-live-feed', { body });
     if (err) throw new Error(err.message);
@@ -292,7 +296,7 @@ const GalleryLiveView: React.FC = () => {
     if (current.kind === 'photo') {
       photoTimerRef.current = window.setTimeout(advance, photoIntervalMs);
     } else {
-      photoTimerRef.current = window.setTimeout(advance, MAX_VIDEO_MS);
+      photoTimerRef.current = window.setTimeout(advance, current.kind === 'audio' ? Math.max(photoIntervalMs,(current.duration_sec || 60)*1000) : MAX_VIDEO_MS);
     }
     return () => {
       if (photoTimerRef.current) {
@@ -320,6 +324,12 @@ const GalleryLiveView: React.FC = () => {
   };
 
   const current = items.length > 0 ? items[index % items.length] : null;
+  useEffect(() => {
+    const video = current?.kind === 'audio' ? audioRef.current : videoRef.current;
+    if (!video) return;
+    if (isPaused) video.pause();
+    else video.play()?.catch(() => {});
+  }, [isPaused, current?.id, current?.signed_url]);
   const prevItemRef = useRef<LiveItem | null>(null);
   const [prevItem, setPrevItem] = useState<LiveItem | null>(null);
   useEffect(() => {
@@ -458,6 +468,11 @@ const GalleryLiveView: React.FC = () => {
                     : 'animate-in fade-in duration-1000'
               }`}
             />
+          ) : current.kind === 'audio' ? (
+            <>
+              <img src={guestbookMemoryPoster(current.caption || '♫',current.uploader_name)} alt={current.caption || current.uploader_name || ''} className="absolute max-w-full max-h-full object-contain" />
+              <audio ref={audioRef} key={current.id} src={current.signed_url} autoPlay controls onEnded={advance} onError={advance} className="absolute bottom-28 left-[10%] w-[80%] z-30" />
+            </>
           ) : (
             <video
               key={current.id}
@@ -501,7 +516,7 @@ const GalleryLiveView: React.FC = () => {
           </div>
           {!isSlideshow && items.length > 0 && (
             <div className="flex items-center gap-2 shrink-0 pointer-events-auto">
-              {current && (
+              {current && current.source_category !== 'guestbook_text' && (
                 <button
                   onClick={handleLike}
                   disabled={likeBusy}

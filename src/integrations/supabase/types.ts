@@ -4785,6 +4785,14 @@ export type Database = {
       [_ in never]: never
     }
     Functions: {
+      // Versioned QR APIs retain the inspected public RPC response shapes.
+      qr_guest_public_event: Database['public']['Functions']['get_public_event_with_data_secure']
+      qr_guest_invite_recipient: Database['public']['Functions']['get_guest_by_token']
+
+      seed_onboarding_profile_image: {
+        Args: { p_draft_id: string }
+        Returns: Json
+      }
       convert_event_budget_currency: {
         Args: { p_event_id: string; p_from: string; p_to: string; p_rate: number; p_rate_date: string; p_expected_updated_at: string | null; p_expense_versions: Json; p_budget: number | null }
         Returns: Json

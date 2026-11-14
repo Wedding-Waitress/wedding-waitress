@@ -132,7 +132,6 @@ export const useFullSeatingChartSettings = (eventId: string | null) => {
           .from('full_seating_chart_settings')
           .select('*')
           .eq('event_id', eventId)
-          .eq('user_id', user.id)
           .maybeSingle();
 
         if (error) throw error;

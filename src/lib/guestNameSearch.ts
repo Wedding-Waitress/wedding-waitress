@@ -1,23 +1,29 @@
 export const normalizeGuestName = (value: string) => value.trim().toLocaleLowerCase().replace(/\s+/g, ' ');
 
-export function isInitialSearchAvailable(eventDate: string | null | undefined, timeZone: string, now = new Date()): boolean {
-  if (!eventDate || !/^\d{4}-\d{2}-\d{2}$/.test(eventDate)) return false;
+/** Calendar arithmetic avoids daylight-saving days of 23 or 25 hours. */
+export function eventCalendarDayDistance(eventDate: string | null | undefined, timeZone: string, now = new Date()): number | null {
+  if (!eventDate || !/^\d{4}-\d{2}-\d{2}$/.test(eventDate)) return null;
   try {
+    const eventDay = Date.parse(`${eventDate}T00:00:00Z`);
+    if (!Number.isFinite(eventDay) || new Date(eventDay).toISOString().slice(0, 10) !== eventDate) return null;
     const parts = new Intl.DateTimeFormat('en-US', { timeZone, year: 'numeric', month: '2-digit', day: '2-digit' }).formatToParts(now);
     const part = (type: string) => parts.find(p => p.type === type)!.value;
     const today = Date.parse(`${part('year')}-${part('month')}-${part('day')}T00:00:00Z`);
-    const eventDay = Date.parse(`${eventDate}T00:00:00Z`);
-    return Number.isFinite(eventDay) && today >= eventDay - 7 * 86400000;
-  } catch { return false; }
+    return (eventDay - today) / 86400000;
+  } catch { return null; }
+}
+
+export function isInitialSearchAvailable(eventDate: string | null | undefined, timeZone: string, now = new Date()): boolean {
+  const distance = eventCalendarDayDistance(eventDate, timeZone, now);
+  return distance !== null && distance <= 7;
 }
 
 export function matchesGuestSearch(guest: { first_name: string; last_name: string }, query: string, allowInitial: boolean): boolean {
   const input = normalizeGuestName(query);
   const first = normalizeGuestName(guest.first_name);
   const last = normalizeGuestName(guest.last_name);
-  if (!first || !last) return false;
-  if (!allowInitial) return input === `${first} ${last}`;
-  if (!input.startsWith(`${first} `)) return false;
-  const surname = input.slice(first.length + 1);
-  return surname.length > 0 && last.startsWith(surname);
+  if (!first) return false;
+  if (!allowInitial) return !!last && input === `${first} ${last}`;
+  // Keep exact full names valid for recipient invitation prefill.
+  return input.length >= 3 && (first.startsWith(input) || (!!last && input === `${first} ${last}`));
 }

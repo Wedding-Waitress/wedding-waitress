@@ -1,3 +1,4 @@
+import choiceStyles from '../EventSelectorReference.module.css';
 import { Printer as ExportControlsPrinter } from 'lucide-react';
 /**
  * ⚠️ PRODUCTION-READY - DO NOT MODIFY WITHOUT APPROVAL ⚠️
@@ -133,7 +134,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
     }
     return defaultSettings;
   });
-  const [preparedPdf, setPreparedPdf] = useState<{ url: string; name: string } | null>(null);
+  const [preparedPdf, setPreparedPdf] = useState<{ url: string; name: string; contextKey: string } | null>(null);
   const [settingsEditRevision, setSettingsEditRevision] = useState(0);
   useEffect(() => () => { if (preparedPdf) URL.revokeObjectURL(preparedPdf.url); }, [preparedPdf]);
   const [isExporting, setIsExporting] = useState(false);
@@ -141,7 +142,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
   const [showGuestLimitWarning, setShowGuestLimitWarning] = useState(false);
 
-  const { tables, loading: tablesLoading } = useTables(selectedEventId);
+  const { tables, loading: tablesLoading, loadedEventId: tablesLoadedEventId } = useTables(selectedEventId);
   const { guests, loading: guestsLoading } = useRealtimeGuests(selectedEventId);
 
   // Persist table selection to sessionStorage
@@ -155,14 +156,14 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
   // Validate that stored table belongs to current event
   useEffect(() => {
-    if (selectedTableId && tables.length > 0 && !tablesLoading) {
+    if (selectedTableId && tablesLoadedEventId === selectedEventId && !tablesLoading) {
       const tableExists = tables.some(table => table.id === selectedTableId);
       if (!tableExists) {
         setSelectedTableId(null);
         writeSession('ww:individual_table_chart_selected_table', null);
       }
     }
-  }, [selectedTableId, tables, tablesLoading]);
+  }, [selectedTableId, selectedEventId, tables, tablesLoading, tablesLoadedEventId]);
 
   // Persist chart settings to sessionStorage
   useEffect(() => {
@@ -171,6 +172,8 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
 
   const selectedEvent = events.find(event => event.id === selectedEventId);
   const selectedTable = tables.find(table => table.id === selectedTableId);
+  // A prepared download must match the current event, seating and chart controls.
+  const exportContextKey = JSON.stringify([selectedEventId, selectedTableId, settings, tables, guests, selectedEvent]);
 
   // Filter guests for selected table
   const tableGuests = guests.filter(g => g.table_id === selectedTableId);
@@ -247,7 +250,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       }).replace(/\//g, '-');
       const fileName = `${eventName}-Download Single Page-${date}.pdf`;
 
-      setPreparedPdf({ url: URL.createObjectURL(pdfBlob), name: fileName });
+      setPreparedPdf({ url: URL.createObjectURL(pdfBlob), name: fileName, contextKey: exportContextKey });
       await savePdfBlobAsync(pdfBlob, fileName);
       toast({ title: 'PDF Downloaded', description: `Page ${tables.findIndex(table => table.id === selectedTableId) + 1} has been saved` });
     } catch (error) {
@@ -286,7 +289,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
       }).replace(/\//g, '-');
       const fileName = `${eventName}-Download All Pages-${date}.pdf`;
 
-      setPreparedPdf({ url: URL.createObjectURL(pdfBlob), name: fileName });
+      setPreparedPdf({ url: URL.createObjectURL(pdfBlob), name: fileName, contextKey: exportContextKey });
       await savePdfBlobAsync(pdfBlob, fileName);
       toast({ title: 'PDF Downloaded', description: `All ${tables.length} pages have been saved` });
     } catch (error) {
@@ -342,8 +345,8 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
               {/* Choose Event + Table dropdowns */}
               <div className={styles.headerSelectors}>
             {/* Choose Event Section */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-              <label className={`${styles.interfaceLabel} text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]`}>
+            <div className={`${choiceStyles.row} flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto`}>
+              <label htmlFor="individual-chart-event-selection" className={`${choiceStyles.label} ${styles.interfaceLabel} text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]`}>
                 <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Choose Event:
               </label>
@@ -357,7 +360,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 }}
                 disabled={eventsLoading || isExporting || isExportingAll}
               >
-                <SelectTrigger className={`${styles.selectTrigger} ${styles.headerSelectTrigger} ${styles.interactiveText} w-full sm:w-[300px] font-bold`}>
+                <SelectTrigger id="individual-chart-event-selection" className={`${choiceStyles.trigger} ${styles.selectTrigger} ${styles.headerSelectTrigger} ${styles.interactiveText} w-full sm:w-[300px] font-bold`}>
                   <SelectValue placeholder="Choose Event" />
                 </SelectTrigger>
                 <SelectContent className={styles.headerSelectMenu}>
@@ -380,8 +383,8 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
             </div>
 
             {/* Table Section */}
-            <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto">
-              <label className={`${styles.interfaceLabel} text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]`}>
+            <div className={`${choiceStyles.row} flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full sm:w-auto`}>
+              <label htmlFor="individual-chart-table-selection" className={`${choiceStyles.label} ${styles.interfaceLabel} text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]`}>
                 <Table2 className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Choose Table:
               </label>
@@ -390,7 +393,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                 onValueChange={setSelectedTableId}
                 disabled={!selectedEventId || tablesLoading}
               >
-                <SelectTrigger className={`${styles.selectTrigger} ${styles.headerSelectTrigger} ${styles.compactCounter} w-full sm:w-[300px]`}>
+                <SelectTrigger id="individual-chart-table-selection" className={`${choiceStyles.trigger} ${styles.selectTrigger} ${styles.headerSelectTrigger} ${styles.compactCounter} w-full sm:w-[300px]`}>
                   <SelectValue placeholder="Select a table" />
                 </SelectTrigger>
                 <SelectContent className={styles.headerSelectMenu}>
@@ -439,7 +442,7 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
                   Download all pages PDF
                 </button>
                 </div>
-                {preparedPdf && <p className={styles.interfaceText} style={{ fontSize: '12px' }}>
+                {preparedPdf && preparedPdf.contextKey === exportContextKey && <p className={styles.interfaceText} style={{ fontSize: '12px' }}>
                   Download not started?{' '}
                   <a href={preparedPdf.url} download={preparedPdf.name} style={{ color: '#166534', textDecoration: 'underline', fontWeight: 600 }}>Save the prepared PDF</a>
                 </p>}
@@ -530,3 +533,4 @@ export const IndividualTableSeatingChartPage: React.FC<IndividualTableSeatingCha
     </div>
   );
 };
+

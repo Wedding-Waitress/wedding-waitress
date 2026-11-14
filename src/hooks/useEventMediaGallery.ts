@@ -1,10 +1,11 @@
 // Host-side gallery hook
-import { useCallback, useEffect, useState, type SetStateAction } from 'react';
+import { useCallback, useEffect, useRef, useState, type SetStateAction } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { deleteEventMediaItems } from '@/lib/deleteEventMedia';
 import type { SlideshowSettings } from '@/lib/slideshowSettings';
 import type { PersistedPhotoBoothStripStyle } from '@/lib/photoBoothTemplate';
-import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
+import { getCacheGeneration, registerCache, registerEventCache } from '@/lib/cacheRegistry';
+import { createCoalescedRead } from '@/lib/coalescedRead';
 
 export interface GalleryMeta {
   gallery_id: string;
@@ -109,7 +110,8 @@ export interface GalleryItem {
   is_photo_booth: boolean;
   is_photo_booth_strip: boolean;
   /** Authoritative privacy classification (see src/lib/mediaPrivacy.ts). */
-  source_category?: 'guest_upload' | 'photo_booth' | 'guestbook_recording';
+  source_category?: 'guest_upload' | 'photo_booth' | 'guestbook_recording' | 'guestbook_text' | 'video_wishes';
+  shared_to_slideshow?: boolean;
   /** Permanent per-event shared-photo number (guest_upload photos only). */
   share_photo_seq?: number | null;
   /** Permanent per-event shared-video number (guest_upload videos only). */
@@ -142,29 +144,39 @@ registerEventCache((eventId) => {
 });
 
 export function useEventMediaGallery(eventId: string | null, options: { loadItems?: boolean } = {}) {
+  const itemReads = useRef(createCoalescedRead<void>());
+  const currentEvent = useRef(eventId); currentEvent.current = eventId;
   const shouldLoadItems = options.loadItems !== false;
-  const [meta, setMetaState] = useState<GalleryMeta | null>(() => eventId ? galleryMetaCache.get(eventId) ?? null : null);
-  const [items, setItemsState] = useState<GalleryItem[]>(() => eventId ? galleryItemsCache.get(eventId) ?? [] : []);
+  const [metaState, setMetaState] = useState(() => ({ eventId, value: eventId ? galleryMetaCache.get(eventId) ?? null : null }));
+  const meta = metaState.eventId === eventId ? metaState.value : null;
+  const [itemsState, setItemsState] = useState(() => ({ eventId, value: eventId ? galleryItemsCache.get(eventId) ?? [] : [] as GalleryItem[] }));
+  const items = itemsState.eventId === eventId ? itemsState.value : [];
   const [loading, setLoading] = useState(() => Boolean(eventId && !galleryMetaCache.has(eventId)));
   const [error, setError] = useState<string | null>(null);
 
   const setMeta = useCallback((update: SetStateAction<GalleryMeta | null>) => {
-    setMetaState((previous) => {
+    if (currentEvent.current !== eventId) return;
+    setMetaState((state) => {
+      if (currentEvent.current !== eventId) return state;
+      const previous = state.eventId === eventId ? state.value : null;
       const next = typeof update === 'function'
         ? (update as (value: GalleryMeta | null) => GalleryMeta | null)(previous)
         : update;
       if (eventId && next) galleryMetaCache.set(eventId, next);
-      return next;
+      return { eventId, value: next };
     });
   }, [eventId]);
 
   const setItems = useCallback((update: SetStateAction<GalleryItem[]>) => {
-    setItemsState((previous) => {
+    if (currentEvent.current !== eventId) return;
+    setItemsState((state) => {
+      if (currentEvent.current !== eventId) return state;
+      const previous = state.eventId === eventId ? state.value : [];
       const next = typeof update === 'function'
         ? (update as (value: GalleryItem[]) => GalleryItem[])(previous)
         : update;
       if (eventId) galleryItemsCache.set(eventId, next);
-      return next;
+      return { eventId, value: next };
     });
   }, [eventId]);
 
@@ -184,87 +196,86 @@ export function useEventMediaGallery(eventId: string | null, options: { loadItem
   }, []);
 
   const loadMeta = useCallback(async (eid: string) => {
+    const generation = getCacheGeneration();
     const row = await fetchMeta(eid);
+    if (currentEvent.current !== eid || generation !== getCacheGeneration()) return;
     if (!row) throw new Error('Gallery not found for this event');
     setMeta(row);
   }, [fetchMeta, setMeta]);
 
-  const loadItems = useCallback(async (eid: string) => {
+  const loadItems = useCallback(async (eid: string, invalidate = false) => {
+    const generation = getCacheGeneration();
+    const current = () => currentEvent.current === eid && generation === getCacheGeneration();
+    return itemReads.current(`${generation}:${eid}`, async () => {
+    if (!current()) return;
     const { data, error: err } = await (supabase as any).rpc('get_event_media_items_host', { _event_id: eid });
     if (err) throw new Error(err.message || 'Failed to load gallery items');
     const rows = (data || []) as GalleryItem[];
-    if (rows.length === 0) { setItems([]); return; }
+    if (!current()) return;
+    const {data:wishes,error:wishError}=rows.some(row => row.source_category==='video_wishes')
+      ? await (supabase as any).from('event_media_items').select('id,shared_to_slideshow').eq('event_id',eid).eq('source_category','video_wishes')
+      : { data: [], error: null };
+    if(wishError)throw wishError;
+    const wishMap=new Map((wishes||[]).map((wish:any)=>[wish.id,wish.shared_to_slideshow]));
+    for(const row of rows)if(row.source_category==='video_wishes')row.shared_to_slideshow=wishMap.get(row.id)===true;
+    if (rows.length === 0) { if (current()) setItems([]); return; }
 
     // Option A: sign URLs client-side using the authenticated Storage API.
     // Try batch first, fall back to per-item createSignedUrl.
     const paths = rows.map(r => r.storage_path);
     const map = new Map<string, string>();
-    try {
-      const { data: signed } = await supabase.storage.from('event-media').createSignedUrls(paths, 3600);
+      const { data: signed, error: signError } = await supabase.storage.from('event-media').createSignedUrls(paths, 3600);
+      // A batch timeout/permission failure must not fan out into N more requests
+      // against the same struggling Storage API. Refresh can retry the batch.
+      if (signError) throw new Error(signError.message || 'Failed to sign gallery media');
       (signed || []).forEach((s: any, i: number) => {
         if (s?.signedUrl) map.set(rows[i].id, s.signedUrl);
       });
-    } catch {
-      // ignore — per-item fallback below
-    }
     for (const r of rows) {
       if (!map.get(r.id)) {
         const { data: s } = await supabase.storage.from('event-media').createSignedUrl(r.storage_path, 3600);
         if (s?.signedUrl) map.set(r.id, s.signedUrl);
       }
     }
-    setItems(rows.map(r => ({ ...r, signed_url: map.get(r.id) })));
+    if (current()) setItems(rows.map(r => ({ ...r, signed_url: map.get(r.id) })));
+    }, invalidate);
   }, [setItems]);
 
   const loadRequestedItems = useCallback(async (eid: string) => {
     if (shouldLoadItems) await loadItems(eid);
   }, [loadItems, shouldLoadItems]);
 
+  const refreshRecordings = useCallback(async () => {
+    if (eventId) await loadItems(eventId, true);
+  }, [eventId, loadItems]);
+
   const refresh = useCallback(async () => {
-    if (!eventId) return;
+    const eid = eventId;
+    const generation = getCacheGeneration();
+    const current = () => currentEvent.current === eid && generation === getCacheGeneration();
+    if (!eid || !current()) return;
     setLoading(true);
     setError(null);
     try {
-      if (ensuredGalleries.has(eventId)) {
-        // Warm path: gallery known to exist — fetch meta + items in parallel.
-        const [metaRow] = await Promise.all([
-          fetchMeta(eventId),
-          loadRequestedItems(eventId),
-        ]);
-        if (!metaRow) {
-          // Row disappeared (unlikely) — fall through to ensure + retry.
-          ensuredGalleries.delete(eventId);
-          await ensureGallery(eventId);
-          const retry = await fetchMeta(eventId);
-          if (!retry) throw new Error('Gallery not found for this event');
-          setMeta(retry);
-        } else {
-          setMeta(metaRow);
-        }
-      } else {
-        // Cold path: probe meta first; only call ensure if no row exists.
-        // Run the probe + items in parallel to hide latency when the row is already present.
-        const [metaRow] = await Promise.all([
-          fetchMeta(eventId),
-          loadRequestedItems(eventId),
-        ]);
-        if (metaRow) {
-          setMeta(metaRow);
-          ensuredGalleries.add(eventId);
-        } else {
-          await ensureGallery(eventId);
-          const created = await fetchMeta(eventId);
-          if (!created) throw new Error('Gallery not found for this event');
-          setMeta(created);
-          // items were already loaded (empty) in the parallel call above
-        }
+      const [existing] = await Promise.all([fetchMeta(eid), loadRequestedItems(eid)]);
+      if (!current()) return;
+      let row = existing;
+      if (!row) {
+        ensuredGalleries.delete(eid);
+        await ensureGallery(eid);
+        if (!current()) return;
+        row = await fetchMeta(eid);
+        if (!current()) return;
       }
+      if (!row) throw new Error('Gallery not found for this event');
+      setMeta(row);
+      ensuredGalleries.add(eid);
     } catch (e: any) {
-      setError(e?.message || 'Failed to load gallery');
+      if (current()) setError(e?.message || 'Failed to load gallery');
     } finally {
-      setLoading(false);
+      if (current()) setLoading(false);
     }
-  }, [eventId, ensureGallery, fetchMeta, loadRequestedItems]);
+  }, [eventId, ensureGallery, fetchMeta, loadRequestedItems, setMeta]);
 
   useEffect(() => {
     if (!eventId) { setMeta(null); setItems([]); setError(null); return; }
@@ -275,16 +286,17 @@ export function useEventMediaGallery(eventId: string | null, options: { loadItem
     const channel = supabase
       .channel(`event-media:${eventId}`)
       .on('postgres_changes', { event: '*', schema: 'public', table: 'event_media_items', filter: `event_id=eq.${eventId}` },
-        () => { loadItems(eventId).catch(() => {}); })
+        () => { loadItems(eventId, true).catch(() => {}); })
       .subscribe();
     return () => { supabase.removeChannel(channel); };
   }, [eventId, refresh, loadItems, setItems, setMeta, shouldLoadItems]);
 
   const setOpen = useCallback(async (open: boolean) => {
     if (!eventId) return;
-    await (supabase as any).rpc('set_event_media_gallery_open', { _event_id: eventId, _is_open: open });
+    const { error: err } = await (supabase as any).rpc('set_event_media_gallery_open', { _event_id: eventId, _is_open: open });
+    if (err) throw new Error(err.message || 'Failed to update gallery availability');
     setMeta(m => m ? { ...m, is_open: open } : m);
-  }, [eventId]);
+  }, [eventId, setMeta]);
 
   /**
    * Authoritative deletion for gallery media (single + bulk).
@@ -306,20 +318,14 @@ export function useEventMediaGallery(eventId: string | null, options: { loadItem
   }, [deleteItems]);
 
   const setModeration = useCallback(async (id: string, status: 'approved' | 'hidden') => {
-    // Optimistic update
-    setItems(prev => prev.map(i => (i.id === id ? { ...i, moderation_status: status } : i)));
     const { error: err } = await (supabase as any).rpc('set_event_media_moderation', { _item_id: id, _status: status });
-    if (err) {
-      // Revert
-      setItems(prev => prev.map(i => (i.id === id ? { ...i, moderation_status: status === 'approved' ? 'hidden' : 'approved' } : i)));
-      throw new Error(err.message || 'Failed to update moderation');
-    }
-  }, []);
-
+    if (err) throw new Error(err.message || 'Failed to update moderation');
+    setItems(prev => prev.map(i => i.id === id ? { ...i, moderation_status: status } : i));
+  }, [setItems]);
 
   const updateLimits = useCallback(async (l: Partial<GalleryMeta>) => {
     if (!eventId) return;
-    await (supabase as any).rpc('update_event_media_limits', {
+    const { error: err } = await (supabase as any).rpc('update_event_media_limits', {
       _event_id: eventId,
       _max_photos: l.max_photos ?? null,
       _max_videos: l.max_videos ?? null,
@@ -328,7 +334,8 @@ export function useEventMediaGallery(eventId: string | null, options: { loadItem
       _max_video_duration_sec: l.max_video_duration_sec ?? null,
       _max_photo_bytes: l.max_photo_bytes ?? null,
     });
-    await loadMeta(eventId).catch((e: any) => setError(e?.message || 'Failed to reload limits'));
+    if (err) throw new Error(err.message || 'Failed to update limits');
+    await loadMeta(eventId);
   }, [eventId, loadMeta]);
 
   const updateDisplaySettings = useCallback(async (s: GalleryDisplaySettings) => {
@@ -388,7 +395,7 @@ export function useEventMediaGallery(eventId: string | null, options: { loadItem
       setItems(curr => curr.map(i => (i.id === id ? { ...i, album: prev } : i)));
       throw new Error(err.message || 'Failed to update album');
     }
-  }, [items]);
+  }, [items, setItems]);
 
   const bulkSetAlbum = useCallback(async (ids: string[], album: GalleryAlbum | null) => {
     if (ids.length === 0) return 0;
@@ -400,7 +407,7 @@ export function useEventMediaGallery(eventId: string | null, options: { loadItem
       throw new Error(err.message || 'Failed to update albums');
     }
     return (data as number) ?? ids.length;
-  }, [items]);
+  }, [items, setItems]);
 
   const setVoiceGuestbookEnabled = useCallback(async (enabled: boolean) => {
     if (!eventId) return;
@@ -410,7 +417,7 @@ export function useEventMediaGallery(eventId: string | null, options: { loadItem
       setMeta(m => m ? { ...m, voice_guestbook_enabled: !enabled } : m);
       throw new Error(err.message || 'Failed to update Voice Guestbook');
     }
-  }, [eventId]);
+  }, [eventId, setMeta]);
 
   /** Unified Digital Guestbook toggle — controls written, audio and video messages together. */
   const setGuestbookEnabled = useCallback(async (enabled: boolean) => {
@@ -424,17 +431,9 @@ export function useEventMediaGallery(eventId: string | null, options: { loadItem
       setMeta(m => m ? { ...m, voice_guestbook_enabled: !enabled, guestbook_text_enabled: !enabled } : m);
       throw new Error(voice?.error?.message || text?.error?.message || 'Failed to update Digital Guestbook');
     }
-  }, [eventId]);
+  }, [eventId, setMeta]);
 
   /** Publish / un-publish a private guestbook recording to the public gallery. */
-  const setGuestbookShare = useCallback(async (id: string, shared: boolean) => {
-    setItems(prev => prev.map(i => (i.id === id ? { ...i, shared_to_gallery: shared } : i)));
-    const { error: err } = await (supabase as any).rpc('set_event_media_guestbook_share', { _item_id: id, _shared: shared });
-    if (err) {
-      setItems(prev => prev.map(i => (i.id === id ? { ...i, shared_to_gallery: !shared } : i)));
-      throw new Error(err.message || 'Failed to update gallery sharing');
-    }
-  }, []);
 
 
 
@@ -446,7 +445,7 @@ export function useEventMediaGallery(eventId: string | null, options: { loadItem
       setMeta(m => m ? { ...m, slideshow_enabled: !enabled } : m);
       throw new Error(err.message || 'Failed to update Live Slideshow');
     }
-  }, [eventId]);
+  }, [eventId, setMeta]);
 
   const setPhotoBoothEnabled = useCallback(async (enabled: boolean) => {
     if (!eventId) return;
@@ -456,7 +455,7 @@ export function useEventMediaGallery(eventId: string | null, options: { loadItem
       setMeta(m => m ? { ...m, photo_booth_enabled: !enabled } : m);
       throw new Error(err.message || 'Failed to update Photo Booth');
     }
-  }, [eventId]);
+  }, [eventId, setMeta]);
 
   const setPhotoBoothMode = useCallback(async (mode: 'single' | 'strip') => {
     if (!eventId) return;
@@ -519,7 +518,7 @@ export function useEventMediaGallery(eventId: string | null, options: { loadItem
       setMeta(m => m ? { ...m, [feature]: !enabled } : m);
       throw new Error(err.message || 'Failed to update feature');
     }
-  }, [eventId]);
+  }, [eventId, setMeta]);
 
   const updateSlideshowSettings = useCallback(async (s: SlideshowSettings) => {
     if (!eventId) return;
@@ -552,5 +551,5 @@ export function useEventMediaGallery(eventId: string | null, options: { loadItem
     }
   }, [eventId, meta]);
 
-  return { meta, items, loading, error, refresh, setOpen, deleteItem, deleteItems, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVoiceGuestbookEnabled, setGuestbookEnabled, setGuestbookShare, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled, setGuestFeature, updateSlideshowSettings };
+  return { meta, items, loading, error, refresh, refreshRecordings, setOpen, deleteItem, deleteItems, updateLimits, setModeration, updateDisplaySettings, setPassword, updateBranding, setAlbum, bulkSetAlbum, setVoiceGuestbookEnabled, setGuestbookEnabled, setPhotoBoothEnabled, setPhotoBoothMode, updatePhotoBoothTemplate, setSlideshowEnabled, setGuestFeature, updateSlideshowSettings };
 }

@@ -1,4 +1,5 @@
 // 🔒 PRODUCTION-LOCKED — Subscription Card (2026-04-25) — plan and usage summary
+import { normalizePublicPlanName } from '@/lib/stripeExtensionPrices';
 import React, { useEffect, useState } from 'react';
 import { LucideIcon } from 'lucide-react';
 import { Badge } from '@/components/ui/badge';
@@ -85,7 +86,7 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
   const status = plan?.status || 'active';
   let badgeClass = 'bg-green-100 text-green-700 hover:bg-green-100 border-green-200';
   let statusLabel: string = 'Active';
-  let displayPlanName = planName;
+  let displayPlanName = normalizePublicPlanName(planName);
 
   if (hasPlatformOwnerAccess) {
     displayPlanName = 'Platform Owner Access';
@@ -113,7 +114,7 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
   }
 
   return (
-    <SectionCard icon={icon} title="Current Plan" description="Plan status, allowances and usage">
+    <SectionCard showIcon={false} icon={icon} title="Current Plan" description="Plan status, allowances and usage">
       <div className="space-y-3 text-sm">
         <div className="flex items-center justify-between gap-3 py-2 border-b border-border/50">
           <div className="flex items-center gap-3 flex-wrap">
@@ -124,7 +125,7 @@ export const SubscriptionCard: React.FC<Props> = ({ icon }) => {
           </div>
         </div>
         <Row label="Start date" value={formatDate(startDate)} />
-        <Row label="Expiry date" value={formatDate(plan?.expires_at ?? null)} />
+        <Row label="Expiry date" value={hasPlatformOwnerAccess ? 'No expiry — platform owner access' : formatDate(plan?.expires_at ?? null)} />
         {canExtend && (
           <div className="rounded-xl border border-amber-300/60 bg-amber-50/70 p-3 text-sm text-amber-950">
             <p>Extend access for one month or any number of whole months at A$20 per month, paid upfront.</p>

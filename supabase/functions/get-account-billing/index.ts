@@ -1,3 +1,4 @@
+import { ownedBillingCustomer, billingChargeHistory } from '../_shared/accountBillingEvidence.ts';
 import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 // 🔒 PRODUCTION-LOCKED — Account billing data fetcher (2026-04-18)
 // Returns Stripe payment method, last invoice, next billing, history, and portal URL.
@@ -37,22 +38,7 @@ serve(async (req) => {
     }
     const user = userData.user;
 
-    // No Stripe key → return empty data gracefully
-    if (!stripeKey) {
-      return new Response(
-        JSON.stringify({
-          paymentMethod: null,
-          lastInvoice: null,
-          nextBillingDate: null,
-          history: [],
-          portalUrl: null,
-        }),
-        {
-          headers: { ...corsHeaders, "Content-Type": "application/json" },
-          status: 200,
-        },
-      );
-    }
+    if (!stripeKey) throw new Error('Billing provider is not configured');
 
     const stripe = new Stripe(stripeKey, { apiVersion: "2025-08-27.basil" });
     const customers = await stripe.customers.list({
@@ -60,7 +46,8 @@ serve(async (req) => {
       limit: 1,
     });
 
-    if (customers.data.length === 0) {
+    const customerId = ownedBillingCustomer(customers,user.id,/^(sk|rk)_live_/.test(stripeKey));
+    if (!customerId) {
       return new Response(
         JSON.stringify({
           paymentMethod: null,
@@ -76,13 +63,14 @@ serve(async (req) => {
       );
     }
 
-    const customerId = customers.data[0].id;
+
 
     // Fetch payment method, invoices, subscription in parallel
-    const [pmList, invoiceList, subList] = await Promise.all([
+    const [pmList, invoiceList, subList, chargeList] = await Promise.all([
       stripe.paymentMethods.list({ customer: customerId, type: "card", limit: 1 }),
       stripe.invoices.list({ customer: customerId, limit: 10 }),
       stripe.subscriptions.list({ customer: customerId, status: "active", limit: 1 }),
+      stripe.charges.list({customer:customerId,limit:100}),
     ]);
 
     const pm = pmList.data[0];
@@ -106,7 +94,7 @@ serve(async (req) => {
       ? new Date(sub.current_period_end * 1000).toISOString()
       : null;
 
-    const history = invoices.map((inv) => ({
+    const invoiceHistory = invoices.map((inv: Stripe.Invoice) => ({
       id: inv.id,
       date: new Date(inv.created * 1000).toISOString(),
       type: inv.amount_paid > 0 ? "Payment" : "Adjustment",
@@ -117,8 +105,11 @@ serve(async (req) => {
       pdfUrl: inv.invoice_pdf,
     }));
 
+    const history = [...invoiceHistory,...billingChargeHistory(chargeList.data)]
+      .sort((a,b)=>Date.parse(b.date)-Date.parse(a.date));
+
     // Build portal URL
-    const origin = req.headers.get("origin") || "https://weddingwaitress.com.au";
+    const origin = "https://weddingwaitress.com.au";
     let portalUrl: string | null = null;
     try {
       const portal = await stripe.billingPortal.sessions.create({

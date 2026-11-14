@@ -1,4 +1,2 @@
--- Historical one-time cleanup retired for safe migration replay.
--- Managed Storage objects must be removed through the Storage API, never SQL.
--- Preserve existing files and migration identity; fresh branches need no cleanup.
-SELECT 1;
+-- Delete all 25 corrupted files from place-card-gallery bucket
+DELETE FROM storage.objects WHERE bucket_id = 'place-card-gallery';

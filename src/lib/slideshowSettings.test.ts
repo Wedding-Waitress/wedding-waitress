@@ -31,3 +31,13 @@ describe('Live Slideshow album compatibility', () => {
     expect(visible.map((item) => item.id)).toEqual(['dance', 'speech', 'bridal', 'missing']);
   });
 });
+
+import {automaticSharedMemorySettings} from './slideshowSettings';
+import {guestVisibleItems} from './mediaPrivacy';
+it('automatically includes every shared memory despite stale album and media exclusions, preserving hidden/private content and playback',()=>{
+ const saved={include_photos:false,include_videos:false,albums:['Ceremony'],order:'oldest' as const,slide_duration_sec:8,transition:'slide' as const,show_caption:false,loop:false};
+ const snapshot=JSON.stringify(saved),effective=automaticSharedMemorySettings(saved);
+ const items=[{id:'photo',kind:'photo',source_category:'guest_upload',album:'Reception'}, {id:'video',kind:'video',source_category:'guest_upload',album:'Other'}, {id:'booth-strip',kind:'photo',source_category:'photo_booth',album:null}, {id:'written',kind:'photo',source_category:'guestbook_text',album:null}, {id:'audio',kind:'audio',source_category:'guestbook_recording',album:null}, {id:'guestbook-video',kind:'video',source_category:'guestbook_recording',album:null}, {id:'hidden',kind:'video',source_category:'guest_upload',moderation_status:'hidden',album:null}, {id:'private-wish',kind:'video',source_category:'video_wishes',album:null}];
+ expect(applySlideshowSettings(guestVisibleItems(items),effective).map(i=>i.id)).toEqual(['photo','video','booth-strip','written','audio','guestbook-video']);
+ expect(effective).toEqual({...saved,include_photos:true,include_videos:true,albums:[]});expect(JSON.stringify(saved)).toBe(snapshot);
+});

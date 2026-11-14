@@ -1,0 +1,26 @@
+export const publicSeasonalWorkflowSources = [
+  'Create the seasonal event',
+  'Set the date, venue, timing and capacity for a family, community or workplace celebration.',
+  'Confirm attendance',
+  'Build the list, follow responses and record the information needed for service.',
+  'Prepare the gathering',
+  'Arrange tables, place cards, signage and a run sheet where the format requires them.',
+  'Share the highlights',
+  'Collect guest photos and messages through simple browser-based access.',
+] as const;
+const row = (text: string) => text.split('|');
+export const publicSeasonalWorkflowRows: Record<string, readonly string[]> = {
+  en: publicSeasonalWorkflowSources,
+  it: row('Crea l’evento stagionale|Imposta data, location, orari e capienza per una festa di famiglia, comunità o lavoro.|Conferma le presenze|Crea la lista, segui le risposte e registra le informazioni necessarie al servizio.|Prepara l’incontro|Disponi tavoli, segnaposto, cartelli e programma quando il formato li richiede.|Condividi i momenti migliori|Raccogli foto e messaggi degli ospiti tramite un semplice accesso nel browser.'),
+  ar: row('أنشئ الحدث الموسمي|حدّد التاريخ والمكان والمواعيد والسعة لاحتفال عائلي أو مجتمعي أو في العمل.|أكّد الحضور|أنشئ القائمة وتابع الردود وسجّل المعلومات اللازمة للخدمة.|جهّز اللقاء|رتّب الطاولات وبطاقات الأسماء واللافتات والبرنامج عندما يتطلب شكل الحدث ذلك.|شارك أبرز اللحظات|اجمع صور الضيوف ورسائلهم عبر وصول بسيط من المتصفح.'),
+  zh: row('创建季节性活动|为家庭、社区或工作场所的庆祝设置日期、场地、时间和容量。|确认出席|建立名单，跟踪回复并记录服务所需的信息。|准备聚会|根据活动形式安排桌位、席卡、标牌和流程表。|分享精彩片段|通过简单的浏览器访问收集宾客照片和消息。'),
+  vi: row('Tạo sự kiện theo mùa|Đặt ngày, địa điểm, thời gian và sức chứa cho buổi mừng gia đình, cộng đồng hoặc công ty.|Xác nhận tham dự|Tạo danh sách, theo dõi phản hồi và ghi thông tin cần cho phục vụ.|Chuẩn bị buổi gặp|Sắp bàn, thẻ tên, biển và lịch trình khi hình thức sự kiện cần.|Chia sẻ điểm nổi bật|Thu ảnh và lời nhắn của khách qua truy cập trình duyệt đơn giản.'),
+  hi: row('मौसमी आयोजन बनाएँ|परिवार, समुदाय या कार्यस्थल के उत्सव के लिए तारीख, स्थान, समय और क्षमता तय करें।|उपस्थिति की पुष्टि करें|सूची बनाएँ, जवाब देखें और सेवा के लिए ज़रूरी जानकारी दर्ज करें।|मिलन की तैयारी करें|आयोजन के स्वरूप के अनुसार मेज़ें, नाम कार्ड, संकेत और समय-सारणी तैयार करें।|खास पल साझा करें|सरल ब्राउज़र पहुँच से मेहमानों की फ़ोटो और संदेश इकट्ठा करें।'),
+  tr: row('Mevsimsel etkinliği oluşturun|Aile, topluluk veya iş yeri kutlaması için tarihi, mekânı, saatleri ve kapasiteyi belirleyin.|Katılımı doğrulayın|Listeyi oluşturun, yanıtları izleyin ve hizmet için gerekli bilgileri kaydedin.|Buluşmayı hazırlayın|Biçim gerektiriyorsa masaları, isim kartlarını, tabelaları ve akışı düzenleyin.|Öne çıkan anları paylaşın|Kolay tarayıcı erişimiyle konuk fotoğraflarını ve mesajlarını toplayın.'),
+  de: row('Erstellen Sie die saisonale Veranstaltung|Legen Sie Datum, Veranstaltungsort, Zeiten und Kapazität für eine Familien-, Gemeinschafts- oder Betriebsfeier fest.|Bestätigen Sie die Teilnahme|Erstellen Sie die Liste, verfolgen Sie Antworten und erfassen Sie benötigte Serviceinformationen.|Bereiten Sie das Treffen vor|Ordnen Sie Tische, Platzkarten, Schilder und Ablaufplan an, wenn das Format sie benötigt.|Teilen Sie die Höhepunkte|Sammeln Sie Gästefotos und Nachrichten über einfachen Browserzugang.'),
+  es: row('Crea el evento de temporada|Establece fecha, recinto, horarios y capacidad para una celebración familiar, comunitaria o laboral.|Confirma la asistencia|Crea la lista, sigue las respuestas y registra la información necesaria para el servicio.|Prepara la reunión|Organiza mesas, tarjetas de sitio, señalización y programa cuando el formato lo requiera.|Comparte los mejores momentos|Recoge fotos y mensajes de invitados mediante acceso sencillo desde el navegador.'),
+  fr: row('Créez l’événement saisonnier|Définissez date, lieu, horaires et capacité pour une fête familiale, communautaire ou professionnelle.|Confirmez la présence|Créez la liste, suivez les réponses et notez les informations nécessaires au service.|Préparez le rassemblement|Disposez tables, marque-places, panneaux et programme lorsque le format les exige.|Partagez les temps forts|Recueillez photos et messages des invités grâce à un accès simple dans le navigateur.'),
+  nl: row('Maak het seizoensevenement aan|Stel datum, locatie, tijden en capaciteit in voor een familie-, gemeenschaps- of bedrijfsfeest.|Bevestig deelname|Maak de lijst, volg reacties en noteer informatie die voor de service nodig is.|Bereid de bijeenkomst voor|Organiseer tafels, naamkaartjes, borden en draaiboek wanneer de vorm dat vereist.|Deel de hoogtepunten|Verzamel gastfoto’s en berichten via eenvoudige browsertoegang.'),
+  ja: row('季節のイベントを作成|家族、地域、職場のお祝いに合わせて日付、会場、時間、定員を設定します。|出席を確認|リストを作り、回答を確認し、サービスに必要な情報を記録します。|集まりを準備|形式に応じてテーブル、席札、案内表示、進行表を準備します。|ハイライトを共有|簡単なブラウザーアクセスでゲストの写真とメッセージを集めます。'),
+  el: row('Δημιουργήστε την εποχική εκδήλωση|Ορίστε ημερομηνία, χώρο, ώρες και χωρητικότητα για οικογενειακή, κοινοτική ή εργασιακή γιορτή.|Επιβεβαιώστε τη συμμετοχή|Δημιουργήστε τη λίστα, παρακολουθήστε απαντήσεις και καταγράψτε πληροφορίες για την εξυπηρέτηση.|Ετοιμάστε τη συγκέντρωση|Οργανώστε τραπέζια, κάρτες θέσεων, πινακίδες και πρόγραμμα όπου το απαιτεί η μορφή.|Μοιραστείτε τα σημαντικότερα στιγμιότυπα|Συλλέξτε φωτογραφίες και μηνύματα μέσω απλής πρόσβασης από το πρόγραμμα περιήγησης.'),
+};

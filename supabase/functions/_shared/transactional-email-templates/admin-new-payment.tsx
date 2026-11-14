@@ -1,3 +1,4 @@
+import { EmailBrandFooter } from './email-brand-footer.tsx';
 /**
  * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY without explicit owner approval.
  * Admin notification: a new payment was received.
@@ -34,7 +35,8 @@ const AdminNewPaymentEmail = ({ name, email, amount, plan, date }: AdminPaymentP
           <Text style={row}><strong>Amount:</strong> ${amount ?? '—'}</Text>
           <Text style={row}><strong>Plan:</strong> {plan || '—'}</Text>
           <Text style={row}><strong>Date:</strong> {formattedDate}</Text>
-        </Container>
+        <EmailBrandFooter />
+      </Container>
       </Body>
     </Html>
   )

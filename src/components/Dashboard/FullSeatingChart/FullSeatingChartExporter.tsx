@@ -1,3 +1,4 @@
+import { fitDocumentFooterLogo } from '@/lib/documentFooterLogo';
 /**
  * ============================================================================
  * 🔒 PRODUCTION LOCKED - DO NOT MODIFY 🔒
@@ -52,6 +53,7 @@ import { Download, FileText, Loader2 } from 'lucide-react';
 import { Guest } from '@/hooks/useGuests';
 import { FullSeatingChartSettings } from '@/hooks/useFullSeatingChartSettings';
 import { normalizeRsvp } from '@/lib/rsvp';
+import { getRelationDisplayText } from '@/lib/relationUtils';
 import jsPDF from 'jspdf';
 import { PDF_DEFAULT_OPTIONS, savePdfAsync } from '@/lib/pdfExportUtils';
 
@@ -165,7 +167,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         // Event name
         pdf.setFontSize(18);
         pdf.setFont('helvetica', 'bold');
-        pdf.setTextColor(150, 122, 89); // Darker purple #967A59
+        pdf.setTextColor(47, 27, 20); // Approved espresso event heading
         pdf.text(event.name, pageWidth / 2, y, { align: 'center' });
         y += 6;
 
@@ -278,9 +280,10 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
               pdf.text(`RSVP: ${rsvpStatus}`, margin + 6, currentY);
               currentY += baseLineHeight;
             }
-            if (settings.showRelation && guest.relation_display) {
+            const relationship = getRelationDisplayText(guest.relation_display, guest.relation_role);
+            if (settings.showRelation && relationship) {
                 pdf.setTextColor(150, 122, 89);
-              pdf.text(`Relation: ${guest.relation_display}`, margin + 6, currentY);
+              pdf.text(`Relation: ${relationship}`, margin + 6, currentY);
               currentY += baseLineHeight;
             }
             pdf.setTextColor(0, 0, 0);
@@ -318,9 +321,10 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
               pdf.text(`RSVP: ${rsvpStatus}`, rightX + 6, currentY);
               currentY += baseLineHeight;
             }
-            if (settings.showRelation && guest.relation_display) {
+            const relationship = getRelationDisplayText(guest.relation_display, guest.relation_role);
+            if (settings.showRelation && relationship) {
               pdf.setTextColor(150, 122, 89);
-              pdf.text(`Relation: ${guest.relation_display}`, rightX + 6, currentY);
+              pdf.text(`Relation: ${relationship}`, rightX + 6, currentY);
               currentY += baseLineHeight;
             }
             pdf.setTextColor(0, 0, 0);
@@ -338,11 +342,12 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         for (let pageNum = 1; pageNum <= totalPagesCount; pageNum++) {
           pdf.setPage(pageNum);
           try {
-            const logoUrl = '/wedding-waitress-logo-brown.png';
+            const logoUrl = '/wedding-waitress-document-footer-dark-brown.png';
             const logoH = 10.5;
             const logoW = 35;
             const footerY = pageHeight - margin - logoH; // 10mm from bottom
-            pdf.addImage(logoUrl, 'PNG', (pageWidth - logoW) / 2, footerY, logoW, logoH);
+            const logoSize = fitDocumentFooterLogo(logoW, logoH);
+            pdf.addImage(logoUrl, 'PNG', (pageWidth - logoSize.width) / 2, footerY + (logoH - logoSize.height) / 2, logoSize.width, logoSize.height);
           } catch (error) {
             console.log('Could not add footer logo to PDF:', error);
           }

@@ -1,4 +1,6 @@
 import React from 'react';
+import copy from '@/i18n/locales/en/common.json';
+vi.mock('react-i18next',()=>({useTranslation:()=>({t:(key:string)=>key.split('.').reduce((value:any,part)=>value?.[part],copy)||key})}));
 import { cleanup, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, describe, expect, it, vi } from 'vitest';
 import { MemoryRouter } from 'react-router-dom';
@@ -75,7 +77,7 @@ describe('public Photo Booth espresso-glass form', () => {
   it('styles the live form, camera, four slots, and actions without black control borders', async () => {
     const { container } = renderBooth();
 
-    const name = await screen.findByLabelText(/Your Full Name/i);
+    const name = await screen.findByLabelText(/Please add your full name first/i);
     await waitFor(() => expect(mocks.getUserMedia).toHaveBeenCalledTimes(1));
     const panel = container.querySelector('[data-public-photo-booth-surface="form"]');
     expect(panel).toHaveClass(publicUploadStyles.uploadPanel, publicUploadStyles.photoBoothPanel);
@@ -86,12 +88,22 @@ describe('public Photo Booth espresso-glass form', () => {
 
     const slots = [...container.querySelectorAll('[data-photo-booth-slot]')];
     expect(slots).toHaveLength(4);
+    const captureNote = screen.getByText('4 photos - 8 seconds countdown');
+    expect(captureNote).toHaveClass('text-base', 'font-medium', publicUploadStyles.sectionHeading);
+    expect(video!.compareDocumentPosition(captureNote) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(captureNote.nextElementSibling).toContainElement(slots[0] as HTMLElement);
+    expect(slots[3].compareDocumentPosition(name) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     slots.forEach(slot => {
-      expect(slot).toHaveClass(publicUploadStyles.photoBoothSlot, 'w-12', 'h-16');
+      expect(slot).toHaveClass(publicUploadStyles.photoBoothSlot, 'min-w-0', 'aspect-[3/4]');
       expect(slot).not.toHaveClass('border-[#472c1d]');
     });
 
     const start = screen.getByRole('button', { name: 'Start Photo Strip' });
+    // One normal-flow order at every viewport: preview, labelled name, start.
+    expect(video!.compareDocumentPosition(name) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(name.compareDocumentPosition(start) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(name.parentElement!.nextElementSibling?.firstElementChild).toBe(start);
+    expect(container.querySelector('label[for="pb-name"]')).toHaveTextContent('Please add your full name first');
     const flip = screen.getByRole('button', { name: 'Flip' });
     const cancel = screen.getByRole('button', { name: 'Cancel' });
     expect(start).toHaveClass(publicUploadStyles.primaryAction);

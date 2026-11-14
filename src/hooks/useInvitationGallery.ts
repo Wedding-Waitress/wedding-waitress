@@ -1,109 +1,48 @@
-import { useState, useEffect } from 'react';
+import { useMemo } from 'react';
+import { useQuery, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
-
+import { getCacheGeneration, getCacheUserId } from '@/lib/cacheRegistry';
 export interface InvitationGalleryImage {
-  id: string;
-  name: string;
-  category: string;
-  image_url: string;
-  thumbnail_url: string | null;
-  sort_order: number;
-  created_at: string;
-  categories: string[];
+  id: string; name: string; category: string; image_url: string;
+ thumbnail_url: string | null;
+  sort_order: number; created_at: string; categories: string[];
 }
-
-export interface CategoryWithCount {
-  name: string;
-  count: number;
-}
-
+export interface CategoryWithCount { name: string; count: number }
 export const useInvitationGallery = () => {
-  const [images, setImages] = useState<InvitationGalleryImage[]>([]);
-  const [categories, setCategories] = useState<string[]>([]);
-  const [categoriesWithCounts, setCategoriesWithCounts] = useState<CategoryWithCount[]>([]);
-  const [loading, setLoading] = useState(true);
-  const [error, setError] = useState<string | null>(null);
-
-  const recompute = (galleryImages: InvitationGalleryImage[]) => {
-    const counts = new Map<string, number>();
-    galleryImages.forEach((img) => {
-      img.categories.forEach((c) => counts.set(c, (counts.get(c) ?? 0) + 1));
-    });
-    const sorted = Array.from(counts.entries())
-      .map(([name, count]) => ({ name, count }))
-      .sort((a, b) => a.name.localeCompare(b.name));
-    setCategoriesWithCounts(sorted);
-    setCategories(sorted.map((c) => c.name));
-  };
-
-  const fetchGalleryImages = async () => {
-    try {
-      setLoading(true);
-      setError(null);
-
-      const { data, error: fetchError } = await supabase
-        .from('invitation_gallery_images' as any)
-        .select('*, invitation_image_categories(invitation_categories(name))')
-        .order('sort_order', { ascending: true });
-
-      if (fetchError) throw fetchError;
-
-      const rows = (data || []) as unknown as Array<Record<string, any>>;
-      const galleryImages: InvitationGalleryImage[] = rows.map((row) => {
-        const joinRows = Array.isArray(row.invitation_image_categories) ? row.invitation_image_categories : [];
-        const cats = joinRows
-          .map((j: any) => j?.invitation_categories?.name)
-          .filter((n: unknown): n is string => typeof n === 'string' && n.length > 0);
-        // Join table is the single source of truth. Only fall back to legacy text column when no join row exists.
-        const merged = cats.length > 0
-          ? Array.from(new Set(cats))
-          : (typeof row.category === 'string' && row.category.length > 0 ? [row.category] : []);
+  const client = useQueryClient();
+  const queryKey = ['invitation-gallery', getCacheUserId(), getCacheGeneration()];
+  const query = useQuery({
+    queryKey, staleTime: 5 * 60_000, gcTime: 15 * 60_000, refetchOnWindowFocus: false,
+    queryFn: async () => {
+      const { data, error } = await supabase.from('invitation_gallery_images' as any)
+        .select('*, invitation_image_categories(invitation_categories(name))').order('sort_order', { ascending: true });
+      if (error) throw error;
+      return ((data || []) as unknown as Array<Record<string, any>>).map((row): InvitationGalleryImage => {
+        const joins = Array.isArray(row.invitation_image_categories) ? row.invitation_image_categories : [];
+        const names = joins.map((join: any) => join?.invitation_categories?.name).filter((name: unknown): name is string => typeof name === 'string' && name.length > 0);
         return {
-          id: row.id,
-          name: row.name,
-          category: row.category,
-          image_url: row.image_url,
+          id: row.id, name: row.name, category: row.category, image_url: row.image_url,
           thumbnail_url: row.thumbnail_url ?? null,
-          sort_order: row.sort_order ?? 0,
-          created_at: row.created_at,
-          categories: merged,
+          sort_order: row.sort_order ?? 0, created_at: row.created_at,
+          categories: names.length ? Array.from(new Set(names)) : typeof row.category === 'string' && row.category.length > 0 ? [row.category] : [],
         };
       });
-
-      setImages(galleryImages);
-      recompute(galleryImages);
-    } catch (err) {
-      console.error('Error fetching invitation gallery images:', err);
-      setError(err instanceof Error ? err.message : 'Failed to load gallery');
-    } finally {
-      setLoading(false);
-    }
-  };
-
-  const getImagesByCategory = (category: string): InvitationGalleryImage[] => {
-    return images.filter((img) => img.categories.includes(category));
-  };
-
-  const removeImageFromGallery = (imageId: string) => {
-    setImages((prev) => {
-      const next = prev.filter((img) => img.id !== imageId);
-      recompute(next);
-      return next;
-    });
-  };
-
-  useEffect(() => {
-    fetchGalleryImages();
-  }, []);
-
+    },
+  });
+  const images = query.data ?? [];
+  const categoriesWithCounts = useMemo(() => {
+    const counts = new Map<string, number>();
+    images.forEach(image => image.categories.forEach(name => counts.set(name, (counts.get(name) ?? 0) + 1)));
+    return Array.from(counts, ([name, count]) => ({ name, count })).sort((a, b) => a.name.localeCompare(b.name));
+  }, [query.data]);
   return {
-    images,
-    categories,
-    categoriesWithCounts,
-    loading,
-    error,
-    refetch: fetchGalleryImages,
-    getImagesByCategory,
-    removeImageFromGallery,
+    images, categoriesWithCounts, categories: categoriesWithCounts.map(category => category.name),
+    loading: query.isPending, error: query.error ? query.error.message || 'Failed to load gallery' : null,
+    removeImageFromGallery: (id: string) => {
+      void client.cancelQueries({ queryKey });
+      client.setQueryData<InvitationGalleryImage[]>(queryKey, current => current?.filter(image => image.id !== id));
+    },
+    getImagesByCategory: (category: string) => images.filter(image => image.categories.includes(category)),
+    refetch: query.refetch,
   };
 };

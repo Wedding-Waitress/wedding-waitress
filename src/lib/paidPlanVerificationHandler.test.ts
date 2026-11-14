@@ -50,6 +50,22 @@ function fixture({ blocked = false, replay = false, invalidResult = false, unpai
 }
 afterEach(() => vi.restoreAllMocks());
 describe('actual paid-plan verification Edge handler with isolated provider/database adapters', () => {
+  it('routes a verified dedicated upgrade SKU to its destination plan', async () => {
+    const app = fixture();
+    Object.assign(app.session, { amount_subtotal: 5000, amount_total: 5500,
+      total_details: { amount_discount: 0, amount_shipping: 0, amount_tax: 500 },
+      metadata: { ...app.session.metadata, plan_type: 'premium', from_plan: 'essential', plan_purchase_purpose: 'upgrade' },
+      line_items: { has_more: false, data: [{ quantity: 1, amount_subtotal: 5000,
+        price: { id: 'price_1UFTfd5GzTmqOxGKfwtvD4lt', currency: 'aud', unit_amount: 5000,
+          product: { id: 'ww_live_20260914_v2_essential_to_premium' } } }] } });
+    Object.assign(await app.retrieveIntent(), { amount: 5500, amount_received: 5500 });
+    app.charge.amount = 5500;
+    app.term.plan_id = '1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8';
+    expect((await app.handler(app.request())).status).toBe(200);
+    expect(app.rpc).toHaveBeenCalledWith('fulfill_paid_plan_purchase', expect.objectContaining({
+      _plan_id: app.term.plan_id, _previous_plan_id: '78cdab0d-d81d-4757-b7cc-f210b8b30f47',
+      _amount_subtotal_cents: 5000, _amount_total_cents: 5500, _purpose: 'upgrade' }));
+  });
   it('fulfills a missing subscription through the atomic RPC using original success time', async () => {
     const app = fixture();
     const response = await app.handler(app.request());

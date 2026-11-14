@@ -53,3 +53,13 @@ it.each(['https://www.youtube.com/watch?v=vdUtt0qZ4W4','https://open.spotify.com
  fireEvent.click(screen.getByRole('button',{name:'Undo'}));
  expect(onUpdate).toHaveBeenLastCalledWith({custom_values:{duties:url,other:'Keep this'}});
 });
+
+it.each(['ceremony','cocktail','speeches'] as const)('disables all direct input fields for read-only %s rows',sectionType=>{
+ const onUpdate=vi.fn();render(<DJMCSectionRow item={{id:'readonly',row_label:'Existing row',duration:'5 min'} as any} eventId="event" sectionType={sectionType} disabled onUpdate={onUpdate} onDelete={vi.fn()} onDuplicate={vi.fn()}/>);
+ screen.getAllByRole('textbox').forEach(input=>expect(input).toBeDisabled());
+});
+it('opens the row label using the keyboard and gives its editor a name',()=>{
+ render(<DJMCSectionRow item={{id:'keyboard',row_label:'Existing row'} as any} eventId="event" sectionType="speeches" onUpdate={vi.fn()} onDelete={vi.fn()} onDuplicate={vi.fn()}/>);
+ fireEvent.keyDown(screen.getByRole('button',{name:'Existing row'}),{key:'Enter'});
+ expect(screen.getByRole('textbox',{name:'Existing row'})).toBeVisible();
+});

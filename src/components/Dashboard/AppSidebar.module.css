@@ -307,3 +307,19 @@
  text-shadow:none!important;
  font-weight:600!important;
 }
+
+/* Keep the accepted cream highlight readable for pointer and keyboard input. */
+@layer dashboard-interface {
+ .accountMenu .accountMenuItem:is(:hover,:focus,:focus-visible,:active,[data-highlighted]),
+ .accountMenu .accountMenuItem:is(:hover,:focus,:focus-visible,:active,[data-highlighted]) :is(svg,svg *) {
+  color:#2f1b14!important;-webkit-text-fill-color:#2f1b14!important;stroke:currentColor!important;
+ }
+ .accountMenu .accountMenuItem:is(:hover,:focus,:focus-visible,:active,[data-highlighted]),
+ .accountMenu .logoutItem:is(:hover,:focus,:focus-visible,:active,[data-highlighted]) {background:#eadbc8!important;}
+ .accountMenu .logoutItem:is(:hover,:focus,:focus-visible,:active,[data-highlighted]),
+ .accountMenu .logoutItem:is(:hover,:focus,:focus-visible,:active,[data-highlighted]) :is(svg,svg *) {
+  color:#c51d17!important;-webkit-text-fill-color:#c51d17!important;stroke:currentColor!important;
+ }
+}
+
+@layer dashboard-interface {.accountMenu :is(.accountMenuItem,.logoutItem):is(:hover,:focus,:focus-visible,:active,[data-highlighted]) {transition:none!important;}}

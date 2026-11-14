@@ -3,7 +3,7 @@ import { promotionTermStart, promotionTermEnd, validatePromotionCompletion, type
 export interface StoredPromotionCheckout {
   id: string; userId: string; plan: PromotionPlan; percent: number; couponId: string;
   customerId: string; productId: string; sessionId: string; livemode: boolean;
-  originalTrialEndsAt: string; createdAt: string; completionEventId: string | null;
+  activationPolicy?: 'after_trial' | 'immediate'; originalTrialEndsAt: string; createdAt: string; completionEventId: string | null;
 }
 export interface RetrievedPromotionSession {
   id: string; customerId: string; productId: string; couponId: string;
@@ -63,7 +63,7 @@ export async function fulfillPromotionCheckout(deps: PromotionFulfillmentDepende
       throw new Error('A matching captured, undisputed discounted payment is required.');
     }
   }
-  const termStartsAt = promotionTermStart(completion.createdAt, stored.originalTrialEndsAt);
+  const termStartsAt = promotionTermStart(completion.createdAt, stored.originalTrialEndsAt, stored.activationPolicy);
   const evidence = {
     reservationId: stored.id, sessionId, completionEventId: completion.id, userId: stored.userId,
     plan: stored.plan, subtotalCents: session.subtotalCents, totalCents: session.totalCents,

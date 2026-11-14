@@ -4,7 +4,7 @@ import { Button } from '@/components/ui/button';
 import { ExtendPlanModal } from './ExtendPlanModal';
 import { useUserPlan } from '@/hooks/useUserPlan';
 
-const ELIGIBLE_PLANS = ['Essential', 'Premium', 'Unlimited'];
+const ELIGIBLE_PLANS = ['Essential', 'Premium', 'Unlimited', 'Ultimate'];
 
 export const ExpiryWarningBanner: React.FC = () => {
   const { plan, hasPlatformOwnerAccess } = useUserPlan();
@@ -21,13 +21,14 @@ export const ExpiryWarningBanner: React.FC = () => {
     const diffMs = expiresAt.getTime() - now.getTime();
     const diffDays = Math.ceil(diffMs / (1000 * 60 * 60 * 24));
     const diffHours = Math.ceil(diffMs / (1000 * 60 * 60));
+    const expiryDate = expiresAt.toLocaleDateString('en-AU', { day: 'numeric', month: 'long', year: 'numeric' });
 
     if (diffDays > 30 || diffDays < 0) return null;
 
     if (diffHours <= 24) {
       return {
         level: 'critical' as const,
-        message: `Your account expires in less than 24 hours! Extend now to keep your data.`,
+        message: `Your paid access expires on ${expiryDate}. Extend for A$22 per month including GST, paid upfront.`,
         bgClass: 'bg-red-900 text-white',
         animate: true,
       };
@@ -35,7 +36,7 @@ export const ExpiryWarningBanner: React.FC = () => {
     if (diffDays <= 7) {
       return {
         level: 'urgent' as const,
-        message: `Your account expires in ${diffDays} day${diffDays !== 1 ? 's' : ''}. Extend your plan to keep your data.`,
+        message: `Your paid access expires on ${expiryDate} (${diffDays} day${diffDays !== 1 ? 's' : ''}). Extend for A$22 per month including GST, paid upfront.`,
         bgClass: 'bg-red-600 text-white',
         animate: false,
       };
@@ -43,7 +44,7 @@ export const ExpiryWarningBanner: React.FC = () => {
     if (diffDays <= 14) {
       return {
         level: 'warning' as const,
-        message: `Your account expires in ${diffDays} days. Extend your plan to keep your data.`,
+        message: `Your paid access expires on ${expiryDate}. Extend for A$22 per month including GST, paid upfront.`,
         bgClass: 'bg-orange-500 text-white',
         animate: false,
       };
@@ -51,7 +52,7 @@ export const ExpiryWarningBanner: React.FC = () => {
     // 15-30 days
     return {
       level: 'notice' as const,
-      message: `Your account expires in ${diffDays} days. Extend your plan to keep your data.`,
+      message: `Your paid access expires on ${expiryDate}. Extend for A$22 per month including GST, paid upfront.`,
       bgClass: 'bg-amber-500 text-white',
       animate: false,
     };
@@ -75,7 +76,7 @@ export const ExpiryWarningBanner: React.FC = () => {
             className="rounded-full text-xs font-semibold"
             onClick={() => setShowExtendModal(true)}
           >
-            Extend Plan
+            Extend Access
           </Button>
           <button
             onClick={() => setDismissed(true)}

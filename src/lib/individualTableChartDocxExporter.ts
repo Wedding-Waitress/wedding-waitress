@@ -1,3 +1,4 @@
+import { fitDocumentFooterLogo } from '@/lib/documentFooterLogo';
 /**
  * Individual Table Chart Word (.docx) Exporter
  * 
@@ -62,7 +63,7 @@ const formatGeneratedTimestamp = (): string => {
 // Load Wedding Waitress logo
 const loadTableLogo = async (): Promise<Uint8Array | null> => {
   try {
-    const response = await fetch('/wedding-waitress-logo-brown.png');
+    const response = await fetch('/wedding-waitress-document-footer-dark-brown.png');
     const blob = await response.blob();
     const arrayBuffer = await blob.arrayBuffer();
     return new Uint8Array(arrayBuffer);
@@ -164,7 +165,7 @@ const createHeaderSection = (
           text: event?.name || 'Event',
           bold: true,
           size: 32, // 16pt
-          color: '6D28D9',
+          color: '2F1B14',
         }),
       ],
       alignment: AlignmentType.CENTER,
@@ -315,10 +316,7 @@ export const exportIndividualTableChartToDocx = async (
         children: [
           new ImageRun({
             data: logoBuffer,
-            transformation: {
-              width: 150,  // Auto-scale width to maintain aspect ratio
-              height: 45,  // 12mm ≈ 45pt
-            },
+            transformation: fitDocumentFooterLogo(150, 45),
             type: 'png',
           }),
         ],
@@ -485,10 +483,7 @@ export const exportAllTablesChartToDocx = async (
           children: [
             new ImageRun({
               data: logoBuffer,
-              transformation: {
-                width: 150,  // Auto-scale width to maintain aspect ratio
-                height: 45,  // 12mm ≈ 45pt
-              },
+              transformation: fitDocumentFooterLogo(150, 45),
               type: 'png',
             }),
           ],

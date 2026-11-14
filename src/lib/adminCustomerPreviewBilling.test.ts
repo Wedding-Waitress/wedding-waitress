@@ -4,7 +4,7 @@ import ts from 'typescript';
 import { describe, expect, it, vi } from 'vitest';
 import { readAdminBilling } from '../../supabase/functions/_shared/adminReadOnlyBilling';
 const actor = '33333333-3333-4333-8333-333333333333', target = '11111111-1111-4111-8111-111111111111';
-const source = readFileSync('supabase/functions/admin-customer-preview-billing/index.ts', 'utf8').replace(/^import .*$/gm, '');
+const source = (readFileSync('supabase/functions/_shared/adminVerifiedSession.ts','utf8').replace('export async function','async function')+'\n'+readFileSync('supabase/functions/admin-customer-preview-billing/index.ts', 'utf8')).replace(/^import .*$/gm, '');
 const compiled = ts.transpileModule(source, { compilerOptions: { target: ts.ScriptTarget.ES2022, module: ts.ModuleKind.None } }).outputText;
 async function fixture({ owner = true, auditFailure = false, configured = true } = {}) {
   const insert = vi.fn(async () => ({ error: auditFailure ? new Error('private audit error') : null }));

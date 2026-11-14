@@ -1,3 +1,4 @@
+import { reconcileExpiredPromotionSession } from './promotionExpiryRecovery.ts';
 import { parsePromotionStripePayment, parsePromotionStripeSession } from './promotionStripeEvidence.ts';
 import type { PromotionCheckoutDependencies } from './promotionCheckoutService.ts';
 import { promotionPreview } from './promotionRules.ts';
@@ -12,7 +13,7 @@ export function promotionProviderAdapter(db: any, stripe: any, live: boolean): P
   };
   let stored: StoredPromotionCheckout | null = null;
   return {
-    reserve: (userId, code, plan) => rpc('reserve_first_purchase_promotion', { p_user: userId, p_code: code, p_plan: plan }),
+    reserve: (userId, code, plan) => rpc('reserve_first_purchase_promotion_now', { p_user: userId, p_code: code, p_plan: plan }),
     ensureCustomer: async (userId, email) => {
       const existing = await rpc('promotion_customer_binding', { p_user: userId });
       if (existing) return validateWorldwideGstCustomer(await stripe.customers.retrieve(existing), userId, live);
@@ -43,7 +44,7 @@ export function promotionProviderAdapter(db: any, stripe: any, live: boolean): P
       }
       const context: StoredPromotionCheckout = { id: row.id, userId, plan: row.plan_key, percent: row.percent_off,
         couponId: row.stripe_coupon_id, customerId: row.stripe_customer_id, productId: row.stripe_product_id,
-        sessionId: row.stripe_session_id, livemode: row.livemode, originalTrialEndsAt: row.original_trial_ends_at,
+        sessionId: row.stripe_session_id, livemode: row.livemode, originalTrialEndsAt: row.original_trial_ends_at, activationPolicy: row.activation_policy ?? 'after_trial',
         createdAt: row.created_at, completionEventId: row.completion_event_id };
       const parsed = await retrieveSessionEvidence(stripe, session, context);
       const quote = promotionPreview(context.plan, context.percent);
@@ -58,9 +59,7 @@ export function promotionProviderAdapter(db: any, stripe: any, live: boolean): P
       }
     },
     reconcileExpired: async (reservation, session) => {
-      await rpc('reconcile_expired_promotion_checkout',{p_reservation:reservation,p_evidence:{id:session.id,status:session.status,payment_status:session.payment_status,
-        mode:session.mode,customer:typeof session.customer==='string'?session.customer:session.customer?.id,livemode:session.livemode,
-        payment_intent:session.payment_intent,metadata:session.metadata}});
+      await reconcileExpiredPromotionSession(db, stripe, reservation, session, live);
     },
     createSession: (parameters, key) => stripe.checkout.sessions.create(parameters, { idempotencyKey: key }),
     bind: async (reservation, session, customer, product, coupon, isLive) => {
@@ -71,7 +70,7 @@ export function promotionProviderAdapter(db: any, stripe: any, live: boolean): P
       const row = await rpc('promotion_checkout_context', { p_session: sessionId });
       stored = { id: row.id, userId: row.account_user_id, plan: row.plan_key, percent: row.percent_off,
         couponId: row.stripe_coupon_id, customerId: row.stripe_customer_id, productId: row.stripe_product_id,
-        sessionId: row.stripe_session_id, livemode: row.livemode, originalTrialEndsAt: row.original_trial_ends_at,
+        sessionId: row.stripe_session_id, livemode: row.livemode, originalTrialEndsAt: row.original_trial_ends_at, activationPolicy: row.activation_policy ?? 'after_trial',
         createdAt: row.created_at, completionEventId: row.completion_event_id };
       return stored;
     },

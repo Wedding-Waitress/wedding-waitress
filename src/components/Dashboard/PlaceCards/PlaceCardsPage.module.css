@@ -308,3 +308,35 @@
 :global(#root#root#root) .designerShell :global(.ww-placecards-guest-search) {box-shadow:inset 0 1px 0 #ffffff55,inset 0 -2px 0 #170c0966,0 4px 10px #2f1b1430!important;}
 :global(#root#root#root) .designerShell :global(.ww-placecards-guest-search) svg,
 :global(#root#root#root) .designerShell :global(.ww-placecards-guest-search) svg * {color:#fff!important;stroke:#fff!important;}
+/* Header-only layout. Printable cards and crop-sync UI retain their own
+   geometry. Display-contents removes the vacated controls row entirely. */
+.headerTopRow {
+  display:grid;
+  grid-template-columns:minmax(14rem,1fr) minmax(16rem,24rem) minmax(16rem,24rem) auto;
+  gap:16px;
+  align-items:center;
+}
+.headerTopRow > div:first-child {min-width:0;}
+.headerTopRow .controlsRow,.headerTopRow .selectorGroups {display:contents !important;}
+.headerTopRow .headerSelector {display:flex;flex-direction:column;align-items:stretch;gap:8px;min-width:0;}
+.headerTopRow .exportPanel {width:auto !important;justify-self:end;margin:0;}
+:global(#root#root#root) .page .headerPanel > div:first-child > .headerTopRow {margin-bottom:16px !important;}
+@media(max-width:1699px) {
+  .headerTopRow {grid-template-columns:repeat(2,minmax(0,1fr));}
+  .headerTopRow > div:first-child {grid-column:1 / -1;}
+  .headerTopRow .exportPanel {grid-column:1 / -1;}
+}
+@media(max-width:767px) {
+  .headerTopRow {grid-template-columns:minmax(0,1fr);}
+  .headerTopRow .headerSelector,.headerTopRow .exportPanel {grid-column:1;}
+  .headerTopRow .exportPanel {width:100% !important;justify-self:stretch;}
+}
+/* Individual Messages search shortcut only; leave its field and actions alone. */
+:global(#root#root#root) .designerShell :global(button.ww-placecards-guest-search) {
+  background:linear-gradient(180deg,#412419 0%,#2f1b14 48%,#23120d 100%) !important;
+  color:#fff !important;-webkit-text-fill-color:#fff !important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 -2px 0 rgba(0,0,0,.3),0 3px 8px rgba(35,18,13,.18) !important;
+}
+:global(#root#root#root) .designerShell :global(button.ww-placecards-guest-search) svg {
+  color:#fff !important;stroke:#fff !important;filter:none !important;
+}

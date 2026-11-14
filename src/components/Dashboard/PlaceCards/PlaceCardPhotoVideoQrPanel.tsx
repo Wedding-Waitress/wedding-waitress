@@ -108,7 +108,7 @@ export const PlaceCardPhotoVideoQrPanel: React.FC<Props> = ({ eventName, qr, loa
             <Button type="button" variant="outline" aria-label="Move QR right" onClick={() => savePosition({ photo_video_qr_x: Math.min(100 - size / 2, x + 2) })}><ArrowRight className="h-4 w-4" /></Button>
             <span /><Button type="button" variant="outline" aria-label="Move QR down" onClick={() => savePosition({ photo_video_qr_y: Math.min(100 - verticalHalf, y + 2) })}><ArrowDown className="h-4 w-4" /></Button><span />
           </div>
-          <div className="space-y-2"><Label>QR size: {Math.round(size)}%</Label><Slider value={[size]} min={12} max={36} step={1} onValueChange={([next]) => { const nextVerticalHalf = next * 105 / 99; return savePosition({ photo_video_qr_size: next, photo_video_qr_x: Math.max(next / 2, Math.min(100 - next / 2, x)), photo_video_qr_y: Math.max(nextVerticalHalf, Math.min(100 - nextVerticalHalf, y)) }); }} /></div>
+          <div className="space-y-2"><Label>QR size: {Math.round(size)}%</Label><Slider aria-label="Photo and video QR size" value={[size]} min={12} max={36} step={1} onValueChange={([next]) => { const nextVerticalHalf = next * 105 / 99; return savePosition({ photo_video_qr_size: next, photo_video_qr_x: Math.max(next / 2, Math.min(100 - next / 2, x)), photo_video_qr_y: Math.max(nextVerticalHalf, Math.min(100 - nextVerticalHalf, y)) }); }} /></div>
           <Button type="button" variant="outline" className="ww-placecards-reset w-full rounded-full" onClick={() => savePosition(DEFAULT_QR)}><RotateCcw className="mr-2 h-4 w-4" />Reset to Default</Button>
         </div>
       )}

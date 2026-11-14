@@ -58,7 +58,7 @@ describe('DJ/MC questionnaire visual contract', () => {
   it('preserves event-title and compact-control typography', () => {
     expect(pageSource).toContain('<h2 className="text-xl font-semibold text-primary">{selectedEvent.name}</h2>');
     expect(publicSource).toContain('<h2 className="text-xl font-semibold text-primary">{data.event_name}</h2>');
-    expect(publicSource).toContain('<h1 className="text-xl font-bold">{data.event_name}</h1>');
+    expect(publicSource).toContain('<h1 className={theme.pageHeading}>{data.event_name}</h1>');
     expect(sectionSource).toContain('text-xs font-medium inline-flex');
     expect(sectionSource).toContain('text-[9px] text-muted-foreground');
     expect(requestsSource).toContain('text-[10px] uppercase tracking-wide');

@@ -8,6 +8,8 @@ import { useEffect } from "react";
 import { Button } from "@/components/ui/enhanced-button";
 import { AuthGatedCtaLink } from "@/components/auth/AuthGatedCtaLink";
 
+import { SeoHead } from "@/components/SEO/SeoHead";
+
 const NotFound = () => {
   const location = useLocation();
 

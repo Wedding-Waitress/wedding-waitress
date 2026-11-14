@@ -1,3 +1,4 @@
+import { hasRecentAdminVerification } from '../_shared/adminVerifiedSession.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2'
 
 const corsHeaders = {
@@ -37,6 +38,8 @@ Deno.serve(async (req) => {
     if (roleError || roleData !== true) {
       return new Response(JSON.stringify({ error: 'Admin access required' }), { status: 403, headers: corsHeaders })
     }
+
+    if (!await hasRecentAdminVerification(userClient)) return new Response(JSON.stringify({ error: 'Recent administrator verification required.' }), { status: 403, headers: { ...corsHeaders, 'Content-Type': 'application/json' } });
 
     // Create the elevated client only after the caller passes owner/admin authorization.
     const adminClient = createClient(supabaseUrl, serviceRoleKey)

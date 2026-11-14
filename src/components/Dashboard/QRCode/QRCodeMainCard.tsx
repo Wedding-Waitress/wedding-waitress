@@ -21,7 +21,7 @@ import { Input } from '@/components/ui/input';
 import { Button } from '@/components/ui/enhanced-button';
 import { Label } from '@/components/ui/label';
 import { Badge } from '@/components/ui/badge';
-import { Switch } from '@/components/ui/switch';
+import { ModuleVisibilityControl } from './ModuleVisibilityControl';
 import { Textarea } from '@/components/ui/textarea';
 import { Accordion, AccordionContent, AccordionItem, AccordionTrigger } from '@/components/ui/accordion';
 import { Progress } from '@/components/ui/progress';
@@ -41,7 +41,7 @@ import { linkSavedCeremonyPlan } from '@/lib/ceremonyFloorPlanLink';
 import { createQRSaveQueue, persistQRDesign } from '@/lib/qrDesignPersistence';
 import type { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 import {qrPreviewSettings} from '@/lib/qrPreviewSettings';
-import {createCustomerQrJPG,createCustomerQrSVG,createCustomerQrPDF,printCustomerQr} from '@/lib/qrCustomerExports';
+import {CUSTOMER_QR_PIXELS,downloadCustomerQrImage,createCustomerQrJPG,createCustomerQrSVG,createCustomerQrPDF,printCustomerQr} from '@/lib/qrCustomerExports';
 import styles from './QRCodeSeatingChart.module.css';
 interface QRCodeMainCardProps {
   eventId: string;
@@ -93,23 +93,28 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const {
     toast
   } = useToast();
-  const { settings: visibilitySettings, updateVisibility } = useLiveViewVisibility(eventId);
-  const { settings: moduleSettings, updateModuleConfig, refreshSettings } = useLiveViewModuleSettings(eventId);
+  const { settings: visibilitySettings, updateVisibility, isError: visibilityError, refresh: retryVisibility } = useLiveViewVisibility(eventId);
+  const { settings: moduleSettings, updateModuleConfig, refreshSettings, error: moduleError, photoSyncError, retrySettings } = useLiveViewModuleSettings(eventId);
   const saveModuleConfig = async (...args: Parameters<typeof updateModuleConfig>) => {
+    if (args[0]==='hero_image_config' && args[1].enabled===undefined && moduleSettings?.hero_image_config?.enabled===false) args[1]={...args[1],enabled:false};
     if (!await updateModuleConfig(...args)) throw new Error('The uploaded content could not be saved. Please try again.');
   };
   const welcomeVideoUrl = resolveWelcomeVideoUrl(moduleSettings?.welcome_video_config);
   const { uploadVideo, deleteVideo, uploadProgress, isUploading, isProcessing } = useWelcomeVideoUpload(eventId, refreshSettings);
   const selectedEvent = event;
   const currentEvent = event;
-  const { settings: songRequestSettings, updateSettings: updateSongRequestSettings } = useGuestSongRequestSettings(eventId);
-  const { dynamicUrl } = useEventDynamicQR(eventId);
-  const eventUrl = dynamicUrl || (selectedEvent?.slug ? buildGuestLookupUrl(selectedEvent.slug) : '');
+  const { settings: songRequestSettings, updateSettings: updateSongRequestSettings, isError: songRequestError, refresh: retrySongRequests } = useGuestSongRequestSettings(eventId);
+  const { dynamicUrl, loading: linkLoading } = useEventDynamicQR(eventId);
+  const eventUrl = dynamicUrl || (!linkLoading && selectedEvent?.slug ? buildGuestLookupUrl(selectedEvent.slug) : '');
 
   // QR Settings State - Enhanced
   const [qrColors, setQrColors] = useState<QRColorsSettings>({ ...defaultColors });
   const [qrShapes, setQrShapes] = useState<QRShapeSettings>({ ...defaultShapes });
   const [qrLogo, setQrLogo] = useState<QRLogoSettings>({ ...defaultLogo });
+  const [settingsLoadError, setSettingsLoadError] = useState(false);
+  const [settingsLoadAttempt, setSettingsLoadAttempt] = useState(0);
+  const pendingDesignSave = React.useRef<(() => void) | null>(null);
+  const [designRevision, setDesignRevision] = useState(0);
   const [loadedSettingsEvent, setLoadedSettingsEvent] = useState<string | null>(null);
   const saveQueue = React.useRef(createQRSaveQueue());
   const uploadedLogos = React.useRef(new Set<string>());
@@ -121,6 +126,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   useEffect(() => {
     let cancelled = false;
     setLoadedSettingsEvent(null);
+    setSettingsLoadError(false);
     const load = async () => {
       try {
         const { data, error } = await supabase.from('qr_code_settings').select('*').eq('event_id', eventId).maybeSingle();
@@ -139,17 +145,21 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           markerCenterShape: (data?.marker_center_shape ?? defaultShapes.markerCenterShape) as QRShapeSettings['markerCenterShape'],
         });
         setQrLogo({ url: data?.center_image_url ?? null, size: data?.center_image_size ?? defaultLogo.size });
+        setDesignRevision(0);
         setLoadedSettingsEvent(eventId);
       } catch (error) {
-        if (!cancelled) toast({ title: 'Could not load QR design', description: 'Reload the page to try again. Your saved design has not been changed.', variant: 'destructive' });
+        if (!cancelled) {
+          setSettingsLoadError(true);
+          toast({ title: 'Could not load QR design', description: 'Try again. Your saved design has not been changed.', variant: 'destructive' });
+        }
       }
     };
     void load();
     return () => { cancelled = true; };
-  }, [eventId, toast]);
+  }, [eventId, toast, settingsLoadAttempt]);
   const [isUploadingLogo, setIsUploadingLogo] = useState(false);
   const [copiedLink, setCopiedLink] = useState(false);
-  const [downloading, setDownloading] = useState<'png' | 'jpg' | null>(null);
+  const [downloading, setDownloading] = useState<'png' | 'jpg' | 'pdf' | null>(null);
   const [linkingReceptionFloorPlan, setLinkingReceptionFloorPlan] = useState(false);
   const [linkingCeremonyFloorPlan, setLinkingCeremonyFloorPlan] = useState(false);
 
@@ -213,6 +223,8 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
   // Preview state
   const [qrDataUrl, setQrDataUrl] = useState<string>('');
+  const [qrRenderError, setQrRenderError] = useState(false);
+  const [renderAttempt, setRenderAttempt] = useState(0);
   const [contrastWarning, setContrastWarning] = useState<boolean>(false);
 
   // Accordion state - track which sections are open
@@ -278,36 +290,47 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
     return qrPreviewSettings(eventId,qrColors,qrShapes,qrLogo);
   }, [eventId, qrColors, qrShapes, qrLogo]);
 
-  // Debounced QR render function using AdvancedQRGenerator
+  // Render the latest design immediately using AdvancedQRGenerator
   const renderQR = useCallback(async () => {
-    if (!eventUrl) return;
+    if (!eventUrl || loadedSettingsEvent !== eventId) return;
     const version = ++renderVersion.current;
     try {
-      const generator = new AdvancedQRGenerator(512, true);
+      const generator = new AdvancedQRGenerator(CUSTOMER_QR_PIXELS, true, true);
       const settings = convertToQRCodeSettings();
       const qrDataURL = await generator.generate(eventUrl, settings);
       if (version !== renderVersion.current) return;
       setQrDataUrl(qrDataURL);
 
-      // Contrast is always ensured via auto-correction
-      setContrastWarning(false);
+      // Report contrast without replacing the colours chosen by the owner.
+      setContrastWarning([qrColors.dotsColor, qrColors.markerBorderColor, qrColors.markerCenterColor].some(color => calculateContrastRatio(qrColors.background, color) < 4.5));
     } catch (error) {
+      if (version !== renderVersion.current) return;
+      setQrRenderError(true);
       console.error('Error rendering QR code:', error);
     }
-  }, [eventUrl, qrColors, qrShapes, qrLogo, convertToQRCodeSettings]);
+  }, [eventUrl, loadedSettingsEvent, eventId, qrColors, qrShapes, qrLogo, convertToQRCodeSettings, calculateContrastRatio]);
 
-  // Debounced render effect
+  // Render immediately; the version guard prevents stale async results.
   useEffect(() => {
-    const timer = setTimeout(renderQR, 150);
-    return () => { clearTimeout(timer); renderVersion.current++; };
-  }, [renderQR]);
+    setQrDataUrl('');
+    setQrRenderError(false);
+    void renderQR();
+    return () => { renderVersion.current++; };
+  }, [renderQR, renderAttempt]);
 
   // Reset all QR settings
   const handleResetAll = () => {
+    setDesignRevision(value => value + 1);
     logoUploadVersion.current++;
     setQrColors({ ...defaultColors });
     setQrShapes({ ...defaultShapes });
     setQrLogo({ ...defaultLogo });
+  };
+
+  const handleUploadKeyDown = (event: React.KeyboardEvent<HTMLDivElement>) => {
+    if (event.key !== 'Enter' && event.key !== ' ') return;
+    event.preventDefault();
+    if (event.currentTarget.getAttribute('aria-disabled') !== 'true') event.currentTarget.click();
   };
 
   // Logo upload handler
@@ -339,6 +362,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
         uploadedLogos.current.delete(publicUrl);
         return;
       }
+      setDesignRevision(value => value + 1);
       setQrLogo(prev => ({ ...prev, url: publicUrl }));
     } catch (error: any) {
       toast({
@@ -352,6 +376,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   };
 
   const handleRemoveLogo = async () => {
+    setDesignRevision(value => value + 1);
     logoUploadVersion.current++;
     setQrLogo(prev => ({ ...prev, url: null }));
   };
@@ -360,28 +385,20 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   const handleDownloadPNG = useCallback(async () => {
     if (!qrDataUrl) return;
     setDownloading('png');
-    const link = document.createElement('a');
-    link.download = `qr-code-${selectedEvent?.name || 'event'}.png`;
-    link.href = qrDataUrl;
-    link.click();
-    setDownloading(null);
-    toast({
-      title: "PNG downloaded successfully!"
-    });
+    try {
+      await downloadCustomerQrImage(qrDataUrl, `qr-code-${selectedEvent?.name || 'event'}.png`);
+      toast({ title: 'PNG download started' });
+    } catch {
+      toast({ title: 'Error downloading PNG', variant: 'destructive' });
+    } finally { setDownloading(null); }
   }, [qrDataUrl, selectedEvent?.name, toast]);
   const handleDownloadJPG = useCallback(async () => {
     if (!qrDataUrl) return;
     setDownloading('jpg');
     try {
       const jpgDataUrl = await createCustomerQrJPG(qrDataUrl);
-      const link = document.createElement('a');
-      link.download = `qr-code-${selectedEvent?.name || 'event'}.jpg`;
-      link.href = jpgDataUrl;
-      link.click();
-      setDownloading(null);
-      toast({
-        title: "JPG downloaded successfully!"
-      });
+      await downloadCustomerQrImage(jpgDataUrl, `qr-code-${selectedEvent?.name || 'event'}.jpg`);
+      toast({ title: 'JPG download started' });
     } catch { toast({title:'Error downloading JPG',variant:'destructive'}); }
     finally { setDownloading(null); }
   }, [qrDataUrl, selectedEvent?.name, toast]);
@@ -406,19 +423,20 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
     }
   }, [qrDataUrl, selectedEvent?.name, toast]);
   const handleDownloadPDF = useCallback(async () => {
-    if (!qrDataUrl) return;
+    if (!qrDataUrl || downloading) return;
+    setDownloading('pdf');
     try {
       const { savePdfAsync } = await import('@/lib/pdfExportUtils');
       const pdf = await createCustomerQrPDF(qrDataUrl);
       await savePdfAsync(pdf, `qr-code-${selectedEvent?.name || 'event'}.pdf`);
-      toast({ title: "PDF downloaded successfully!" });
+      toast({ title: "PDF download started" });
     } catch (error) {
       toast({
         title: "Error downloading PDF",
         variant: "destructive"
       });
-    }
-  }, [qrDataUrl, selectedEvent?.name, toast]);
+    } finally { setDownloading(null); }
+  }, [qrDataUrl, downloading, selectedEvent?.name, toast]);
   const handleResetQR = useCallback(() => {
     handleResetAll();
   }, []);
@@ -432,8 +450,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
   }, [qrDataUrl, selectedEvent?.name, toast]);
   // Auto-save QR settings when colors, shapes, or logo changes
   useEffect(() => {
-    if (loadedSettingsEvent !== eventId) return;
-    const saveTimer = setTimeout(() => { void saveQueue.current(async () => {
+    if (loadedSettingsEvent !== eventId || designRevision === 0) return;
+    const save = () => {
+      pendingDesignSave.current = null;
+      void saveQueue.current(async () => {
       if (!eventId) return;
 
       try {
@@ -462,10 +482,18 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
         console.error('Auto-save QR settings error:', error);
         toast({ title: 'QR design was not saved', description: 'Please try your change again.', variant: 'destructive' });
       }
-    }); }, 500);
+      });
+    };
+    pendingDesignSave.current = save;
+    const saveTimer = setTimeout(save, 500);
 
     return () => clearTimeout(saveTimer);
-  }, [eventId, loadedSettingsEvent, qrColors, qrShapes, qrLogo, toast]);
+  }, [eventId, loadedSettingsEvent, designRevision, qrColors, qrShapes, qrLogo, toast]);
+  useEffect(() => () => {
+    // Do not lose the last choice if the owner switches pages during debounce.
+    pendingDesignSave.current?.();
+    ++logoUploadVersion.current;
+  }, []);
   const handleLiveView = () => {
     if (eventUrl) {
       window.open(eventUrl, '_blank');
@@ -478,6 +506,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
     }
   };
   const handleCopyLink = async () => {
+    if (!eventUrl) return;
     try {
       const guestLookupUrl = eventUrl;
       await navigator.clipboard.writeText(guestLookupUrl);
@@ -498,11 +527,12 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
   // Color change handlers - only auto-correct when background changes
   const updateColors = (updates: Partial<QRColorsSettings>) => {
+    setDesignRevision(value => value + 1);
     setQrColors(prev => {
       const newColors = { ...prev, ...updates };
 
-      // Every colour control must honour the existing auto-optimized contrast promise.
-      {
+      // Keep background auto-optimization; explicit element colours are owner choices.
+      if (updates.background !== undefined) {
         const bg = newColors.background;
         newColors.dotsColor = ensureHighContrast(bg, newColors.dotsColor);
         newColors.markerBorderColor = ensureHighContrast(bg, newColors.markerBorderColor);
@@ -516,6 +546,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
   // Shape change handlers
   const updateShapes = (updates: Partial<QRShapeSettings>) => {
+    setDesignRevision(value => value + 1);
     setQrShapes(prev => ({ ...prev, ...updates }));
   };
   return <Card className={`${styles.generatorPanel} border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] h-full`}>
@@ -525,26 +556,25 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             <QrCodeIcon strokeWidth={1.8} className="h-[22px] w-[22px] text-[#856A4C]" />
             QR Code Generator
           </CardTitle>
-          <div className={styles.generatorConnectionStatus}>
-            <CircleCheck className="w-4 h-4 text-green-600 shrink-0" strokeWidth={1.8} aria-hidden="true" />
-            <span className={styles.statusLabel}>Connected &amp; Synced</span>
-            <span className={styles.statusSeparator} aria-hidden="true">&mdash;</span>
-            <span className={styles.statusDetail}>Linked: <strong>{event.name}</strong></span>
-            <button type="button" className={styles.compactStatus} onClick={handleLiveView}>
-              <ExternalLink className="w-[14px] h-[14px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
-              Opens guest lookup
-            </button>
-          </div>
+
         </div>
       </CardHeader>
       <CardContent className="space-y-6 pt-4">
+        {settingsLoadError && <div role="alert" className="text-sm">
+          Could not load QR design. Your saved design has not been changed.
+          <Button type="button" variant="outline" onClick={() => setSettingsLoadAttempt(value => value + 1)}>Try again</Button>
+        </div>}
+        {qrRenderError && <div role="alert" className="text-sm">
+          Could not generate QR code. Check that your logo is available, then try again.
+          <Button type="button" variant="outline" onClick={() => setRenderAttempt(value => value + 1)}>Try again</Button>
+        </div>}
         {/* Top Row: QR Preview + Customization + Action Buttons (3 equal columns) */}
         <div className="grid grid-cols-1 lg:grid-cols-3 gap-4 w-full items-stretch">
           {/* Col 1: QR Code Preview */}
           <div className={`${styles.qrFrame} bg-white rounded-lg border border-primary p-4 flex items-center justify-center min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}>
             <div id="qr-preview" className={`${styles.qrPreview} w-full max-w-[280px] aspect-square flex items-center justify-center`}>
               {qrDataUrl ? (
-                <img src={qrDataUrl} alt="QR Code Preview" className="w-full h-full" style={{ imageRendering: 'pixelated' }} />
+                <img data-print-mirror-document="qr-code" width={CUSTOMER_QR_PIXELS} height={CUSTOMER_QR_PIXELS} src={qrDataUrl} alt="QR Code Preview" className="w-full h-full" style={{ imageRendering: 'pixelated' }} />
               ) : (
                 <QrCodeIcon className="h-20 w-20 text-muted-foreground/50" />
               )}
@@ -552,7 +582,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           </div>
 
           {/* Col 2: Customization Panel */}
-          <div className={`${styles.designerPanel} rounded-lg p-3 space-y-3 overflow-y-auto min-h-[320px]`}>
+          <fieldset aria-label="QR code design" aria-busy={loadedSettingsEvent !== eventId} disabled={loadedSettingsEvent !== eventId} className={`${styles.designerPanel} rounded-lg p-3 space-y-3 overflow-y-auto min-h-[320px] min-w-0 border-0 m-0`}>
             <div className={`${styles.designerHeading} lv-premium-shade text-center py-2 px-3 rounded-md -mx-3 -mt-3`}>
               <h3 className="text-base font-semibold">Design Your QR Code</h3>
             </div>
@@ -571,23 +601,23 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   <div className="grid grid-cols-2 gap-2">
                     <div className="space-y-1">
                       <Label className="text-sm">Background</Label>
-                      <ColorPickerPopover value={qrColors.background} onChange={(c) => updateColors({ background: c })} contentClassName="ww-qr-color-popover" />
+                      <ColorPickerPopover ariaLabel="Background color" value={qrColors.background} onChange={(c) => updateColors({ background: c })} contentClassName="ww-qr-color-popover" />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-sm">Dots</Label>
-                      <ColorPickerPopover value={qrColors.dotsColor} onChange={(c) => updateColors({ dotsColor: c })} contentClassName="ww-qr-color-popover" />
+                      <ColorPickerPopover ariaLabel="Dots color" value={qrColors.dotsColor} onChange={(c) => updateColors({ dotsColor: c })} contentClassName="ww-qr-color-popover" />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-sm">Marker Border</Label>
-                      <ColorPickerPopover value={qrColors.markerBorderColor} onChange={(c) => updateColors({ markerBorderColor: c })} contentClassName="ww-qr-color-popover" />
+                      <ColorPickerPopover ariaLabel="Marker border color" value={qrColors.markerBorderColor} onChange={(c) => updateColors({ markerBorderColor: c })} contentClassName="ww-qr-color-popover" />
                     </div>
                     <div className="space-y-1">
                       <Label className="text-sm">Marker Center</Label>
-                      <ColorPickerPopover value={qrColors.markerCenterColor} onChange={(c) => updateColors({ markerCenterColor: c })} contentClassName="ww-qr-color-popover" />
+                      <ColorPickerPopover ariaLabel="Marker center color" value={qrColors.markerCenterColor} onChange={(c) => updateColors({ markerCenterColor: c })} contentClassName="ww-qr-color-popover" />
                     </div>
                   </div>
-                  <div className="p-1.5 rounded text-xs bg-green-50 text-green-800 border border-green-200">
-                    ✅ High contrast (auto-optimized)
+                  <div className={`p-1.5 rounded text-xs border ${contrastWarning ? 'bg-amber-50 text-amber-800 border-amber-200' : 'bg-green-50 text-green-800 border-green-200'}`} role="status">
+                    {contrastWarning ? "Low contrast. Your selected colours are preserved." : "✅ High contrast (auto-optimized)"}
                   </div>
                 </AccordionContent>
               </AccordionItem>
@@ -608,6 +638,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                         <button
                           key={shape}
                           onClick={() => updateShapes({ dotsShape: shape })}
+                          type="button"
+                          aria-label={`Dots shape: ${shape}`}
+                          aria-pressed={qrShapes.dotsShape === shape}
                           className={`w-8 h-8 flex items-center justify-center rounded border-2 transition-all ${
                             qrShapes.dotsShape === shape
                               ? 'border-[#856A4C] bg-[#F5F0EB]'
@@ -634,6 +667,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           <button
                             key={shape}
                             onClick={() => updateShapes({ markerBorderShape: shape })}
+                          type="button"
+                          aria-label={`Marker border shape: ${shape}`}
+                          aria-pressed={qrShapes.markerBorderShape === shape}
                             className={`w-8 h-8 flex items-center justify-center rounded border-2 transition-all ${
                               qrShapes.markerBorderShape === shape
                                 ? 'border-[#856A4C] bg-[#F5F0EB]'
@@ -655,6 +691,9 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                           <button
                             key={shape}
                             onClick={() => updateShapes({ markerCenterShape: shape })}
+                          type="button"
+                          aria-label={`Marker center shape: ${shape}`}
+                          aria-pressed={qrShapes.markerCenterShape === shape}
                             className={`w-8 h-8 flex items-center justify-center rounded border-2 transition-all ${
                               qrShapes.markerCenterShape === shape
                                 ? 'border-[#856A4C] bg-[#F5F0EB]'
@@ -689,7 +728,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       <div className="flex-1 space-y-1">
                         <Slider
                           value={[qrLogo.size]}
-                          onValueChange={(values) => setQrLogo(prev => ({ ...prev, size: values[0] }))}
+                          onValueChange={(values) => { setDesignRevision(value => value + 1); setQrLogo(prev => ({ ...prev, size: values[0] })); }}
                           min={10}
                           max={35}
                           step={1}
@@ -704,9 +743,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       </div>
                     </div>
                   ) : (
-                    <div
+                    <div role="button" aria-label="Upload QR logo" tabIndex={loadedSettingsEvent === eventId && !isUploadingLogo ? 0 : -1} aria-disabled={loadedSettingsEvent !== eventId || isUploadingLogo} onKeyDown={handleUploadKeyDown}
                       className={`border-2 border-dashed rounded-lg p-3 text-center cursor-pointer hover:bg-[#F5F0EB]/50 transition-colors ${isUploadingLogo ? 'opacity-50 pointer-events-none' : ''}`}
                       onClick={() => {
+                        if (loadedSettingsEvent !== eventId || isUploadingLogo) return;
                         const input = document.createElement('input');
                         input.type = 'file';
                         input.accept = 'image/*';
@@ -737,32 +777,37 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                 Reset to Default
               </Button>
             </div>
-          </div>
+          </fieldset>
 
           {/* Col 3: Action Buttons */}
           <div className={`${styles.actionsPanel} flex flex-col gap-3 justify-start bg-muted/20 rounded-lg border border-primary p-4 min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}>
             {/* Open Live View - Full Width */}
-            <Button variant="default" size="default" onClick={handleLiveView} disabled={!selectedEvent?.slug} className={`${styles.liveViewButton} ww-emboss-green ww-emboss-green-soft w-full bg-green-500 text-white hover:text-white !border-0`}>
+            <Button variant="default" size="default" onClick={handleLiveView} disabled={!eventUrl} className={`${styles.liveViewButton} ww-emboss-green ww-emboss-green-soft w-full bg-green-500 text-white hover:text-white !border-0`}>
               <ExternalLink strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />
               Open Live View App
             </Button>
 
             {/* Copy Link - Full Width */}
-            <Button variant="outline" size="default" onClick={handleCopyLink} disabled={!selectedEvent?.slug} className="lv-premium-shade border-[#C4A882] w-full">
+            <Button variant="outline" size="default" onClick={handleCopyLink} disabled={!eventUrl} className="lv-premium-shade border-[#C4A882] w-full">
               {copiedLink ? <Check strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" /> : <Copy strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />}
               Copy Link
             </Button>
 
             {/* PNG - Full Width */}
-            <Button variant="outline" size="default" onClick={handleDownloadPNG} disabled={downloading === 'png'} className="lv-premium-shade border-[#C4A882] w-full">
+            <Button variant="outline" size="default" onClick={handleDownloadPNG} disabled={!qrDataUrl || downloading !== null} className="lv-premium-shade border-[#C4A882] w-full">
               {downloading === 'png' ? <LoaderCircle strokeWidth={1.8} className="h-4 w-4 mr-1.5 animate-spin" aria-hidden="true" /> : <FileImage strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />}
               PNG
             </Button>
 
             {/* JPG - Full Width */}
-            <Button variant="outline" size="default" onClick={handleDownloadJPG} disabled={downloading === 'jpg'} className="lv-premium-shade border-[#C4A882] w-full">
+            <Button variant="outline" size="default" onClick={handleDownloadJPG} disabled={!qrDataUrl || downloading !== null} className="lv-premium-shade border-[#C4A882] w-full">
               {downloading === 'jpg' ? <LoaderCircle strokeWidth={1.8} className="h-4 w-4 mr-1.5 animate-spin" aria-hidden="true" /> : <ImageDown strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />}
               JPG
+            </Button>
+
+            <Button variant="outline" size="default" onClick={handleDownloadPDF} disabled={!qrDataUrl || downloading !== null} className="lv-premium-shade border-[#C4A882] w-full">
+              {downloading === 'pdf' ? <LoaderCircle strokeWidth={1.8} className="h-4 w-4 mr-1.5 animate-spin" aria-hidden="true" /> : <FileDown strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />}
+              Download PDF
             </Button>
 
             {/* Spacer to push Reset to bottom */}
@@ -770,13 +815,23 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
 
             {/* Reset to Default - Red Destructive, Full Width, Rounded (Like Place Cards) */}
             <div className="pt-4">
-              <Button variant="destructive" onClick={handleResetQR} className={`lv-premium-shade w-full rounded-full ${styles.resetDefaultButton}`}>
+              <Button variant="destructive" onClick={handleResetQR} disabled={loadedSettingsEvent !== eventId} className={`lv-premium-shade w-full rounded-full ${styles.resetDefaultButton}`}>
                 <RotateCcw strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />
                 Reset to Default
               </Button>
             </div>
           </div>
         </div>
+
+        <section aria-labelledby="qr-guest-guide-title" className="rounded-lg border border-border bg-muted/20 p-4 text-sm text-foreground">
+          <h4 id="qr-guest-guide-title" className="mb-2 font-semibold">Guest search &amp; seating</h4>
+          <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
+            <li><strong>More than 7 days before your event date:</strong> Guests enter their full first and last name to update their details.</li>
+            <li><strong>7 days out from your event date:</strong> Guests only need to type the first 3 letters of their first name to see their name and other guest names matching those letters.</li>
+            <li>Tap <strong>Table</strong> to see assigned seats and tablemates.</li>
+            <li>Personal invitation links let guests update their own details.</li>
+          </ul>
+        </section>
 
         {/* Bottom Row: Guest Live View Configuration (Horizontal 2-column) */}
         <Card className={`${styles.configPanel} border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] w-full`}>
@@ -789,7 +844,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
             </p>
 
             {/* 2x2 Grid for all modules */}
-            <div className="grid grid-cols-1 lg:grid-cols-3 gap-4">
+            <div className="grid grid-cols-1 md:grid-cols-2 xl:grid-cols-4 gap-4 items-stretch [&>div]:min-w-0" data-live-view-configuration-cards>
               {/* RSVP Invite Module */}
               <div className="space-y-3 p-4 rounded-lg border border-[#472c1d] bg-muted/20 shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]">
                 <div className="flex flex-wrap items-center justify-between gap-3 max-lg:flex-col max-lg:items-stretch">
@@ -803,16 +858,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       <p className="text-xs text-muted-foreground max-lg:mt-1">Let guests view your digital invitations &amp; RSVP</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 max-lg:justify-between">
-                    <span className={`text-xs whitespace-nowrap ${visibilitySettings?.show_rsvp_invite ? "text-green-600" : "text-red-500"}`}>
-                      {visibilitySettings?.show_rsvp_invite ? "Displayed on app" : "Not displayed on app"}
-                    </span>
-                    <Switch
-                      checked={visibilitySettings?.show_rsvp_invite || false}
-                      onCheckedChange={(checked) => updateVisibility('show_rsvp_invite', checked)}
-                      className="data-[state=checked]:bg-success data-[state=unchecked]:border data-[state=unchecked]:border-[#967A59]/70"
-                    />
-                  </div>
+                  <ModuleVisibilityControl label="RSVP Invite" enabled={visibilitySettings?.show_rsvp_invite} failed={visibilityError} onRetry={() => { void retryVisibility(); }} onChange={checked => updateVisibility('show_rsvp_invite', checked)} />
                 </div>
 
                 {visibilitySettings?.show_rsvp_invite && (
@@ -917,7 +963,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               </Button>
                             </div>
                           ) : (
-                            <div
+                            <div role="button" aria-label="Upload digital invitation" tabIndex={0} onKeyDown={handleUploadKeyDown}
                               className="border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
                               onClick={() => {
                                 const input = document.createElement('input');
@@ -1019,16 +1065,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       <p className="text-xs text-muted-foreground max-lg:mt-1.5">Add a personal video message for your guests</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 max-lg:justify-between max-lg:w-full">
-                    <span className={`text-xs whitespace-nowrap ${visibilitySettings?.show_welcome_video ? "text-green-600" : "text-red-500"}`}>
-                      {visibilitySettings?.show_welcome_video ? "Displayed on app" : "Not displayed on app"}
-                    </span>
-                    <Switch
-                      checked={visibilitySettings?.show_welcome_video || false}
-                      onCheckedChange={(checked) => updateVisibility('show_welcome_video', checked)}
-                      className="data-[state=checked]:bg-success data-[state=unchecked]:border data-[state=unchecked]:border-[#967A59]/70"
-                    />
-                  </div>
+                  <ModuleVisibilityControl className="max-lg:w-full" label="Welcome Video" enabled={visibilitySettings?.show_welcome_video} failed={visibilityError} onRetry={() => { void retryVisibility(); }} onChange={checked => updateVisibility('show_welcome_video', checked)} />
                 </div>
 
                 {visibilitySettings?.show_welcome_video && (
@@ -1060,7 +1097,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                 <Button
                                   variant="default"
                                   size="sm"
-                                  className={`${styles.replaceAssetButton} ${styles.lightButtonText} lv-premium-shade text-white`}
+                                  className={`${styles.replaceAssetButton} ${styles.compactAssetAction} ${styles.lightButtonText} lv-premium-shade text-white`}
                                   onClick={() => {
                                     const input = document.createElement('input');
                                     input.type = 'file';
@@ -1080,7 +1117,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                 <Button
                                   variant="destructive"
                                   size="sm"
-                                  className={`lv-premium-shade text-white ${styles.removeAssetButton}`}
+                                  className={`lv-premium-shade text-white ${styles.removeAssetButton} ${styles.compactAssetAction}`}
                                   onClick={async () => {
                                     if (confirm('Are you sure you want to remove this video?')) {
                                       await deleteVideo();
@@ -1093,7 +1130,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               </div>
                             </div>
                           ) : (
-                            <div
+                            <div role="button" aria-label="Upload welcome video" tabIndex={0} onKeyDown={handleUploadKeyDown}
                               className="border-2 border-dashed border-muted-foreground/30 rounded-lg p-4 text-center cursor-pointer hover:border-primary/50 transition-colors"
                               onClick={() => {
                                 const input = document.createElement('input');
@@ -1157,16 +1194,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       <p className="text-xs text-muted-foreground max-lg:mt-1.5">Show your ceremony floor plan to guests. Choose the orientation that keeps your layout clear.</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 max-lg:justify-between max-lg:w-full">
-                    <span className={`text-xs whitespace-nowrap ${visibilitySettings?.show_floor_plan ? "text-green-600" : "text-red-500"}`}>
-                      {visibilitySettings?.show_floor_plan ? "Displayed on app" : "Not displayed on app"}
-                    </span>
-                    <Switch
-                      checked={visibilitySettings?.show_floor_plan || false}
-                      onCheckedChange={(checked) => updateVisibility('show_floor_plan', checked)}
-                      className="data-[state=checked]:bg-success data-[state=unchecked]:border data-[state=unchecked]:border-[#967A59]/70"
-                    />
-                  </div>
+                  <ModuleVisibilityControl className="max-lg:w-full" label="Ceremony Floor Plan" enabled={visibilitySettings?.show_floor_plan} failed={visibilityError} onRetry={() => { void retryVisibility(); }} onChange={checked => updateVisibility('show_floor_plan', checked)} />
                 </div>
 
                 {visibilitySettings?.show_floor_plan && (
@@ -1301,7 +1329,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   </Button>
                                 </div>
                               ) : (
-                                <div
+                                <div role="button" aria-label="Upload ceremony floor plan image" tabIndex={0} onKeyDown={handleUploadKeyDown}
                                   className="border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
                                   onClick={() => {
                                     const input = document.createElement('input');
@@ -1371,16 +1399,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       <p className="text-xs text-muted-foreground max-lg:mt-1.5">Show your reception floor plan to guests. Choose the orientation that keeps your layout clear.</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 max-lg:justify-between max-lg:w-full">
-                    <span className={`text-xs whitespace-nowrap ${visibilitySettings?.show_reception_floor_plan ? "text-green-600" : "text-red-500"}`}>
-                      {visibilitySettings?.show_reception_floor_plan ? "Displayed on app" : "Not displayed on app"}
-                    </span>
-                    <Switch
-                      checked={visibilitySettings?.show_reception_floor_plan || false}
-                      onCheckedChange={(checked) => updateVisibility('show_reception_floor_plan', checked)}
-                      className="data-[state=checked]:bg-success data-[state=unchecked]:border data-[state=unchecked]:border-[#967A59]/70"
-                    />
-                  </div>
+                  <ModuleVisibilityControl className="max-lg:w-full" label="Reception Floor Plan" enabled={visibilitySettings?.show_reception_floor_plan} failed={visibilityError} onRetry={() => { void retryVisibility(); }} onChange={checked => updateVisibility('show_reception_floor_plan', checked)} />
                 </div>
 
                 {visibilitySettings?.show_reception_floor_plan && (
@@ -1516,7 +1535,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                                   </Button>
                                 </div>
                               ) : (
-                                <div
+                                <div role="button" aria-label="Upload reception floor plan image" tabIndex={0} onKeyDown={handleUploadKeyDown}
                                   className="border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
                                   onClick={() => {
                                     const input = document.createElement('input');
@@ -1591,16 +1610,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       <p className="text-xs text-muted-foreground max-lg:mt-1.5">Upload your wedding menu for guests to view</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 max-lg:justify-between max-lg:w-full">
-                    <span className={`text-xs whitespace-nowrap ${visibilitySettings?.show_menu ? "text-green-600" : "text-red-500"}`}>
-                      {visibilitySettings?.show_menu ? "Displayed on app" : "Not displayed on app"}
-                    </span>
-                    <Switch
-                      checked={visibilitySettings?.show_menu || false}
-                      onCheckedChange={(checked) => updateVisibility('show_menu', checked)}
-                      className="data-[state=checked]:bg-success data-[state=unchecked]:border data-[state=unchecked]:border-[#967A59]/70"
-                    />
-                  </div>
+                  <ModuleVisibilityControl className="max-lg:w-full" label="Menu" enabled={visibilitySettings?.show_menu} failed={visibilityError} onRetry={() => { void retryVisibility(); }} onChange={checked => updateVisibility('show_menu', checked)} />
                 </div>
 
                 {visibilitySettings?.show_menu && (
@@ -1687,7 +1697,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               </Button>
                             </div>
                           ) : (
-                            <div
+                            <div role="button" aria-label="Upload wedding menu" tabIndex={0} onKeyDown={handleUploadKeyDown}
                               className="border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
                               onClick={() => {
                                 const input = document.createElement('input');
@@ -1743,7 +1753,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                   </div>
                 </div>
 
-                <Accordion type="single" collapsible className="w-full">
+                <ModuleVisibilityControl label="photo or logo" className="justify-between" enabled={moduleSettings ? moduleSettings.hero_image_config?.enabled !== false : undefined} failed={moduleError} onRetry={retrySettings} onChange={enabled => { void saveModuleConfig('hero_image_config', { ...moduleSettings?.hero_image_config, enabled }).catch(() => undefined); }} />
+                {photoSyncError && <p role="alert" className="text-xs">The event photo could not be synced. Your saved image is still shown. <button type="button" className="underline" onClick={retrySettings}>Try again</button></p>}
+                {moduleSettings && moduleSettings.hero_image_config?.enabled !== false && (
+                  <Accordion type="single" collapsible className="w-full">
                   <AccordionItem value="hero-image-config" className="border-0">
                     <AccordionTrigger className="text-sm py-2 border-0 hover:no-underline">
                       <span className="text-[#856A4C] inline-flex items-center gap-[7px]"><Settings2 strokeWidth={1.8} className="h-[15px] w-[15px]" aria-hidden="true" />Configure Hero Background</span>
@@ -1782,7 +1795,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               <Button
                                 size="sm"
                                 variant="default"
-                                className={`${styles.replaceAssetButton} ${styles.lightButtonText} lv-premium-shade text-white`}
+                                className={`${styles.replaceAssetButton} ${styles.compactAssetAction} ${styles.lightButtonText} lv-premium-shade text-white`}
                                 onClick={() => {
                                   const input = document.createElement('input');
                                   input.type = 'file';
@@ -1821,7 +1834,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                               <Button
                                 size="sm"
                                 variant="destructive"
-                                className={`lv-premium-shade text-white ${styles.removeAssetButton}`}
+                                className={`lv-premium-shade text-white ${styles.removeAssetButton} ${styles.compactAssetAction}`}
                                 onClick={async () => {
                                   if (eventId && moduleSettings?.hero_image_config?.file_url) {
                                     try {
@@ -1839,7 +1852,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                             </div>
                           </div>
                         ) : (
-                          <div
+                          <div role="button" aria-label="Upload photo or logo" tabIndex={0} onKeyDown={handleUploadKeyDown}
                             className="border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors"
                             onClick={() => {
                               const input = document.createElement('input');
@@ -1882,6 +1895,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                     </AccordionContent>
                   </AccordionItem>
                 </Accordion>
+                )}
               </div>
 
               {/* Guest Song Requests Module */}
@@ -1897,30 +1911,21 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                       <p className="text-xs text-muted-foreground max-lg:mt-1">Let guests request songs from the Live View app</p>
                     </div>
                   </div>
-                  <div className="flex items-center gap-2 max-lg:justify-between">
-                    <span className={`text-xs whitespace-nowrap ${songRequestSettings?.enabled ? "text-green-600" : "text-red-500"}`}>
-                      {songRequestSettings?.enabled ? "Displayed on app" : "Not displayed on app"}
-                    </span>
-                    <Switch
-                      checked={!!songRequestSettings?.enabled}
-                      onCheckedChange={(checked) => updateSongRequestSettings({ enabled: checked })}
-                      className="data-[state=checked]:bg-success data-[state=unchecked]:border data-[state=unchecked]:border-[#967A59]/70"
-                    />
-                  </div>
+                  <ModuleVisibilityControl label="Guest Song Requests" enabled={songRequestSettings?.enabled} failed={songRequestError} onRetry={() => { void retrySongRequests(); }} onChange={enabled => updateSongRequestSettings({ enabled })} />
                 </div>
 
                 {songRequestSettings?.enabled && (
                   <div className="pt-2 space-y-2">
-                    <Label className="text-xs font-semibold inline-flex items-center gap-1.5"><Hash strokeWidth={1.8} className="h-[18px] w-[18px] text-[#856A4C]" aria-hidden="true" />Maximum song requests per guest</Label>
+                    <Label htmlFor="qr-song-request-limit" className="text-xs font-semibold inline-flex items-center gap-1.5"><Hash strokeWidth={1.8} className="h-[18px] w-[18px] text-[#856A4C]" aria-hidden="true" />Maximum song requests per guest</Label>
                     <SongReqSelect
                       value={String(songRequestSettings?.max_requests_per_guest ?? 2)}
                       onValueChange={(v) => updateSongRequestSettings({ max_requests_per_guest: parseInt(v, 10) })}
                     >
-                      <SongReqSelectTrigger className="w-full lv-premium-shade border-0">
+                      <SongReqSelectTrigger id="qr-song-request-limit" className="w-full lv-premium-shade border-0">
                         <SongReqSelectValue />
                       </SongReqSelectTrigger>
                       <SongReqSelectContent className="ww-qr-select-menu">
-                        {[1, 2, 3, 4, 5, 10].map((n) => (
+                        {[1, 2, 3, 4, 5, 10, 15, 20, 25].map((n) => (
                           <SongReqSelectItem key={n} value={String(n)}>{n}</SongReqSelectItem>
                         ))}
                       </SongReqSelectContent>
@@ -1930,11 +1935,12 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
                     </p>
                   </div>
                 )}
-              </div>
-            </div>
+              </div>            </div>
           </CardContent>
         </Card>
 
       </CardContent>
     </Card>;
 };
+
+

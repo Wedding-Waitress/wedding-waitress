@@ -30,7 +30,7 @@ export const BillingCard: React.FC<Props> = ({ icon }) => {
   const last = data.lastInvoice;
 
   return (
-    <SectionCard icon={icon} title="Billing Details" description="Payment method and recent invoice">
+    <SectionCard showIcon={false} icon={icon} title="Billing Details" description="Payment method and recent invoice">
       {loading ? (
         <p className="text-sm text-muted-foreground">Loading billing details…</p>
       ) : error ? (

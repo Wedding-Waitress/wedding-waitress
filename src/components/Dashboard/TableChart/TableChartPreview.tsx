@@ -117,7 +117,7 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
           x={svgWidth / 2} 
           y={30} 
           textAnchor="middle" 
-          fill="#967A59"
+          fill="#2f1b14"
           fontWeight="bold"
           fontSize="18"
         >
@@ -276,7 +276,7 @@ export const TableChartPreview: React.FC<TableChartPreviewProps> = ({
 
         {/* Wedding Waitress Logo at bottom - larger for better visibility */}
         <image
-          href="/wedding-waitress-new-logo.png"
+          href="/wedding-waitress-document-footer-dark-brown.png"
           x={svgWidth / 2 - 60}
           y={svgHeight - 130}
           width="120"

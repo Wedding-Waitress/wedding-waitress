@@ -1,3 +1,4 @@
+import { sendPackagePurchaseEmail } from './packagePurchaseEmail.ts';
 import { validatePaidPlanFulfillmentEvidence, validatePaidPlanLedgerReplayEvidence } from './paidPlanFulfillmentEvidence.ts';
 import { findOriginalPaymentSuccessEvent } from './originalPaymentSuccessEvent.ts';
 
@@ -46,5 +47,6 @@ export async function fulfillPaidPlanWebhook(session: any, stripe: any, admin: a
     || Date.parse(fulfillment.expires_at) <= Date.parse(fulfillment.started_at)) {
     throw new Error('Verified payment fulfillment returned no valid access term');
   }
+  await sendPackagePurchaseEmail(admin, session, fulfillment);
   return { received: true, fulfillment: fulfillment.result };
 }

@@ -6,10 +6,10 @@ const accountCard = readFileSync('src/components/Account/AccountAccessCard.tsx',
 const acceptPage = readFileSync('src/pages/AcceptTeamInvitation.tsx', 'utf8');
 
 describe('Team access availability contract', () => {
-  it('requires an explicit frontend enablement and otherwise hides mutation controls', () => {
-    expect(availability).toContain("VITE_TEAM_ACCESS_ENABLED === 'true'");
-    expect(accountCard).toContain('TEAM_ACCESS_ENABLED && isMaster');
-    expect(accountCard).toContain('TEAM_ACCESS_ENABLED ? team.members : profile');
+  it('uses backend readiness rather than a silent frontend flag', () => {
+    expect(availability).toContain("TEAM_ACCESS_ENABLED = true");
+    expect(accountCard).toContain('disabled={!ready}');
+    expect(accountCard).toContain('hasData ? team.members : profile');
     expect(accountCard).not.toContain('Team access is coming soon');
   });
 

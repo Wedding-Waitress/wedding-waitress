@@ -31,7 +31,7 @@ const renderGate = (entry = '/dashboard') => render(
   <MemoryRouter initialEntries={[entry]}>
     <Routes>
       <Route element={<FirstEventSetupGate userId="user-1" />}>
-        <Route path="/dashboard" element={<div>Dashboard content</div>} />
+        <Route path="/dashboard/upgrade/checkout" element={<div>Package checkout</div>}/><Route path="/account/plan-billing" element={<div>Plan billing</div>}/><Route path="/dashboard" element={<div>Dashboard content</div>} />
         <Route path="/onboarding/event-setup" element={<div>Guided setup content</div>} />
       </Route>
     </Routes>
@@ -66,3 +66,5 @@ describe('FirstEventSetupGate', () => {
     await waitFor(() => expect(mocks.from).not.toHaveBeenCalled());
   });
 });
+
+it.each([['/dashboard/upgrade/checkout?plan=premium','Package checkout'],['/account/plan-billing','Plan billing']])('allows an unfinished first draft to reach %s',async(entry,text)=>{mocks.draft={id:'incomplete'};renderGate(entry);expect(await screen.findByText(text)).toBeInTheDocument();expect(mocks.from).not.toHaveBeenCalled();});

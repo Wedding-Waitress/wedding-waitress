@@ -1,3 +1,4 @@
+import choiceStyles from '../EventSelectorReference.module.css';
 import React, { useState } from 'react';
 import { Card, CardContent, CardDescription, CardHeader, CardTitle } from '@/components/ui/card';
 import { Button } from '@/components/ui/enhanced-button';
@@ -51,55 +52,57 @@ export const LiveSlideshowSetup: React.FC<LiveSlideshowSetupProps> = ({
   const moduleState = useLiveViewModuleSettings(selectedEventId || undefined);
   const [qrCodeDataUrl, setQrCodeDataUrl] = useState<string>('');
   const [copied, setCopied] = useState(false);
+  const [qrCodeError, setQrCodeError] = useState(false);
   const [isOpeningSlideshow, setIsOpeningSlideshow] = useState(false);
 
   const selectedEvent = selectedEventId ? events.find(e => e.id === selectedEventId) : null;
   const liveSlideshowUrl = selectedEvent?.slug ? buildLiveSlideshowUrl(selectedEvent.slug) : '';
 
+  const currentUrl = React.useRef(liveSlideshowUrl);
+  currentUrl.current = liveSlideshowUrl;
+  const copyAttempt = React.useRef(0);
+  const copyTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
+  const openTimer = React.useRef<ReturnType<typeof setTimeout> | undefined>();
+  const opening = React.useRef(false);
+  React.useEffect(() => {
+    copyAttempt.current++;
+    setCopied(false);
+    opening.current = false;
+    setIsOpeningSlideshow(false);
+    return () => { copyAttempt.current++; clearTimeout(copyTimer.current); clearTimeout(openTimer.current); };
+  }, [liveSlideshowUrl]);
   const handleCopyUrl = async () => {
-    if (!liveSlideshowUrl) return;
-    
+    const url = liveSlideshowUrl;
+    if (!url) return;
+    const attempt = ++copyAttempt.current;
     try {
-      await navigator.clipboard.writeText(liveSlideshowUrl);
+      await navigator.clipboard.writeText(url);
+      if (attempt !== copyAttempt.current || currentUrl.current !== url) return;
       setCopied(true);
-      setTimeout(() => setCopied(false), 2000);
-      toast({
-        title: "URL Copied",
-        description: "Live Slideshow URL has been copied to clipboard",
-      });
-    } catch (error) {
-      toast({
-        title: "Copy Failed",
-        description: "Failed to copy URL to clipboard",
-        variant: "destructive",
-      });
+      clearTimeout(copyTimer.current);
+      copyTimer.current = setTimeout(() => { if (attempt === copyAttempt.current) setCopied(false); }, 2000);
+      toast({ title: 'URL Copied', description: 'Live Slideshow URL has been copied to clipboard' });
+    } catch {
+      if (attempt === copyAttempt.current && currentUrl.current === url) toast({ title: 'Copy Failed', description: 'Failed to copy URL to clipboard', variant: 'destructive' });
     }
   };
-
-  const handleOpenLiveSlideshow = () => {
-    if (!liveSlideshowUrl) return;
+  const openSlideshow = (fullscreen: boolean) => {
+    if (!liveSlideshowUrl || opening.current) return;
+    opening.current = true;
     setIsOpeningSlideshow(true);
-    const opened = window.open(liveSlideshowUrl, '_blank');
-    if (!opened) {
-      toast({
-        title: 'Popup blocked',
-        description: 'Allow pop-ups for this site to open the Live Slideshow window.',
-        variant: 'destructive',
-      });
-    }
-    setTimeout(() => setIsOpeningSlideshow(false), 800);
+    const opened = window.open(liveSlideshowUrl + (fullscreen ? '?fullscreen=1' : ''), '_blank');
+    if (!opened) toast({ title: 'Popup blocked', description: 'Allow pop-ups for this site to open the Live Slideshow window.', variant: 'destructive' });
+    clearTimeout(openTimer.current);
+    openTimer.current = setTimeout(() => { opening.current = false; setIsOpeningSlideshow(false); }, 800);
   };
-
-  const handleFullscreen = () => {
-    if (!liveSlideshowUrl) return;
-    const opened = window.open(liveSlideshowUrl + '?fullscreen=1', '_blank');
-    if (!opened) toast({ title: 'Popup blocked', description: 'Allow pop-ups to open the slideshow.', variant: 'destructive' });
-  };
+  const handleOpenLiveSlideshow = () => openSlideshow(false);
+  const handleFullscreen = () => openSlideshow(true);
 
   // Auto-generate the QR code whenever the selected event (and thus URL) changes.
   React.useEffect(() => {
     let cancelled = false;
     setQrCodeDataUrl('');
+    setQrCodeError(false);
     setCopied(false);
     if (!liveSlideshowUrl) {
       setQrCodeDataUrl('');
@@ -111,7 +114,7 @@ export const LiveSlideshowSetup: React.FC<LiveSlideshowSetupProps> = ({
       color: { dark: '#000000', light: '#FFFFFF' },
     }))
       .then((url) => { if (!cancelled) setQrCodeDataUrl(url); })
-      .catch(() => { if (!cancelled) setQrCodeDataUrl(''); });
+      .catch(() => { if (!cancelled) { setQrCodeDataUrl(''); setQrCodeError(true); } });
     return () => { cancelled = true; };
   }, [liveSlideshowUrl]);
 
@@ -136,14 +139,20 @@ export const LiveSlideshowSetup: React.FC<LiveSlideshowSetupProps> = ({
         </CardHeader>
 
         <CardContent className="pt-6 space-y-6">
+          {selectedEvent && (moduleState.error || moduleState.photoSyncError) && (
+            <div role="alert" className={styles.innerSurface}>
+              <p>{moduleState.error ? 'Configuration could not be loaded. Retry before editing module settings.' : 'Your saved event photo could not be synchronized.'}</p>
+              <Button className={styles.actionGreen} disabled={moduleState.loading || moduleState.saving} onClick={() => moduleState.retrySettings()}>Retry configuration</Button>
+            </div>
+          )}
           {/* Choose Event row */}
           <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-            <label className="text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]">
+            <label className={`${choiceStyles.label} text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]`}>
               <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Choose Event:
             </label>
             <Select disabled={eventsLoading || !events.length} value={selectedEventId || undefined} onValueChange={onEventSelect}>
-              <SelectTrigger aria-label="Choose Event" className={`${styles.control} w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#967A59]`}>
+              <SelectTrigger aria-label="Choose Event" className={`${choiceStyles.trigger} ${styles.control} w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#967A59]`}>
                 <SelectValue placeholder="Choose Event" />
               </SelectTrigger>
               <SelectContent className={`${styles.portalSurface} bg-popover border-border z-50`}>
@@ -202,12 +211,12 @@ export const LiveSlideshowSetup: React.FC<LiveSlideshowSetupProps> = ({
                       />
                     ) : (
                       <div className="w-[180px] h-[180px] rounded-md border border-[#472c1d] flex items-center justify-center text-xs text-muted-foreground">
-                        Generating…
+                        {!liveSlideshowUrl ? 'Live Slideshow link unavailable for this event.' : qrCodeError ? 'QR code unavailable. Use the link below.' : 'Generating…'}
                       </div>
                     )}
-                    <p className="text-xs text-muted-foreground mt-2 max-w-[220px] leading-snug">
+                    {qrCodeDataUrl && <p className="text-xs text-muted-foreground mt-2 max-w-[220px] leading-snug">
                       Scan to open the Live Slideshow on a tablet or mobile device
-                    </p>
+                    </p>}
                   </div>
 
                   {/* URL + Actions — stacked full-width */}
@@ -215,6 +224,7 @@ export const LiveSlideshowSetup: React.FC<LiveSlideshowSetupProps> = ({
                     <code className={`${styles.urlField} text-xs break-all block p-2 bg-muted rounded-md border`}>{liveSlideshowUrl}</code>
                     <button
                       onClick={handleCopyUrl}
+                      disabled={!liveSlideshowUrl}
                       className={`${styles.actionGreen} lv-premium-shade inline-flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium border-2 border-green-500 rounded-full text-white bg-background hover:bg-green-50 transition-colors w-full`}
                       aria-label="Copy Live Slideshow URL"
                     >
@@ -228,7 +238,7 @@ export const LiveSlideshowSetup: React.FC<LiveSlideshowSetupProps> = ({
 
                     <button
                       onClick={handleOpenLiveSlideshow}
-                      disabled={isOpeningSlideshow}
+                      disabled={!liveSlideshowUrl || isOpeningSlideshow}
                       aria-label="Open Live Slideshow in a new tab"
                       className={`${styles.actionGreen} lv-premium-shade inline-flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium border-2 border-green-500 rounded-full text-white bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none w-full`}
                     >
@@ -242,6 +252,7 @@ export const LiveSlideshowSetup: React.FC<LiveSlideshowSetupProps> = ({
 
                     <button
                       onClick={handleFullscreen}
+                      disabled={!liveSlideshowUrl || isOpeningSlideshow}
                       className={`${styles.actionGreen} lv-premium-shade inline-flex items-center justify-center gap-2 h-10 px-4 text-sm font-medium rounded-full bg-green-500 text-white hover:bg-green-600 transition-colors w-full`}
                     >
                       <Maximize className="w-4 h-4 text-white" strokeWidth={1.8} aria-hidden="true" />

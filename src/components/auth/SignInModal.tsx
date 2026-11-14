@@ -1,3 +1,4 @@
+import { PublicCopy } from '@/i18n/PublicCopy';
 /**
  * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY
  * Part of the approved public homepage surface (locked 2026-04-18).
@@ -14,7 +15,7 @@ import { LoaderCircle, CircleUserRound, Mail, Send } from 'lucide-react';
 import { secureEmailSchema } from '@/lib/security/validation';
 import { logSecurityEvent, loginRateLimiter } from '@/lib/security/monitoring';
 import { sanitize } from '@/lib/security/inputSanitizer';
-import { getSafeAuthenticatedReturnTo } from '@/lib/authNavigation';
+import { getAccountEntryDestination } from '@/lib/authNavigation';
 import { AuthError, AuthLegal, AuthModalHeader, VerificationCodeForm, authModalStyles as styles } from './AuthModalParts';
 
 interface SignInModalProps {
@@ -112,7 +113,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
     
     const validation = secureEmailSchema.safeParse({ email: sanitizedEmail });
     if (!validation.success) {
-      setError(validation.error.issues[0].message);
+      setError(validation.error.errors[0].message);
       logSecurityEvent.validationFailure('email', email, email);
       otpRequestInFlightRef.current = false;
       return;
@@ -201,7 +202,7 @@ export const SignInModal: React.FC<SignInModalProps> = ({
         toast({
           title: "Signed in ✔",
         });
-        navigate(getSafeAuthenticatedReturnTo(redirectTo));
+        navigate(getAccountEntryDestination(redirectTo));
       }
     } catch (err) {
       setError('Verification failed. Please try again.');
@@ -294,26 +295,26 @@ export const SignInModal: React.FC<SignInModalProps> = ({
           <AuthModalHeader
             icon={CircleUserRound}
             title="Welcome back"
-            description="Continue planning your wedding in one connected place."
+            description=""
           />
             <form onSubmit={handleEmailSubmit} className={styles.body} noValidate>
               <div className={styles.fieldStack}>
                 <div className={styles.fieldGroup}>
-                  <Label htmlFor={`${idPrefix}-email`} className={styles.label}><Mail aria-hidden />Email</Label>
-                  <Input ref={emailRef} id={`${idPrefix}-email`} type="email" value={email} onChange={(event) => setEmail(event.target.value)} className={styles.input} autoComplete="email" required aria-invalid={Boolean(error)} disabled={loading} />
+                  <Label htmlFor={`${idPrefix}-email`} className={styles.label}><Mail aria-hidden /><PublicCopy text={"Email"} /></Label>
+                  <Input ref={emailRef} id={`${idPrefix}-email`} type="email" dir="ltr" value={email} onChange={(event) => setEmail(event.target.value)} className={styles.input} autoComplete="email" required aria-invalid={Boolean(error)} disabled={loading} />
                 </div>
               </div>
               <AuthError message={cooldownTimer > 0 ? `Please wait ${cooldownTimer} seconds before trying again.` : error} />
               <button type="submit" className={styles.primaryButton} disabled={loading || cooldownTimer > 0} aria-live="polite">
                 {loading ? <LoaderCircle size={18} className="animate-spin" aria-hidden /> : <Send size={18} aria-hidden />}
-                {loading
+                <PublicCopy text={loading
                   ? 'Emailing your code…'
                   : cooldownTimer > 0
                     ? `Wait ${cooldownTimer}s`
-                    : 'Email Me a Sign-In Code'}
+                    : 'Email Me a Sign-In Code'} />
               </button>
               <AuthLegal onNavigate={navigateFromModal} />
-              <p className={styles.switchLine}>New to Wedding Waitress?{' '}<button type="button" onClick={onBackToSignUp} className={styles.linkButton}>Create a free account</button></p>
+              <p className={styles.switchLine}><PublicCopy text={"New to Wedding Waitress?"} />{' '}<button type="button" onClick={onBackToSignUp} className={styles.linkButton}><PublicCopy text={"Create a free account"} /></button></p>
             </form>
           </>
         ) : (

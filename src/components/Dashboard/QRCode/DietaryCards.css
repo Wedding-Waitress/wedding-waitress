@@ -1,0 +1,61 @@
+.ww-dietary-cards-action {
+  display:inline-flex;align-items:center;justify-content:center;gap:6px;min-height:40px;
+  padding:10px 16px;border:0!important;border-radius:999px;font:600 14px/20px Manrope,Arial,sans-serif;
+  background:linear-gradient(180deg,#7bd880,#55a447)!important;color:#fff!important;cursor:pointer;
+  box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30;
+}
+.ww-dietary-cards-action span{color:#fff!important;text-shadow:0 1px 2px #0009}
+.ww-dietary-cards-action svg{width:16px;height:16px;flex-shrink:0;color:#2f1b14!important;stroke:currentColor!important;filter:none!important}
+.ww-dietary-cards-action:hover:not(:disabled){filter:brightness(1.04)}
+.ww-dietary-cards-action:disabled{opacity:.5;cursor:default}
+.ww-dietary-cards-action:focus-visible,.ww-dietary-cards-dialog button:focus-visible{outline:3px solid #806344;outline-offset:3px}
+#root#root#root .ww-dietary-cards-action{border:0!important}
+#root#root#root .ww-dietary-cards-action > span{color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px #0009}
+#root#root#root .ww-dietary-cards-action svg,#root#root#root .ww-dietary-cards-action svg *{color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none}
+@media(min-width:1024px){#root .ww-dietary-export-actions{flex-wrap:nowrap!important}#root .ww-dietary-export-actions>button{flex-shrink:0;white-space:nowrap}}
+@media(min-width:1024px) and (max-width:1439px){#root .ww-dietary-header-grid{grid-template-columns:minmax(0,1fr)!important}}
+@media(min-width:1440px){#root .ww-dietary-header-grid{grid-template-columns:minmax(0,1fr) 680px!important}}
+.ww-dietary-cards-dialog {
+  width:min(1120px,calc(100vw - 24px));max-width:none;max-height:calc(100dvh - 24px);
+  padding:0;margin:auto;border:1px solid #c9b797;border-radius:16px;background:#faf7f1;color:#472c1d;
+  box-shadow:0 20px 80px #2f1b1455;overflow:auto;font:14px/1.5 Manrope,Arial,sans-serif;
+}
+.ww-dietary-cards-dialog::backdrop{background:#1b0c08a6}
+.ww-dietary-cards-dialog *{box-sizing:border-box}
+.ww-dietary-cards-heading{padding:20px 24px 12px;display:flex;align-items:flex-start;justify-content:space-between;gap:16px}
+.ww-dietary-cards-heading h2{font-size:24px;line-height:1.3;margin:0 0 4px;font-weight:700;color:#472c1d}
+.ww-dietary-cards-heading p{margin:0;color:#684b40}
+.ww-dietary-cards-close,.ww-dietary-cards-nav button{border:1px solid #bba68b;border-radius:8px;background:#fffdf9;padding:8px 12px;color:#472c1d;font:inherit;cursor:pointer;min-height:40px}
+.ww-dietary-cards-close:disabled,.ww-dietary-cards-nav button:disabled{opacity:.45;cursor:default}
+.ww-dietary-cards-tools{padding:8px 24px 16px;display:flex;align-items:center;justify-content:space-between;gap:12px;flex-wrap:wrap}
+.ww-dietary-cards-nav{display:flex;align-items:center;gap:12px;flex-wrap:wrap}
+.ww-dietary-cards-help{margin:0 24px 16px;padding:12px 16px;border-radius:10px;border:1px solid #dfccb1;background:#f4eadc;color:#684b40}
+.ww-dietary-cards-error{margin:0 24px 16px;color:#a72025;background:#fff0ee;border:1px solid #e2a5a5;border-radius:8px;padding:12px}
+.ww-dietary-cards-stage{padding:18px;background:#e9dfd0;overflow:hidden;display:flex;justify-content:center;min-width:0}
+.ww-dietary-cards-scaled-space{flex-shrink:0;position:relative}
+.ww-dietary-cards-scale{position:absolute;left:0;top:0;transform-origin:top left}
+.ww-dietary-cards-sheet {
+  position:relative;width:210mm!important;height:297mm!important;min-width:210mm!important;
+  margin:0!important;padding:0!important;box-sizing:border-box!important;
+  display:grid!important;grid-template-columns:105mm 105mm!important;grid-template-rows:99mm 99mm 99mm!important;
+  column-gap:0!important;row-gap:0!important;background:#fff!important;color:#fff!important;
+  font-family:Arial,Helvetica,sans-serif!important;box-shadow:none;border:0!important;
+  -webkit-print-color-adjust:exact;print-color-adjust:exact;
+}
+.ww-dietary-cards-sheet *{box-sizing:border-box!important;font-family:Arial,Helvetica,sans-serif!important}
+.ww-dietary-card{position:relative;width:105mm!important;height:99mm!important;background:#ff0000!important;color:#fff!important;break-inside:avoid}
+.ww-dietary-card[data-card-overflow="true"]{outline:1mm solid #e89422}
+.ww-dietary-card-face{width:105mm!important;height:49.5mm!important;padding:3mm 3.5mm!important;display:flex;align-items:center;justify-content:center;color:#fff!important;text-align:center;line-height:1.15!important;overflow:visible}
+.ww-dietary-card-face:first-child{transform:rotate(180deg)}
+.ww-dietary-card-content{width:100%;flex-shrink:0;color:#fff!important}
+.ww-dietary-card-dietary{position:relative;top:-1.12em;color:#fff!important;font-size:19pt;font-weight:700!important;line-height:1.12!important;text-transform:uppercase;overflow-wrap:anywhere;white-space:pre-line;margin:0 0 2mm!important}
+.ww-dietary-card-name{color:#fff!important;font-size:13pt;font-weight:700!important;line-height:1.15!important;overflow-wrap:anywhere;margin:0 0 1.5mm!important}
+.ww-dietary-card-seat{color:#fff!important;font-size:11pt;font-weight:700!important;line-height:1.15!important;overflow-wrap:anywhere;margin:0!important}
+.ww-dietary-card-fold{position:absolute;top:49.5mm;left:0;right:0;border-top:.2mm dashed #ffffffb3;pointer-events:none}
+.ww-dietary-cards-cut-guide{position:absolute;z-index:2;pointer-events:none}
+.ww-dietary-cards-cut-guide-vertical{left:105mm;top:0;bottom:0;border-left:.2mm solid #d3d3d3}
+.ww-dietary-cards-cut-guide-horizontal{left:0;right:0;border-top:.2mm solid #d3d3d3}
+@media(max-width:600px){.ww-dietary-cards-heading{padding:16px}.ww-dietary-cards-tools{padding:8px 16px 16px}.ww-dietary-cards-help,.ww-dietary-cards-error{margin-left:16px;margin-right:16px}.ww-dietary-cards-tools>.ww-dietary-cards-action{width:100%}.ww-dietary-cards-stage{padding:10px}.ww-dietary-cards-heading h2{font-size:20px}}
+@media print{.ww-dietary-cards-sheet{box-shadow:none!important}}
+
+

@@ -1,5 +1,7 @@
 import { useEffect, useState, useCallback } from 'react';
 import { supabase } from '@/integrations/supabase/client';
+import { hasSentInvitation } from '@/lib/messagingAnalytics';
+import { normalizeRsvp } from '@/lib/rsvp';
 
 /**
  * useMessagingAnalytics
@@ -10,7 +12,7 @@ import { supabase } from '@/integrations/supabase/client';
  */
 
 export interface MessagingAnalytics {
-  totalInvitationsSent: number;   // distinct guests with rsvp_invite_status != 'pending'
+  totalInvitationsSent: number;   // distinct guests with persisted send evidence
   smsSent: number;                // count of sms_send_logs.status='sent'
   smsFailed: number;              // count of sms_send_logs.status='failed'
   smsBlocked: number;             // count of sms_send_logs.status='blocked'
@@ -66,7 +68,7 @@ export const useMessagingAnalytics = (eventId: string | null | undefined) => {
         creditsRes,
         purchasesRes,
       ] = await Promise.all([
-        supabase.from('guests').select('id, rsvp, rsvp_invite_status').eq('event_id', eventId),
+        supabase.from('guests').select('id, rsvp, rsvp_invite_status, rsvp_invite_sent_at').eq('event_id', eventId),
         supabase.from('sms_send_logs').select('status').eq('event_id', eventId),
         supabase.from('rsvp_invite_logs').select('status').eq('event_id', eventId).eq('channel', 'email').eq('status', 'sent'),
         supabase.rpc('get_sms_credits', { _user_id: uid, _event_id: eventId }),
@@ -81,16 +83,16 @@ export const useMessagingAnalytics = (eventId: string | null | undefined) => {
       const guests = guestsRes.data ?? [];
       const smsLogs = smsLogsRes.data ?? [];
       const totalGuests = guests.length;
-      const attending = guests.filter(g => (g.rsvp ?? '').toLowerCase() === 'attending').length;
-      const notAttending = guests.filter(g => (g.rsvp ?? '').toLowerCase() === 'not attending').length;
+      const attending = guests.filter(g => normalizeRsvp(g.rsvp) === 'Attending').length;
+      const notAttending = guests.filter(g => normalizeRsvp(g.rsvp) === 'Not Attending').length;
       const pending = totalGuests - attending - notAttending;
-      const invited = guests.filter(g => g.rsvp_invite_status && g.rsvp_invite_status !== 'pending').length;
+      const invited = guests.filter(hasSentInvitation).length;
 
       const creditsRow = Array.isArray(creditsRes.data) ? creditsRes.data[0] : creditsRes.data;
 
       setData({
         totalInvitationsSent: invited,
-        smsSent: smsLogs.filter(l => l.status === 'sent').length,
+        smsSent: smsLogs.filter(l => ['sent', 'delivered'].includes(l.status)).length,
         smsFailed: smsLogs.filter(l => l.status === 'failed').length,
         smsBlocked: smsLogs.filter(l => l.status === 'blocked').length,
         emailsSent: emailLogsRes.data?.length ?? 0,

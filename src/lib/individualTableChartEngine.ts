@@ -23,7 +23,8 @@ import { IndividualTableChartPrintPage } from '@/components/Dashboard/Individual
 import { A4_MM, A4_PAGE_STYLE, A4_PX } from './a4';
 import { format } from 'date-fns';
 import { escapeHtml } from './security/escapeHtml';
-const weddingWaitressLogoFull = '/wedding-waitress-logo-brown.png';
+import { getRelationDisplayText } from './relationUtils';
+const weddingWaitressLogoFull = '/wedding-waitress-document-footer-dark-brown.png';
 
 const createPrintPageContainer = (): HTMLDivElement => {
   const container = document.createElement('div');
@@ -744,7 +745,7 @@ export const generateIndividualTableSVG = (
       <!-- Header Section - Running Sheet Style -->
       <div style="text-align: center; margin-bottom: 10px; padding: 10px 0;">
         <!-- Event Name - Large Purple Bold -->
-        <div style="font-size: 22px; font-weight: 700; color: #967A59; text-align: center; margin-bottom: 4px; line-height: 1.5;">
+        <div style="font-size: 22px; font-weight: 700; color: #2f1b14; text-align: center; margin-bottom: 4px; line-height: 1.5;">
           ${eventName}
         </div>
         <!-- Subtitle with guest count -->
@@ -1127,7 +1128,8 @@ export const generateIndividualTableSVG = (
             <div style="flex: 1; display: flex; flex-direction: column; gap: 2px;">
               ${sortedGuests.filter((_, index) => index % 2 === 0).map((guest) => {
                 const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
-                const relationText = settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned' ? ` <span style="color: #888;">(${escapeHtml((guest.relation_display || '').replace(/ \/ /g, '/'))})</span>` : '';
+                const relationship = getRelationDisplayText(guest.relation_display, guest.relation_role);
+                const relationText = settings.includeRelation && relationship && relationship !== 'Not Assigned' ? ` <span style="color: #888;">(${escapeHtml(relationship.replace(/ \/ /g, '/'))})</span>` : '';
                 return `
                   <div style="display: flex; align-items: flex-start; padding: 2px 0; line-height: 1.5; min-height: ${scaledRowHeight}px;">
                     <span style="width: 20px; text-align: left; flex-shrink: 0;">${actualIndex + 1}.</span>
@@ -1142,7 +1144,8 @@ export const generateIndividualTableSVG = (
             <div style="flex: 1; display: flex; flex-direction: column; gap: 2px; margin-left: 16px;">
               ${sortedGuests.filter((_, index) => index % 2 === 1).map((guest) => {
                 const actualIndex = sortedGuests.findIndex(g => g.id === guest.id);
-                const relationText = settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned' ? ` <span style="color: #888;">(${escapeHtml((guest.relation_display || '').replace(/ \/ /g, '/'))})</span>` : '';
+                const relationship = getRelationDisplayText(guest.relation_display, guest.relation_role);
+                const relationText = settings.includeRelation && relationship && relationship !== 'Not Assigned' ? ` <span style="color: #888;">(${escapeHtml(relationship.replace(/ \/ /g, '/'))})</span>` : '';
                 return `
                   <div style="display: flex; align-items: flex-start; padding: 2px 0; line-height: 1.5; min-height: ${scaledRowHeight}px;">
                     <span style="width: 20px; text-align: left; flex-shrink: 0;">${actualIndex + 1}.</span>

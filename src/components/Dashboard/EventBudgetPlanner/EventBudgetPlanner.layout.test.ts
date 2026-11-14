@@ -25,7 +25,7 @@ describe('Event Budget Planner layout contract', () => {
     expect(component.indexOf('className={styles.summaryGrid}')).toBeGreaterThan(component.indexOf('data-budget-panel'));
     expect(component).toContain('className={styles.summaryBudgetInput}');
     expect(component).not.toContain('className={styles.budgetControls}');
-    expect(css).toMatch(/\.budgetPanel \{[^}]*height: 7rem;[^}]*grid-template-columns: minmax\(11rem,.7fr\) minmax\(25\.5rem,1\.3fr\) auto/);
+    expect(css).toMatch(/\.budgetPanel \{[^}]*min-height: 7rem;[^}]*grid-template-columns: minmax\(11rem,.7fr\) minmax\(25\.5rem,1\.3fr\) auto/);
     expect(css).toMatch(/\.budgetPanel \{[^}]*border: 0;[^}]*border-radius: 0;[^}]*outline: 0;[^}]*background: transparent;[^}]*box-shadow: none/);
     expect(css).toMatch(/\.expensePanel \{[^}]*border: 1px solid var\(--dashboard-border\);[^}]*background: var\(--dashboard-panel\)/);
     expect(css).toMatch(/\.summaryGrid \{[^}]*grid-template-columns: repeat\(3,minmax\(0,1fr\)\);[^}]*grid-template-rows: repeat\(2,minmax\(0,1fr\)\)/);
@@ -46,7 +46,7 @@ describe('Event Budget Planner layout contract', () => {
     expect(component).toContain('className={styles.moneyBagIcon}');
     expect(component).toContain('<MoneyBagIcon />{saveBudget.isPending');
     expect(component).not.toContain('<Save size={16} aria-hidden="true" />{saveBudget.isPending');
-    expect(css).toMatch(/button\.exportAction svg\.moneyBagIcon \{ width:32px!important; height:32px!important; flex:0 0 32px; \}/);
+    expect(css).toMatch(/button\.exportAction svg\.moneyBagIcon \{ width:16px!important; height:16px!important; flex:0 0 16px; \}/);
   });
 
   it('keeps the editable Total Budget amount visually borderless with an accessible focus underline', () => {
@@ -58,22 +58,40 @@ describe('Event Budget Planner layout contract', () => {
     expect(css).toMatch(/\.borderlessBudgetInput\[aria-invalid="true"\]:focus-visible \{[^}]*#dc2626 !important/);
   });
 
-  it('fits the complete desktop table without horizontal scrolling and switches to cards before tablet widths become cramped', () => {
-    expect(css).toMatch(/\.tableRegion \{[^}]*width: 100%;[^}]*max-width: 100%/);
-    expect(css).toMatch(/\.expenseTable \{[^}]*width: 100%;[^}]*table-layout: fixed/);
-    expect(css).not.toMatch(/\.expenseTable \{[^}]*min-width:/);
-    expect(css).toMatch(/@media \(max-width: 70rem\)[\s\S]*\.tableRegion \{ display: none; \}[\s\S]*\.mobileExpenses \{ display: grid/);
+  it('uses one shared desktop table layout and scrolls safely at narrower widths', () => {
+    expect(component).toContain('<colgroup><col className={styles.categoryColumn}/>');
+    expect(component).toContain('<th className={styles.centeredColumn}>Notes</th>');
+    expect(component).toContain("{expense.notes?.trim() ? 'Yes' : 'No'}");
+    expect(css).toMatch(/\.tableRegion \{[^}]*width: 100%;[^}]*max-width: 100%;[^}]*overflow-x: auto;[^}]*-webkit-overflow-scrolling: touch/);
+    expect(css).toMatch(/\.expenseTable \{[^}]*width: 100%;[^}]*min-width: 77rem;[^}]*table-layout: fixed/);
+    expect(css).toMatch(/@media \(max-width: 70rem\)[\s\S]*\.tableRegion \{ display: block; \}[\s\S]*\.mobileExpenses \{ display: none; \}/);
     expect(css).toMatch(/\.planner \{[^}]*min-width: 0/);
-    expect(component).toContain('<details><summary>View Details</summary>');
   });
 
-  it('uses controlled percentage columns, safe contact wrapping and compact non-wrapping values', () => {
-    expect(css).toContain('.expenseTable th:nth-child(1) { width: 8%; }');
-    expect(css).toContain('.expenseTable th:nth-child(3) { width: 16%; }');
-    expect(css).toContain('.expenseTable th:nth-child(11) { width: 7.5%; }');
+  it('uses shared column tracks, aligned values and alternating rows', () => {
+    expect(css).toContain('.categoryColumn { width: 5.5rem; }');
+    expect(css).toContain('.businessColumn { width: 7.5rem; }');
+    expect(css).toContain('.contactColumn { width: 8.5rem; }');
+    expect(css).toContain('.budgetedColumn { width: 6.5rem; }');
+    expect(css).toContain('.actualColumn { width: 7rem; }');
+    expect(css).toContain('.paidColumn { width: 7rem; }');
+    expect(css).toContain('.notesColumn { width: 4rem; }');
     expect(css).toMatch(/\.expenseTable td \{[^}]*overflow-wrap: anywhere;[^}]*word-break: break-word/);
     expect(css).toMatch(/\.expenseTable \.money \{[^}]*white-space: nowrap/);
-    expect(css).toMatch(/\.expenseTable th \{[^}]*color: var\(--dashboard-text\);[^}]*opacity: 1/);
+    expect(css).toMatch(/\.expenseTable th \{[^}]*color: #fff;[^}]*background: #472c1d;[^}]*font-size: 13px;[^}]*font-weight: 600;[^}]*line-height: 18px;[^}]*text-align: center;[^}]*vertical-align: middle/);
+    expect(css).toContain('.textColumn,.textHeaderColumn { text-align: left; }');
+    expect(css).toContain('.centeredColumn { text-align: center; vertical-align: middle !important; }');
+    expect(css).toMatch(/\.expenseTable th \{[^}]*padding: \.8rem \.4rem/);
+    expect(css).toMatch(/\.expenseTable td \{[^}]*padding: \.85rem \.4rem/);
+    expect(css).toContain('.expenseTable tbody tr:nth-child(odd) td { background: #fbf8f2; }');
+    expect(css).toContain('.expenseTable tbody tr:nth-child(even) td { background: #f5ebdd; }');
+  });
+
+  it('matches Guest List body typography for desktop and mobile expense values without changing status or edit controls', () => {
+    expect(css).toMatch(/\.expenseTable tbody td:not\(:nth-child\(11\)\):not\(:nth-child\(12\)\)[\s\S]*font-size: 13px;[\s\S]*font-weight: 400;[\s\S]*line-height: 18px/);
+    expect(css).toMatch(/\.mobileExpenseCard :is\([\s\S]*font-size: 13px;[\s\S]*font-weight: 400;[\s\S]*line-height: 18px/);
+    expect(css).toMatch(/\.statusPill \{[^}]*font-size: 10px;[^}]*font-weight: 700;[^}]*line-height: 1/);
+    expect(css).toContain('button.tableEditButton { font-size:14px !important; font-weight:600; }');
   });
 
   it('uses borderless solid semantic controls with white content and reduced-motion support', () => {
@@ -83,8 +101,8 @@ describe('Event Budget Planner layout contract', () => {
   });
 
   it('uses the approved green treatment for Edit without changing the drawer action treatments', () => {
-    expect(component).toContain('className={`${styles.successButton} ${styles.tableEditButton}`} aria-label={`Edit ${expenseTitle(expense)}`}');
-    expect(css).toMatch(/\.tableEditButton \{[^}]*min-height: 1\.9rem;[^}]*font-size: 10px;[^}]*white-space: nowrap/);
+    expect(component).toContain('<RecordActionPair editLabel={`Edit ${expenseTitle(expense)}`} deleteLabel={`Delete ${expenseTitle(expense)}`}');
+    expect(css).toMatch(/\.tableEditButton \{[^}]*min-height: 30px;[^}]*white-space: nowrap/);
     expect(drawer).toContain('className={styles.dangerButton} onClick={requestClose}');
     expect(drawer).toContain('<X size={16} aria-hidden="true" />Cancel');
     expect(drawer).toContain("className={styles.successButton} disabled={saving || deleting}");
@@ -92,8 +110,8 @@ describe('Event Budget Planner layout contract', () => {
 
   it('keeps only the approved user-facing budget terminology', () => {
     expect(component).toContain('Budgeted Costs');
-    expect(component).toContain('<th>Business Name</th>');
-    expect(component).toContain('<th>Budgeted Cost</th>');
+    expect(component).toContain('<th className={styles.textHeaderColumn}>Business Name</th>');
+    expect(component).toContain('<th className={styles.centeredColumn}>Budgeted Cost</th>');
     expect(component).not.toMatch(/Estimated Cost|Estimated Costs|Expense \/ Vendor/);
   });
 
@@ -103,7 +121,7 @@ describe('Event Budget Planner layout contract', () => {
     expect(css).toContain('--budget-field-border-focus: #2b1711');
     expect(css).toMatch(/\[aria-invalid="true"\] \{ border-color: var\(--budget-field-border-error\) !important;/);
     expect(component).toContain("['estimated', 'Budgeted Cost']");
-    expect(component).toContain('<th>Business Name</th>');
+    expect(component).toContain('<th className={styles.textHeaderColumn}>Business Name</th>');
   });
 
   it('defines intrinsic A4 landscape pages, repeated table headers, unsplit rows and minimum 8pt text', () => {

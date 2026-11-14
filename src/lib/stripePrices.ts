@@ -36,7 +36,7 @@ export const PLAN_PRICES = {
 } as const;
 
 // ── Vendor Pro (monthly subscription, AUD baseline) ────────────────
-// Updated 2026-05-08: A$299/mo, 100 events included, up to 10 account users.
+// Updated 2026-05-08: A$299/mo, 100 events included, up to 5 account users.
 // Multi-currency price IDs live in `currencyPricing.ts` and `planRegistry.ts`.
 export const VENDOR_PRO = {
   product_id: 'prod_UTm2XBA5rX9dGN',
@@ -44,15 +44,15 @@ export const VENDOR_PRO = {
   name: 'Vendor Pro',
   price_aud: 299,
   included_events: 100,
-  max_users: 10,
+  max_users: 5,
   plan_db_id: '632b476a-39da-4f6f-8457-9ba104d571da',
 } as const;
 
 // ── Additional Event SKU (one-time, per extra event) ───────────────
 // Multi-currency variants live in `planRegistry.ts` (ADDITIONAL_EVENT.prices).
 export const ADDITIONAL_EVENT_AUD = {
-  product_id: 'prod_UTm7byFGV7E127',
-  price_id: 'price_1TUoZ15GzTmqOxGKDRmvofDh',
+  product_id: 'ww_live_20260914_v2_additional_event',
+  price_id: 'price_1UFTqL5GzTmqOxGKgPWVdCwr',
   name: 'Additional Event',
   price_aud: 99,
 } as const;
@@ -97,8 +97,8 @@ export const SMS_TOPUP = COMMUNICATION_CREDIT_PACKS.credits_100;
 
 // ── Plan guest-capacity add-on (one-time, $10 AUD per 10 spaces) ───
 export const GUEST_CAPACITY_TOPUP = {
-  product_id: 'prod_URud0pt0K8Sl9i',
-  price_id: 'price_1TT0o05GzTmqOxGKUIiEXxj6',
+  product_id: 'ww_live_20260914_v2_guest_capacity_10',
+  price_id: 'price_1UFTqV5GzTmqOxGKkLYcl2PS',
   name: 'Guest Capacity Add-on — 10 Spaces',
   price_aud: 10,
   guests_per_block: 10,

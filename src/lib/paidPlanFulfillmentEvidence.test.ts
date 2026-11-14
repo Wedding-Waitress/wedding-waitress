@@ -12,6 +12,11 @@ const fixture = () => ({
   event: { object: 'event', id: 'evt_Original1', livemode: true, type: 'payment_intent.succeeded', created: 1700000400, data: { object: { id: 'pi_Original1', status: 'succeeded' } } },
 });
 describe('original paid-plan provider evidence', () => {
+  it('accepts a captured non-card charge only with the matching payment intent evidence', () => {
+    const f = fixture(); f.charge.id='py_NonCardFixture';f.intent.latest_charge=f.charge.id;
+    expect(validatePaidPlanFulfillmentEvidence(f.session,f.intent,f.charge,f.event,1700000500)._user_id).toBe(owner);
+    expect(()=>validatePaidPlanFulfillmentEvidence(f.session,{...f.intent,latest_charge:'ch_Foreign'},f.charge,f.event,1700000500)).toThrow();
+  });
   it('replays an immutable recorded payment after provider event retention without resetting its time', () => {
     const f = fixture();
     const original = validatePaidPlanFulfillmentEvidence(f.session, f.intent, f.charge, f.event, 1700000500);

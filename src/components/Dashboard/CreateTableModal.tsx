@@ -65,6 +65,11 @@ interface CreateTableModalProps {
   currentEventName?: string;
   primaryParticipant1?: string | null;
   primaryParticipant2?: string | null;
+  planName?: string | null;
+  planGuestLimit?: number | null;
+  isTrial?: boolean;
+  onUpgradePlan?: () => void;
+  onBuyGuestCapacity?: () => void;
 }
 
 export const CreateTableModal: React.FC<CreateTableModalProps> = ({
@@ -77,9 +82,14 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
   currentEventName,
   primaryParticipant1,
   primaryParticipant2,
+  planName,
+  planGuestLimit,
+  isTrial,
+  onUpgradePlan,
+  onBuyGuestCapacity,
 }) => {
   const [name, setName] = useState('');
-  const [limitSeats, setLimitSeats] = useState<number>(8);
+  const [limitSeats, setLimitSeats] = useState<number>(10);
   const [notes, setNotes] = useState('');
   const [tableType, setTableType] = useState<TableType>('round');
   const [tablePurpose, setTablePurpose] = useState<TablePurpose>('standard');
@@ -119,7 +129,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
         setTablePurpose(editingTable.table_purpose || 'standard');
       } else {
         setName('');
-        setLimitSeats(8);
+        setLimitSeats(10);
         setNotes('');
         setTableType('round');
         setTablePurpose('standard');
@@ -148,7 +158,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
       setTableType(editingTable.table_type || 'round');
     } else {
       setName('');
-      setLimitSeats(8);
+      setLimitSeats(10);
       setTableType('round');
     }
   };
@@ -357,7 +367,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
         side="right"
         className={`ww-table-panel w-full sm:max-w-3xl flex flex-col overflow-hidden p-6 mobile-scroll-container ${eventDrawerStyles.drawer} ${tableDrawerStyles.drawer}`}
       >
-        <SheetHeader className={`max-lg:pt-6 lg:pr-12 text-left space-y-0 ${eventDrawerStyles.header}`}>
+        <SheetHeader className={`max-lg:pt-6 lg:pr-12 text-left space-y-0 ${eventDrawerStyles.header} ${tableDrawerStyles.header}`}>
           <SheetTitle className={`text-xl sm:text-2xl font-semibold tracking-[-0.012em] leading-tight text-white flex items-center gap-2 ${eventDrawerStyles.title} ${tableDrawerStyles.title}`}>
             {editingTable
               ? <Pencil size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
@@ -650,6 +660,11 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
         onClose={() => setShowSeatLimitDialog(false)}
         variant="exceeded"
         guestLimit={eventGuestLimit || 0}
+        planName={planName}
+        planGuestLimit={planGuestLimit}
+        isTrial={isTrial}
+        onUpgradePlan={onUpgradePlan}
+        onBuyCapacity={onBuyGuestCapacity}
       />
     </Sheet>
   );

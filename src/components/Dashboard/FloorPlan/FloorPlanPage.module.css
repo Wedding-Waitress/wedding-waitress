@@ -329,3 +329,28 @@
  box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30!important;
 }
 :global(body) button.generateLinkButton.generateLinkButton.generateLinkButton :is(svg,svg *) {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;}
+/* Floor Plan header selectors only, shared by ceremony/reception. Keep their
+   existing widths and layout, including the compact plan-type selector. */
+@layer dashboard-interface {
+  :global(label[for="floor-plan-event"]),:global(label[for="floor-plan-type"]) {
+    font-family:'Segoe UI',Arial,sans-serif !important;
+    font-size:14px !important;font-weight:700 !important;line-height:18px !important;
+    color:#000 !important;-webkit-text-fill-color:#000 !important;
+  }
+  :global(button#floor-plan-event),:global(button#floor-plan-type) {
+    height:44px !important;min-height:44px !important;padding:8px 12px !important;
+    border:1px solid #cdb99e !important;border-radius:0 !important;
+    background:#f8f0e5 !important;color:#000 !important;-webkit-text-fill-color:#000 !important;
+    font-family:'Segoe UI',Arial,sans-serif !important;font-size:13px !important;font-weight:600 !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 2px 6px rgba(74,42,26,.06) !important;
+  }
+  :is(:global(button#floor-plan-event),:global(button#floor-plan-type)) :is(span,div) {
+    background:transparent !important;color:#000 !important;-webkit-text-fill-color:#000 !important;
+    font-family:'Segoe UI',Arial,sans-serif !important;font-size:13px !important;font-weight:600 !important;
+  }
+  :is(:global(button#floor-plan-event),:global(button#floor-plan-type)):hover {background:#f3e7d8 !important;}
+  :is(:global(button#floor-plan-event),:global(button#floor-plan-type)):focus-visible {outline:2px solid #755332 !important;outline-offset:2px;}
+}
+@media screen and (min-width:1280px) {
+  .ceremonyWorkspace > .previewRegion {margin-top:12px !important;}
+}

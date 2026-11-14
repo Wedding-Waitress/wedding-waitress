@@ -41,6 +41,7 @@ export const FloorPlanPage = ({
 }: FloorPlanPageProps) => {
   const [shareOpen,setShareOpen]=useState(false);
   const [floorPlanType, setFloorPlanType] = useState<FloorPlanType>('ceremony');
+  const [receptionEventId, setReceptionEventId] = useState<string | null>(null);
   const [isExporting, setIsExporting] = useState(false);
   const [receptionHeaderControlsContainer, setReceptionHeaderControlsContainer] = useState<HTMLDivElement | null>(null);
   const ceremonyA4Ref = useRef<HTMLDivElement>(null);
@@ -59,6 +60,10 @@ export const FloorPlanPage = ({
   } = useCeremonyFloorPlan(selectedEventId);
 
   const selectedEvent = events.find(event => event.id === selectedEventId);
+
+  useEffect(() => {
+    if (floorPlanType === 'reception' && selectedEventId) setReceptionEventId(selectedEventId);
+  }, [floorPlanType, selectedEventId]);
 
   // Create floor plan if it doesn't exist when ceremony type is selected
   // Only attempt after initial load confirms no plan exists
@@ -189,7 +194,7 @@ export const FloorPlanPage = ({
               </label>
               <Select
                 value={floorPlanType}
-                onValueChange={(value) => setFloorPlanType(value as FloorPlanType)}
+                onValueChange={(value) => { if(value === 'reception') setReceptionEventId(selectedEventId); setFloorPlanType(value as FloorPlanType); }}
               >
                 <SelectTrigger id="floor-plan-type" className={`${styles.interfaceControl} ${floorPlanType === 'ceremony' ? styles.control : receptionStyles.control} w-full min-w-0 border-primary focus:ring-primary xl:w-[180px]`}>
                   <SelectValue placeholder="Select type" />
@@ -276,7 +281,7 @@ export const FloorPlanPage = ({
 
       {/* Main Content */}
       {isDataReady && floorPlanType === 'ceremony' && (
-        <div className="space-y-4 sm:space-y-6">
+        <div className={`${styles.ceremonyWorkspace} space-y-4 sm:space-y-6`}>
           <CeremonyFloorPlanSettings
             floorPlan={floorPlan}
             totalAttending={totalAttending}
@@ -284,7 +289,7 @@ export const FloorPlanPage = ({
           />
 
           <div className={styles.previewRegion} data-ceremony-preview-region="true">
-            <CeremonyFloorPlanA4Preview
+            <CeremonyFloorPlanA4Preview expandDesktop
               pageRef={ceremonyA4Ref}
               floorPlan={floorPlan}
               event={selectedEvent}
@@ -298,8 +303,10 @@ export const FloorPlanPage = ({
       )}
 
       {/* Reception Floor Plan (Phase 1A — Step 2 scaffold) */}
-      {selectedEventId && selectedEvent && floorPlanType === 'reception' && (
+      {selectedEventId && selectedEvent && (floorPlanType === 'reception' || receptionEventId === selectedEventId) && (
         <ReceptionFloorPlanPage
+          key={selectedEventId}
+          active={floorPlanType === 'reception'}
           selectedEventId={selectedEventId}
           selectedEvent={selectedEvent}
           headerControlsContainer={receptionHeaderControlsContainer}

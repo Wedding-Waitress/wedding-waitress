@@ -1,7 +1,7 @@
 import React from 'react';
 import { readFileSync } from 'node:fs';
 import { resolve } from 'node:path';
-import { fireEvent, render, screen } from '@testing-library/react';
+import { act, fireEvent, render, screen, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 import { SignageGalleryModal } from './SignageGalleryModal';
 import styles from './SignageGalleryModal.module.css';
@@ -20,6 +20,14 @@ const images = Array.from({ length: 355 }, (_, index) => ({
 }));
 let galleryImages = images.slice(0, 4);
 const galleryState = { loading: false };
+const refetchGallery = vi.fn();
+const galleryCategories = [{ name: 'Classic', count: 177 }, { name: 'Floral', count: 178 }];
+const notify = vi.fn();
+vi.mock('@/lib/signageImageCache', () => ({
+  loadSignageImageSize: vi.fn().mockResolvedValue({ width: 1000, height: 1400 }),
+  hasLoadedSignageImage: () => false,
+  rememberSignageImage: vi.fn(),
+}));
 
 vi.mock('@/hooks/useIsAdmin', () => ({
   useIsAdmin: () => ({ isAdmin: adminState.isAdmin }),
@@ -28,19 +36,16 @@ vi.mock('@/hooks/useIsAdmin', () => ({
 vi.mock('@/hooks/useSignageGallery', () => ({
   useSignageGallery: () => ({
     images: galleryImages,
-    categoriesWithCounts: [
-      { name: 'Classic', count: 177 },
-      { name: 'Floral', count: 178 },
-    ],
+    categoriesWithCounts: galleryCategories,
     loading: galleryState.loading,
     error: null,
     removeImageFromGallery: vi.fn(),
-    refetch: vi.fn(),
+    refetch: refetchGallery,
   }),
 }));
 
 vi.mock('@/hooks/use-toast', () => ({
-  useToast: () => ({ toast: vi.fn() }),
+  useToast: () => ({ toast: notify }),
 }));
 
 vi.mock('./SignageBulkUploader', () => ({
@@ -55,6 +60,40 @@ vi.mock('./SignageBulkUploader', () => ({
 }));
 
 describe('Seating Chart Signs Template Library', () => {
+  it('distinguishes no matches from an empty catalogue and restores filters safely',()=>{
+   const apply=vi.fn();render(<SignageGalleryModal open onOpenChange={vi.fn()} onSelectImage={apply}/>);
+   fireEvent.change(screen.getByRole('textbox',{name:'Search sign templates'}),{target:{value:'NoMatchingTemplateReview'}});
+   expect(screen.getByText('No templates match your filters')).toBeInTheDocument();expect(screen.queryByText('No images available yet')).not.toBeInTheDocument();
+   expect(screen.getByRole('combobox',{name:'Filter sign templates by category'})).toBeInTheDocument();
+   fireEvent.click(screen.getByRole('button',{name:'Clear filters'}));expect(screen.getByRole('textbox',{name:'Search sign templates'})).toHaveValue('');expect(screen.getAllByRole('button',{name:'View'})).toHaveLength(4);expect(apply).not.toHaveBeenCalled();
+  });
+  it('opens View with the preview asset and visible loading feedback instead of downloading the master', () => {
+    render(<SignageGalleryModal open onOpenChange={vi.fn()} onSelectImage={vi.fn()} />);
+    fireEvent.click(screen.getAllByRole('button', { name: 'View' })[0]);
+    const preview = screen.getByRole('img', { name: galleryImages[0].name });
+    expect(preview).toHaveAttribute('src', galleryImages[0].preview_url);
+    expect(screen.getByRole('status')).toHaveTextContent('Loading image...');
+    fireEvent.load(preview);
+    expect(screen.queryByText('Loading image...')).not.toBeInTheDocument();
+  });
+
+  it('cancels an older apply request when a newer design is selected', async () => {
+    const close = vi.fn();
+    const completions: Array<(value: boolean) => void> = [];
+    const select = vi.fn((_preview: string, _master?: string, _signal?: AbortSignal) => new Promise<boolean>(resolve => completions.push(resolve)));
+    render(<SignageGalleryModal open onOpenChange={close} onSelectImage={select} />);
+    fireEvent.click(screen.getAllByRole('button', { name: 'Select' })[0]);
+    fireEvent.click(screen.getByRole('button', { name: 'Select Template' }));
+    expect(screen.getByRole('status')).toHaveTextContent('Applying template...');
+    fireEvent.click(screen.getAllByRole('button', { name: 'Select' })[1]);
+    expect(select.mock.calls[0][2]?.aborted).toBe(true);
+    fireEvent.click(screen.getByRole('button', { name: 'Select Template' }));
+    await act(async () => completions[0](true));
+    expect(close).not.toHaveBeenCalled();
+    await act(async () => completions[1](true));
+    expect(close).toHaveBeenCalledWith(false);
+    expect(select.mock.calls[1].slice(0, 2)).toEqual([galleryImages[1].preview_url, galleryImages[1].image_url]);
+  });
   beforeEach(() => {
     adminState.isAdmin = false;
     galleryImages = images.slice(0, 4);
@@ -69,7 +108,7 @@ describe('Seating Chart Signs Template Library', () => {
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
 
-  it('preserves the supplied catalogue and applies a selected template through the sticky action bar', () => {
+  it('preserves the supplied catalogue and applies a selected template through the sticky action bar', async () => {
     const onSelectImage = vi.fn();
     render(<SignageGalleryModal open onOpenChange={vi.fn()} onSelectImage={onSelectImage} />);
 
@@ -82,8 +121,8 @@ describe('Seating Chart Signs Template Library', () => {
     expect(screen.queryByRole('button', { name: /Delete/i })).not.toBeInTheDocument();
 
     fireEvent.click(screen.getAllByRole('button', { name: 'Select' })[0]);
-    fireEvent.click(screen.getByRole('button', { name: 'Select Template' }));
-    expect(onSelectImage).toHaveBeenCalledWith(galleryImages[0].preview_url, galleryImages[0].image_url);
+    await act(async () => fireEvent.click(screen.getByRole('button', { name: 'Select Template' })));
+    expect(onSelectImage).toHaveBeenCalledWith(galleryImages[0].preview_url, galleryImages[0].image_url, expect.any(AbortSignal));
   });
 
   it('keeps owner/admin controls visible and the upload area expandable', () => {
@@ -109,7 +148,7 @@ describe('Seating Chart Signs Template Library', () => {
     expect(screen.getByTestId('signage-template-grid')).toHaveClass(styles.templateGrid);
     const close = screen.getByRole('button', { name: 'Close' });
     const select = screen.getByRole('button', { name: 'Select Template' });
-    expect(close.compareDocumentPosition(select) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+    expect(select.compareDocumentPosition(close) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
     expect(select).toBeDisabled();
   });
 
@@ -125,3 +164,20 @@ describe('Seating Chart Signs Template Library', () => {
     expect(source).toMatch(/min-width:\s*1800px[\s\S]*repeat\(8,/);
   });
 });
+  if (process.env.SIGNAGE_PERF === '1') it.each([1440, 768, 390])('profiles the 355-design admin library at %ipx', async width => {
+    adminState.isAdmin = true;
+    galleryImages = images;
+    Object.defineProperty(window, 'innerWidth', { configurable: true, value: width });
+    const start = performance.now();
+    const view = render(<SignageGalleryModal open onOpenChange={vi.fn()} onSelectImage={vi.fn()} />);
+    const openMs = performance.now() - start;
+    await waitFor(() => expect(view.container.ownerDocument.querySelectorAll('img[alt^="Seating sign"]')).toHaveLength(355), { timeout: 10_000 });
+    const select = screen.getAllByRole('button', { name: 'Select' })[0];
+    const selectionStart = performance.now(); fireEvent.click(select);
+    const selectMs = performance.now() - selectionStart;
+    const viewButton = screen.getAllByRole('button', { name: 'View' })[0];
+    const viewStart = performance.now(); fireEvent.click(viewButton);
+    const viewMs = performance.now() - viewStart;
+    process.stdout.write(JSON.stringify({ width, openMs, selectMs, viewMs }) + '\n');
+    view.unmount();
+  }, 30_000);

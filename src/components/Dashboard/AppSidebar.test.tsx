@@ -18,6 +18,15 @@ vi.mock('react-router-dom', async () => {
 vi.mock('@/components/Admin/AdminOtpModal', () => ({ AdminOtpModal: () => null }));
 
 describe('dashboard sidebar navigation control', () => {
+  it('selects My Events on entry and allows Event Budget Planner navigation', () => {
+    const onTabChange = vi.fn();
+    render(<SidebarProvider><AppSidebar activeTab="my-events" onTabChange={onTabChange} onSignOut={vi.fn()} /></SidebarProvider>);
+    expect(screen.getByRole('button', { name: /My Events/ })).toHaveAttribute('aria-current', 'page');
+    const budget = screen.getByRole('button', { name: /Event Budget Planner/ });
+    expect(budget).not.toHaveAttribute('aria-current');
+    fireEvent.click(budget);
+    expect(onTabChange).toHaveBeenCalledWith('dashboard');
+  });
   beforeEach(() => {
     vi.clearAllMocks();
     Object.defineProperty(window, 'innerWidth', { configurable: true, value: 1280 });

@@ -1,3 +1,4 @@
+import choiceStyles from '../EventSelectorReference.module.css';
 /**
  * PRODUCTION-READY -- LOCKED FOR PRODUCTION
  *
@@ -53,15 +54,15 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
           </div>
         </CardHeader>
         <CardContent className="pt-0">
-          <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4">
-            <label className="text-sm font-medium text-foreground whitespace-nowrap">
-              Choose Event:
+          <div className={`flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 ${choiceStyles.row}`}>
+            <label htmlFor="qr-event-selection" className={`text-sm font-medium text-foreground whitespace-nowrap ${choiceStyles.label}`}>
+              <CalendarDays size={18} strokeWidth={1.8} aria-hidden="true" />Choose Event:
             </label>
-            <Select value={currentEventId || 'no-event'} onValueChange={handleEventSelect}>
-              <SelectTrigger className={`${styles.selectTrigger} w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#967A59]`}>
+            <Select value={selectedEvent ? currentEventId! : ''} onValueChange={handleEventSelect} disabled={eventsLoading && !selectedEvent}>
+              <SelectTrigger id="qr-event-selection" className={`${styles.selectTrigger} w-full sm:w-[300px] border-primary focus:ring-primary font-bold text-[#967A59] ${choiceStyles.trigger} ${choiceStyles.leadingCalendar}`}>
                 <div className="flex items-center gap-[7px] min-w-0">
                   <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
-                  <SelectValue placeholder="Choose Event" />
+                  <SelectValue placeholder={eventsLoading ? 'Loading events...' : 'Choose Event'} />
                 </div>
               </SelectTrigger>
               <SelectContent className="ww-qr-select-menu bg-popover border-border z-50">
@@ -80,10 +81,10 @@ export const QRCodeSeatingChart: React.FC<QRCodeSeatingChartProps> = ({
       </Card>
 
       {/* Main QR Code Card */}
-      {currentEventId && selectedEvent && <QRCodeMainCard eventId={currentEventId} event={selectedEvent} />}
+      {currentEventId && selectedEvent && <QRCodeMainCard key={currentEventId} eventId={currentEventId} event={selectedEvent} />}
 
       {/* Placeholder when no event selected */}
-      {!currentEventId && <Card className="ww-box p-12 text-center">
+      {!currentEventId && !eventsLoading && <Card className="ww-box p-12 text-center">
           <QrCode className="w-16 h-16 mx-auto text-muted-foreground mb-4" />
           <CardTitle className="text-xl mb-2 text-muted-foreground">Select an Event</CardTitle>
           <CardDescription className="text-base">

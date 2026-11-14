@@ -70,3 +70,12 @@ describe('wired customer and email flows',()=>{
     expect((await handler(req)).status).toBe(200);expect(rpc).toHaveBeenCalledWith('record_email_delivery_event',{p_provider_event_id:'event-test',p_message_id:'provider-test',p_type:'email.delivered',p_occurred_at:'2026-09-12T00:00:00Z'});
   });
 });
+
+describe('public Contact inbox routing',()=>{
+ it('routes public enquiries to info even if the browser supplies another recipient',async()=>{
+  const app=sender(null);const response=await app.handler(request({...support,recipientEmail:'wrong@example.test'}));expect(response.status).toBe(200);expect(app.records[0]).toMatchObject({recipient_email:'info@weddingwaitress.com.au'});
+ });
+ it('retains the support route for authenticated Get Help requests',async()=>{
+  const app=sender({id:'alice',email:'alice@example.test'});await app.handler(request({...support,supportContext:{source:'get_help',category:'General Help'}}));expect(app.records[0]).toMatchObject({recipient_email:'support@example.test'});
+ });
+});

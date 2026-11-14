@@ -26,18 +26,19 @@ export const PHOTO_BOOTH_COLOR_FAMILIES: ColorFamily[] = [
 ];
 
 interface Props {
+  label?: string;
   value: string;
   onChange: (hex: string) => void;
   appearance?: 'default' | 'espresso-glass';
 }
 
-export const PhotoBoothColorPicker: React.FC<Props> = ({ value, onChange, appearance = 'default' }) => {
+export const PhotoBoothColorPicker: React.FC<Props> = ({ value, onChange, appearance = 'default', label = 'Colour' }) => {
   const isGlass = appearance === 'espresso-glass';
   const [open, setOpen] = React.useState(false);
   return (
     <Popover open={open} onOpenChange={setOpen}>
       <PopoverTrigger asChild>
-        <Button variant="outline" className={cn('lv-premium-shade h-11 w-full justify-between font-normal', isGlass && managementStyles.galleryControl)}>
+        <Button aria-label={label} variant="outline" className={cn('lv-premium-shade h-11 w-full justify-between font-normal', isGlass && managementStyles.galleryControl)}>
           <span className="flex items-center gap-2 min-w-0">
             <span className="h-5 w-5 rounded border border-border shrink-0" style={{ backgroundColor: value }} />
             <span className="truncate">{value.toUpperCase()}</span>
@@ -55,6 +56,7 @@ export const PhotoBoothColorPicker: React.FC<Props> = ({ value, onChange, appear
                   <button
                     key={hex}
                     type="button"
+                    aria-pressed={value.toLowerCase() === hex.toLowerCase()}
                     title={hex}
                     aria-label={`${fam.name} ${hex}`}
                     onClick={() => { onChange(hex); setOpen(false); }}
@@ -72,6 +74,7 @@ export const PhotoBoothColorPicker: React.FC<Props> = ({ value, onChange, appear
           <div className="pt-1 border-t border-border">
             <label className={cn('text-xs font-semibold text-[#1D1D1F]', isGlass && [managementStyles.galleryViewHeading, managementStyles.boothPaletteLabel])}>Custom colour</label>
             <input
+              aria-label={`${label} custom colour`}
               type="color"
               value={value}
               onChange={(e) => onChange(e.target.value.toUpperCase())}

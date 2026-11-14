@@ -368,3 +368,5 @@
 :global(#root#root#root) .page .manageButton .manageIcon,
 :global(#root#root#root) .page .manageButton .manageIcon * {color:#2f1b14!important;stroke:#2f1b14!important;-webkit-text-fill-color:#2f1b14!important;}
 :global(#root#root#root) .page .manageButton .manageIcon {border-color:#2f1b14!important;}
+
+@layer dashboard-interface {.eventSelectorRow .eventTrigger {flex:0 1 auto!important;}}

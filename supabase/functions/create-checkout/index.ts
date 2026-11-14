@@ -1,3 +1,4 @@
+import { ADDITIONAL_EVENT_VERSION, ADDITIONAL_EVENT_BASE_CENTS, recordAdditionalEventQuote } from '../_shared/additionalEventRules.ts';
 import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 import { retrieveWorldwideGstRate, worldwideGstLineItem, WORLDWIDE_GST_RATE_SECRET, validateWorldwideGstCustomer } from '../_shared/worldwideGst.ts';
 import { liveUpgradeFor, validateLiveUpgradePrice } from '../_shared/liveUpgradeCatalogue.ts';
@@ -478,9 +479,12 @@ serve(async (req) => {
         }
       }
     }
+    // The historical price ID remains a compatibility selector. New purchases
+    // use a new immutable Stripe inline Price and a server-bound A$99 total quote.
+    if (isAdditionalEvent) originalAmountCents = ADDITIONAL_EVENT_BASE_CENTS;
     if (!resolvedProductId || !resolvedCurrency || originalAmountCents <= 0) throw new Error("Purchase price is not configured");
 
-    let checkoutLineItem: Stripe.Checkout.SessionCreateParams.LineItem = publicPlan
+    let checkoutLineItem: Stripe.Checkout.SessionCreateParams.LineItem = (publicPlan || isAdditionalEvent)
       ? { quantity: 1, price_data: {
           currency: resolvedCurrency,
           product: resolvedProductId,
@@ -506,6 +510,7 @@ serve(async (req) => {
         user_id: user.id,
         ...(isCouplePlan ? { catalogue_version: PAID_PLAN_CATALOGUE_VERSION,
           purchase_consent: 'explicit-v1', plan_purchase_purpose: planPurpose } : {}),
+        ...(isAdditionalEvent ? { additional_event_version: ADDITIONAL_EVENT_VERSION } : {}),
         plan_type: plan_type || "",
         event_id: event_id || "",
         purchase_type: purchaseTypeMeta,
@@ -545,6 +550,10 @@ serve(async (req) => {
         ? { idempotencyKey: idempotency_key }
         : undefined;
     const session = await stripe.checkout.sessions.create(sessionParams, requestOptions);
+    if (isAdditionalEvent) {
+      const admin = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, {auth:{persistSession:false}});
+      await recordAdditionalEventQuote(admin,stripe,session.id,user.id);
+    }
     logStep("Checkout session created", { sessionId: session.id, idempotent: !!requestOptions });
 
     // Derive Stripe publishable key from the secret-key environment so the

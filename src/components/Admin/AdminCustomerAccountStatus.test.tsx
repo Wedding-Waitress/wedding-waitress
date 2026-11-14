@@ -17,7 +17,8 @@ describe('compact truthful account status details',()=>{
  });
  it('has no empty popover for states without supporting details',()=>{
   render(<AdminCustomerAccountStatus status='Active' customerName='Customer'/>);
-  expect(screen.getByText('Active')).toHaveAttribute('data-access-colour','green');
+  const badge=screen.getByText('Active').closest('[data-account-status]')!;
+  expect(badge).toHaveAttribute('data-access-colour','green');expect(badge.tagName).toBe('SPAN');expect(badge).not.toHaveAttribute('role','button');expect(badge).not.toHaveAttribute('tabindex');
   expect(screen.queryByRole('button')).not.toBeInTheDocument();
  });
 });

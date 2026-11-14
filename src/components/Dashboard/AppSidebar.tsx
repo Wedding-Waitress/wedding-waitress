@@ -35,6 +35,7 @@ import {
 } from '@/components/ui/dropdown-menu';
 import logoImage from '@/assets/wedding-waitress-full-logo.png';
 import styles from './AppSidebar.module.css';
+import { normalizePublicPlanName } from '@/lib/stripeExtensionPrices';
 import { ProfileAvatar } from '@/components/Account/ProfileAvatar';
 import { productNavigationItems } from '@/config/productNavigation';
 import { PLANNING_WORKFLOW_IDS, PLANNING_WORKFLOW_STEPS } from '@/config/planningWorkflow';
@@ -80,7 +81,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
     if (hasPlatformOwnerAccess) return 'Platform Owner Access';
     const raw = plan?.plan_name?.trim();
     if (!raw || raw.toLowerCase() === 'starter' || raw.toLowerCase() === 'free') return 'Free';
-    return raw;
+    return normalizePublicPlanName(raw);
   })();
 
 
@@ -211,6 +212,7 @@ export const AppSidebar: React.FC<AppSidebarProps> = ({
                 </SidebarMenuButton>
               </DropdownMenuTrigger>
               <DropdownMenuContent
+                data-dashboard-profile-menu
                 side="top"
                 align="start"
                 sideOffset={8}

@@ -1,3 +1,4 @@
+import { floorPlanPreviewWidthScale } from '../../../../lib/floorPlanPreviewScale';
 import {receptionHeaderStats} from '@/lib/receptionHeaderStats';
 import React from 'react';
 
@@ -6,7 +7,7 @@ import { A4_MM, A4_PX } from '@/lib/a4';
 
 import styles from './ReceptionFloorPlanA4.module.css';
 
-const logo = '/wedding-waitress-logo-brown.png';
+const logo = '/wedding-waitress-document-footer-dark-brown.png';
 
 export const RECEPTION_A4 = {
   widthMm: A4_MM.height,
@@ -169,12 +170,14 @@ export const ReceptionFloorPlanA4 = ({
 };
 
 export interface ReceptionFloorPlanA4PreviewProps extends Omit<ReceptionFloorPlanA4Props, 'pageRef'> {
+  expandDesktop?: boolean;
   pageRef: React.RefObject<HTMLDivElement>;
 }
 
 export const ReceptionFloorPlanA4Preview = ({
   pageRef,
   fitViewport = false,
+  expandDesktop = false,
   ...props
 }: ReceptionFloorPlanA4PreviewProps) => {
   const viewportRef = React.useRef<HTMLDivElement>(null);
@@ -193,7 +196,7 @@ export const ReceptionFloorPlanA4Preview = ({
       const width = sheet.offsetWidth || RECEPTION_A4.widthPx;
       const height = sheet.offsetHeight || RECEPTION_A4.heightPx;
       const availableHeight = Math.max(180, window.innerHeight - (viewport.getBoundingClientRect().top + window.scrollY) - 52);
-      const fitScale = fitViewport ? Math.min(viewport.clientWidth / width, availableHeight / height) : Math.min(1, viewport.clientWidth / width);
+      const fitScale = fitViewport ? Math.min(viewport.clientWidth / width, availableHeight / height) : floorPlanPreviewWidthScale(viewport.clientWidth, width, expandDesktop, window.innerWidth);
       setSheetPixels({ width, height });
       setScale(Math.max(fitViewport ? 0.1 : 0.45, fitScale));
     };
@@ -203,7 +206,7 @@ export const ReceptionFloorPlanA4Preview = ({
     observer.observe(viewport);
     window.addEventListener('resize', resize);
     return () => { observer.disconnect(); window.removeEventListener('resize', resize); };
-  }, [pageRef, fitViewport]);
+  }, [pageRef, fitViewport, expandDesktop]);
 
   const notes = paginateReceptionNotes(props.plan);
   const pageCount = 1 + notes.length;

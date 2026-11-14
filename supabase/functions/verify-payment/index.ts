@@ -1,3 +1,5 @@
+import { fulfillPaidAddonWebhook } from '../_shared/paidAddonWebhook.ts';
+import { validateAdditionalEventQuote } from '../_shared/additionalEventRules.ts';
 import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 import { serve } from "https://deno.land/std@0.190.0/http/server.ts";
 import Stripe from "https://esm.sh/stripe@22.4.0";
@@ -162,19 +164,10 @@ serve(async (req) => {
       }
       const amountCents = session.amount_total || 0;
       const currency = (session.currency || "AUD").toUpperCase();
-      const allowed = ADDITIONAL_EVENT_PRICES[lineItem.price.id];
-      if (allowed) validateWorldwideGstTotal(allowed.unitAmount, 1, 0, session.amount_total, session.total_details?.amount_tax);
-      if (!allowed || lineItem.quantity !== 1 || lineItem.price.currency !== allowed.currency || lineItem.price.unit_amount !== allowed.unitAmount || currency !== allowed.currency.toUpperCase() || amountCents < allowed.unitAmount) {
-        throw new Error('Additional-event payment does not match the approved catalogue');
-      }
-      const { data: fulfilment, error: fulfilmentError } = await supabase.rpc('fulfill_additional_event_purchase_gst', {
-        _user_id: userId,
-        _stripe_session_id: session_id,
-        _stripe_price_id: lineItem.price.id,
-        _amount: worldwideGstAmounts(allowed.unitAmount).totalCents,
-        _currency: allowed.currency,
-      });
-      if (fulfilmentError) throw fulfilmentError;
+      if (session.line_items?.has_more !== false || session.line_items.data.length !== 1) throw new Error('Additional-event checkout must contain one slot.');
+      validateAdditionalEventQuote(session,lineItem);
+      const fulfilment = await fulfillPaidAddonWebhook(session,stripe,supabase);
+      if (!('fulfillment' in fulfilment)) throw new Error('Additional-event payment confirmation is pending.');
       logStep("Additional event slot recorded", { userId, amountCents, currency, fulfilment });
       return new Response(
         JSON.stringify({ success: true, type: "additional_event", fulfilment }),
@@ -261,9 +254,9 @@ serve(async (req) => {
                 isOverage: false,
               },
             },
-          }).then(({ error }) => {
+          }).then(({ error }: { error: unknown }) => {
             if (error) console.error("[VERIFY-PAYMENT] rsvp confirmation email failed", error);
-          }).catch((e) => console.error("[VERIFY-PAYMENT] rsvp confirmation email failed", e));
+          }).catch((e: unknown) => console.error("[VERIFY-PAYMENT] rsvp confirmation email failed", e));
         } catch (e) {
           console.error("[VERIFY-PAYMENT] rsvp confirmation email dispatch failed", e);
         }
@@ -389,9 +382,9 @@ serve(async (req) => {
                 isOverage: true,
               },
             },
-          }).then(({ error }) => {
+          }).then(({ error }: { error: unknown }) => {
             if (error) console.error("[VERIFY-PAYMENT] rsvp overage email failed", error);
-          }).catch((e) => console.error("[VERIFY-PAYMENT] rsvp overage email failed", e));
+          }).catch((e: unknown) => console.error("[VERIFY-PAYMENT] rsvp overage email failed", e));
         } catch (e) {
           console.error("[VERIFY-PAYMENT] rsvp overage email dispatch failed", e);
         }
@@ -630,9 +623,9 @@ serve(async (req) => {
             date: now.toISOString(),
           },
         },
-      }).then(({ error }) => {
+      }).then(({ error }: { error: unknown }) => {
         if (error) console.error("[VERIFY-PAYMENT] admin payment email failed", error);
-      }).catch((e) => console.error("[VERIFY-PAYMENT] admin payment email failed", e));
+      }).catch((e: unknown) => console.error("[VERIFY-PAYMENT] admin payment email failed", e));
     } catch (e) {
       console.error("[VERIFY-PAYMENT] admin payment email dispatch failed", e);
     }
@@ -658,3 +651,4 @@ serve(async (req) => {
     });
   }
 });
+

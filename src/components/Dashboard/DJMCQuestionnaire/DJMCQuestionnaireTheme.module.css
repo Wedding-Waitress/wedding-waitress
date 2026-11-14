@@ -955,3 +955,27 @@
   background:linear-gradient(180deg,#70c573,#4c933f) !important;
   filter:none !important;
 }
+
+/* Maintain usable controls inside the horizontally scrollable phone editor. */
+@media screen and (max-width: 767px) {
+ :global(#root#root) :is(.page,.publicPage) button {min-height:44px !important;}
+ :global(#root#root) :is(.page,.publicPage) .row button {min-width:44px !important;}
+ :global(#root#root) :is(.page,.publicPage) .row [role="button"].cursor-text {min-height:44px !important;}
+}
+
+/* Approved document text colours, including the corresponding shared view.
+   Existing row emphasis, status badges and action colours remain explicit. */
+.page,.publicPage { --dj-white:#000; --dj-cream:#000; --dj-muted:#000; --dj-light-espresso:#000; }
+@layer document-text-colours {
+  :is(.page,.publicPage) :is(.eventBanner > h2,.sectionHeading) {
+    color:#2f1b14 !important; -webkit-text-fill-color:#2f1b14 !important;
+  }
+  :is(.page,.publicPage) .row:not(.redRowText) :is(input,textarea,:global(.cursor-text),:global(.cursor-text) *) {
+    color:#000 !important; -webkit-text-fill-color:#000 !important;
+  }
+}
+/* Dashboard export labels only, retaining green surfaces and espresso icons. */
+@layer dashboard-interface {
+ .page .exportPanel button.exportButton {color:#fff!important;-webkit-text-fill-color:#fff!important;}
+ .page .exportPanel button.exportButton :is(svg,svg *) {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;}
+}

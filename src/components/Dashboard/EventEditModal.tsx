@@ -21,10 +21,13 @@ import { EventDatePicker } from './EventDatePicker';
 import { TimePicker } from './TimePicker';
 import { LocationDetailsPopover } from './LocationDetailsPopover';
 import { EventNameCombobox } from './EventNameCombobox';
-import { format, parseISO } from 'date-fns';
+import { format } from 'date-fns';
 import styles from './EventCreateModal.module.css';
+import controls from './MyEventsModalControls.module.css';
 import { EventImageEditor } from '@/components/EventImage/EventImageEditor';
 import type { EventImageValue } from '@/lib/eventImage';
+import { useUserPlan } from '@/hooks/useUserPlan';
+import { useRsvpPurchase } from '@/hooks/useRsvpPurchase';
 
 interface Event {
   id: string;
@@ -70,6 +73,7 @@ interface Event {
 }
 
 interface EventEditModalProps {
+  compactControls?: boolean;
   isOpen: boolean;
   onClose: () => void;
   event: Event | null;
@@ -89,13 +93,35 @@ const receptionSyncFields = {
   ceremony_venue_contact_email: 'venue_contact_email',
 } as const;
 
+const normalizeEventTimeForPicker = (value?: string | null) => {
+  const input = value?.trim() ?? '';
+  const match = /^(\d{1,2}):([0-5]\d)(?::[0-5]\d(?:\.\d+)?)?$/.exec(input);
+  if (!match) return input;
+
+  const hours = Number(match[1]);
+  if (hours > 23) return input;
+
+  return `${String(hours).padStart(2, '0')}:${match[2]}`;
+};
+
 export const EventEditModal: React.FC<EventEditModalProps> = ({
   isOpen,
   onClose,
   event,
   onSave,
   onImageChange,
+  compactControls = false,
 }) => {
+  useEffect(() => {
+    if (!isOpen || !compactControls) return;
+    document.body.classList.add('ww-my-events-medium-editor');
+    return () => document.body.classList.remove('ww-my-events-medium-editor');
+  }, [isOpen, compactControls]);
+  const { plan, hasPlatformOwnerAccess } = useUserPlan();
+  const { overageGuests: purchasedGuestCapacity } = useRsvpPurchase(event?.id ?? null);
+  const maximumGuestLimit = hasPlatformOwnerAccess || plan?.guest_limit == null
+    ? null
+    : plan.guest_limit + purchasedGuestCapacity;
   const [formData, setFormData] = useState({
     // Top-level event name
     event_name: '',
@@ -215,29 +241,29 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
         // Ceremony fields
         ceremony_enabled: event.ceremony_enabled ?? false,
         ceremony_name: event.ceremony_name || '',
-        ceremony_date: event.ceremony_date ? parseISO(event.ceremony_date) : null,
+        ceremony_date: event.ceremony_date ? new Date(event.ceremony_date) : null,
         ceremony_venue: event.ceremony_venue || '',
         ceremony_venue_address: event.ceremony_venue_address || '',
         ceremony_venue_phone: event.ceremony_venue_phone || '',
         ceremony_venue_contact: event.ceremony_venue_contact || '',
         ceremony_venue_contact_email: event.ceremony_venue_contact_email || '',
         ceremony_guest_limit: event.ceremony_guest_limit ?? 10,
-        ceremony_start_time: event.ceremony_start_time || '',
-        ceremony_finish_time: event.ceremony_finish_time || '',
-        ceremony_rsvp_deadline: event.ceremony_rsvp_deadline ? parseISO(event.ceremony_rsvp_deadline) : null,
+        ceremony_start_time: normalizeEventTimeForPicker(event.ceremony_start_time),
+        ceremony_finish_time: normalizeEventTimeForPicker(event.ceremony_finish_time),
+        ceremony_rsvp_deadline: event.ceremony_rsvp_deadline ? new Date(event.ceremony_rsvp_deadline) : null,
         
         // Reception fields
         reception_enabled: event.reception_enabled ?? true,
         name: event.name,
         event_type: (event.event_type as 'seated' | 'cocktail') || 'seated',
-        date: event.date ? parseISO(event.date) : null,
+        date: event.date ? new Date(event.date) : null,
         venue: event.venue || '',
         venue_address: event.venue_address || '',
         venue_phone: event.venue_phone || '',
         venue_contact: event.venue_contact || '',
         venue_contact_email: event.venue_contact_email || '',
-        start_time: event.start_time || '',
-        finish_time: event.finish_time || '',
+        start_time: normalizeEventTimeForPicker(event.start_time),
+        finish_time: normalizeEventTimeForPicker(event.finish_time),
         guest_limit: event.guest_limit ?? 10,
         rsvp_deadline: event.rsvp_deadline ? new Date(event.rsvp_deadline) : null
       });
@@ -342,7 +368,8 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
     } else {
       const parsed = parseInt(value, 10);
       if (!isNaN(parsed) && parsed >= 0) {
-        setFormData(prev => ({ ...prev, [field]: parsed }));
+        const bounded = maximumGuestLimit == null ? parsed : Math.min(parsed, maximumGuestLimit);
+        setFormData(prev => ({ ...prev, [field]: bounded }));
       }
     }
   };
@@ -421,7 +448,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
             <div className="grid grid-cols-1 sm:grid-cols-3 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-xs">Guest Limit</Label>
-                <Input type="number" min="0" value={formData.ceremony_guest_limit}
+                <Input type="number" min="0" max={maximumGuestLimit ?? undefined} value={formData.ceremony_guest_limit}
                   onChange={(e) => handleGuestLimitChange(e.target.value, 'ceremony_guest_limit')}
                   placeholder="10" className={getInputClass(formData.ceremony_guest_limit !== '')} />
               </div>
@@ -502,7 +529,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
             <div className="grid grid-cols-1 lg:grid-cols-3 gap-3">
               <div className="space-y-1.5">
                 <Label className="text-xs">Guest Limit</Label>
-                <Input type="number" min="0" value={formData.guest_limit}
+                <Input type="number" min="0" max={maximumGuestLimit ?? undefined} value={formData.guest_limit}
                   onChange={(e) => { markReceptionOverride('guest_limit'); handleGuestLimitChange(e.target.value, 'guest_limit'); }}
                   placeholder="10" className={getInputClass(formData.guest_limit !== '')} />
               </div>
@@ -553,7 +580,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
   if (isMobile) {
     if (!isOpen) return null;
     return ReactDOM.createPortal(
-      <div role="dialog" aria-modal="true" className={`ww-create-event-panel ${styles.drawer}`} style={{
+      <div role="dialog" aria-modal="true" className={`ww-create-event-panel ${styles.drawer} ${compactControls ? controls.root : ''}`} style={{
         position: 'fixed', top: 0, left: 0, right: 0, bottom: 0,
         width: '100%', height: '100dvh', zIndex: 9999,
         background: 'white', display: 'flex', flexDirection: 'column', overflow: 'hidden',
@@ -582,19 +609,20 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
             {bodyContent}
           </div>
         </div>
-        <div className={styles.footer} style={{
+        <div className={`${styles.footer} ${compactControls ? controls.footer : ''}`} style={{
           position: 'sticky', bottom: 0,
           padding: '16px 16px max(16px, env(safe-area-inset-bottom))',
           background: 'white', borderTop: '1px solid #eee',
           display: 'flex', gap: 12,
         }}>
           <Button onClick={handleSave} disabled={!isFormValid || isSaving}
-            className={`lv-premium-shade flex-1 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white ${styles.createButton} ${styles.editAction}`}>
+            aria-busy={isSaving}
+            className={`lv-premium-shade flex-1 h-11 rounded-full bg-green-500 hover:bg-green-600 text-white ${styles.createButton} ${styles.editAction} ${compactControls ? controls.action : ''}`}>
             <Save className="w-5 h-5 mr-2 text-white" />
             {isSaving ? 'Saving...' : 'Save Changes'}
           </Button>
           <Button variant="destructive" onClick={onClose}
-            className={`lv-premium-shade flex-1 h-11 rounded-full bg-red-500 hover:bg-red-600 text-white ${styles.cancelButton} ${styles.editAction}`}>
+            className={`lv-premium-shade flex-1 h-11 rounded-full bg-red-500 hover:bg-red-600 text-white ${styles.cancelButton} ${styles.editAction} ${compactControls ? controls.action : ''}`}>
             <X className="w-5 h-5 mr-2 text-white" />
             Cancel
           </Button>
@@ -608,7 +636,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
     <Sheet open={isOpen} onOpenChange={onClose}>
       <SheetContent
         side="right"
-        className={`ww-create-event-panel w-full sm:max-w-3xl flex flex-col overflow-hidden p-6 mobile-scroll-container ${styles.drawer}`}
+        className={`ww-create-event-panel w-full sm:max-w-3xl flex flex-col overflow-hidden p-6 mobile-scroll-container ${styles.drawer} ${compactControls ? controls.root : ''}`}
       >
         <SheetHeader className={`flex flex-col lg:flex-row lg:items-center gap-3 lg:gap-4 items-center max-lg:pt-8 max-lg:gap-5 lg:pr-12 text-left space-y-0 ${styles.header}`}>
           <SheetTitle className={`text-xl sm:text-2xl font-semibold tracking-[-0.012em] leading-tight text-white break-words whitespace-nowrap w-full lg:w-auto ${styles.title}`}>Edit Event</SheetTitle>
@@ -626,12 +654,13 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
           {bodyContent}
         </div>
 
-        <div className={`flex flex-row gap-3 w-full pt-2 border-t lg:justify-end max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-3 max-lg:pb-2 max-md:sticky max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:bg-background max-md:px-4 max-md:pt-3 max-md:pb-[max(16px,env(safe-area-inset-bottom))] ${styles.footer}`}>
+        <div className={`flex flex-row gap-3 w-full pt-2 border-t lg:justify-end max-lg:grid max-lg:grid-cols-2 max-lg:gap-3 max-lg:px-3 max-lg:pb-2 max-md:sticky max-md:bottom-0 max-md:left-0 max-md:right-0 max-md:bg-background max-md:px-4 max-md:pt-3 max-md:pb-[max(16px,env(safe-area-inset-bottom))] ${styles.footer} ${compactControls ? controls.footer : ''}`}>
           <Button
             variant="default"
             onClick={handleSave}
             disabled={!isFormValid || isSaving}
-            className={`lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-1 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full ${styles.createButton} ${styles.editAction}`}
+            aria-busy={isSaving}
+            className={`lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-1 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full ${styles.createButton} ${styles.editAction} ${compactControls ? controls.action : ''}`}
           >
             <Save className="w-5 h-5 mr-2 text-white" />
             {isSaving ? 'Saving...' : 'Save Changes'}
@@ -639,7 +668,7 @@ export const EventEditModal: React.FC<EventEditModalProps> = ({
           <Button
             variant="destructive"
             onClick={onClose}
-            className={`lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-2 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-red-500 hover:bg-red-600 text-white max-lg:order-2 max-lg:w-full ${styles.cancelButton} ${styles.editAction}`}
+            className={`lv-premium-shade inline-flex items-center justify-center flex-1 lg:flex-none lg:order-2 h-11 lg:h-12 lg:px-8 lg:text-base lg:font-semibold rounded-full bg-red-500 hover:bg-red-600 text-white max-lg:order-2 max-lg:w-full ${styles.cancelButton} ${styles.editAction} ${compactControls ? controls.action : ''}`}
           >
             <X className="w-5 h-5 mr-2 text-white" />
             Cancel

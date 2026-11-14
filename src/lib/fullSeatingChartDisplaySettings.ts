@@ -1,3 +1,5 @@
+import { getRelationDisplayText } from './relationUtils';
+
 export const FULL_SEATING_CHART_COLORS = [
   '#000000',
   '#C62828',
@@ -57,7 +59,8 @@ export const getFullSeatingChartGuestDetails = (
     && !['na', 'n/a', 'none', ''].includes(guest.dietary.trim().toLowerCase())
       ? compactFullSeatingChartSeparators(capitalizeFullSeatingChartWords(guest.dietary))
       : null;
-  const relationshipValue = guest.relation_display || guest.relation_role;
+  const relationshipValue = getRelationDisplayText(guest.relation_display, guest.relation_role)
+    || getRelationDisplayText(guest.relation_role, guest.relation_role);
   const relationship = showRelation && relationshipValue
     ? compactFullSeatingChartSeparators(capitalizeFullSeatingChartWords(relationshipValue))
     : null;

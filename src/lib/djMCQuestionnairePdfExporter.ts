@@ -1,3 +1,4 @@
+import { fitDocumentFooterLogo } from '@/lib/documentFooterLogo';
 import { cellValue } from '@/lib/djmcCustomColumns';
 /**
  * PRODUCTION-READY -- LOCKED FOR PRODUCTION
@@ -29,6 +30,7 @@ interface Event {
 }
 
 // Brown brand color for branding (matches Floor Plan / Seating / Dietary PDFs)
+const ESPRESSO = { r: 47, g: 27, b: 20 }; // Approved #2f1b14 heading token
 const PURPLE = { r: 150, g: 122, b: 89 }; // #967A59 (kept variable name to minimize diff)
 
 // --- Layout constants (mm) matching running sheet ---
@@ -84,7 +86,7 @@ const formatGeneratedTimestamp = (): string => {
 // Load brown logo image as data URL for jsPDF (matches sibling PDFs)
 const loadLogoAsDataUrl = async (): Promise<string | null> => {
   try {
-    const response = await fetch('/wedding-waitress-logo-brown.png');
+    const response = await fetch('/wedding-waitress-document-footer-dark-brown.png');
     const blob = await response.blob();
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -116,7 +118,8 @@ const drawPageFooter = (
   if (logoDataUrl) {
     const logoX = (PDF_WIDTH_MM - FOOTER_LOGO_WIDTH_MM) / 2;
     try {
-      pdf.addImage(logoDataUrl, 'PNG', logoX, FOOTER_LOGO_Y_MM, FOOTER_LOGO_WIDTH_MM, FOOTER_LOGO_HEIGHT_MM);
+      const logoSize = fitDocumentFooterLogo(FOOTER_LOGO_WIDTH_MM, FOOTER_LOGO_HEIGHT_MM);
+      pdf.addImage(logoDataUrl, 'PNG', logoX + (FOOTER_LOGO_WIDTH_MM - logoSize.width) / 2, FOOTER_LOGO_Y_MM + (FOOTER_LOGO_HEIGHT_MM - logoSize.height) / 2, logoSize.width, logoSize.height);
     } catch {
       // silently skip if logo fails
     }
@@ -124,7 +127,7 @@ const drawPageFooter = (
 
   // Page number (left) and Generated timestamp (right)
   pdf.setFontSize(7);
-  pdf.setTextColor(170, 170, 170);
+  pdf.setTextColor(0, 0, 0);
   pdf.text(`Page ${pageNum} of ${totalPages}`, 12, FOOTER_TEXT_Y_MM);
   pdf.text(`Generated: ${timestamp}`, PDF_WIDTH_MM - 12, FOOTER_TEXT_Y_MM, { align: 'right' });
 };
@@ -270,7 +273,7 @@ const drawSectionTable = (
   checkPageBreak(20);
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(11);
-  pdf.setTextColor(PURPLE.r, PURPLE.g, PURPLE.b);
+  pdf.setTextColor(ESPRESSO.r, ESPRESSO.g, ESPRESSO.b);
   pdf.text(section.section_label, MARGIN, yPos);
   yPos += 5;
 
@@ -283,12 +286,12 @@ const drawSectionTable = (
     while (offset < lines.length) {
       checkPageBreak(16);
       pdf.setFont('helvetica', 'bold');
-      pdf.setTextColor(80, 65, 50);
+      pdf.setTextColor(0, 0, 0);
       pdf.text(offset ? 'Notes for DJ-MC (continued)' : 'Notes for DJ-MC', MARGIN + 2, yPos + 4);
       yPos += 7;
       const count = Math.min(lines.length - offset, Math.max(1, Math.floor((getUsableBottom() - yPos - 3) / 4)));
       pdf.setFont('helvetica', 'normal');
-      pdf.setTextColor(45, 45, 45);
+      pdf.setTextColor(0, 0, 0);
       for (let line = 0; line < count; line++) {
         pdf.text(lines[offset + line], MARGIN + 2, yPos + 3);
         yPos += 4;
@@ -306,7 +309,7 @@ const drawSectionTable = (
   
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(8);
-  pdf.setTextColor(80, 80, 80);
+  pdf.setTextColor(0, 0, 0);
   
   let xPos = MARGIN + 2;
   config.headers.forEach((header, idx) => {
@@ -345,7 +348,7 @@ const drawSectionTable = (
       lines.forEach((cell, col) => {
         cell.slice(offset, offset + count).forEach((line, lineIndex) => {
           const y = yPos + 5 + lineIndex * 4;
-          if (links[col]) { pdf.setTextColor(PURPLE.r,PURPLE.g,PURPLE.b); pdf.textWithLink(line,x,y,{url:values[col]}); }
+          if (links[col]) { pdf.setTextColor(0,0,0); pdf.textWithLink(line,x,y,{url:values[col]}); }
           else { pdf.setTextColor(0,0,0); pdf.text(line,x,y); }
           if (item.is_underline) { pdf.setDrawColor(0,0,0); pdf.line(x,y+0.5,x+pdf.getTextWidth(line),y+0.5); }
         });
@@ -374,7 +377,7 @@ const drawHeader = (pdf: jsPDF, event: Event): number => {
   // Event name - large purple
   pdf.setFont('helvetica', 'bold');
   pdf.setFontSize(16);
-  pdf.setTextColor(PURPLE.r, PURPLE.g, PURPLE.b);
+  pdf.setTextColor(ESPRESSO.r, ESPRESSO.g, ESPRESSO.b);
   const titleLines = pdf.splitTextToSize(event.name, CONTENT_WIDTH);
   pdf.text(titleLines, PDF_WIDTH_MM / 2, yPos, { align: 'center' });
   yPos += titleLines.length * 6;
@@ -382,14 +385,14 @@ const drawHeader = (pdf: jsPDF, event: Event): number => {
   // Subtitle
   pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(12);
-  pdf.setTextColor(34, 34, 34);
+  pdf.setTextColor(0, 0, 0);
   pdf.text('DJ & MC Questionnaire', PDF_WIDTH_MM / 2, yPos, { align: 'center' });
   yPos += 5;
 
   // Event details - matching running sheet format
   pdf.setFont('helvetica', 'normal');
   pdf.setFontSize(9);
-  pdf.setTextColor(85, 85, 85);
+  pdf.setTextColor(0, 0, 0);
 
   if (event.ceremony_date) {
     const ceremonyDate = formatDateWithOrdinal(event.ceremony_date);
@@ -421,7 +424,8 @@ const drawHeader = (pdf: jsPDF, event: Event): number => {
 export const exportSectionPDF = async (
   section: DJMCSection,
   event: Event,
-  rowTextSize: "standard" | "larger" = "standard"
+  rowTextSize: "standard" | "larger" = "standard",
+  isCurrent: () => boolean = () => true
 ): Promise<void> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
@@ -462,6 +466,7 @@ export const exportSectionPDF = async (
   const dateObj = event.date ? new Date(event.date + 'T00:00:00') : new Date();
   const formattedDate = `${String(dateObj.getDate()).padStart(2, '0')}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${dateObj.getFullYear()}`;
   const fileName = `${safeEventName}-${safeSectionName}-${formattedDate}.pdf`;
+  if (!isCurrent()) throw new Error("Questionnaire changed during export. Please try again.");
   await savePdfAsync(pdf, fileName);
 };
 
@@ -469,7 +474,8 @@ export const exportSectionPDF = async (
 export const exportEntireQuestionnairePDF = async (
   questionnaire: DJMCQuestionnaire,
   event: Event,
-  rowTextSize: "standard" | "larger" = "standard"
+  rowTextSize: "standard" | "larger" = "standard",
+  isCurrent: () => boolean = () => true
 ): Promise<void> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
@@ -520,5 +526,6 @@ export const exportEntireQuestionnairePDF = async (
   const dateObj = event.date ? new Date(event.date + 'T00:00:00') : new Date();
   const formattedDate = `${String(dateObj.getDate()).padStart(2, '0')}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${dateObj.getFullYear()}`;
   const fileName = `${safeEventName}-DJ-MC Questionnaire-${formattedDate}.pdf`;
+  if (!isCurrent()) throw new Error("Questionnaire changed during export. Please try again.");
   await savePdfAsync(pdf, fileName);
 };

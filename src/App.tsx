@@ -1,10 +1,12 @@
 import { useEffect, lazy, Suspense } from "react";
 import "./App.css";
+import { DashboardInterfaceStyleScope } from '@/components/Dashboard/DashboardInterfaceStyleScope';
 import { CurrencyProvider } from "@/contexts/CurrencyContext";
 import { Toaster } from "@/components/ui/toaster";
 import { Toaster as Sonner } from "@/components/ui/sonner";
 import { QueryClient, QueryClientProvider } from "@tanstack/react-query";
 import { BrowserRouter, Routes, Route, Navigate, useLocation } from "react-router-dom";
+import { PublicLanguageBoundary } from './i18n/PublicLanguageBoundary';
 import { PublicMotion } from "@/components/Layout/PublicMotion";
 import { ThemeProvider } from "next-themes";
 import { AppErrorBoundary } from "@/components/core/AppErrorBoundary";
@@ -22,6 +24,7 @@ const Landing = lazy(() => import("./pages/Landing").then(m => ({ default: m.Lan
 const NotFound = lazy(() => import("./pages/NotFound"));
 const GuestMediaUpload = lazy(() => import("./pages/GuestMediaUpload").then(m => ({ default: m.GuestMediaUpload })));
 const GalleryLiveView = lazy(() => import("./pages/GalleryLiveView"));
+const GuestVideoWishes = lazy(() => import('./pages/GuestVideoWishes'));
 const GuestVideoGuestbook = lazy(() => import("./pages/GuestVideoGuestbook"));
 const GuestPhotoBooth = lazy(() => import("./pages/GuestPhotoBooth"));
 // Lazy: split everything else into separate chunks for instant initial load
@@ -38,6 +41,7 @@ const TermsOfService = lazy(() => import("./pages/TermsOfService").then(m => ({ 
 const Contact = lazy(() => import("./pages/Contact").then(m => ({ default: m.Contact })));
 const CookiePolicy = lazy(() => import("./pages/CookiePolicy").then(m => ({ default: m.CookiePolicy })));
 const DJMCPublicView = lazy(() => import("./pages/DJMCPublicView").then(m => ({ default: m.DJMCPublicView })));
+const PhotoCalloutPublicView = lazy(() => import('./pages/PhotoCalloutPublicView').then(m => ({ default: m.PhotoCalloutPublicView })));
 const RunningSheetPublicView = lazy(() => import("./pages/RunningSheetPublicView").then(m => ({ default: m.RunningSheetPublicView })));
 const SeatingChartPublicView = lazy(() => import("./pages/SeatingChartPublicView").then(m => ({ default: m.SeatingChartPublicView })));
 const ReceptionFloorPlanShareView = lazy(() => import("./pages/ReceptionFloorPlanShareView").then(m => ({ default: m.ReceptionFloorPlanShareView })));
@@ -62,6 +66,7 @@ const ProductFullSeatingChart = lazy(() => productRoutes().then(m => ({ default:
 const ProductFloorPlan = lazy(() => productRoutes().then(m => ({ default: m.ProductFloorPlan })));
 const ProductIndividualTableCharts = lazy(() => productRoutes().then(m => ({ default: m.ProductIndividualTableCharts })));
 const ProductDietaryRequirements = lazy(() => productRoutes().then(m => ({ default: m.ProductDietaryRequirements })));
+const ProductPhotoGroupList = lazy(() => productRoutes().then(m => ({ default: m.ProductPhotoGroupList })));
 const ProductRunningSheet = lazy(() => productRoutes().then(m => ({ default: m.ProductRunningSheet })));
 const ProductLiveSlideshow = lazy(() => productRoutes().then(m => ({ default: m.ProductLiveSlideshow })));
 const ProductDjMcQuestionnaire = lazy(() => productRoutes().then(m => ({ default: m.ProductDjMcQuestionnaire })));
@@ -189,7 +194,9 @@ const App = () => {
         <CurrencyProvider>
         <PaymentProcessingProvider>
         <BrowserRouter>
+          <PublicLanguageBoundary>
           <ScrollToTop />
+          <DashboardInterfaceStyleScope />
           <RouteTracker />
           <PublicMotion />
           <Toaster />
@@ -200,14 +207,17 @@ const App = () => {
           <Route path="/gallery/:token" element={<GuestMediaUpload />} />
           <Route path="/gallery-live/:token" element={<GalleryLiveView />} />
           <Route path="/gallery/:token/slideshow" element={<GalleryLiveView />} />
-          <Route path="/gallery-guestbook/:token" element={<GuestVideoGuestbook />} />
+          <Route path="/s/:eventSlug/video-wishes" element={<GuestVideoWishes />} />
+            <Route path="/gallery-guestbook/:token" element={<GuestVideoGuestbook />} />
           <Route path="/gallery-photobooth/:token" element={<GuestPhotoBooth />} />
+          {/* Invitation review grants no planning access. The Edge workflow
+              verifies the invited email and owner's entitlement before acceptance. */}
+          <Route path="/accept-team-invitation" element={<AcceptTeamInvitation />} />
           <Route path="/" element={<Landing />} />
           <Route element={<AuthenticatedRouteScope />}>
             <Route path="/onboarding/event-setup" element={<GuidedEventSetup />} />
             <Route path="/dashboard/*" element={<Dashboard />} />
             <Route path="/account/:section?" element={<Account />} />
-            <Route path="/accept-team-invitation" element={<AcceptTeamInvitation />} />
             <Route path="/admin/:section?" element={<Admin />} />
             <Route path="/dashboard/photo-video-gallery/audio-guestbook" element={<Navigate to="/dashboard/photo-video-gallery/digital-guestbook" replace />} />
             <Route path="/dashboard/photo-video-gallery/upload-photos-videos" element={<Navigate to="/dashboard/photo-video-gallery/photo-video-sharing" replace />} />
@@ -258,6 +268,7 @@ const App = () => {
           <Route path="/individual-table-charts" element={<ProductIndividualTableCharts />} />
           <Route path="/dietary-requirements" element={<ProductDietaryRequirements />} />
           <Route path="/running-sheet" element={<ProductRunningSheet />} />
+          <Route path="/photo-group-list" element={<ProductPhotoGroupList />} />
           <Route path="/live-slideshow" element={<ProductLiveSlideshow />} />
           <Route path="/kiosk-live-view" element={<PreserveLocationRedirect to="/live-slideshow" />} />
           <Route path="/dj-mc-questionnaire" element={<ProductDjMcQuestionnaire />} />
@@ -308,6 +319,8 @@ const App = () => {
           <Route path="/djmc/:eventSlug/:token" element={<DJMCPublicView />} />
           <Route path="/djmc/:token" element={<DJMCPublicView />} />
           {/* Running Sheet public view (vendor share links) — moved off /running-sheet so SEO page is canonical */}
+          <Route path="/shared-photo-callout-cards/:eventSlug/:token" element={<PhotoCalloutPublicView />} />
+          <Route path="/shared-photo-callout-cards/:token" element={<PhotoCalloutPublicView />} />
           <Route path="/shared-running-sheet/:eventSlug/:token" element={<RunningSheetPublicView />} />
           <Route path="/shared-running-sheet/:token" element={<RunningSheetPublicView />} />
           {/* Backward-compat for previously issued share links */}
@@ -332,6 +345,7 @@ const App = () => {
           <Route path="*" element={<NotFound />} />
           </Routes>
           </Suspense>
+          </PublicLanguageBoundary>
         </BrowserRouter>
         </PaymentProcessingProvider>
         </CurrencyProvider>

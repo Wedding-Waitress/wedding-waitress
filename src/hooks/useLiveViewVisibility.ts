@@ -1,8 +1,8 @@
-import { useQuery, useMutation, useQueryClient } from '@tanstack/react-query';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { useOptimisticEventSettings } from './useOptimisticEventSettings';
 
-interface LiveViewVisibility {
+export interface LiveViewVisibility {
   id: string;
   event_id: string;
   show_rsvp_invite: boolean;
@@ -19,99 +19,32 @@ interface LiveViewVisibility {
   kiosk_show_dietary: boolean;
   updated_at: string;
 }
-
 export const useLiveViewVisibility = (eventId: string | null) => {
   const { toast } = useToast();
-  const queryClient = useQueryClient();
-
-  // Fetch live view visibility settings
-  const { data: settings, isLoading } = useQuery({
-    queryKey: ['live-view-visibility', eventId],
-    queryFn: async () => {
-      if (!eventId) return null;
-
-      const { data, error } = await supabase
-        .from('live_view_settings')
-        .select('*')
-        .eq('event_id', eventId)
-        .maybeSingle();
-
-      if (error) {
-        console.error('Error fetching live view visibility:', error);
-        throw error;
-      }
-
-      // If no settings exist, create default ones
-      if (!data) {
-        const { data: newData, error: insertError } = await supabase
-          .from('live_view_settings')
-          .insert({
-            event_id: eventId,
-            show_rsvp_invite: false,
-            show_update_details: false,
-            show_search: true,
-            show_ceremony: false,
-            show_reception: false,
-            show_invite_video: false,
-            show_welcome_video: false,
-            show_floor_plan: false,
-            show_menu: false,
-            show_reception_floor_plan: false,
-            kiosk_show_rsvp_status: true,
-            kiosk_show_dietary: true,
-          })
-          .select()
-          .single();
-
-        if (insertError) {
-          console.error('Error creating live view visibility:', insertError);
-          throw insertError;
-        }
-
-        return newData as LiveViewVisibility;
-      }
-
+  const state = useOptimisticEventSettings<LiveViewVisibility>({
+    namespace: 'live-view-visibility', eventId,
+    read: async id => {
+      const { data, error } = await supabase.from('live_view_settings').select('*').eq('event_id', id).maybeSingle();
+      if (error) throw error;
+      if (data) return data as LiveViewVisibility;
+      const result = await supabase.from('live_view_settings').upsert({
+        event_id: id, show_rsvp_invite: false, show_update_details: false, show_search: true,
+        show_ceremony: false, show_reception: false, show_invite_video: false, show_welcome_video: false,
+        show_floor_plan: false, show_menu: false, show_reception_floor_plan: false,
+        kiosk_show_rsvp_status: true, kiosk_show_dietary: true,
+      }, { onConflict: 'event_id', ignoreDuplicates: true }).select().maybeSingle();
+      if (result.error) throw result.error;
+      if (result.data) return result.data as LiveViewVisibility;
+      const existing = await supabase.from('live_view_settings').select('*').eq('event_id', id).single();
+      if (existing.error) throw existing.error;
+      return existing.data as LiveViewVisibility;
+    },
+    write: async (id, updates) => {
+      const { data, error } = await supabase.from('live_view_settings').update(updates).eq('event_id', id).select().single();
+      if (error) throw error;
       return data as LiveViewVisibility;
     },
-    enabled: !!eventId,
+    onError: () => toast({ title: 'Visibility could not be saved', description: 'The last saved settings have been restored. Please try again.', variant: 'destructive' }),
   });
-
-  // Update live view visibility
-  const updateMutation = useMutation({
-    mutationFn: async (updates: Partial<LiveViewVisibility>) => {
-      if (!eventId) throw new Error('No event ID provided');
-
-      const { data, error } = await supabase
-        .from('live_view_settings')
-        .update(updates)
-        .eq('event_id', eventId)
-        .select()
-        .single();
-
-      if (error) throw error;
-      return data;
-    },
-    onSuccess: () => {
-      queryClient.invalidateQueries({ queryKey: ['live-view-visibility', eventId] });
-    },
-    onError: (error) => {
-      console.error('Error updating live view visibility:', error);
-      toast({
-        title: 'Error',
-        description: 'Failed to update visibility settings',
-        variant: 'destructive',
-      });
-    },
-  });
-
-  const updateVisibility = (key: keyof LiveViewVisibility, value: boolean) => {
-    updateMutation.mutate({ [key]: value });
-  };
-
-  return {
-    settings,
-    isLoading,
-    isSaving: updateMutation.isPending,
-    updateVisibility,
-  };
+  return { ...state, updateVisibility: (key: keyof LiveViewVisibility, value: boolean) => { void state.update({ [key]: value }); } };
 };

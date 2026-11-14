@@ -13,9 +13,10 @@ import { MasterOnly } from '@/components/permissions/MasterOnly';
 
 interface Props {
   icon: LucideIcon;
+  section?: 'security' | 'close';
 }
 
-export const SecurityCard: React.FC<Props> = ({ icon }) => {
+export const SecurityCard: React.FC<Props> = ({ icon, section }) => {
   const [open, setOpen] = useState(false);
   const [emailVerified, setEmailVerified] = useState<boolean | null>(null);
   const [email, setEmail] = useState<string>('');
@@ -51,7 +52,7 @@ export const SecurityCard: React.FC<Props> = ({ icon }) => {
 
   return (
     <div className="grid min-w-0 content-start gap-6" data-account-security-stack>
-      <SectionCard icon={icon} title="Security & Password" description="Password and email verification">
+      {section !== 'close' && <SectionCard icon={icon} showIcon={false} title="Security & Password" description="Password and email verification">
         <div className="space-y-3 text-sm">
           <Row label="Password" value="••••••••••" />
           <div className="flex flex-col sm:flex-row sm:items-center justify-between gap-1 py-2">
@@ -91,14 +92,14 @@ export const SecurityCard: React.FC<Props> = ({ icon }) => {
           )}
         </div>
         <ChangePasswordModal open={open} onOpenChange={setOpen} />
-      </SectionCard>
-      <SectionCard icon={Trash2} title="Close Account" description="Account deactivation and reopening controls">
+      </SectionCard>}
+      {section !== 'security' && <SectionCard icon={Trash2} showIcon={false} title="Close Account" description="Account deactivation and reopening controls">
         <div className="rounded-xl border border-red-300 bg-red-50 p-5">
           <span className="text-xs font-bold uppercase tracking-widest text-red-700">Danger Zone</span>
           <p className="mt-2 max-w-2xl text-sm leading-6 text-red-900/80">Deactivate account access while retaining your saved information. Your original entitlement expiry does not change; you can reopen for any remaining paid time without paying again.</p>
           <MasterOnly fallback="hide"><Button className={`${controlStyles.destructiveButton} mt-4`} onClick={() => setDeleteOpen(true)}>Close Account</Button></MasterOnly>
         </div>
-      </SectionCard>
+      </SectionCard>}
       <DeleteAccountDialog open={deleteOpen} onOpenChange={setDeleteOpen} email={email} />
     </div>
   );

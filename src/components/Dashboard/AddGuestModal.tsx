@@ -16,10 +16,11 @@
  * Last locked: 2025-11-12
  */
 
+import { isGuestCapacityError } from '@/lib/activeTrial';
 import React, { useState, useEffect, useCallback } from 'react';
 import { useForm, Controller } from "react-hook-form";
 import { zodResolver } from "@hookform/resolvers/zod";
-import { secureGuestSchema, type SecureGuestData, type SecureGuestInput } from "@/lib/security/validation";
+import { secureGuestSchema, type SecureGuestData } from "@/lib/security/validation";
 import { logSecurityEvent, guestAddRateLimiter } from "@/lib/security/monitoring";
 import { sanitize, InputSanitizer } from "@/lib/security/inputSanitizer";
 import {
@@ -27,6 +28,7 @@ import {
   SheetContent,
   SheetHeader,
   SheetTitle,
+  SheetDescription,
 } from "@/components/ui/sheet";
 import {
   Form,
@@ -49,7 +51,8 @@ import {
 } from "@/components/ui/select";
 import { Badge } from "@/components/ui/badge";
 import { Label } from "@/components/ui/label";
-import { X, AlertCircle, Users, Utensils, Calendar, MapPin, Plus, UserPlus, Pencil, UserRound, Phone, Mail, ClipboardCheck, Table2, StickyNote, Save } from 'lucide-react';
+import { X, AlertCircle, Users, Utensils, Calendar, MapPin, Plus, UserPlus, Pencil, Trash2, UserRound, Phone, Mail, ClipboardCheck, Table2, StickyNote, Save } from 'lucide-react';
+import { Tooltip, TooltipContent, TooltipProvider, TooltipTrigger } from '@/components/ui/tooltip';
 import { normalizeGuestPhone, guestPhoneHint } from '@/lib/guestPhone';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -59,11 +62,21 @@ import { cn } from "@/lib/utils";
 import { normalizeRsvp } from "@/lib/rsvp";
 import { useEvents } from "@/hooks/useEvents";
 import { getGuestEventOwnerId } from "@/lib/guestEventOwner";
+import {
+  buildEditedGuestGroupName,
+  deriveSavedGuestCategory,
+  validateEditedGuestCategory,
+} from "@/lib/editGuestCategory";
+import type { GuestGroupType } from "@/lib/guestGroupClassification";
+import {
+  buildNewPartyMemberRelationshipFields,
+  buildPrimaryGuestRelationshipFields,
+} from "@/lib/guestRelationshipPayload";
 import { RelationSelector } from "./RelationSelector";
 import categoryStyles from "./AddGuestModal.module.css";
 
 import { GroupTypeDialog } from "./GroupTypeDialog";
-import { RelationAssignmentDialog, RelationAssignment, PersonToAssign } from "./RelationAssignmentDialog";
+import { RelationAssignmentDialog, PersonToAssign } from "./RelationAssignmentDialog";
 
 type AddGuestFormData = SecureGuestData;
 
@@ -90,8 +103,15 @@ interface AddGuestModalProps {
     relation_role: string;
     relation_display: string;
   } | null;
+  savedEventGuests?: Array<{
+    id: string;
+    family_group?: string | null;
+  }>;
   isEdit?: boolean;
   relationsHidden?: boolean;
+  currentGuestCount?: number;
+  allowedGuestLimit?: number | null;
+  onGuestLimitReached?: () => void;
 }
 
 export const AddGuestModal: React.FC<AddGuestModalProps> = ({
@@ -100,18 +120,18 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   onGuestAdded,
   eventId,
   editGuest,
+  savedEventGuests,
   isEdit = false,
   relationsHidden: relationsHiddenProp,
+  currentGuestCount = 0,
+  allowedGuestLimit,
+  onGuestLimitReached,
 }) => {
   const { toast } = useToast();
-  const { tables, fetchTables } = useTables(eventId);
+  const { tables, loading: tablesLoading } = useTables(eventId);
   const { events } = useEvents();
 
-  useEffect(() => {
-    if (isOpen && eventId) {
-      fetchTables();
-    }
-  }, [isOpen, eventId]);
+  // useTables already fetches on mount and reuses in-flight requests.
   const selectedEvent = events.find(e => e.id === eventId);
   
   const [relationSelectorOpen, setRelationSelectorOpen] = useState(false);
@@ -138,7 +158,9 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   const [peopleToAssign, setPeopleToAssign] = useState<PersonToAssign[]>([]);
 
   // Guest type selection state
-  const [guestType, setGuestType] = useState<'individual' | 'couple' | 'family'>('individual');
+  const [guestType, setGuestType] = useState<GuestGroupType>('individual');
+  const [savedGuestType, setSavedGuestType] = useState<GuestGroupType>('individual');
+  const [existingGroupMemberCount, setExistingGroupMemberCount] = useState(0);
   const [partyMembers, setPartyMembers] = useState<Array<{
     first_name: string;
     last_name: string;
@@ -149,20 +171,10 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     seat_no?: number;
   }>>([]);
   const [showAddMemberForm, setShowAddMemberForm] = useState(false);
+  const [editingMemberIndex, setEditingMemberIndex] = useState<number | null>(null);
   const [manualInviteStatus, setManualInviteStatus] = useState((editGuest as any)?.rsvp_invite_status || 'not_sent');
   const [allowPlusOne, setAllowPlusOne] = useState(editGuest?.allow_plus_one !== false);
 
-  // Relationship Group Override (Phase 1) — only writes to guests.family_group
-  const detectGroupType = (fg?: string | null): 'individual' | 'couple' | 'family' => {
-    const v = (fg || '').trim();
-    if (!v) return 'individual';
-    if (v.includes(' & ') || v.endsWith(' Couple')) return 'couple';
-    return 'family';
-  };
-  const [groupTypeOverride, setGroupTypeOverride] = useState<'individual' | 'couple' | 'family'>('individual');
-  const [partnerGuestId, setPartnerGuestId] = useState<string>('');
-  const [familyGroupNameOverride, setFamilyGroupNameOverride] = useState<string>('');
-  const [eventGuestsForOverride, setEventGuestsForOverride] = useState<Array<{ id: string; first_name: string; last_name: string; family_group: string | null }>>([]);
   const [memberForm, setMemberForm] = useState({
     first_name: '',
     last_name: '',
@@ -171,7 +183,13 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
     dietary: 'None'
   });
 
-  const form = useForm<SecureGuestInput, unknown, AddGuestFormData>({
+  const resetMemberEditor = () => {
+    setShowAddMemberForm(false);
+    setEditingMemberIndex(null);
+    setMemberForm({ first_name: '', last_name: '', mobile: '', email: '', dietary: 'None' });
+  };
+
+  const form = useForm<AddGuestFormData>({
     resolver: zodResolver(secureGuestSchema),
     defaultValues: {
       first_name: "",
@@ -226,6 +244,10 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   // Reset form when modal opens/closes or edit guest changes
   useEffect(() => {
     if (isOpen) {
+      setPartyMembers([]);
+      setShowAddMemberForm(false);
+      setEditingMemberIndex(null);
+      setMemberForm({ first_name: '', last_name: '', mobile: '', email: '', dietary: 'None' });
       if (isEdit && editGuest) {
         form.reset({
           first_name: editGuest.first_name,
@@ -269,44 +291,60 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       }
     }
     if (isEdit && editGuest) {
+      const category = deriveSavedGuestCategory(editGuest, savedEventGuests || [editGuest]);
+      const groupName = editGuest.family_group?.trim();
+      const otherMemberCount = groupName
+        ? (savedEventGuests || [editGuest]).filter(
+            (guest) => guest.id !== editGuest.id && guest.family_group?.trim() === groupName,
+          ).length
+        : 0;
       setManualInviteStatus((editGuest as any).rsvp_invite_status || 'not_sent');
       setAllowPlusOne(editGuest.allow_plus_one !== false);
-      const t = detectGroupType(editGuest.family_group);
-      setGroupTypeOverride(t);
-      setFamilyGroupNameOverride(t === 'family' ? (editGuest.family_group || '') : '');
-      setPartnerGuestId('');
+      setGuestType(category);
+      setSavedGuestType(category);
+      setExistingGroupMemberCount(category === 'individual' ? 0 : otherMemberCount);
     }
-  }, [isOpen, isEdit, editGuest, form]);
+  }, [isOpen, isEdit, editGuest, form, savedEventGuests]);
 
   // Fetch other guests in this event for the Couple partner picker
   useEffect(() => {
-    if (!isOpen || !isEdit || !eventId) return;
+    if (!isOpen || !isEdit || !eventId || savedEventGuests) return;
+    let cancelled = false;
     (async () => {
       const { data } = await supabase
         .from('guests')
         .select('id, first_name, last_name, family_group')
         .eq('event_id', eventId)
         .order('first_name', { ascending: true });
-      setEventGuestsForOverride((data as any) || []);
+      const eventGuests = ((data as any) || []) as Array<{ id: string; first_name: string; last_name: string; family_group: string | null }>;
+      if (editGuest && !cancelled) {
+        const category = deriveSavedGuestCategory(editGuest, eventGuests);
+        const groupName = editGuest.family_group?.trim();
+        const otherMemberCount = groupName
+          ? eventGuests.filter((guest) => guest.id !== editGuest.id && guest.family_group?.trim() === groupName).length
+          : 0;
+        setGuestType(category);
+        setSavedGuestType(category);
+        setExistingGroupMemberCount(category === 'individual' ? 0 : otherMemberCount);
+      }
     })();
-  }, [isOpen, isEdit, eventId]);
+    return () => { cancelled = true; };
+  }, [isOpen, isEdit, eventId, editGuest, savedEventGuests]);
 
   const handleClose = () => {
     form.reset();
     setRelationSelectorOpen(false);
     setGuestType('individual');
+    setSavedGuestType('individual');
+    setExistingGroupMemberCount(0);
     setPartyMembers([]);
-    setShowAddMemberForm(false);
-    setMemberForm({ first_name: '', last_name: '', mobile: '', email: '', dietary: 'None' });
+    resetMemberEditor();
     setShowGroupTypeDialog(false);
     setManualInviteStatus('not_sent');
     setPendingEditSaveData(null);
     setShowRelationAssignment(false);
     setPendingFormData(null);
     setPeopleToAssign([]);
-    setGroupTypeOverride('individual');
-    setPartnerGuestId('');
-    setFamilyGroupNameOverride('');
     onClose();
   };
 
@@ -415,18 +453,59 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       return;
     }
 
-    setPartyMembers(prev => [...prev, { ...memberForm, mobile: normalizedMobile }]);
-    setMemberForm({ first_name: '', last_name: '', mobile: '', email: '', dietary: 'None' });
-    setShowAddMemberForm(false);
+    const savedMember = { ...memberForm, mobile: normalizedMobile };
+    if (editingMemberIndex === null) {
+      setPartyMembers(prev => [...prev, savedMember]);
+    } else {
+      setPartyMembers(prev => prev.map((member, index) => index === editingMemberIndex ? savedMember : member));
+    }
+    const wasEditing = editingMemberIndex !== null;
+    resetMemberEditor();
     
     toast({
-      title: "Member added",
-      description: `${memberForm.first_name} ${memberForm.last_name} added to the party`
+      title: wasEditing ? "Member updated" : "Member added",
+      description: wasEditing
+        ? `${memberForm.first_name} ${memberForm.last_name} updated`
+        : `${memberForm.first_name} ${memberForm.last_name} added to the party`
     });
   };
 
   const removeMember = (index: number) => {
     setPartyMembers(prev => prev.filter((_, i) => i !== index));
+    if (editingMemberIndex === index) {
+      resetMemberEditor();
+    } else if (editingMemberIndex !== null && editingMemberIndex > index) {
+      setEditingMemberIndex(editingMemberIndex - 1);
+    }
+  };
+
+  const editMember = (index: number) => {
+    const member = partyMembers[index];
+    if (!member) return;
+    setEditingMemberIndex(index);
+    setMemberForm({
+      first_name: member.first_name,
+      last_name: member.last_name,
+      mobile: member.mobile || '',
+      email: member.email || '',
+      dietary: member.dietary || 'None',
+    });
+    setShowAddMemberForm(true);
+  };
+
+  const selectGuestType = (nextType: GuestGroupType) => {
+    setGuestType(nextType);
+    resetMemberEditor();
+
+    if (nextType === 'individual') {
+      setPartyMembers([]);
+      return;
+    }
+
+    if (nextType === 'couple') {
+      const availableNewMemberSlots = Math.max(0, 1 - existingGroupMemberCount);
+      setPartyMembers((members) => members.slice(0, availableNewMemberSlots));
+    }
   };
 
   const handleRelationChange = (partner: RelationPartner, role: RelationRole) => {
@@ -536,8 +615,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   }, [fetchTakenSeats, getAvailableSeatNumbers, takenSeats, form, isEdit, editGuest]);
 
 
-  // Phase 1 — Relationship Group Override.
-  // ONLY mutates guests.family_group. Never touches table/seat/RSVP/dietary/notes/invites.
+  // Keep legacy group records in sync when a group collapses to one person.
   const cleanupSingleMemberFamily = async (oldGroup: string | null | undefined) => {
     const g = (oldGroup || '').trim();
     if (!g) return;
@@ -547,87 +625,49 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       .eq('event_id', eventId)
       .eq('family_group', g)
       .throwOnError();
-    if (remaining && remaining.length === 1) {
-      await supabase.from('guests').update({ family_group: null }).eq('event_id', eventId).eq('id', remaining[0].id).throwOnError();
+    if (!remaining || remaining.length > 1) return;
+
+    if (remaining.length === 1) {
+      await supabase
+        .from('guests')
+        .update({ family_group: null })
+        .eq('event_id', eventId)
+        .eq('id', remaining[0].id)
+        .throwOnError();
+    }
+
+    const { data: obsoleteGroups } = await supabase
+      .from('family_groups')
+      .select('id')
+      .eq('event_id', eventId)
+      .eq('name', g);
+    const obsoleteGroupIds = (obsoleteGroups || []).map((group) => group.id);
+    if (obsoleteGroupIds.length > 0) {
+      await supabase.from('family_group_members').delete().in('group_id', obsoleteGroupIds).throwOnError();
+      await supabase.from('family_groups').delete().in('id', obsoleteGroupIds).throwOnError();
     }
   };
 
-  const applyRelationshipOverride = async (
-    currentGuest: NonNullable<typeof editGuest>,
-    formData: AddGuestFormData
-  ) => {
-    try {
-      const originalType = detectGroupType(currentGuest.family_group);
-      const originalGroup = currentGuest.family_group || null;
-      const newType = groupTypeOverride;
-
-      // No-op if user didn't change anything meaningful
-      if (newType === originalType) {
-        if (newType === 'individual') return;
-        if (newType === 'family') {
-          const desired = familyGroupNameOverride.trim();
-          if (!desired || desired === (originalGroup || '').trim()) return;
-        }
-        if (newType === 'couple' && !partnerGuestId) return;
-      }
-
-      if (newType === 'individual') {
-        await supabase.from('guests').update({ family_group: null }).eq('event_id', eventId).eq('id', currentGuest.id).throwOnError();
-        await cleanupSingleMemberFamily(originalGroup);
-        return;
-      }
-
-      if (newType === 'family') {
-        const desired = familyGroupNameOverride.trim();
-        if (!desired) {
-          toast({ title: 'Family group name required', description: 'Enter a family group name to apply.', variant: 'destructive' });
-          return;
-        }
-        await supabase.from('guests').update({ family_group: desired }).eq('event_id', eventId).eq('id', currentGuest.id).throwOnError();
-        if (originalGroup && originalGroup !== desired) {
-          await cleanupSingleMemberFamily(originalGroup);
-        }
-        return;
-      }
-
-      if (newType === 'couple') {
-        if (!partnerGuestId) {
-          toast({ title: 'Partner required', description: 'Select a partner guest to form a couple.', variant: 'destructive' });
-          return;
-        }
-        const partner = eventGuestsForOverride.find(g => g.id === partnerGuestId);
-        if (!partner) return;
-        const currentFirst = (formData.first_name || currentGuest.first_name || '').trim();
-        const partnerFirst = (partner.first_name || '').trim();
-        const coupleName = `${currentFirst} & ${partnerFirst} Couple`;
-        const oldCurrent = originalGroup;
-        const oldPartner = partner.family_group || null;
-        await supabase.from('guests').update({ family_group: coupleName }).eq('event_id', eventId).in('id', [currentGuest.id, partner.id]).throwOnError();
-        if (oldCurrent && oldCurrent !== coupleName) await cleanupSingleMemberFamily(oldCurrent);
-        if (oldPartner && oldPartner !== coupleName && oldPartner !== oldCurrent) {
-          await cleanupSingleMemberFamily(oldPartner);
-        }
-        return;
-      }
-    } catch (e) {
-      console.error('Relationship override failed:', e);
-      toast({
-        title: 'Relationship override failed',
-        description: 'Guest was saved, but the group change could not be applied.',
-        variant: 'destructive',
-      });
-      return false;
-    }
-  };
+  const onInvalid = () => {requestAnimationFrame(()=>{const firstInvalid=document.querySelector<HTMLElement>('.ww-edit-guest-panel [aria-invalid="true"]');firstInvalid?.scrollIntoView({behavior:'smooth',block:'center'});firstInvalid?.focus();});};
 
   const onSubmit = async (data: AddGuestFormData) => {
+    const guestsBeingAdded = (isEdit ? 0 : 1) + partyMembers.length;
+    if (allowedGuestLimit != null && currentGuestCount + guestsBeingAdded > allowedGuestLimit) {
+      onGuestLimitReached?.();
+      return;
+    }
     if (isEdit && editGuest) {
-      if (groupTypeOverride === 'family' && !familyGroupNameOverride.trim()) {
-        toast({ title: 'Family group name required', description: 'Enter a family group name to apply.', variant: 'destructive' });
+      const categoryError = validateEditedGuestCategory(
+        guestType,
+        savedGuestType === 'individual' ? 0 : existingGroupMemberCount,
+        partyMembers.length,
+      );
+      if (categoryError) {
+        toast({ title: 'Complete the guest category', description: categoryError, variant: 'destructive' });
         return;
       }
-      if (groupTypeOverride === 'couple' && detectGroupType(editGuest.family_group) !== 'couple' && !partnerGuestId) {
-        toast({ title: 'Partner required', description: 'Select a partner guest to form a couple.', variant: 'destructive' });
+      if (allowedGuestLimit != null && currentGuestCount + partyMembers.length > allowedGuestLimit) {
+        onGuestLimitReached?.();
         return;
       }
     }
@@ -665,28 +705,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           return;
         }
       }
-      // Determine if relations are hidden (prefer prop, fall back to DB)
-      const isRelationHidden = relationsHiddenProp ?? ((selectedEvent as any)?.relation_mode === 'off');
-      
-      // If relations are NOT hidden and we haven't been through the relation assignment dialog yet,
-      // open it instead of saving directly
-      if (!isRelationHidden && !data.relation_partner && !data.relation_role) {
-        // Build the list of people needing relations
-        const people: PersonToAssign[] = [];
-        const mainName = `${data.first_name} ${data.last_name}`.trim();
-        people.push({ name: mainName, index: -1 });
-        
-        partyMembers.forEach((member, i) => {
-          const memberName = `${member.first_name} ${member.last_name}`.trim();
-          people.push({ name: memberName, index: i });
-        });
-        
-        setPeopleToAssign(people);
-        setPendingFormData(data);
-        setShowRelationAssignment(true);
-        setLoading(false);
-        return;
-      }
+      // Relationship is optional. Only open assignment when the user requests it.
 
       // Validate table and seat
       if (data.table_id && data.seat_no) {
@@ -754,10 +773,24 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       const finalGuestData = {
         ...guestData,
         table_no,
-        relation_partner: data.relation_partner,
-        relation_role: data.relation_role,
-        relation_display: relationDisplay,
-        ...(isEdit ? { rsvp_invite_status: manualInviteStatus, allow_plus_one: allowPlusOne } : {}),
+        ...buildPrimaryGuestRelationshipFields(
+          data.relation_partner,
+          data.relation_role,
+          relationDisplay,
+        ),
+        ...(isEdit ? {
+          rsvp_invite_status: manualInviteStatus,
+          allow_plus_one: allowPlusOne,
+          family_group: guestType === savedGuestType && savedGuestType !== 'individual' && editGuest?.family_group
+            ? editGuest.family_group
+            : buildEditedGuestGroupName(
+                guestType,
+                data.first_name,
+                data.last_name,
+                partyMembers[0]?.first_name,
+                partyMembers[0]?.last_name,
+              ),
+        } : {}),
       };
 
       if (isEdit && editGuest) {
@@ -793,6 +826,131 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             variant: "destructive",
           });
         } else {
+          let insertedMemberIds: string[] = [];
+          if (partyMembers.length > 0) {
+            const memberInserts = partyMembers.map((member) => ({
+              event_id: eventId,
+              user_id: eventOwnerId,
+              first_name: member.first_name,
+              last_name: member.last_name,
+              mobile: member.mobile || null,
+              email: member.email || null,
+              dietary: member.dietary || 'None',
+              table_id: finalGuestData.table_id || null,
+              table_no: finalGuestData.table_no || null,
+              seat_no: null,
+              assigned: !!finalGuestData.table_id,
+              family_group: finalGuestData.family_group,
+              rsvp: 'Pending',
+              ...buildNewPartyMemberRelationshipFields(),
+            }));
+
+            const { data: insertedMembers, error: memberError } = await supabase
+              .from('guests')
+              .insert(memberInserts)
+              .select('id');
+
+            if (memberError) {
+              await supabase
+                .from('guests')
+                .update({ family_group: editGuest.family_group || null })
+                .eq('id', editGuest.id);
+              if (isGuestCapacityError(memberError)) {
+                onGuestLimitReached?.();
+              } else {
+                toast({
+                  title: 'Unable to add group members',
+                  description: memberError.code === '23505'
+                    ? 'One of these guests already exists in this event.'
+                    : 'The guest was updated, but the new group members were not added.',
+                  variant: 'destructive',
+                });
+              }
+              setLoading(false);
+              return;
+            }
+
+            insertedMemberIds = (insertedMembers || []).map((member) => member.id);
+          }
+
+          const previousGroup = editGuest.family_group?.trim() || null;
+          const nextGroup = finalGuestData.family_group?.trim() || null;
+
+          try {
+            const { data: eventFamilyGroups } = await supabase
+              .from('family_groups')
+              .select('id')
+              .eq('event_id', eventId);
+            const eventFamilyGroupIds = (eventFamilyGroups || []).map((group) => group.id);
+            if (eventFamilyGroupIds.length > 0) {
+              const { error: oldMembershipError } = await supabase
+                .from('family_group_members')
+                .delete()
+                .eq('guest_id', editGuest.id)
+                .in('group_id', eventFamilyGroupIds);
+              if (oldMembershipError) throw oldMembershipError;
+            }
+
+            if (nextGroup) {
+              const { data: familyGroup, error: familyGroupError } = await supabase
+                .from('family_groups')
+                .upsert({ event_id: eventId, name: nextGroup }, { onConflict: 'event_id,name' })
+                .select('id')
+                .single();
+
+              if (familyGroupError) throw familyGroupError;
+              const membershipGuestIds = [editGuest.id, ...insertedMemberIds];
+              const { error: membershipError } = await supabase
+                .from('family_group_members')
+                .upsert(
+                  membershipGuestIds.map((guestId) => ({ group_id: familyGroup.id, guest_id: guestId })),
+                  { onConflict: 'group_id,guest_id' },
+                );
+              if (membershipError) throw membershipError;
+            }
+
+            if (previousGroup && previousGroup !== nextGroup) {
+              await cleanupSingleMemberFamily(previousGroup);
+            }
+          } catch (groupError) {
+            const rollbackGuestIds = [editGuest.id, ...insertedMemberIds];
+            const { data: rollbackGroups } = await supabase
+              .from('family_groups')
+              .select('id')
+              .eq('event_id', eventId);
+            const rollbackGroupIds = (rollbackGroups || []).map((group) => group.id);
+            if (rollbackGroupIds.length > 0) {
+              await supabase
+                .from('family_group_members')
+                .delete()
+                .in('guest_id', rollbackGuestIds)
+                .in('group_id', rollbackGroupIds);
+            }
+            if (insertedMemberIds.length > 0) {
+              await supabase.from('guests').delete().in('id', insertedMemberIds);
+            }
+            await supabase
+              .from('guests')
+              .update({ family_group: editGuest.family_group || null })
+              .eq('id', editGuest.id);
+            if (previousGroup) {
+              const { data: restoredGroup } = await supabase
+                .from('family_groups')
+                .upsert({ event_id: eventId, name: previousGroup }, { onConflict: 'event_id,name' })
+                .select('id')
+                .single();
+              if (restoredGroup) {
+                await supabase
+                  .from('family_group_members')
+                  .upsert(
+                    { group_id: restoredGroup.id, guest_id: editGuest.id },
+                    { onConflict: 'group_id,guest_id' },
+                  );
+              }
+            }
+            throw groupError;
+          }
+
           // If there are pending family members, show the group type dialog
           if (pendingFamilyMembers.length > 0) {
             // Fetch member names for dialog display
@@ -809,12 +967,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             return;
           }
           
-          // Apply Relationship Group Override (Phase 1) — touches ONLY family_group
-          if (await applyRelationshipOverride(editGuest, data) === false) {
-            onGuestAdded();
-            return;
-          }
-
           toast({
             title: "Guest Updated",
             description: `${data.first_name} ${data.last_name} has been updated successfully.`,
@@ -823,8 +975,13 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           handleClose();
         }
       } else {
-        // Use resolved party members from relation dialog if available (avoids React state race condition)
-        const resolvedMembers = (data as any)._resolvedPartyMembers || partyMembers;
+        const resolvedMembers = partyMembers;
+        const guestsBeingAdded = 1 + resolvedMembers.length;
+        if (allowedGuestLimit != null && currentGuestCount + guestsBeingAdded > allowedGuestLimit) {
+          setLoading(false);
+          onGuestLimitReached?.();
+          return;
+        }
         
         // Auto-generate family group name for couples and families
         let autoFamilyGroup = '';
@@ -848,6 +1005,11 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
         if (guestError) {
           console.error('Error adding guest:', guestError);
+          if (isGuestCapacityError(guestError)) {
+            onGuestLimitReached?.();
+            setLoading(false);
+            return;
+          }
           
           // Handle unique constraint violation
           if (guestError.code === '23505' && guestError.message?.includes('uniq_event_table_seat')) {
@@ -944,9 +1106,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               memberAssigned = true;
             }
 
-            // Use per-member relation if available (from memberRelations state)
-            const memberRelation = (member as any)._relation as { partner: string; role: string; display: string } | undefined;
-
             return {
               event_id: eventId,
               user_id: eventOwnerId,
@@ -961,9 +1120,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
               assigned: memberAssigned,
               family_group: autoFamilyGroup,
               rsvp: 'Pending',
-              relation_partner: memberRelation?.partner || finalGuestData.relation_partner || '',
-              relation_role: memberRelation?.role || finalGuestData.relation_role || '',
-              relation_display: memberRelation?.display || finalGuestData.relation_display || ''
+              ...buildNewPartyMemberRelationshipFields(),
             };
           });
 
@@ -973,6 +1130,9 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
 
           if (membersError) {
             console.error('Error adding party members:', membersError);
+            if (isGuestCapacityError(membersError)) {
+              onGuestLimitReached?.();
+            }
             if (membersError.code === '23505' && membersError.message?.includes('uniq_guest_name_per_event')) {
               toast({
                 title: "Duplicate Party Member",
@@ -1062,6 +1222,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
       }
     } catch (error) {
       console.error('Error in onSubmit:', error);
+      if (isGuestCapacityError(error)) { onGuestLimitReached?.(); return; }
       toast({
         title: "Error",
         description: "An unexpected error occurred. Please try again.",
@@ -1079,21 +1240,22 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         side="right"
         className={cn("w-full sm:max-w-3xl p-0 flex flex-col overflow-hidden", "ww-edit-guest-panel ww-guest-list-drawer")}
       >
-        <SheetHeader className={cn("px-4 sm:px-8 pt-6 pb-4 border-b max-lg:items-center max-lg:text-center lg:pr-12", isEdit && "ww-edit-guest-header")}>
+        <SheetHeader className={cn("px-4 sm:px-8 pt-6 pb-4 border-b max-lg:items-center max-lg:text-center lg:pr-12", isEdit && "ww-edit-guest-header", categoryStyles.drawerHeader)}>
           <SheetTitle className="text-xl sm:text-2xl font-medium text-primary max-lg:w-full max-lg:text-center inline-flex items-center gap-2 max-lg:justify-center">
             {isEdit
               ? <Pencil size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
               : <UserPlus size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />}
             {isEdit ? 'Edit Guest' : 'Add New Guest'}
           </SheetTitle>
+          <SheetDescription className="sr-only">Enter guest details and seating preferences, then save or cancel your changes.</SheetDescription>
         </SheetHeader>
 
         <div className="space-y-3 sm:space-y-4 px-4 sm:px-8 py-4 overflow-y-auto overflow-x-hidden flex-1 mobile-scroll-container">
           <Form {...form}>
-            <form onSubmit={form.handleSubmit(onSubmit)} className="space-y-3">
+            <form onSubmit={form.handleSubmit(onSubmit,onInvalid)} className={cn("space-y-3",categoryStyles.guestForm)}>
+            {Object.keys(form.formState.errors).length>0&&<div role="alert" className={categoryStyles.validationSummary}><strong>Please check the highlighted fields.</strong><ul>{[...new Set(Object.values(form.formState.errors).map(error=>String(error?.message||'Check this field')))].map(message=><li key={message}>{message}</li>)}</ul></div>}
             
-            {/* Guest Type Selector - Only show for new guests */}
-            {!isEdit && (
+            {/* Guest category is the single source of truth in Add and Edit. */}
               <div className="pt-1 pb-2">
                 <Label className="text-sm font-medium mb-2 block">Guest Category</Label>
                 <div
@@ -1104,10 +1266,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 >
                   <button
                     type="button"
-                    onClick={() => {
-                      setGuestType('individual');
-                      setPartyMembers([]);
-                    }}
+                    onClick={() => selectGuestType('individual')}
                     className={cn("ww-guest-category-option", categoryStyles.categoryOption)}
                     data-active={guestType === 'individual'}
                     aria-pressed={guestType === 'individual'}
@@ -1116,12 +1275,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                   </button>
                   <button
                     type="button"
-                    onClick={() => {
-                      setGuestType('couple');
-                      if (partyMembers.length > 1) {
-                        setPartyMembers([partyMembers[0]]);
-                      }
-                    }}
+                    onClick={() => selectGuestType('couple')}
                     className={cn("ww-guest-category-option", categoryStyles.categoryOption)}
                     data-active={guestType === 'couple'}
                     aria-pressed={guestType === 'couple'}
@@ -1130,7 +1284,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                   </button>
                   <button
                     type="button"
-                    onClick={() => setGuestType('family')}
+                    onClick={() => selectGuestType('family')}
                     className={cn("ww-guest-category-option", categoryStyles.categoryOption)}
                     data-active={guestType === 'family'}
                     aria-pressed={guestType === 'family'}
@@ -1139,7 +1293,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                   </button>
                 </div>
               </div>
-            )}
 
             {/* Basic Information - Stack on mobile */}
             <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
@@ -1228,7 +1381,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             </div>
 
             {(selectedEvent as any)?.collect_guest_addresses === true && (
-              <>
+              <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                 <FormField
                   control={form.control}
                   name={"mailing_address" as any}
@@ -1246,9 +1399,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     </FormItem>
                   )}
                 />
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <FormField
+                <FormField
                     control={form.control}
                     name={"mailing_suburb" as any}
                     render={({ field }) => (
@@ -1282,10 +1433,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                       </FormItem>
                     )}
                   />
-                </div>
-
-                <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
-                  <FormField
+                <FormField
                     control={form.control}
                     name={"mailing_postcode" as any}
                     render={({ field }) => (
@@ -1302,8 +1450,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                       </FormItem>
                     )}
                   />
-                </div>
-              </>
+              </div>
             )}
 
             {/* Table Assignment - Stack on mobile */}
@@ -1320,10 +1467,10 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                     <Select onValueChange={(value) => {
                       field.onChange(value);
                       handleTableChange(value);
-                    }} value={field.value}>
+                    }} value={field.value} disabled={tablesLoading && tables.length === 0}>
                       <FormControl>
                         <SelectTrigger className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9">
-                          <SelectValue placeholder="Select table" />
+                          <SelectValue placeholder={tablesLoading && tables.length === 0 ? "Loading tables..." : "Select table"} />
                         </SelectTrigger>
                       </FormControl>
                       <SelectContent className="ww-guest-list-menu">
@@ -1382,67 +1529,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             </div>
 
 
-            {/* Relationship Group Override (Phase 1) — only changes guests.family_group */}
-            {isEdit && editGuest && (
-              <div className="space-y-3 rounded-xl border-2 border-primary/20 bg-muted/20 p-3">
-                <div className="space-y-1">
-                  <Label className="text-sm font-medium">Guest Group Type</Label>
-                  <Select
-                    value={groupTypeOverride}
-                    onValueChange={(v) => setGroupTypeOverride(v as 'individual' | 'couple' | 'family')}
-                  >
-                    <SelectTrigger className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9">
-                      <SelectValue />
-                    </SelectTrigger>
-                    <SelectContent className="ww-guest-list-menu">
-                      <SelectItem value="individual">Individual</SelectItem>
-                      <SelectItem value="couple">Couple</SelectItem>
-                      <SelectItem value="family">Family</SelectItem>
-                    </SelectContent>
-                  </Select>
-                  <p className="text-[11px] text-muted-foreground">
-                    Only changes grouping. Does not affect tables, seats, RSVP, dietary, or invites.
-                  </p>
-                </div>
-
-                {groupTypeOverride === 'couple' && (
-                  <div className="space-y-1">
-                    <Label className="text-sm font-medium">Partner Guest</Label>
-                    <Select value={partnerGuestId} onValueChange={setPartnerGuestId}>
-                      <SelectTrigger className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9">
-                        <SelectValue placeholder="Select partner..." />
-                      </SelectTrigger>
-                      <SelectContent className="ww-guest-list-menu">
-                        {eventGuestsForOverride
-                          .filter(g =>
-                            g.id !== editGuest.id &&
-                            !(g.family_group ?? '').includes(' & ') &&
-                            !(g.family_group ?? '').endsWith(' Couple')
-                          )
-                          .map(g => (
-                            <SelectItem key={g.id} value={g.id}>
-                              {`${g.first_name} ${g.last_name || ''}`.trim()}
-                            </SelectItem>
-                          ))}
-                      </SelectContent>
-                    </Select>
-                  </div>
-                )}
-
-                {groupTypeOverride === 'family' && (
-                  <div className="space-y-1">
-                    <Label className="text-sm font-medium">Family Group Name</Label>
-                    <Input
-                      value={familyGroupNameOverride}
-                      onChange={(e) => setFamilyGroupNameOverride(e.target.value)}
-                      placeholder="e.g. King Family"
-                      className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9"
-                    />
-                  </div>
-                )}
-              </div>
-            )}
-
             {isEdit && editGuest && (
               <label className="flex items-center gap-2 text-sm font-medium">
                 <input type="checkbox" checked={allowPlusOne} onChange={(event) => setAllowPlusOne(event.target.checked)} />
@@ -1475,10 +1561,10 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 <div className="space-y-1">
                   <Label>
                     Relation
-                    {relationSettings.relation_required && <span className="text-red-500 ml-1">*</span>}
+                     <span className="text-muted-foreground">(optional)</span>
                   </Label>
-                  <div className="flex items-center gap-2 max-lg:flex-col max-lg:items-stretch">
-                    <div className="flex-1 px-3 py-2 text-sm rounded-full border-2 border-primary/30 bg-muted/30 max-lg:w-full">
+                  <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
+                    <div className="w-full px-3 py-2 text-sm rounded-full border-2 border-primary/30 bg-muted/30">
                       {hasRelation
                         ? computeRelationDisplay(
                             form.watch('relation_partner') as RelationPartner,
@@ -1494,7 +1580,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                       type="button"
                       variant="outline"
                       size="sm"
-                      className={cn("rounded-full border-primary text-primary hover:bg-primary/10 max-lg:w-full max-lg:h-11", isEdit && "ww-edit-assign-relation")}
+                      className={cn("w-full h-9 rounded-full border-primary text-primary hover:bg-primary/10", isEdit && "ww-edit-assign-relation")}
                       onClick={() => {
                         const firstName = form.getValues('first_name') || 'New guest';
                         const lastName = form.getValues('last_name') || '';
@@ -1502,8 +1588,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         setPeopleToAssign([{ name, index: -1 }]);
                         // In Add mode we do NOT set pendingFormData — that would trigger auto-submit on dialog complete.
                         if (isEdit) {
-                          const values = form.getValues();
-                          setPendingFormData({ ...values, dietary: values.dietary ?? 'NA' });
+                          setPendingFormData(form.getValues());
                         }
                         setShowRelationAssignment(true);
                       }}
@@ -1581,20 +1666,31 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             </div>
 
             {/* Party Members Section - Show for Couple/Family */}
-            {!isEdit && (guestType === 'couple' || guestType === 'family') && (
+            {(guestType === 'couple' || guestType === 'family') && (
               <div className="space-y-3 border-t border-gray-200 pt-4">
                 <div className="flex items-center justify-between max-lg:flex-col max-lg:items-stretch max-lg:gap-2">
-                  <div className="flex items-center gap-2 text-sm font-medium text-green-500 border border-green-500 rounded-full px-3 py-1 max-lg:self-start">
+                  <div
+                    className={cn(
+                      "flex items-center gap-2 text-sm font-medium text-green-500 rounded-full px-3 py-1 max-lg:self-start",
+                      categoryStyles.memberCountBadge,
+                    )}
+                    data-has-members={existingGroupMemberCount + partyMembers.length > 0}
+                  >
                     <Users className="w-4 h-4" />
-                    <span>Members ({partyMembers.length})</span>
+                    <span>Members ({existingGroupMemberCount + partyMembers.length})</span>
                   </div>
                   <Button
                     type="button"
                     variant="outline"
                     size="sm"
-                    onClick={() => setShowAddMemberForm(true)}
-                    disabled={guestType === 'couple' && partyMembers.length >= 1}
-                    className="rounded-full bg-green-500 hover:bg-green-600 text-white border-0 max-lg:w-full max-lg:whitespace-normal max-lg:h-auto max-lg:py-2 max-lg:text-center max-lg:leading-snug"
+                    onClick={() => {
+                      setEditingMemberIndex(null);
+                      setMemberForm({ first_name: '', last_name: '', mobile: '', email: '', dietary: 'None' });
+                      setShowAddMemberForm(true);
+                    }}
+                    disabled={guestType === 'couple' && existingGroupMemberCount + partyMembers.length >= 1}
+                    data-member-category={guestType}
+                    className={cn("lv-premium-shade rounded-full text-white border-0 max-lg:w-full max-lg:whitespace-normal max-lg:h-auto max-lg:py-2 max-lg:text-center max-lg:leading-snug",categoryStyles.memberAction)}
                   >
                     <Plus className="w-4 h-4 mr-1" />
                     {guestType === 'couple' ? 'Add your partner to make you a couple' : 'Add another member to this family'}
@@ -1604,10 +1700,10 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 {/* Add Member Form */}
                 {showAddMemberForm && (
                   <div className="bg-[#F5F0EB] p-4 max-lg:p-3 rounded-lg space-y-3 border border-[#967A59]/20">
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <Label className="text-xs">First Name *</Label>
-                        <Input
+                        <Label htmlFor="party-member-first-name" className="text-xs">First Name *</Label>
+                        <Input id="party-member-first-name"
                           value={memberForm.first_name}
                           onChange={(e) => setMemberForm(prev => ({ ...prev, first_name: e.target.value }))}
                           placeholder="First name"
@@ -1615,8 +1711,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         />
                       </div>
                       <div>
-                        <Label className="text-xs">Last Name *</Label>
-                        <Input
+                        <Label htmlFor="party-member-last-name" className="text-xs">Last Name *</Label>
+                        <Input id="party-member-last-name"
                           value={memberForm.last_name}
                           onChange={(e) => setMemberForm(prev => ({ ...prev, last_name: e.target.value }))}
                           placeholder="Last name"
@@ -1624,10 +1720,10 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         />
                       </div>
                     </div>
-                    <div className="grid grid-cols-2 gap-3">
+                    <div className="grid grid-cols-1 sm:grid-cols-2 gap-3">
                       <div>
-                        <Label className="text-xs">Mobile</Label>
-                        <Input
+                        <Label htmlFor="party-member-mobile" className="text-xs">Mobile</Label>
+                        <Input id="party-member-mobile"
                           value={memberForm.mobile}
                           type="tel"
                           onChange={(e) => {
@@ -1641,8 +1737,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         <p className="text-xs text-muted-foreground">{guestPhoneHint()}</p>
                       </div>
                       <div>
-                        <Label className="text-xs">Email</Label>
-                        <Input
+                        <Label htmlFor="party-member-email" className="text-xs">Email</Label>
+                        <Input id="party-member-email"
                           value={memberForm.email}
                           onChange={(e) => setMemberForm(prev => ({ ...prev, email: e.target.value }))}
                           placeholder="Email (optional)"
@@ -1650,26 +1746,24 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         />
                       </div>
                     </div>
-                    <div className="flex gap-2 justify-end">
+                    <div className={`grid grid-cols-2 gap-2 ${categoryStyles.actionFooter}`}>
                       <Button
                         type="button"
-                        variant="ghost"
+                        variant="default"
                         size="sm"
-                        onClick={() => {
-                          setShowAddMemberForm(false);
-                          setMemberForm({ first_name: '', last_name: '', mobile: '', email: '', dietary: 'None' });
-                        }}
-                        className="rounded-full"
+                        onClick={addPartyMember}
+                        className="ww-emboss-green lv-premium-shade rounded-full bg-green-500 hover:bg-green-600 text-white w-full"
                       >
-                        Cancel
+                        {editingMemberIndex === null ? 'Add Member' : 'Save Changes'}
                       </Button>
                       <Button
                         type="button"
+                        variant="destructive"
                         size="sm"
-                        onClick={addPartyMember}
-                        className="rounded-full bg-[#967A59] hover:bg-[#967A59]/90"
+                        onClick={resetMemberEditor}
+                        className="ww-emboss-red lv-premium-shade rounded-full bg-red-600 hover:bg-red-700 text-white w-full"
                       >
-                        Add Member
+                        Cancel
                       </Button>
                     </div>
                   </div>
@@ -1679,24 +1773,48 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 {partyMembers.length > 0 && (
                   <div className="space-y-1">
                     {partyMembers.map((member, index) => (
-                      <div key={index} className="flex items-center justify-between bg-white py-0.5 px-2 rounded-lg border border-gray-200">
-                        <div className="flex-1">
+                      <div key={index} className="flex items-center justify-between gap-2 bg-white py-1 px-2 rounded-lg border border-gray-200">
+                        <div className="flex-1 min-w-0">
                           <p className="font-medium text-sm text-primary">{member.first_name} {member.last_name}</p>
                           {(member.mobile || member.email) && (
-                            <p className="text-xs text-muted-foreground">
+                            <p className="text-xs text-muted-foreground break-words">
                               {member.mobile && member.mobile}
                               {member.email && ` • ${member.email}`}
                             </p>
                           )}
                         </div>
-                        <Button
-                          type="button"
-                          variant="ghost"
-                          size="sm"
-                          onClick={() => removeMember(index)}
-                        >
-                          <X className="w-4 h-4 text-red-500" />
-                        </Button>
+                        <TooltipProvider>
+                          <div className="flex shrink-0 items-center gap-1.5">
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  type="button"
+                                  size="icon"
+                                  aria-label="Edit Guest"
+                                  onClick={() => editMember(index)}
+                                  className="ww-emboss-green ww-emboss-green-soft h-9 w-9 rounded-full border-0 bg-green-500 p-0 text-white hover:bg-green-600 hover:text-white"
+                                >
+                                  <Pencil className="h-4 w-4 text-white" strokeWidth={2} aria-hidden="true" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Edit Guest</TooltipContent>
+                            </Tooltip>
+                            <Tooltip>
+                              <TooltipTrigger asChild>
+                                <Button
+                                  type="button"
+                                  size="icon"
+                                  aria-label="Delete Guest"
+                                  onClick={() => removeMember(index)}
+                                  className="ww-emboss-red h-9 w-9 rounded-full border-0 bg-red-600 p-0 text-white hover:bg-red-700 hover:text-white"
+                                >
+                                  <Trash2 className="h-4 w-4 text-white" strokeWidth={2} aria-hidden="true" />
+                                </Button>
+                              </TooltipTrigger>
+                              <TooltipContent>Delete Guest</TooltipContent>
+                            </Tooltip>
+                          </div>
+                        </TooltipProvider>
                       </div>
                     ))}
                   </div>
@@ -1737,14 +1855,14 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                 return (
                   <FormItem className={cn(isEdit && "ww-edit-notes")}>
                     <FormLabel className="flex items-center gap-1.5"><StickyNote size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Notes</FormLabel>
-                    <FormControl>
-                      <div className="space-y-0">
+                    <div className="space-y-0">
                         {alertSection && (
                           <div className="rounded-t-3xl border-2 border-b-0 border-[#967A59] px-3 py-2 bg-background">
                             <p className="text-red-600 font-bold text-sm whitespace-pre-wrap">{alertSection}</p>
                             <hr className="border-t-[3px] border-black mt-2" />
                           </div>
                         )}
+                        <FormControl>
                         <Textarea 
                           placeholder="Add any additional notes about this guest..."
                           className={cn(
@@ -1761,8 +1879,8 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                             }
                           }}
                         />
-                      </div>
                     </FormControl>
+                      </div>
                     <FormMessage />
                   </FormItem>
                 );
@@ -1780,7 +1898,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             size="xs"
             className="inline-flex items-center justify-center rounded-full bg-green-500 hover:bg-green-600 text-white max-lg:order-1 max-lg:w-full max-lg:h-11 sm:order-1 lv-premium-shade bg-green-400 lg:h-12 lg:px-8 lg:text-base lg:font-semibold"
             disabled={loading}
-            onClick={form.handleSubmit(onSubmit)}
+            onClick={form.handleSubmit(onSubmit,onInvalid)}
           >
             <Save size={18} strokeWidth={1.8} className="inline-block mr-2 text-white" aria-hidden="true" />
             {loading ? (isEdit ? 'Updating...' : 'Adding...') : (isEdit ? 'Update Guest' : 'Add Guest')}
@@ -1854,42 +1972,15 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
             return;
           }
           
-          // Apply per-member relations for new guests — compute locally to avoid race condition
-          let updatedMembers = [...partyMembers];
-          if (assignments.length > 1) {
-            updatedMembers = partyMembers.map((member, i) => {
-              const memberAssignment = assignments[i + 1];
-              if (memberAssignment && memberAssignment.partner && memberAssignment.role) {
-                const memberDisplay = computeRelationDisplay(
-                  memberAssignment.partner as RelationPartner,
-                  memberAssignment.role as RelationRole,
-                  selectedEvent?.partner1_name,
-                  selectedEvent?.partner2_name,
-                  relationSettings.custom_roles
-                );
-                return {
-                  ...member,
-                  _relation: {
-                    partner: memberAssignment.partner,
-                    role: memberAssignment.role,
-                    display: memberDisplay,
-                  }
-                } as any;
-              }
-              return member;
-            });
-            setPartyMembers(updatedMembers);
-          }
-          
           setShowRelationAssignment(false);
           setPeopleToAssign([]);
           
-          // Re-trigger submit with relation data now set, using local updatedMembers
+          // Re-submit with the primary guest's relation only. Additional couple
+          // and family members intentionally start without a relationship.
           const updatedData = {
             ...pendingFormData!,
             relation_partner: mainAssignment?.partner || '',
             relation_role: mainAssignment?.role || '',
-            _resolvedPartyMembers: updatedMembers,
           };
           setPendingFormData(null);
           
@@ -1903,7 +1994,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
         allowCustomRoles={relationSettings.relation_allow_custom_role}
         isSinglePerson={(selectedEvent as any)?.relation_mode === 'single'}
         eventId={eventId}
-        relationRequired={relationSettings.relation_required}
+        relationRequired={false}
         onCustomRoleAdded={(updatedRoles) => {
           setRelationSettings(prev => ({
             ...prev,

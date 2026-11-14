@@ -1,3 +1,4 @@
+import choiceStyles from '../EventSelectorReference.module.css';
 import { Printer as ExportControlsPrinter } from 'lucide-react';
 import { PlaceCardScopedFitSync } from './PlaceCardScopedFitSync';
 /**
@@ -308,7 +309,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
       <Card className={`${styles.mainStudio} ${styles.headerPanel}`}>
         <CardContent className="space-y-4 pt-6">
           {/* Title & Subtitle - Full Width */}
-          <div className="text-left">
+          <div className={styles.headerTopRow}>
+            <div className="text-left">
             <h1 className="text-2xl font-bold text-foreground flex items-center gap-2">
               <ContactRound size={24} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
               Table Name Place Cards
@@ -317,73 +319,18 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               Create professional foldable place cards for your guests
             </p>
           </div>
-
-
-          {/* Stats + Card Dimensions Row - Side by Side */}
-          {selectedEvent && assignedGuests.length > 0 && (
-            <div className="flex flex-col lg:flex-row lg:flex-wrap items-stretch lg:items-start justify-between gap-4">
-              {/* Left: Statistics Box */}
-              <div className={`${styles.guidelinesPanel} w-full lg:flex-1 min-w-0 rounded-xl p-4 text-sm space-y-2`}>
-                {/* Main stats line */}
-                <p className={`${styles.summaryText} font-medium text-green-600 flex items-start gap-2`}>
-                  <BadgeCheck size={18} strokeWidth={1.8} className="shrink-0 mt-0.5" aria-hidden="true" />
-                  <span>
-                    {selectedTable ? `${tableDisplayName(selectedTable)} — ` : ''}
-                    {assignedGuests.length} assigned guests - {assignedGuests.length} place cards ready for export. {totalPages} A4 page{totalPages !== 1 ? 's' : ''} (6 cards per page). Standard 105mm × 99mm foldable place cards.
-                  </span>
-                </p>
-
-                {/* Quality information */}
-                <div className="text-muted-foreground space-y-1 mt-3">
-                  <p>• All exports are 300 DPI for professional quality</p>
-                  <p>• PDF exports maintain exact A4 dimensions (210×297mm)</p>
-                  <p>• Each PDF page contains six foldable place card positions</p>
-                  <p>• We have made it easy for you to print & cut at home or get it done at your local printer</p>
-                  <p>• Background images must be smaller than 5MB</p>
-                </div>
-              </div>
-
-              {/* Right: Card Dimensions Box - Now Aligned with Stats */}
-              {!guestsLoading && !settingsLoading && (
-                <div className={`${styles.surfacePanel} ${styles.dimensionsPanel} w-full lg:w-auto rounded-xl p-4 space-y-2`}>
-                  <div className="flex items-center gap-2">
-                    <Ruler size={19} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
-                    <h3 className="text-sm font-medium">Card Dimensions</h3>
-                  </div>
-                  <div className="space-y-1 text-sm">
-                    <div className="flex justify-between items-center gap-4">
-                      <span className="text-muted-foreground">Full Card (front + back):</span>
-                      <span className="text-lg font-bold text-primary">105 × 99 mm</span>
-                    </div>
-                    <div className="flex justify-between items-center gap-4">
-                      <span className="text-muted-foreground">Single Side (front or back):</span>
-                      <span className="text-lg font-bold text-primary">105 × 49.5 mm</span>
-                    </div>
-                    <p className="text-xs text-muted-foreground pt-1 flex items-center gap-1.5">
-                      <FoldHorizontal size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
-                      Fold line at 49.5mm from top edge
-                    </p>
-                  </div>
-                </div>
-              )}
-            </div>
-          )}
-
-          {/* SEPARATOR */}
-
-
           {/* CHOOSE EVENT & TABLE DROPDOWNS */}
           <div className={`${styles.controlsRow} flex flex-col lg:flex-row lg:items-center lg:justify-between gap-4 lg:gap-8 lg:flex-nowrap pt-2`}>
             {/* Left side: Choose Event & Table dropdowns */}
-            <div className="flex flex-col lg:flex-row lg:items-center gap-4 lg:gap-8 lg:flex-nowrap w-full lg:w-auto">
+            <div className={styles.selectorGroups}>
               {/* Choose Event */}
-              <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full lg:w-auto">
-                <label className="text-sm font-medium text-foreground whitespace-nowrap flex items-center gap-[7px]">
+              <div className={styles.headerSelector}>
+                <label htmlFor="place-card-event-selection" className={`text-sm font-medium text-foreground whitespace-nowrap flex items-center gap-[7px] ${choiceStyles.label}`}>
                   <CalendarDays size={17} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
                   Choose Event:
                 </label>
                 <Select value={selectedEventId || "no-event"} onValueChange={handleEventChange}>
-                  <SelectTrigger className={`${styles.selectTrigger} w-full lg:w-[300px] font-bold`}>
+                  <SelectTrigger id="place-card-event-selection" className={`${styles.selectTrigger} w-full lg:w-[300px] font-bold ${choiceStyles.trigger}`}>
                     <SelectValue placeholder="Choose Event" />
                   </SelectTrigger>
                   <SelectContent className="ww-placecards-portal z-50">
@@ -407,8 +354,8 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
 
               {/* Table Selection (only when event is selected) */}
               {selectedEventId && (
-                <div className="flex flex-col sm:flex-row sm:items-center gap-2 sm:gap-4 w-full lg:w-auto">
-                  <label className="text-sm font-medium text-foreground whitespace-nowrap flex items-center gap-[7px]">
+                <div className={styles.headerSelector}>
+                  <label htmlFor="place-card-table-selection" className={`text-sm font-medium text-foreground whitespace-nowrap flex items-center gap-[7px] ${choiceStyles.label}`}>
                     <Table2 size={17} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
                     Table:
                   </label>
@@ -417,7 +364,7 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
                     onValueChange={setSelectedTableId}
                     disabled={!selectedEventId || tablesLoading}
                   >
-                    <SelectTrigger className={`${styles.selectTrigger} w-full lg:w-[300px]`}>
+                    <SelectTrigger id="place-card-table-selection" className={`${styles.selectTrigger} w-full lg:w-[300px] ${choiceStyles.trigger}`}>
                       <SelectValue placeholder="Select a table" />
                     </SelectTrigger>
                     <SelectContent className="ww-placecards-portal z-50">
@@ -477,6 +424,61 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
               </div>
             )}
           </div>
+          </div>
+
+          {/* Stats + Card Dimensions Row - Side by Side */}
+          {selectedEvent && assignedGuests.length > 0 && (
+            <div className="flex flex-col lg:flex-row lg:flex-wrap items-stretch lg:items-start justify-between gap-4">
+              {/* Left: Statistics Box */}
+              <div className={`${styles.guidelinesPanel} w-full lg:flex-1 min-w-0 rounded-xl p-4 text-sm space-y-2`}>
+                {/* Main stats line */}
+                <p className={`${styles.summaryText} font-medium text-green-600 flex items-start gap-2`}>
+                  <BadgeCheck size={18} strokeWidth={1.8} className="shrink-0 mt-0.5" aria-hidden="true" />
+                  <span>
+                    {selectedTable ? `${tableDisplayName(selectedTable)} — ` : ''}
+                    {assignedGuests.length} assigned guests - {assignedGuests.length} place cards ready for export. {totalPages} A4 page{totalPages !== 1 ? 's' : ''} (6 cards per page). Standard 105mm × 99mm foldable place cards.
+                  </span>
+                </p>
+
+                {/* Quality information */}
+                <div className="text-muted-foreground space-y-1 mt-3">
+                  <p>• All exports are 300 DPI for professional quality</p>
+                  <p>• PDF exports maintain exact A4 dimensions (210×297mm)</p>
+                  <p>• Each PDF page contains six foldable place card positions</p>
+                  <p>• We have made it easy for you to print & cut at home or get it done at your local printer</p>
+                  <p>• Background images must be smaller than 5MB</p>
+                </div>
+              </div>
+
+              {/* Right: Card Dimensions Box - Now Aligned with Stats */}
+              {!guestsLoading && !settingsLoading && (
+                <div className={`${styles.surfacePanel} ${styles.dimensionsPanel} w-full lg:w-auto rounded-xl p-4 space-y-2`}>
+                  <div className="flex items-center gap-2">
+                    <Ruler size={19} strokeWidth={1.8} className="text-primary shrink-0" aria-hidden="true" />
+                    <h3 className="text-sm font-medium">Card Dimensions</h3>
+                  </div>
+                  <div className="space-y-1 text-sm">
+                    <div className="flex justify-between items-center gap-4">
+                      <span className="text-muted-foreground">Full Card (front + back):</span>
+                      <span className="text-lg font-bold text-primary">105 × 99 mm</span>
+                    </div>
+                    <div className="flex justify-between items-center gap-4">
+                      <span className="text-muted-foreground">Single Side (front or back):</span>
+                      <span className="text-lg font-bold text-primary">105 × 49.5 mm</span>
+                    </div>
+                    <p className="text-xs text-muted-foreground pt-1 flex items-center gap-1.5">
+                      <FoldHorizontal size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
+                      Fold line at 49.5mm from top edge
+                    </p>
+                  </div>
+                </div>
+              )}
+            </div>
+          )}
+
+          {/* SEPARATOR */}
+
+
       {/* Premium info bar — mirrors Seating Chart Signs */}
       {selectedEventId && selectedTableId && selectedEvent && assignedGuests.length > 0 && !guestsLoading && !settingsLoading && (
         <div className={`${styles.infoStrip} rounded-xl px-5 py-4 flex items-center justify-center`}>

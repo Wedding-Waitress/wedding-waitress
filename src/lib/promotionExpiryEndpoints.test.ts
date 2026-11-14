@@ -1,0 +1,23 @@
+import {readFileSync} from 'node:fs';import ts from 'typescript';import {expect,it,vi} from 'vitest';
+function fixture(endpoint:'validate-promotion'|'create-promotion-checkout',options:{authenticated?:boolean;enabled?:boolean;recoveryError?:boolean}={}){
+ let handler!:(request:Request)=>Promise<Response>;
+ const quote={code:'FRIENDS202650%',plan_key:'essential',percent_off:50,currency:'AUD',subtotal_cents:9950,included_credits:150};
+ const rpc=vi.fn(async()=>({data:quote,error:null}));
+ const auth=vi.fn(async()=>{if(options.authenticated===false)throw Error('not authenticated');return {user:{id:'fixture',email:'verified@example.test'},db:{rpc}};});
+ const recover=vi.fn(async()=>{if(options.recoveryError)throw Error('capacity unknown');return {checked:1,released:1};});
+ const create=vi.fn(async()=>({session:{client_secret:'fixture-only'},quote:{subtotalCents:9950,includedCredits:150},reservation:{percent_off:50}}));
+ const stripe={tax:{registrations:{list:async()=>({data:[{country:'AU',status:'active'}]})}}};
+ const source=readFileSync('supabase/functions/'+endpoint+'/index.ts','utf8').replace(/^import .*$/gm,'');
+ const compiled=ts.transpileModule(source,{compilerOptions:{target:ts.ScriptTarget.ES2022,module:ts.ModuleKind.None}}).outputText;
+ const env:Record<string,string>={STRIPE_PROMOTIONS_RESTRICTED_KEY:'rk_live_fixture',STRIPE_PUBLISHABLE_KEY:'pk_live_fixture',PROMOTIONS_ENABLED:options.enabled===false?'false':'true'};
+ new Function('Deno','Stripe','authenticatePromotionRequest','normalizePromotionCode','PROMOTION_PLANS','recoverExpiredPromotionCapacity','createPromotionCheckout','promotionProviderAdapter','retrieveWorldwideGstRate','WORLDWIDE_GST_RATE_SECRET','promotionHeaders','promotionReply',compiled)(
+  {serve:(fn:typeof handler)=>handler=fn,env:{get:(name:string)=>env[name]}},function(){return stripe;},auth,(code:string)=>code.trim().toUpperCase(),{essential:{}},recover,create,()=>({}),async()=>'txr_Fixture','GST',{},(data:unknown,status=200)=>new Response(JSON.stringify(data),{status}));
+ const request=(patch:Record<string,unknown>={})=>handler(new Request('https://fixture.test',{method:'POST',headers:{'Content-Type':'application/json'},body:JSON.stringify(endpoint==='validate-promotion'?{purpose:'new_plan',plan_key:'essential',code:' friends202650% ',...patch}:{plan_purchase_purpose:'new_plan',purchase_consent:true,plan_type:'essential',promo_code:' friends202650% ',...patch})}));
+ return{request,recover,create,rpc,auth};
+}
+it('offer checking recovers only after authentication and validation, before obtaining a fresh quote',async()=>{const f=fixture('validate-promotion');expect((await f.request()).status).toBe(200);expect(f.recover).toHaveBeenCalledWith(expect.anything(),expect.anything(),'fixture','FRIENDS202650%');expect(f.recover.mock.invocationCallOrder[0]).toBeLessThan(f.rpc.mock.invocationCallOrder[0]);expect(f.create).not.toHaveBeenCalled();});
+it('checkout recovers only after explicit purchase consent and before reserving/creating a checkout',async()=>{const f=fixture('create-promotion-checkout');expect((await f.request()).status).toBe(200);expect(f.recover.mock.invocationCallOrder[0]).toBeLessThan(f.create.mock.invocationCallOrder[0]);});
+it.each(['validate-promotion','create-promotion-checkout'] as const)('unauthenticated %s requests cannot trigger recovery',async endpoint=>{const f=fixture(endpoint,{authenticated:false});expect((await f.request()).status).toBe(503);expect(f.recover).not.toHaveBeenCalled();expect(f.create).not.toHaveBeenCalled();});
+it('invalid purchase intent or missing consent cannot trigger recovery',async()=>{const quote=fixture('validate-promotion');expect((await quote.request({purpose:'renewal'})).status).toBe(400);expect(quote.recover).not.toHaveBeenCalled();const checkout=fixture('create-promotion-checkout');expect((await checkout.request({purchase_consent:false})).status).toBe(400);expect(checkout.recover).not.toHaveBeenCalled();});
+it('preserves the disabled-checkout gate and avoids recovery when promotions are disabled',async()=>{const checkout=fixture('create-promotion-checkout',{enabled:false});expect((await checkout.request()).status).toBe(503);expect(checkout.auth).not.toHaveBeenCalled();expect(checkout.recover).not.toHaveBeenCalled();const quote=fixture('validate-promotion',{enabled:false});expect((await quote.request()).status).toBe(200);expect(quote.recover).not.toHaveBeenCalled();});
+it.each(['validate-promotion','create-promotion-checkout'] as const)('%s fails closed if capacity recovery is uncertain',async endpoint=>{const f=fixture(endpoint,{recoveryError:true});expect((await f.request()).status).toBe(503);expect(f.create).not.toHaveBeenCalled();expect(f.rpc).not.toHaveBeenCalled();});

@@ -35,3 +35,11 @@
   font-weight: inherit;
   line-height: inherit;
 }
+
+/* Match GuestLookup?s entered-name override at desktop, tablet and mobile widths. */
+:global(#root) .page input.nameSearch { font-size:20px !important; line-height:1.25 !important; height:80px; min-width:0; width:100%; }
+.page input.nameSearch::placeholder { font-size:13px !important; line-height:18px !important; }
+.resultGrid { display:flex; flex-wrap:wrap; justify-content:center; gap:24px; }
+.resultGrid > * { width:calc((100% - 48px) / 3); min-width:0; }
+@media (max-width:1023px) { .resultGrid > * { width:calc((100% - 24px) / 2); } }
+@media (max-width:767px) { .resultGrid > * { width:100%; } .page input.nameSearch { height:72px; } }

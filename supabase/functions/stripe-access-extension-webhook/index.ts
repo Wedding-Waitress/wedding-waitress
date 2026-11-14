@@ -1,6 +1,7 @@
 import Stripe from 'https://esm.sh/stripe@22.6.0'
 import { createClient } from 'npm:@supabase/supabase-js@2.57.2'
 import { fulfillPaidPlanWebhook } from '../_shared/paidPlanWebhook.ts'
+import { fulfillPaidAddonWebhook } from '../_shared/paidAddonWebhook.ts'
 import { validatePaidAccessExtension } from '../_shared/accessExtensionRules.ts'
 
 const json = (body: unknown, status = 200) => new Response(JSON.stringify(body), {
@@ -37,6 +38,10 @@ Deno.serve(async (req) => {
   // A signed event must agree with the freshly retrieved provider session.
   if (event.livemode !== session.livemode) return json({ error: 'Checkout mode mismatch' }, 422)
   const metadata = session.metadata || {}
+  if (['additional_event', 'guest_capacity_topup', 'communication_topup'].includes(metadata.purchase_type || '')) {
+    const admin = createClient(url, serviceKey, { auth: { persistSession: false } })
+    return json(await fulfillPaidAddonWebhook(session, stripe, admin))
+  }
   if (metadata.purchase_type !== 'access_extension' && metadata.type !== 'access_extension') {
     const admin = createClient(url, serviceKey, { auth: { persistSession: false } })
     return json(await fulfillPaidPlanWebhook(session, stripe, admin))

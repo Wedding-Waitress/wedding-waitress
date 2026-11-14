@@ -104,10 +104,10 @@ describe('Full Seating Chart A4 row and footer parity', () => {
     expect(preview).toContain("color: '#000000'");
     expect(preview).toContain('stroke="#000000"');
     expect(preview).toContain("borderTop: '2px solid #000000'");
-    expect(preview).toContain('/wedding-waitress-logo-brown.png?v=2');
+    expect(preview).toContain('/wedding-waitress-document-footer-dark-brown.png');
     expect(exporter).toContain('const black = { r: 0, g: 0, b: 0 }');
     expect(exporter).toContain('pdf.setDrawColor(black.r, black.g, black.b)');
-    expect(exporter).toContain("fetch('/wedding-waitress-logo-brown.png')");
+    expect(exporter).toContain("fetch('/wedding-waitress-document-footer-dark-brown.png')");
     expect(exporter).toContain("drawDetail('/', { r: 0, g: 0, b: 0 })");
     expect(preview).not.toContain('> / </span>');
   });

@@ -690,3 +690,233 @@
   stroke: #fff !important;
   filter: drop-shadow(0 1px 2px rgba(0,0,0,.55)) !important;
 }
+
+/* Owner-approved event-card actions: white labels, brown icons, existing green fill. */
+:global(#root#root .ww-events-table-panel .ww-events-mobile-card .ww-events-button > span) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,.55);
+}
+:global(#root#root .ww-events-table-panel .ww-events-mobile-card .ww-events-button > svg) {
+  color: #2f1b14 !important;
+  stroke: #2f1b14 !important;
+  filter: none !important;
+}
+/* Shared My Events summary cards. Other detail-card consumers retain their layout. */
+.summaryCard { display: grid; grid-template-rows: auto 1fr; row-gap: 8px; }
+.summaryCard .summaryHeading { display: flex; align-items: center; gap: 8px; min-height: 25px; margin: 0; }
+.summaryHeading > svg { width: 20px; height: 20px; flex: none; }
+.summaryRows { display: grid; row-gap: 4px; align-content: start; min-width: 0; margin: 0; }
+.summaryRow { min-width: 0; line-height: 18px; overflow-wrap: anywhere; }
+.summaryLabel { display: inline-flex; align-items: center; gap: 6px; vertical-align: top; color: var(--my-events-text); font-weight: 600; line-height: 18px; }
+.summaryLabel > svg { width: 16px; height: 16px; flex: none; }
+.summaryValue { display: inline; margin: 0; }
+@container (min-width: 67rem) {
+  .heroLayout[data-layout='both'] { grid-template-rows: repeat(6, auto); row-gap: 4px; }
+  .heroLayout[data-layout='both'] > .ceremonySlot,
+  .heroLayout[data-layout='both'] > .receptionSlot { display: grid; grid-template-rows: subgrid; grid-row: 1 / span 6; row-gap: 4px; align-self: stretch; }
+  .heroLayout[data-layout='both'] > .ceremonySlot { grid-column: 1; }
+  .heroLayout[data-layout='both'] > .receptionSlot { grid-column: 3; }
+  .heroLayout[data-layout='both'] > .countdownSlot { grid-column: 2; grid-row: 1 / span 6; }
+  .heroLayout[data-layout='both'] .summaryCard { grid-row: 1 / span 6; grid-template-rows: subgrid; row-gap: 4px; }
+  .heroLayout[data-layout='both'] .summaryHeading { grid-row: 1; margin-bottom: 4px; }
+  .heroLayout[data-layout='both'] .summaryRows { grid-row: 2 / span 5; grid-template-rows: subgrid; }
+}
+/* Local My Events pilot: slimmer visible pills, with extra touch area on small/coarse screens. */
+:global(#root#root) .mainSurface .page :global(.ww-events-table-header) :is(button:global(.ww-events-button), button:global(.ww-trial-upgrade-button)) {
+  min-height: 30px !important;
+  height: auto !important;
+  padding: 5px 12px !important;
+  border-radius: 999px !important;
+  gap: 6px !important;
+  line-height: 20px !important;
+  white-space: normal;
+  max-width: 100%;
+}
+:global(#root#root) .mainSurface .page :global(.ww-events-plan-slot) :global(.ww-current-plan-badge) {
+  padding: 4px 12px;
+  line-height: 20px;
+  border-radius: 999px;
+}
+:global(#root#root) .mainSurface .page :global(.ww-events-table-header) :global(.ww-events-button) svg {
+  width: 16px;
+  height: 16px;
+  flex-shrink: 0;
+}
+@media (max-width: 1023px), (any-pointer: coarse) {
+  :global(#root#root) .mainSurface .page :global(.ww-events-plan-row) { row-gap: 16px; }
+  :global(#root#root) .mainSurface .page :global(.ww-events-actions) { row-gap: 16px; }
+  :global(#root#root) .mainSurface .page :global(.ww-events-plan-slot) :global(.ww-plan-upgrade-status) { row-gap: 16px; }
+  :global(#root#root) .mainSurface .page :global(.ww-events-table-header) :is(button:global(.ww-events-button), button:global(.ww-trial-upgrade-button)) {
+    position: relative;
+    min-width: 44px;
+  }
+  /* Transparent extension belongs to the same button; neighbouring rows stay 16px apart. */
+  :global(#root#root) .mainSurface .page :global(.ww-events-table-header) :is(button:global(.ww-events-button), button:global(.ww-trial-upgrade-button))::after {
+    content: '';
+    position: absolute;
+    inset: -7px 0;
+    border-radius: inherit;
+  }
+}
+
+/* My Events local review: title first, then complete plan group alongside actions. */
+:global(#root#root) .mainSurface .page :global(.ww-events-plan-row) {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  gap: 16px;
+  text-align: left;
+}
+:global(#root#root) .mainSurface .page :global(.ww-events-plan-row) > :global(.ww-events-title) {
+  flex: 1 0 100%;
+  width: 100%;
+  max-width: 100%;
+  justify-content: flex-start;
+  text-align: left;
+}
+:global(#root#root) .mainSurface .page :global(.ww-events-plan-slot) {
+  flex: 1 1 40rem;
+  width: auto;
+  min-width: 0;
+}
+:global(#root#root) .mainSurface .page :global(.ww-events-plan-slot) :global(.ww-plan-upgrade-status) {
+  justify-content: flex-start;
+  text-align: left;
+}
+:global(#root#root) .mainSurface .page :global(.ww-events-plan-row) > :global(.ww-events-actions) {
+  flex: 0 1 auto;
+  margin-left: 0;
+  justify-content: flex-end;
+}
+:global(#root#root) .mainSurface .page :global(.ww-events-table-header) button:global(.ww-events-guided) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+  background: linear-gradient(180deg, #4a3022, #2f1b14) !important;
+  box-shadow: inset 0 1px 0 #ffffff80, inset 0 -2px 0 #160b0866, 0 4px 10px #422a1c30 !important;
+  text-shadow: 0 1px 2px rgba(0,0,0,.55);
+}
+:global(#root#root) .mainSurface .page :global(.ww-events-table-header) button:global(.ww-events-guided) svg {
+  color: #fff !important;
+  stroke: #fff !important;
+  filter: none !important;
+}
+:global(#root#root) .mainSurface .page :global(.ww-events-table-header) button:global(.ww-events-guided):hover:not(:disabled) {
+  filter: brightness(1.08);
+}
+:global(#root#root) .mainSurface .page :global(.ww-events-plan-row) > :global(.ww-events-title) > span {
+  text-align: left !important;
+}
+
+/* Match the Actions label to the actual two-button group instead of a per-header offset. */
+.page :global(.ww-events-action-group), .page :global(.ww-events-actions-heading) {
+  --event-row-action-width: 41px;
+  width: calc(2 * var(--event-row-action-width) + 4px);
+  margin-inline: auto;
+}
+.page :global(.ww-events-actions-heading) { display: block; text-align: left; }
+.page :global(.ww-events-action-group) { gap: 4px; }
+.page :global(.ww-events-action-group) > button {
+  width: var(--event-row-action-width);
+  min-width: var(--event-row-action-width);
+  padding-inline: 0;
+  margin-left: 0;
+  flex: none;
+}
+:global(#root#root) .mainSurface .page :global(.ww-events-row) svg[data-countdown-selected='true'] { color: #22c55e !important; stroke: #22c55e !important; }
+:global(#root#root) .mainSurface .page :global(.ww-events-row) svg[data-countdown-selected='false'] { color: #2f1b14 !important; stroke: #2f1b14 !important; }
+.page :global(.ww-events-row) [role='radio']:focus-visible + label { outline: 2px solid #755332; outline-offset: 2px; border-radius: 50%; }
+.page :global(.ww-events-action-group) > button { margin-left: 0 !important; }
+.page :global(.ww-countdown-control) { justify-content: flex-start; }
+.page :global(.ww-countdown-select) { padding: 6px; margin-left: -6px; }
+/* A hidden text-sized grid track centers each marker under the header word, not the whole cell. */
+.page :global(.ww-countdown-control) { display: inline-grid; grid-template-columns: max-content; justify-content: start; }
+.page :global(.ww-countdown-control)::before {
+  content: 'Countdown';
+  visibility: hidden;
+  grid-area: 1 / 1;
+  font-size: 13px;
+  font-weight: 600;
+  line-height: 18px;
+}
+.page :global(.ww-countdown-select) { grid-area: 1 / 1; justify-self: center; margin-left: 0; }
+.page :global(.ww-countdown-control) { display: grid; }
+/* Keep the selected stripe without a border changing that row's cell geometry. */
+:global(#root#root) .mainSurface .page :global(.ww-events-row)[class*='border-l-4'] { border-left-width: 0 !important; box-shadow: inset 4px 0 0 #22c55e; }
+:global(#root#root) .mainSurface .page :global(.ww-events-table-panel) thead th > :is(:global(.ww-countdown-heading), :global(.ww-events-actions-heading)) {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+:global(#root#root) .mainSurface .page :global(.ww-events-actions) > :global(.ww-events-badge) {
+  box-sizing: border-box;
+  display: inline-flex;
+  align-items: center;
+  min-height: 30px;
+  padding: 4px 10px;
+  line-height: 20px !important;
+}
+
+/* Local My Events review: preview semibold body copy without altering headings. */
+:global(#root#root) .mainSurface .page .summaryValue,
+:global(#root#root) .mainSurface .page :global(.ww-events-row) td,
+:global(#root#root) .mainSurface .page :global(.ww-events-row) td span:not(:global(.ww-events-badge)),
+:global(#root#root) .mainSurface .page :global(.ww-events-mobile-card),
+:global(#root#root) .mainSurface .page :global(.ww-events-mobile-card) p,
+:global(#root#root) .mainSurface .page :is(:global(.ww-events-supporting),:global(.ww-events-empty)) { font-weight:600 !important; }
+
+:global(#root#root) .mainSurface .page [data-summary-row] dd { font-weight:600 !important; }
+:global(#root#root) .mainSurface .page :is(:global(.ww-plan-allowance),:global(.ww-plan-upgrade-help)) { font-weight:600 !important; }
+
+/* My Events only: hide the timer's square chrome while retaining its 1px
+   transparent border, so the SVG rings and labels keep their exact geometry. */
+:global([data-dashboard-content]).mainSurface .page .countdownCircle {
+  border-color: transparent !important;
+  background: transparent !important;
+  box-shadow: none !important;
+}
+
+/* Extend only the table scroller through the Card's existing padding.
+   Header/plan/control padding and the separate mobile card view stay intact. */
+:global(#root#root#root) .mainSurface .page :global(.ww-events-table-panel) {
+  --events-table-panel-gutter: 1rem;
+}
+@media (min-width: 768px) {
+  :global(#root#root#root) .mainSurface .page :global(.ww-events-table-panel) {
+    --events-table-panel-gutter: 1.5rem;
+  }
+}
+:global(#root#root#root) .mainSurface .page :global(.ww-events-table-panel) > :global(.overflow-x-auto) {
+  margin-inline: calc(-1 * var(--events-table-panel-gutter)) !important;
+  margin-bottom: calc(-1 * var(--events-table-panel-gutter)) !important;
+  background: #472c1d !important;
+  scrollbar-color: #a18764 #472c1d;
+}
+/* My Events finish: continuous espresso surfaces, with inset light and shade
+   instead of borders that would change the flush table geometry. */
+:global(#root#root#root) :global([data-dashboard-content]).mainSurface .page :global(.ww-events-table-panel) thead tr,
+:global(#root#root#root) :global([data-dashboard-content]).mainSurface .page :global(.ww-events-footer) {
+  background: linear-gradient(180deg, #412419 0%, #2f1b14 48%, #23120d 100%) !important;
+  border-color: #23120d !important;
+  box-shadow: inset 0 1px 0 rgba(255,255,255,.18), inset 0 -2px 0 rgba(0,0,0,.3) !important;
+}
+:global(#root#root#root) :global([data-dashboard-content]).mainSurface .page :global(.ww-events-table-panel) thead th {
+  background: transparent !important;
+}
+:global(#root#root#root) :global([data-dashboard-content]).mainSurface .page :global(.ww-events-table-panel) > :global(.overflow-x-auto) {
+  background: #23120d !important;
+  scrollbar-color: #a18764 #23120d;
+}
+/* Filtering the arc alone follows its circular stroke; the empty square
+   surrounding each timer remains transparent and casts no shadow. */
+:global([data-dashboard-content]).mainSurface .page .countdownRing circle:last-child {
+  stroke: #2f1b14 !important;
+  filter: drop-shadow(0 -.5px .25px rgba(255,255,255,.8)) drop-shadow(0 1px .6px rgba(35,18,13,.5));
+}
+/* Override the shared table-heading layer only for this table, so its cells
+   reveal the continuous bevel painted on the row underneath. */
+@layer dashboard-interface {
+  :global(#root#root#root) :global([data-dashboard-content]).mainSurface .page :global(.ww-events-table-panel) thead th {
+    background: transparent !important;
+  }
+}

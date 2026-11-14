@@ -1,3 +1,4 @@
+import { hasRecentAdminVerification } from '../_shared/adminVerifiedSession.ts';
 import { createClient } from 'https://esm.sh/@supabase/supabase-js@2';
 import Stripe from 'https://esm.sh/stripe@18.5.0';
 import { isOwnerAdminEmail } from '../_shared/owner-admin.ts';
@@ -15,11 +16,12 @@ Deno.serve(async(req)=>{
     const userClient=createClient(url,anon,{global:{headers:{Authorization:auth}}});const token=auth.slice(7);const {data:claims,error:claimsError}=await userClient.auth.getClaims(token);
     if(claimsError||!claims?.claims||claims.claims.is_anonymous===true||!isOwnerAdminEmail(claims.claims.email))return response({error:'Administrator access denied.'},403);
     const {data:isAdmin}=await userClient.rpc('is_owner_admin');if(isAdmin!==true)return response({error:'Administrator access denied.'},403);
+    if(!await hasRecentAdminVerification(userClient))return response({error:'Recent administrator verification required.'},403);
     const actor=String(claims.claims.sub);const body=await req.json();const action=String(body.action||''),target=String(body.target_id||''),reason=String(body.reason||'').trim(),grant=String(body.admin_grant||''),signature=String(body.admin_grant_signature||'');
     if(!target||reason.length<5)return response({error:'A target and administrator reason are required.'},400);
     if(!grant||!signature||await sha256(`${grant}|${serviceKey}`)!==signature)return response({error:'Recent administrator verification is required.'},403);
-    let decoded:{user_id?:string;exp?:number};try{decoded=JSON.parse(atob(grant));}catch{return response({error:'Recent administrator verification is required.'},403);}
-    if(decoded.user_id!==actor||!Number.isFinite(Number(decoded.exp))||Number(decoded.exp)<=Date.now())return response({error:'Administrator verification has expired. Verify again before continuing.'},403);
+    let decoded:{user_id?:string;session_id?:string;exp?:number};try{decoded=JSON.parse(atob(grant));}catch{return response({error:'Recent administrator verification is required.'},403);}
+    if(decoded.user_id!==actor||typeof claims.claims.session_id!=='string'||!claims.claims.session_id||decoded.session_id!==claims.claims.session_id||typeof decoded.exp!=='number'||!Number.isFinite(Number(decoded.exp))||Number(decoded.exp)<=Date.now())return response({error:'Administrator verification has expired. Verify again before continuing.'},403);
     const admin=createClient(url,serviceKey,{auth:{persistSession:false}});
     if(action==='retry_failed_session_revocation'){
       if(body.reviewed_failure!==true)return response({error:'Review the failure and current account before confirming recovery.'},400);
@@ -70,7 +72,7 @@ Deno.serve(async(req)=>{
       if(action==='close_account'&&target===actor)return response({error:'The platform owner account cannot be deleted.'},403);
       const stripeKey=Deno.env.get('STRIPE_SECRET_KEY');if(!stripeKey)return response({error:'Stripe cancellation is not configured. No account state was changed.'},503);
       const {data:{user:targetUser},error:userError}=await admin.auth.admin.getUserById(target);if(userError||!targetUser?.email)return response({error:'Customer identity could not be confirmed. No account state was changed.'},404);
-      const stripe=new Stripe(stripeKey,{apiVersion:'2025-08-27.basil'});const customers=await stripe.customers.list({email:targetUser.email,limit:1});let cancelled=true;if(customers.data[0]){const subscriptions=await stripe.subscriptions.list({customer:customers.data[0].id,status:'all',limit:100});for(const sub of subscriptions.data.filter(item=>['active','trialing','past_due','unpaid'].includes(item.status))){try{await stripe.subscriptions.cancel(sub.id);}catch{cancelled=false;}}}
+      const stripe=new Stripe(stripeKey,{apiVersion:'2025-08-27.basil'});const customers=await stripe.customers.list({email:targetUser.email,limit:1});let cancelled=true;if(customers.data[0]){const subscriptions=await stripe.subscriptions.list({customer:customers.data[0].id,status:'all',limit:100});for(const sub of subscriptions.data.filter((item: Stripe.Subscription)=>['active','trialing','past_due','unpaid'].includes(item.status))){try{await stripe.subscriptions.cancel(sub.id);}catch{cancelled=false;}}}
       if(!cancelled)return response({error:'Stripe did not confirm every cancellation. Account closure was not reported as successful.'},502);
       if(action==='close_account'){const {data,error}=await admin.rpc('admin_logically_delete_account',{p_target:target,p_actor:actor,p_reason:reason});if(error)throw error;
         if(data?.sessions_revoked!==true)return response({success:false,state_changed:true,error:'Account access is blocked, but session revocation could not be confirmed. Review the account before retrying.'});}

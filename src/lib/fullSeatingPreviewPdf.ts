@@ -9,10 +9,12 @@ export interface FullSeatingPreviewPdfOptions {
   currentPage: number;
   renderPage: (page: number) => Promise<void>;
   getPageElement: () => HTMLElement | null;
+  assertContext?: () => void;
 }
 
 // Only external preview presentation is removed; the A4 contents are untouched.
 export const prepareFullSeatingPdfClone = (doc: Document) => {
+  doc.querySelectorAll<HTMLElement>('[data-a4-preview-wrapper]').forEach(el => { el.scrollLeft = 0; });
   doc.querySelectorAll<HTMLElement>('[data-full-seating-presentation]').forEach(el => {
     el.style.transform = 'none';
     el.style.transformOrigin = 'initial';
@@ -40,10 +42,21 @@ export const createFullSeatingPreviewPdf = async (options: FullSeatingPreviewPdf
       await document.fonts.ready;
       await Promise.all(Array.from(element.querySelectorAll('img')).map(image => image.decode().catch(() => undefined)));
       await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
-      const canvas = await html2canvas(element, {
-        scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false,
-        onclone: prepareFullSeatingPdfClone,
-      });
+      options.assertContext?.();
+      const presentation = element.closest<HTMLElement>('[data-a4-preview-wrapper]');
+      const originalScroll = presentation?.scrollLeft ?? 0;
+      if (presentation) presentation.scrollLeft = 0;
+      let canvas: HTMLCanvasElement;
+      try {
+        await new Promise<void>(resolve => requestAnimationFrame(() => resolve()));
+        canvas = await html2canvas(element, {
+          scale: 2, backgroundColor: '#ffffff', useCORS: true, logging: false,
+          onclone: prepareFullSeatingPdfClone,
+        });
+      } finally {
+        if (presentation) presentation.scrollLeft = originalScroll;
+      }
+      options.assertContext?.();
       if (index) pdf.addPage('a4', 'portrait');
       pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 210, 297, undefined, 'FAST');
     }
@@ -56,6 +69,7 @@ export const createFullSeatingPreviewPdf = async (options: FullSeatingPreviewPdf
 
 export const exportFullSeatingPreviewPdf = async (options: FullSeatingPreviewPdfOptions) => {
   const pdf = await createFullSeatingPreviewPdf(options);
+  options.assertContext?.();
   const name = options.eventName.replace(/[/:*?"<>|]/g, '');
   await savePdfAsync(pdf, `${name}-Full Seating Chart-${options.mode === 'single' ? 'Single Page' : 'All Pages'}.pdf`);
 };

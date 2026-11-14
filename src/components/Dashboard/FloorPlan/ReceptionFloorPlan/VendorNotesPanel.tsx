@@ -35,6 +35,8 @@ export const VendorNotesPanel = ({ plan, onChange }: Props) => {
         </span>
       </div>
       <Textarea
+        aria-label="Vendor Setup Notes"
+        maxLength={MAX_LEN}
         value={value}
         onChange={(e) => {
           const next = e.target.value.slice(0, MAX_LEN);

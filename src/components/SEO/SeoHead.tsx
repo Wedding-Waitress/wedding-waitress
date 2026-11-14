@@ -6,7 +6,6 @@
 import React from 'react';
 import { Helmet } from 'react-helmet-async';
 import { useLocation } from 'react-router-dom';
-import publicSeo from '@/content/publicSeo.json';
 
 interface SeoHeadProps {
   title: string;
@@ -22,33 +21,29 @@ interface SeoHeadProps {
 }
 
 const SITE_URL = 'https://weddingwaitress.com.au';
-const DEFAULT_IMAGE = `${SITE_URL}/wedding-waitress-share-logo.png`;
+const DEFAULT_IMAGE = `${SITE_URL}/wedding-waitress-link-preview-20261028.png`;
 
 /**
  * Per-page SEO head. Renders title, meta description, canonical,
  * OpenGraph, Twitter Card, and optional JSON-LD structured data.
  *
- * Public routes also receive matching metadata in built HTML. Crawling,
- * indexing and search-result wording remain search-provider decisions.
+ * Client-rendered tags complement the public static SEO export.
+ * Crawling and indexing are controlled by search engines; timing is not guaranteed.
  */
 export const SeoHead: React.FC<SeoHeadProps> = ({
-  title: suppliedTitle,
-  description: suppliedDescription,
+  title,
+  description,
   canonicalPath,
-  image: suppliedImage,
+  image = DEFAULT_IMAGE,
   jsonLd,
   noIndex,
 }) => {
   const location = useLocation();
   const path = canonicalPath ?? location.pathname;
-  const metadata = (publicSeo as Record<string, { title: string; description: string; image?: string }>)[path];
-  const title = metadata?.title ?? suppliedTitle;
-  const description = metadata?.description ?? suppliedDescription;
-  const image = metadata?.image ?? suppliedImage ?? DEFAULT_IMAGE;
   const canonicalUrl = `${SITE_URL}${path}`;
   const imageUrl = image.startsWith('http') ? image : `${SITE_URL}${image}`;
 
-  // Force noindex on non-canonical hostnames (Netlify, Lovable previews, etc.)
+  // Force noindex on non-canonical hostnames (non-production previews)
   const isNonCanonicalHost =
     typeof window !== 'undefined' &&
     window.location.hostname !== 'weddingwaitress.com.au' &&
@@ -66,7 +61,7 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
       <title>{title}</title>
       <meta name="description" content={description} />
       <link rel="canonical" href={canonicalUrl} />
-      <meta name="robots" content={shouldNoIndex ? 'noindex,nofollow' : 'index,follow,max-image-preview:large'} />
+      <meta name="robots" content={shouldNoIndex ? 'noindex,nofollow' : 'index,follow'} />
 
       {/* Open Graph */}
       <meta property="og:title" content={title} />
@@ -74,6 +69,8 @@ export const SeoHead: React.FC<SeoHeadProps> = ({
       <meta property="og:type" content="website" />
       <meta property="og:url" content={canonicalUrl} />
       <meta property="og:image" content={imageUrl} />
+      <meta property="og:image:width" content="1200" />
+      <meta property="og:image:height" content="630" />
       <meta property="og:site_name" content="Wedding Waitress" />
       <meta property="og:locale" content="en_AU" />
 

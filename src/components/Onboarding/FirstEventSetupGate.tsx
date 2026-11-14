@@ -9,7 +9,10 @@ type GateState = 'checking' | 'continue' | 'onboarding';
 /** Resumes only an explicitly-created first-event draft; legacy customers are never inferred as new. */
 export const FirstEventSetupGate = ({ userId }: { userId: string }) => {
   const location = useLocation();
-  const isSetupRoute = location.pathname === GUIDED_SETUP_ROUTE;
+  const isSetupRoute = location.pathname === GUIDED_SETUP_ROUTE
+    || location.pathname === '/dashboard/upgrade/checkout'
+    || location.pathname === '/account/plan-billing'
+    || location.pathname === '/dashboard/upgrade';
   const [state, setState] = React.useState<GateState>(isSetupRoute ? 'continue' : 'checking');
 
   React.useEffect(() => {

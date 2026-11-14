@@ -1,3 +1,6 @@
+import {createWishAccess} from '../_shared/video-wishes-access.ts';
+import {isGeneralGalleryItem} from '../_shared/gallery-public-media.ts';
+import {guestbookMemoryPoster} from '../_shared/guestbook-memory-poster.ts';
 import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 // Public edge function for the gallery Live View.
 // Returns approved+uploaded items for a valid, open gallery token,
@@ -61,9 +64,9 @@ Deno.serve(async (req) => {
       });
     }
 
-    const items = (rows || []) as Array<{
+    const items = (rows || []).filter(isGeneralGalleryItem) as Array<{
       id: string;
-      kind: 'photo' | 'video';
+      kind: 'photo' | 'video' | 'audio';
       mime_type: string;
       storage_path: string;
       duration_sec: number | null;
@@ -86,7 +89,7 @@ Deno.serve(async (req) => {
         });
       }
       const map = new Map<string, string>();
-      (signs || []).forEach((s) => {
+      (signs || []).forEach((s: { path?: string | null; signedUrl?: string | null }) => {
         if (s.path && s.signedUrl) map.set(s.path, s.signedUrl);
       });
       signed = items
@@ -94,12 +97,23 @@ Deno.serve(async (req) => {
         .filter((r) => r.signed_url.length > 0);
     }
 
-    // The same password gate above protects written Guestbook messages.
-    const { data: guestbookMessages, error: guestbookError } = await supabase.rpc('get_guestbook_gallery_text', { _token: token });
-    if (guestbookError) throw guestbookError;
+    // Video Wishes are private by default and independently approved for each surface.
+    const slideshow=body.purpose==='slideshow';
+    const {data:wishes,error:wishesError}=await supabase.rpc('get_shared_video_wishes',{_token:token,_slideshow:slideshow});
+    if(wishesError)throw wishesError;
+    for(const wish of wishes||[]){
+      const access=await createWishAccess(wish.id,token,slideshow);
+      signed.push({id:wish.id,kind:'video',mime_type:wish.mime_type,storage_path:'',duration_sec:wish.duration_sec,uploader_name:wish.uploader_name,caption:wish.caption,uploaded_at:wish.uploaded_at,
+        album:wish.album,source_category:'video_wishes',shared_to_slideshow:wish.shared_to_slideshow,
+        signed_url:Deno.env.get('SUPABASE_URL')+'/functions/v1/video-wishes-media?access='+encodeURIComponent(access)} as any);
+    }
 
+    const {data:messages,error:textError}=await supabase.rpc('get_guestbook_gallery_text',{_token:token});
+    if(textError)throw textError;
+    for(const row of messages||[]){signed.push({id:row.id,kind:'photo',mime_type:'image/svg+xml',storage_path:'',duration_sec:null,uploader_name:row.uploader_name,caption:row.message,uploaded_at:row.created_at,album:null,source_category:'guestbook_text',signed_url:guestbookMemoryPoster(row.message,row.uploader_name)} as any);}
+    signed.sort((a,b)=>Date.parse(a.uploaded_at||'')-Date.parse(b.uploaded_at||''));
     return new Response(
-      JSON.stringify({ items: signed, guestbook_messages: guestbookMessages || [], ttl: SIGNED_URL_TTL_SECONDS }),
+      JSON.stringify({ items: signed, guestbook_messages: messages || [], ttl: SIGNED_URL_TTL_SECONDS }),
       { headers: { ...corsHeaders, 'Content-Type': 'application/json' }, status: 200 },
     );
   } catch (e) {

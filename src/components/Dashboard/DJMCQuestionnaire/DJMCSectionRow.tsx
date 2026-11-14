@@ -62,6 +62,7 @@ export function DJMCSectionRow({
   const [rowHistory, setRowHistory] = useState<Partial<DJMCItem>[]>([]);
   useEffect(() => setRowHistory([]), [item.id]);
   const onUpdate = (updates: Partial<DJMCItem>) => {
+    if (disabled) return;
     // Record editable text and formatting only; recording recovery belongs to full Undo.
     const previous: Partial<DJMCItem> = {};
     for (const key of Object.keys(updates) as (keyof DJMCItem)[]) {
@@ -96,7 +97,7 @@ export function DJMCSectionRow({
     transform,
     transition,
     isDragging,
-  } = useSortable({ id: item.id });
+  } = useSortable({ id: item.id, disabled });
 
   const style = {
     transform: CSS.Transform.toString(transform),
@@ -225,6 +226,8 @@ export function DJMCSectionRow({
         <div className="flex-1 basis-1/3 min-w-0">
           {editingLabel ? (
             <Input
+              disabled={disabled}
+              aria-label={item.row_label || "Song 1"}
               ref={labelInputRef}
               value={localLabel}
               onChange={(e) => setLocalLabel(e.target.value)}
@@ -236,6 +239,9 @@ export function DJMCSectionRow({
           ) : (
             <div
               onClick={handleLabelClick}
+              role="button" tabIndex={disabled ? -1 : 0} aria-disabled={disabled}
+              aria-label={item.row_label || "Song 1"}
+              onKeyDown={event => { if(event.key === "Enter" || event.key === " "){event.preventDefault();handleLabelClick();} }}
               className={`px-2 py-1 text-sm font-medium rounded bg-muted cursor-text truncate ${formatClasses}`}
             >
               {item.row_label || 'Song 1'}
@@ -247,6 +253,8 @@ export function DJMCSectionRow({
         <div className="flex-1 basis-2/3 min-w-0">
           {editingValue ? (
             <Input
+              disabled={disabled}
+              aria-label={(item.row_label || "Song 1") + " — Names / Info"}
               ref={valueInputRef}
               value={localValue}
               onChange={(e) => setLocalValue(e.target.value)}
@@ -258,6 +266,9 @@ export function DJMCSectionRow({
           ) : (
             <div
               onClick={handleValueClick}
+              role="button" tabIndex={disabled ? -1 : 0} aria-disabled={disabled}
+              aria-label={(item.row_label || "Song 1") + ' — ' + 'Names / Info'}
+              onKeyDown={event => { if(event.key === "Enter" || event.key === " "){event.preventDefault();handleValueClick();} }}
               className={`px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center ${formatClasses}`}
 >
               {item.value_text || <span className="text-muted-foreground">Enter song name...</span>}
@@ -380,6 +391,8 @@ export function DJMCSectionRow({
         <div className="basis-[31%] min-w-0 shrink-0">
           {editingLabel ? (
             <Input
+              disabled={disabled}
+              aria-label={item.row_label || "Song 1"}
               ref={labelInputRef}
               value={localLabel}
               onChange={(e) => setLocalLabel(e.target.value)}
@@ -390,6 +403,9 @@ export function DJMCSectionRow({
           ) : (
             <div
               onClick={handleLabelClick}
+              role="button" tabIndex={disabled ? -1 : 0} aria-disabled={disabled}
+              aria-label={item.row_label || "Song 1"}
+              onKeyDown={event => { if(event.key === "Enter" || event.key === " "){event.preventDefault();handleLabelClick();} }}
               className={`px-2 py-1 text-sm font-medium rounded bg-muted cursor-text truncate ${formatClasses}`}
             >
               {displayLabel}
@@ -404,6 +420,8 @@ export function DJMCSectionRow({
         <div className="flex-1 basis-1/4 min-w-0">
           {editingLabel ? (
             <Input
+              disabled={disabled}
+              aria-label={item.row_label || "Song 1"}
               ref={labelInputRef}
               value={localLabel}
               onChange={(e) => setLocalLabel(e.target.value)}
@@ -414,6 +432,9 @@ export function DJMCSectionRow({
           ) : (
             <div
               onClick={handleLabelClick}
+              role="button" tabIndex={disabled ? -1 : 0} aria-disabled={disabled}
+              aria-label={item.row_label || "Song 1"}
+              onKeyDown={event => { if(event.key === "Enter" || event.key === " "){event.preventDefault();handleLabelClick();} }}
               className={`px-2 py-1 text-sm font-medium rounded bg-muted cursor-text truncate ${formatClasses}`}
             >
               {displayLabel}
@@ -427,6 +448,8 @@ export function DJMCSectionRow({
         <div className="flex-1 basis-1/3 min-w-0">
           {editingLabel ? (
             <Input
+              disabled={disabled}
+              aria-label={item.row_label || "Song 1"}
               ref={labelInputRef}
               value={localLabel}
               onChange={(e) => setLocalLabel(e.target.value)}
@@ -437,6 +460,9 @@ export function DJMCSectionRow({
           ) : (
             <div
               onClick={handleLabelClick}
+              role="button" tabIndex={disabled ? -1 : 0} aria-disabled={disabled}
+              aria-label={item.row_label || "Song 1"}
+              onKeyDown={event => { if(event.key === "Enter" || event.key === " "){event.preventDefault();handleLabelClick();} }}
               className={`px-2 py-1 text-sm font-medium rounded bg-muted cursor-text truncate ${formatClasses}`}
             >
               {displayLabel}
@@ -453,6 +479,8 @@ export function DJMCSectionRow({
         <div className="flex-1 min-w-0">
           {editingValue ? (
             <Input
+              disabled={disabled}
+              aria-label={(item.row_label || "Song 1") + " — Names / Info"}
               ref={valueInputRef}
               value={localValue}
               onChange={(e) => setLocalValue(e.target.value)}
@@ -464,6 +492,9 @@ export function DJMCSectionRow({
           ) : (
             <div
               onClick={handleValueClick}
+              role="button" tabIndex={disabled ? -1 : 0} aria-disabled={disabled}
+              aria-label={(item.row_label || "Song 1") + ' — ' + 'Speaker name'}
+              onKeyDown={event => { if(event.key === "Enter" || event.key === " "){event.preventDefault();handleValueClick();} }}
               className={`px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate ${formatClasses}`}
             >
               {item.value_text || <span className="text-muted-foreground">Click to add speaker name...</span>}
@@ -478,6 +509,8 @@ export function DJMCSectionRow({
           <div className="flex-1 min-w-0">
             {editingValue ? (
               <Input
+              disabled={disabled}
+              aria-label={(item.row_label || "Song 1") + " — Names / Info"}
                 ref={valueInputRef}
                 value={localValue}
                 onChange={(e) => setLocalValue(e.target.value)}
@@ -489,6 +522,9 @@ export function DJMCSectionRow({
             ) : (
               <div
                 onClick={handleValueClick}
+              role="button" tabIndex={disabled ? -1 : 0} aria-disabled={disabled}
+              aria-label={(item.row_label || "Song 1") + ' — ' + 'Names / Info'}
+              onKeyDown={event => { if(event.key === "Enter" || event.key === " "){event.preventDefault();handleValueClick();} }}
               className={`px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate ${formatClasses}`}
             >
               {item.value_text || <span className="text-muted-foreground">Click to add names...</span>}
@@ -515,6 +551,8 @@ export function DJMCSectionRow({
         <div className="flex-1 basis-1/4 min-w-0">
           {editingSongTitleArtist ? (
             <Input
+              disabled={disabled}
+              aria-label={(item.row_label || "Song 1") + " — Song Title & Artist"}
               ref={songTitleArtistInputRef}
               value={localSongTitleArtist}
               onChange={(e) => setLocalSongTitleArtist(e.target.value)}
@@ -541,6 +579,8 @@ export function DJMCSectionRow({
           ) : (
             <div
               onClick={() => !disabled && setEditingSongTitleArtist(true)}
+                role="button" tabIndex={disabled ? -1 : 0} aria-disabled={disabled}
+                onKeyDown={event => {if(!disabled && (event.key === "Enter" || event.key === " ")){event.preventDefault();setEditingSongTitleArtist(true);}}}
               className={`px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate ${formatClasses}`}
             >
               {localSongTitleArtist || <span className="text-muted-foreground">Auto-fills from music link...</span>}
@@ -558,6 +598,8 @@ export function DJMCSectionRow({
             // Ceremony, Main Event, Traditional: Dedication / Name and Details
             editingValue ? (
               <Input
+              disabled={disabled}
+              aria-label={(item.row_label || "Song 1") + " — Names / Info"}
                 ref={valueInputRef}
                 value={localValue}
                 onChange={(e) => setLocalValue(e.target.value)}
@@ -569,6 +611,9 @@ export function DJMCSectionRow({
             ) : (
               <div
                 onClick={handleValueClick}
+              role="button" tabIndex={disabled ? -1 : 0} aria-disabled={disabled}
+              aria-label={(item.row_label || "Song 1") + ' — ' + 'Names / Info'}
+              onKeyDown={event => { if(event.key === "Enter" || event.key === " "){event.preventDefault();handleValueClick();} }}
               className={`px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate ${formatClasses}`}
             >
               {item.value_text || <span className="text-muted-foreground">Click to add...</span>}
@@ -578,6 +623,8 @@ export function DJMCSectionRow({
             // Other sections: Names / Details (also clickable text area)
             editingValue ? (
               <Input
+              disabled={disabled}
+              aria-label={(item.row_label || "Song 1") + " — Names / Info"}
                 ref={valueInputRef}
                 value={localValue}
                 onChange={(e) => setLocalValue(e.target.value)}
@@ -589,6 +636,9 @@ export function DJMCSectionRow({
             ) : (
               <div
                 onClick={handleValueClick}
+              role="button" tabIndex={disabled ? -1 : 0} aria-disabled={disabled}
+              aria-label={(item.row_label || "Song 1") + ' — ' + 'Names / Info'}
+              onKeyDown={event => { if(event.key === "Enter" || event.key === " "){event.preventDefault();handleValueClick();} }}
                 className={`px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate ${formatClasses}`}
               >
                 {item.value_text || <span className="text-muted-foreground">Click to add...</span>}
@@ -620,6 +670,8 @@ export function DJMCSectionRow({
         <div className="flex-1 basis-1/4 min-w-0">
           {editingValue ? (
             <Input
+              disabled={disabled}
+              aria-label={(item.row_label || "Song 1") + " — Names / Info"}
               ref={valueInputRef}
               value={localValue}
               onChange={(e) => setLocalValue(e.target.value)}
@@ -631,6 +683,9 @@ export function DJMCSectionRow({
           ) : (
             <div
               onClick={handleValueClick}
+              role="button" tabIndex={disabled ? -1 : 0} aria-disabled={disabled}
+              aria-label={(item.row_label || "Song 1") + ' — ' + 'Names / Info'}
+              onKeyDown={event => { if(event.key === "Enter" || event.key === " "){event.preventDefault();handleValueClick();} }}
               className={`px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate ${formatClasses}`}
             >
               {item.value_text || <span className="text-muted-foreground">Click to add...</span>}
@@ -645,6 +700,8 @@ export function DJMCSectionRow({
           <div className="flex-1 min-w-0">
             {editingSongTitleArtist ? (
               <Input
+              disabled={disabled}
+              aria-label={(item.row_label || "Song 1") + " — Song Title & Artist"}
                 ref={songTitleArtistInputRef}
                 value={localSongTitleArtist}
                 onChange={(e) => setLocalSongTitleArtist(e.target.value)}
@@ -671,6 +728,8 @@ export function DJMCSectionRow({
             ) : (
               <div
                 onClick={() => !disabled && setEditingSongTitleArtist(true)}
+                role="button" tabIndex={disabled ? -1 : 0} aria-disabled={disabled}
+                onKeyDown={event => {if(!disabled && (event.key === "Enter" || event.key === " ")){event.preventDefault();setEditingSongTitleArtist(true);}}}
               className={`px-3 py-1.5 text-sm rounded bg-muted border border-input cursor-text min-h-[32px] flex items-center truncate ${formatClasses}`}
             >
               {localSongTitleArtist || <span className="text-muted-foreground">Auto-fills from music link...</span>}
@@ -696,6 +755,7 @@ export function DJMCSectionRow({
       {(sectionType === 'introductions' || sectionType === 'ceremony' || sectionType === 'traditional') && (
         <div className="flex-1 basis-1/4 min-w-0">
           <DJMCMusicUrlField
+            disabled={disabled}
             value={item.music_url || ''}
             onChange={(url) => onUpdate({ music_url: url })}
             onMetadataFetched={(metadata) => {
@@ -713,6 +773,7 @@ export function DJMCSectionRow({
       {showMusicUrl && sectionType !== 'introductions' && sectionType !== 'ceremony' && sectionType !== 'traditional' && (
         <div className="flex-1 basis-1/3 min-w-0">
           <DJMCMusicUrlField
+            disabled={disabled}
             value={item.music_url || ''}
             onChange={(url) => onUpdate({ music_url: url })}
             onMetadataFetched={(metadata) => {
@@ -749,6 +810,8 @@ export function DJMCSectionRow({
       {sectionType === 'speeches' && (
         <div className="w-24 shrink-0">
           <Input
+              disabled={disabled}
+              aria-label={(item.row_label || "Song 1") + " — Time Allowed"}
             value={item.duration || ''}
             onChange={(e) => onUpdate({ duration: e.target.value })}
             placeholder="e.g., 5 min"

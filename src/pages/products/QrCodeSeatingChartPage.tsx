@@ -94,7 +94,7 @@ export const QrCodeSeatingChartPage = () => {
   ];
 
   return <div className="ww-public min-h-screen">
-    <SeoHead title={PAGE_TITLE} description={META_DESCRIPTION} canonicalPath={PAGE_PATH} image={product.image} jsonLd={jsonLd} />
+    <SeoHead title={PAGE_TITLE} description={META_DESCRIPTION} canonicalPath={PAGE_PATH} jsonLd={jsonLd} />
     <Header />
     <main>
       <PublicPageHero
@@ -131,7 +131,7 @@ export const QrCodeSeatingChartPage = () => {
       <section className="ww-section">
         <div className="ww-container">
           <div className="flex flex-wrap items-end justify-between gap-4"><div><p className="ww-eyebrow mb-3">Related products</p><h2 className="ww-title">Complete your wedding seating setup</h2></div><Link to="/products" className="ww-public-link ww-focus font-semibold">Explore all products →</Link></div>
-          <div className="mt-9 grid gap-5 md:grid-cols-3">{related.map((item) => <Link key={item.id} to={item.path} className="ww-card ww-focus group p-6"><span className="ww-icon-orb mb-5"><item.icon size={22} aria-hidden="true" /></span><h3 className="text-lg font-semibold">{item.name}</h3><p className="mt-2 text-sm leading-6 text-[#6f625b]">{item.lead}</p></Link>)}</div>
+          <div className="mt-9 grid gap-5 md:grid-cols-3">{related.map((item) => <Link key={item.id} to={item.path} className="ww-card ww-focus group p-6"><span className="ww-icon-orb mb-5"><item.icon size={22} aria-hidden="true" style={{ color: '#fff', stroke: '#fff' }} /></span><h3 className="text-lg font-semibold">{item.name}</h3><p className="mt-2 text-sm leading-6 text-[#6f625b]">{item.lead}</p></Link>)}</div>
         </div>
       </section>
 

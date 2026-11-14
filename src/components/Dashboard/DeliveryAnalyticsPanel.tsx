@@ -61,7 +61,7 @@ export const DeliveryAnalyticsPanel = ({ eventId }: Props) => {
           accent="bg-rose-500/10 text-rose-600" />
         <Kpi icon={<Clock className="w-4 h-4" />} label="Pending" value={data.rsvpPending}
           accent="bg-muted text-muted-foreground" />
-        <Kpi icon={<CheckCircle2 className="w-4 h-4" />} label="Response rate" value={`${responsePct}%`} />
+        <Kpi icon={<CheckCircle2 className="w-4 h-4" />} label="Overall RSVP rate" value={`${responsePct}%`} hint="Across all guests" />
       </div>
 
       {(data.smsFailed > 0 || data.smsBlocked > 0) && (

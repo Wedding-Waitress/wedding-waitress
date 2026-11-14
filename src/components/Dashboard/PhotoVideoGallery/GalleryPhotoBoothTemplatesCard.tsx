@@ -385,6 +385,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             <div className="mt-auto space-y-2">
               <div className="w-full h-16 lg:h-12 rounded-md border border-border overflow-hidden" style={{ backgroundColor: style.bgColor }} />
               <PhotoBoothColorPicker
+                label="Background Colour"
                 value={style.bgColor}
                 onChange={(hex) => { setStyle(s => ({ ...s, bgColor: hex })); setTpl(null); }}
                 appearance={appearance}
@@ -407,7 +408,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
               Wedding Waitress templates, ready to use. Browse the library to pick one.
             </p>
             <div className="mt-auto space-y-2">
-              <div className="w-full h-16 lg:h-12 rounded-md border border-border bg-muted/40 overflow-hidden flex flex-col items-center justify-center">
+              <div data-booth-template-placeholder className="w-full h-16 lg:h-12 rounded-md border border-border bg-muted/40 overflow-hidden flex flex-col items-center justify-center">
                 {libraryTemplate ? (
                   <img src={libraryTemplate.thumbUrl} alt={libraryTemplate.name} loading="lazy" className="w-full h-full object-contain" />
                 ) : (
@@ -446,7 +447,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
                 className="hidden"
                 onChange={(e) => upload('template', e.target.files?.[0] || null)}
               />
-              <div className="relative w-full h-16 lg:h-12 rounded-md border border-border bg-muted/40 overflow-hidden flex flex-col items-center justify-center">
+              <div data-booth-template-placeholder className="relative w-full h-16 lg:h-12 rounded-md border border-border bg-muted/40 overflow-hidden flex flex-col items-center justify-center">
                 {customTpl ? (
                   <>
                     <img src={customTpl} alt="" className="w-full h-full object-contain bg-white" />
@@ -602,6 +603,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             <h4 className={cn('text-sm font-semibold text-[#1D1D1F]', isGlass && managementStyles.boothFooterHeading)}>Custom Footer Text</h4>
 
             <Textarea
+              aria-label="Custom Footer Text"
               className={cn('min-h-[88px] text-base', isGlass && managementStyles.galleryControl)}
               value={text}
               onChange={(e) => setText(e.target.value)}
@@ -649,7 +651,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             <div>
               <Label className="text-sm">Font family</Label>
               <Select value={style.nameFontFamily} onValueChange={(v) => setStyle(s => ({ ...s, nameFontFamily: v }))}>
-                <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+                <SelectTrigger aria-label="Footer Header Font family" className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
                 <SelectContent className={cn('max-h-72', isGlass && managementStyles.gallerySelectContent)}>
                   {FONT_OPTIONS.map(f => (
                     <SelectItem key={f} value={f} className={cn(isGlass && managementStyles.gallerySelectItem)}><span style={{ fontFamily: f }}>{f}</span></SelectItem>
@@ -660,13 +662,13 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             <div>
               <Label className="text-sm">Font colour</Label>
               <div className="mt-1.5">
-                <PhotoBoothColorPicker value={style.nameColor} onChange={(hex) => setStyle(s => ({ ...s, nameColor: hex }))} appearance={appearance} />
+                <PhotoBoothColorPicker label="Footer Header Font colour" value={style.nameColor} onChange={(hex) => setStyle(s => ({ ...s, nameColor: hex }))} appearance={appearance} />
               </div>
             </div>
             <div>
               <Label className="text-sm">Font size</Label>
               <Select value={String(style.nameSize)} onValueChange={(v) => setStyle(s => ({ ...s, nameSize: Number(v) }))}>
-                <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+                <SelectTrigger aria-label="Footer Header Font size" className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
                 <SelectContent className={cn('max-h-72', isGlass && managementStyles.gallerySelectContent)}>
                   {FONT_SIZES.map(n => <SelectItem key={n} value={String(n)} className={cn(isGlass && managementStyles.gallerySelectItem)}>{n}px</SelectItem>)}
                 </SelectContent>
@@ -680,7 +682,7 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             <div>
               <Label className="text-sm">Font family</Label>
               <Select value={style.dateFontFamily} onValueChange={(v) => setStyle(s => ({ ...s, dateFontFamily: v }))}>
-                <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+                <SelectTrigger aria-label="Footer Date Font family" className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
                 <SelectContent className={cn('max-h-72', isGlass && managementStyles.gallerySelectContent)}>
                   {FONT_OPTIONS.map(f => (
                     <SelectItem key={f} value={f} className={cn(isGlass && managementStyles.gallerySelectItem)}><span style={{ fontFamily: f }}>{f}</span></SelectItem>
@@ -691,13 +693,13 @@ export const GalleryPhotoBoothTemplatesCard: React.FC<Props> = ({ eventId, meta,
             <div>
               <Label className="text-sm">Font colour</Label>
               <div className="mt-1.5">
-                <PhotoBoothColorPicker value={style.dateColor} onChange={(hex) => setStyle(s => ({ ...s, dateColor: hex }))} appearance={appearance} />
+                <PhotoBoothColorPicker label="Footer Date Font colour" value={style.dateColor} onChange={(hex) => setStyle(s => ({ ...s, dateColor: hex }))} appearance={appearance} />
               </div>
             </div>
             <div>
               <Label className="text-sm">Font size</Label>
               <Select value={String(style.dateSize)} onValueChange={(v) => setStyle(s => ({ ...s, dateSize: Number(v) }))}>
-                <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+                <SelectTrigger aria-label="Footer Date Font size" className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
                 <SelectContent className={cn('max-h-72', isGlass && managementStyles.gallerySelectContent)}>
                   {FONT_SIZES.map(n => <SelectItem key={n} value={String(n)} className={cn(isGlass && managementStyles.gallerySelectItem)}>{n}px</SelectItem>)}
                 </SelectContent>

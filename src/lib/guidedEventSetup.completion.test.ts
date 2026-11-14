@@ -122,6 +122,9 @@ vi.mock('@/lib/eventHeroImage', () => ({ syncEventHeroImage: vi.fn(async () => {
 }) }));
 
 import { completeGuidedSetup, GuidedSetupCreationError } from './guidedEventSetup';
+vi.mock('@/lib/onboardingProfileImage', () => ({ seedOnboardingProfileImage: vi.fn(async (setup: GuidedSetupDraft) => {
+  if (setup.mode === 'first_event' && state.failOnce === 'profile-image-sync') { state.failOnce = ''; throw new Error('Profile copy unavailable'); }
+}) }));
 
 const answers = (overrides: Partial<GuidedSetupAnswers> = {}): GuidedSetupAnswers => ({
   celebrationType: 'wedding', customerFirstName: 'Nader', partnerFirstName: 'Nahla', eventName: 'Nader & Nahla Wedding',
@@ -140,6 +143,17 @@ const draft = (draftAnswers = answers()): GuidedSetupDraft => ({
 });
 
 describe('Guided Setup completion recovery', () => {
+  it('retries a first-event private profile-copy failure without recreating the event, tables or guests', async () => {
+    const first = { ...draft(), mode: 'first_event' as const };
+    state.failOnce = 'profile-image-sync';
+    await expect(completeGuidedSetup(first,100,20)).rejects.toMatchObject({stage:'profile-image-sync'});
+    await expect(completeGuidedSetup(first,100,20)).resolves.toBe('event-1');
+    expect(state.events).toHaveLength(1);expect(state.tables).toHaveLength(11);expect(state.guests).toHaveLength(2);
+  });
+  it('preserves both non-wedding locations through completion rather than normalizing away the first', async () => {
+    await completeGuidedSetup(draft(answers({ celebrationType:'birthday',honoureeName:'Jordan',partsChoice:'multiple',ceremonyVenue:'First venue',ceremonyAddress:'First address',receptionVenue:'Second venue',receptionAddress:'Second address',tableCreation:'later' })),100,20);
+    expect(state.events[0]).toMatchObject({ceremony_enabled:true,reception_enabled:true,ceremony_venue:'First venue',ceremony_venue_address:'First address',venue:'Second venue',venue_address:'Second address'});
+  });
   beforeEach(() => {
     state.failOnce = '';
     state.events = [];

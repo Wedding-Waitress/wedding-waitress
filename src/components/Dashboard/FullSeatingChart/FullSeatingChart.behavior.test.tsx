@@ -54,3 +54,7 @@ describe('Full Seating Chart preview, export and print state',()=>{
   expect(container.querySelector('[data-dietary-text]')).toBeNull();
  });
 });
+
+it('keeps keyboard focus on a checked guest row after toggling',()=>{render(<FullSeatingChartPreview event={event} guests={guests.slice(0,2)} settings={settings}/>);const row=screen.getByRole('checkbox',{name:'Check off Guest 1 Family'});row.focus();fireEvent.keyDown(row,{key:' '});expect(screen.getByRole('checkbox',{name:'Check off Guest 1 Family'})).toHaveFocus();expect(screen.getByRole('checkbox',{name:'Check off Guest 1 Family'})).toHaveAttribute('aria-checked','true');});
+
+it('keeps phone check-offs at intrinsic size inside a scrolling preview',()=>{const original=window.innerWidth;Object.defineProperty(window,'innerWidth',{configurable:true,writable:true,value:390});try{const {container}=render(<FullSeatingChartPreview event={event} guests={guests.slice(0,2)} settings={settings}/>);expect(container.querySelector<HTMLElement>('[data-a4-preview-wrapper]')!.style.overflowX).toBe('auto');expect(container.querySelector<HTMLElement>('[data-full-seating-presentation]')!.style.transform).toBe('');expect(screen.getByText(/Swipe across the chart/)).toBeInTheDocument();}finally{window.innerWidth=original;}});

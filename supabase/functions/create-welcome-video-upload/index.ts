@@ -2,7 +2,7 @@ import { guardSuspendedCustomer } from '../_shared/suspension-guard.ts';
 import { serve } from "https://deno.land/std@0.168.0/http/server.ts";
 import { createClient } from "https://esm.sh/@supabase/supabase-js@2";
 
-import { deleteStreamVideo } from '../_shared/welcomeVideo.ts';
+import { deleteStreamVideo, requireVideoOwner } from '../_shared/welcomeVideo.ts';
 
 const corsHeaders = {
   "Access-Control-Allow-Origin": "*",
@@ -41,19 +41,7 @@ serve(async (req) => {
       });
     }
 
-    const { data: event, error: eventError } = await supabase
-      .from("events")
-      .select("id")
-      .eq("id", event_id)
-      .eq("user_id", user.id)
-      .single();
-
-    if (eventError || !event) {
-      return new Response(JSON.stringify({ error: "Event not found or unauthorized" }), {
-        status: 403,
-        headers: { ...corsHeaders, "Content-Type": "application/json" },
-      });
-    }
+    const ownerId = await requireVideoOwner(supabase, event_id, user.id);
 
     console.log("Creating Cloudflare Stream upload URL for event:", event_id);
 
@@ -89,7 +77,7 @@ serve(async (req) => {
       .from("welcome_video_uploads")
       .insert({
         event_id,
-        user_id: user.id,
+        user_id: ownerId,
         cloudflare_uid: streamMediaId,
         status: "uploading",
       });

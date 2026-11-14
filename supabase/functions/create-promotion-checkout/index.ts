@@ -1,3 +1,4 @@
+import { recoverExpiredPromotionCapacity } from '../_shared/promotionExpiryRecovery.ts';
 import Stripe from 'https://esm.sh/stripe@22.4.0';
 import { retrieveWorldwideGstRate, WORLDWIDE_GST_RATE_SECRET } from '../_shared/worldwideGst.ts';
 
@@ -16,13 +17,15 @@ Deno.serve(async req => {
     const body = await req.json();
     if (body.plan_purchase_purpose !== 'new_plan' || body.purchase_consent !== true
       || typeof body.plan_type !== 'string' || !Object.hasOwn(PROMOTION_PLANS, body.plan_type)) return promotionReply({ error: 'First-package purchase and explicit consent required.' }, 400);
+    const code = normalizePromotionCode(body.promo_code);
     const stripe = new Stripe(key, { apiVersion: '2026-07-29.dahlia' });
+    await recoverExpiredPromotionCapacity(db, stripe, user.id, code);
     // Read existing registration only. Never create or change tax registrations.
     const registrations = await stripe.tax.registrations.list({ status: 'active', limit: 100 });
     const taxRegistrationVerified = registrations.data.some(registration => registration.country === 'AU' && registration.status === 'active');
     const worldwideGstRateId = await retrieveWorldwideGstRate(stripe, Deno.env.get(WORLDWIDE_GST_RATE_SECRET), true);
     const result = await createPromotionCheckout(promotionProviderAdapter(db, stripe, true), {
-      userId: user.id, verifiedEmail: user.email!, code: normalizePromotionCode(body.promo_code),
+      userId: user.id, verifiedEmail: user.email!, code,
       plan: body.plan_type as PromotionPlan, consent: true, livemode: true,
       returnOrigin: req.headers.get('Origin') ?? 'https://weddingwaitress.com.au', taxRegistrationVerified, worldwideGstRateId,
     });

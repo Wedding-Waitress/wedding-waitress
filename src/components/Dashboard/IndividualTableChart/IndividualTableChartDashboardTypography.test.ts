@@ -32,3 +32,5 @@ describe('Individual Table Charts dashboard typography contract', () => {
     expect(exporter).toContain('styles.portalTypography');
   });
 });
+
+ it('gives phone colour controls at least 24 pixel targets without changing print styles',()=>{const css=read('src/components/Dashboard/IndividualTableChart/IndividualTableChartPage.module.css');expect(css).toMatch(/@media \(max-width: 640px\)[\s\S]*?\.colorSwatch\s*\{\s*min-width: 24px;\s*min-height: 24px;/);});

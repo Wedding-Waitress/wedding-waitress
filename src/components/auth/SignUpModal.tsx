@@ -1,3 +1,9 @@
+import {useTranslation} from 'react-i18next';
+import {signupCountryOptions,resolveSignupCountry} from '@/lib/signupCountries';
+import {signupCountryCopy} from '@/i18n/publicSignupCountryCopy';
+import { queueCustomerWelcomeEmail } from '@/lib/customerWelcomeEmail';
+import { PublicCopy } from '@/i18n/PublicCopy';
+import { usePublicCopy } from '@/i18n/usePublicCopy';
 import React, { useEffect, useId, useRef, useState } from 'react';
 import { CheckCircle2, LoaderCircle, Mail, Phone, Send, UserPlus, UserRound } from 'lucide-react';
 import { useNavigate } from 'react-router-dom';
@@ -6,11 +12,12 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
-import { beginGuidedSetup, GUIDED_SETUP_ROUTE } from '@/lib/guidedEventSetup';
-import { getSafeAuthenticatedReturnTo } from '@/lib/authNavigation';
+import { beginGuidedSetup } from '@/lib/guidedEventSetup';
+import { MY_EVENTS_ENTRY_ROUTE } from '@/lib/authNavigation';
 import { AuthError, AuthLegal, AuthModalHeader, VerificationCodeForm, authModalStyles as styles } from './AuthModalParts';
 import { SignInModal } from './SignInModal';
 import { normalizeGuestPhone } from '@/lib/guestPhone';
+import { PRELAUNCH_SIGNUP_HOLD, PRELAUNCH_NOTICE, savePrelaunchRegistration } from '@/lib/prelaunch';
 
 export interface SignUpPlanContext {
   key: 'essential' | 'premium' | 'unlimited' | 'vendor_pro';
@@ -24,10 +31,10 @@ interface SignUpModalProps {
   redirectTo?: string;
 }
 
-interface FormData { first_name: string; last_name: string; email: string; mobile: string; promo_code: string; }
+interface FormData { first_name: string; last_name: string; email: string; mobile: string; country_code:string; }
 
 const emptyCode = () => ['', '', '', '', '', ''];
-const emptyForm = (): FormData => ({ first_name: '', last_name: '', email: '', mobile: '', promo_code: '' });
+const emptyForm = (): FormData => ({ first_name: '', last_name: '', email: '', mobile: '', country_code:'' });
 const mapVerificationError = (message?: string) => {
   if (!message) return 'Verification failed. Please try again.';
   if (/expired/i.test(message)) return 'This code has expired. Request a new code and try again.';
@@ -36,8 +43,13 @@ const mapVerificationError = (message?: string) => {
 };
 
 export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan, redirectTo }) => {
+  const copy = usePublicCopy();
+  const {i18n}=useTranslation();const language=i18n.resolvedLanguage||i18n.language||'en';
+  const countryOptions=React.useMemo(()=>signupCountryOptions(language),[language]);
+  const [countryQuery,setCountryQuery]=useState('');
+  const verifiedUserRef=useRef<{id:string;email?:string;created_at?:string}|null>(null);
   const [open, setOpen] = useState(false);
-  const [step, setStep] = useState<'form' | 'verify'>('form');
+  const [step, setStep] = useState<'form' | 'verify' | 'launch-notice'>('form');
   const [loading, setLoading] = useState(false);
   const [formData, setFormData] = useState<FormData>(emptyForm);
   const [verificationCode, setVerificationCode] = useState(emptyCode);
@@ -70,8 +82,8 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
           first_name: formData.first_name.trim(),
           last_name: formData.last_name.trim(),
           mobile: normalizeGuestPhone(formData.mobile),
+          country_code: formData.country_code,
           // Untrusted pending input only. Never an entitlement or redemption proof.
-          ...(formData.promo_code.trim() ? { pending_promo_code: formData.promo_code.trim() } : {}),
           ...(selectedPlan ? { intended_plan: selectedPlan.key, intended_currency: 'AUD' } : {}),
         },
       },
@@ -91,17 +103,18 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
       setError('Please enter a valid email address.');
       return;
     }
-    try {
-      normalizeGuestPhone(formData.mobile);
-    } catch {
-      setError('Please enter a valid mobile number, including its country code if needed.');
-      return;
-    }
 
+    if (!resolveSignupCountry(countryQuery,language)) {setError(signupCountryCopy(language,2));return;}
     requestInFlightRef.current = true;
     signupRequestStartedAtRef.current = Date.now();
     setLoading(true);
     try {
+      if (PRELAUNCH_SIGNUP_HOLD) {
+        await savePrelaunchRegistration({ ...formData, intended_plan: selectedPlan?.key });
+        signupRequestStartedAtRef.current = null;
+        setStep('launch-notice');
+        return;
+      }
       const requestError = await requestCode();
       if (requestError) { signupRequestStartedAtRef.current = null; setError(requestError.message); return; }
       if (selectedPlan) {
@@ -111,7 +124,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
       setStep('verify');
       setResendTimer(30);
     } catch {
-      setError('An unexpected error occurred. Please try again.');
+      setError(PRELAUNCH_SIGNUP_HOLD ? 'We couldn’t confirm your registration. Please check your details and try again.' : 'An unexpected error occurred. Please try again.');
     } finally {
       requestInFlightRef.current = false;
       setLoading(false);
@@ -124,28 +137,41 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
     setLoading(true);
     setError('');
     try {
-      const { data, error: verifyError } = await supabase.auth.verifyOtp({
-        email: formData.email.trim().toLowerCase(), token: code, type: 'email',
-      });
-      if (verifyError) { setError(mapVerificationError(verifyError.message)); return; }
-      if (!data.user) return;
+      let user=verifiedUserRef.current;
+      if(!user){
+        const {data,error:verifyError}=await supabase.auth.verifyOtp({email:formData.email.trim().toLowerCase(),token:code,type:'email'});
+        if(verifyError){setError(mapVerificationError(verifyError.message));return;}
+        if(!data.user)return;user=data.user;verifiedUserRef.current=user;
+      }
       const { error: profileError } = await supabase.from('profiles').upsert({
-        id: data.user.id,
+        id: user.id,
         first_name: formData.first_name.trim(),
         last_name: formData.last_name.trim(),
         email: formData.email.trim().toLowerCase(),
         mobile: formData.mobile.trim(),
       });
-      if (profileError) console.error('Profile creation error:', profileError);
-      const createdAt = Date.parse(data.user.created_at || '');
+      if(profileError){setError(signupCountryCopy(language,3));return;}
+      const {error:countryError}=await supabase.from('profiles').update({country_code:formData.country_code}).eq('id',user.id).is('country_code',null);
+      if(countryError){setError(signupCountryCopy(language,3));return;}
+      const createdAt = Date.parse(user.created_at || '');
       const isGenuinelyNew = signupRequestStartedAtRef.current !== null && Number.isFinite(createdAt) && createdAt >= signupRequestStartedAtRef.current - 60_000;
-      if (isGenuinelyNew) await beginGuidedSetup(data.user.id, 'first_event', {
+      if (isGenuinelyNew) await beginGuidedSetup(user.id, 'first_event', {
           customerFirstName: formData.first_name.trim(), customerSurname: formData.last_name.trim(),
           organiserName: formData.first_name.trim(), country: 'Australia',
         });
-      setOpen(false);
+      void queueCustomerWelcomeEmail(user.id, user.email || formData.email, formData.first_name)
+        .catch(() => console.error('Welcome email acceptance is pending'));
+      setOpen(false);reset();
       toast({ title: 'Welcome to Wedding Waitress', description: 'Your account has been created successfully!' });
-      navigate(isGenuinelyNew ? `${GUIDED_SETUP_ROUTE}?mode=first&new=1` : getSafeAuthenticatedReturnTo(redirectTo));
+      // The selection only chooses the consent screen; the server still validates
+      // catalogue, price, eligibility and payment before granting any access.
+      const checkoutPlan = selectedPlan && ['essential', 'premium', 'unlimited'].includes(selectedPlan.key)
+        ? selectedPlan.key : null;
+      sessionStorage.removeItem('ww_intended_plan');
+      sessionStorage.removeItem('ww_intended_currency');
+      navigate(checkoutPlan
+        ? `/dashboard/upgrade/checkout?plan=${checkoutPlan}&currency=AUD`
+        : MY_EVENTS_ENTRY_ROUTE);
     } catch {
       setError('Verification failed. Please try again.');
     } finally {
@@ -170,6 +196,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
   };
 
   const reset = () => {
+    verifiedUserRef.current=null;setCountryQuery('');
     setStep('form'); setFormData(emptyForm()); setVerificationCode(emptyCode()); setError(''); setResendTimer(0); signupRequestStartedAtRef.current = null;
   };
   const handleOpenChange = (nextOpen: boolean) => {
@@ -178,6 +205,7 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
     if (!nextOpen) reset();
   };
   const correctEmail = () => {
+    verifiedUserRef.current=null;
     setStep('form'); setVerificationCode(emptyCode()); setError(''); setResendTimer(0);
   };
   const navigateFromModal = (path: string) => { setOpen(false); navigate(path); };
@@ -191,44 +219,51 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
       <DialogContent className={styles.dialog} overlayClassName="bg-black/75" onEscapeKeyDown={(event) => { if (loading) event.preventDefault(); }}>
         {step === 'form' ? (
           <>
-            <AuthModalHeader icon={UserPlus} title="Create your free account" description="Start planning your wedding in one connected place." signUpReassurance selectedPlan={selectedPlan?.name} />
+            <AuthModalHeader icon={UserPlus} title="Create your free account" description="" signUpReassurance={!PRELAUNCH_SIGNUP_HOLD} selectedPlan={selectedPlan?.name} />
             <form onSubmit={handleSubmit} className={styles.body} noValidate>
               <div className={styles.fieldStack}>
                 <div className={styles.fieldGroup}>
-                  <Label htmlFor={`${idPrefix}-first-name`} className={styles.label}><UserRound aria-hidden />First name *</Label>
+                  <Label htmlFor={`${idPrefix}-first-name`} className={styles.label}><UserRound aria-hidden /><PublicCopy text={"First name *"} /></Label>
                   <Input ref={firstNameRef} id={`${idPrefix}-first-name`} className={styles.input} value={formData.first_name} onChange={updateField('first_name')} autoComplete="given-name" required disabled={loading} aria-invalid={Boolean(error && !formData.first_name.trim())} />
                 </div>
                 <div className={styles.fieldGroup}>
-                  <Label htmlFor={`${idPrefix}-last-name`} className={styles.label}><UserRound aria-hidden />Last name *</Label>
+                  <Label htmlFor={`${idPrefix}-last-name`} className={styles.label}><UserRound aria-hidden /><PublicCopy text={"Last name *"} /></Label>
                   <Input id={`${idPrefix}-last-name`} className={styles.input} value={formData.last_name} onChange={updateField('last_name')} autoComplete="family-name" required disabled={loading} aria-invalid={Boolean(error && !formData.last_name.trim())} />
                 </div>
                 <div className={styles.fieldGroup}>
-                  <Label htmlFor={`${idPrefix}-email`} className={styles.label}><Mail aria-hidden />Email *</Label>
-                  <Input id={`${idPrefix}-email`} type="email" className={styles.input} value={formData.email} onChange={updateField('email')} autoComplete="email" required disabled={loading} aria-invalid={Boolean(error && !formData.email.trim())} />
+                  <Label htmlFor={`${idPrefix}-email`} className={styles.label}><Mail aria-hidden /><PublicCopy text={"Email *"} /></Label>
+                  <Input id={`${idPrefix}-email`} type="email" dir="ltr" className={styles.input} value={formData.email} onChange={updateField('email')} autoComplete="email" required disabled={loading} aria-invalid={Boolean(error && !formData.email.trim())} />
                 </div>
                 <div className={styles.fieldGroup}>
-                  <Label htmlFor={`${idPrefix}-mobile`} className={styles.label}><Phone aria-hidden />Mobile *</Label>
-                  <Input id={`${idPrefix}-mobile`} type="tel" inputMode="tel" placeholder="04XX XXX XXX" className={styles.input} value={formData.mobile} onChange={updateField('mobile')} autoComplete="tel" required disabled={loading} aria-invalid={Boolean(error && !formData.mobile.trim())} />
+                  <Label htmlFor={`${idPrefix}-mobile`} className={styles.label}><Phone aria-hidden /><PublicCopy text={"Mobile *"} /></Label>
+                  <Input id={`${idPrefix}-mobile`} type="tel" dir="ltr" inputMode="tel" placeholder="04XX XXX XXX" className={styles.input} value={formData.mobile} onChange={updateField('mobile')} autoComplete="tel" required disabled={loading} aria-invalid={Boolean(error && !formData.mobile.trim())} />
                 </div>
                 <div className={styles.fieldGroup}>
-                  <Label htmlFor={`${idPrefix}-promo-code`} className={styles.label}>Promo code (optional)</Label>
-                  <Input id={`${idPrefix}-promo-code`} placeholder="Enter your promo code" className={styles.input} value={formData.promo_code} onChange={updateField('promo_code')} autoComplete="off" maxLength={64} disabled={loading} aria-describedby={`${idPrefix}-promo-help`} />
-                  <p id={`${idPrefix}-promo-help`}>Your seven-day trial stays free. Any valid discount applies when you choose your first package.</p>
+                  <Label htmlFor={`${idPrefix}-country`} className={styles.label}>{signupCountryCopy(language,0)}</Label>
+                  <Input id={`${idPrefix}-country`} list={`${idPrefix}-countries`} className={styles.input} value={countryQuery} onChange={event=>{const value=event.target.value;setCountryQuery(value);setFormData(current=>({...current,country_code:resolveSignupCountry(value,language)||''}));}} placeholder={signupCountryCopy(language,1)} autoComplete="country-name" required disabled={loading} aria-invalid={Boolean(error&&!formData.country_code)} />
+                  <datalist id={`${idPrefix}-countries`}>{countryOptions.map(country=><option key={country.code} value={country.name}/>)}</datalist>
                 </div>
               </div>
               <AuthError message={error} />
               <button type="submit" className={styles.primaryButton} disabled={loading} aria-live="polite">
                 {loading ? <LoaderCircle size={18} className="animate-spin" aria-hidden /> : <Send size={18} aria-hidden />}
-                {loading ? 'Creating your account…' : 'Create Free Account & Continue'}
+                {copy(loading ? (PRELAUNCH_SIGNUP_HOLD ? 'Saving your registration…' : 'Creating your account…') : 'Create Free Account & Continue')}
               </button>
               <AuthLegal onNavigate={navigateFromModal} />
-              <p className={styles.switchLine}>Already have an account?{' '}<button type="button" className={styles.linkButton} onClick={() => { setOpen(false); setSignInOpen(true); }}>Sign in</button></p>
+              <p className={styles.switchLine}><PublicCopy text={"Already have an account?"} />{' '}<button type="button" className={styles.linkButton} onClick={() => { setOpen(false); setSignInOpen(true); }}><PublicCopy text={"Sign in"} /></button></p>
             </form>
+          </>
+        ) : step === 'launch-notice' ? (
+          <>
+            <AuthModalHeader icon={CheckCircle2} title="Thank you — you’re on our launch list" description={PRELAUNCH_NOTICE} />
+            <div className={styles.body}>
+              <p><PublicCopy text={"Your details are saved. No account access, trial, payment or promotional code has been activated, and no notification has been sent yet."} /></p>
+              <button type="button" className={styles.primaryButton} onClick={() => handleOpenChange(false)}><PublicCopy text={"Done"} /></button>
+            </div>
           </>
         ) : (
           <>
             <AuthModalHeader icon={CheckCircle2} title="Check your email" description={`We sent a 6-digit verification code to ${formData.email.trim().toLowerCase()}.`} selectedPlan={selectedPlan?.name} />
-            {formData.promo_code.trim() && <p role="status" className="text-sm text-center">Your promo code is saved for checking at your first package checkout. Eligible new accounts still receive the seven-day free trial. Entering a code does not activate paid access.</p>}
             <VerificationCodeForm email={formData.email.trim().toLowerCase()} code={verificationCode} setCode={setVerificationCode} loading={loading} error={error} resendTimer={resendTimer} onVerify={handleVerifyCode} onResend={handleResend} onCorrectEmail={correctEmail} />
           </>
         )}
@@ -237,3 +272,4 @@ export const SignUpModal: React.FC<SignUpModalProps> = ({ children, selectedPlan
     </Dialog>
   );
 };
+

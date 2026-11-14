@@ -41,7 +41,7 @@ export async function createPromotionCheckout(deps: PromotionCheckoutDependencie
       || previous.metadata?.purchase_consent !== 'explicit-v1'
       || !['open', 'complete', 'expired'].includes(previous.status)) throw new Error('Previous checkout must be reconciled before starting another.');
     if(previous.status==='expired'){
-      if(!deps.reconcileExpired||previous.payment_status!=='unpaid'||previous.payment_intent!=null||previous.mode!=='payment'||!previous.customer)throw new Error('Previous checkout must be reconciled before starting another.');
+      if(!deps.reconcileExpired||previous.payment_status!=='unpaid'||previous.mode!=='payment'||!previous.customer)throw new Error('Previous checkout must be reconciled before starting another.');
       await deps.reconcileExpired(reservation.id,previous);
       const refreshed=await deps.reserve(input.userId,input.code,input.plan);
       if(refreshed.id!==reservation.id||refreshed.stripe_session_id!==null||refreshed.percent_off!==reservation.percent_off||refreshed.included_credits!==reservation.included_credits

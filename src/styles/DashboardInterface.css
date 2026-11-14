@@ -1,0 +1,167 @@
+/* The approved Budget Planner editor is the dashboard UI reference.
+   A named important layer beats legacy per-page !important rules without
+   changing their source, layout, responsive breakpoints or export renderers.
+   Scope limits exclude artwork itself and its descendants. */
+@layer dashboard-interface {
+  @scope (
+    body[data-ww-dashboard-ui] [data-dashboard-content],
+    body[data-ww-dashboard-ui] [data-account-shell] main,
+    body[data-ww-dashboard-ui] [data-admin-shell] main,
+    body[data-ww-dashboard-ui] :is([role="dialog"], [role="alertdialog"], [role="menu"], [role="listbox"], [role="tooltip"], [data-radix-popper-content-wrapper])
+  ) to (
+    [data-print-mirror-document], [data-print-mirror-presentation],
+    [data-dashboard-artwork], [data-reception-room-canvas],
+    [data-slideshow-preview-stage], [data-signage-fit-preview],
+    [data-a4-preview-page], [data-dietary-a4-preview],
+    .ww-itc-preview, .ww-placecards-preview, .ww-invitations-preview,
+    .dietary-a4-preview, #qr-preview,
+    [class*="previewStage"], [class*="previewCanvas"], [class*="previewSheet"],
+    [class*="previewViewport"], [class*="boothCapturePreview"],
+    [data-dashboard-profile-menu], [data-dashboard-sidebar], [data-sidebar="sidebar"],
+    .ww-sidebar-background, svg, canvas, img, video, iframe
+  ) {
+    :is(p,span,strong,em,small,label,legend,li,dt,dd,th,td,summary,figcaption,caption,a,button,input,textarea,select,option,h1,h2,h3,h4,h5,h6,[role="option"],[role="menuitem"],[contenteditable],[class*="text-"]):not([style*="font-family"]) {
+      font-family: 'Segoe UI', Arial, sans-serif !important;
+    }
+
+    :is(div,section,article,fieldset,button,a,input,textarea,select,span,[role="dialog"],[role="alertdialog"],[role="combobox"],[role="menu"],[role="listbox"],[role="option"],[role="menuitem"]):not([role="switch"]):not([role="switch"] *):not([role="slider"]):not([role="slider"] *):not([role="progressbar"]):not([role="progressbar"] *):not([type="radio"]):not([type="checkbox"]):not([type="range"]):not([type="color"]):not([class*="avatar" i]):not([class*="avatar" i] *):not(span:has(> img)):not([class*="spinner" i]):not([class*="animate-spin"]):not([class*="loadingMark"]):not([data-radix-scroll-area-viewport]) {
+      border-radius: 0 !important;
+    }
+
+    :is(label,legend,th,[role="menuitem"],[role="option"]) {
+      font-weight: 700 !important;
+    }
+    :is(button,button *,[role="button"],[role="button"] *,[data-status],[data-status] *,[data-tone],[data-tone] *) {
+      -webkit-text-fill-color: currentColor !important;
+    }
+    button.cursor-text,button.cursor-text * {
+      color: #000 !important;
+      -webkit-text-fill-color: #000 !important;
+    }
+    :is(.cursor-text,.cursor-text *):not(:is(h1,h2,h3,h4,h5,h6)):not(:is(h1,h2,h3,h4,h5,h6) *):not([class*="redRowText"]):not([class*="redRowText"] *) {
+      color: #000 !important;
+      -webkit-text-fill-color: #000 !important;
+    }
+    /* Saved red row emphasis is content, not a neutral field colour. */
+    :is(textarea[class*="redRowText"],[class*="redRowText"] textarea,[class*="redRowText"] input,[class*="redRowText"] .cursor-text,[class*="redRowText"] .cursor-text *) {
+      color: #dc2626 !important;
+      -webkit-text-fill-color: #dc2626 !important;
+    }
+    :is(h1,h2,h3,h4,h5,h6) {
+      color: #2f1b14 !important;
+      -webkit-text-fill-color: #2f1b14 !important;
+      font-weight: 700 !important;
+    }
+    :is(input:not([type="checkbox"],[type="radio"],[type="range"],[type="color"]),textarea,select,[role="combobox"]) {
+      color: #000 !important;
+      -webkit-text-fill-color: #000 !important;
+      background: #f8f0e5 !important;
+      border-color: #cdb99e !important;
+    }
+    :is(input,textarea)::placeholder {
+      color: #8491a3 !important;
+      -webkit-text-fill-color: #8491a3 !important;
+      font-weight: 400 !important;
+      opacity: 1 !important;
+    }
+    :is(input,textarea,select,[role="combobox"])[aria-invalid="true"] {
+      border-color: #dc2626 !important;
+    }
+
+    /* Neutral interface surfaces only. Semantic badges/buttons retain their
+       own backgrounds, hover states and foreground colours. */
+    :is(.ww-box,[data-export-controls-panel],[role="dialog"],[role="alertdialog"],[role="menu"],[role="listbox"],
+      [class*="glassCard"],[class*="surfacePanel"],[class*="sectionCard"],
+      [class*="mainStudio"],[class*="designerShell"],[class*="infoStrip"],
+      [class*="exportPanel"],[class*="notesPanel"],[class*="emptyPanel"],
+      [class*="InsetPanel"],[class*="insetPanel"],[class*="contentPanel"],
+      [class*="drawerHeader"],[class*="drawerActions"],[class*="shareModal"]):not([data-tone]):not([data-status]):not([class*="statusCard"]) {
+      background: #fbf8f2 !important;
+      border-color: #cdb99e !important;
+    }
+    [data-export-controls-panel], :is([class*="drawerHeader"],[class*="drawerActions"]) {
+      background: #f5ebdd !important;
+    }
+    :is([role="option"],[role="menuitem"]):is(:hover,:focus,[data-highlighted]) {
+      background: #eadbc8 !important;
+    }
+
+    /* Preserve the accepted, borderless Total Budget amount field. */
+    input[class*="borderlessBudgetInput"] {
+      background: transparent !important;
+      border: 0 !important;
+    }
+  }
+
+  /* Body text has a separate scope so semantic prompts and button labels
+     remain untouched, including nested spans and icons inside those controls. */
+  @scope (
+    body[data-ww-dashboard-ui] [data-dashboard-content],
+    body[data-ww-dashboard-ui] [data-account-shell] main,
+    body[data-ww-dashboard-ui] [data-admin-shell] main,
+    body[data-ww-dashboard-ui] :is([role="dialog"],[role="alertdialog"],[role="menu"],[role="listbox"],[data-radix-popper-content-wrapper])
+  ) to (
+    [data-print-mirror-document], [data-print-mirror-presentation],
+    [data-dashboard-artwork], [data-reception-room-canvas], [data-slideshow-preview-stage],
+    [data-signage-fit-preview], [data-a4-preview-page], [data-dietary-a4-preview],
+    .ww-itc-preview, .ww-placecards-preview, .ww-invitations-preview, .dietary-a4-preview, #qr-preview,
+    [class*="previewStage"], [class*="previewCanvas"], [class*="previewSheet"], [class*="previewViewport"],
+    [class*="boothCapturePreview"], [data-dashboard-profile-menu], [data-dashboard-sidebar], [data-sidebar="sidebar"],
+    .ww-sidebar-background, svg,canvas,img,video,iframe,
+    button,[role="button"],thead,[data-tone],[data-status],
+    [role="alert"],[aria-invalid="true"],[data-state="error"],[data-state="saved"],
+    [class*="text-green"],[class*="text-emerald"],[class*="text-red"],[class*="text-rose"],
+    [class*="text-orange"],[class*="text-amber"],[class*="text-yellow"],[class*="text-destructive"],
+    [class*="statusPill"],[class*="statusBadge"],[class*="StatusBadge"],
+    [class*="danger" i],[class*="success" i],[class*="warning" i],[class*="error" i],
+    [class*="logout" i],[class*="destructive" i]
+  ) {
+    :is(p,span,strong,em,small,label,legend,li,dt,dd,td,summary,figcaption,caption,a,input,textarea,select,option,[role="option"],[role="menuitem"]) {
+      color: #000 !important;
+      -webkit-text-fill-color: #000 !important;
+    }
+  }
+
+  /* Espresso headers and navigation retain light, legible text. */
+  @scope (
+    body[data-ww-dashboard-ui] [data-dashboard-content],
+    body[data-ww-dashboard-ui] [data-account-shell] main,
+    body[data-ww-dashboard-ui] [data-admin-shell] main,
+    body[data-ww-dashboard-ui] :is([role="dialog"],[role="alertdialog"])
+  ) to (
+    [data-print-mirror-document],[data-print-mirror-presentation],[data-dashboard-artwork],
+    [class*="previewStage"],.ww-itc-preview,.ww-placecards-preview,.ww-invitations-preview,.dietary-a4-preview,
+    [data-reception-room-canvas],[data-slideshow-preview-stage],svg,canvas,img,video,iframe
+  ) {
+    thead,th {
+      background: #472c1d !important;
+      color: #fff !important;
+      -webkit-text-fill-color: #fff !important;
+    }
+    th * { color: #fff !important; -webkit-text-fill-color: #fff !important; }
+  }
+
+  @scope (
+    body[data-ww-dashboard-ui] [data-dashboard-sidebar],
+    body[data-ww-dashboard-ui] [data-sidebar="sidebar"],
+    body[data-ww-dashboard-ui] .ww-sidebar-background,
+    body[data-ww-dashboard-ui] [data-dashboard-profile-menu],
+    body[data-ww-dashboard-ui] [data-account-shell] > button,
+    body[data-ww-dashboard-ui] [data-admin-shell] > button,
+    body[data-ww-dashboard-ui] [data-sidebar="trigger"]
+  ) to (svg,img,[class*="avatar" i]) {
+    :is(span,p,strong,small,a,button,[role="menuitem"]) {
+      font-family: 'Segoe UI', Arial, sans-serif !important;
+      -webkit-text-fill-color: currentColor !important;
+    }
+    :is(li,p,small) { color: #f5eadc !important; -webkit-text-fill-color: currentColor !important; }
+    :scope:where([data-dashboard-profile-menu]) { background: #23120d !important; color: #f5eadc !important; }
+    [role="menuitem"] { color: #f5eadc !important; }
+    [class*="logout" i], [class*="logout" i] * { color: #f87171 !important; -webkit-text-fill-color: currentColor !important; }
+    :is(button,a,[role="menuitem"],[data-sidebar="menu-badge"],span[class*="Badge"],span[class*="badge"]),
+    :scope:where([data-dashboard-profile-menu]) {
+      border-radius: 0 !important;
+    }
+    :is(a,button,[role="menuitem"]) { font-weight: 600 !important; }
+  }
+}

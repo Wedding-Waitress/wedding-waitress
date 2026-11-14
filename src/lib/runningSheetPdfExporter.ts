@@ -1,3 +1,5 @@
+import { fitDocumentFooterLogo } from '@/lib/documentFooterLogo';
+import { paginateRunSheet } from './runningSheetPagination';
 /**
  * PRODUCTION-READY -- LOCKED FOR PRODUCTION
  *
@@ -14,7 +16,7 @@ import jsPDF from 'jspdf';
 import html2canvas from 'html2canvas';
 import { RunningSheetItem } from '@/types/runningSheet';
 import { PDF_DEFAULT_OPTIONS, savePdfAsync, yieldToBrowser } from '@/lib/pdfExportUtils';
-const weddingWaitressLogo = '/wedding-waitress-logo-brown.png';
+const weddingWaitressLogo = '/wedding-waitress-document-footer-dark-brown.png';
 
 interface Event {
   id: string;
@@ -140,10 +142,10 @@ const generateRunningSheetHTML = (
   }
   detailLines.push(`Reception: ${escapeHtml(receptionDate)} | ${escapeHtml(receptionVenue)} | ${receptionTime}`);
 
-  const detailsHtml = detailLines.map(line => `<div style="color:#555;font-size:12px;margin-top:2px;">${line}</div>`).join('');
+  const detailsHtml = detailLines.map(line => `<div style="color:#000;font-size:12px;margin-top:2px;">${line}</div>`).join('');
 
   const notesBlock = sectionNotes?.trim() ? `
-    <section style="margin-bottom:14px;color:#222;font-size:12px;line-height:18px;">
+    <section style="margin-bottom:14px;color:#000;font-size:12px;line-height:18px;">
       <div data-pdf-block style="font-weight:bold;margin-bottom:4px;">Notes for Run Sheet</div>
       ${sectionNotes.split('\n').map(line => `<div data-pdf-block style="white-space:pre-wrap;overflow-wrap:anywhere;line-height:18px;">${escapeHtml(line) || '&nbsp;'}</div>`).join('')}
     </section>` : '';
@@ -166,11 +168,11 @@ const generateRunningSheetHTML = (
 
   // No logo or footer in HTML — jsPDF handles that
   return `
-    <div style="width:794px;background:#fff;font-family:Arial,Helvetica,sans-serif;padding:40px 40px 0 40px;box-sizing:border-box;">
+    <div style="width:794px;background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif;padding:40px 40px 0 40px;box-sizing:border-box;">
       <!-- Header -->
       <div style="text-align:center;margin-bottom:4px;">
-        <div style="font-size:22px;font-weight:bold;color:#967A59;">${escapeHtml(event.name)}</div>
-        <div style="font-size:16px;color:#222;margin-top:4px;">${escapeHtml(sectionLabel || 'Run Sheet')}</div>
+        <div style="font-size:22px;font-weight:bold;color:#2f1b14;">${escapeHtml(event.name)}</div>
+        <div style="font-size:16px;color:#000;margin-top:4px;">${escapeHtml(sectionLabel || 'Run Sheet')}</div>
       </div>
       <!-- Event details -->
       <div style="text-align:center;margin-bottom:6px;">
@@ -183,9 +185,9 @@ const generateRunningSheetHTML = (
       <table style="width:100%;table-layout:fixed;border-collapse:collapse;border:1px solid #ddd;">
         <thead>
           <tr style="background:#f3f3f3;">
-<th style="padding:7px 8px;text-align:left;font-size:10px;font-weight:bold;color:#555;border-bottom:2px solid #ccc;width:10.6%;text-transform:uppercase;">Time</th>
-            <th style="padding:7px 8px;text-align:left;font-size:10px;font-weight:bold;color:#555;border-bottom:2px solid #ccc;width:69.4%;text-transform:uppercase;">Event</th>
-            <th style="padding:7px 8px;text-align:left;font-size:10px;font-weight:bold;color:#555;border-bottom:2px solid #ccc;width:20%;text-transform:uppercase;">Who</th>
+<th style="padding:7px 8px;text-align:left;font-size:10px;font-weight:bold;color:#000;border-bottom:2px solid #ccc;width:10.6%;text-transform:uppercase;">Time</th>
+            <th style="padding:7px 8px;text-align:left;font-size:10px;font-weight:bold;color:#000;border-bottom:2px solid #ccc;width:69.4%;text-transform:uppercase;">Event</th>
+            <th style="padding:7px 8px;text-align:left;font-size:10px;font-weight:bold;color:#000;border-bottom:2px solid #ccc;width:20%;text-transform:uppercase;">Who</th>
           </tr>
         </thead>
         <tbody>
@@ -232,7 +234,8 @@ const drawPageFooter = (
   if (logoDataUrl) {
     const logoX = (PDF_WIDTH_MM - FOOTER_LOGO_WIDTH_MM) / 2;
     try {
-      pdf.addImage(logoDataUrl, 'PNG', logoX, FOOTER_LOGO_Y_MM, FOOTER_LOGO_WIDTH_MM, FOOTER_LOGO_HEIGHT_MM);
+      const logoSize = fitDocumentFooterLogo(FOOTER_LOGO_WIDTH_MM, FOOTER_LOGO_HEIGHT_MM);
+      pdf.addImage(logoDataUrl, 'PNG', logoX + (FOOTER_LOGO_WIDTH_MM - logoSize.width) / 2, FOOTER_LOGO_Y_MM + (FOOTER_LOGO_HEIGHT_MM - logoSize.height) / 2, logoSize.width, logoSize.height);
     } catch {
       // silently skip if logo fails
     }
@@ -240,7 +243,7 @@ const drawPageFooter = (
 
   // Page number (left) and Generated timestamp (right)
   pdf.setFontSize(7);
-  pdf.setTextColor(170, 170, 170);
+  pdf.setTextColor(0, 0, 0);
   pdf.text(`Page ${pageNum} of ${totalPages}`, 12, FOOTER_TEXT_Y_MM);
   pdf.text(`Generated: ${timestamp}`, PDF_WIDTH_MM - 12, FOOTER_TEXT_Y_MM, { align: 'right' });
 };
@@ -262,13 +265,15 @@ export const exportRunningSheetPDF = async (
   event: Event,
   sectionLabel: string = 'Run Sheet',
   sectionNotes: string | null = null,
-  rowTextSize: "standard" | "larger" = "standard"
+  rowTextSize: "standard" | "larger" = "standard",
+  isCurrent: () => boolean = () => true
 ): Promise<void> => {
   const logoDataUrl = await loadLogoAsDataUrl();
   const htmlContent = generateRunningSheetHTML(items, event, sectionNotes, sectionLabel, rowTextSize);
   const timestamp = formatGeneratedTimestamp();
 
   // Create offscreen container
+  if (!isCurrent()) throw new Error("Run Sheet changed during export. Please try again.");
   const container = document.createElement('div');
   container.innerHTML = htmlContent;
   container.style.position = 'absolute';
@@ -318,7 +323,11 @@ export const exportRunningSheetPDF = async (
     const rows = Array.from(container.querySelectorAll('tbody tr, [data-pdf-block]')).map(row => ({
       top: Math.round(row.getBoundingClientRect().top - origin),
       bottom: Math.round(row.getBoundingClientRect().bottom - origin),
+      keepTogether: row.tagName === "TR" || row.getBoundingClientRect().height <= 80,
     }));
+    const tableHead = container.querySelector('thead');
+    const firstRow = container.querySelector('tbody tr');
+    if(tableHead && firstRow)rows.unshift({top:Math.round(tableHead.getBoundingClientRect().top-origin),bottom:Math.round(firstRow.getBoundingClientRect().bottom-origin),keepTogether:true});
     const raster = fullCanvas.getContext('2d')!;
     const findTextGap = (limit: number, start: number) => {
       const top = Math.max(start + 1, limit - 80);
@@ -336,21 +345,7 @@ export const exportRunningSheetPDF = async (
       }
       return limit;
     };
-    const slices: {start:number; height:number}[] = [];
-    let cursor = 0;
-    while (cursor < contentHeight) {
-      const capacity = slices.length ? usableHeightPage2PlusPx : usableHeightPage1Px;
-      let end = Math.min(contentHeight, cursor + capacity);
-      const crossing = rows.find(row => row.top < end && row.bottom > end);
-      if (crossing) {
-        if (crossing.top > cursor + 1) end = crossing.top;
-        else end = findTextGap(end, cursor);
-      }
-      if (end < contentHeight && end > cursor + 1) end = findTextGap(end, cursor);
-      if (end <= cursor) end = Math.min(contentHeight, cursor + capacity);
-      slices.push({start:cursor, height:end-cursor});
-      cursor = end;
-    }
+    const slices = paginateRunSheet(contentHeight, rows, usableHeightPage1Px, usableHeightPage2PlusPx, findTextGap);
     const totalPages = slices.length;
 
     const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', ...PDF_DEFAULT_OPTIONS });
@@ -403,6 +398,7 @@ export const exportRunningSheetPDF = async (
       drawPageFooter(pdf, logoDataUrl, page + 1, totalPages, timestamp);
     }
 
+    if (!isCurrent()) throw new Error("Run Sheet changed during export. Please try again.");
     await savePdfAsync(pdf, getRunningSheetPdfFileName(event));
   } finally {
     document.body.removeChild(container);

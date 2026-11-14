@@ -1,5 +1,5 @@
 // Compact "Download All Guestbook Messages" ZIP button used inside the Guestbook Messages toolbar.
-import React, { useMemo, useState } from 'react';
+import React, { useEffect, useMemo, useRef, useState } from 'react';
 import { Button } from '@/components/ui/enhanced-button';
 import { Download, LoaderCircle } from 'lucide-react';
 import { useToast } from '@/hooks/use-toast';
@@ -23,28 +23,38 @@ export const GuestbookDownloadAllButton: React.FC<{
   items: GalleryItem[];
   eventName?: string | null;
   className?: string;
+  label?: string;
   appearance?: 'default' | 'espresso-glass';
-}> = ({ items, eventName, className, appearance = 'default' }) => {
+}> = ({ items, eventName, className, label = 'Download All', appearance = 'default' }) => {
   const isGlass = appearance === 'espresso-glass';
   const { toast } = useToast();
+  const flight = useRef(false);
+  const mounted = useRef(true);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const source = JSON.stringify([eventName, items.map(i => [i.id, i.signed_url])]);
+  const sourceRef = useRef(source); sourceRef.current = source;
   const [busy, setBusy] = useState(false);
 
   const list = useMemo(() => items.filter(i => !!i.signed_url), [items]);
 
   const run = async () => {
-    if (busy) return;
+    if (flight.current) return;
     if (list.length === 0) {
       toast({ title: 'Nothing to download', description: 'No recordings available yet.', variant: 'destructive' });
       return;
     }
+    const current = () => mounted.current && sourceRef.current === source;
+    flight.current = true;
     setBusy(true);
     try {
       const { default: JSZip } = await import('jszip');
+      if (!current()) return;
       const zip = new JSZip();
       const used = new Set<string>();
       let failures = 0;
 
       for (const item of list) {
+        if (!current()) return;
         try {
           const res = await fetch(item.signed_url!);
           if (!res.ok) throw new Error(`HTTP ${res.status}`);
@@ -66,6 +76,7 @@ export const GuestbookDownloadAllButton: React.FC<{
       }
       if (Object.keys(zip.files).length === 0) throw new Error('All files failed to download.');
       const blob = await zip.generateAsync({ type: 'blob', compression: 'STORE' });
+      if (!current()) return;
       const filename = `${slugify(eventName, 'wedding')}-guestbook-messages.zip`;
       const url = URL.createObjectURL(blob);
       const a = document.createElement('a');
@@ -82,8 +93,11 @@ export const GuestbookDownloadAllButton: React.FC<{
           : `${filename} downloaded.`,
       });
     } catch (e: any) {
+      if (!current()) return;
       toast({ title: 'ZIP failed', description: e?.message || 'Please try again.', variant: 'destructive' });
     } finally {
+      flight.current = false;
+      if (!mounted.current) return;
       setBusy(false);
     }
   };
@@ -94,10 +108,10 @@ export const GuestbookDownloadAllButton: React.FC<{
       className={cn('lv-premium-shade h-11 gap-2 border border-[#472c1d]', className, isGlass && managementStyles.galleryControl, isGlass && managementStyles.upperGlassControl)}
       onClick={run}
       disabled={busy || list.length === 0}
-      aria-label="Download all guestbook messages"
+      aria-label={label === 'Download All' ? 'Download all guestbook messages' : label}
     >
       {busy ? <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.8} /> : <Download className="h-4 w-4" strokeWidth={1.8} />}
-      <span>Download All</span>
+      <span>{label}</span>
       <span className={cn('text-xs text-muted-foreground', appearance === 'espresso-glass' && managementStyles.gallerySecondaryText)}>{list.length}</span>
     </Button>
   );

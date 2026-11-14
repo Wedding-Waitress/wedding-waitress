@@ -40,4 +40,22 @@ describe('Event Budget PDF exporter', () => {
     const presentation = clonedDocument.querySelector<HTMLElement>('[data-print-mirror-presentation="true"]')!;
     expect(presentation.style.boxShadow).toBe('none'); expect(presentation.style.border).toBe('0px'); expect(presentation.style.transform).toBe('none');
   });
+
+  it('captures pages after asset loading has settled natural row pagination', async () => {
+    const root = makeRoot(1);
+    let repaginated = false;
+    const frame = vi.spyOn(window, 'requestAnimationFrame').mockImplementation(callback => {
+      if (!repaginated) {
+        root.replaceChildren(...Array.from(makeRoot(2).children));
+        repaginated = true;
+      }
+      callback(0);
+      return 1;
+    });
+    try {
+      await createEventBudgetPdf(root);
+      expect(mocks.html2canvas).toHaveBeenCalledTimes(2);
+      expect(mocks.html2canvas.mock.calls[0][0]).toBe(root.querySelector('article'));
+    } finally { frame.mockRestore(); }
+  });
 });

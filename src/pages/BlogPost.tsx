@@ -159,7 +159,7 @@ export const BlogPost = () => {
             <SignUpModal>
               <button
                 type="button"
-                className="inline-flex items-center justify-center px-8 py-4 rounded-full bg-white text-[#967A59] font-semibold text-base hover:bg-[#faf8f5] transition-colors shadow-sm"
+                className="ww-button-primary ww-blog-cta-button ww-focus px-8 py-4 text-base"
               >
                 {t('blog.ctaButton')}
               </button>

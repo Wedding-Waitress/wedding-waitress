@@ -4,6 +4,7 @@ import { Link } from 'react-router-dom';
 import { Button } from '@/components/ui/button';
 import { acceptTeamInvitation, previewTeamInvitation, type AccountInvitationSummary } from '@/hooks/useTeamAccess';
 import { TEAM_ACCESS_ENABLED, TEAM_ACCESS_UNAVAILABLE_MESSAGE } from '@/lib/teamAccessAvailability';
+import { createSignInRedirectState } from '@/lib/authNavigation';
 
 export const AcceptTeamInvitation: React.FC = () => {
   const [state, setState] = useState<'working' | 'ready' | 'accepting' | 'success' | 'error'>(TEAM_ACCESS_ENABLED ? 'working' : 'error');
@@ -42,7 +43,7 @@ export const AcceptTeamInvitation: React.FC = () => {
       <p className="mt-3 text-sm text-muted-foreground">{message}</p>
       {state === 'ready' && invitation && <div className="mt-6 rounded-xl border border-[#d8ba8c] bg-[#fbf5e9] p-4 text-left text-sm text-[#472c1d]"><p className="font-semibold">{invitation.first_name} {invitation.last_name}</p><p className="mt-1">Invited by {invitation.account_holder_name || invitation.account_holder_email || 'the account holder'}</p><p className="mt-3 text-xs text-[#6e625b]">Accepting lets you work on this account’s event-planning features. It does not give you access to billing, plan purchases, ownership, account security, or team management.</p></div>}
       {state === 'ready' && <div className="mt-6 flex flex-col gap-3 sm:flex-row sm:justify-center"><Button onClick={() => void accept()} className="bg-gradient-to-b from-[#7bd880] to-[#55a447] text-white">Accept Invitation</Button><Button asChild variant="outline"><Link to="/">Not Now</Link></Button></div>}
-      {(state === 'success' || state === 'error') && <Button asChild className="mt-6"><Link to={state === 'success' ? '/dashboard' : '/'}>{state === 'success' ? 'Open Wedding Waitress' : 'Return home'}</Link></Button>}
+      {(state === 'success' || state === 'error') && <Button asChild className="mt-6"><Link to={state === 'success' ? '/dashboard' : '/'} state={state === 'error' ? createSignInRedirectState('/accept-team-invitation') : undefined}>{state === 'success' ? 'Open Wedding Waitress' : 'Return home'}</Link></Button>}
     </section>
   </main>;
 };

@@ -1,3 +1,4 @@
+import { normalizePublicPlanName } from '@/lib/stripeExtensionPrices';
 import { useEffect, useState } from "react";
 import { useNavigate, useSearchParams } from "react-router-dom";
 import { supabase } from "@/integrations/supabase/client";
@@ -60,7 +61,7 @@ export const PaymentSuccess = () => {
           return;
         }
 
-        if (data?.type === 'extension') clearAllCaches();
+        if (!data?.requires_approval && (['extension','plan'].includes(data?.type) || isPromotion && data?.status === 'active')) clearAllCaches();
         setDetails(data);
         setStatus(data?.requires_approval ? "approval" : "success");
       } catch {
@@ -133,17 +134,17 @@ export const PaymentSuccess = () => {
             <p className="text-muted-foreground">
               {isPromotion
                 ? details.status === 'scheduled'
-                  ? `Your seven-day trial stays unchanged. Your ${details.plan_name} package starts after your trial and lasts twelve months.`
-                  : `Your ${details.plan_name} promotional package is now active for twelve months.`
+                  ? `Your seven-day trial stays unchanged. Your ${normalizePublicPlanName(details.plan_name ?? '')} package starts after your trial and lasts twelve months.`
+                  : `Your ${normalizePublicPlanName(details.plan_name ?? '')} promotional package is now active for twelve months.`
                 : details.type === "guest_capacity_topup"
                 ? 'Your additional guest capacity is now available.'
                 : details.type === "communication_topup"
                 ? `${details.credits_added ?? ''} shared Email & SMS credits are now available.`
                 : details.type === "rsvp"
-                ? `Your RSVP Invite Bundle (${details.plan_name}) has been activated.`
+                ? `Your RSVP Invite Bundle (${normalizePublicPlanName(details.plan_name ?? '')}) has been activated.`
                 : details.type === 'extension'
                 ? 'Your paid access has been extended and your saved account is available again.'
-                : `Your ${details.plan_name} plan is now active.`}
+                : `Your ${normalizePublicPlanName(details.plan_name ?? '')} plan is now active.`}
             </p>
             {isPromotion && <p className="text-sm text-muted-foreground">{details.included_credits === 0 ? 'No new included Email & SMS credits. Purchased credits remain available, and you can buy top-ups.' : `${details.included_credits} shared Email & SMS credits included.`}</p>}
             {details.expires_at && (

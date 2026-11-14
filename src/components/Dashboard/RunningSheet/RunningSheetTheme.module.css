@@ -1004,3 +1004,25 @@
 :global(#root#root#root) .scheduleCard button.greenAction :is(svg,svg *),
 :global(body) .shareModal.shareModal button.primaryAction :is(svg,svg *) {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;}
 :global(#root#root#root) .scheduleCard button.greenAction:hover:not(:disabled) {background:linear-gradient(180deg,#70c573,#4c933f)!important;filter:none!important;}
+
+/* Restore the intended phone touch targets after the desktop handle override. */
+@media screen and (max-width:639px){
+ :global(#root#root) :is(.page,.publicPage) .scheduleRow {grid-template-columns:44px minmax(0,1fr) 44px !important;}
+ :global(#root#root) :is(.page,.publicPage) .scheduleCard .dragHandle {width:44px !important;min-width:44px !important;height:44px !important;min-height:44px !important;touch-action:none;}
+ :global(#root#root#root) :is(.page,.publicPage) .exportPanel button {min-height:44px !important;}
+}
+
+/* Match the DJ & MC Questionnaire workspace, including outer main padding. */
+.page:not(.publicPage) {background:radial-gradient(circle at 85% 0%,rgba(255,252,244,.92),transparent 34rem),linear-gradient(145deg,#f8f0e4 0%,#f3eadc 58%,#eee0ce 100%) !important;}
+:global(.ww-running-sheet-main) {background:#f3eadc !important;}
+
+/* Approved ordinary text colours shared by owner and read-only views. */
+.page,.publicPage { --rs-white:#000; --rs-cream:#000; --rs-muted:#000; }
+@layer document-text-colours {
+  :is(.page,.publicPage) :is(.eventBanner > h2,.sectionHeading) {
+    color:#2f1b14 !important; -webkit-text-fill-color:#2f1b14 !important;
+  }
+  :is(.page,.publicPage) .scheduleRow textarea:not(.redRowText) {
+    color:#000 !important; -webkit-text-fill-color:#000 !important;
+  }
+}

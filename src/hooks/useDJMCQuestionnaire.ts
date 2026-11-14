@@ -14,7 +14,8 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { DJMCQuestionnaire, DJMCSection, DJMCItem, DJMCShareToken, SectionType } from '@/types/djMCQuestionnaire';
 import { DEFAULT_SECTION_TEMPLATES, SECTION_ORDER } from '@/lib/djMCQuestionnaireTemplates';
-import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
+import { getCacheGeneration, registerCache, registerEventCache } from '@/lib/cacheRegistry';
+import { createCoalescedRead } from '@/lib/coalescedRead';
 
 // Self-save cooldown: ignore realtime events within this window after a local save
 const SELF_SAVE_COOLDOWN_MS = 2000;
@@ -39,6 +40,8 @@ export function useDJMCQuestionnaire(eventId: string | null) {
 
   // Self-save guard: tracks last local save timestamp
   const lastSaveRef = useRef<number>(0);
+  const read = useRef(createCoalescedRead<void>());
+  const currentEvent = useRef(eventId); currentEvent.current = eventId;
   const undoWrites = useRef(new Set<Promise<unknown>>());
   const trackUndoWrite = async <T,>(request: PromiseLike<T>): Promise<T> => {
     const promise=Promise.resolve(request);undoWrites.current.add(promise);
@@ -68,12 +71,15 @@ export function useDJMCQuestionnaire(eventId: string | null) {
   }, [eventId]);
 
   // Fetch or create questionnaire for event
-  const fetchQuestionnaire = useCallback(async () => {
+  const fetchQuestionnaire = useCallback(async (invalidate: unknown = false) => {
     if (!eventId) {
       setCachedQuestionnaire(null);
       return;
     }
 
+    const generation = getCacheGeneration();
+    return read.current(`${generation}:${eventId}`, async () => {
+    if (currentEvent.current !== eventId || getCacheGeneration() !== generation) return;
     // Only show loading spinner if we don't have cached data
     const hasCachedData = questionnaireCache.has(eventId);
     if (!hasCachedData) {
@@ -88,6 +94,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
         .maybeSingle();
 
       if (fetchError) throw fetchError;
+      if (currentEvent.current !== eventId || getCacheGeneration() !== generation) return;
 
       let questionnaireId: string;
 
@@ -97,6 +104,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
         // Create new questionnaire
         const { data: { user } } = await supabase.auth.getUser();
         if (!user) throw new Error('Not authenticated');
+        if (currentEvent.current !== eventId || getCacheGeneration() !== generation) return;
 
         const { data: newQ, error: createError } = await supabase
           .from('dj_mc_questionnaires')
@@ -113,11 +121,13 @@ export function useDJMCQuestionnaire(eventId: string | null) {
 
       // Fetch full questionnaire with sections and items
       const fullQuestionnaire = await fetchFullQuestionnaire(questionnaireId);
+      if (currentEvent.current !== eventId || getCacheGeneration() !== generation) return;
       setCachedQuestionnaire(fullQuestionnaire);
 
       // Fetch share tokens
       await fetchShareTokens(questionnaireId);
     } catch (error) {
+      if (currentEvent.current !== eventId || getCacheGeneration() !== generation) return;
       console.error('Error fetching questionnaire:', error);
       toast({
         title: 'Error',
@@ -125,8 +135,9 @@ export function useDJMCQuestionnaire(eventId: string | null) {
         variant: 'destructive',
       });
     } finally {
-      setLoading(false);
+      if (currentEvent.current === eventId && getCacheGeneration() === generation) setLoading(false);
     }
+    }, invalidate === true);
   }, [eventId, toast]);
 
   // Create default sections from templates
@@ -187,23 +198,23 @@ export function useDJMCQuestionnaire(eventId: string | null) {
 
     if (sectionsError) throw sectionsError;
 
-    const sectionsWithItems: DJMCSection[] = await Promise.all(
-      sections.map(async (section) => {
-        const { data: items, error: itemsError } = await supabase
-          .from('dj_mc_items')
-          .select('*')
-          .eq('section_id', section.id)
-          .order('order_index');
-
-        if (itemsError) throw itemsError;
-
-        return {
-          ...section,
-          section_type: section.section_type as SectionType,
-          items: items || [],
-        } as DJMCSection;
-      })
-    );
+    // One RLS-protected read instead of one concurrent request per section.
+    const sectionIds = sections.map(section => section.id);
+    const { data: items, error: itemsError } = sectionIds.length
+      ? await supabase.from('dj_mc_items').select('*').in('section_id', sectionIds).order('order_index')
+      : { data: [], error: null };
+    if (itemsError) throw itemsError;
+    const itemsBySection = new Map<string, DJMCItem[]>();
+    for (const item of items || []) {
+      const group = itemsBySection.get(item.section_id) || [];
+      group.push(item as DJMCItem);
+      itemsBySection.set(item.section_id, group);
+    }
+    const sectionsWithItems: DJMCSection[] = sections.map(section => ({
+      ...section,
+      section_type: section.section_type as SectionType,
+      items: itemsBySection.get(section.id) || [],
+    } as DJMCSection));
 
     return {
       ...q,
@@ -213,13 +224,14 @@ export function useDJMCQuestionnaire(eventId: string | null) {
 
   // Fetch share tokens
   const fetchShareTokens = async (questionnaireId: string) => {
+    const generation = getCacheGeneration();
     const { data, error } = await supabase
       .from('dj_mc_share_tokens')
       .select('*')
       .eq('questionnaire_id', questionnaireId)
       .order('created_at', { ascending: false });
 
-    if (!error && data) {
+    if (!error && data && currentEvent.current === eventId && getCacheGeneration() === generation) {
       setShareTokens(data as DJMCShareToken[]);
       if (eventId) shareTokensCache.set(eventId, data as DJMCShareToken[]);
     }
@@ -774,14 +786,17 @@ const deleteSection = useCallback(async (sectionId: string) => {
 
   // Initial fetch
   useEffect(() => {
+    setQuestionnaire(eventId ? questionnaireCache.get(eventId) ?? null : null);
+    setShareTokens(eventId ? shareTokensCache.get(eventId) ?? [] : []);
     fetchQuestionnaire();
   }, [fetchQuestionnaire]);
 
   // Realtime subscription for dj_mc_items changes (e.g. edits from shared links)
   // Uses self-save guard to prevent feedback loop when we edit locally
+  const realtimeSectionIds = questionnaire?.sections.map(section => section.id).sort().join('|') || '';
   useEffect(() => {
     if (!questionnaire?.id) return;
-    const sectionIds = questionnaire.sections.map(s => s.id);
+    const sectionIds = realtimeSectionIds.split('|').filter(Boolean);
     if (sectionIds.length === 0) return;
 
     const channel = supabase
@@ -797,13 +812,13 @@ const deleteSection = useCallback(async (sectionId: string) => {
         }
         const changedSectionId = (payload.new as any)?.section_id || (payload.old as any)?.section_id;
         if (changedSectionId && sectionIds.includes(changedSectionId)) {
-          fetchQuestionnaire();
+          fetchQuestionnaire(true);
         }
       })
       .subscribe();
 
     return () => { supabase.removeChannel(channel); };
-  }, [questionnaire?.id, questionnaire?.sections, fetchQuestionnaire]);
+  }, [questionnaire?.id, realtimeSectionIds, fetchQuestionnaire]);
 
   const refreshShareTokens = useCallback(async () => {
     if (!questionnaire) return;

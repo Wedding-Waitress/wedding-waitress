@@ -20,9 +20,11 @@ const waitForAssets = async (root: HTMLElement): Promise<void> => {
 };
 
 export const createEventBudgetPdf = async (documentRoot: HTMLElement): Promise<jsPDF> => {
+  await waitForAssets(documentRoot);
+  // Font loading can repaginate naturally sized rows. Capture the settled
+  // document, rather than page nodes saved before that layout update.
   const pages = Array.from(documentRoot.querySelectorAll<HTMLElement>(EVENT_BUDGET_PRINT_MIRROR_CONTRACT.selector));
   if (!pages.length) throw new Error('The Event Budget print preview is not ready.');
-  await waitForAssets(documentRoot);
   const pdf = new jsPDF({ orientation: 'landscape', unit: 'mm', format: 'a4', ...PDF_DEFAULT_OPTIONS });
   for (let index = 0; index < pages.length; index += 1) {
     const page = pages[index];

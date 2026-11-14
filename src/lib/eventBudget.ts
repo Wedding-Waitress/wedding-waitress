@@ -112,7 +112,7 @@ export const getBudgetPaymentStatus = (
   return 'Unpaid';
 };
 
-export const formatBudgetCurrency = (currency: CurrencyCode, value: number): string => `${CURRENCY_PREFIX[currency]}${new Intl.NumberFormat(CURRENCY_LOCALE[currency], {
+export const formatBudgetCurrency = (currency: CurrencyCode, value: number): string => `${currency === 'AUD' ? '$' : CURRENCY_PREFIX[currency]}${new Intl.NumberFormat(CURRENCY_LOCALE[currency], {
   minimumFractionDigits: 2, maximumFractionDigits: 2,
 }).format(value)}`;
 

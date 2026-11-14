@@ -1,6 +1,6 @@
 -- Create invitations storage bucket for digital invitations
 INSERT INTO storage.buckets (id, name, public)
-VALUES ('invitations', 'invitations', true) ON CONFLICT (id) DO NOTHING;
+VALUES ('invitations', 'invitations', true);
 
 -- Create RLS policies for invitations bucket
 CREATE POLICY "Event owners can upload invitations"

@@ -57,63 +57,86 @@ const folderByConfig: Record<string, string> = {
 
 export const LiveSlideshowConfig: React.FC<LiveSlideshowConfigProps> = ({ eventId, moduleState }) => {
   const { toast } = useToast();
-  const { settings: visibility, updateVisibility, isLoading: visibilityLoading, isSaving: visibilitySaving } = useLiveViewVisibility(eventId);
+  const { settings: visibility, updateVisibility, isLoading: visibilityLoading, isSaving: visibilitySaving, isError: visibilityError, refresh: refreshVisibility } = useLiveViewVisibility(eventId);
   const { settings: modules, updateModuleConfig, loading: modulesLoading, saving } = moduleState;
+  const moduleUnavailable = modulesLoading || !!moduleState.error || !modules;
 
   const [uploading, setUploading] = React.useState(false);
-  const handleUpload = async (
-    configKey: string,
-    bucket: StorageBucket,
-    file: File
-  ) => {
+  const mediaOperation = React.useRef(false);
+  const modulesRef = React.useRef(modules);
+  modulesRef.current = modules;
+  const readiness = React.useRef({ modulesLoading: moduleUnavailable, saving });
+  readiness.current = { modulesLoading: moduleUnavailable, saving };
+  const eventScope = React.useRef(eventId);
+  eventScope.current = eventId;
+  const mounted = React.useRef(true);
+  React.useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
+  const active = () => mounted.current && eventScope.current === eventId;
+  const busy = () => readiness.current.modulesLoading || readiness.current.saving || mediaOperation.current;
+  const handleUpload = async (configKey: string, bucket: StorageBucket, file: File) => {
+    if (busy() || !active()) return;
+    mediaOperation.current = true;
     setUploading(true);
+    let uploadedPath: string | undefined;
+    let persisted = false;
+    const discardUpload = async () => {
+      if (!uploadedPath) return;
+      const path = uploadedPath;
+      uploadedPath = undefined;
+      const { error } = await supabase.storage.from(bucket).remove([path]);
+      if (error) throw error;
+    };
     try {
       const extension = file.name.split('.').pop()?.toLowerCase();
       const allowed = configKey === 'welcome_video_config' ? ['mp4','mov','webm'] : ['jpg','jpeg','png', ...(['menu_config','rsvp_invite_config'].includes(configKey) ? ['pdf'] : [])];
-      if (!extension || !allowed.includes(extension) || !file.size) throw new Error('Choose a supported, non-empty file.');
+      const types: Record<string, string[]> = { jpg:['image/jpeg','image/jpg'], jpeg:['image/jpeg','image/jpg'], png:['image/png'], pdf:['application/pdf'], mp4:['video/mp4'], mov:['video/quicktime'], webm:['video/webm'] };
+      if (!extension || !allowed.includes(extension) || !file.size || (file.type && !types[extension]?.includes(file.type.toLowerCase()))) throw new Error('Choose a supported, non-empty file with a matching file type.');
       const { data: { user } } = await supabase.auth.getUser();
       if (!user) throw new Error('Not authenticated');
-      const fileExt = file.name.split('.').pop();
-      const fileName = `${Date.now()}.${fileExt}`;
-      const filePath = `${user.id}/${eventId}/${folderByConfig[configKey]}/${fileName}`;
+      if (!active()) return;
+      const filePath = [user.id, eventId, folderByConfig[configKey], String(Date.now()) + '.' + extension].join('/');
       const { error: upErr } = await supabase.storage.from(bucket).upload(filePath, file);
       if (upErr) throw upErr;
+      uploadedPath = filePath;
+      if (!active()) { await discardUpload(); return; }
       const { data: { publicUrl } } = supabase.storage.from(bucket).getPublicUrl(filePath);
       const persistedConfig = {
-        ...((modules as any)?.[configKey] || {}),
+        ...((modulesRef.current as any)?.[configKey] || {}),
         ...(configKey === 'reception_floor_plan_config' ? { source: 'upload' } : {}),
-        file_url: publicUrl,
-        file_name: file.name,
-        file_type: file.type,
+        file_url: publicUrl, file_name: file.name, file_type: file.type,
         uploaded_at: new Date().toISOString(),
       };
-      const saved = await updateModuleConfig(
-        configKey as any,
-        configKey === 'welcome_video_config'
-          ? withWelcomeVideoUrl(persistedConfig, publicUrl)
-          : persistedConfig,
-      );
-      if (saved) toast({ title: 'Uploaded successfully' });
-      else await supabase.storage.from(bucket).remove([filePath]);
+      const saved = await updateModuleConfig(configKey as any, configKey === 'welcome_video_config' ? withWelcomeVideoUrl(persistedConfig, publicUrl) : persistedConfig);
+      if (saved) { persisted = true; if (active()) toast({ title: 'Uploaded successfully' }); }
+      else await discardUpload();
     } catch (e: any) {
-      toast({ title: 'Upload failed', description: e.message, variant: 'destructive' });
-    } finally { setUploading(false); }
+      if (!persisted && uploadedPath) { try { await discardUpload(); } catch { console.error('Cancelled media upload cleanup failed'); } }
+      if (active()) toast({ title: 'Upload failed', description: e.message, variant: 'destructive' });
+    } finally {
+      mediaOperation.current = false;
+      if (mounted.current) setUploading(false);
+    }
   };
 
-  const handleRemove = async (configKey: string, bucket: StorageBucket) => {
+  const handleRemove = async (configKey: string, _bucket: StorageBucket) => {
+    if (busy() || !active()) return;
+    mediaOperation.current = true;
+    setUploading(true);
     try {
-      const config = (modules as any)?.[configKey];
-      const next = { ...config };
+      const next = { ...((modulesRef.current as any)?.[configKey] || {}) };
       for (const key of ['file_url', 'video_url', 'file_name', 'file_type', 'uploaded_at']) delete next[key];
       const saved = await updateModuleConfig(configKey as any, next);
-      if (saved) toast({ title: 'Removed' });
+      if (saved && active()) toast({ title: 'Removed' });
     } catch (e: any) {
-      toast({ title: 'Remove failed', description: e.message, variant: 'destructive' });
+      if (active()) toast({ title: 'Remove failed', description: e.message, variant: 'destructive' });
+    } finally {
+      mediaOperation.current = false;
+      if (mounted.current) setUploading(false);
     }
   };
 
   const triggerFile = (configKey: string, bucket: StorageBucket) => {
-    if (modulesLoading || saving || uploading) return;
+    if (busy() || !active()) return;
     const input = document.createElement('input');
     input.type = 'file';
     input.accept = acceptByBucket[configKey];
@@ -187,6 +210,7 @@ export const LiveSlideshowConfig: React.FC<LiveSlideshowConfigProps> = ({ eventI
         </CardTitle>
       </CardHeader>
       <CardContent className="space-y-3">
+        {visibilityError && <div role="alert" className={styles.innerSurface}><p>Visibility settings could not be loaded. Retry before changing what guests can see.</p><Button className={styles.actionGreen} onClick={() => void refreshVisibility()}>Retry visibility settings</Button></div>}
         <p className={`${styles.configurationDescription} text-sm text-muted-foreground`}>
           Configure the guest app modules and the details shown in Live Slideshow search results.
         </p>
@@ -224,7 +248,7 @@ export const LiveSlideshowConfig: React.FC<LiveSlideshowConfigProps> = ({ eventI
                       </span>
                       <Switch
                         aria-label={`Show ${tile.title}`}
-                        disabled={visibilityLoading || visibilitySaving}
+                        disabled={visibilityLoading || visibilitySaving || visibilityError || !visibility}
                         checked={enabled}
                         onCheckedChange={(c) => updateVisibility(tile.visKey as any, c)}
                         className="data-[state=checked]:bg-success data-[state=unchecked]:border data-[state=unchecked]:border-[#967A59]/70"
@@ -254,7 +278,7 @@ export const LiveSlideshowConfig: React.FC<LiveSlideshowConfigProps> = ({ eventI
                                   )}
                                 </div>
                                 <Button
-                                  disabled={modulesLoading || saving || uploading}
+                                  disabled={moduleUnavailable || saving || uploading}
                                   size="sm"
                                   variant="default"
                                   className={`${styles.replaceButton} lv-premium-shade text-white`}
@@ -264,7 +288,7 @@ export const LiveSlideshowConfig: React.FC<LiveSlideshowConfigProps> = ({ eventI
                                   Replace
                                 </Button>
                                 <Button
-                                  disabled={modulesLoading || saving || uploading}
+                                  disabled={moduleUnavailable || saving || uploading}
                                   size="sm"
                                   variant="destructive"
                                   className={`${styles.removeButton} lv-premium-shade text-white`}
@@ -275,7 +299,7 @@ export const LiveSlideshowConfig: React.FC<LiveSlideshowConfigProps> = ({ eventI
                                 </Button>
                               </div>
                             ) : (
-                              <button type="button" disabled={modulesLoading || saving || uploading}
+                              <button type="button" disabled={moduleUnavailable || saving || uploading}
                                 className={`${styles.uploadArea} border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors`}
                                 onClick={() => triggerFile(tile.configKey, tile.bucket)}
                               >
@@ -331,7 +355,7 @@ export const LiveSlideshowConfig: React.FC<LiveSlideshowConfigProps> = ({ eventI
                             </div>
                             <div className="flex gap-2">
                               <Button
-                                disabled={modulesLoading || saving || uploading}
+                                disabled={moduleUnavailable || saving || uploading}
                                   size="sm"
                                 variant="default"
                                 className={`${styles.replaceButton} lv-premium-shade text-white`}
@@ -341,7 +365,7 @@ export const LiveSlideshowConfig: React.FC<LiveSlideshowConfigProps> = ({ eventI
                                 Replace
                               </Button>
                               <Button
-                                disabled={modulesLoading || saving || uploading}
+                                disabled={moduleUnavailable || saving || uploading}
                                   size="sm"
                                 variant="destructive"
                                 className={`${styles.removeButton} lv-premium-shade text-white`}
@@ -353,7 +377,7 @@ export const LiveSlideshowConfig: React.FC<LiveSlideshowConfigProps> = ({ eventI
                             </div>
                           </div>
                         ) : (
-                          <button type="button" disabled={modulesLoading || saving || uploading}
+                          <button type="button" disabled={moduleUnavailable || saving || uploading}
                             className={`${styles.uploadArea} border-2 border-dashed rounded-md p-4 text-center cursor-pointer hover:bg-muted/50 transition-colors`}
                             onClick={() => triggerFile('hero_image_config', 'live-view-uploads')}
                           >
@@ -394,7 +418,7 @@ export const LiveSlideshowConfig: React.FC<LiveSlideshowConfigProps> = ({ eventI
                     </span>
                     <Switch
                       aria-label="Show RSVP Status"
-                      disabled={visibilityLoading || visibilitySaving}
+                      disabled={visibilityLoading || visibilitySaving || visibilityError || !visibility}
                       checked={!!visibility?.kiosk_show_rsvp_status}
                       onCheckedChange={(c) => updateVisibility('kiosk_show_rsvp_status', c)}
                       className="data-[state=checked]:bg-success data-[state=unchecked]:border data-[state=unchecked]:border-[#967A59]/70"
@@ -417,7 +441,7 @@ export const LiveSlideshowConfig: React.FC<LiveSlideshowConfigProps> = ({ eventI
                     </span>
                     <Switch
                       aria-label="Show Dietary Requirements"
-                      disabled={visibilityLoading || visibilitySaving}
+                      disabled={visibilityLoading || visibilitySaving || visibilityError || !visibility}
                       checked={!!visibility?.kiosk_show_dietary}
                       onCheckedChange={(c) => updateVisibility('kiosk_show_dietary', c)}
                       className="data-[state=checked]:bg-success data-[state=unchecked]:border data-[state=unchecked]:border-[#967A59]/70"

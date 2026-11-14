@@ -5,10 +5,10 @@ import { PLAN_PRICING, VENDOR_PRICING } from '@/lib/currencyPricing';
 import { readFileSync } from 'node:fs';
 
 describe('public product catalogue', () => {
-  it('contains all 16 principal products with unique clean URLs', () => {
-    expect(publicProducts).toHaveLength(16);
-    expect(new Set(publicProducts.map((product) => product.id)).size).toBe(16);
-    expect(new Set(publicProducts.map((product) => product.path)).size).toBe(16);
+  it('contains all 17 principal products with unique clean URLs', () => {
+    expect(publicProducts).toHaveLength(17);
+    expect(new Set(publicProducts.map((product) => product.id)).size).toBe(17);
+    expect(new Set(publicProducts.map((product) => product.path)).size).toBe(17);
     publicProducts.forEach((product) => expect(product.path).toMatch(/^\/[a-z0-9-]+$/));
   });
 

@@ -28,7 +28,10 @@ interface TableData {
   participant2_name: string | null;
 }
 
+export interface TableAssignmentSummary { tableNumber: number; tableName: string; seats: Record<string, number | null> }
+
 interface TableVisualizationProps {
+  onTableReady?: (summary: TableAssignmentSummary | null) => void;
   navigation?: React.ReactNode;
   tableId: string;
   tableNumber: number;
@@ -39,12 +42,17 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
   tableId,
   tableNumber,
   navigation,
+  onTableReady,
   eventId
 }) => {
   const [tableData, setTableData] = useState<TableData | null>(null);
   const [loading, setLoading] = useState(true);
 
   useEffect(() => {
+    let cancelled = false;
+    setLoading(true);
+    setTableData(null);
+    onTableReady?.(null);
     const fetchTableData = async () => {
       try {
         // Use public RPC function to fetch table data (bypasses RLS)
@@ -53,6 +61,7 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
           (supabase.rpc as any)('get_public_table_semantics', { p_table_id: tableId, p_event_id: eventId }),
         ]);
 
+        if (cancelled) return;
         if (error) throw error;
         if (semanticError) throw semanticError;
 
@@ -87,18 +96,23 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
         };
 
         setTableData(tableInfo);
+        onTableReady?.({ tableNumber: tableInfo.table_no, tableName: tableInfo.name, seats: Object.fromEntries(tableInfo.guests.map(guest => [guest.id, guest.seat_no])) });
       } catch (error) {
+        if (cancelled) return;
         console.error('Error fetching table data:', error);
         setTableData(null);
       } finally {
-        setLoading(false);
+        if (!cancelled) setLoading(false);
       }
     };
 
     if (tableId && eventId) {
-      fetchTableData();
+      void fetchTableData();
+    } else {
+      setLoading(false);
     }
-  }, [tableId, eventId]);
+    return () => { cancelled = true; };
+  }, [tableId, eventId, onTableReady]);
 
   if (loading) {
     return (
@@ -242,7 +256,7 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
             <div className="space-y-2">
               {tableData.guests.map((guest) => (
                 <div 
-                  key={guest.id} 
+                  key={guest.id} data-qr-seated-guest-row
                   className="flex items-center justify-between p-2 bg-background-subtle rounded-lg"
                 >
                   <div className="flex items-center gap-3">

@@ -18,6 +18,8 @@ export interface DeletedEventRow {
   user_id: string;
 }
 
+// ownerId is the authoritative target owner read from the database, including an admin target.
+// The RPC independently authorizes auth.uid(); this expected owner never grants permission.
 export const deleteOwnedEventRow = async (eventId: string, ownerId: string): Promise<DeletedEventRow> => {
   const { data, error } = await supabase.rpc('delete_owned_event_secure', { p_event_id: eventId });
 

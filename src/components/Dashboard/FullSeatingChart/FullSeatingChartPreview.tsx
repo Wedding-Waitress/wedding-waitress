@@ -95,7 +95,9 @@ export const FullSeatingChartPreview = forwardRef<FullSeatingChartPreviewHandle,
   useEffect(() => {
     const computePreviewScale = () => {
       const availableWidth = previewWrapperRef.current?.clientWidth ?? window.innerWidth;
-      setPreviewScale(Math.min(1, availableWidth / A4_PX.width));
+      // A scaled phone sheet makes adjacent check-off rows too small to tap.
+      // Keep intrinsic A4 size on phones and scroll only its external wrapper.
+      setPreviewScale(window.innerWidth < 768 ? 1 : Math.min(1, availableWidth / A4_PX.width));
     };
 
     computePreviewScale();
@@ -272,11 +274,12 @@ export const FullSeatingChartPreview = forwardRef<FullSeatingChartPreviewHandle,
   };
 
   // Screen version guest row - matches PDF layout exactly
-  const ScreenGuestRow = ({ guest }: { guest: Guest }) => {
+  const renderGuestRow = (guest: Guest) => {
     const tableText = formatTableDisplay(guest);
     const textStyleClasses = getTextStyleClasses();
     return (
       <div 
+        key={guest.id}
         data-full-seating-guest-row="true"
         className="flex items-center gap-1.5 px-0.5 cursor-pointer overflow-hidden box-border"
         style={{ 
@@ -359,6 +362,7 @@ export const FullSeatingChartPreview = forwardRef<FullSeatingChartPreviewHandle,
           </div>
         )}
 
+        <p className="md:hidden text-sm text-[#472c1d] mb-3">Swipe across the chart to view both columns and check off guests.</p>
         {/* A4 Paper Container - Fixed zone layout: Header | Content | Footer */}
         <div className="flex justify-center">
           <div
@@ -368,7 +372,7 @@ export const FullSeatingChartPreview = forwardRef<FullSeatingChartPreviewHandle,
             style={
               previewScale < 1
                 ? { height: `${A4_PX.height * previewScale}px`, overflow: 'hidden', display: 'flex', justifyContent: 'center', width: '100%' }
-                : undefined
+                : { overflowX: 'auto', width: '100%' }
             }
           >
             <div
@@ -404,7 +408,7 @@ export const FullSeatingChartPreview = forwardRef<FullSeatingChartPreviewHandle,
               overflow: 'hidden',
             }}>
               <div className="text-center">
-                <h1 className="font-bold" style={{ color: '#000000', fontSize: '16pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
+                <h1 className="font-bold" style={{ color: '#2f1b14', fontSize: '16pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
                   {event.name}
                 </h1>
                 <p style={{ fontSize: '11pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
@@ -467,15 +471,11 @@ export const FullSeatingChartPreview = forwardRef<FullSeatingChartPreviewHandle,
             }}>
               {/* Left Column */}
               <div style={{ overflow: 'hidden' }}>
-                {settings.showGuestList && col1Guests.map((guest) => (
-                  <ScreenGuestRow key={guest.id} guest={guest} />
-                ))}
+                {col1Guests.map(renderGuestRow)}
               </div>
               {/* Right Column */}
               <div style={{ overflow: 'hidden' }}>
-                {settings.showGuestList && col2Guests.map((guest) => (
-                  <ScreenGuestRow key={guest.id} guest={guest} />
-                ))}
+                {col2Guests.map(renderGuestRow)}
               </div>
             </div>
 
@@ -495,7 +495,7 @@ export const FullSeatingChartPreview = forwardRef<FullSeatingChartPreviewHandle,
             }}>
               <div data-footer-generated="true" style={{ justifySelf: 'start', whiteSpace: 'nowrap' }}>Generated: {formatGeneratedTimestamp()}</div>
               {settings.showLogo
-                ? <img src="/wedding-waitress-logo-brown.png?v=2" alt="Wedding Waitress" style={{ width: '36mm', height: '10mm', objectFit: 'contain' }} />
+                ? <img src="/wedding-waitress-document-footer-dark-brown.png" alt="Wedding Waitress" style={{ width: '36mm', height: '10mm', objectFit: 'contain' }} />
                 : <div style={{ width: '36mm', height: '10mm' }} />}
               <div data-footer-page-number="true" style={{ justifySelf: 'end', whiteSpace: 'nowrap' }}>Page {currentPage} of {totalPages}</div>
             </div>

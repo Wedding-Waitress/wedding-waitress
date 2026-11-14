@@ -12,9 +12,6 @@ import { GalleryPhotoBoothTemplatesCard } from '@/components/Dashboard/PhotoVide
 import { categoryOf } from '@/lib/mediaPrivacy';
 import { GalleryGrid } from '@/components/Dashboard/PhotoVideoGallery/GalleryGrid';
 import { PhotoBoothDownloadAllButton } from '@/components/Dashboard/PhotoVideoGallery/PhotoBoothDownloadAllButton';
-import { Button } from '@/components/ui/enhanced-button';
-import { Camera } from 'lucide-react';
-import { buildGalleryGuestAppUrl } from '@/lib/urlUtils';
 import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 
 export const GalleryPhotoBoothFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelection>> = (selection) => {
@@ -29,7 +26,6 @@ export const GalleryPhotoBoothFeaturePage: React.FC<Partial<PhotoVideoWorkspaceS
 
   const goBack = () => navigate('/dashboard?tab=photo-video-gallery');
 
-  const boothUrl = buildGalleryGuestAppUrl(meta?.primary_token);
 
   // Filtered view of the existing uploads — Digital Photo Booth captures only.
   const boothItems = useMemo(() => items.filter(i => categoryOf(i) === 'photo_booth'), [items]);
@@ -53,6 +49,8 @@ export const GalleryPhotoBoothFeaturePage: React.FC<Partial<PhotoVideoWorkspaceS
         noIndex
       />
       <FeatureWorkspaceLayout
+        managerChrome
+        hideSelectedEventPanel
         backgroundAppearance="photo-video-sharing"
         controlsAppearance="photo-video-sharing"
         title="Digital Photo Booth"
@@ -63,18 +61,9 @@ export const GalleryPhotoBoothFeaturePage: React.FC<Partial<PhotoVideoWorkspaceS
         toggleDisabled={saving || !meta}
         onToggle={handleToggle}
         onBack={goBack}
+        guestPreviewToken={meta?.primary_token ?? null}
         brownOutline
         disabledNotice="This feature is currently turned off for your guests. You can still manage and preview the Digital Photo Booth."
-        headerAction={
-          <Button
-            variant="outline"
-            className={`lv-premium-shade text-white border ${managementStyles.glassAction} ${managementStyles.workspaceHeaderAction}`}
-            disabled={!boothUrl}
-            onClick={() => boothUrl && window.open(boothUrl, '_blank', 'noopener,noreferrer')}
-          >
-            <Camera className="h-4 w-4 mr-1" /> Launch Digital Photo Booth
-          </Button>
-        }
       >
         {selectionStatus !== 'selected' || !meta ? (
           <FeatureWorkspaceStatePanel
@@ -101,31 +90,7 @@ export const GalleryPhotoBoothFeaturePage: React.FC<Partial<PhotoVideoWorkspaceS
               />
             )}
 
-            <GalleryGrid
-              items={boothItems}
-              dark
-              onDelete={deleteItem}
-              onDeleteMany={deleteItems}
-              onSetModeration={setModeration}
-              onSetAlbum={setAlbum}
-              onBulkSetAlbum={bulkSetAlbum}
-              boothSetOrder
-              hideAlbumFeature
-              appearance="espresso-glass"
-              eventName={(selectedEvent as any)?.name}
-              title="Digital Photo Booth Captures"
-              description="Review, organise, approve, hide and download completed photo strips and individual photos captured in your Digital Photo Booth."
-              emptyText="No Digital Photo Booth captures yet — share the QR code with your guests."
-              toolbarRight={
-                <PhotoBoothDownloadAllButton
-                  items={boothItems}
-                  eventName={(selectedEvent as any)?.name}
-                  galleryTitle={meta.gallery_title}
-                  className="!h-9"
-                  appearance="espresso-glass"
-                />
-              }
-            />
+
 
           </div>
         )}

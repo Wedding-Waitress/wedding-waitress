@@ -1,3 +1,4 @@
+import { fitDocumentFooterLogo } from '@/lib/documentFooterLogo';
 import jsPDF from 'jspdf';
 import {
   PAGE_WIDTH_MM, PAGE_HEIGHT_MM, MARGIN_LEFT_MM, MARGIN_TOP_MM,
@@ -124,7 +125,7 @@ const hexToRgb = (hex: FullSeatingChartColor) => ({
 // Load logo image as base64
 const loadLogoAsBase64 = async (): Promise<string | null> => {
   try {
-    const response = await fetch('/wedding-waitress-logo-brown.png');
+    const response = await fetch('/wedding-waitress-document-footer-dark-brown.png');
     const blob = await response.blob();
     return new Promise((resolve, reject) => {
       const reader = new FileReader();
@@ -165,7 +166,8 @@ const drawPageFooter = (
     const logoX = (PAGE_WIDTH_MM - logoWidth) / 2;
     const logoY = PAGE_HEIGHT_MM - 10 - 1 - logoHeight;
     try {
-      pdf.addImage(logoBase64, 'PNG', logoX, logoY, logoWidth, logoHeight);
+      const logoSize = fitDocumentFooterLogo(logoWidth, logoHeight);
+      pdf.addImage(logoBase64, 'PNG', logoX + (logoWidth - logoSize.width) / 2, logoY + (logoHeight - logoSize.height) / 2, logoSize.width, logoSize.height);
     } catch {
       // silently skip
     }
@@ -235,7 +237,7 @@ export const exportFullSeatingChartToPdf = async (
 
     pdf.setFont('helvetica', 'bold');
     pdf.setFontSize(18);
-    pdf.setTextColor(black.r, black.g, black.b);
+    pdf.setTextColor(47, 27, 20);
     pdf.text(event.name, PAGE_WIDTH_MM / 2, yPos, { align: 'center' });
     yPos += 6;
 

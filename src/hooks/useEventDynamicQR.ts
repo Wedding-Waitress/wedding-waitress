@@ -7,12 +7,14 @@ import { supabase } from '@/integrations/supabase/client';
 import { buildDynamicQRUrl } from '@/lib/urlUtils';
 
 export function useEventDynamicQR(eventId: string | null) {
-  const [code, setCode] = useState<string | null>(null);
+  const [resolved, setResolved] = useState<{ eventId: string; code: string } | null>(null);
+  const code = resolved?.eventId === eventId ? resolved.code : null;
   const [loading, setLoading] = useState(false);
 
   useEffect(() => {
     if (!eventId) {
-      setCode(null);
+      setResolved(null);
+      setLoading(false);
       return;
     }
 
@@ -27,23 +29,29 @@ export function useEventDynamicQR(eventId: string | null) {
           .select('code')
           .eq('current_event_id', eventId)
           .eq('is_active', true)
+          .eq('destination_type', 'guest_lookup')
+          .order('created_at', { ascending: true })
           .limit(1)
           .maybeSingle();
 
-        if (!cancelled && data?.code) {
-          setCode(data.code);
+        if (cancelled) return;
+        if (error) throw error;
+        if (data?.code) {
+          setResolved({ eventId, code: data.code });
           setLoading(false);
           return;
         }
 
         // Auto-create one for legacy events
         const { data: { user } } = await supabase.auth.getUser();
-        if (!user || cancelled) { setLoading(false); return; }
+        if (cancelled || !user) return;
 
         const { data: newCode, error: rpcErr } = await supabase.rpc('generate_dynamic_qr_code');
-        if (rpcErr || !newCode || cancelled) { setLoading(false); return; }
+        if (cancelled) return;
+        if (rpcErr) throw rpcErr;
+        if (!newCode) return;
 
-        await supabase.from('dynamic_qr_codes').insert({
+        const inserted = await supabase.from('dynamic_qr_codes').insert({
           code: newCode,
           user_id: user.id,
           current_event_id: eventId,
@@ -52,7 +60,8 @@ export function useEventDynamicQR(eventId: string | null) {
           is_active: true,
         });
 
-        if (!cancelled) setCode(newCode);
+        if (inserted.error) throw inserted.error;
+        if (!cancelled) setResolved({ eventId, code: newCode });
       } catch (err) {
         console.error('useEventDynamicQR error:', err);
       } finally {

@@ -166,7 +166,22 @@ export const LiveSlideshowView: React.FC = () => {
             family_group: null,
           }));
 
-        setGuests(transformedGuests);
+        // Resolve authoritative table metadata by ID, scoped to this exact event.
+        const tableIds = [...new Set(transformedGuests.map(g => g.table_id).filter(Boolean))];
+        const tables = await Promise.all(tableIds.map(async tableId => {
+          const { data, error } = await supabase.rpc('get_public_table_data', {
+            p_table_id: tableId!, p_event_id: firstRow.event_id,
+          });
+          if (error) throw error;
+          return data?.[0];
+        }));
+        if (cancelled) return;
+        const tableMap = new Map(tables.filter(Boolean).map(t => [t!.table_id, t!]));
+        setGuests(transformedGuests.map(guest => {
+          const table = tableMap.get(guest.table_id);
+          return { ...guest, table_no: table?.table_no ?? guest.table_no,
+            table_name: table?.table_name || undefined };
+        }));
       } catch (error) {
         if (!cancelled) setLoadError(true);
         console.error('Error fetching event data:', error);
@@ -193,63 +208,9 @@ export const LiveSlideshowView: React.FC = () => {
           table: 'guests',
           filter: `event_id=eq.${event.id}`
         },
-        (payload) => {
-          console.log('Live Slideshow realtime guest update received:', payload);
-          
-          const { eventType, new: newRecord, old: oldRecord } = payload;
-          
-          setGuests(currentGuests => {
-            switch (eventType) {
-              case 'INSERT':
-                if (newRecord && !currentGuests.some(g => g.id === newRecord.id)) {
-                  const transformedGuest = {
-                    id: newRecord.id,
-                    first_name: newRecord.first_name,
-                    last_name: newRecord.last_name,
-                    table_id: newRecord.table_id,
-                    table_no: newRecord.table_no,
-                    seat_no: newRecord.seat_no,
-                    relation_display: newRecord.relation_display,
-                    rsvp: normalizeRsvp(newRecord.rsvp),
-                    dietary: newRecord.dietary,
-                    table_name: null // Will be updated if needed
-                  };
-                  return [...currentGuests, transformedGuest];
-                }
-                return currentGuests;
-
-              case 'UPDATE':
-                if (newRecord) {
-                  return currentGuests.map(g => 
-                    g.id === newRecord.id 
-                      ? {
-                          ...g,
-                          first_name: newRecord.first_name,
-                          last_name: newRecord.last_name,
-                          table_id: newRecord.table_id,
-                          table_no: newRecord.table_no,
-                          seat_no: newRecord.seat_no,
-                          relation_display: newRecord.relation_display,
-                          rsvp: normalizeRsvp(newRecord.rsvp),
-                          dietary: newRecord.dietary
-                        }
-                      : g
-                  );
-                }
-                return currentGuests;
-
-              case 'DELETE':
-                if (oldRecord) {
-                  return currentGuests.filter(g => g.id !== oldRecord.id);
-                }
-                return currentGuests;
-
-              default:
-                return currentGuests;
-            }
-          });
-        }
+        () => setRefresh(n => n + 1)
       )
+      .on('postgres_changes', { event: '*', schema: 'public', table: 'tables', filter: `event_id=eq.${event.id}` }, () => setRefresh(n => n + 1))
       .subscribe((status) => {
         console.log(`Live Slideshow realtime subscription status: ${status}`);
       });
@@ -263,11 +224,12 @@ export const LiveSlideshowView: React.FC = () => {
   const filteredGuests = useMemo(() => {
     if (searchTerm.trim().length === 0) return [];
 
-    const term = searchTerm.trim().toLowerCase();
+    const normalized = (value: string) => value.trim().toLowerCase().replace(/\s+/g, ' ');
+    const term = normalized(searchTerm);
     return guests.filter(guest => {
-      const fullName = `${guest.first_name} ${guest.last_name}`.toLowerCase();
-      const firstName = (guest.first_name || '').toLowerCase();
-      const lastName = (guest.last_name || '').toLowerCase();
+      const firstName = normalized(guest.first_name || '');
+      const lastName = normalized(guest.last_name || '');
+      const fullName = [firstName, lastName].filter(Boolean).join(' ');
       
       return firstName.includes(term) || 
              lastName.includes(term) || 
@@ -369,7 +331,7 @@ export const LiveSlideshowView: React.FC = () => {
                   placeholder="Enter your name..."
                   value={searchTerm}
                   onChange={(e) => handleSearchChange(e.target.value)}
-                  className="pl-16 text-2xl h-20 text-center font-medium border-2 focus:border-primary shadow-lg max-md:pl-10 max-md:pr-3 max-md:text-base max-md:h-12 max-md:text-left"
+                  className={`${styles.nameSearch} pl-16 pr-4 text-center font-medium border-2 focus:border-primary shadow-lg max-md:pl-10 max-md:pr-3 max-md:text-left`}
                   autoFocus
                 />
               </div>
@@ -405,7 +367,7 @@ export const LiveSlideshowView: React.FC = () => {
                       Welcome, {filteredGuests[0].first_name} 👋
                     </h2>
                   )}
-                  <div className="grid grid-cols-1 md:grid-cols-2 lg:grid-cols-3 gap-6">
+                  <div className={styles.resultGrid}>
                     {filteredGuests.map((guest) => (
                       <LiveSlideshowGuestCard
                         key={guest.id}

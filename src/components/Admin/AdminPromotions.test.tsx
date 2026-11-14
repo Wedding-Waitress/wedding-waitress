@@ -34,18 +34,18 @@ describe('owner promotional controls', () => {
   });
   it('sends the owner verification and manually entered campaign, without any checkout call', async () => {
     sessionStorage.setItem('ww_admin_grant', 'fixture-grant'); sessionStorage.setItem('ww_admin_grant_sig', 'fixture-signature');
-    invoke.mockResolvedValue({ data: { success: true, data: { id: 'fixture', code: 'VENUE50', campaign_name: 'Venue introduction', percent_off: 50, active: true } } });
+    invoke.mockResolvedValue({ data: { success: true, data: { expiry_version:1,expiry_date:null,expires_at:null,id: 'fixture', code: 'VENUE50', campaign_name: 'Venue introduction', percent_off: 50, active: true, audience_version: 2, audience: 'general', usage_limit: 1, used: 0, reserved: 0, remaining: 1 } } });
     render(<AdminPromotions />);
     fireEvent.change(screen.getByLabelText('Campaign name'), { target: { value: 'Venue introduction' } });
     fireEvent.change(screen.getByLabelText('Promo code'), { target: { value: 'VENUE50' } });
     fireEvent.click(screen.getByRole('button', { name: 'Create promo code' }));
-    await waitFor(() => expect(invoke).toHaveBeenCalledWith('admin-promotions', { body: expect.objectContaining({ action: 'create', code: 'VENUE50', percent_off: 50, admin_grant: 'fixture-grant', admin_grant_signature: 'fixture-signature' }) }));
-    expect(await screen.findByRole('button', { name: 'Pause code' })).toBeInTheDocument();
+    await waitFor(() => expect(invoke).toHaveBeenCalledWith('admin-promotions', { body: expect.objectContaining({ action: 'create_expiring_campaign', code: 'VENUE50', percent_off: 50, admin_grant: 'fixture-grant', admin_grant_signature: 'fixture-signature' }) }));
+    expect(await screen.findByRole('button', { name: 'Pause' })).toBeInTheDocument();
   });
   it('reports backend unavailability instead of inventing a campaign', async () => {
     invoke.mockResolvedValue({ error: new Error('unavailable') }); render(<AdminPromotions />);
     fireEvent.click(screen.getByRole('button', { name: 'Load campaigns' }));
     expect(await screen.findByRole('alert')).toHaveTextContent('unavailable');
-    expect(screen.queryByRole('button', { name: 'Pause code' })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: 'Pause' })).not.toBeInTheDocument();
   });
 });

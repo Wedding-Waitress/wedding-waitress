@@ -108,6 +108,31 @@ describe('useEvents confirmed deletion state', () => {
     expect(mocks.toast).toHaveBeenCalledWith({ title: 'Success', description: 'Event deleted successfully' });
   });
 
+
+  it('updates admin-visible rows only after the backend confirms another owner event deletion', async () => {
+    mocks.rows[0].user_id = 'customer-owner-uuid';
+    mocks.deleteOwnedEventRow.mockImplementation(async (id: string) => {
+      mocks.rows = mocks.rows.filter((row) => row.id !== id);
+      return { id, user_id: 'customer-owner-uuid' };
+    });
+    const { result } = renderHook(() => useEvents());
+    await waitFor(() => expect(result.current.events).toHaveLength(2));
+    await act(async () => { await result.current.deleteEvent('victim-uuid'); });
+    expect(mocks.deleteOwnedEventRow).toHaveBeenCalledWith('victim-uuid', 'owner-uuid');
+    expect(result.current.events.map(row => row.id)).toEqual(['remaining-uuid']);
+    expect(mocks.toast).toHaveBeenCalledWith({ title: 'Success', description: 'Event deleted successfully' });
+  });
+
+  it('retains the active standard-member restriction before sending any deletion', async () => {
+    const { result } = renderHook(() => useEvents());
+    await waitFor(() => expect(result.current.events).toHaveLength(2));
+    mocks.membershipQuery.maybeSingle.mockResolvedValue({ data: { role: 'standard' } });
+    await act(async () => { await expect(result.current.deleteEvent('victim-uuid')).rejects.toMatchObject({ reason: 'not-authorized' }); });
+    expect(mocks.deleteOwnedEventRow).not.toHaveBeenCalled();
+    expect(result.current.events).toHaveLength(2);
+    expect(mocks.toast).not.toHaveBeenCalledWith(expect.objectContaining({ title: 'Success' }));
+  });
+
   it('keeps state intact and never reports success when the database confirms zero rows', async () => {
     mocks.deleteOwnedEventRow.mockRejectedValue(new EventDeletionError('not-deleted', 'The event was not deleted.'));
     const { result } = renderHook(() => useEvents());

@@ -1048,9 +1048,8 @@
           {
             "heading": "Il Costo Reale delle Mappe dei Posti a Sedere per Matrimoni in Australia",
             "paragraphs": [
-              "La segnaletica tradizionale stampata per i posti a sedere in Australia si accumula rapidamente: segnaletica in acrilico $600–$1.000+, calligrafia o design $400–$700, ristampe dell'ultimo minuto $200–$450 e allestimento o noleggio cavalletto $300–$500. Totale: $1.600–$2.800.",
-              "Digitale con Wedding Waitress: una piccola stampa di codice QR $5–$100 e aggiornamenti illimitati gratuiti. Totale: costo minimo.",
-              "Ecco perché le coppie che cercano i migliori strumenti di pianificazione del matrimonio in Australia stanno passando al digitale."
+              "I costi di stampa variano in base a materiale, formato e fornitore. Confronta preventivi aggiornati; l’accesso ai pacchetti Wedding Waitress ha un costo separato indicato nella pagina Prezzi.",
+              "Durante il periodo di accesso attivo, le modifiche salvate a ospiti e tavoli compaiono nella ricerca online. Gli ospiti devono avere una connessione internet; conserva una copia stampata."
             ]
           },
           {
@@ -1063,8 +1062,7 @@
           {
             "heading": "Domande Frequenti",
             "paragraphs": [
-              "Le QR Code Seating Chart funzionano per matrimoni numerosi? Sì, prevengono gli ingorghi all'ingresso e consentono agli ospiti di trovare immediatamente il loro posto, indipendentemente dalle dimensioni della lista degli invitati.",
-              "Posso modificare la mappa dei posti a sedere il giorno del matrimonio? Sì. Gli aggiornamenti si sincronizzano istantaneamente e si riflettono sullo stesso codice QR, quindi non è mai necessario ristampare.",
+              "Durante il periodo di accesso attivo, le modifiche salvate a ospiti e tavoli compaiono nella ricerca online. Gli ospiti devono avere una connessione internet; conserva una copia stampata.",
               "E se la mia location ha una cattiva connessione Wi-Fi? Gli ospiti possono scansionare all'ingresso dove il segnale è più forte, oppure puoi fornire una piccola lista stampata di backup per tranquillità."
             ]
           },
@@ -1080,32 +1078,20 @@
         "title": "Il vero costo della segnaletica per matrimoni in Australia: piani stampati vs digitali",
         "metaTitle": "Wedding Signage Cost Australia | Printed vs Digital",
         "metaDescription": "Compare printed vs digital wedding seating charts in Australia. See how much you can save by going digital.",
-        "excerpt": "I piani stampati in Australia costano $150–$400. Ecco una chiara analisi — e come il digitale fa risparmiare centinaia.",
+        "excerpt": "I costi di stampa variano in base a materiale, formato e fornitore. Confronta preventivi aggiornati; l’accesso ai pacchetti Wedding Waitress ha un costo separato indicato nella pagina Prezzi.",
         "readingTime": "5 min di lettura",
-        "intro": "La segnaletica matrimoniale in Australia è una di quelle spese che aumenta silenziosamente. Solo la tabella dei posti a sedere può costare 150-400 dollari, e questo prima ancora di considerare insegne di benvenuto, numeri di tavolo e menu. Ecco un chiaro confronto tra stampa e digitale, in modo da sapere esattamente dove vanno i vostri soldi.",
+        "intro": "I costi di stampa variano in base a materiale, formato e fornitore. Confronta preventivi aggiornati; l’accesso ai pacchetti Wedding Waitress ha un costo separato indicato nella pagina Prezzi.",
         "sections": [
           {
             "heading": "Costi delle tabelle dei posti a sedere stampate per matrimoni in Australia",
             "paragraphs": [
-              "Un tabellone standard stampato dei posti a sedere (in acrilico, a specchio o in schiuma-board) costa tipicamente tra i 150 e i 400 dollari australiani, a seconda delle dimensioni, del materiale e dello stilista.",
-              "Avrete anche bisogno di un cavalletto (30-80 dollari), di consegnarlo o ritirarlo (20-50 dollari), e di eventuali ristampe dell'ultimo minuto se un ospite annulla (50-120 dollari). Improvvisamente il vostro \"segno da 200 dollari\" è più vicino ai 400 dollari.",
               "E una volta stampato, non può essere modificato."
             ]
           },
           {
             "heading": "Confronto dei costi per le tabelle dei posti a sedere digitali",
             "paragraphs": [
-              "Una Wedding Waitress QR Code Seating Chart digitale richiede solo un piccolo cartello stampato all'ingresso — solitamente 20-50 dollari per un A4 in acrilico o schiuma-board.",
-              "I dati dei posti a sedere sono online, quindi cancellazioni, riassegnazioni e scambi di tavolo non costano nulla per essere aggiornati. Lo stesso QR code continua a funzionare tutta la notte.",
-              "Risparmio netto per il matrimonio australiano medio: 150-350 dollari solo sulla segnaletica."
-            ]
-          },
-          {
-            "heading": "Fianco a fianco: stampato vs digitale",
-            "paragraphs": [
-              "Stampato: 150-400 dollari iniziali, 50-120 dollari per ristampa, zero modifiche, difficile da leggere in condizioni di scarsa illuminazione.",
-              "QR Code digitale: 20-50 dollari iniziali, modifiche illimitate gratuite, facile da leggere sul telefono, accessibile a tutti gli ospiti.",
-              "La stampa offre un singolo e bellissimo \"momento Instagram\". Il digitale regala un matrimonio senza stress."
+              "Durante il periodo di accesso attivo, le modifiche salvate a ospiti e tavoli compaiono nella ricerca online. Gli ospiti devono avere una connessione internet; conserva una copia stampata."
             ]
           },
           {
@@ -1118,46 +1104,44 @@
         ]
       },
       "how-to-create-qr-code-seating-chart": {
-        "title": "Come creare un piano tavoli per matrimonio con QR code in 5 minuti",
-        "metaTitle": "How to Create QR Code Seating Chart | Easy Guide",
-        "metaDescription": "Step-by-step guide to creating a QR code wedding seating chart in minutes. Simple, fast, and stress-free.",
-        "excerpt": "Una semplice guida in 5 passaggi per creare il proprio piano tavoli con QR code — dalla lista degli invitati al cartello stampato — in soli 5 minuti.",
+        "title": "Crea il tuo piano dei posti con codice QR",
+        "metaTitle": "Crea il tuo piano dei posti con codice QR | Wedding Waitress",
+        "metaDescription": "Importa un CSV o aggiungi gli ospiti singolarmente nell’Elenco ospiti.",
+        "excerpt": "Wedding Waitress mantiene collegate le informazioni che aggiungi, così ogni fase supporta i materiali stampati, i posti, i fornitori e le esperienze degli ospiti che seguono.",
         "readingTime": "5 min di lettura",
-        "intro": "Non è necessario essere esperti di tecnologia per configurare una QR Code Seating Chart per il matrimonio. L'intero processo richiede circa 5 minuti e, una volta attivo, ogni aggiornamento avviene automaticamente. Ecco esattamente come fare.",
+        "intro": "Wedding Waitress mantiene collegate le informazioni che aggiungi, così ogni fase supporta i materiali stampati, i posti, i fornitori e le esperienze degli ospiti che seguono.",
         "sections": [
           {
-            "heading": "Passo 1 — Importa la tua lista invitati",
+            "heading": "Fase 1",
             "paragraphs": [
-              "Inizia con una lista invitati pulita. Puoi incollare i nomi da un foglio di calcolo o aggiungerli uno per uno nel tuo gestore di liste invitati per il matrimonio.",
-              "Tieni traccia delle conferme man mano che arrivano, in modo da assegnare posti solo agli invitati che hanno effettivamente confermato la loro presenza."
+              "Crea e gestisci prima il tuo evento. Poi passa al pianificatore del budget dell’evento."
             ]
           },
           {
-            "heading": "Passo 2 — Crea i tuoi tavoli",
+            "heading": "Fase 2",
             "paragraphs": [
-              "Aggiungi ogni tavolo con un nome, un numero e la capacità. I tavoli rotondi solitamente ospitano 8-10 persone, mentre i lunghi tavoli da banchetto 12-24.",
-              "All'interno dello strumento per i tavoli puoi etichettare il tavolo degli sposi separatamente in modo che risalti rispetto agli altri."
+              "Pianifica e gestisci il budget dell’evento. Poi passa ai tavoli."
             ]
           },
           {
-            "heading": "Passo 3 — Trascina gli invitati sui tavoli",
+            "heading": "Fase 3",
             "paragraphs": [
-              "Trascina ogni invitato su un tavolo. Il sistema ti avvisa se superi la capacità, in modo da evitare scomode compressioni dell'ultimo minuto.",
-              "Salva contemporaneamente le esigenze dietetiche — ciò rende la coordinazione del catering molto più semplice."
+              "Crea il tavolo principale e gli altri tavoli degli ospiti. Poi passa alla lista ospiti."
             ]
           },
           {
-            "heading": "Passo 4 — Genera il tuo QR code personalizzato",
+            "heading": "Fase 4",
+            "paragraphs": [
+              "Aggiungi e gestisci gli ospiti e assegnali ai tavoli. Poi passa al piano dei posti con codice QR.",
+              "Importa un CSV o aggiungi gli ospiti singolarmente nell’Elenco ospiti."
+            ]
+          },
+          {
+            "heading": "Fase 5",
             "paragraphs": [
               "Personalizza i colori, la forma e il logo centrale del tuo QR code per abbinarlo alla palette del tuo matrimonio, quindi scarica un PNG ad alta risoluzione.",
-              "Testalo una volta con il tuo telefono per assicurarti che la scansione sia pulita anche in condizioni di scarsa illuminazione."
-            ]
-          },
-          {
-            "heading": "Passo 5 — Stampa il tuo cartello e il gioco è fatto",
-            "paragraphs": [
-              "Stampa il QR code su un piccolo cartello in acrilico, foam-board o carta per l'ingresso della location.",
-              "Il giorno stesso, gli invitati scannerizzano, cercano il loro nome e vedono istantaneamente il loro tavolo e il loro posto. Se qualcosa cambia, basta riassegnare l'invitato dal tuo telefono — il QR code continuerà a funzionare."
+              "Testalo una volta con il tuo telefono per assicurarti che la scansione sia pulita anche in condizioni di scarsa illuminazione.",
+              "Stampa il QR code su un piccolo cartello in acrilico, foam-board o carta per l'ingresso della location."
             ]
           }
         ]
@@ -1218,7 +1202,7 @@
           {
             "heading": "Come una planimetria digitale risolve il problema in 60 secondi",
             "paragraphs": [
-              "Con una QR Code Seating Chart per il matrimonio, la vostra damigella d'onore o il coordinatore possono aprire lo strumento di disposizione dei posti su un telefono, spostare l'ospite che ha annullato dal tavolo e riassegnare chiunque altro debba spostarsi.",
+              "Usa Tavoli ed Elenco ospiti per assegnare o modificare tavoli e posti. L’accesso condiviso alla pianificazione richiede un invito autorizzato al team.",
               "Il prossimo ospite che scansiona il codice QR vedrà immediatamente la disposizione aggiornata. Nessuna ristampa, nessuno scarabocchio, nessuno stress."
             ]
           },
@@ -1266,7 +1250,7 @@
             "heading": "La soluzione: un Running Sheet digitale",
             "paragraphs": [
               "Con Wedding Waitress, puoi pianificare l'intera tempistica in un unico posto, aggiornare il tuo programma istantaneamente e mantenere tutto organizzato e accessibile.",
-              "Ogni modifica si riflette in tempo reale, quindi l'ultima versione è sempre la fonte di verità — niente più PDF obsoleti che circolano nelle chat di gruppo."
+              "Condividi il link del programma salvato con la location o i fornitori. I PDF scaricati sono copie statiche; invia una versione aggiornata dopo le modifiche."
             ]
           },
           {
@@ -1279,7 +1263,7 @@
           {
             "heading": "Rimani flessibile il giorno delle nozze",
             "paragraphs": [
-              "Le cose cambiano — e va bene così. Con un Running Sheet digitale, puoi regolare i tempi istantaneamente, avvisare tutti rapidamente e mantenere il tuo evento senza intoppi.",
+              "Salva le modifiche, poi chiedi ai destinatari di riaprire il link condiviso oppure invia un nuovo PDF.",
               "Che la cerimonia inizi con 10 minuti di ritardo o i discorsi si protraggano, il tuo team può vedere gli aggiornamenti immediatamente."
             ]
           },

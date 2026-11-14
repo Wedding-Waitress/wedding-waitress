@@ -3,7 +3,7 @@ import { createPromotionCheckout, type PromotionCheckoutDependencies } from '../
 describe('promotional Checkout creation', () => {
   let deps: PromotionCheckoutDependencies;
   const input = { userId: 'user-fixture', verifiedEmail: 'verified@example.test', code: 'VENUE51', plan: 'essential' as const,
-    consent: true, returnOrigin: 'http://localhost:8080', livemode: false, taxRegistrationVerified: true, worldwideGstRateId: 'txr_TestWorldwideGstRate' };
+    consent: true, returnOrigin: 'http://localhost:8080', livemode: false, taxRegistrationVerified: true, worldwideGstRateId: 'txr_Fixture' };
   const reservation = { id: '11111111-1111-4111-8111-111111111111', percent_off: 51, included_credits: 0, plan_key: 'essential' as const, stripe_session_id: null };
   const recordedMetadata = { promotion_version: '1', promotion_reservation_id: reservation.id, user_id: input.userId,
     plan_type: input.plan, plan_purchase_purpose: 'new_plan', purchase_consent: 'explicit-v1' };
@@ -62,13 +62,13 @@ describe('promotional Checkout creation', () => {
     expect(deps.ensureCoupon).toHaveBeenCalledWith(`ww-promotion-${reservation.id}:1`,51,'ww_live_20260914_v2_essential');
     expect(deps.createSession).toHaveBeenCalledWith(expect.anything(),`ww-promotion-checkout:${reservation.id}:1`);
   });
-  it('never retries an expired checkout that has payment evidence',async()=>{
+  it('never retries when expired payment evidence cannot be safely released',async()=>{
     vi.mocked(deps.reserve).mockResolvedValue({...reservation,stripe_session_id:'cs_previous'});
     vi.mocked(deps.retrieveSession).mockResolvedValue({id:'cs_previous',status:'expired',payment_status:'unpaid',payment_intent:'pi_uncertain',mode:'payment',customer:'cus_fixture',livemode:false,
       metadata:recordedMetadata});
-    deps.reconcileExpired=vi.fn();
+    deps.reconcileExpired=vi.fn().mockRejectedValue(new Error('Previous payment must be reconciled first'));
     await expect(createPromotionCheckout(deps,input)).rejects.toThrow('reconciled');
-    expect(deps.reconcileExpired).not.toHaveBeenCalled();expect(deps.createSession).not.toHaveBeenCalled();
+    expect(deps.reconcileExpired).toHaveBeenCalled();expect(deps.createSession).not.toHaveBeenCalled();
   });
   it.each([
     { plan_type: 'premium' }, { plan_purchase_purpose: 'renewal' },

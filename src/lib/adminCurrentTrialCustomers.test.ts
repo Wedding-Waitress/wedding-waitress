@@ -1,0 +1,10 @@
+import {describe,expect,it} from 'vitest';
+import {currentTrialCustomerIds} from './adminCurrentTrialCustomers';
+const now=Date.parse('2026-11-15T00:00:00Z');
+const base={user_id:'trial',created_at:'2026-11-13T00:00:00Z',started_at:'2026-11-13T00:00:00Z',expires_at:'2026-11-20T00:00:00Z',subscription_status:'trialing',plan_name:'Starter',is_read_only:false};
+describe('authoritative current trial customer filter',()=>{
+ it('recognises a currently running trial without inferring one from customer signup age or a legacy customer plan label',()=>{expect([...currentTrialCustomerIds([base],new Set(['trial','legacy-starter']),now)]).toEqual(['trial']);});
+ it('excludes expired, cancelled, future, undated, read-only and orphaned trial records without mutating them',()=>{const rows=[{...base,user_id:'expired',expires_at:'2026-11-14',subscription_status:'active'},{...base,user_id:'boundary',expires_at:'2026-11-15T00:00:00Z'},{...base,user_id:'cancelled',subscription_status:'cancelled'},{...base,user_id:'future',started_at:'2026-11-16'},{...base,user_id:'undated',expires_at:''},{...base,user_id:'readonly',is_read_only:true},{...base,user_id:'orphan'}];const original=JSON.stringify(rows);expect(currentTrialCustomerIds(rows,new Set(rows.filter(r=>r.user_id!=='orphan').map(r=>r.user_id)),now).size).toBe(0);expect(JSON.stringify(rows)).toBe(original);});
+ it('uses the latest authoritative subscription so a paid upgrade replaces an older unexpired trial',()=>{const paid={...base,created_at:'2026-11-14',subscription_status:'active',plan_name:'Essential'};expect(currentTrialCustomerIds([base,paid],new Set(['trial']),now).size).toBe(0);});
+ it('follows the current metric’s explicit trial state and legacy trial subscription identifiers',()=>{expect([...currentTrialCustomerIds([{...base,user_id:'explicit',plan_name:'Essential'},{...base,user_id:'legacy-active',subscription_status:'active',plan_name:'Starter Trial'}],new Set(['explicit','legacy-active']),now)]).toEqual(['explicit','legacy-active']);});
+});

@@ -1,4 +1,4 @@
-// Strict privacy separation between PUBLIC gallery media and PRIVATE guestbook content.
+// All ordinary guest uploads, booth captures and guestbook submissions share the gallery.
 //
 // Classification is driven by the persisted `source_category` column
 // ('guest_upload' | 'photo_booth' | 'guestbook_recording'), never by MIME type or `kind`:
@@ -11,16 +11,14 @@ export type MediaSourceCategory =
   | 'guest_upload'
   | 'photo_booth'
   | 'guestbook_recording'
-  | 'guestbook_text';
+  | 'guestbook_text'
+  | 'video_wishes';
 
 /** Categories allowed in the guest-facing gallery, Live Slideshow and gallery ZIPs. */
-export const PUBLIC_GALLERY_CATEGORIES: MediaSourceCategory[] = ['guest_upload', 'photo_booth'];
+export const PUBLIC_GALLERY_CATEGORIES: MediaSourceCategory[] = ['guest_upload', 'photo_booth', 'guestbook_recording', 'guestbook_text'];
 
 /** Categories that must never leave the organiser's private Guestbook workspaces. */
-export const PRIVATE_GUESTBOOK_CATEGORIES: MediaSourceCategory[] = [
-  'guestbook_recording',
-  'guestbook_text',
-];
+export const PRIVATE_GUESTBOOK_CATEGORIES: MediaSourceCategory[] = [];
 
 export interface ClassifiableItem {
   source_category?: string | null;
@@ -30,22 +28,23 @@ export interface ClassifiableItem {
   kind?: string;
   moderation_status?: string;
   signed_url?: string;
-  /** Organiser deliberately published this private guestbook recording to the gallery. */
+  /** Legacy sharing flag; never authorises Guestbook publication. */
   shared_to_gallery?: boolean | null;
 }
 
 /** Resolve the authoritative category for a media row. */
 export function categoryOf(item: ClassifiableItem): MediaSourceCategory {
   const raw = (item.source_category || '').trim();
+  if (raw !== 'video_wishes' && item.is_guestbook) return 'guestbook_recording';
   if (
     raw === 'guest_upload' ||
     raw === 'photo_booth' ||
     raw === 'guestbook_recording' ||
+    raw === 'video_wishes' ||
     raw === 'guestbook_text'
   ) {
     return raw;
   }
-  if (item.is_guestbook) return 'guestbook_recording';
   if (item.is_photo_booth) return 'photo_booth';
   return 'guest_upload';
 }
@@ -55,19 +54,15 @@ export function isPrivateGuestbook(item: ClassifiableItem): boolean {
   return PRIVATE_GUESTBOOK_CATEGORIES.includes(categoryOf(item));
 }
 
-/** True when the organiser has deliberately shared a guestbook recording to the gallery. */
-export function isSharedGuestbookRecording(item: ClassifiableItem): boolean {
-  return categoryOf(item) === 'guestbook_recording' && item.shared_to_gallery === true;
-}
 
 /** True for content that belongs to the public gallery surface (regardless of moderation). */
 export function isPublicGalleryMedia(item: ClassifiableItem): boolean {
   const cat = categoryOf(item);
-  // Private guestbook recordings only become public when explicitly shared by the organiser.
-  if (cat === 'guestbook_recording') return item.shared_to_gallery === true;
+  if (cat === 'video_wishes') return false; // Managed in the Video Wishes section; edge feed checks sharing.
+  if (isPrivateGuestbook(item)) return false;
   if (!PUBLIC_GALLERY_CATEGORIES.includes(cat)) return false;
   // Audio can only ever be a guestbook recording; never publish it.
-  return item.kind !== 'audio';
+  return item.kind === 'photo' || item.kind === 'video' || (item.kind === 'audio' && cat === 'guestbook_recording');
 }
 
 /** Keep only public gallery media (host media library, ZIPs, counts). */

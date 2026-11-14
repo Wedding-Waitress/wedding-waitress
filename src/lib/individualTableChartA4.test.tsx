@@ -96,6 +96,20 @@ describe('individual table chart A4 architecture', () => {
     expect(toggledMarkup).not.toContain('Friend');
   });
 
+  it('treats a saved legacy Guest relationship as unset in the shared preview and PDF renderer', () => {
+    const markup = renderToStaticMarkup(
+      <IndividualTableChartPrintPage
+        settings={settings}
+        table={table}
+        guests={[{ ...guest, relation_role: 'guest', relation_display: 'Reema / Guest' }]}
+        event={{ name: 'Test Wedding', date: '2026-08-11' }}
+      />
+    );
+
+    expect(markup).not.toContain('data-relationship-text="true"');
+    expect(markup).not.toContain('Reema / Guest');
+  });
+
   it.each(['round', 'square', 'long'] as const)('renders the canonical %s table layout', (tableShape) => {
     expect(renderPage({ tableShape })).toContain(`data-table-layout="${tableShape}"`);
   });
@@ -163,7 +177,7 @@ describe('individual table chart A4 architecture', () => {
     expect(markup).toContain('font-weight:700');
     expect(markup).toContain('font-style:italic');
     expect(markup).toContain('text-decoration:underline');
-    expect(markup).toContain('src="/wedding-waitress-logo-brown.png"');
+    expect(markup).toContain('src="/wedding-waitress-document-footer-dark-brown.png"');
     expect(markup).not.toContain('filter:grayscale');
     expect(markup).toContain('data-footer-layout="three-column"');
     expect(markup).toContain('data-footer-alignment="single-line-centred"');

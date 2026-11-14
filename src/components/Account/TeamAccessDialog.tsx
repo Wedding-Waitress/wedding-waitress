@@ -41,26 +41,27 @@ export const TeamAccessDialog: React.FC<Props> = ({ open, onOpenChange, mode = '
         <DialogHeader>
           <div className={dialogStyles.iconWrap}><ShieldCheck /></div>
           <DialogTitle className={dialogStyles.title}>{mode === 'invite' ? 'Invite a team member' : 'Manage Team & Access'}</DialogTitle>
-          <DialogDescription className={dialogStyles.description}>The master account holder controls the seats included with the current plan. Team members can work on the account but cannot manage billing, ownership or other users.</DialogDescription>
+          <DialogDescription className={dialogStyles.description}>Five people total: the Master Account Holder and up to four team members. Accepted membership follows the owner's account access and has no separate expiry.</DialogDescription>
         </DialogHeader>
 
         <div className={styles.summary} aria-label="Account seat usage">
           <div><span>Seats used</span><strong>{team.loading ? '—' : `${team.seats.used} / ${team.seats.maximum}`}</strong></div>
           <div><span>Seats available</span><strong>{team.loading ? '—' : team.seats.remaining}</strong></div>
         </div>
+        {team.refreshing && team.hasData && <p role="status">Updating team access...</p>}
         {team.error && <div className={styles.error} role="alert">{team.error}</div>}
 
         {mode === 'invite' && <form className={styles.inviteForm} onSubmit={submitInvite}>
           <div className={styles.fields}>
-            <div className={styles.field}><label htmlFor="team-invite-first-name">First name</label><input id="team-invite-first-name" required autoComplete="given-name" maxLength={80} value={invitee.firstName} onChange={(event) => setInvitee((value) => ({ ...value, firstName: event.target.value }))} disabled={team.seats.remaining === 0 || busyId !== null} /></div>
-            <div className={styles.field}><label htmlFor="team-invite-last-name">Last name</label><input id="team-invite-last-name" required autoComplete="family-name" maxLength={80} value={invitee.lastName} onChange={(event) => setInvitee((value) => ({ ...value, lastName: event.target.value }))} disabled={team.seats.remaining === 0 || busyId !== null} /></div>
-            <div className={styles.field}><label htmlFor="team-invite-email">Email address</label><input id="team-invite-email" type="email" required autoComplete="email" value={invitee.email} onChange={(event) => setInvitee((value) => ({ ...value, email: event.target.value }))} placeholder="team.member@example.com" disabled={team.seats.remaining === 0 || busyId !== null} /></div>
-            <div className={styles.field}><label htmlFor="team-invite-mobile">Phone number</label><input id="team-invite-mobile" type="tel" required autoComplete="tel" maxLength={30} value={invitee.mobile} onChange={(event) => setInvitee((value) => ({ ...value, mobile: event.target.value }))} placeholder="04XX XXX XXX or +61…" disabled={team.seats.remaining === 0 || busyId !== null} /></div>
+            <div className={styles.field}><label htmlFor="team-invite-first-name">First name</label><input id="team-invite-first-name" required autoComplete="given-name" maxLength={80} value={invitee.firstName} onChange={(event) => setInvitee((value) => ({ ...value, firstName: event.target.value }))} disabled={!team.ready || team.loading || !!team.error || team.seats.remaining === 0 || busyId !== null} /></div>
+            <div className={styles.field}><label htmlFor="team-invite-last-name">Last name</label><input id="team-invite-last-name" required autoComplete="family-name" maxLength={80} value={invitee.lastName} onChange={(event) => setInvitee((value) => ({ ...value, lastName: event.target.value }))} disabled={!team.ready || team.loading || !!team.error || team.seats.remaining === 0 || busyId !== null} /></div>
+            <div className={styles.field}><label htmlFor="team-invite-email">Email address</label><input id="team-invite-email" type="email" required autoComplete="email" value={invitee.email} onChange={(event) => setInvitee((value) => ({ ...value, email: event.target.value }))} placeholder="team.member@example.com" disabled={!team.ready || team.loading || !!team.error || team.seats.remaining === 0 || busyId !== null} /></div>
+            <div className={styles.field}><label htmlFor="team-invite-mobile">Phone number</label><input id="team-invite-mobile" type="tel" required autoComplete="tel" maxLength={30} value={invitee.mobile} onChange={(event) => setInvitee((value) => ({ ...value, mobile: event.target.value }))} placeholder="04XX XXX XXX or +61…" disabled={!team.ready || team.loading || !!team.error || team.seats.remaining === 0 || busyId !== null} /></div>
           </div>
-          <Button type="submit" className={controlStyles.primaryButton} disabled={team.seats.remaining === 0 || busyId !== null || Object.values(invitee).some((value) => !value.trim())}><MailPlus />{busyId === 'invite' ? 'Sending…' : 'Send Invite'}</Button>
+          <Button type="submit" className={controlStyles.primaryButton} disabled={!team.ready || team.loading || !!team.error || team.seats.remaining === 0 || busyId !== null || Object.values(invitee).some((value) => !value.trim())}><MailPlus />{busyId === 'invite' ? 'Sending…' : 'Send Invite'}</Button>
         </form>}
 
-        <section className={styles.section} aria-labelledby="active-team-heading"><h3 id="active-team-heading">People with access</h3>
+        <section className={styles.section} aria-labelledby="active-team-heading"><h3 id="active-team-heading">People with access (accepted)</h3>
           <div className={styles.peopleTable} role="table" aria-label="People with account access">
             <div data-team-roster-header className={styles.tableHeader} role="row"><span data-team-roster-label role="columnheader">Full Name</span><span data-team-roster-label role="columnheader">Email</span><span data-team-roster-label role="columnheader">Phone Number</span><span data-team-roster-label role="columnheader">Account Role</span></div>
             <div className={styles.list}>{team.members.map((member) => {
@@ -70,7 +71,7 @@ export const TeamAccessDialog: React.FC<Props> = ({ open, onOpenChange, mode = '
                 <div role="cell" data-label="Email"><span>{member.member_email}</span></div>
                 <div role="cell" data-label="Phone Number"><span>{member.mobile || '—'}</span></div>
                 <div className={styles.roleCell} role="cell" data-label="Account Role">{member.role === 'master' ? <span className={styles.badge}><Crown /> Master Account Holder</span> : <span className={styles.memberBadge}>Team Member</span>}</div>
-                {member.role !== 'master' && <div className={styles.rowActions}><Button type="button" className={controlStyles.destructiveButton} disabled={busyId !== null} onClick={() => { if (window.confirm(`Remove account access for ${member.member_email}?`)) void run(member.id, () => team.removeMember(member.id), 'Team member access removed'); }} aria-label={`Remove ${member.member_email}`}><UserRoundMinus />Remove</Button></div>}
+                {member.role !== 'master' && <div className={styles.rowActions}><Button type="button" className={controlStyles.destructiveButton} disabled={!team.ready || !!team.error || busyId !== null} onClick={() => { if (window.confirm(`Remove account access for ${member.member_email}?`)) void run(member.id, () => team.removeMember(member.id), 'Team member access removed'); }} aria-label={`Remove ${member.member_email}`}><UserRoundMinus />Remove</Button></div>}
               </div>;
             })}</div>
           </div>
@@ -79,7 +80,7 @@ export const TeamAccessDialog: React.FC<Props> = ({ open, onOpenChange, mode = '
         <section className={styles.section} aria-labelledby="pending-team-heading"><h3 id="pending-team-heading">Pending invitations</h3>
           {team.invitations.length === 0 ? <p className={styles.empty}>No pending invitations.</p> : <div className={styles.list}>{team.invitations.map((invitation) => <div className={styles.row} key={invitation.id}>
             <div className={styles.identity}><strong>{invitation.first_name} {invitation.last_name}</strong><span>{invitation.email} · {invitation.mobile}</span><span><Clock3 className="inline h-3 w-3" /> Expires {new Date(invitation.expires_at).toLocaleDateString('en-AU')}</span></div>
-            <Button type="button" className={controlStyles.destructiveButton} disabled={busyId !== null} onClick={() => { if (window.confirm(`Revoke the invitation for ${invitation.email}?`)) void run(invitation.id, () => team.revokeInvitation(invitation.id), 'Invitation revoked'); }} aria-label={`Revoke invitation for ${invitation.email}`}><Trash2 />Revoke</Button>
+            <Button type="button" className={controlStyles.destructiveButton} disabled={!team.ready || !!team.error || busyId !== null} onClick={() => { if (window.confirm(`Revoke the invitation for ${invitation.email}?`)) void run(invitation.id, () => team.revokeInvitation(invitation.id), 'Invitation revoked'); }} aria-label={`Revoke invitation for ${invitation.email}`}><Trash2 />Revoke</Button>
           </div>)}</div>}
         </section>
       </DialogContent>

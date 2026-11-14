@@ -7,6 +7,7 @@ import { MemoryRouter } from 'react-router-dom';
 import type { GalleryItem, GalleryMeta } from '@/hooks/useEventMediaGallery';
 import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 import { GalleryTextGuestbookFeaturePage } from './GalleryTextGuestbookFeaturePage';
+import { GalleryGuestbookMessagesCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryGuestbookMessagesCard';
 
 const mocks = vi.hoisted(() => ({
   events: vi.fn(),
@@ -46,8 +47,8 @@ vi.mock('@/integrations/supabase/client', () => ({
 
 const event = { id: 'event-1', name: "Jason & Linda's Wedding", date: '2026-12-20' };
 const meta = {
-  gallery_id: 'gallery-1', primary_token: 'public-token', guestbook_text_enabled: true,
-  voice_guestbook_enabled: true, gallery_view_enabled: true,
+  gallery_id: 'gallery-1', primary_token: 'public-token', guestbook_text_enabled: false,
+  voice_guestbook_enabled: false, gallery_view_enabled: true,
 } as GalleryMeta;
 const recording: GalleryItem = {
   id: 'recording-1', kind: 'audio', mime_type: 'audio/webm', byte_size: 1234,
@@ -62,7 +63,45 @@ const gallery = {
   setGuestbookShare: vi.fn(async () => undefined),
 };
 
-describe('Digital Guestbook premium appearance', () => {
+const CentralGuestbookFixture=()=>{const state:any=mocks.gallery(),selected=mocks.selectedEvent();return <GalleryGuestbookMessagesCard eventId={selected.selectedEventId} items={state.items} eventName={selected.selectedEvent?.name} loading={state.loading} error={state.error} onSetItemModeration={state.setModeration} onRefreshRecordings={state.refreshRecordings} appearance="espresso-glass"/>;};
+describe('Digital Guestbook and central message management', () => {
+  it.each(['Written Messages', 'Audio Messages', 'Video Messages'])('Refresh reloads text and both recording types from the %s tab', async tab => {
+    const initialRows = mocks.rows;
+    const refreshRecordings = vi.fn(async () => undefined);
+    mocks.gallery.mockReturnValue({ ...gallery, refreshRecordings });
+    const view = render(<MemoryRouter><CentralGuestbookFixture /></MemoryRouter>);
+    try {
+      await screen.findByText('Congratulations to you both.');
+      fireEvent.click(screen.getByRole('button', { name: new RegExp(tab) }));
+      mocks.rows = [...initialRows, { ...initialRows[0], id: 'new-text', message: 'Fresh written message' }];
+      fireEvent.click(screen.getByRole('button', { name: 'Refresh' }));
+      await waitFor(() => expect(refreshRecordings).toHaveBeenCalledOnce());
+      await waitFor(() => expect(screen.getByRole('button', { name: 'Refresh' })).toBeEnabled());
+      mocks.gallery.mockReturnValue({ ...gallery, refreshRecordings, items: [recording,
+        { ...recording, id: 'new-audio', uploader_name: 'Fresh Audio', guestbook_message: null },
+        { ...recording, id: 'new-video', kind: 'video', uploader_name: 'Fresh Video', guestbook_message: null },
+      ] });
+      view.rerender(<MemoryRouter><CentralGuestbookFixture /></MemoryRouter>);
+      fireEvent.click(screen.getByRole('button', { name: 'Written Messages (3)' }));
+      expect(screen.getByText('Fresh written message')).toBeVisible();
+      fireEvent.click(screen.getByRole('button', { name: 'Audio Messages (2)' }));
+      expect(screen.getByText('Fresh Audio')).toBeVisible();
+      fireEvent.click(screen.getByRole('button', { name: 'Video Messages (1)' }));
+      expect(screen.getByText('Fresh Video')).toBeVisible();
+    } finally { mocks.rows = initialRows; }
+  });
+
+  it('retains saved recordings and reports a recording refresh failure', async () => {
+    const refreshRecordings = vi.fn().mockRejectedValue(new Error('Recording refresh failed'));
+    mocks.gallery.mockReturnValue({ ...gallery, refreshRecordings });
+    render(<MemoryRouter><CentralGuestbookFixture /></MemoryRouter>);
+    await screen.findByText('Congratulations to you both.');
+    fireEvent.click(screen.getByRole('button', { name: 'Audio Messages (1)' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Refresh' }));
+    expect(await screen.findByText('Recording refresh failed')).toBeVisible();
+    expect(screen.getByText('Linda')).toBeVisible();
+    expect(screen.getByRole('button', { name: 'Refresh' })).toBeEnabled();
+  });
   beforeEach(() => {
     mocks.events.mockReturnValue({ events: [event], loading: false });
     mocks.selectedEvent.mockReturnValue({ selectedEventId: event.id, selectedEvent: event });
@@ -78,73 +117,7 @@ describe('Digital Guestbook premium appearance', () => {
     vi.restoreAllMocks();
   });
 
-  it('styles the real route controls, cards, toolbar and messages without changing their behavior', async () => {
-    render(<MemoryRouter><GalleryTextGuestbookFeaturePage /></MemoryRouter>);
-
-    expect(await screen.findByRole('heading', { name: 'Digital Guestbook', level: 1 })).toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Back to Photo & Video Sharing' })).toHaveClass(managementStyles.glassAction);
-    const previewAction = screen.getByRole('button', { name: 'Preview as Guest' });
-    expect(previewAction).toHaveClass(managementStyles.glassAction);
-    expect(previewAction).toHaveClass(managementStyles.workspaceHeaderAction);
-    expect(previewAction).toBeEnabled();
-    expect(screen.getByText('Selected event')).toHaveClass(managementStyles.selectedEventLabel);
-    expect(screen.getByText(event.name)).toHaveClass(managementStyles.selectedEventName);
-    expect(screen.getByRole('switch', { name: 'Digital Guestbook enabled' })).toBeChecked();
-
-    for (const name of ['How the Digital Guestbook Works', 'Digital Guestbook Access']) {
-      expect(screen.getByRole('heading', { name }).closest('[data-appearance="espresso-glass"]')).toHaveClass(managementStyles.glassCard);
-    }
-    for (const step of ['1. Open the Digital Guestbook', '2. Choose a message type', '3. Create and submit', '4. Private delivery']) {
-      expect(screen.getByText(step)).toHaveClass(managementStyles.galleryViewHeading);
-    }
-
-    await screen.findByText('Congratulations to you both.');
-    const messagesHeading = screen.getByRole('heading', { name: /Guestbook Messages/ });
-    expect(messagesHeading).toHaveTextContent('Guestbook Messages (3)');
-    const messagesPanel = messagesHeading.closest('[data-appearance="espresso-glass"]');
-    expect(messagesPanel).toHaveClass(managementStyles.galleryPanel, managementStyles.guestbookMessagesPanel);
-    expect(screen.getByPlaceholderText(/Search by guest name or message/)).toHaveClass(managementStyles.galleryControl);
-    expect(screen.getByRole('button', { name: 'Refresh' })).toHaveClass(managementStyles.galleryControl);
-    expect(screen.getByRole('button', { name: 'Select' })).toHaveClass(managementStyles.galleryControl);
-    const downloadAll = screen.getByRole('button', { name: 'Download all guestbook messages' });
-    expect(downloadAll).toHaveClass(managementStyles.galleryControl);
-    expect(downloadAll).toHaveTextContent('Download All');
-    expect(downloadAll).toHaveTextContent('1');
-    expect(screen.getByRole('button', { name: 'Export CSV' })).toHaveClass(managementStyles.galleryViewPrimaryAction);
-
-    const actions = messagesPanel?.querySelector('[data-guestbook-toolbar="actions"]');
-    expect(actions).toHaveClass('grid-cols-2', 'sm:justify-end');
-    expect(within(actions as HTMLElement).getAllByRole('button')).toEqual([
-      screen.getByRole('button', { name: 'Refresh' }),
-      screen.getByRole('button', { name: 'Select' }),
-      downloadAll,
-      screen.getByRole('button', { name: 'Export CSV' }),
-    ]);
-
-    const filters = messagesPanel?.querySelector('[data-guestbook-toolbar="filters"]');
-    expect(filters).toHaveClass('grid-cols-2', 'xl:grid-cols-[minmax(220px,1fr)_repeat(3,max-content)_140px_140px]');
-    const filterControls = within(filters as HTMLElement);
-    const controlsInOrder = [
-      filterControls.getByPlaceholderText(/Search by guest name or message/),
-      filterControls.getByRole('button', { name: 'Written Messages (2)' }),
-      filterControls.getByRole('button', { name: 'Audio Messages (1)' }),
-      filterControls.getByRole('button', { name: 'Video Messages (0)' }),
-      ...filterControls.getAllByRole('combobox'),
-    ];
-    controlsInOrder.slice(1).forEach((control, index) => {
-      expect(controlsInOrder[index].compareDocumentPosition(control) & Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
-    });
-
-    const writtenTab = screen.getByRole('button', { name: 'Written Messages (2)' });
-    const audioTab = screen.getByRole('button', { name: 'Audio Messages (1)' });
-    expect(writtenTab).toHaveClass(managementStyles.galleryControlActive);
-    expect(audioTab).toHaveClass(managementStyles.galleryControl);
-    fireEvent.click(audioTab);
-    expect(audioTab).toHaveAttribute('aria-pressed', 'true');
-    expect(screen.getByText('Linda').closest('li')).toHaveClass(managementStyles.guestbookMessageCard);
-    expect(screen.getByRole('button', { name: 'Add to Gallery' })).toHaveClass(managementStyles.galleryControl);
-    expect(screen.getByRole('button', { name: 'Download recording' })).toHaveClass(managementStyles.galleryControl);
-  });
+  it('keeps the guestbook settings and access cards without a bottom message list',async()=>{render(<MemoryRouter><GalleryTextGuestbookFeaturePage /></MemoryRouter>);expect(await screen.findByRole('heading',{name:'Digital Guestbook',level:1})).toBeInTheDocument();expect(screen.getByRole('heading',{name:'Digital Guestbook Access'})).toBeInTheDocument();expect(screen.getByRole('heading',{name:'How the Digital Guestbook Works'})).toBeInTheDocument();expect(screen.getByRole('button',{name:'Preview as Guest'})).toBeEnabled();expect(screen.queryByText(/Guestbook Messages/)).not.toBeInTheDocument();});
 
   it('uses the responsive 45/55 upper-card grid and stacks the Access card before its controls become cramped', async () => {
     const { container } = render(<MemoryRouter><GalleryTextGuestbookFeaturePage /></MemoryRouter>);
@@ -197,7 +170,7 @@ describe('Digital Guestbook premium appearance', () => {
   });
 
   it('wires portal menus and includes focus, touch and reduced-motion states', async () => {
-    render(<MemoryRouter><GalleryTextGuestbookFeaturePage /></MemoryRouter>);
+    render(<MemoryRouter><CentralGuestbookFixture /></MemoryRouter>);
     await screen.findByText('Congratulations to you both.');
 
     const newest = screen.getAllByRole('combobox')[0];

@@ -632,3 +632,12 @@
  box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30!important;
 }
 :global(#root#root#root) button.exportButton :is(svg,svg *) {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;}
+
+/* Display Options controls only; saved colours and document rendering stay intact. */
+@layer dashboard-interface {
+ .settingsPanel .displayRow {display:grid!important;grid-template-columns:minmax(0,1fr) auto!important;align-items:center!important;gap:8px!important;}
+ .displayRow > label {grid-column:1!important;grid-row:1;min-width:0;}
+ .displayRow > [role="switch"] {grid-column:2;grid-row:1;}
+ .displayRow .swatchGroup {grid-column:1 / -1;grid-row:2;display:flex;flex-wrap:wrap;justify-content:flex-end;align-items:center;gap:6px;min-width:0;max-width:100%;padding:4px;}
+ .settingsPanel .displayRow .colorSwatch {width:24px!important;height:24px!important;min-width:24px!important;min-height:24px!important;max-width:24px!important;max-height:24px!important;padding:0!important;border-radius:0!important;}
+}

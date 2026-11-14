@@ -125,5 +125,5 @@ export const useProfile = () => {
     broadcastProfile({ ...profileCache, ...updates });
   };
 
-  return { profile, loading, error, updateDisplayCountdownEvent, updateCachedProfile };
+  return { profile, loading, error, updateDisplayCountdownEvent, updateCachedProfile, refreshProfile: requestProfile };
 };

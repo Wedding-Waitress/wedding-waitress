@@ -15,3 +15,12 @@
 }
 :global(body) button.fullTopup.fullTopup.fullTopup svg {width:16px;height:16px;color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;}
 :global(body) button.fullTopup.fullTopup.fullTopup:hover:not(:disabled) {filter:brightness(1.04);}
+
+/* Keep the balance readable beside the status and top-up controls on phones. */
+@media (max-width: 480px) {
+ .compactCard.compactCard { display:grid; grid-template-columns:20px minmax(0,1fr) auto; align-items:start; }
+ .compactCard.compactCard > div { grid-column:2 / -1; }
+ .compactCard.compactCard > div > div { white-space:normal; overflow:visible; text-overflow:clip; }
+ .compactCard.compactCard > .compactStatus { grid-column:2; justify-self:start; }
+ .compactCard.compactCard > .compactTopup { grid-column:3; justify-self:end; }
+}

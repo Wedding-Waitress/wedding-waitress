@@ -1,3 +1,4 @@
+import { fitDocumentFooterLogo } from '@/lib/documentFooterLogo';
 import {
   Document,
   Paragraph,
@@ -106,7 +107,7 @@ const createTextRun = (options: {
 // Load dietary logo image
 const loadDietaryLogo = async (): Promise<Uint8Array | null> => {
   try {
-    const response = await fetch('/wedding-waitress-pdf-footer-logo.png');
+    const response = await fetch('/wedding-waitress-document-footer-dark-brown.png');
     if (!response.ok) return null;
     const blob = await response.blob();
     const arrayBuffer = await blob.arrayBuffer();
@@ -369,7 +370,7 @@ const createGuestTable = (
                 text: guest.dietary || '-',
                 bold: true,
                 size: fontSize,
-                color: '6D28D9',
+                color: '2F1B14',
               }),
             ],
             alignment: AlignmentType.LEFT,
@@ -433,7 +434,7 @@ const createGuestTable = (
                     event.partner1_name,
                     event.partner2_name,
                     []
-                  ) || 'Guest',
+                  ),
                   size: fontSize,
                 }),
               ],
@@ -522,10 +523,7 @@ export const exportDietaryChartToDocx = async (
             children: [
               new ImageRun({
                 data: logoBuffer,
-                transformation: {
-                  height: 30,  // 10.5mm
-                  width: 100,  // Maintain aspect ratio
-                },
+                transformation: fitDocumentFooterLogo(100, 30),
                 type: 'png',
               }),
             ],
@@ -553,7 +551,7 @@ export const exportDietaryChartToDocx = async (
           run: {
             size: 32, // 16pt
             bold: true,
-            color: '6D28D9',
+            color: '2F1B14',
             font: 'Inter',
           },
         },

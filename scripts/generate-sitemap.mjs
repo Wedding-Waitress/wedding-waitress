@@ -1,10 +1,50 @@
-import { seoRoutes } from './seo-routes.mjs';
-import { writeFile } from 'node:fs/promises';
+import { readFile, writeFile } from 'node:fs/promises';
 import { EOL } from 'node:os';
 
 const SITE_URL = 'https://weddingwaitress.com.au';
 
-const entries = seoRoutes.map(({ path }) => ({ path, changefreq: path === '/' || path === '/blog' ? 'weekly' : 'monthly', priority: path === '/' ? '1.0' : '0.8' }));
+const entries = [
+  { path: '/', changefreq: 'weekly', priority: '1.0' },
+  { path: '/how-it-works', changefreq: 'monthly', priority: '0.9' },
+  { path: '/venues', changefreq: 'monthly', priority: '0.7' },
+  { path: '/products', changefreq: 'monthly', priority: '0.9' },
+  { path: '/events', changefreq: 'monthly', priority: '0.9' },
+  { path: '/events/weddings', changefreq: 'monthly', priority: '0.9' },
+  { path: '/events/engagements', changefreq: 'monthly', priority: '0.8' },
+  { path: '/events/birthdays-parties', changefreq: 'monthly', priority: '0.8' },
+  { path: '/events/corporate-events', changefreq: 'monthly', priority: '0.8' },
+  { path: '/events/christmas-seasonal-events', changefreq: 'monthly', priority: '0.8' },
+  { path: '/events/memorials-celebrations-of-life', changefreq: 'monthly', priority: '0.8' },
+  { path: '/pricing', changefreq: 'monthly', priority: '0.9' },
+  { path: '/faq', changefreq: 'monthly', priority: '0.7' },
+  { path: '/my-events', changefreq: 'monthly', priority: '0.9' },
+  { path: '/event-budget-planner', changefreq: 'monthly', priority: '0.9' },
+  { path: '/guest-list', changefreq: 'monthly', priority: '0.9' },
+  { path: '/tables', changefreq: 'monthly', priority: '0.9' },
+  { path: '/qr-code-seating-chart', changefreq: 'monthly', priority: '0.9' },
+  { path: '/seating-chart-signs', changefreq: 'monthly', priority: '0.9' },
+  { path: '/invitations-cards', changefreq: 'monthly', priority: '0.9' },
+  { path: '/name-place-cards', changefreq: 'monthly', priority: '0.9' },
+  { path: '/individual-table-charts', changefreq: 'monthly', priority: '0.9' },
+  { path: '/floor-plan', changefreq: 'monthly', priority: '0.9' },
+  { path: '/dietary-requirements', changefreq: 'monthly', priority: '0.9' },
+  { path: '/full-seating-chart', changefreq: 'monthly', priority: '0.9' },
+  { path: '/live-slideshow', changefreq: 'monthly', priority: '0.9' },
+  { path: '/dj-mc-questionnaire', changefreq: 'monthly', priority: '0.9' },
+  { path: '/photo-group-list', changefreq: 'monthly', priority: '0.9' },
+  { path: '/running-sheet', changefreq: 'monthly', priority: '0.9' },
+  { path: '/photo-video-sharing', changefreq: 'monthly', priority: '0.9' },
+  { path: '/privacy', changefreq: 'yearly', priority: '0.3' },
+  { path: '/terms', changefreq: 'yearly', priority: '0.3' },
+  { path: '/contact', changefreq: 'yearly', priority: '0.4' },
+  { path: '/cookies', changefreq: 'yearly', priority: '0.3' },
+  { path: '/blog', changefreq: 'weekly', priority: '0.8' },
+];
+
+const blogSource = await readFile('src/content/blogPosts.ts', 'utf8');
+const blogSlugs = [...blogSource.matchAll(/slug: '([^']+)'/g)].map(m => m[1]);
+if (!blogSlugs.length || new Set(blogSlugs).size !== blogSlugs.length) throw new Error('Missing or duplicate public blog slugs');
+entries.push(...blogSlugs.map(slug => ({ path: '/blog/' + slug, changefreq: 'monthly', priority: '0.7' })));
 
 const xml = `<?xml version="1.0" encoding="UTF-8"?>
 <urlset xmlns="http://www.sitemaps.org/schemas/sitemap/0.9">

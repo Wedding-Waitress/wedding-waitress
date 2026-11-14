@@ -12,7 +12,7 @@
  * Last locked: 2026-03-19
  */
 
-import React, { useRef, useCallback, useState } from 'react';
+import React, { useRef, useCallback, useState, useEffect, useLayoutEffect } from 'react';
 import { RotateCw, Move, Copy, CopyPlus, Trash2, RotateCcw } from 'lucide-react';
 
 interface InteractiveTextOverlayProps {
@@ -34,6 +34,8 @@ interface InteractiveTextOverlayProps {
   onDuplicate?: () => void;
   onDelete?: () => void;
   containerRef: React.RefObject<HTMLElement>;
+  /** Match pointer displacement in a scaled sign preview. */
+  normaliseDragScale?: boolean;
   showResizeHandles?: boolean;
   showRotateHandle?: boolean;
   hideSideHandles?: boolean;
@@ -67,6 +69,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   onDuplicate,
   onDelete,
   containerRef,
+  normaliseDragScale = false,
   showResizeHandles = true,
   showRotateHandle = true,
   hideSideHandles = false,
@@ -76,12 +79,34 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
   style = {},
 }) => {
   const elRef = useRef<HTMLDivElement>(null);
+  // Editor controls keep the same screen size as the QR toolbar at any canvas zoom.
+  const [controlScale, setControlScale] = useState(1);
+  const refreshControlScale = useCallback(() => {
+    const container = containerRef.current;
+    if (!container || !isSelected) return;
+    const displayedWidth = container.getBoundingClientRect().width;
+    const intrinsicWidth = container.offsetWidth;
+    const next = displayedWidth > 0 && intrinsicWidth > 0 ? intrinsicWidth / displayedWidth : 1;
+    if (!Number.isFinite(next) || next <= 0) return;
+    setControlScale(previous => Math.abs(previous - next) < .0001 ? previous : next);
+  }, [containerRef, isSelected]);
+  useLayoutEffect(refreshControlScale);
+  useEffect(() => {
+    const container = containerRef.current;
+    if (!container || !isSelected) return;
+    const observer = typeof ResizeObserver === 'undefined' ? null : new ResizeObserver(refreshControlScale);
+    observer?.observe(container);
+    window.addEventListener('resize', refreshControlScale);
+    return () => { observer?.disconnect(); window.removeEventListener('resize', refreshControlScale); };
+  }, [containerRef, isSelected, refreshControlScale]);
   const [isDragging, setIsDragging] = useState(false);
   const [isRotating, setIsRotating] = useState(false);
   const [liveAngle, setLiveAngle] = useState<number | null>(null);
   const [isCornerResizing, setIsCornerResizing] = useState(false);
   const [liveFontSize, setLiveFontSize] = useState<number | null>(null);
   const rafRef = useRef<number>(0);
+  const cancelDragRef = useRef<(() => void) | null>(null);
+  useEffect(() => () => { cancelDragRef.current?.(); }, []);
 
   const getBaseTransform = useCallback((): string => {
     const t = (style.transform as string) || '';
@@ -95,12 +120,16 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
     const el = elRef.current;
     const container = containerRef.current;
     if (!el || !container) return;
+    cancelDragRef.current?.();
+    const originalStyle = el.style.cssText;
 
     setIsDragging(true);
 
     const startX = e.clientX;
     const startY = e.clientY;
     const containerRect = container.getBoundingClientRect();
+    const dragScaleX = normaliseDragScale && container.offsetWidth > 0 && containerRect.width > 0 ? container.offsetWidth / containerRect.width : 1;
+    const dragScaleY = normaliseDragScale && container.offsetHeight > 0 && containerRect.height > 0 ? container.offsetHeight / containerRect.height : 1;
     const baseTransform = getBaseTransform();
 
     const initLeft = parseFloat(el.style.left) || 0;
@@ -131,7 +160,7 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       if (mode === 'move') {
         accumX = dx;
         accumY = dy;
-        el.style.transform = `${baseTransform} translate(${dx}px, ${dy}px) rotate(${rotation}deg)`;
+        el.style.transform = `${baseTransform} translate(${dx * dragScaleX}px, ${dy * dragScaleY}px) rotate(${rotation}deg)`;
         onDragMove?.({ x: dx, y: dy });
         onLiveMove?.((dx / containerRect.width) * 100, (dy / containerRect.height) * 100);
         return;
@@ -192,6 +221,9 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       cancelAnimationFrame(rafRef.current);
       document.removeEventListener('pointermove', onPointerMove);
       document.removeEventListener('pointerup', onPointerUp);
+      document.removeEventListener('pointercancel', onCancel);
+      document.removeEventListener('keydown', onKeyDown);
+      cancelDragRef.current = null;
 
       const rect = containerRect;
 
@@ -244,9 +276,25 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
       }
     };
 
+    const onCancel = () => {
+      document.removeEventListener('pointermove', onPointerMove);
+      document.removeEventListener('pointerup', onPointerUp);
+      document.removeEventListener('pointercancel', onCancel);
+      document.removeEventListener('keydown', onKeyDown);
+      cancelAnimationFrame(rafRef.current);
+      cancelDragRef.current = null;
+      el.style.cssText = originalStyle;
+      setIsDragging(false); setIsRotating(false); setLiveAngle(null);
+      setIsCornerResizing(false); setLiveFontSize(null);
+      onDragEnd?.();
+    };
+    const onKeyDown = (event: KeyboardEvent) => { if (event.key === 'Escape') { event.preventDefault(); onCancel(); } };
+    cancelDragRef.current = onCancel;
+    document.addEventListener('pointercancel', onCancel);
+    document.addEventListener('keydown', onKeyDown);
     document.addEventListener('pointermove', onPointerMove);
     document.addEventListener('pointerup', onPointerUp);
-  }, [containerRef, onMove, onResize, onCornerResize, onFontSizeChange, onRotate, onDragMove, onDragEnd, onLiveMove, onLiveRotate, onLiveFontSize, rotation, getBaseTransform]);
+  }, [containerRef, onMove, onResize, onCornerResize, onFontSizeChange, onRotate, onDragMove, onDragEnd, onLiveMove, onLiveRotate, onLiveFontSize, rotation, getBaseTransform, normaliseDragScale]);
 
   const canResize = showResizeHandles && (onResize || onCornerResize || onFontSizeChange);
   const hasToolbar = onCopy || onReset || onDuplicate || onDelete;
@@ -286,8 +334,9 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
               style={{
                 bottom: '100%',
                 left: '50%',
-                transform: 'translateX(-50%)',
-                marginBottom: 6,
+                transform: `translateX(-50%) scale(${controlScale})`,
+                transformOrigin: 'bottom center',
+                marginBottom: 6 * controlScale,
                 background: 'hsl(var(--background))',
                 border: '1px solid hsl(var(--border))',
                 borderRadius: 6,
@@ -365,8 +414,9 @@ export const InteractiveTextOverlay: React.FC<InteractiveTextOverlayProps> = ({
             style={{
               top: '100%',
               left: '50%',
-              transform: 'translateX(-50%)',
-              marginTop: 6,
+              transform: `translateX(-50%) scale(${controlScale})`,
+              transformOrigin: 'top center',
+              marginTop: 6 * controlScale,
               zIndex: 30,
             }}
           >

@@ -351,6 +351,13 @@
 
 .settingsPanel { margin-top: 2rem; }
 
+/* These two dashboard labels override the legacy light span text rule. */
+:global(#root) .headerPanel span.headerLabel {
+  color: var(--dietary-text) !important;
+  -webkit-text-fill-color: var(--dietary-text) !important;
+  opacity: 1 !important;
+}
+
 .exportPanel,
 .statsPill,
 .displayRow {
@@ -662,3 +669,35 @@
 
 :global(#root#root#root) .exportPanel .exportButton {border:0!important;border-radius:9999px!important;color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px rgba(0,0,0,.55);font-family:Manrope,sans-serif!important;}
 :global(#root#root#root) .exportPanel .exportButton :is(svg,svg *) {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;}
+/* Display Options editor only. Toggles retain their measured 24px height;
+   swatches match it without changing the saved palette or chart artwork. */
+.settingsPanel .displayRow {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center !important;
+  gap:8px !important;
+}
+.displayRow > label {grid-column:1;grid-row:1;min-width:0;}
+.displayRow > [role="switch"] {grid-column:2;grid-row:1;}
+.swatchGroup {
+  grid-column:1 / -1;
+  grid-row:2;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  align-items:center;
+  gap:6px;
+  min-width:0;
+  max-width:100%;
+  padding:4px;
+}
+@layer dashboard-interface {
+
+  .settingsPanel .displayRow .colorSwatch {
+    width:24px !important;height:24px !important;
+    min-width:24px !important;min-height:24px !important;
+    max-width:24px !important;max-height:24px !important;
+    padding:0 !important;border-radius:0 !important;
+  }
+}
+

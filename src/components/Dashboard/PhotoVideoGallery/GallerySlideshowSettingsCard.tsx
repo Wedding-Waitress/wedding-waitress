@@ -15,6 +15,7 @@ import { cn } from '@/lib/utils';
 import managementStyles from './photoVideoSharingManagement.module.css';
 import {
   slideshowSettingsFromRow,
+  automaticSharedMemorySettings,
   SLIDE_DURATION_OPTIONS,
   type SlideshowSettings,
 } from '@/lib/slideshowSettings';
@@ -26,15 +27,16 @@ interface Props {
   onSave: (s: SlideshowSettings) => Promise<void>;
   appearance?: 'default' | 'espresso-glass';
   readOnly?: boolean;
+  automaticInclusion?: boolean;
 }
 
 const SETTINGS_ROW_GRID_CLASS = 'grid grid-cols-1 items-stretch gap-5 md:grid-cols-2 min-[1440px]:grid-cols-[minmax(0,1fr)_minmax(0,1fr)_minmax(0,0.78fr)]';
 
-export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onChange, onSave, appearance = 'default', readOnly = false }) => {
+export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onChange, onSave, appearance = 'default', readOnly = false, automaticInclusion = false }) => {
   const isGlass = appearance === 'espresso-glass';
   const { toast } = useToast();
   const [saving, setSaving] = useState(false);
-  const saved = useMemo(() => slideshowSettingsFromRow(meta), [meta]);
+  const saved = useMemo(() => automaticInclusion ? automaticSharedMemorySettings(slideshowSettingsFromRow(meta)) : slideshowSettingsFromRow(meta), [meta, automaticInclusion]);
 
   const dirty = useMemo(
     () => JSON.stringify({ ...value, albums: [...value.albums].sort() }) !== JSON.stringify({ ...saved, albums: [...saved.albums].sort() }),
@@ -90,7 +92,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
         className={SETTINGS_ROW_GRID_CLASS}
         data-slideshow-primary-grid
       >
-        <GallerySlideshowStepsCard appearance={appearance} embedded />
+        <GallerySlideshowStepsCard appearance={appearance} embedded automaticInclusion={automaticInclusion} />
         {readOnly?<div className={cn('rounded-xl border border-border p-4',isGlass&&managementStyles.galleryViewInsetPanel)} data-slideshow-workspace-card="access"><h2 className="text-xl font-bold">Live Slideshow Access</h2><p className="text-sm mt-2">Private customer access links, QR codes and launch controls are not exposed in this read-only preview.</p></div>:<GallerySlideshowAccessCard meta={meta} appearance={appearance} embedded />}
 
         <div className={cn('rounded-xl border border-border p-4 space-y-4', isGlass && managementStyles.galleryViewInsetPanel)} data-slideshow-workspace-card="playback">
@@ -101,7 +103,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
             <div>
               <Label className="text-xs uppercase tracking-wide text-[#6E6E73]">Display order</Label>
               <Select disabled={readOnly} value={value.order} onValueChange={(v) => set('order', v as SlideshowSettings['order'])}>
-                <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+                <SelectTrigger aria-label="Display order" className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
                 <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
                   <SelectItem value="newest" className={cn(isGlass && managementStyles.gallerySelectItem)}>Newest First</SelectItem>
                   <SelectItem value="oldest" className={cn(isGlass && managementStyles.gallerySelectItem)}>Oldest First</SelectItem>
@@ -112,7 +114,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
             <div>
               <Label className="text-xs uppercase tracking-wide text-[#6E6E73]">Slide duration</Label>
               <Select disabled={readOnly} value={String(value.slide_duration_sec)} onValueChange={(v) => set('slide_duration_sec', Number(v))}>
-                <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+                <SelectTrigger aria-label="Slide duration" className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
                 <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
                   {SLIDE_DURATION_OPTIONS.map(s => (
                     <SelectItem key={s} value={String(s)} className={cn(isGlass && managementStyles.gallerySelectItem)}>{s} seconds</SelectItem>
@@ -123,7 +125,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
             <div>
               <Label className="text-xs uppercase tracking-wide text-[#6E6E73]">Transition</Label>
               <Select disabled={readOnly} value={value.transition} onValueChange={(v) => set('transition', v as SlideshowSettings['transition'])}>
-                <SelectTrigger className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
+                <SelectTrigger aria-label="Transition" className={cn('h-11 mt-1.5', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
                 <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
                   <SelectItem value="fade" className={cn(isGlass && managementStyles.gallerySelectItem)}>Fade</SelectItem>
                   <SelectItem value="slide" className={cn(isGlass && managementStyles.gallerySelectItem)}>Slide</SelectItem>
@@ -149,10 +151,11 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
       >
         <div className={cn('rounded-xl border border-border p-4 space-y-3', isGlass && managementStyles.galleryViewInsetPanel)} data-slideshow-workspace-card="albums">
           <p className={cn('text-sm font-semibold text-[#1D1D1F] mb-6', isGlass && managementStyles.eventBrandingBorder)}>Albums</p>
-          <div className="flex flex-wrap gap-2">
+          {automaticInclusion ? <p className="text-sm">All albums are included automatically.</p> : <div className="flex flex-wrap gap-2">
             <button
               type="button"
               disabled={readOnly}
+              aria-pressed={value.albums.length === 0}
               onClick={() => set('albums', [])}
               className={cn(
                 `h-9 px-3 rounded-full text-sm border transition-colors ${value.albums.length === 0 ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-background text-[#1D1D1F] border-border hover:bg-muted'}`,
@@ -169,6 +172,7 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
                   key={a}
                   type="button"
                   disabled={readOnly}
+                  aria-pressed={active}
                   onClick={() => toggleAlbum(a)}
                   className={cn(
                     `h-9 px-3 rounded-full text-sm border transition-colors ${active ? 'bg-[#967A59] text-white border-[#967A59]' : 'bg-background text-[#1D1D1F] border-border hover:bg-muted'}`,
@@ -180,12 +184,13 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
                 </button>
               );
             })}
-          </div>
-          <p className="text-xs text-muted-foreground">No albums selected means every album is shown.</p>
+          </div>}
+          {!automaticInclusion && <p className="text-xs text-muted-foreground">No albums selected means every album is shown.</p>}
         </div>
 
         <div className={cn('rounded-xl border border-border p-4 space-y-4', isGlass && managementStyles.galleryViewInsetPanel)} data-slideshow-workspace-card="media-types">
           <p className={cn('text-sm font-semibold text-[#1D1D1F] mb-6', isGlass && managementStyles.eventBrandingBorder)}>Media types</p>
+          {automaticInclusion ? <p className="text-sm">Photos, videos, booth captures and guestbook messages are included automatically.</p> : <>
           <div className="flex items-center justify-between gap-3">
             <Label htmlFor="ss-photos" className="text-sm">Include Photos</Label>
             <Switch disabled={readOnly} id="ss-photos" checked={value.include_photos} onCheckedChange={(v) => toggleKind('include_photos', v)} className={cn(isGlass && managementStyles.galleryViewToggle)} />
@@ -195,11 +200,12 @@ export const GallerySlideshowSettingsCard: React.FC<Props> = ({ meta, value, onC
             <Switch disabled={readOnly} id="ss-videos" checked={value.include_videos} onCheckedChange={(v) => toggleKind('include_videos', v)} className={cn(isGlass && managementStyles.galleryViewToggle)} />
           </div>
           <p className="text-xs text-muted-foreground">At least one media type must always remain enabled.</p>
+          </>}
         </div>
 
         <div className={cn('rounded-xl border border-border p-4 space-y-3', isGlass && managementStyles.galleryViewInsetPanel)} data-slideshow-workspace-card="save-settings">
           <p className={cn('text-sm font-semibold text-[#1D1D1F] mb-6', isGlass && managementStyles.eventBrandingBorder)}>Save settings</p>
-          <p className="text-xs text-muted-foreground">Only approved, visible media ever appears in the Live Slideshow.</p>
+          <p className="text-xs text-muted-foreground">{automaticInclusion ? "New uploads appear automatically. Previously hidden content stays hidden." : "Only approved, visible media ever appears in the Live Slideshow."}</p>
           <div className="flex flex-wrap items-center gap-3">
             <Button className={cn('lv-premium-shade h-11', isGlass && [managementStyles.gallerySaveAction, managementStyles.saveBrandingContentShadow, managementStyles.slideshowSaveAction])} onClick={save} disabled={readOnly || saving || !dirty}>
               {saving ? <LoaderCircle size={16} strokeWidth={1.8} className="mr-1.5 animate-spin" /> : <Save size={16} strokeWidth={1.8} className="mr-1.5" />} Save Settings

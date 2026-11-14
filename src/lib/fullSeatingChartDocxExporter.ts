@@ -1,3 +1,4 @@
+import { fitDocumentFooterLogo } from '@/lib/documentFooterLogo';
 import {
   Document,
   Paragraph,
@@ -14,6 +15,7 @@ import {
   VerticalAlign,
 } from 'docx';
 import { saveAs } from 'file-saver';
+import { getRelationDisplayText } from './relationUtils';
 
 interface Guest {
   id: string;
@@ -99,7 +101,7 @@ const formatTableAssignment = (guest: Guest, tableNameMap?: Record<number, strin
 // Load logo image as buffer
 const loadLogoImage = async (): Promise<Uint8Array | null> => {
   try {
-    const response = await fetch('/wedding-waitress-logo-brown.png');
+    const response = await fetch('/wedding-waitress-document-footer-dark-brown.png');
     const blob = await response.blob();
     const arrayBuffer = await blob.arrayBuffer();
     return new Uint8Array(arrayBuffer);
@@ -150,7 +152,7 @@ export const exportFullSeatingChartToDocx = async (
             text: event.name,
             bold: true,
             size: 32, // 16pt
-            color: '967A59',
+            color: '2F1B14',
           }),
         ],
       })
@@ -257,13 +259,15 @@ export const exportFullSeatingChartToDocx = async (
       if (!guest) return [new Paragraph({ text: '' })];
       
       const hasDietary = settings.showDietary && guest.dietary && guest.dietary !== 'NA' && guest.dietary.toLowerCase() !== 'none';
-      const hasRelation = settings.showRelation && guest.relation_role;
+      const relationship = getRelationDisplayText(guest.relation_display, guest.relation_role)
+        || getRelationDisplayText(guest.relation_role, guest.relation_role);
+      const hasRelation = settings.showRelation && relationship;
       
       // Build inline info string
       const capitalizeWords = (t: string) => t.replace(/\b\w/g, c => c.toUpperCase());
       const infoParts: string[] = [];
       if (hasDietary) infoParts.push(capitalizeWords(guest.dietary!));
-      if (hasRelation) infoParts.push(capitalizeWords(guest.relation_role!));
+      if (hasRelation) infoParts.push(capitalizeWords(relationship));
       const inlineInfo = infoParts.join(' / ');
       
       // Single row: checkbox + name + inline info + table
@@ -352,10 +356,7 @@ export const exportFullSeatingChartToDocx = async (
             new ImageRun({
               type: 'png',
               data: logoBuffer,
-              transformation: {
-                width: 132, // 35mm ≈ 132 points
-                height: 40,  // 10.5mm ≈ 40 points
-              },
+              transformation: fitDocumentFooterLogo(132, 40),
             }),
           ],
         })

@@ -32,7 +32,6 @@ export const useDynamicQRCodes = () => {
       const { data, error } = await supabase
         .from('dynamic_qr_codes')
         .select('*')
-        .eq('user_id', user.id)
         .order('created_at', { ascending: false });
 
       if (error) throw error;

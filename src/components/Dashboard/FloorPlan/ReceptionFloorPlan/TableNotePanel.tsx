@@ -71,6 +71,7 @@ export const TableNotePanel = ({
         </Button>
       </div>
       <Input
+        aria-label={`Table note for ${label}`}
         value={note}
         onChange={(e) => setNote(e.target.value)}
         placeholder="e.g. Elderly guests, near entrance"

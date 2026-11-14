@@ -51,6 +51,7 @@ describe('useTables request shape', () => {
     await waitFor(() => expect(result.current.loading).toBe(false));
     await waitFor(() => expect(result.current.tables).toHaveLength(12));
 
+    expect(result.current.loadedEventId).toBe('event-fixed-requests');
     expect(mocks.from).toHaveBeenCalledTimes(2);
     expect(result.current.tables.find((table) => table.id === 'table-0')?.guest_count).toBe(2);
     expect(result.current.tables.find((table) => table.id === 'table-7')?.guest_count).toBe(1);

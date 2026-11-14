@@ -5,7 +5,7 @@ const header = readFileSync('src/components/Layout/Header.tsx', 'utf8');
 const publicSiteCss = readFileSync('src/styles/PublicSite.css', 'utf8');
 
 const languages = [
-  ['en', 'English', 'us'],
+  ['en', 'English', 'gb'],
   ['it', 'Italiano', 'it'],
   ['ar', 'العربية', 'sa'],
   ['zh', '中文', 'cn'],

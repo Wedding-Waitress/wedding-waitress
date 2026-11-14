@@ -29,8 +29,7 @@ export const normalizeCommunicationCredits = (
   minimumTotal = 0,
 ): NormalizedCommunicationCredits => {
   const recordedTotal = Math.max(0, Math.floor(Number.isFinite(credits.total) ? credits.total : 0));
-  const includedTotal = Math.max(0, Math.floor(Number.isFinite(minimumTotal) ? minimumTotal : 0));
-  const total = Math.max(recordedTotal, includedTotal);
+  const total = recordedTotal;
   const used = Math.min(total, Math.max(0, Math.floor(Number.isFinite(credits.used) ? credits.used : 0)));
   return { total, used, remaining: total - used };
 };
@@ -69,9 +68,7 @@ export const CommunicationCreditSummaryCard: React.FC<CardProps> = ({
   eventId,
   canPurchaseCredits = true,
 }) => {
-  // The ledger remains authoritative for usage and purchased top-ups. The plan
-  // allowance is a floor because platform-owner/test accounts may not have the
-  // ordinary subscription row that the RPC uses to seed an event's allowance.
+  // Plan entitlements seed the server ledger; never inflate the displayed balance.
   const balance = normalizeCommunicationCredits(credits, planIncludedCredits);
   const purchasedCredits = Math.max(0, balance.total - Math.max(0, planIncludedCredits));
   const creditLevel = loading || error ? 'unknown' : getCommunicationCreditLevel(balance);
@@ -186,7 +183,7 @@ export const CommunicationCreditSummary: React.FC<ConnectedProps> = ({ eventId, 
       className={className}
       ariaLabel={ariaLabel}
       eventId={eventId}
-      canPurchaseCredits={!hasPlatformOwnerAccess && /^(essential|premium|ultimate|unlimited)$/i.test(planName || '')}
+      
     />
   );
 };

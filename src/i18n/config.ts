@@ -144,10 +144,7 @@ i18n
     },
   });
 
-// Update HTML lang and dir attributes
-i18n.on('languageChanged', (lng) => {
-  document.documentElement.lang = lng;
-  document.documentElement.dir = lng === 'ar' ? 'rtl' : 'ltr';
-});
+// Document language/direction is route-scoped by PublicLanguageBoundary.
+// Changing a public preference must never turn authenticated dashboards RTL.
 
 export default i18n;

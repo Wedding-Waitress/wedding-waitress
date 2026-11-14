@@ -4,22 +4,26 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Check, X } from 'lucide-react';
-import { RELATION_ROLE_OPTIONS } from '@/lib/relationUtils';
+import { getRelationDisplayText, RELATION_ROLE_OPTIONS } from '@/lib/relationUtils';
+import { useTranslation } from 'react-i18next';
+import { publicGuestRelationLabels } from '@/i18n/publicGuestRelationLabels';
 import styles from './GuestRelationField.module.css';
 
-const ROLE_ORDER = ['bridal_party', 'father', 'mother', 'brother', 'sister', 'uncle', 'aunty', 'cousin', 'guest', 'vendor'];
+const ROLE_ORDER = ['bridal_party', 'father', 'mother', 'brother', 'sister', 'cousin', 'uncle', 'aunty', 'guest', 'vendor'];
 
 export function GuestRelationField({ context, value, onChange }: { context: any; value: { relation_partner: string; relation_role: string; custom_relation: string }; onChange: (value: any) => void }) {
+ const {i18n}=useTranslation();
+ const guestLabel=publicGuestRelationLabels[(i18n.resolvedLanguage||i18n.language||'en').split('-')[0]]||publicGuestRelationLabels.en;
  const [open,setOpen]=useState(false);
  const [draft,setDraft]=useState(value);
  if (!context || context.relation_mode==='off') return null;
  const roleOrder=new Map(ROLE_ORDER.map((role,index)=>[role,index]));
- const roles=[...RELATION_ROLE_OPTIONS].sort((a,b)=>(roleOrder.get(a.value)??ROLE_ORDER.length)-(roleOrder.get(b.value)??ROLE_ORDER.length));
+ const roles=RELATION_ROLE_OPTIONS.map(role=>role.value==='guest'?{...role,label:guestLabel}:role).sort((a,b)=>(roleOrder.get(a.value)??ROLE_ORDER.length)-(roleOrder.get(b.value)??ROLE_ORDER.length));
  const label=value.custom_relation||roles.find(r=>r.value===value.relation_role)?.label;
  const partner1Name=context.partner1_name?.trim()||'Bride';
  const partner2Name=context.partner2_name?.trim()||'Groom';
  const partner=value.relation_partner==='partner_one'?partner1Name:partner2Name;
- const savedCustomDisplay=!label&&value.relation_partner===context.guest?.relation_partner&&value.relation_role===context.guest?.relation_role?context.guest?.relation_display:'';
+ const savedCustomDisplay=!label&&value.relation_partner===context.guest?.relation_partner&&value.relation_role===context.guest?.relation_role?getRelationDisplayText(context.guest?.relation_display,context.guest?.relation_role):'';
  const partners=context.relation_mode==='single'?['partner_one']:['partner_one','partner_two'];
  return <section className="space-y-2">
   <Label>Relation</Label><div className={styles.relationRow}><Input aria-label="Current relation" readOnly value={label?partner+' / '+label:savedCustomDisplay||'No relation set'} className={styles.relationControl}/><Button type="button" className={`lv-premium-btn ${styles.relationControl}`} onClick={()=>{setDraft(value);setOpen(true);}}>Assign Relation</Button></div>

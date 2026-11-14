@@ -5,7 +5,8 @@ import { publicEventTypes } from '@/content/publicEventTypes';
 import { normalisePublicHeroHeading } from './PublicPageHero';
 
 const WORD_JOINING_HYPHEN = /\p{L}[-‑–]\p{L}/u;
-const homepageHeroSource = readFileSync('src/components/Layout/PublicCinematicHero.tsx', 'utf8');
+import { readEnglishPublicSource } from '@/test/readEnglishPublicSource';
+const homepageHeroSource = readEnglishPublicSource('src/components/Layout/PublicCinematicHero.tsx');
 const pricingPageSource = readFileSync('src/pages/Pricing.tsx', 'utf8');
 
 const staticPageHeroHeadings = [

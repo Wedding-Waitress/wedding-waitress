@@ -1,0 +1,55 @@
+/* Pricing-only coffee palette and non-destructive hero colour/lighting treatment. */
+#root#root .ww-pricing-page [data-pricing-metallic-heading] [data-heading-metal] {
+  background: none !important;
+  color: #412419 !important;
+  -webkit-text-fill-color: #412419 !important;
+  filter: none !important;
+  text-shadow: 0 1px 0 #fff8ed, 0 .45px .25px #25110b38;
+}
+
+#root#root .ww-pricing-page [data-pricing-metallic-heading] > svg,
+#root#root .ww-pricing-page [data-public-pricing-card-grid] article > div:has(> h3[data-pricing-metallic-heading]) svg {
+  color: #412419 !important;
+  stroke: #412419 !important;
+  filter: drop-shadow(0 1px 0 #fff4e5);
+}
+
+#root#root .ww-pricing-page h4[data-pricing-metallic-heading] img {
+  filter: drop-shadow(0 1px 0 #fff4e5);
+}
+
+#root#root .ww-pricing-page [data-pricing-metallic-cta="bronze"] {
+  --pricing-metal-edge: #a27d53;
+  --pricing-metal-glint: #fff2df;
+  --pricing-metal-shadow: #1e0d07;
+  --pricing-metal-surface: radial-gradient(ellipse at 32% -45%, #fff1d64d, transparent 61%), linear-gradient(112deg, transparent 15%, #fff0d91c 31%, #fff8e532 37%, transparent 45%, transparent 73%, #fff4e11c 88%, transparent 100%), linear-gradient(180deg, #e1c7a0 0%, #8a6241 4%, #583a27 12%, #3e2418 43%, #1f100b 52%, #382015 66%, #4d2d1d 93%, #92643e 100%);
+  border-color: var(--pricing-metal-edge) !important;
+  box-shadow: inset 0 1px 0 #fff7e9ed, inset 0 0 0 1px #2a160dc7, inset 0 -3px 1px #1e0d08df, 0 3px 0 var(--pricing-metal-shadow), 0 6px 11px #2c180d3b, 0 0 10px #8a63351f !important;
+}
+
+#root#root .ww-pricing-page [data-pricing-metallic-cta="emerald"] {
+  --pricing-metal-edge: #59b583;
+  --pricing-metal-glint: #edfff4;
+  --pricing-metal-shadow: #05281a;
+  --pricing-metal-surface: radial-gradient(ellipse at 32% -45%, #c9ffe54d, transparent 61%), linear-gradient(112deg, transparent 15%, #c8ffe81c 31%, #e9fff132 37%, transparent 45%, transparent 73%, #ceffe11c 88%, transparent 100%), linear-gradient(180deg, #bbf6d0 0%, #50ba81 4%, #117546 12%, #0b5433 43%, #052f20 52%, #0c4930 66%, #126d41 93%, #48b67b 100%);
+  border-color: var(--pricing-metal-edge) !important;
+  box-shadow: inset 0 1px 0 #ecfff3ed, inset 0 0 0 1px #063322c7, inset 0 -3px 1px #032417df, 0 3px 0 var(--pricing-metal-shadow), 0 6px 11px #123c2a3b, 0 0 10px #42996d1f !important;
+}
+
+/* Same image asset, crop, dimensions and object positions; compositor-only colour. */
+#root#root .ww-pricing-page .ww-public-photo-hero > .ww-public-hero-picture img {
+  filter: saturate(1.16) contrast(1.08) brightness(1.05);
+}
+
+#root#root .ww-pricing-page .ww-public-photo-hero > .ww-public-hero-shade {
+  background: radial-gradient(ellipse at 12% 2%, #db94413d, transparent 45%), radial-gradient(ellipse at 8% 95%, #a95b1c1c, transparent 47%), linear-gradient(90deg, #180b0773 0%, #1d0e094d 38%, #0f08050f 70%, transparent 100%), linear-gradient(0deg, #14090524, transparent 45%);
+}
+
+@media (max-width: 639px) {
+  #root#root .ww-pricing-page .ww-public-photo-hero > .ww-public-hero-shade {
+    background: radial-gradient(ellipse at 10% 0%, #db944133, transparent 60%), linear-gradient(90deg, #180b079e 0%, #1d0e0952 42%, #0f08050d 74%, transparent 100%);
+  }
+}
+
+/* Restore the approved flat espresso text and existing package button styles. */
+#root#root .ww-pricing-page [data-pricing-metallic-heading] [data-heading-metal] { background:none!important;color:#412419!important;-webkit-text-fill-color:#412419!important;filter:none!important;text-shadow:none!important; }

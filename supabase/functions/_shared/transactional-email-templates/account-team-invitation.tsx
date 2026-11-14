@@ -1,3 +1,4 @@
+import { EmailBrandFooter } from './email-brand-footer.tsx';
 /// <reference types="npm:@types/react@18.3.1" />
 import * as React from 'npm:react@18.3.1'
 import { Body, Button, Container, Head, Heading, Html, Preview, Section, Text } from 'npm:@react-email/components@0.0.22'
@@ -17,7 +18,8 @@ const AccountTeamInvitation = ({ inviteeFirstName, accountHolderEmail, acceptUrl
       <Section style={{ margin: '28px 0' }}><Button href={acceptUrl || '#'} style={button}>Accept invitation</Button></Section>
       <Text style={small}>This invitation expires {expiresAt ? new Date(expiresAt).toLocaleDateString('en-AU') : 'in 14 days'}. If you were not expecting it, you can safely ignore this email.</Text>
       <Text style={small}>— The Wedding Waitress Team</Text>
-    </Container></Body>
+    <EmailBrandFooter />
+      </Container></Body>
   </Html>
 )
 

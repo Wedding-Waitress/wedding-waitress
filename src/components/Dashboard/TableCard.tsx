@@ -355,7 +355,7 @@ export const TableCard: React.FC<TableCardProps> = ({
 
         {/* Actions - Fixed at bottom */}
         <div className="flex flex-wrap justify-center items-center gap-2 mt-4">
-          {isHeadTable && <Button disabled={readOnly} onClick={() => { if (!readOnly) setShowHeadSeating(true); }} className="lv-premium-shade w-full rounded-full bg-[#967A59] hover:bg-[#7e664b] text-white min-h-7 h-auto whitespace-nowrap py-1 px-1 text-[10px] tracking-tight">Arrange Head Table Seating</Button>}
+          {isHeadTable && <Button data-table-head-arrange disabled={readOnly} onClick={() => { if (!readOnly) setShowHeadSeating(true); }} className="lv-premium-shade w-full rounded-full bg-[#967A59] hover:bg-[#7e664b] text-white min-h-7 h-auto whitespace-nowrap py-1 px-1 text-[10px] tracking-tight">Arrange Head Table Seating</Button>}
           <Button
             disabled={readOnly}
             onClick={() => { if (!readOnly) onEdit(table); }}

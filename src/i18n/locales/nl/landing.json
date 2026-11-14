@@ -432,7 +432,7 @@
       "seo1Text": "Maak digitale uitnodigingen en deel met gasten uit je <0>gastenlijst</0>.",
       "seo2Heading": "Beheer RSVP's Digitaal",
       "seo2Text": "Volg elke reactie. Gasten kunnen ook via <0>QR-code</0> reageren.",
-      "seo3Heading": "Maak Save the Dates",
+      "seo3Heading": "Maak Save the Date",
       "seo3Text": "Ontwerp kaarten. Wijs gasten toe via de <0>tafelplanner</0>.",
       "related1": "Gastenlijst Manager",
       "related2": "QR-Code RSVP",
@@ -1048,9 +1048,8 @@
           {
             "heading": "De werkelijke kosten van huwelijksplaatskaarten in Australië",
             "paragraphs": [
-              "Traditionele geprinte zitplaatsaanduidingen in Australië kunnen snel oplopen: acryl bewegwijzering $600–$1.000+, kalligrafie of ontwerp $400–$700, last-minute herdrukken $200–$450, en opzet- of ezelloon $300–$500. Totaal: $1.600–$2.800.",
-              "Digitaal met Wedding Waitress: een kleine QR code print $5–$100, en onbeperkte updates gratis. Totaal: minimale kosten.",
-              "Dit is precies waarom koppels die op zoek zijn naar de beste hulpmiddelen voor huwelijksplanning in Australië overstappen op digitaal."
+              "Drukkosten verschillen per materiaal, formaat en leverancier. Vergelijk actuele offertes; toegang tot Wedding Waitress pakketten kost apart, zoals vermeld op de Prijzenpagina.",
+              "Tijdens je actieve toegangsperiode verschijnen opgeslagen gast- en tafelwijzigingen in de online zoekfunctie. Gasten hebben internet nodig; houd een gedrukte reservekopie bij de hand."
             ]
           },
           {
@@ -1063,8 +1062,7 @@
           {
             "heading": "Veelgestelde vragen",
             "paragraphs": [
-              "Werken QR Code Seating Charts voor grote bruiloften? Ja – ze voorkomen opstoppingen bij de ingang en laten gasten direct hun zitplaats vinden, ongeacht hoe groot de gastenlijst is.",
-              "Kan ik de zitplaatsindeling op de trouwdag wijzigen? Ja. Updates synchroniseren direct en worden op dezelfde QR-code weergegeven, zodat je nooit opnieuw hoeft te printen.",
+              "Tijdens je actieve toegangsperiode verschijnen opgeslagen gast- en tafelwijzigingen in de online zoekfunctie. Gasten hebben internet nodig; houd een gedrukte reservekopie bij de hand.",
               "Wat als mijn locatie slecht wifi heeft? Gasten kunnen scannen bij binnenkomst waar het signaal het sterkst is, of je kunt een kleine geprinte back-uplijst verstrekken voor gemoedsrust."
             ]
           },
@@ -1080,32 +1078,20 @@
         "title": "De werkelijke kosten van bruiloftssignalisatie in Australië: geprint vs digitaal",
         "metaTitle": "Wedding Signage Cost Australia | Printed vs Digital",
         "metaDescription": "Compare printed vs digital wedding seating charts in Australia. See how much you can save by going digital.",
-        "excerpt": "Geprinte zitkaarten in Australië kosten $150–$400. Hier is een duidelijke uitsplitsing — en hoe digitaal honderden bespaart.",
+        "excerpt": "Drukkosten verschillen per materiaal, formaat en leverancier. Vergelijk actuele offertes; toegang tot Wedding Waitress pakketten kost apart, zoals vermeld op de Prijzenpagina.",
         "readingTime": "5 min leestijd",
-        "intro": "Trouwbenodigdheden in Australië is een van die kostenposten die stilletjes oploopt. Het zitplan alleen al kan $150-$400 kosten, en dat is nog voordat welkomstborden, tafelnummers en menu's meetellen. Hier is een duidelijke vergelijking tussen gedrukt en digitaal, zodat je precies weet waar je geld naartoe gaat.",
+        "intro": "Drukkosten verschillen per materiaal, formaat en leverancier. Vergelijk actuele offertes; toegang tot Wedding Waitress pakketten kost apart, zoals vermeld op de Prijzenpagina.",
         "sections": [
           {
             "heading": "Kosten van gedrukte trouwzitplannen in Australië",
             "paragraphs": [
-              "Een standaard gedrukt zitplan (acryl, spiegel of schuimplaat) kost in Australië doorgaans tussen $150 en $400, afhankelijk van grootte, materiaal en stylist.",
-              "Je hebt ook een ezel nodig ($30-$80), bezorging of afhalen ($20-$50), en eventuele last-minute herdrukken als een gast annuleert ($50-$120). Plotseling is je \"$200 bord\" dichter bij $400.",
               "En zodra het gedrukt is, kan het niet meer worden gewijzigd."
             ]
           },
           {
             "heading": "Kostenvergelijking digitaal zitplan",
             "paragraphs": [
-              "Een digitaal QR Code Seating Chart vereist slechts één klein gedrukt bordje bij de ingang — meestal $20-$50 voor een A4 acryl of schuimplaat.",
-              "De zitgegevens staan online, dus annuleringen, nieuwe plaatsingen en tafelwissels kosten niets om bij te werken. Dezelfde QR-code blijft de hele avond werken.",
-              "Netto besparing voor de gemiddelde Australische bruiloft: $150-$350 alleen al aan signage."
-            ]
-          },
-          {
-            "heading": "Naast elkaar: gedrukt vs. digitaal",
-            "paragraphs": [
-              "Gedrukt: $150-$400 vooraf, $50-$120 per herdruk, nul bewerkingen, moeilijk leesbaar bij weinig licht.",
-              "Digitaal QR-code: $20-$50 vooraf, gratis onbeperkte bewerkingen, makkelijk leesbaar op een telefoon, toegankelijk voor alle gasten.",
-              "Gedrukt geeft één mooi \"Instagram-moment\". Digitaal geeft een stressvrije bruiloft."
+              "Tijdens je actieve toegangsperiode verschijnen opgeslagen gast- en tafelwijzigingen in de online zoekfunctie. Gasten hebben internet nodig; houd een gedrukte reservekopie bij de hand."
             ]
           },
           {
@@ -1118,46 +1104,44 @@
         ]
       },
       "how-to-create-qr-code-seating-chart": {
-        "title": "Hoe maak je in 5 minuten een QR-code zitkaart voor je bruiloft",
-        "metaTitle": "How to Create QR Code Seating Chart | Easy Guide",
-        "metaDescription": "Step-by-step guide to creating a QR code wedding seating chart in minutes. Simple, fast, and stress-free.",
-        "excerpt": "Een eenvoudige gids in 5 stappen om uw eigen QR-code zitkaart te bouwen — van gastenlijst tot geprint bord — in slechts 5 minuten.",
+        "title": "Maak je zitplaatsenoverzicht met QR-code",
+        "metaTitle": "Maak je zitplaatsenoverzicht met QR-code | Wedding Waitress",
+        "metaDescription": "Importeer een CSV of voeg gasten één voor één toe in de Gastenlijst.",
+        "excerpt": "Wedding Waitress houdt je informatie verbonden, zodat elke stap het volgende drukwerk, de zitplaatsen, leveranciers en gastenervaringen ondersteunt.",
         "readingTime": "5 min leestijd",
-        "intro": "Je hoeft helemaal niet technisch te zijn om een QR Code Seating Chart voor je bruiloft op te zetten. Het hele proces duurt ongeveer 5 minuten, en zodra het live is, gebeurt elke update automatisch. Hier lees je precies hoe je het doet.",
+        "intro": "Wedding Waitress houdt je informatie verbonden, zodat elke stap het volgende drukwerk, de zitplaatsen, leveranciers en gastenervaringen ondersteunt.",
         "sections": [
           {
-            "heading": "Stap 1 — Importeer je gastenlijst",
+            "heading": "Stap 1",
             "paragraphs": [
-              "Begin met een nette gastenlijst. Je kunt namen uit een spreadsheet plakken of ze één voor één toevoegen in je Wedding Waitress gastenlijstbeheerder.",
-              "Volg RSVP's terwijl je bezig bent, zodat je alleen gasten plaatst die daadwerkelijk hebben bevestigd."
+              "Maak en beheer eerst je evenement. Ga daarna verder naar de budgetplanner."
             ]
           },
           {
-            "heading": "Stap 2 — Maak je tafels aan",
+            "heading": "Stap 2",
             "paragraphs": [
-              "Voeg elke tafel toe met een naam, nummer en capaciteit. Ronde tafels bieden doorgaans plaats aan 8-10 gasten, lange bankettafels aan 12-24.",
-              "Binnen de tafeltool kun je de bruids-tafel apart labelen, zodat deze opvalt ten opzichte van de rest."
+              "Plan en beheer het evenementbudget. Ga daarna verder naar de tafels."
             ]
           },
           {
-            "heading": "Stap 3 — Sleep gasten naar tafels",
+            "heading": "Stap 3",
             "paragraphs": [
-              "Sleep elke gast naar een tafel. Het systeem waarschuwt je als je de capaciteit overschrijdt, zodat je ongemakkelijke last-minute proppen voorkomt.",
-              "Sla tegelijkertijd dieetwensen op — dit maakt de coördinatie van de catering veel eenvoudiger."
+              "Maak de hoofdtafel en de overige gastentafels. Ga daarna verder naar de gastenlijst."
             ]
           },
           {
-            "heading": "Stap 4 — Genereer je branded QR-code",
+            "heading": "Stap 4",
+            "paragraphs": [
+              "Voeg gasten toe, beheer ze en wijs ze toe aan tafels. Ga daarna verder naar het zitplan met QR-code.",
+              "Importeer een CSV of voeg gasten één voor één toe in de Gastenlijst."
+            ]
+          },
+          {
+            "heading": "Stap 5",
             "paragraphs": [
               "Pas de kleuren, vorm en het middenlogo van je QR-code aan zodat deze bij je bruiloftspalet past en downloadt vervolgens een PNG in hoge resolutie.",
-              "Test het een keer met je eigen telefoon om er zeker van te zijn dat het goed scant bij weinig licht."
-            ]
-          },
-          {
-            "heading": "Stap 5 — Print je bord en je bent klaar",
-            "paragraphs": [
-              "Print de QR-code op een klein bord van acryl, schuimkarton of papier voor de ingang van de locatie.",
-              "Op de dag zelf scannen gasten, zoeken hun naam en zien direct hun tafel en stoel. Als er iets verandert, wijs je de gast gewoon opnieuw toe via je telefoon — de QR-code blijft werken."
+              "Test het een keer met je eigen telefoon om er zeker van te zijn dat het goed scant bij weinig licht.",
+              "Print de QR-code op een klein bord van acryl, schuimkarton of papier voor de ingang van de locatie."
             ]
           }
         ]
@@ -1218,7 +1202,7 @@
           {
             "heading": "Hoe een digitale zitkamerplattegrond dit in 60 seconden oplost",
             "paragraphs": [
-              "Met een QR Code Seating Chart kan je bruidsmeisje of coördinator de seating tool op een telefoon openen, de geannuleerde gast van de tafel slepen en iedereen anders die moet verhuizen opnieuw toewijzen.",
+              "Gebruik Tafels en Gastenlijst om tafels en zitplaatsen toe te wijzen of te wijzigen. Samen plannen vereist een geautoriseerde teamuitnodiging.",
               "De volgende gast die de QR-code scant, ziet onmiddellijk het bijgewerkte zitplan. Geen herdruk, geen krabbels, geen stress."
             ]
           },
@@ -1266,7 +1250,7 @@
             "heading": "De Oplossing: Een Digitaal Draaiboek",
             "paragraphs": [
               "Met Wedding Waitress kun je je complete tijdlijn op één plek plannen, je schema direct bijwerken en alles geordend en toegankelijk houden.",
-              "Elke wijziging wordt in realtime doorgevoerd, dus de nieuwste versie is altijd de bron van waarheid — geen verouderde pdf's meer die rondzwerven in groepschats."
+              "Deel de opgeslagen draaiboeklink met de locatie of leveranciers. Gedownloade PDF’s zijn vaste kopieën; stuur na wijzigingen een bijgewerkte versie."
             ]
           },
           {
@@ -1279,7 +1263,7 @@
           {
             "heading": "Blijf Flexibel op de Dag",
             "paragraphs": [
-              "Dingen veranderen — en dat is oké. Met een digitaal draaiboek kun je timings direct aanpassen, iedereen snel op de hoogte stellen en je evenement soepel laten verlopen.",
+              "Sla wijzigingen op en vraag ontvangers de gedeelde link opnieuw te openen of stuur een nieuwe PDF.",
               "Of de ceremonie nu 10 minuten te laat begint of toespraken langer duren, je team kan de updates onmiddellijk zien."
             ]
           },

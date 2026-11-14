@@ -43,7 +43,7 @@ import type { PlaceCardPhotoVideoQr } from "@/hooks/usePlaceCardPhotoVideoQr";
 interface PlaceCardCustomizerProps {
   beforeBackgroundUpload?: (file: File) => Promise<boolean>;
   settings: PlaceCardSettings | null;
-  onSettingsChange: (settings: Partial<PlaceCardSettings>) => Promise<boolean>;
+  onSettingsChange: (settings: Partial<PlaceCardSettings>, signal?: AbortSignal) => Promise<boolean>;
   guests: Guest[];
   textEditMode?: boolean;
   onTextEditModeChange?: (enabled: boolean) => void;
@@ -81,6 +81,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
   const [localMassMessage, setLocalMassMessage] = useState<string>(settings?.mass_message || "");
   const [guestSearchQuery, setGuestSearchQuery] = useState("");
   const [galleryModalOpen, setGalleryModalOpen] = useState(false);
+  useEffect(() => { setGalleryModalOpen(false); }, [settings?.event_id]);
   const { toast } = useToast();
 
   useEffect(() => { setIndividualMessages(settings?.individual_messages || {}); }, [settings?.id, JSON.stringify(settings?.individual_messages)]);
@@ -306,6 +307,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     <div>
                       <Label className="text-xs text-muted-foreground mb-1 block">Font</Label>
                       <PlaceCardFontPicker
+                        label="Guest name font"
                         value={currentSettings.guest_font_family || "Great Vibes"}
                         onValueChange={(value) => handleSettingChange("guest_font_family", value)}
                       />
@@ -316,7 +318,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         value={currentSettings.guest_name_font_size.toString()}
                         onValueChange={(value) => handleSettingChange("guest_name_font_size", parseInt(value))}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger aria-label="Guest name font size">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="ww-placecards-portal">
@@ -335,6 +337,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     <div>
                       <Label className="text-xs text-muted-foreground mb-1 block">Text Color</Label>
                       <ColorPickerPopover
+                        ariaLabel="Guest name text color"
                         value={currentSettings.font_color}
                         onChange={(color) => handleSettingChange("font_color", color)}
                         contentClassName="ww-placecards-portal"
@@ -356,7 +359,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                           void onSettingsChange({ guest_name_bold: value === "bold", guest_name_italic: value === "italic", guest_name_underline: value === "underline" });
                         }}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger aria-label="Guest name text style">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="ww-placecards-portal">
@@ -382,6 +385,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     <div>
                       <Label className="text-xs text-muted-foreground mb-1 block">Font</Label>
                       <PlaceCardFontPicker
+                        label="Table and seat font"
                         value={currentSettings.info_font_family || "Alex Brush"}
                         onValueChange={(value) => handleSettingChange("info_font_family", value)}
                       />
@@ -392,7 +396,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         value={currentSettings.info_font_size.toString()}
                         onValueChange={(value) => handleSettingChange("info_font_size", parseInt(value))}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger aria-label="Table and seat font size">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="ww-placecards-portal">
@@ -411,6 +415,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     <div>
                       <Label className="text-xs text-muted-foreground mb-1 block">Text Color</Label>
                       <ColorPickerPopover
+                        ariaLabel="Table and seat text color"
                         value={(currentSettings as any).info_font_color || "#000000"}
                         onChange={(color) => handleSettingChange("info_font_color" as any, color)}
                         contentClassName="ww-placecards-portal"
@@ -432,7 +437,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                           void onSettingsChange({ info_bold: value === "bold", info_italic: value === "italic", info_underline: value === "underline" });
                         }}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger aria-label="Table and seat text style">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="ww-placecards-portal">
@@ -471,6 +476,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                       </span>
                     </div>
                     <Switch
+                      aria-label="Text edit mode"
                       checked={textEditMode}
                       onCheckedChange={(checked) => onTextEditModeChange?.(checked)}
                       className={textEditMode ? "" : "border border-[#967A59] rounded-full"}
@@ -634,8 +640,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         </button>
                       </div>
                       <p className="text-xs text-muted-foreground mt-1 text-center">
-                        Want more design freedom? Click 'Edit with Canva' to customise your place card using Canva.
-                        After downloading your design as PNG or PDF, return here and upload it to Wedding Waitress.
+                        Want more design freedom? Click 'Design with Canva' to customise your place card. Download it as a PNG image, then return here and upload it to Wedding Waitress.
                       </p>
 
                       {/* Image preview, recommendation text, and remove button */}
@@ -687,7 +692,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         value={String(currentSettings.background_image_x_position ?? 50)}
                         onValueChange={(value) => handleSettingChange("background_image_x_position", Number(value))}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger aria-label="Background horizontal position">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="ww-placecards-portal">
@@ -707,7 +712,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         value={String(currentSettings.background_image_y_position ?? 50)}
                         onValueChange={(value) => handleSettingChange("background_image_y_position", Number(value))}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger aria-label="Background vertical position">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="ww-placecards-portal">
@@ -727,7 +732,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                         value={String(currentSettings.background_image_opacity ?? 100)}
                         onValueChange={(value) => handleSettingChange("background_image_opacity", Number(value))}
                       >
-                        <SelectTrigger>
+                        <SelectTrigger aria-label="Background image opacity">
                           <SelectValue />
                         </SelectTrigger>
                         <SelectContent className="ww-placecards-portal">
@@ -747,6 +752,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     Card Background Color
                   </span>
                   <ColorPickerPopover
+                    ariaLabel="Card background color"
                     value={settings?.background_color || "#ffffff"}
                     onChange={(color) => handleSettingChange("background_color", color)}
                     contentClassName="ww-placecards-portal"
@@ -785,6 +791,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     Mass Message (applies to all cards)
                   </span>
                   <Textarea
+                    aria-label="Mass message"
                     placeholder="Enter a message for all place cards..."
                     value={localMassMessage}
                     onChange={(e) => setLocalMassMessage(e.target.value)}
@@ -800,11 +807,13 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     Individual Messages
                   </span>
 
-                  <Button className="ww-placecards-guest-search w-full rounded-full bg-primary text-white hover:bg-primary/90">
+                  <Button type="button" onClick={() => document.getElementById("place-card-guest-search")?.focus()} className="ww-placecards-guest-search w-full rounded-full bg-primary text-white hover:bg-primary/90">
                     <Search size={16} strokeWidth={1.8} className="mr-2" aria-hidden="true" />Guest Name Search
                   </Button>
 
                   <Input
+                    id="place-card-guest-search"
+                    aria-label="Search guest names"
                     placeholder="Search for a guest..."
                     value={guestSearchQuery}
                     onChange={(e) => setGuestSearchQuery(e.target.value)}
@@ -815,8 +824,8 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                     {(() => {
                       const filteredGuests = guests.filter((guest) => {
                         if (!guestSearchQuery.trim()) return true;
-                        const searchLower = guestSearchQuery.toLowerCase();
-                        const fullName = `${guest.first_name} ${guest.last_name}`.toLowerCase();
+                        const searchLower = guestSearchQuery.trim().toLowerCase().replace(/\s+/g, " ");
+                        const fullName = `${guest.first_name} ${guest.last_name}`.trim().toLowerCase().replace(/\s+/g, " ");
                         return fullName.includes(searchLower);
                       });
 
@@ -835,6 +844,7 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
                             {guest.first_name} {guest.last_name}
                           </Label>
                           <Input
+                            aria-label={`Message for ${guest.first_name} ${guest.last_name}`}
                             placeholder="Personal message for this guest..."
                             value={individualMessages[guest.id] || ""}
                             onChange={(e) => handleIndividualMessageChange(guest.id, e.target.value)}
@@ -872,12 +882,13 @@ export const PlaceCardCustomizer: React.FC<PlaceCardCustomizerProps> = ({
           open
           onOpenChange={setGalleryModalOpen}
           selectedImageUrl={currentSettings.background_image_url || null}
-          onSelectImage={async (imageUrl) => {
-            if (await onSettingsChange({ background_image_url: imageUrl, background_image_opacity: 100 }) === false) return;
+          onSelectImage={async (imageUrl, signal) => {
+            if (signal?.aborted || await onSettingsChange({ background_image_url: imageUrl, background_image_opacity: 100 }, signal) === false || signal?.aborted) return false;
             toast({
               title: "Image Selected",
               description: "Gallery image has been applied",
             });
+            return true;
           }}
         />
       )}

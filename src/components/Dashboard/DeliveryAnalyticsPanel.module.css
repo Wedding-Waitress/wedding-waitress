@@ -56,3 +56,5 @@
 .icon.icon[class*="text-amber"] {
   color: #c2410c !important;
 }
+
+.label.label, .hint.hint { overflow-wrap:anywhere; }

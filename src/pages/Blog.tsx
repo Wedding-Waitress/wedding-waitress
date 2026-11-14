@@ -1,4 +1,4 @@
-import { PublicImage } from '@/components/Layout/PublicImage';
+import { cleanBlogProse } from '@/content/blogProseStyle';
 /**
  * 🔒 PRODUCTION-LOCKED — DO NOT MODIFY
  * Part of the approved public homepage surface (locked 2026-04-18).
@@ -38,19 +38,6 @@ const BLOG_COVER_IMAGES: Record<string, string> = {
   'blog-seating-mistakes': blogSeatingMistakes,
 };
 
-const BLOG_IMAGE_DESCRIPTIONS: Record<string, string> = {
-  'blog-qr-scanning': 'Wedding guest viewing seating information on a phone',
-  'blog-planning-laptop': 'Couple reviewing wedding plans together on a laptop',
-  'blog-wedding-signage': 'Wedding welcome signs on easels beside floral decorations',
-  'blog-older-guest': 'Older wedding guest using a smartphone at a reception',
-  'blog-last-minute-changes': 'Laptop displaying a wedding seating chart beside a tablet and notebook',
-  'blog-running-sheet': 'Printed wedding day schedule beside a tablet showing the run sheet',
-  'blog-seating-chart-step-by-step': 'Couple planning their wedding together with a laptop and notebook',
-  'blog-seating-etiquette': 'Wedding guests seated together around a decorated reception table',
-  'blog-seating-templates': 'Wedding seating chart displayed on an easel in a reception room',
-  'blog-seating-mistakes': 'Couple reviewing wedding planning notes together',
-};
-
 export const Blog = () => {
   const { t } = useTranslation('landing');
   const posts = useBlogPosts();
@@ -76,7 +63,7 @@ export const Blog = () => {
       <Header />
 
       <main className="flex-1">
-        <PublicPageHero compact asset={publicHeroForRoute('/blog')} eyebrow="Planning journal" title={t('blog.title')} description={t('blog.subtitleLong')} />
+        <PublicPageHero compact asset={publicHeroForRoute('/blog')} eyebrow="Planning journal" title={t('blog.title')} description={cleanBlogProse(t('blog.subtitleLong'))} />
 
         {/* Posts grid */}
         <section className="w-full max-w-6xl mx-auto px-6 py-16 md:py-20">
@@ -92,9 +79,9 @@ export const Blog = () => {
                   className="block aspect-[16/9] overflow-hidden bg-[#f3efe9]"
                 >
                   {post.coverImage && BLOG_COVER_IMAGES[post.coverImage] ? (
-                    <PublicImage
+                    <img
                       src={BLOG_COVER_IMAGES[post.coverImage]}
-                      alt={BLOG_IMAGE_DESCRIPTIONS[post.coverImage] ?? post.title}
+                      alt={post.title}
                       loading="lazy"
                       width={1024}
                       height={576}

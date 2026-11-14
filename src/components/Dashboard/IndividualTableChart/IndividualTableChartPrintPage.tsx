@@ -4,6 +4,7 @@ import { TableWithGuestCount } from '@/hooks/useTables';
 import { A4_PAGE_STYLE } from '@/lib/a4';
 import { IndividualChartSettings } from './IndividualTableSeatingChartPage';
 import { getHeadParticipantName } from '@/lib/headTable';
+import { getRelationDisplayText } from '@/lib/relationUtils';
 
 interface IndividualTableChartPrintPageProps {
   settings: IndividualChartSettings;
@@ -69,10 +70,12 @@ const sortGuests = (guests: Guest[], tableId: string) => [...guests]
 const getDietaryText = (guest: Guest, settings: IndividualChartSettings) =>
   settings.includeDietary && guest.dietary && guest.dietary !== 'NA' ? guest.dietary : '';
 
-const getRelationshipText = (guest: Guest, settings: IndividualChartSettings) =>
-  settings.includeRelation && guest.relation_display && guest.relation_display !== 'Not Assigned'
-    ? guest.relation_display.replace(/ \/ /g, '/')
+const getRelationshipText = (guest: Guest, settings: IndividualChartSettings) => {
+  const relationship = getRelationDisplayText(guest.relation_display, guest.relation_role);
+  return settings.includeRelation && relationship !== 'Not Assigned'
+    ? relationship.replace(/ \/ /g, '/')
     : '';
+};
 
 const GuestDetails = ({ guest, settings }: { guest: Guest; settings: IndividualChartSettings }) => {
   const dietary = getDietaryText(guest, settings);
@@ -325,7 +328,7 @@ export const IndividualTableChartPrintPage: React.FC<IndividualTableChartPrintPa
     <div data-individual-table-chart-page="true" data-page-size="A4" style={{ ...A4_PAGE_STYLE, boxSizing: 'border-box', overflow: 'hidden', background: '#fff', color: '#000', fontFamily: 'Arial, Helvetica, sans-serif' }}>
       <div style={{ height: '100%', padding: '8mm 12.7mm 10mm', boxSizing: 'border-box', display: 'grid', gridTemplateRows: 'auto minmax(0, 1fr) auto', gap: '8px' }}>
         <header style={{ textAlign: 'center', color: '#000' }}>
-          <div style={{ fontSize: '16pt', fontWeight: 700, lineHeight: 1.25, overflowWrap: 'anywhere' }}>{event?.name || 'Event'}</div>
+          <div style={{ fontSize: '16pt', fontWeight: 700, color: '#2f1b14', lineHeight: 1.25, overflowWrap: 'anywhere' }}>{event?.name || 'Event'}</div>
           <div style={{ fontSize: '11pt', marginTop: '3px' }}>Individual Table Charts – {sortedGuests.length} {sortedGuests.length === 1 ? 'Guest' : 'Guests'}</div>
           <div style={{ fontSize: '8pt', lineHeight: 1.35, marginTop: '5px', overflowWrap: 'anywhere' }}>{ceremonyLine && <div>{ceremonyLine}</div>}<div>{receptionLine}</div></div>
           <div data-header-separator="true" style={{ borderTop: '1px solid #000', marginTop: '7px' }} />
@@ -342,7 +345,7 @@ export const IndividualTableChartPrintPage: React.FC<IndividualTableChartPrintPa
         <footer data-footer-layout="three-column" data-footer-alignment="single-line-centred" style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', minHeight: '12mm', color: '#000', fontSize: '8pt', lineHeight: 1 }}>
           <div data-footer-generated="true" style={{ justifySelf: 'start', alignSelf: 'center', whiteSpace: 'nowrap', fontSize: '8pt' }}>Generated: {getFooterTimestamp()}</div>
           {settings.showLogo
-            ? <img src="/wedding-waitress-logo-brown.png" alt="Wedding Waitress" style={{ width: '36mm', height: '10mm', alignSelf: 'center', objectFit: 'contain' }} />
+            ? <img src="/wedding-waitress-document-footer-dark-brown.png" alt="Wedding Waitress" style={{ width: '36mm', height: '10mm', alignSelf: 'center', objectFit: 'contain' }} />
             : <div style={{ width: '36mm', height: '10mm' }} />}
           <div data-footer-page-number="true" style={{ justifySelf: 'end', alignSelf: 'center', whiteSpace: 'nowrap', fontSize: '8pt' }}>Page {currentTableIndex} of {totalTables}</div>
         </footer>

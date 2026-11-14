@@ -98,7 +98,7 @@ body:has(.ww-pricing-page),
   width: 100%;
   padding-block: clamp(5rem, 10vw, 8rem);
   padding-inline: var(--ww-public-hero-gutter);
-  text-align: left;
+  text-align: start;
 }
 .ww-public-photo-hero :where(h1, p, a, span),
 .ww-home-cinematic-hero :where(h1, p, a, span) { color: #fff !important; -webkit-text-fill-color: #fff !important; }
@@ -112,9 +112,12 @@ body:has(.ww-pricing-page),
   display: inline-flex; min-height: 48px; align-items: center; justify-content: center; border: 1px solid rgba(255,255,255,.72); border-radius: 999px; padding: .75rem 1.35rem; color: #fff; background: rgba(34,17,12,.34); font-weight: 700; backdrop-filter: blur(8px); transition: .2s ease;
 }
 .ww-button-hero-secondary:hover { border-color: #fff; background: rgba(34,17,12,.58); }
-.ww-home-video-toggle {
-  position: absolute; z-index: 4; right: clamp(1rem, 3vw, 2.5rem); bottom: clamp(1rem, 3vw, 2rem); display: inline-flex; min-height: 44px; align-items: center; gap: .5rem; border: 1px solid rgba(255,255,255,.7); border-radius: 999px; padding: .65rem 1rem; color: #fff; background: rgba(27,13,9,.56); backdrop-filter: blur(10px);
-}
+.ww-home-video-controls { position: absolute; z-index: 4; right: clamp(1rem, 3vw, 2.5rem); bottom: clamp(1rem, 3vw, 2rem); display: flex; flex-wrap: wrap; justify-content: end; gap: .625rem; max-width: calc(100% - 2rem); }
+.ww-home-video-control { display: inline-flex; min-height: 52px; align-items: center; justify-content: center; gap: .55rem; border: 1px solid rgba(255,255,255,.52); border-radius: 999px; padding: .75rem 1rem; color: #fff; background: rgba(29,18,16,.42); box-shadow: inset 0 1px 0 rgba(255,255,255,.28), 0 10px 28px rgba(0,0,0,.25); backdrop-filter: blur(16px) saturate(145%); -webkit-backdrop-filter: blur(16px) saturate(145%); font: inherit; font-size: .9375rem; font-weight: 700; line-height: 1; transition: background .2s ease, border-color .2s ease, transform .2s ease; }
+.ww-home-video-control svg { width: 1.25rem; height: 1.25rem; flex: 0 0 auto; color: #fff; stroke-width: 2.25; }
+.ww-home-video-control:hover { border-color: rgba(255,255,255,.82); background: rgba(29,18,16,.62); transform: translateY(-1px); }
+.ww-home-video-control:focus-visible { outline: 3px solid #fff; outline-offset: 3px; }
+.ww-home-video-control:active { transform: translateY(0); }
 .ww-section-cream { background: var(--ww-cream); }
 .ww-public-dashboard-background,
 .ww-section-espresso {
@@ -737,6 +740,7 @@ body:has(.ww-pricing-page),
 
 @media (prefers-reduced-motion: reduce) {
   .ww-public *, .ww-button-primary, .ww-button-secondary, .ww-button-espresso { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; }
+  .ww-home-hero-video { display: none; }
   .ww-public .ww-public-hero-picture img {
     animation: none !important;
     transform: scale(1) !important;
@@ -805,6 +809,24 @@ body:has(.ww-pricing-page),
   opacity: 1 !important;
 }
 
+/* A gentle, anchored flutter without changing the flag's intrinsic proportions. */
+.ww-footer-flag {
+  transform-origin: left center;
+  filter: var(--ww-flag-wave-filter);
+  animation: ww-footer-flag-wave 3.2s ease-in-out infinite;
+}
+
+@keyframes ww-footer-flag-wave {
+  0%, 100% { transform: translateY(-2px) perspective(120px) rotate(-12deg) rotateY(0deg) rotateX(0deg); }
+  25% { transform: translateY(-3px) perspective(120px) rotate(-14deg) rotateY(-12deg) rotateX(5deg); }
+  50% { transform: translateY(-2px) perspective(120px) rotate(-11deg) rotateY(6deg) rotateX(-3deg); }
+  75% { transform: translateY(-1px) perspective(120px) rotate(-13deg) rotateY(-7deg) rotateX(3deg); }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .ww-footer-flag { animation: none; filter: none; }
+}
+
 /* Pricing-only dark surfaces must remain solid white after the public text contract. */
 .ww-pricing-page
   [data-pricing-dark-surface="wedding-waitress-value"]
@@ -813,3 +835,251 @@ body:has(.ww-pricing-page),
   -webkit-text-fill-color: #ffffff !important;
   opacity: 1 !important;
 }
+
+/* Non-homepage photos retain their full intrinsic frame on phones/tablets.
+   Copy follows the image so long headings never force a crop or obscure it. */
+@media (max-width: 1023px) {
+  .ww-public .ww-public-photo-hero { display: block; min-height: 0; height: auto; padding: 0; }
+  .ww-public-photo-hero > .ww-public-hero-picture,
+  .ww-public-photo-hero > .ww-public-hero-picture img {
+    position: static;
+    display: block;
+    width: 100%;
+    height: auto;
+  }
+  .ww-public-photo-hero > .ww-public-hero-picture img {
+    object-fit: contain;
+    animation: none;
+    transform: none;
+    will-change: auto;
+  }
+  .ww-public-photo-hero > .ww-public-hero-shade { display: none; }
+  .ww-public-photo-hero > .ww-public-hero-content { padding-block: 2rem 2.5rem; }
+  .ww-venue-detail-photo { aspect-ratio: auto; }
+  .ww-venue-detail-photo > img { width: 100%; height: auto; object-fit: contain; }
+}
+
+/* Homepage sound: a compact, espresso speaker ring with a 44px touch target. */
+.ww-home-sound-toggle {
+  display: inline-flex;
+  flex-shrink: 0;
+  align-items: center;
+  justify-content: center;
+  width: 44px;
+  height: 44px;
+  padding: 0;
+  border: 0;
+  background: transparent;
+  color: var(--ww-espresso);
+  cursor: pointer;
+}
+.ww-home-sound-toggle-ring {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  width: 32px;
+  height: 32px;
+  border: 1px solid currentColor;
+  border-radius: 50%;
+}
+.ww-home-sound-toggle:focus-visible { outline: 2px solid currentColor; outline-offset: 2px; border-radius: 50%; }
+.ww-home-sound-toggle:disabled { cursor: default; opacity: .6; }
+@media (max-width: 479px) {
+  .ww-public .ww-public-header-home-logo img { max-width: calc(100vw - 9.5rem); height: auto; }
+}
+@media (min-width: 1320px) and (max-width: 1439px) {
+  .ww-homepage header .ww-public-nav-link { padding-inline: .5rem; }
+}
+
+
+/* Keep embossed category labels readable in the mobile/tablet menu. */
+#root#root .ww-public-mobile-menu .ww-products-menu-heading,
+#root#root .ww-public-mobile-menu .ww-products-menu-heading * {
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+
+/* Shared public event FAQ accordion panel. */
+.ww-public .ww-event-faq-panel { margin-top: 2.5rem; padding: 8px clamp(18px, 4vw, 36px); border: 1px solid #806344; border-radius: 20px; background: #fffdf9; box-shadow: 0 12px 32px rgba(43,23,17,.10), inset 0 1px 0 rgba(255,255,255,.85); }
+.ww-public .ww-event-faq-panel details { padding: 0; border: 0; border-bottom: 1px solid rgba(128,99,68,.26); }
+.ww-public .ww-event-faq-panel details:last-child { border-bottom: 0; }
+.ww-public .ww-event-faq-panel summary { position: relative; min-height: 64px; padding-block: 20px; padding-inline: 0 32px; color: #412419; line-height: 1.5; border-radius: 6px; }
+.ww-public .ww-event-faq-panel summary:focus-visible { outline: 2px solid #806344; outline-offset: 4px; }
+.ww-public .ww-event-faq-panel summary::-webkit-details-marker { display: none; }
+.ww-public .ww-event-faq-panel details > p { margin-top: 0; padding-bottom: 20px; }
+.ww-public .ww-event-faq-chevron { position: absolute; inset-inline-end: 0; top: 50%; width: 18px; height: 18px; transform: translateY(-50%); transition: transform 160ms ease; color: #412419; }
+.ww-public .ww-event-faq-panel details[open] .ww-event-faq-chevron { transform: translateY(-50%) rotate(180deg); }
+@media (prefers-reduced-motion: reduce) { .ww-public .ww-event-faq-chevron { transition: none; } }
+
+/* Blog planning CTA shares the approved embossed espresso surface. */
+.ww-public .ww-blog-cta-button,
+.ww-public .ww-blog-cta-button:hover:not(:disabled),
+.ww-public .ww-blog-cta-button:focus-visible,
+.ww-public .ww-blog-cta-button:active:not(:disabled) {
+  border: 1px solid #fff !important;
+  color: #fff !important;
+  -webkit-text-fill-color: #fff !important;
+}
+.ww-public .ww-blog-cta-button:focus-visible { outline: 2px solid #fff; outline-offset: 4px; }
+/* Owner-approved hero revision: remove repeated navigation/category labels. */
+.ww-public-photo-hero .ww-public-hero-breadcrumb,
+.ww-public-photo-hero nav[aria-label="Breadcrumb"],
+.ww-public-photo-hero .ww-eyebrow,
+.ww-home-cinematic-hero .ww-eyebrow { display: none !important; }
+/* Only phone hero layout changes; tablet/desktop retain their existing composition. */
+@media (max-width: 639px) {
+  .ww-public .ww-public-photo-hero {
+    display: grid;
+    grid-template-columns: minmax(0, 1fr);
+    grid-template-rows: auto;
+    padding-bottom: 28px;
+  }
+  .ww-public .ww-public-photo-hero > .ww-public-hero-picture {
+    grid-column: 1; grid-row: 1; position: relative;
+    min-height: 240px; align-self: stretch; overflow: hidden;
+  }
+  .ww-public .ww-public-photo-hero > .ww-public-hero-picture img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: var(--ww-hero-mobile-position, center);
+  }
+  .ww-public .ww-public-photo-hero > .ww-public-hero-shade {
+    display: block; position: relative; inset: auto; grid-column: 1; grid-row: 1;
+    background: linear-gradient(90deg, rgba(20,10,7,.78), rgba(20,10,7,.26) 62%, transparent 85%);
+    pointer-events: none;
+  }
+  .ww-public .ww-public-photo-hero > .ww-public-hero-content { display: contents; }
+  .ww-public .ww-public-photo-hero .ww-public-hero-content > h1 {
+    grid-column: 1; grid-row: 1; align-self: start; position: relative; z-index: 3;
+    width: 60%; max-width: none; box-sizing: border-box; margin: 0;
+    padding: 24px 0 28px 20px; font-size: clamp(20px, 4.8vw, 29px);
+    line-height: 1.16; overflow-wrap: anywhere; text-align: left;
+    text-shadow: 0 2px 12px rgba(0,0,0,.6);
+  }
+  .ww-public .ww-public-photo-hero .ww-public-hero-lead {
+    margin: 0; max-width: none; padding: 24px 20px 0;
+    font-size: 15px; line-height: 1.7;
+  }
+  .ww-public .ww-public-photo-hero .ww-public-hero-content > .flex {
+    margin: 22px 20px 0; gap: 10px;
+  }
+  .ww-public .ww-public-photo-hero .ww-public-hero-note { margin: 16px 20px 0; font-size: 12px; }
+  .ww-public .ww-home-cinematic-hero { align-items: center; }
+  .ww-public .ww-home-hero-content { padding-block: 44px 72px; transform: none; }
+  .ww-public .ww-home-hero-content > .flex { margin-top: 24px; gap: 10px; }
+  .ww-public :is(.ww-public-photo-hero, .ww-home-cinematic-hero) :is(.ww-button-primary, .ww-button-hero-secondary) {
+    min-height: 44px; padding: 10px 15px; font-size: 13px; line-height: 1.35;
+  }
+  .ww-public :is(.ww-public-photo-hero, .ww-home-cinematic-hero) :is(.ww-button-primary, .ww-button-hero-secondary) svg { width: 16px; height: 16px; }
+}
+@media (max-width: 639px) {
+  #root .ww-public :is(.ww-public-photo-hero, .ww-home-cinematic-hero) :is(.ww-button-primary, .ww-button-hero-secondary) {
+    min-height: 44px !important; padding: 10px 15px !important; font-size: 13px !important; line-height: 1.35 !important;
+  }
+  #root .ww-public :is(.ww-public-photo-hero, .ww-home-cinematic-hero) :is(.ww-button-primary, .ww-button-hero-secondary) :where(span) { font-size: inherit !important; }
+}
+@media (max-width: 639px) {
+  #root#root .ww-public :is(.ww-public-photo-hero, .ww-home-cinematic-hero) .ww-public-hero-content > .flex,
+  #root#root .ww-public .ww-home-hero-content > .flex { flex-direction: row; align-items: center; }
+  #root#root .ww-public :is(.ww-public-photo-hero, .ww-home-cinematic-hero) :is(.ww-button-primary, .ww-button-hero-secondary),
+  #root#root .ww-public :is(.ww-public-photo-hero, .ww-home-cinematic-hero) :is(.ww-button-primary, .ww-button-hero-secondary) :where(span) { font-size: 13px !important; width: auto; }
+}
+/* Keep photo-hero text in the dark left side, away from people on the right. */
+@media (min-width: 1024px) {
+  .ww-public .ww-public-photo-hero .ww-public-hero-content > h1 {
+    max-width: min(36vw, 690px);
+    font-size: clamp(40px, 3.8vw, 68px);
+    line-height: 1.08;
+  }
+  .ww-public .ww-public-photo-hero .ww-public-hero-lead { max-width: min(34vw, 650px); }
+}
+@media (max-width: 639px) {
+  .ww-public .ww-public-photo-hero .ww-public-hero-content > h1 {
+    width: 44%; font-size: clamp(18px, 4vw, 24px); line-height: 1.18;
+    padding-inline-start: 20px;
+  }
+}
+
+/* Phone and tablet headings sit midway down the image, in the clear left area. */
+@media (max-width: 1023px) {
+  .ww-public .ww-public-photo-hero {
+    display: grid; grid-template-columns: minmax(0, 1fr); grid-template-rows: auto;
+    padding-bottom: 28px;
+  }
+  .ww-public .ww-public-photo-hero > .ww-public-hero-picture {
+    grid-column: 1; grid-row: 1; position: relative;
+    min-height: 240px; align-self: stretch; overflow: hidden;
+  }
+  .ww-public .ww-public-photo-hero > .ww-public-hero-picture img {
+    position: absolute; inset: 0; width: 100%; height: 100%;
+    object-fit: cover; object-position: var(--ww-hero-mobile-position, center);
+  }
+  .ww-public .ww-public-photo-hero > .ww-public-hero-shade {
+    display: block; position: relative; inset: auto; grid-column: 1; grid-row: 1;
+    background: linear-gradient(90deg, rgba(20,10,7,.78), rgba(20,10,7,.26) 62%, transparent 85%);
+    pointer-events: none;
+  }
+  .ww-public .ww-public-photo-hero > .ww-public-hero-content { display: contents; }
+  .ww-public .ww-public-photo-hero .ww-public-hero-content > h1 {
+    grid-column: 1; grid-row: 1; align-self: center; position: relative; z-index: 3;
+    width: 44%; max-width: none; box-sizing: border-box; margin: 0;
+    padding: 24px 0 24px 20px; font-size: clamp(18px, 4vw, 28px); line-height: 1.18;
+    overflow-wrap: anywhere; text-align: left; text-shadow: 0 2px 12px rgba(0,0,0,.6);
+  }
+  .ww-public .ww-public-photo-hero .ww-public-hero-lead {
+    margin: 0; max-width: none; padding: 24px 20px 0; font-size: 15px; line-height: 1.7;
+  }
+  .ww-public .ww-public-photo-hero .ww-public-hero-content > .flex { margin: 22px 20px 0; gap: 10px; }
+  .ww-public .ww-public-photo-hero .ww-public-hero-note { margin: 16px 20px 0; font-size: 12px; }
+}
+@media (min-width: 640px) and (max-width: 1023px) {
+  .ww-public .ww-public-photo-hero > .ww-public-hero-picture { min-height: calc(100vw * 940 / 1672); }
+  .ww-public .ww-public-photo-hero .ww-public-hero-content > h1 { padding-inline-start: 32px; }
+}
+
+/* Product orb contrast follows the existing brown hover surface. */
+#root#root .ww-public .ww-home-product-item:is(:hover, :focus-visible) .ww-icon-orb,
+#root#root .ww-public .ww-home-product-item:is(:hover, :focus-visible) .ww-icon-orb svg,
+#root#root .ww-public .ww-home-product-item:is(:hover, :focus-visible) .ww-icon-orb svg * {
+  color: #fff !important; stroke: #fff !important; -webkit-text-fill-color: #fff !important;
+}
+/* Square public content boxes and rectangular controls; retain circles and pills. */
+#root#root .ww-public :is(.ww-card, .ww-public-card, .ww-event-faq-panel, .ww-image-frame, .ww-media-card, .ww-home-experience-media, .ww-products-menu, .ww-events-menu, .ww-products-menu-cta),
+#root#root .ww-public [class*="rounded-"]:not([class*="rounded-full"]):not(.ww-icon-orb) { border-radius: 0 !important; }
+#root#root .ww-public :is(.ww-image-frame, .ww-media-card) img { border-radius: 0 !important; }
+/* Essential and Ultimate keep their current border widths. */
+#root#root .ww-public #pricing [data-public-pricing-card-grid] > article:not(.border-2),
+#root#root .ww-public #pricing > div > .grid > div:not(.border-2) { border-color: #412419 !important; }
+/* The six event workflow titles can use the full content width. */
+.ww-public main:has(#event-products) .ww-section-espresso .ww-title { max-width: none; font-size: clamp(14px, 3.6vw, 48px); line-height: 1.2; }
+/* Public header dropdowns may render outside the page root. */
+body:has(.ww-public) :is(.ww-products-menu, .ww-events-menu, .ww-selector-menu, .ww-selector-item, .ww-products-menu-link),
+#root#root .ww-public .ww-event-faq-panel summary { border-radius: 0 !important; }
+
+/* Public content boxes only: square, border-free surfaces with one soft shadow.
+   Controls, links styled as buttons, inputs, icons and FAQ separators are excluded. */
+#root#root .ww-public {
+  --ww-content-box-shadow: 0 8px 24px rgba(43, 23, 17, .10);
+}
+#root#root .ww-public :is(
+  .ww-card,
+  .ww-public-card,
+  .ww-box,
+  .ww-event-faq-panel,
+  .ww-image-frame,
+  .ww-media-card,
+  .ww-home-experience-media,
+  .ww-event-hero-mark,
+  article.ww-brand-border,
+  aside.ww-brand-border,
+  a.ww-brand-border:not(.ww-public-link):not([role="button"]),
+  li.ww-dark-surface,
+  [data-public-pricing-card-grid] > article,
+  [data-pricing-currency-notice],
+  #pricing [data-public-pricing-card-grid] :is(h4, h5),
+  main .not-prose.border
+) {
+  border-width: 0 !important;
+  border-radius: 0 !important;
+  box-shadow: var(--ww-content-box-shadow) !important;
+}
+

@@ -9,11 +9,13 @@ export async function supportRateKey(secret: string, identity: string): Promise<
 // Existing operational senders keep their recipient/content/credit workflow.
 // Only durable metadata is added; provider acceptance is not inbox delivery.
 export async function beginOperationalEmail(db: any, messageId: string, templateName: string,
-  recipient: string, customerId: string, eventId: string): Promise<void> {
-  const { error } = await db.from('email_send_log').upsert({ message_id: messageId, template_name: templateName,
+  recipient: string, customerId: string, eventId: string): Promise<boolean> {
+  const { error } = await db.from('email_send_log').insert({ message_id: messageId, template_name: templateName,
     recipient_email: recipient.trim().toLowerCase(), customer_id: customerId, event_id: eventId,
-    purpose: 'transactional', status: 'pending' }, { onConflict: 'message_id', ignoreDuplicates: true })
+    purpose: 'transactional', status: 'pending' })
+  if (error?.code === '23505') return false
   if (error) throw new Error('Email audit is unavailable before sending')
+  return true
 }
 export async function acceptOperationalEmail(db: any, messageId: string, providerId: unknown): Promise<boolean> {
   if (typeof providerId !== 'string' || !providerId) return false

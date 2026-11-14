@@ -1,0 +1,37 @@
+/* Only explicitly marked event selectors use the accepted Budget Planner UI.
+   Artwork, designer controls, exports and public guest pages are unaffected. */
+@layer dashboard-interface {
+  .label {
+    display:flex; flex:none; align-items:center; gap:8px; margin:0;
+    font-family:'Segoe UI',Arial,sans-serif !important;
+    font-size:14px !important; font-weight:700 !important; line-height:18px !important;
+    color:#000 !important; -webkit-text-fill-color:#000 !important;
+  }
+  .label svg {width:18px;height:18px;flex:none;color:#806344;}
+  button.trigger {
+    width:clamp(16rem,24vw,24rem) !important; max-width:100%; min-width:0;
+    height:44px !important; min-height:44px !important; padding:8px 12px !important;
+    border:1px solid #cdb99e !important; border-radius:0 !important;
+    color:#000 !important; -webkit-text-fill-color:#000 !important;
+    background:#f8f0e5 !important;
+    font-family:'Segoe UI',Arial,sans-serif !important; font-size:13px !important; font-weight:600 !important;
+    box-shadow:inset 0 1px 0 rgba(255,255,255,.7),0 2px 6px rgba(74,42,26,.06) !important;
+  }
+  button.trigger :is(span,div) {
+    min-width:0; background:transparent !important; box-shadow:none !important;
+    color:#000 !important; -webkit-text-fill-color:#000 !important;
+    font-family:'Segoe UI',Arial,sans-serif !important; font-size:13px !important; font-weight:600 !important;
+  }
+  button.trigger > :is(span,div) {display:flex !important;align-items:center;gap:8px;overflow:hidden;text-align:left;}
+  button.trigger span {white-space:nowrap;overflow:hidden;text-overflow:ellipsis;}
+  button.trigger svg {color:#806344 !important;flex-shrink:0;}
+  button.trigger:hover {background:#f3e7d8 !important;}
+  button.trigger:focus-visible {outline:2px solid #755332 !important;outline-offset:2px;}
+  @media(max-width:767px) {
+    button.trigger {width:100% !important;}
+    .row {width:100%;flex-direction:column !important;align-items:stretch !important;gap:8px !important;}
+  }
+}
+/* QR/Signs already include a leading calendar outside SelectValue. Hide only
+   the redundant calendar copied into that value by Radix. */
+button.leadingCalendar > div > span svg {display:none;}

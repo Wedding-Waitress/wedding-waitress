@@ -14,3 +14,9 @@
 .resend:hover:not(:disabled),.return:hover { color:var(--dashboard-text); background:var(--dashboard-card-deep); }
 .verify:disabled,.resend:disabled,.code:disabled { opacity:.6; cursor:not-allowed; }
 @media(max-width:767px) { .dialog { max-width:none!important; border-radius:0!important; } }
+
+/* Keep the verification flow centred without changing its dimensions or close control. */
+.dialog .header { align-items:center; text-align:center; }
+.logo { margin-inline:auto; object-position:center; }
+.eyebrow { justify-content:center; }
+.title,.description,.body,.error { text-align:center; }

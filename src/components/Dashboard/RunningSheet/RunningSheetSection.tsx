@@ -76,7 +76,7 @@ interface RunningSheetSectionProps {
   onReorderItems: (items: RunningSheetItem[]) => void;
   onResetToDefault: () => void;
   onDownloadSectionPDF?: () => void;
-  onInsertFromDJMC?: (itemId: string, type: 'ceremony' | 'introductions' | 'speeches', includeSongs: boolean) => void;
+  onInsertFromDJMC?: (itemId: string, type: 'ceremony' | 'introductions' | 'speeches', includeSongs: boolean) => boolean | void;
   hasDJMCData?: boolean;
   disabled?: boolean;
   readOnly?: boolean;
@@ -205,6 +205,12 @@ export function RunningSheetSection({
 
   useEffect(() => { setLocalLabel(label); }, [label]);
 
+  const handleInsertWithUndo = (itemId:string,type:'ceremony'|'introductions'|'speeches',includeSongs:boolean) => {
+    if(disabled || !onInsertFromDJMC)return;
+    const row=items.find(item=>item.id===itemId);if(!row)return;
+    const snapshot={description_rich:structuredClone(row.description_rich)};
+    if(onInsertFromDJMC(itemId,type,includeSongs)!==false)setUndoStack(history=>[...history.slice(-19),{itemId,snapshot}]);
+  };
   return (
     <>
       {busy && <div role="status" aria-live="polite" className="fixed bottom-6 right-6 z-50 flex items-center gap-3 rounded-lg border border-[#967a59] bg-[#fff4e5] px-5 py-3 text-[#2f1b14] shadow-lg">
@@ -234,6 +240,8 @@ export function RunningSheetSection({
 
                 {editingLabel ? (
                   <Input
+                    aria-label={label}
+                    disabled={disabled}
                     ref={labelInputRef}
                     value={localLabel}
                     onChange={(e) => setLocalLabel(e.target.value)}
@@ -242,12 +250,7 @@ export function RunningSheetSection({
                     className={`h-8 flex-1 ${styles.sectionHeading}`}
                   />
                 ) : (
-                  <h3
-                    onClick={() => !disabled && setEditingLabel(true)}
-                    className={`text-primary cursor-text hover:bg-muted/50 px-2 py-1 rounded transition-colors ${styles.sectionHeading}`}
-                  >
-                    {label}
-                  </h3>
+                  <h3 className={styles.sectionHeading}><button type="button" disabled={disabled} onClick={()=>setEditingLabel(true)} className="text-primary bg-transparent border-0 text-left hover:bg-muted/50 px-2 py-1 rounded transition-colors">{label}</button></h3>
                 )}
               </div>
 
@@ -328,6 +331,7 @@ export function RunningSheetSection({
                   </div>
 
                   <Textarea
+                    aria-label="Notes"
                     value={notes || ''}
                     onChange={(e) => onNotesChange(e.target.value || null)}
                     placeholder="e.g., special instructions, timing notes, etc."
@@ -376,7 +380,7 @@ export function RunningSheetSection({
                           onDuplicate={onDuplicateItem}
                           onDelete={(id) => { const row = items.find(item => item.id === id); if (row) void deleteRows([row]); }}
                           onClearText={(itemId) => handleUpdateWithUndo(itemId, { time_text: '', description_rich: { text: '' }, responsible: '' })}
-                          onInsertFromDJMC={onInsertFromDJMC}
+                          onInsertFromDJMC={onInsertFromDJMC ? handleInsertWithUndo : undefined}
                           onUndo={handleUndo}
                           canUndo={undoStack.length > 0}
                           hasDJMCData={hasDJMCData}

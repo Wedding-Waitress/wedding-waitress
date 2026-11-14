@@ -16,12 +16,12 @@ describe('QR Code Seating Chart typography contract', () => {
   it('defines the requested dashboard heading hierarchy', () => {
     expect(dashboardCss).toMatch(/\.eventPanel[^\n]*text-2xl[^{]*\{[\s\S]*?font-size:\s*24px\s*!important;[\s\S]*?font-weight:\s*600\s*!important;/);
     expect(dashboardCss).toMatch(/\.generatorPanel[^\n]*text-2xl[^{]*\{[\s\S]*?font-size:\s*24px\s*!important;[\s\S]*?font-weight:\s*600\s*!important;/);
-    expect(dashboardCss).toMatch(/\.designerHeading h3[^{]*\{[\s\S]*?font-size:\s*20px\s*!important;[\s\S]*?font-weight:\s*500\s*!important;/);
+    expect(dashboardCss).toMatch(/\.designerHeading h3[^{]*\{[\s\S]*?font-size:\s*20px\s*!important;[\s\S]*?font-weight:\s*600\s*!important;/);
   });
 
   it('defines labels, ordinary content, buttons, and status typography', () => {
     expect(dashboardCss).toMatch(/:is\(label, strong\)[^{]*\{[\s\S]*?font-size:\s*13px\s*!important;[\s\S]*?font-weight:\s*600\s*!important;/);
-    expect(dashboardCss).toMatch(/\.eventDetailsText[^{]*\{[\s\S]*?font-size:\s*13px\s*!important;[\s\S]*?font-weight:\s*400\s*!important;[\s\S]*?line-height:\s*18px\s*!important;/);
+    expect(dashboardCss).toMatch(/\.eventDetailsText[^{]*\{[\s\S]*?font-size:\s*13px\s*!important;[\s\S]*?font-weight:\s*600\s*!important;[\s\S]*?line-height:\s*18px\s*!important;/);
     expect(dashboardCss).toMatch(/\.statusLabel[^{]*\{[\s\S]*?font-size:\s*13px\s*!important;[\s\S]*?font-weight:\s*600\s*!important;/);
     expect(dashboardCss).toContain('button:not([role="switch"])');
   });
@@ -48,16 +48,18 @@ describe('QR Code Seating Chart typography contract', () => {
     expect(urlUtils).toContain('export function buildGuestLookupUrl');
   });
 
-  it('keeps the event selector compact and places live status in the generator header', () => {
+  it('keeps the event selector compact and removes the duplicate live-view status bar', () => {
     expect(page).not.toContain('eventDetailsText');
     expect(page).not.toContain('Connected & Synced');
     expect(page).not.toContain('formatEventDate');
     expect(page).toContain('events.find(event => event.id === selectedEventId)');
-    expect(page).toContain('<QRCodeMainCard eventId={currentEventId} event={selectedEvent} />');
+    expect(page).toContain('<QRCodeMainCard key={currentEventId} eventId={currentEventId} event={selectedEvent} />');
     expect(card).toContain('generatorHeaderRow');
-    expect(card).toContain('Connected &amp; Synced');
-    expect(card).toContain('Linked: <strong>{event.name}</strong>');
-    expect(card).toMatch(/className=\{styles\.compactStatus\} onClick=\{handleLiveView\}/);
+    expect(card).not.toContain('Guest link ready');
+    expect(card).not.toContain('Linked: <strong>{event.name}</strong>');
+    expect(card).not.toContain('Opens guest lookup');
+    expect(card).toContain('onClick={handleLiveView} disabled={!eventUrl}');
+    expect(card).toContain('Open Live View App');
     expect(dashboardCss).toMatch(/\.generatorConnectionStatus[^{]*\{[\s\S]*?margin-left:\s*auto;/);
     expect(dashboardCss).toMatch(/@media \(max-width: 767px\)[\s\S]*?\.generatorConnectionStatus[^{]*\{[\s\S]*?width:\s*100%;/);
   });

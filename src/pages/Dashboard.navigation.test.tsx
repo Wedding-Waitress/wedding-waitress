@@ -25,6 +25,8 @@ vi.mock('@/components/Dashboard/AppSidebar', () => ({
 
     return (
       <aside data-testid="dashboard-sidebar">
+        <button aria-current={activeTab === 'my-events' ? 'page' : undefined} onClick={() => onTabChange('my-events')}>My Events</button>
+        <button aria-current={activeTab === 'dashboard' ? 'page' : undefined} onClick={() => onTabChange('dashboard')}>Event Budget Planner</button>
         <button aria-current={activeTab === 'qr-code' ? 'page' : undefined} onClick={() => onTabChange('qr-code')}>QR Code Seating Chart</button>
         <button aria-current={activeTab === 'signage' ? 'page' : undefined} onClick={() => onTabChange('signage')}>Seating Chart Signs</button>
         <span data-testid="active-tab">{activeTab}</span>
@@ -41,6 +43,8 @@ vi.mock('@/components/Dashboard/GuestListTable', () => ({
   ),
 }));
 vi.mock('@/components/Dashboard/QRCode/QRCodeSeatingChart', () => ({ QRCodeSeatingChart: () => <h1>QR content</h1> }));
+vi.mock('@/components/Dashboard/MyEventsPage', () => ({ MyEventsPage: () => <h1>My Events content</h1> }));
+vi.mock('@/components/Dashboard/DashboardOverview', () => ({ DashboardOverview: () => <h1>Budget content</h1> }));
 vi.mock('@/components/Dashboard/LiveSlideshow/LiveSlideshowSetup', () => ({ LiveSlideshowSetup: () => <h1>Live Slideshow setup</h1> }));
 vi.mock('@/components/Dashboard/Signage/SignagePage', () => ({
   SignagePage: () => {
@@ -51,6 +55,7 @@ vi.mock('@/components/Dashboard/Signage/SignagePage', () => ({
 }));
 vi.mock('@/pages/GalleryViewFeaturePage', () => ({ GalleryViewFeaturePage: () => <h1>Gallery view workspace</h1> }));
 
+vi.mock('@/hooks/useAccountSeats', () => ({ useAccountSeats: () => ({ used: 1, maximum: 5, remaining: 4, loading: false }) }));
 vi.mock('@/hooks/useDashboardSession', () => ({ useDashboardSession: () => ({ session: { user: { id: 'user-1' } }, loading: false, error: null, retry: vi.fn() }) }));
 vi.mock('@/hooks/useEvents', () => ({ useEvents: () => ({ events: [{ id: 'event-1', name: 'Wedding', event_type: 'seated', guest_limit: 100 }], loading: false, loaded: true, activeEventId: null, setActiveEventId: vi.fn() }) }));
 vi.mock('@/hooks/useSelectedEvent', () => ({ useSelectedEvent: () => ({ selectedEventId: 'event-1', selectedEvent: { id: 'event-1', name: 'Wedding', event_type: 'seated', guest_limit: 100 }, status: 'selected', setSelectedEventId: vi.fn() }) }));
@@ -83,6 +88,23 @@ const renderDashboard = (entry: string) => {
 };
 
 describe('persistent Dashboard navigation shell', () => {
+  it('opens My Events for an existing session, then permits budget navigation', async () => {
+    localStorage.setItem('dashboardTab', 'dashboard');
+    const router = renderDashboard('/dashboard');
+    expect(await screen.findByText('My Events content')).toBeInTheDocument();
+    expect(screen.getByRole('button', { name: 'My Events' })).toHaveAttribute('aria-current', 'page');
+    fireEvent.click(screen.getByRole('button', { name: 'Event Budget Planner' }));
+    expect(await screen.findByText('Budget content')).toBeInTheDocument();
+    expect(router.state.location.search).toBe('?tab=dashboard');
+    expect(screen.getByRole('button', { name: 'Event Budget Planner' })).toHaveAttribute('aria-current', 'page');
+    localStorage.removeItem('dashboardTab');
+  });
+
+  it('preserves an explicit budget URL on refresh', async () => {
+    renderDashboard('/dashboard?tab=dashboard');
+    expect(await screen.findByText('Budget content')).toBeInTheDocument();
+    expect(screen.getByTestId('active-tab')).toHaveTextContent('dashboard');
+  });
   beforeEach(() => {
     delayed.pending = false;
     delayed.promise = null;

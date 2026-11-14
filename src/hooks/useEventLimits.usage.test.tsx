@@ -1,4 +1,4 @@
-import { renderHook, waitFor } from '@testing-library/react';
+import { act, renderHook, waitFor } from '@testing-library/react';
 import { beforeEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
@@ -87,4 +87,10 @@ describe('authoritative account event usage', () => {
     expect(result.current.eventsError).toBe('Unable to load event usage.');
     expect(result.current.additionalEventsError).toBe('Unable to load additional event purchases.');
   });
+
+ it('refreshes account usage and allowance after a confirmed plan change and on focus',async()=>{
+  const view=renderHook(()=>useEventLimits());await waitFor(()=>expect(view.result.current.loading).toBe(false));Object.assign(mocks.allowance,{planKey:'premium',activeEvents:1,totalAllowed:2,remaining:1});
+  act(()=>window.dispatchEvent(new Event('ww:plan-entitlement-changed')));await waitFor(()=>expect(view.result.current.planKey).toBe('premium'));expect(view.result.current.totalAllowed).toBe(2);expect(view.result.current.totalGuests).toBe(78);
+  Object.assign(mocks.allowance,{activeEvents:2,remaining:0});act(()=>window.dispatchEvent(new Event('focus')));await waitFor(()=>expect(view.result.current.currentEvents).toBe(2));
+ });
 });

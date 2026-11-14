@@ -29,8 +29,7 @@ import {
   Check,
   UserRound,
   Armchair,
-  ListOrdered,
-} from 'lucide-react';
+  } from 'lucide-react';
 import styles from './FullSeatingChartPage.module.css';
 
 const COLOR_LABELS: Record<FullSeatingChartColor, string> = {
@@ -48,7 +47,7 @@ const ColorSwatches = ({ name, selected, onChange }: {
   selected: FullSeatingChartColor;
   onChange: (color: FullSeatingChartColor) => void;
 }) => (
-  <div className="flex items-center gap-0.5 shrink-0" role="group" aria-label={`${name} colour`}>
+  <div className={styles.swatchGroup} role="group" aria-label={`${name} colour`}>
     {FULL_SEATING_CHART_COLORS.map(value => {
       const isSelected = selected === value;
       const label = COLOR_LABELS[value];
@@ -143,7 +142,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
             <span className={`${styles.sectionLabel} ${styles.sectionHeading} text-[#472c1d] border border-[#472c1d] rounded-full px-3 py-0.5 inline-flex items-center text-sm font-semibold`}>Display Options</span>
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className={styles.displayRow}>
             <Label htmlFor="show-guest-names" className="flex flex-1 items-center gap-[7px]">
               <UserRound className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Show Guest Names
@@ -152,7 +151,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
             <Switch id="show-guest-names" checked={settings.showGuestNames} onCheckedChange={showGuestNames => onSettingsChange({ showGuestNames })} />
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className={styles.displayRow}>
             <Label htmlFor="show-seat-numbers" className="flex flex-1 items-center gap-[7px]">
               <Armchair className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Show Seat Numbers
@@ -161,16 +160,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
             <Switch id="show-seat-numbers" checked={settings.showSeatNumbers} onCheckedChange={showSeatNumbers => onSettingsChange({ showSeatNumbers })} />
           </div>
 
-          <div className="flex items-center gap-1">
-            <Label htmlFor="show-guest-list" className="flex flex-1 items-center gap-[7px]">
-              <ListOrdered className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
-              Show Guest List
-            </Label>
-            <ColorSwatches name="guest list" selected={settings.guestListColor} onChange={guestListColor => onSettingsChange({ guestListColor })} />
-            <Switch id="show-guest-list" checked={settings.showGuestList} onCheckedChange={showGuestList => onSettingsChange({ showGuestList })} />
-          </div>
-
-          <div className="flex items-center gap-1">
+          <div className={styles.displayRow}>
             <Label htmlFor="show-dietary" className="flex flex-1 items-center gap-[7px]">
               <UtensilsCrossed className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Show Dietary Requirements
@@ -179,7 +169,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
             <Switch id="show-dietary" checked={settings.showDietary} onCheckedChange={showDietary => onSettingsChange({ showDietary })} />
           </div>
 
-          <div className="flex items-center gap-1">
+          <div className={styles.displayRow}>
             <Label htmlFor="show-relation" className="flex flex-1 items-center gap-[7px]">
               <HeartHandshake className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
               Show Relationship
@@ -236,6 +226,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
               <DropdownMenuContent className={`${styles.portalSurface} w-[var(--radix-dropdown-menu-trigger-width)] bg-popover border-border z-50`}>
                 <DropdownMenuItem 
                   className={`${styles.portalItem} flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-[#472c1d] text-foreground`}
+                  role="menuitemcheckbox" aria-checked={settings.isBold}
                   onClick={() => onSettingsChange({ isBold: !settings.isBold })}
                 >
                   <div className="flex items-center gap-2">
@@ -246,6 +237,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   className={`${styles.portalItem} flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-[#472c1d] text-foreground`}
+                  role="menuitemcheckbox" aria-checked={settings.isItalic}
                   onClick={() => onSettingsChange({ isItalic: !settings.isItalic })}
                 >
                   <div className="flex items-center gap-2">
@@ -256,6 +248,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
                 </DropdownMenuItem>
                 <DropdownMenuItem 
                   className={`${styles.portalItem} flex items-center justify-between cursor-pointer hover:bg-primary/10 hover:text-[#472c1d] text-foreground`}
+                  role="menuitemcheckbox" aria-checked={settings.isUnderline}
                   onClick={() => onSettingsChange({ isUnderline: !settings.isUnderline })}
                 >
                   <div className="flex items-center gap-2">

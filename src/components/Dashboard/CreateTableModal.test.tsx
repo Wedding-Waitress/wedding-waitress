@@ -59,7 +59,7 @@ describe('CreateTableModal', () => {
 
     await waitFor(() => expect(onSave).toHaveBeenCalledWith({
       name: 'VIP A',
-      limit_seats: 8,
+      limit_seats: 10,
       notes: undefined,
       table_no: null,
       table_type: 'round',

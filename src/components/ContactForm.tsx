@@ -4,9 +4,9 @@
  * See LOCKED_TRANSLATION_KEYS.md.
  *
  * Field order: Full Name → Email → Type of Event → Message.
- * Wired to send-transactional-email → support@weddingwaitress.com.au.
+ * Wired to the server-selected public info or authenticated support inbox.
  */
-import { useState } from "react";
+import { useEffect, useState } from "react";
 import { Send, UserRound, Mail, PartyPopper, MessageSquareText, LoaderCircle, CircleCheck } from "lucide-react";
 import { useTranslation } from "react-i18next";
 import { z } from "zod";
@@ -21,15 +21,27 @@ const contactSchema = z.object({
   message: z.string().trim().min(1, "Message is required").max(2000, "Message must be less than 2000 characters"),
 });
 
-export const ContactForm = () => {
-  const { t } = useTranslation("landing");
-  const [fullName, setFullName] = useState("");
-  const [email, setEmail] = useState("");
+interface ContactFormProps {
+  supportSource?: 'public_contact' | 'account_support';
+  initialName?: string;
+  initialEmail?: string;
+}
+export const ContactForm = ({ supportSource='public_contact', initialName='', initialEmail='' }: ContactFormProps = {}) => {
+  const { t: translate } = useTranslation("landing");
+  const t = (key: string) => translate(key, supportSource === 'account_support' ? { lng: 'en' } : {});
+  const recipientEmail = supportSource === 'account_support' ? 'support@weddingwaitress.com.au' : 'info@weddingwaitress.com.au';
+  const [fullName, setFullName] = useState(initialName);
+  const [email, setEmail] = useState(initialEmail);
   const [eventType, setEventType] = useState("");
   const [message, setMessage] = useState("");
   const [errors, setErrors] = useState<{ fullName?: string; email?: string; eventType?: string; message?: string }>({});
   const [submitting, setSubmitting] = useState(false);
   const [sent, setSent] = useState(false);
+
+  useEffect(() => {
+    if (initialName) setFullName(current => current || initialName);
+    if (initialEmail) setEmail(current => current || initialEmail);
+  }, [initialName, initialEmail]);
 
   const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
@@ -51,9 +63,9 @@ export const ContactForm = () => {
       const { data: receipt, error } = await supabase.functions.invoke("send-transactional-email", {
         body: {
           templateName: "contact-form-message",
-          recipientEmail: "support@weddingwaitress.com.au",
+          recipientEmail,
           idempotencyKey: `contact-${crypto.randomUUID()}`,
-          supportContext: { source: 'public_contact', category: result.data.eventType },
+          supportContext: { source: supportSource, category: result.data.eventType },
           templateData: {
             name: result.data.fullName,
             email: result.data.email,
@@ -75,7 +87,7 @@ export const ContactForm = () => {
       setTimeout(() => setSent(false), 4000);
     } catch (err) {
       console.error("Contact form send failed", err);
-      toast.error("Something went wrong. Please try again or email support@weddingwaitress.com.au");
+      toast.error('Something went wrong. Please try again or email ' + recipientEmail);
     } finally {
       setSubmitting(false);
     }

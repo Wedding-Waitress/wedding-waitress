@@ -31,3 +31,15 @@ describe('promotional offer rules', () => {
   it('rejects payment evidence attached to a supposedly no-cost checkout', () => expect(() => validatePromotionCompletion({ ...evidence,
     percent: 100, discountCents: 19900, totalCents: 0, paymentStatus: 'no_payment_required' })).toThrow());
 });
+
+it.each(['paid', 'no_payment_required'])('accepts provider-retrieved zero-dollar completion marked %s', paymentStatus => {
+  expect(validatePromotionCompletion({ status: 'complete', paymentStatus, currency: 'aud', subtotalCents: 19900,
+    totalCents: 0, discountCents: 19900, paymentIntentId: null, percent: 100, plan: 'essential',
+    couponId: 'coupon_zero', expectedCouponId: 'coupon_zero' }).includedCredits).toBe(0);
+});
+it.each([{ paymentStatus: 'unpaid' }, { paymentIntentId: 'pi_unexpected' }, { totalCents: 1 }, { status: 'open' }])(
+  'rejects invalid zero-dollar evidence even when marked paid: %j', change => {
+    expect(() => validatePromotionCompletion({ status: 'complete', paymentStatus: 'paid', currency: 'aud', subtotalCents: 19900,
+      totalCents: 0, discountCents: 19900, paymentIntentId: null, percent: 100, plan: 'essential',
+      couponId: 'coupon_zero', expectedCouponId: 'coupon_zero', ...change })).toThrow();
+  });

@@ -34,6 +34,7 @@ vi.mock('@/hooks/useEventMediaGallery', () => ({
 vi.mock('@/components/SEO/SeoHead', () => ({ SeoHead: () => null }));
 vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
+    from: () => ({select: () => ({eq: () => ({order: async () => ({data: [], error: null})})})}),
     auth: {
       getSession: mocks.getSession,
       onAuthStateChange: () => ({ data: { subscription: { unsubscribe: vi.fn() } } }),
@@ -130,15 +131,8 @@ describe('Photo & Video Sharing management appearance', () => {
     const backButton = screen.getByRole('button', { name: 'Back to Photo & Video Sharing' });
     expect(backButton).toHaveClass(managementStyles.glassAction);
 
-    const selectedEventLabel = screen.getByText('Selected event');
-    expect(selectedEventLabel.parentElement?.parentElement).toHaveClass(managementStyles.glassStatus);
-    expect(selectedEventLabel).toHaveClass(managementStyles.selectedEventLabel);
-    expect(screen.getByText(event.name)).toHaveClass(managementStyles.selectedEventName);
 
-    const onLabel = screen.getByText('On');
-    expect(onLabel).toHaveClass('text-white/85');
-    expect(onLabel).not.toHaveClass(managementStyles.selectedEventName);
-    expect(screen.getByRole('switch', { name: 'Photo & Video Sharing enabled' })).toBeChecked();
+    expect(screen.queryByRole('switch', { name: 'Photo & Video Sharing enabled' })).not.toBeInTheDocument();
 
     const upperHeadings = [
       screen.getByRole('heading', { name: 'Photo & Video Sharing Access', level: 2 }),
@@ -150,7 +144,7 @@ describe('Photo & Video Sharing management appearance', () => {
     upperCards.forEach(card => expect(card).toHaveClass(managementStyles.glassCard));
 
     const upperGrid = upperCards[0]?.parentElement;
-    expect(upperGrid?.className).toContain('lg:grid-cols-[2fr_1fr_1fr]');
+    expect(upperGrid?.className).toContain('2xl:grid-cols-[2fr_1fr_1fr]');
 
     const usageCard = upperCards[1] as HTMLElement;
     const usageBars = within(usageCard).getAllByRole('progressbar');
@@ -177,10 +171,12 @@ describe('Photo & Video Sharing management appearance', () => {
     expect(albumFilter).toHaveClass(managementStyles.galleryControl);
     expect(within(albumFilter).getByText('All Albums')).toBeInTheDocument();
     expect(screen.queryByRole('button', { name: 'All Albums' })).not.toBeInTheDocument();
-    expect(screen.getByRole('button', { name: 'Select' })).toHaveClass(managementStyles.galleryControl);
+    expect(screen.getAllByRole('button', { name: 'Select' }).find(b=>b.closest('[data-testid="gallery-toolbar"]'))).toHaveClass(managementStyles.galleryControl);
 
-    const approvedBadge = screen.getByText('Approved', { selector: 'span.uppercase' });
-    expect(approvedBadge).toHaveClass('bg-green-600/85', 'text-white');
+    const approvedBadge = screen.queryByText('Approved', { selector: 'span.uppercase' });
+    expect(approvedBadge).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^Approved \(/ })).not.toBeInTheDocument();
+    expect(screen.queryByRole('button', { name: /^Hidden \(/ })).not.toBeInTheDocument();
     const mediaTile = screen.getByText('Guest').closest(`.${managementStyles.galleryMediaTile}`);
     expect(mediaTile).toHaveClass('bg-white', 'border', 'border-black', managementStyles.galleryMediaTile);
     expect(mediaTile?.querySelector('.aspect-square')).toBeInTheDocument();
@@ -244,9 +240,9 @@ describe('Photo & Video Sharing management appearance', () => {
     ];
     const zipButtons = [
       screen.getByRole('button', { name: /Download All/ }),
-      screen.getByRole('button', { name: /Download Approved Only/ }),
-      screen.getByRole('button', { name: /Download Photos Only/ }),
+            screen.getByRole('button', { name: /Download Photos Only/ }),
       screen.getByRole('button', { name: /Download Videos Only/ }),
+      screen.getByRole('button', { name: 'Download Guestbook Recordings' }),
     ];
 
     [...accessButtons, ...zipButtons].forEach(button => {
@@ -274,8 +270,6 @@ describe('Photo & Video Sharing management appearance', () => {
     expect(css).toMatch(/\.upperGlassPill[\s\S]*:global\(svg\)[\s\S]*color:\s*#d9b77f\s*!important/);
     expect(css).toMatch(/\.upperGlassPill[\s\S]*:global\(\.tabular-nums\)[\s\S]*color:\s*#edc994\s*!important/);
     expect(css).not.toMatch(/\.legibleLight(?:Field|Control)/);
-    expect(css).toMatch(/\.selectedEventLabel[\s\S]*color:\s*#d9b77f\s*!important/);
-    expect(css).toMatch(/\.selectedEventName[\s\S]*color:\s*#fff\s*!important/);
   });
 
   it('keeps the default variants of the shared upper components unchanged', async () => {
@@ -367,4 +361,16 @@ describe('Photo & Video Sharing QR protection', () => {
     if (clipboardDescriptor) Object.defineProperty(navigator, 'clipboard', clipboardDescriptor);
     else delete (navigator as Navigator & { clipboard?: Clipboard }).clipboard;
   });
+  it('groups signed audio/video recordings below library downloads without mixing counts or retaining a duplicate toolbar action',async()=>{
+    const recordings=[{...item,id:'voice',kind:'audio',source_category:'guestbook_recording',is_guestbook:true},{...item,id:'guest-video',kind:'video',source_category:'guestbook_recording',is_guestbook:true},{...item,id:'processing-voice',kind:'audio',source_category:'guestbook_recording',is_guestbook:true,signed_url:null}];
+    mocks.gallery.mockReturnValue({...mocks.gallery(),items:[item,{...item,id:'library-video',kind:'video'},{...item,id:'booth-strip',source_category:'photo_booth',is_photo_booth:true,is_photo_booth_strip:true},...recordings]});
+    renderPage();await screen.findByRole('heading',{name:'Download as ZIP'});
+    const panel=screen.getByRole('heading',{name:'Download as ZIP'}).closest('[data-appearance="espresso-glass"]') as HTMLElement;
+    expect(within(panel).getAllByRole('button').map(b=>b.textContent?.replace(/\s+/g,' ').trim())).toEqual(['Download All3','Download Photos Only2','Download Videos Only1','Download Guestbook Recordings2']);
+    const messages=screen.getByRole('heading',{name:/Guestbook Messages/}).closest('[data-appearance="espresso-glass"]') as HTMLElement;
+    expect(within(messages).queryByRole('button',{name:'Download all guestbook messages'})).toBeNull();
+    expect(within(messages).getByRole('button',{name:'Export CSV'})).toBeInTheDocument();
+  });
 });
+
+it('removes the legacy private Video Wishes panel without removing Guestbook Messages',async()=>{render(<MemoryRouter><GalleryUploadFeaturePage/></MemoryRouter>);expect(await screen.findByRole('heading',{name:/^Guestbook Messages/})).toBeVisible();expect(screen.queryByRole('heading',{name:'Video Wishes',exact:true})).toBeNull();});

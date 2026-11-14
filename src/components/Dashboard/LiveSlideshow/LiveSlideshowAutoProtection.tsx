@@ -53,7 +53,7 @@ export const LiveSlideshowAutoProtection: React.FC<LiveSlideshowAutoProtectionPr
                 </span>
                 <Switch
                   aria-label={label}
-                  disabled={modulesLoading || saving}
+                  disabled={modulesLoading || saving || moduleState.error || !modules}
                   checked={checked}
                   onCheckedChange={(c) =>
                     updateModuleConfig('rsvp_invite_config' as any, { ...rsvpConf, [key]: c })

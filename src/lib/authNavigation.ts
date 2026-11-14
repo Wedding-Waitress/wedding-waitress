@@ -4,34 +4,30 @@ export type SignInRedirectState = {
   };
 };
 
-const protectedRoutePrefixes = ['/dashboard', '/account', '/admin'] as const;
+const protectedRoutePrefixes = ['/dashboard', '/account', '/admin', '/accept-team-invitation'] as const;
+
+export const MY_EVENTS_ENTRY_ROUTE = '/dashboard?tab=my-events';
+
+// Only account entry normalises a dashboard return destination. In-session
+// navigation and refreshes continue to use the explicitly requested URL.
+export const getAccountEntryDestination = (value?: unknown) => {
+  const destination = getSafeAuthenticatedReturnTo(value, MY_EVENTS_ENTRY_ROUTE);
+  return /^\/dashboard(?:[/?#]|$)/.test(destination) ? MY_EVENTS_ENTRY_ROUTE : destination;
+};
 
 export const getSafeAuthenticatedReturnTo = (
   value: unknown,
   fallback = '/dashboard',
 ) => {
-  if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//') || /[\\\u0000-\u001f\u007f]/.test(value)) {
-    return fallback;
-  }
-
-  // Check the canonical path, since router dot-segment resolution can turn an
-  // apparently protected path into a different navigation destination.
-  const origin = 'https://weddingwaitress.invalid';
-  let destination: URL;
-  try {
-    destination = new URL(value, origin);
-  } catch {
-    return fallback;
-  }
-  if (destination.origin !== origin || destination.pathname.startsWith('//') || /%(?:2f|5c)/i.test(destination.pathname)) {
+  if (typeof value !== 'string' || !value.startsWith('/') || value.startsWith('//')) {
     return fallback;
   }
 
   const isProtectedDestination = protectedRoutePrefixes.some(
-    (prefix) => destination.pathname === prefix || destination.pathname.startsWith(`${prefix}/`),
+    (prefix) => value === prefix || ['/', '?', '#'].some((separator) => value.startsWith(`${prefix}${separator}`)),
   );
 
-  return isProtectedDestination ? `${destination.pathname}${destination.search}${destination.hash}` : fallback;
+  return isProtectedDestination ? value : fallback;
 };
 
 export const createSignInRedirectState = (returnTo: string): SignInRedirectState => ({

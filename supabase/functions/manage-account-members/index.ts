@@ -17,7 +17,7 @@ const json = (body: unknown, status = 200) => new Response(JSON.stringify(body),
 })
 
 Deno.serve(async (request) => {
-  const suspensionResponse = await guardSuspendedCustomer(request);
+  const suspensionResponse = await guardSuspendedCustomer(request, {allowPendingTeamInvitation: true});
   if (suspensionResponse) return suspensionResponse;
   if (request.method === 'OPTIONS') return new Response(null, { headers: corsHeaders })
   if (request.method !== 'POST') return json({ error: 'Method not allowed' }, 405)
@@ -58,6 +58,10 @@ Deno.serve(async (request) => {
     return json({ error: 'Team access is not available in this environment' }, 503)
   }
 
+  const {data: version, error: versionError} = await admin.rpc('internal_team_access_version');
+  if (versionError || version !== 2) return json({error: 'Team access backend update is required'}, 503);
+  if (body.action === 'readiness') return json({ready: true, version: 2});
+
   try {
     if (body.action === 'preview') {
       const { data, error } = await admin.rpc('internal_preview_account_invitation', {
@@ -83,20 +87,15 @@ Deno.serve(async (request) => {
         .not('accepted_at', 'is', null).is('access_disabled_at', null).maybeSingle()
       if (membershipError || !callerMembership) return json({ error: 'Account membership is unavailable' }, 403)
       const ownerId = callerMembership.account_owner_id
-      if (callerMembership.role === 'master') {
-        await admin.from('account_invitations').update({ status: 'expired', token: null, token_hash: null })
-          .eq('account_owner_id', ownerId).eq('status', 'pending').lte('expires_at', new Date().toISOString())
-      }
+      // Listing is read-only; expired invitations stop reserving seats by timestamp.
       const [{ data: members, error: membersError }, invitationResult] = await Promise.all([
         admin.from('account_members').select('id,member_user_id,member_email,first_name,last_name,mobile,role,invited_at,accepted_at')
           .eq('account_owner_id', ownerId).is('access_disabled_at', null).not('accepted_at', 'is', null).order('invited_at'),
-        callerMembership.role === 'master'
-          ? admin.from('account_invitations').select('id,email,first_name,last_name,mobile,created_at,expires_at,status')
+        admin.from('account_invitations').select('id,email,first_name,last_name,mobile,created_at,expires_at,status')
               .eq('account_owner_id', ownerId).eq('status', 'pending').gt('expires_at', new Date().toISOString()).order('created_at')
-          : Promise.resolve({ data: [], error: null }),
       ])
       if (membersError || invitationResult.error) throw membersError ?? invitationResult.error
-      const hydratedMembers = await Promise.all((members ?? []).map(async (member) => {
+      const hydratedMembers = await Promise.all((members ?? []).map(async (member: { id: string; member_user_id: string; member_email: string | null; first_name: string | null; last_name: string | null; mobile: string | null; role: string; invited_at: string; accepted_at: string | null }) => {
         const { data: profile } = await admin.from('profiles').select('first_name,last_name,mobile').eq('id', member.member_user_id).maybeSingle()
         let memberEmail = member.member_email
         if (!memberEmail) {
@@ -105,9 +104,10 @@ Deno.serve(async (request) => {
         }
         return { ...member, member_email: memberEmail, first_name: member.first_name || profile?.first_name || null, last_name: member.last_name || profile?.last_name || null, mobile: member.mobile || profile?.mobile || null }
       }))
-      const invitations = invitationResult.data ?? []
-      const usedSeats = hydratedMembers.length + (callerMembership.role === 'master' ? invitations.length : 0)
-      return json({ members: hydratedMembers, invitations, seats: { used: usedSeats, maximum: DEFAULT_ACCOUNT_SEATS, remaining: Math.max(0, DEFAULT_ACCOUNT_SEATS-usedSeats) } })
+      const pending = invitationResult.data ?? []
+      const invitations = callerMembership.role === 'master' ? pending : []
+      const usedSeats = hydratedMembers.length + pending.length
+      return json({ ready: true, version: 2, members: hydratedMembers, invitations, seats: { used: usedSeats, occupied: hydratedMembers.length, reserved: pending.length, maximum: DEFAULT_ACCOUNT_SEATS, remaining: Math.max(0, DEFAULT_ACCOUNT_SEATS-usedSeats) } })
     }
 
     const { data: master, error: masterError } = await admin

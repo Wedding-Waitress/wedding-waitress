@@ -1,9 +1,12 @@
+import { PublicCopy } from '@/i18n/PublicCopy';
 import React, { useId, useRef } from 'react';
 import { CheckCircle2, KeyRound, LoaderCircle, RotateCcw, TriangleAlert } from 'lucide-react';
 import type { LucideIcon } from 'lucide-react';
 import { DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { Input } from '@/components/ui/input';
 import styles from './AuthModal.module.css';
+import { usePublicCopy } from '@/i18n/usePublicCopy';
+import { useTranslation } from 'react-i18next';
 
 export { styles as authModalStyles };
 
@@ -21,21 +24,22 @@ export const AuthModalHeader = ({
   signUpReassurance?: boolean;
   securityReassurance?: string;
   selectedPlan?: string;
-}) => (
+}) => {
+  const copy = usePublicCopy();
+  const { i18n } = useTranslation();
+  return (
   <DialogHeader className={styles.header}>
     <DialogTitle className={styles.title}>
       <span className={styles.titleRow}>
         <Icon className={styles.titleIcon} aria-hidden />
-        {title}
+        {copy(title)}
       </span>
     </DialogTitle>
     {signUpReassurance && (
       <div>
         <span className={styles.reassurance}>
-          <CheckCircle2 size={16} aria-hidden />
-          No credit card required
-        </span>
-        <p className={styles.trial}>7-day free trial · Up to 20 guests</p>
+          <CheckCircle2 size={16} aria-hidden /><PublicCopy text={"No credit card required"} /></span>
+        <p className={styles.trial}><PublicCopy text={"7-day free trial · Up to 20 guests"} /></p>
       </div>
     )}
     {securityReassurance && (
@@ -46,10 +50,12 @@ export const AuthModalHeader = ({
         </span>
       </div>
     )}
-    <DialogDescription className={styles.description}>{description}</DialogDescription>
-    {selectedPlan && <p className={styles.plan}>Selected plan: {selectedPlan}</p>}
+    <DialogDescription className={description ? styles.description : 'sr-only'}>{copy(description || title)}</DialogDescription>
+    {i18n.language !== 'en' && <p className={styles.description}>{copy('The planning dashboard is currently available in English.')}</p>}
+    {selectedPlan && <p className={styles.plan}><PublicCopy text={"Selected plan: "} />{selectedPlan}</p>}
   </DialogHeader>
-);
+  );
+};
 
 export const AuthError = ({ message }: { message: string }) => {
   if (!message) return null;
@@ -62,11 +68,10 @@ export const AuthError = ({ message }: { message: string }) => {
 };
 
 export const AuthLegal = ({ onNavigate }: { onNavigate: (path: string) => void }) => (
-  <p className={styles.legal}>
-    By continuing, you agree to our{' '}
-    <button type="button" className={styles.linkButton} onClick={() => onNavigate('/terms')}>Terms of Service</button>
-    {' '}and{' '}
-    <button type="button" className={styles.linkButton} onClick={() => onNavigate('/privacy')}>Privacy Policy</button>.
+  <p className={styles.legal}><PublicCopy text={"By continuing, you agree to our"} />{' '}
+    <button type="button" className={styles.linkButton} onClick={() => onNavigate('/terms')}><PublicCopy text={"Terms of Service"} /></button>
+    {' '}<PublicCopy text={"and"} />{' '}
+    <button type="button" className={styles.linkButton} onClick={() => onNavigate('/privacy')}><PublicCopy text={"Privacy Policy"} /></button>.
   </p>
 );
 
@@ -118,7 +123,7 @@ export const VerificationCodeForm = ({
 
   return (
     <div className={styles.body}>
-      <div className={styles.codeGrid} role="group" aria-label={`Six-digit verification code sent to ${email}`} id={groupId}>
+      <div className={styles.codeGrid} dir="ltr" role="group" aria-label={`Six-digit verification code sent to ${email}`} id={groupId}>
         {code.map((digit, index) => (
           <Input
             key={index}
@@ -151,7 +156,7 @@ export const VerificationCodeForm = ({
           <RotateCcw size={15} aria-hidden />{' '}
           {resendTimer > 0 ? `Resend available in ${resendTimer}s` : 'Resend code'}
         </button>
-        <button type="button" className={styles.linkButton} onClick={onCorrectEmail} disabled={loading}>Correct email</button>
+        <button type="button" className={styles.linkButton} onClick={onCorrectEmail} disabled={loading}><PublicCopy text={"Correct email"} /></button>
       </div>
       <p className={styles.status} aria-live="polite">
         {loading ? 'Checking your code…' : `Code sent to ${email}`}

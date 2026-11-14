@@ -495,6 +495,11 @@
     flex-basis: 100%;
   }
 
+  .colorSwatch {
+    min-width: 24px;
+    min-height: 24px;
+  }
+
   .exportButton {
     width: 100%;
     justify-content: center;
@@ -566,3 +571,34 @@
  box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30!important;
 }
 :global(#root#root#root) .page button.exportButton :is(svg,svg *) {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;}
+/* Display Options editor only. Toggles retain their measured 24px height;
+   swatches match it without changing the saved palette or chart artwork. */
+.settingsPanel .displayRow {
+  display:grid;
+  grid-template-columns:minmax(0,1fr) auto;
+  align-items:center !important;
+  gap:8px !important;
+}
+.displayRow > label {grid-column:1;grid-row:1;min-width:0;}
+.displayRow > [role="switch"] {grid-column:2;grid-row:1;}
+.swatchGroup {
+  grid-column:1 / -1;
+  grid-row:2;
+  display:flex;
+  flex-wrap:wrap;
+  justify-content:flex-end;
+  align-items:center;
+  gap:6px;
+  min-width:0;
+  max-width:100%;
+  padding:4px;
+}
+@layer dashboard-interface {
+  .headerSelectors .headerSelectTrigger {flex:0 1 auto !important;}
+  .settingsPanel .displayRow .colorSwatch {
+    width:24px !important;height:24px !important;
+    min-width:24px !important;min-height:24px !important;
+    max-width:24px !important;max-height:24px !important;
+    padding:0 !important;border-radius:0 !important;
+  }
+}

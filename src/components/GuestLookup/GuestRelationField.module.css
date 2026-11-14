@@ -140,3 +140,5 @@
     max-width: none;
   }
 }
+
+:global(.ww-public-live-dialog.ww-public-live-dialog) .roleGrid.roleGrid button { font-size:14px !important; line-height:20px !important; }

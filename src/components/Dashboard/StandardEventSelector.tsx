@@ -1,3 +1,4 @@
+import choiceStyles from './EventSelectorReference.module.css';
 import React from 'react';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import { Calendar } from 'lucide-react';
@@ -9,6 +10,7 @@ interface StandardEventSelectorProps {
   onEventSelect: (eventId: string) => void;
   loading?: boolean;
   menuClassName?: string;
+  referenceStyle?: boolean;
 }
 
 export const StandardEventSelector: React.FC<StandardEventSelectorProps> = ({
@@ -17,10 +19,12 @@ export const StandardEventSelector: React.FC<StandardEventSelectorProps> = ({
   onEventSelect,
   loading = false,
   menuClassName,
+  referenceStyle = false,
 }) => {
   return (
-    <div className="flex items-center space-x-4">
-      <label className="text-sm font-medium text-foreground whitespace-nowrap">
+    <div className={`flex items-center gap-4 min-w-0 ${referenceStyle ? choiceStyles.row : ""}`}>
+      <label className={`text-sm font-medium text-foreground whitespace-nowrap ${referenceStyle ? choiceStyles.label : ""}`}>
+        {referenceStyle && <Calendar size={18} strokeWidth={1.8} aria-hidden="true" />}
         Choose Event:
       </label>
       <Select 
@@ -30,7 +34,7 @@ export const StandardEventSelector: React.FC<StandardEventSelectorProps> = ({
           onEventSelect(value);
         }}
       >
-        <SelectTrigger className="w-full sm:w-[300px] border-primary focus:ring-primary">
+        <SelectTrigger aria-label="Choose Event" className={`w-full sm:w-[300px] border-primary focus:ring-primary ${referenceStyle ? choiceStyles.trigger : ""}`}>
           <SelectValue placeholder="Choose Event" />
         </SelectTrigger>
         <SelectContent className={`bg-popover border-border z-50 ${menuClassName || ''}`}>

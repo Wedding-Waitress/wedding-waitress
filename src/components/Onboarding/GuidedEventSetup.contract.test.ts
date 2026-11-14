@@ -9,7 +9,7 @@ describe('Guided Event Setup customer contract', () => {
   it('contains ten named steps, no Skip control and a Guest List final destination', () => {
     expect(source).toContain("const STEP_NAMES = ['Welcome', 'Celebration', 'Event details', 'Date & location', 'Event parts', 'Guests', 'Tables', 'Budget', 'Review', 'Ready']");
     expect(source).not.toMatch(/>\s*Skip\s*</i);
-    expect(source).toContain("navigate('/dashboard?tab=guest-list'");
+    expect(source).toContain("navigate('/dashboard?tab=my-events'");
   });
 
   it('keeps Live Slideshow lookup, media slideshow and guestbook capabilities distinct', () => {
@@ -52,3 +52,4 @@ describe('Guided Event Setup customer contract', () => {
     expect(source).toContain('Contact: {answers.venueContactName}');
   });
 });
+

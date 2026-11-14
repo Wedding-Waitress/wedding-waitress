@@ -1,5 +1,3 @@
-import { readFileSync } from 'node:fs';
-const publicSeo = JSON.parse(readFileSync(new URL('../src/content/publicSeo.json', import.meta.url), 'utf8'));
 export const SITE_URL = "https://weddingwaitress.com.au";
 
 const page = (path, title, description, h1, options = {}) => ({
@@ -15,10 +13,10 @@ const page = (path, title, description, h1, options = {}) => ({
   breadcrumbs: options.breadcrumbs ?? [],
 });
 
-const baseRoutes = [
+export const seoRoutes = [
   page("/", "All-in-One Wedding Planning Platform | Wedding Waitress", "Manage guests, RSVPs, seating, invitations, signage, event-day plans and shared wedding memories in one connected platform.", "Your all-in-one wedding planning and guest-experience platform", { schema: "Home" }),
   page("/how-it-works", "How Wedding Waitress Works | One Connected Wedding Plan", "See how Wedding Waitress connects event setup, guests, seating, stationery, venue references, schedules and shared memories in one plan.", "Four stages from first plan to wedding day"),
-  page("/products", "All Wedding Planning Products | Wedding Waitress", "Explore sixteen connected Wedding Waitress tools for budgets, guests, seating, stationery, venue references, event-day planning and shared memories.", "Sixteen tools. One connected wedding plan."),
+  page("/products", "All Wedding Planning Products | Wedding Waitress", "Explore sixteen connected Wedding Waitress tools for budgets, guests, seating, stationery, venue references, event-day planning and shared memories.", "Seventeen tools. One connected wedding plan."),
   page("/events", "Event Planning Tools for Every Celebration | Wedding Waitress", "Explore connected planning tools for weddings, engagements, birthdays, corporate events, seasonal gatherings and celebrations of life.", "Thoughtful tools for every kind of gathering"),
   page("/pricing", "Wedding Planning Software Pricing | Wedding Waitress", "Compare Wedding Waitress plans by guest capacity. Every couple plan includes the complete platform for one event and 12 months of access.", "Choose by guest capacity, not by features"),
   page("/faq", "Wedding Waitress FAQ | Plans, Guests, QR & Products", "Answers about Wedding Waitress plans, guest limits, QR seating charts, invitations, exports, photo sharing and account access.", "Answers before you start planning", { schema: "FAQPage" }),
@@ -44,6 +42,7 @@ const baseRoutes = [
   page("/full-seating-chart", "Full Wedding Seating Chart & Check-Off List", "Create a complete guest seating chart with table and seat details, check-off boxes, sorting, display options and multi-page PDF export.", "Full Seating Chart", { schema: "Product" }),
   page("/dietary-requirements", "Wedding Dietary Requirements List | Wedding Waitress", "Prepare a clear dietary requirements reference with guest, table and seat details for venues, caterers and kitchen teams.", "Dietary Requirements", { schema: "Product" }),
   page("/dj-mc-questionnaire", "Wedding DJ & MC Questionnaire | Wedding Waitress", "Organise ceremony music, introductions, speeches, event songs, dinner music, dance music and do-not-play choices for your DJ and MC.", "DJ & MC Questionnaire", { schema: "Product" }),
+  page("/photo-group-list", "Photo Group List | Wedding Waitress", "Plan photo groups, print call out cards and share them with your MC or photographer.", "Photo Call Out Cards", { schema: "Product", lastmod:"2026-11-03" }),
   page("/running-sheet", "Wedding Run Sheet Planner | Wedding Waitress", "Build a clear wedding run sheet with times, event descriptions and responsible people, then share or export it for vendors and your venue.", "Run Sheet", { schema: "Product" }),
 
   page("/events/weddings", "All-in-One Wedding Planning Software | Wedding Waitress", "Plan wedding guests, seating, stationery, venue references, schedules and shared memories in one connected place.", "Plan the whole wedding from one connected place", { breadcrumbs: ["Events", "Weddings"] }),
@@ -65,7 +64,6 @@ const baseRoutes = [
   page("/blog/common-wedding-seating-chart-mistakes", "Common Wedding Seating Chart Mistakes", "Avoid the most common wedding seating chart mistakes. Learn how to plan your seating the right way and keep guests happy.", "Common Wedding Seating Chart Mistakes", { schema: "BlogPosting", type: "article", published: "2026-04-20", lastmod: "2026-04-20", breadcrumbs: ["Blog", "Seating Chart Mistakes"] }),
 ];
 
-export const seoRoutes = baseRoutes.filter(route => publicSeo[route.path]).map(route => ({ ...route, ...publicSeo[route.path] }));
 export const routeByPath = new Map(seoRoutes.map((route) => [route.path, route]));
 
 export const canonicalUrl = (path) => `${SITE_URL}${path === "/" ? "/" : path}`;
@@ -77,7 +75,7 @@ export function schemaForRoute(route) {
     "@id": `${SITE_URL}/#organization`,
     name: "Wedding Waitress",
     url: `${SITE_URL}/`,
-    logo: `${SITE_URL}/wedding-waitress-logo-dark-brown.png`,
+    logo: `${SITE_URL}/branding/wedding-waitress-logo-dark-brown.png`,
   };
   const webPage = {
     "@type": route.schema === "ContactPage" ? "ContactPage" : "WebPage",
@@ -96,7 +94,7 @@ export function schemaForRoute(route) {
       { "@type": "SoftwareApplication", "@id": `${SITE_URL}/#software`, name: "Wedding Waitress", applicationCategory: "LifestyleApplication", operatingSystem: "Web", url: `${SITE_URL}/`, description: route.description, publisher: { "@id": `${SITE_URL}/#organization` } },
     );
   } else if (route.schema === "Product") {
-    graph.push({ "@type": "SoftwareApplication", "@id": `${url}#software`, name: route.h1, applicationCategory: "LifestyleApplication", operatingSystem: "Web", url, description: route.description, publisher: { "@id": `${SITE_URL}/#organization` } });
+    graph.push({ "@type": "SoftwareApplication", "@id": `${url}#software", name: route.h1, applicationCategory: "LifestyleApplication", operatingSystem: "Web", url, description: route.description, publisher: { "@id": `${SITE_URL}/#organization` } });
   } else if (route.schema === "BlogPosting") {
     graph.push({ "@type": "BlogPosting", "@id": `${url}#article`, headline: route.h1, description: route.description, datePublished: route.published, dateModified: route.modified, mainEntityOfPage: { "@id": `${url}#webpage` }, author: organisation, publisher: organisation, inLanguage: "en-AU" });
   } else if (route.schema === "Blog") {

@@ -55,3 +55,5 @@ describe('Invitations & Cards dashboard typography contract', () => {
     expect(pageCss).not.toMatch(/\.page :is\(h1, h2, h3, h4, label, strong\)\s*,\s*\n:global\(#root\) \.page \[class\*="text-foreground"\]/);
   });
 });
+
+it("keeps phone card actions at usable touch size",()=>{const css=fs.readFileSync(path.resolve(process.cwd(),"src/components/Dashboard/Invitations/InvitationsPage.module.css"),"utf8");expect(css).toMatch(/@media \(max-width: 639px\)[\s\S]*?\.artworkActions button\s*\{\s*min-width: 44px;\s*min-height: 44px;/);});

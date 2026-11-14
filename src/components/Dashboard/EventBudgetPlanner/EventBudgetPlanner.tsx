@@ -1,8 +1,10 @@
+import { RecordActionHeading, RecordActionPair } from '../RecordActionPair';
+import { AlertDialog, AlertDialogAction, AlertDialogCancel, AlertDialogContent, AlertDialogDescription, AlertDialogFooter, AlertDialogHeader, AlertDialogTitle } from '@/components/ui/alert-dialog';
 import { Printer as ExportControlsPrinter } from 'lucide-react';
 import React from 'react';
 import { createPortal } from 'react-dom';
 import {
-  AlertCircle, CheckCircle2, Clock3, Download, Edit3, Plus, Printer,
+  AlertCircle, CheckCircle2, Clock3, Download, Plus, Printer, Trash2,
   Search, WalletCards,
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
@@ -39,8 +41,7 @@ const SORT_OPTIONS: Array<[SortKey, string]> = [
 
 const expenseCategory = (expense: EventBudgetExpense): string => expense.category === 'Other' ? expense.custom_category || 'Other' : expense.category;
 const expenseTitle = (expense: EventBudgetExpense): string => expense.vendor_name || expense.expense_name || expenseCategory(expense);
-const formatBudgetDisplay = (currency: CurrencyCode, value: number): string =>
-  currency === 'AUD' ? formatBudgetCurrency(currency, value).replace(/^A\$/, '$') : formatBudgetCurrency(currency, value);
+const formatBudgetDisplay = formatBudgetCurrency;
 
 const MoneyBagIcon: React.FC<{ size?: number }> = ({ size = 16 }) => (
   <svg
@@ -80,6 +81,10 @@ export const EventBudgetPlannerView: React.FC<{event:BudgetPlannerEvent;exportTa
   const [sort, setSort] = React.useState<SortKey>('category');
   const [drawerOpen, setDrawerOpen] = React.useState(false);
   const [editingExpense, setEditingExpense] = React.useState<EventBudgetExpense | null>(null);
+  const [pendingDeletion, setPendingDeletion] = React.useState<EventBudgetExpense | null>(null);
+  const [rowDeleteError, setRowDeleteError] = React.useState('');
+  const [rowDeleting, setRowDeleting] = React.useState(false);
+  const rowDeleteLock = React.useRef(false);
   const [printOpen, setPrintOpen] = React.useState(false);
   const [pendingPrintAction, setPendingPrintAction] = React.useState<'print' | 'download' | null>(null);
   const [exporting, setExporting] = React.useState(false);
@@ -95,7 +100,7 @@ export const EventBudgetPlannerView: React.FC<{event:BudgetPlannerEvent;exportTa
     setBudgetState('idle'); setBudgetError('');
   }, [data.settings, event.id]);
 
-  React.useEffect(() => { setDrawerOpen(false); setEditingExpense(null); }, [event.id]);
+  React.useEffect(() => { setDrawerOpen(false); setEditingExpense(null); setPendingDeletion(null); setRowDeleteError(''); }, [event.id]);
 
   const hasLegacyCurrency = Boolean(data.settings && currency !== 'AUD');
 
@@ -146,12 +151,23 @@ export const EventBudgetPlannerView: React.FC<{event:BudgetPlannerEvent;exportTa
     toast({ title: editingExpense ? 'Expense updated' : 'Expense added', description: `${input.vendor_name || input.expense_name || input.custom_category || input.category} was saved to ${event.name}.` });
     setDrawerOpen(false); setEditingExpense(null);
   };
-  const handleDeleteExpense = async () => {
-    if(readOnly)return;
-    if (!editingExpense) return;
-    await deleteExpense.mutateAsync(editingExpense.id);
-    toast({ title: 'Expense deleted', description: `${expenseTitle(editingExpense)} was removed from ${event.name}.` });
+  const handleDeleteExpense = async (expense = editingExpense) => {
+    if(readOnly || hasLegacyCurrency || !expense)return;
+    await deleteExpense.mutateAsync(expense.id);
+    toast({ title: 'Expense deleted', description: `${expenseTitle(expense)} was removed from ${event.name}.` });
     setDrawerOpen(false); setEditingExpense(null);
+  };
+
+  const openDelete = (expense: EventBudgetExpense, button: HTMLButtonElement) => {
+    if (readOnly || hasLegacyCurrency || deleteExpense.isPending || rowDeleteLock.current) return;
+    drawerReturnRef.current = button; setRowDeleteError(''); setPendingDeletion(expense);
+  };
+  const confirmRowDelete = async () => {
+    if (!pendingDeletion || readOnly || hasLegacyCurrency || rowDeleteLock.current || deleteExpense.isPending) return;
+    rowDeleteLock.current = true; setRowDeleting(true); setRowDeleteError('');
+    try { await handleDeleteExpense(pendingDeletion); setPendingDeletion(null); }
+    catch (error) { setRowDeleteError(error instanceof Error ? error.message : 'The expense could not be deleted. Please try again.'); }
+    finally { rowDeleteLock.current = false; setRowDeleting(false); }
   };
 
   const requestPrintAction = (action: 'print' | 'download') => { setGeneratedAt(new Date()); setPendingPrintAction(action); setPrintOpen(true); };
@@ -192,7 +208,6 @@ export const EventBudgetPlannerView: React.FC<{event:BudgetPlannerEvent;exportTa
 
     <div className={styles.budgetPanel} data-budget-panel>
       <div className={styles.budgetCopy}>
-        <label htmlFor="anticipated-event-budget">Total Anticipated Event Budget</label><p>{currency} · saved only for {event.name}</p>
         {data.settings?.planned_budget_kind === 'range' && <p role="status">Guided setup estimate: {BUDGET_LABELS[data.settings.planned_budget_range as BudgetChoice] || data.settings.planned_budget_range}. Enter an exact amount whenever you are ready.</p>}
         {data.settings?.planned_budget_kind === 'undecided' && <p role="status">Your planned budget is not decided yet. Enter an exact amount whenever you are ready.</p>}
       </div>
@@ -230,27 +245,37 @@ export const EventBudgetPlannerView: React.FC<{event:BudgetPlannerEvent;exportTa
 
       {visibleExpenses.length > 0 && <>
         <div className={styles.tableRegion} aria-label="Event budget expenses table">
-          <table className={styles.expenseTable}><thead><tr><th>Category</th><th>Business Name</th><th>Contact Details</th><th>Budgeted Cost</th><th>Actual Cost</th><th>Amount Paid</th><th>Amount Outstanding</th><th>Payment Date</th><th>Balance Due</th><th>Status</th><th>Actions</th></tr></thead>
+          <table className={styles.expenseTable}><colgroup><col className={styles.categoryColumn}/><col className={styles.businessColumn}/><col className={styles.contactColumn}/><col className={styles.budgetedColumn}/><col className={styles.actualColumn}/><col className={styles.paidColumn}/><col className={styles.outstandingColumn}/><col className={styles.dateColumn}/><col className={styles.dateColumn}/><col className={styles.notesColumn}/><col className={styles.statusColumn}/><col className={styles.actionsColumn}/></colgroup><thead><tr><th className={styles.textHeaderColumn}>Category</th><th className={styles.textHeaderColumn}>Business Name</th><th className={styles.textHeaderColumn}>Contact Details</th><th className={styles.centeredColumn}>Budgeted Cost</th><th className={styles.centeredColumn}>Actual Cost</th><th className={styles.centeredColumn}>Amount Paid</th><th className={styles.centeredColumn}>Amount Outstanding</th><th className={styles.centeredColumn}>Payment Date</th><th className={styles.centeredColumn}>Balance Due</th><th className={styles.centeredColumn}>Notes</th><th className={styles.centeredColumn}>Status</th><th className={styles.centeredColumn}><RecordActionHeading /></th></tr></thead>
             <tbody>{visibleExpenses.map(expense => { const paymentStatus = getBudgetPaymentStatus(expense); return <tr key={expense.id}>
-              <td>{expenseCategory(expense)}</td><td><strong>{expenseTitle(expense)}</strong></td>
-              <td>{[expense.contact_person, expense.phone, expense.email, expense.address].filter(Boolean).map(line => <span key={line}>{line}</span>)}</td>
-              <td className={styles.money}>{expense.estimated_cost === null ? '—' : formatBudgetDisplay(currency, expense.estimated_cost)}</td><td className={styles.money}>{expense.actual_cost === null ? '—' : formatBudgetDisplay(currency, expense.actual_cost)}</td>
-              <td className={styles.money}>{formatBudgetDisplay(currency, expense.amount_paid)}</td><td className={styles.money}>{formatBudgetDisplay(currency, expenseOutstanding(expense))}</td>
-              <td>{formatAustralianDate(expense.payment_date)}</td><td>{formatAustralianDate(expense.balance_due_date)}</td>
-              <td><span className={styles.statusPill} data-status={paymentStatus}>{statusIcon(paymentStatus)}{paymentStatus}</span></td>
-              <td><button type="button" disabled={readOnly} className={`${styles.successButton} ${styles.tableEditButton}`} aria-label={`Edit ${expenseTitle(expense)}`} onClick={event => openEdit(expense, event.currentTarget)}><Edit3 size={14} aria-hidden="true" />Edit</button></td>
-            </tr>; })}</tbody></table>
+              <td className={styles.textColumn}>{expenseCategory(expense)}</td><td className={styles.textColumn}><strong>{expenseTitle(expense)}</strong></td>
+              <td className={styles.textColumn}>{[expense.contact_person, expense.phone, expense.email, expense.address].filter(Boolean).map(line => <span key={line}>{line}</span>)}</td>
+              <td className={`${styles.money} ${styles.centeredColumn}`}>{expense.estimated_cost === null ? '—' : formatBudgetDisplay(currency, expense.estimated_cost)}</td><td className={`${styles.money} ${styles.centeredColumn}`}>{expense.actual_cost === null ? '—' : formatBudgetDisplay(currency, expense.actual_cost)}</td>
+              <td className={`${styles.money} ${styles.centeredColumn}`}>{formatBudgetDisplay(currency, expense.amount_paid)}</td><td className={`${styles.money} ${styles.centeredColumn}`}>{formatBudgetDisplay(currency, expenseOutstanding(expense))}</td>
+              <td className={styles.centeredColumn}>{formatAustralianDate(expense.payment_date)}</td><td className={styles.centeredColumn}>{formatAustralianDate(expense.balance_due_date)}</td><td className={styles.centeredColumn}>{expense.notes?.trim() ? 'Yes' : 'No'}</td>
+              <td className={styles.centeredColumn}><span className={styles.statusPill} data-status={paymentStatus}>{statusIcon(paymentStatus)}{paymentStatus}</span></td>
+              <td className={styles.centeredColumn}><RecordActionPair editLabel={`Edit ${expenseTitle(expense)}`} deleteLabel={`Delete ${expenseTitle(expense)}`} disabled={readOnly || hasLegacyCurrency || deleteExpense.isPending || rowDeleting} onEdit={event => openEdit(expense, event.currentTarget)} onDelete={event => openDelete(expense, event.currentTarget)} /></td>
+            </tr>; })}</tbody><tfoot aria-hidden="true" className={styles.expenseFooter}><tr><td colSpan={12} /></tr></tfoot></table>
         </div>
         <div className={styles.mobileExpenses}>{visibleExpenses.map(expense => { const paymentStatus = getBudgetPaymentStatus(expense); return <article key={expense.id} className={styles.mobileExpenseCard}>
           <div className={styles.mobileCardHeading}><div><span>{expenseCategory(expense)}</span><h3>{expenseTitle(expense)}</h3>{expense.vendor_name && expense.vendor_name !== expenseTitle(expense) && <p>{expense.vendor_name}</p>}</div><span className={styles.statusPill} data-status={paymentStatus}>{statusIcon(paymentStatus)}{paymentStatus}</span></div>
           <dl><div><dt>Budgeted Cost</dt><dd>{formatBudgetDisplay(currency, expense.estimated_cost ?? 0)}</dd></div><div><dt>Paid</dt><dd>{formatBudgetDisplay(currency, expense.amount_paid)}</dd></div><div><dt>Outstanding</dt><dd>{formatBudgetDisplay(currency, expenseOutstanding(expense))}</dd></div><div><dt>Balance Due</dt><dd>{formatAustralianDate(expense.balance_due_date)}</dd></div></dl>
           <details><summary>View Details</summary><p>{[expense.contact_person, expense.phone, expense.email, expense.address, expense.notes].filter(Boolean).join(' · ') || 'No additional details.'}</p></details>
-          <button type="button" disabled={readOnly} className={`${styles.successButton} ${styles.tableEditButton}`} aria-label={`Edit ${expenseTitle(expense)}`} onClick={event => openEdit(expense, event.currentTarget)}><Edit3 size={15} aria-hidden="true" />Edit Expense</button>
+          <RecordActionPair editLabel={`Edit ${expenseTitle(expense)}`} deleteLabel={`Delete ${expenseTitle(expense)}`} disabled={readOnly || hasLegacyCurrency || deleteExpense.isPending || rowDeleting} onEdit={event => openEdit(expense, event.currentTarget)} onDelete={event => openDelete(expense, event.currentTarget)} />
         </article>; })}</div>
       </>}
     </div>
 
-    {!readOnly&&<ExpenseDrawer open={drawerOpen} eventId={event.id} currency={currency} expense={editingExpense} saving={saveExpense.isPending} deleting={deleteExpense.isPending} returnFocusRef={drawerReturnRef} onSave={handleSaveExpense} onDelete={handleDeleteExpense} onClose={() => { setDrawerOpen(false); setEditingExpense(null); }} />}
+    {!readOnly && <AlertDialog open={pendingDeletion !== null} onOpenChange={open => { if (!open && !rowDeleting && !deleteExpense.isPending) { setPendingDeletion(null); setRowDeleteError(''); } }}>
+      <AlertDialogContent className={styles.confirmDialog} onCloseAutoFocus={event => { event.preventDefault(); const target = drawerReturnRef.current; if (target?.isConnected) target.focus(); else addButtonRef.current?.focus(); }}>
+        <AlertDialogHeader><AlertDialogTitle>Delete this expense?</AlertDialogTitle><AlertDialogDescription>{pendingDeletion ? expenseTitle(pendingDeletion) : 'This expense'} will be permanently removed from this event budget.</AlertDialogDescription></AlertDialogHeader>
+        {rowDeleteError && <p className={styles.formError} role="alert">{rowDeleteError}</p>}
+        <AlertDialogFooter className={styles.confirmActions}>
+          <AlertDialogCancel className={styles.secondaryButton} disabled={rowDeleting || deleteExpense.isPending}>Cancel</AlertDialogCancel>
+          <AlertDialogAction className={styles.dangerButton} disabled={rowDeleting || deleteExpense.isPending} onClick={event => { event.preventDefault(); void confirmRowDelete(); }}><Trash2 size={16} aria-hidden="true" />{rowDeleting || deleteExpense.isPending ? 'Deleting…' : 'Delete Expense'}</AlertDialogAction>
+        </AlertDialogFooter>
+      </AlertDialogContent>
+    </AlertDialog>}
+    {!readOnly&&<ExpenseDrawer open={drawerOpen} eventId={event.id} currency={currency} expense={editingExpense} saving={saveExpense.isPending} deleting={deleteExpense.isPending} returnFocusRef={drawerReturnRef} onSave={handleSaveExpense} onDelete={() => handleDeleteExpense()} onClose={() => { setDrawerOpen(false); setEditingExpense(null); }} />}
 
 
 
@@ -261,3 +286,7 @@ export const EventBudgetPlannerView: React.FC<{event:BudgetPlannerEvent;exportTa
     </DialogContent></Dialog>
   </section>;
 };
+
+
+
+

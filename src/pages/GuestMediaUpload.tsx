@@ -1,5 +1,6 @@
 // Public guest upload page — /gallery/:token
 import React, { useEffect, useState, useRef, useCallback } from 'react';
+import { useTranslation } from 'react-i18next';
 import { useParams } from 'react-router-dom';
 import { supabase } from '@/integrations/supabase/client';
 import { Card } from '@/components/ui/card';
@@ -7,7 +8,8 @@ import { Button } from '@/components/ui/button';
 import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { useGuestMediaUpload } from '@/hooks/useGuestMediaUpload';
-import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info, Images, BookOpen, Sparkles, ArrowLeft, ChevronDown } from 'lucide-react';
+import { useFilePicker } from '@/hooks/useFilePicker';
+import { Camera, Upload, Loader2, CheckCircle2, AlertCircle, AlertTriangle, X, Heart, Info, Images, BookOpen, ArrowLeft, ChevronDown } from 'lucide-react';
 import { formatBytes, validateFile, ValidationResult, ValidationStage } from '@/lib/mediaValidation';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { formatDisplayDate } from '@/lib/utils';
@@ -16,6 +18,7 @@ import { resolveGalleryTheme } from '@/lib/galleryTheme';
 import { resolveGalleryTitle } from '@/lib/galleryTitle';
 import { GuestBrowseGallery } from '@/components/Dashboard/PhotoVideoGallery/GuestBrowseGallery';
 import { GuestGuestbookTab } from '@/components/Dashboard/PhotoVideoGallery/GuestGuestbookTab';
+import { GuestMediaSuccessCard } from '@/components/Dashboard/PhotoVideoGallery/GuestMediaSuccessCard';
 import { GalleryFooterLogo } from '@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo';
 import {
   MANAGEABLE_GALLERY_ALBUMS,
@@ -124,6 +127,7 @@ interface GalleryUsage {
 }
 
 export const GuestMediaUpload: React.FC = () => {
+  const { t } = useTranslation('common');
   const { token } = useParams<{ token: string }>();
   const [gallery, setGallery] = useState<GalleryPublic | null>(null);
   const [usage, setUsage] = useState<GalleryUsage | null>(null);
@@ -139,14 +143,13 @@ export const GuestMediaUpload: React.FC = () => {
   const [items, setItems] = useState<ValidationResult[]>([]);
   const [stages, setStages] = useState<Record<number, ValidationStage>>({});
   const [validating, setValidating] = useState(false);
-  const [awaitingPicker, setAwaitingPicker] = useState(false);
+  const { awaitingPicker, openPicker: launchPicker, finishPicker } = useFilePicker();
   const [pickerHint, setPickerHint] = useState<string | null>(null);
   const [name, setName] = useState('');
   const [album, setAlbum] = useState<ManageableGalleryAlbum>('Other');
   const [showThanks, setShowThanks] = useState(false);
   const [thanksSummary, setThanksSummary] = useState<{ success: number; failures: { name: string; reason: string }[] } | null>(null);
   const fileInput = useRef<HTMLInputElement>(null);
-  const pickerTimer = useRef<number | null>(null);
   const { uploadFiles, progress, uploading, reset } = useGuestMediaUpload();
 
   const nameStorageKey = token ? `gallery-uploader-name:${token}` : '';
@@ -213,22 +216,14 @@ export const GuestMediaUpload: React.FC = () => {
 
   const openPicker = useCallback(() => {
     setPickerHint(null);
-    setAwaitingPicker(true);
-    if (pickerTimer.current) window.clearTimeout(pickerTimer.current);
-    // If no onChange fires within 30s after picker open, hint that iPhone may still be preparing.
-    pickerTimer.current = window.setTimeout(() => {
-      setPickerHint('Your iPhone may still be preparing the video. Please wait, or choose a smaller/local video.');
-      setAwaitingPicker(false);
-    }, 30000);
-    fileInput.current?.click();
-  }, []);
+    launchPicker(fileInput.current);
+  }, [launchPicker]);
 
   const onFiles = useCallback(async (picked: FileList | null) => {
-    if (pickerTimer.current) { window.clearTimeout(pickerTimer.current); pickerTimer.current = null; }
-    setAwaitingPicker(false);
+    finishPicker();
     if (!gallery) return;
     if (!picked || picked.length === 0) {
-      setPickerHint('Your iPhone may still be preparing the video. Please wait, or choose a smaller/local video.');
+      setPickerHint(null);
       return;
     }
     setPickerHint(null);
@@ -268,7 +263,7 @@ export const GuestMediaUpload: React.FC = () => {
     }
     setValidating(false);
     if (fileInput.current) fileInput.current.value = '';
-  }, [gallery, items.length]);
+  }, [gallery, items.length, finishPicker]);
 
   const removeItem = (i: number) => {
     setItems(prev => prev.filter((_, idx) => idx !== i));
@@ -317,17 +312,22 @@ export const GuestMediaUpload: React.FC = () => {
     reset();
   };
 
-  const handleBackToStart = () => {
+  const returnToStart = (preserveGuestbookName: boolean) => {
     handleShareMore();
-    setName('');
-    try { if (nameStorageKey) sessionStorage.removeItem(nameStorageKey); } catch {}
+    if (!preserveGuestbookName) {
+      setName('');
+      try { if (nameStorageKey) sessionStorage.removeItem(nameStorageKey); } catch {}
+    } else {
+      try { setName(sessionStorage.getItem(nameStorageKey) || name); } catch {}
+    }
     window.scrollTo({ top: 0, behavior: 'smooth' });
   };
+  const handleBackToStart = () => returnToStart(false);
+  const handleGuestbookReturnToApp = () => returnToStart(true);
 
 
   const theme = resolveGalleryTheme(gallery);
   const accent = theme.themeColor;
-  const accentSoftBg = `${accent}1A`;
   // Lower page section always sits on the dark leather texture -> force light text.
   const lowerTheme = { ...theme, isDark: true, textClass: 'text-white', mutedClass: 'text-white', borderClass: 'border-white/15' };
 
@@ -391,19 +391,7 @@ export const GuestMediaUpload: React.FC = () => {
     return (
       <div className="min-h-screen flex items-center justify-center px-4 py-10 overflow-x-hidden" style={LEATHER_STYLE}>
         <SeoHead title={`${gallery.event_name} — Thank you for sharing`} description="Your memories have been shared with the couple." />
-        <Card className={`p-7 sm:p-8 max-w-md w-full text-center ${publicUploadStyles.successPanel}`} data-public-upload-surface="success">
-          {theme.logoImageUrl && (
-            <img src={theme.logoImageUrl} alt="" className="mx-auto max-h-12 mb-4 object-contain" />
-          )}
-          <div className="relative inline-flex items-center justify-center mb-5">
-            <div className="absolute inset-0 -m-3 rounded-full blur-xl" aria-hidden="true" style={{ backgroundColor: accentSoftBg }} />
-            <div className={`relative w-20 h-20 rounded-full flex items-center justify-center border ${publicUploadStyles.successIconCircle}`}>
-              <Heart className="h-10 w-10" style={{ color: accent }} fill={accent} />
-              <Sparkles className="absolute -top-1 -right-1 h-5 w-5" style={{ color: accent }} />
-            </div>
-          </div>
-
-          <h1 className={`text-3xl font-semibold tracking-tight ${publicUploadStyles.successHeading}`}>{greeting}</h1>
+        <GuestMediaSuccessCard theme={theme} greeting={greeting}>
           <p className={`text-base mt-3 leading-relaxed ${publicUploadStyles.successCopy}`}>
             {success > 0
               ? <>You just shared <span className={`font-medium ${publicUploadStyles.successEmphasis}`}>{success} {mediaWord(success)}</span> with {couple || 'the couple'}. These memories mean the world. 💛</>
@@ -435,6 +423,16 @@ export const GuestMediaUpload: React.FC = () => {
           )}
 
           <div className="mt-6 space-y-2.5">
+            {progress.some((p, i) => p.status === 'error' && items[i]?.ok) && (
+              <Button
+                type="button"
+                disabled={uploading}
+                className={`w-full h-12 text-base font-semibold rounded-xl px-3 ${publicUploadStyles.successPrimaryAction}`}
+                onClick={onSubmit}
+              >
+                {uploading ? t('loading') : t('retry')}
+              </Button>
+            )}
             <Button
               className={`w-full h-12 text-base font-semibold rounded-xl px-3 ${publicUploadStyles.successPrimaryAction}`}
               onClick={handleShareMore}
@@ -458,7 +456,7 @@ export const GuestMediaUpload: React.FC = () => {
             With love from {couple || displayTitle} 🤍
           </p>
           {theme.showBranding && <GalleryFooterLogo className={`mt-3 ${publicUploadStyles.successLogo}`} tone="brown" />}
-        </Card>
+        </GuestMediaSuccessCard>
       </div>
     );
   }
@@ -479,7 +477,7 @@ export const GuestMediaUpload: React.FC = () => {
   const availableTabs = ([
     gallery.guest_upload_enabled !== false ? 'upload' : null,
     gallery.gallery_view_enabled !== false ? 'gallery' : null,
-    (gallery.guestbook_text_enabled !== false || !!gallery.video_guestbook_enabled) ? 'guestbook' : null,
+    'guestbook',
     gallery.photo_booth_enabled ? 'booth' : null,
   ].filter(Boolean)) as Array<'upload' | 'gallery' | 'guestbook' | 'booth'>;
   const heroTab = availableTabs.includes(activeTab) ? activeTab : (availableTabs[0] ?? 'upload');
@@ -620,10 +618,8 @@ export const GuestMediaUpload: React.FC = () => {
       {(() => {
         const uploadOn = gallery.guest_upload_enabled !== false;
         const galleryOn = gallery.gallery_view_enabled !== false;
-        const textOn = gallery.guestbook_text_enabled !== false;
-        const voiceOn = !!gallery.video_guestbook_enabled;
         const boothOn = !!gallery.photo_booth_enabled;
-        const guestbookOn = textOn || voiceOn;
+        const guestbookOn = true;
         type TabKey = 'upload' | 'gallery' | 'booth' | 'guestbook';
         const tabs = ([
           uploadOn ? 'upload' : null,
@@ -712,8 +708,8 @@ export const GuestMediaUpload: React.FC = () => {
         )}
 
 
-        {current === 'guestbook' && token && (
-          <GuestGuestbookTab token={token} theme={lowerTheme} accent={accent} refreshKey={galleryRefresh} voiceEnabled={voiceOn} textEnabled={textOn} />
+        {token && (
+          <div hidden={current !== 'guestbook'}><GuestGuestbookTab successStyle={LEATHER_STYLE} token={token} theme={lowerTheme} accent={accent} refreshKey={galleryRefresh} onBackToApp={handleGuestbookReturnToApp} /></div>
         )}
 
 
@@ -842,7 +838,7 @@ export const GuestMediaUpload: React.FC = () => {
                           </span>
                         ) : status === 'uploading' ? (
                           <div>
-                            <div className={`text-[11px] mb-1 ${publicUploadStyles.progressLabel}`}>Uploading {p?.percent ?? 0}%</div>
+                            <div className={`text-[11px] mb-1 ${publicUploadStyles.progressLabel}`}>{p?.phase === 'finalizing' ? t('loading') : <>Uploading {p?.percent ?? 0}%</>}</div>
                             <div className="h-1.5 bg-muted rounded-full overflow-hidden">
                               <div className={`h-full ${publicUploadStyles.progressFill}`} role="progressbar" aria-label={`Uploading ${it.fileName}`} aria-valuemin={0} aria-valuemax={100} aria-valuenow={p?.percent ?? 0} style={{ width: `${p?.percent ?? 0}%` }} />
                             </div>

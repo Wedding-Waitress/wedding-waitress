@@ -18,12 +18,13 @@ describe('additional-event paid-plan contract', () => {
     expect(checkout).toContain("const ADDITIONAL_EVENT_PRODUCT_ID = 'ww_live_20260914_v2_additional_event'");
     expect(checkout).toContain('price_1UFTqL5GzTmqOxGKgPWVdCwr');
     expect(checkout).toContain("{ currency: 'aud', unitAmount: 9900 }");
-    expect(verification).toContain('lineItem.price.unit_amount !== allowed.unitAmount');
+    expect(verification).toContain('validateAdditionalEventQuote(session,lineItem)');
+    expect(checkout).toContain('recordAdditionalEventQuote(admin,stripe,session.id,user.id)');
   });
 
   it('fulfills one slot once and refuses unpaid verification globally', () => {
     expect(verification).toContain('session.payment_status !== "paid"');
-    expect(verification).toContain("fulfill_additional_event_purchase");
+    expect(verification).toContain('fulfillPaidAddonWebhook(session,stripe,supabase)');
     expect(migration).toContain('uq_additional_event_purchases_stripe_session');
     expect(migration).toContain('pg_advisory_xact_lock');
     expect(migration).toContain("'already_fulfilled'");
@@ -34,3 +35,5 @@ describe('additional-event paid-plan contract', () => {
     expect(eventsUi).toContain('eventLimits.canPurchaseAdditionalEvents && <AdditionalEventModal');
   });
 });
+
+

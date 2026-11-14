@@ -1,3 +1,4 @@
+import { sendPackagePurchaseEmail } from '../_shared/packagePurchaseEmail.ts';
 import Stripe from 'https://esm.sh/stripe@22.4.0?target=denonext';
 import { createClient } from 'npm:@supabase/supabase-js@2.57.2';
 import { promotionCompletionAdapter } from '../_shared/promotionProviderAdapter.ts';
@@ -15,10 +16,13 @@ Deno.serve(async req => {
   const stripe = new Stripe(key, { apiVersion: '2026-07-29.dahlia', httpClient: Stripe.createFetchHttpClient() });
   return promotionWebhookHandler({
     verify: (body, signature) => stripe.webhooks.constructEventAsync(body, signature, secret, 300, Stripe.createSubtleCryptoProvider()),
-    fulfill: sessionId => {
+    fulfill: async sessionId => {
       const db = createClient(Deno.env.get('SUPABASE_URL')!, Deno.env.get('SUPABASE_SERVICE_ROLE_KEY')!, { auth: { persistSession: false } });
       // Signed delivery alone is insufficient: retrieve full provider evidence.
-      return fulfillPromotionCheckout(promotionCompletionAdapter(db, stripe, true), sessionId, Date.now());
+      const result = await fulfillPromotionCheckout(promotionCompletionAdapter(db, stripe, true), sessionId, Date.now());
+      const session = await stripe.checkout.sessions.retrieve(sessionId);
+      await sendPackagePurchaseEmail(db, session, {started_at:result.startsAt,expires_at:result.expiresAt});
+      return result;
     },
   })(req);
 });

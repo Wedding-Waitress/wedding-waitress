@@ -43,7 +43,10 @@ vi.mock('@/components/Dashboard/PhotoVideoGallery/GuestBrowseGallery', () => ({
   GuestBrowseGallery: () => <div data-testid="guest-gallery" />,
 }));
 vi.mock('@/components/Dashboard/PhotoVideoGallery/GuestGuestbookTab', () => ({
-  GuestGuestbookTab: () => <div data-testid="guestbook" />,
+  GuestGuestbookTab: ({ onBackToApp }: { onBackToApp: () => void }) => {
+    const [draft, setDraft] = React.useState('');
+    return <div data-testid="guestbook"><input aria-label="Guestbook draft" value={draft} onChange={event => setDraft(event.target.value)} /><button onClick={onBackToApp}>Back to App</button></div>;
+  },
 }));
 vi.mock('@/components/Dashboard/PhotoVideoGallery/GalleryFooterLogo', () => ({
   GalleryFooterLogo: ({ className = '', tone = 'white' }: { className?: string; tone?: string }) => (
@@ -121,6 +124,29 @@ async function chooseMedia(container: HTMLElement, files: File[]) {
 }
 
 describe('guest-facing Photo & Video Sharing Upload experience', () => {
+  it.each([true, false])('keeps Guestbook available and returns to the app start with legacy flags set to %s', async enabled => {
+    mocks.rpc.mockImplementation(async (name: string) => {
+      if (name === 'get_event_media_gallery_public') return { data: [{ ...gallery, guestbook_text_enabled: enabled, video_guestbook_enabled: enabled }], error: null };
+      if (name === 'get_event_media_gallery_usage_public') return { data: [usage], error: null };
+      return { data: null, error: null };
+    });
+    const scroll = vi.spyOn(window, 'scrollTo').mockImplementation(() => {});
+    try {
+      const { container } = renderPage();
+      await screen.findByRole('heading', { name: gallery.event_name, level: 1 });
+      const nav = within(container.querySelector('[data-public-upload-navigation]') as HTMLElement);
+      fireEvent.click(nav.getByRole('button', { name: 'Guestbook' }));
+      fireEvent.change(screen.getByLabelText('Guestbook draft'), { target: { value: 'Unfinished message' } });
+      sessionStorage.setItem('gallery-uploader-name:public-token', 'Same Guest');
+      fireEvent.click(screen.getByRole('button', { name: 'Back to App' }));
+      expect(screen.getByTestId('guestbook')).not.toBeVisible();
+      expect(nav.getByRole('button', { name: 'Upload' })).toHaveAttribute('aria-current', 'page');
+      expect(scroll).toHaveBeenCalledWith({ top: 0, behavior: 'smooth' });
+      expect(sessionStorage.getItem('gallery-uploader-name:public-token')).toBe('Same Guest');
+      fireEvent.click(nav.getByRole('button', { name: 'Guestbook' }));
+      expect(screen.getByLabelText('Guestbook draft')).toHaveValue('Unfinished message');
+    } finally { scroll.mockRestore(); }
+  });
   beforeEach(() => {
     sessionStorage.clear();
     mocks.rpc.mockReset();

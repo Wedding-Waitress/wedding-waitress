@@ -107,3 +107,43 @@
 .exportMount { justify-self:end; }
 .exportMount:empty { display:none; }
 @media(max-width:1024px) { .eventPanel { grid-template-columns:1fr; }.exportMount { justify-self:stretch; } }
+/* Budget header copy and its event selector, including the portalled option list. */
+:global(#root#root#root) .overview .pageHeader p,
+:global(#root#root#root) .overview .eventLabel,
+:global(#root#root#root) .overview .eventLabel span,
+:global(#root#root#root) .overview .eventField,
+:global(#root#root#root) .overview .eventField span { color:#2b1711 !important; -webkit-text-fill-color:#2b1711 !important; }
+.eventMenu.eventMenu [role='option'], .eventMenu.eventMenu [role='option'] span { color:#2b1711 !important; -webkit-text-fill-color:#2b1711 !important; }
+:global(#root#root#root) .overview .pageHeader p,
+:global(#root#root#root) .overview .eventField,
+:global(#root#root#root) .overview .eventField span,
+.eventMenu.eventMenu [role='option'], .eventMenu.eventMenu [role='option'] span { font-weight:600 !important; }
+
+/* Budget-only manifest reference: square geometry and stronger system typography.
+   Keep the existing panel dimensions, spacing and Wedding Waitress palette. */
+.overview {
+  --ww-interface-font-family: 'Segoe UI', Arial, sans-serif;
+  font-family: var(--ww-interface-font-family) !important;
+}
+:global(#root#root#root) .overview :is(h1,h2,p,label,button,input,select,textarea,th,td) {
+  font-family: var(--ww-interface-font-family) !important;
+}
+:global(#root#root#root) .overview .heading {
+  font-weight: 700 !important;
+}
+:global(#root#root#root) .overview :is(.eventPanel,.eventField) {
+  border-radius: 0 !important;
+}
+:global(#root#root#root) .overview .pageHeader p {
+  color: #000 !important;
+  -webkit-text-fill-color: #000 !important;
+}
+:global(#root#root#root) .overview .eventLabel {
+  font-size: 14px;
+  font-weight: 700 !important;
+}
+.eventMenu.eventMenu,
+.eventMenu.eventMenu [role='option'] {
+  border-radius: 0 !important;
+  font-family: 'Segoe UI', Arial, sans-serif !important;
+}

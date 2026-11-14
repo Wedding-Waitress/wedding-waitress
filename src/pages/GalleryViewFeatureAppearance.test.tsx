@@ -88,9 +88,7 @@ describe('Photo & Video Gallery View premium appearance', () => {
 
     expect(screen.getByRole('button', { name: 'Back to Photo & Video Sharing' })).toHaveClass(managementStyles.glassAction);
     expect(screen.getByRole('button', { name: 'Preview as Guest' })).toHaveClass(managementStyles.glassAction);
-    expect(screen.getByText('Selected event')).toHaveClass(managementStyles.selectedEventLabel);
-    expect(screen.getByText(event.name)).toHaveClass(managementStyles.selectedEventName);
-    expect(screen.getByRole('switch', { name: 'Photo & Video Gallery View enabled' })).toBeChecked();
+    expect(screen.queryByRole('switch', { name: 'Photo & Video Gallery View enabled' })).not.toBeInTheDocument();
 
     const cardHeadings = ['Branding & Theme', 'Guest Gallery Access', 'Password Protection'];
     for (const name of cardHeadings) {

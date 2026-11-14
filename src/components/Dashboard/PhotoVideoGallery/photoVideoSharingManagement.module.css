@@ -1590,3 +1590,145 @@
 }
 :global(body) button.slideshowSaveAction.slideshowSaveAction.slideshowSaveAction :is(svg,svg *) {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none;}
 :global(#root#root#root#root) button.slideshowSaveAction :is(svg,svg *) {color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;}
+:global(#root#root) .workspaceContent .zipEmptyMessage,
+:global(#root#root) .workspaceContent .zipEmptyMessage svg,
+.zipEmptyMessage.zipEmptyMessage,
+.zipEmptyMessage.zipEmptyMessage svg {
+  color: #ffffff !important;
+  -webkit-text-fill-color: #ffffff !important;
+}
+
+
+/* Keep compact gallery controls usable at phone width. */
+@media(max-width:639px){
+ :global(#root#root#root) .photoVideoSharingSurface :global([data-guestbook-toolbar]) button,
+ :global(#root#root#root) .photoVideoSharingSurface :global([data-slideshow-preview-controls]) button,
+ :global(#root#root#root) button.guestbookCsvAction,
+ :global(#root#root#root) button.slideshowSaveAction {min-height:44px!important;}
+}
+
+@media(max-width:639px){:global(#root#root#root) .galleryMediaTile :global([data-gallery-media-actions]) button {min-width:44px!important;min-height:44px!important;}}
+
+/* First sharing manager only: interface chrome, never message artwork/media or guest pages. */
+@layer dashboard-interface {
+ .uploadManager {color:#000!important;-webkit-text-fill-color:currentColor!important;}
+ .uploadManager > header h1 {color:#fff!important;-webkit-text-fill-color:#fff!important;}
+ .uploadManager > header p {color:#fff!important;-webkit-text-fill-color:#fff!important;}
+ .uploadManager :is(.glassCard,.galleryPanel,.videoWishesPanel) {background:#fbf8f1!important;border:1px solid #cdb99e!important;border-radius:0!important;color:#000!important;box-shadow:0 3px 12px #2f1b1412!important;}
+ .uploadManager :is(.glassCard,.galleryPanel,.videoWishesPanel) :is(h2,h3,h4),
+ .uploadManager .galleryViewHeading {color:#2f1b14!important;-webkit-text-fill-color:#2f1b14!important;}
+ .uploadManager .glassCard :is(p:not([class*="text-destructive"]),label),
+ .uploadManager .glassCard > div > div > :is(span,div.font-medium),
+ .uploadManager :is(.gallerySecondaryText,.sharingHeadingDescription),
+ .uploadManager .videoWishesPanel > p {color:#000!important;-webkit-text-fill-color:#000!important;}
+ .uploadManager .glassCard :is(svg,svg *) {color:#806344!important;stroke:#806344!important;}
+ .uploadManager .galleryWarmIcon {color:#806344!important;stroke:#806344!important;}
+ .uploadManager :is(button.galleryControl,.upperGlassPill,header button) {
+  border:1px solid #806344!important;border-radius:0!important;
+  background:linear-gradient(180deg,#412419 0%,#2f1b14 48%,#23120d 100%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 -2px 0 rgba(0,0,0,.3)!important;
+  color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px #0008;
+ }
+ .uploadManager :is(button.galleryControl,.upperGlassPill,header button) :is(span,svg,svg *) {color:#fff!important;-webkit-text-fill-color:#fff!important;stroke:currentColor!important;}
+ .uploadManager button.galleryControlActive {background:linear-gradient(180deg,#755238,#573a29)!important;outline:2px solid #806344;outline-offset:2px;box-shadow:inset 0 2px 4px #0006!important;}
+ .uploadManager button.galleryControl[aria-pressed=true] {outline:2px solid #806344;outline-offset:2px;}
+ .uploadManager :is(button.galleryControl,header button):focus-visible {outline:3px solid #967a59!important;outline-offset:3px!important;}
+ .uploadManager :is(input.galleryControl,textarea.galleryControl) {background:#f8f0e5!important;color:#000!important;-webkit-text-fill-color:#000!important;border-color:#cdb99e!important;}
+ .uploadManager :is(input.galleryControl,textarea.galleryControl)::placeholder {color:#6c6359!important;-webkit-text-fill-color:#6c6359!important;opacity:1!important;}
+ .uploadManager .galleryMediaFooter {background:#f8f0e5!important;}
+ .uploadManager :is(.galleryMediaFooterName,.galleryMediaFooterMessage,.galleryGuestHearts) {color:#000!important;-webkit-text-fill-color:#000!important;}
+ .uploadManager button.galleryFooterSelect,.uploadManager button.galleryFooterSelect span {background:#fffaf2!important;color:#000!important;-webkit-text-fill-color:#000!important;text-shadow:none!important;}
+ .uploadManager button.galleryFooterSelect svg {color:#806344!important;stroke:#806344!important;}
+ .uploadManager .guestbookMessageBody {background:#f8f0e5!important;}
+ .uploadManager .guestbookMessageBody > p {color:#000!important;-webkit-text-fill-color:#000!important;}
+ :global(body):has(.uploadManager) .gallerySelectContent {background:#fffaf2!important;border-color:#cdb99e!important;color:#000!important;}
+ :global(body):has(.uploadManager) .gallerySelectItem {background:#fffaf2!important;color:#000!important;-webkit-text-fill-color:#000!important;}
+ :global(body):has(.uploadManager) .gallerySelectItem:is([data-highlighted],[data-state=checked]) {background:#ead8bf!important;color:#000!important;}
+ @media(max-width:767px){.uploadManager :is(button.galleryControl,header button){min-height:44px!important;}.uploadManager .galleryFooterSelect {min-height:44px!important;width:100%!important;}.uploadManager .galleryMediaFooterRow {gap:6px;}.uploadManager :global([data-testid=gallery-toolbar]) > div:first-child {min-width:0!important;width:100%;flex-basis:100%;}}
+}
+
+@layer dashboard-interface {
+ .uploadManager .guestbookMessagePreview .galleryViewHeading {color:#fff!important;-webkit-text-fill-color:#fff!important;}
+ .uploadManager .galleryViewFootnote {color:#fff!important;-webkit-text-fill-color:#fff!important;}
+ .uploadManager .glassCard .galleryViewInsetPanel {background:#f8f0e5!important;border-color:#cdb99e!important;}
+ .uploadManager .gallerySaveAction :is(svg,svg *) {color:#2f1b14!important;stroke:#2f1b14!important;}
+}
+
+@layer dashboard-interface {@media(max-width:767px){.uploadManager :global([data-gallery-search]) {flex:1 0 100%!important;grid-column:1 / -1!important;width:100%!important;max-width:none!important;min-width:0!important;}}}
+
+/* Guestbook and Photo Booth editor chrome, excluding the composed strip image. */
+@layer dashboard-interface {
+ .uploadManager .guestbookStepIcon,
+ .uploadManager :global([data-booth-template-placeholder]):not(:has(img)) {
+  background:linear-gradient(180deg,#412419 0%,#2f1b14 48%,#23120d 100%)!important;
+  box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 -2px 0 rgba(0,0,0,.3)!important;
+  border-radius:0!important;color:#fff!important;-webkit-text-fill-color:#fff!important;
+ }
+ .uploadManager .guestbookStepIcon :is(svg,svg *),
+ .uploadManager :global([data-booth-template-placeholder]):not(:has(img)) :is(span,svg,svg *) {color:#fff!important;-webkit-text-fill-color:#fff!important;stroke:currentColor!important;}
+ .uploadManager .photoBoothTemplates > div:first-child :is(h2,p) {color:#fff!important;-webkit-text-fill-color:#fff!important;}
+ .uploadManager .boothEditorSection :is(label,p:not([class*="text-destructive"])),
+ .uploadManager .boothEditorSection p:not([class*="text-destructive"]) span,
+ .uploadManager .boothEditorSection :global(.text-muted-foreground),
+ .uploadManager .boothFooterDescription {color:#000!important;-webkit-text-fill-color:#000!important;}
+ .uploadManager .boothEditorSection button.galleryControl[role=combobox] {background:#f8f0e5!important;border-color:#cdb99e!important;color:#000!important;-webkit-text-fill-color:#000!important;text-shadow:none!important;}
+ .uploadManager .boothEditorSection button.galleryControl[role=combobox] :is(span,svg,svg *) {color:#000!important;-webkit-text-fill-color:#000!important;stroke:currentColor!important;}
+ :global(body):has(.uploadManager) .gallerySelectContent .boothPaletteLabel {color:#000!important;-webkit-text-fill-color:#000!important;}
+ :global(body):has(.uploadManager) .gallerySelectContent input:not([type=color]) {background:#f8f0e5!important;color:#000!important;-webkit-text-fill-color:#000!important;}
+}
+
+@layer dashboard-interface {.uploadManager .boothEditorSection [data-booth-template-placeholder]:not(:has(img)) :is(span,svg,svg *) {color:#fff!important;-webkit-text-fill-color:#fff!important;stroke:currentColor!important;}}
+
+@layer dashboard-interface {
+ .uploadManager .slideshowWorkspace .galleryViewInsetPanel {background:#f8f0e5!important;border-color:#cdb99e!important;}
+ .uploadManager .slideshowWorkspace .galleryViewInsetPanel :is(label,p) {color:#000!important;-webkit-text-fill-color:#000!important;}
+ .uploadManager .slideshowWorkspace button.galleryControl[role=combobox] {background:#f8f0e5!important;border-color:#cdb99e!important;color:#000!important;-webkit-text-fill-color:#000!important;text-shadow:none!important;}
+ .uploadManager .slideshowWorkspace button.galleryControl[role=combobox] :is(span,svg,svg *) {color:#000!important;-webkit-text-fill-color:#000!important;stroke:currentColor!important;}
+ /* The preview remains a dark media stage with its original white overlays. */
+ .uploadManager .slideshowWorkspace .glassCard :global([data-slideshow-preview-stage]) :is(p,span,[data-slideshow-preview-event-name]) {color:#fff!important;-webkit-text-fill-color:#fff!important;}
+}
+
+/* Unified first-manager guestbook toolbar; narrow screens wrap whole controls. */
+@layer dashboard-interface {
+ .guestbookToolbar {display:grid!important;grid-template-columns:minmax(140px,1fr) minmax(0,2fr)!important;gap:12px!important;align-items:center;}
+ .guestbookToolbar > div:first-child {grid-column:1 / -1;min-width:0;}
+ .guestbookToolbar > div:nth-child(2) {grid-column:1 / -1;display:grid!important;grid-template-columns:repeat(3,minmax(0,1fr));gap:12px;}
+ .guestbookToolbar .guestbookToolbarActions {display:flex!important;flex-wrap:wrap;gap:8px!important;width:100%;min-width:0;justify-content:flex-end;}
+ @media(min-width:1700px){
+  .guestbookToolbar {grid-template-columns:minmax(180px,1fr) repeat(3,max-content) minmax(110px,140px) max-content!important;}
+  .guestbookToolbar > div:first-child {grid-column:auto;}
+  .guestbookToolbar > div:nth-child(2) {display:contents!important;}
+ }
+ @media(max-width:767px){
+  .guestbookToolbar {grid-template-columns:minmax(0,1fr)!important;}
+  .guestbookToolbar > div:nth-child(2) {grid-template-columns:minmax(0,1fr);}
+  .guestbookToolbar .guestbookToolbarActions {display:grid!important;grid-template-columns:repeat(2,minmax(0,1fr));}
+
+  .guestbookToolbarActions > button {min-width:0;min-height:44px!important;}
+ }
+}
+
+@layer dashboard-interface {@media(max-width:767px){.guestbookToolbar > button[role=combobox],.guestbookToolbar > .guestbookToolbarActions {grid-column:1 / -1!important;width:100%!important;min-width:0!important;}}}
+
+@layer dashboard-interface {
+ .uploadManager .guestbookGroupedDownload {height:auto!important;min-height:44px!important;width:100%;justify-content:flex-start;white-space:normal!important;text-align:left;}
+ .uploadManager .guestbookGroupedDownload > svg {flex-shrink:0;}
+ .uploadManager .guestbookGroupedDownload > span:nth-child(2) {flex:1;min-width:0;white-space:normal!important;line-height:18px;}
+ .uploadManager .guestbookGroupedDownload > span:last-child {flex:none;margin-left:auto;}
+}
+
+@media(min-width:768px) and (max-width:1535px){.sharingUpperGrid > :first-child {grid-column:1 / -1;}}
+
+/* Only the sharing manager's written notes grow with their full text. */
+.guestbookWrittenGrid {display:grid;gap:12px;grid-template-columns:minmax(0,1fr);align-items:start;}
+.uploadManager .guestbookWrittenPreview {display:block;aspect-ratio:auto;height:auto;min-height:64px;padding:12px;text-align:left;}
+.uploadManager .guestbookWrittenText {display:block;-webkit-line-clamp:unset;white-space:pre-wrap;overflow-wrap:anywhere;font-size:13px;line-height:1.45;}
+@media(min-width:640px){.guestbookWrittenGrid {grid-template-columns:repeat(2,minmax(0,1fr));}}
+@media(min-width:900px){.guestbookWrittenGrid {grid-template-columns:repeat(3,minmax(0,1fr));}}
+@media(min-width:1280px){.guestbookWrittenGrid {grid-template-columns:repeat(4,minmax(0,1fr));}}
+@media(min-width:1536px){.guestbookWrittenGrid {grid-template-columns:repeat(6,minmax(0,1fr));}}
+
+@layer dashboard-interface {
+ /* Native audio popup text inherits from the audio host, not the cream body labels. */
+ .guestbookNativeAudio.guestbookNativeAudio {color:#2f1b14!important;-webkit-text-fill-color:#2f1b14!important;color-scheme:light!important;text-shadow:none!important;}
+}

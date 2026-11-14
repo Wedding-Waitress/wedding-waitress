@@ -1,0 +1,23 @@
+/* Approved metallic chocolate lettering for public package headings only. */
+#root#root .ww-public [data-pricing-metallic-heading] [data-heading-metal] {
+  color: #3d2015 !important;
+  -webkit-text-fill-color: transparent !important;
+  background-image: linear-gradient(180deg, #25120c 0%, #4c291b 18%, #895b3b 29%, #46271a 36%, #25130d 52%, #68402a 65%, #352016 75%, #28150e 100%);
+  -webkit-background-clip: text;
+  background-clip: text;
+  filter: drop-shadow(0 1px 0 #fff7ed) drop-shadow(0 .5px .35px #2b140d38);
+}
+
+#root#root .ww-public [data-pricing-metallic-heading] > svg {
+  color: #68402a !important;
+  filter: drop-shadow(0 1px 0 #fff7ed);
+}
+
+@media (forced-colors: active) {
+  #root#root .ww-public [data-pricing-metallic-heading] [data-heading-metal] {
+    background: none;
+    color: CanvasText !important;
+    -webkit-text-fill-color: CanvasText !important;
+    filter: none;
+  }
+}

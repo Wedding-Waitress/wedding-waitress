@@ -4,8 +4,6 @@
     <meta charset="UTF-8" />
     <meta name="viewport" content="width=device-width, initial-scale=1.0, viewport-fit=cover" />
     <meta name="theme-color" content="#967A59" />
-    <!-- Public build metadata used to verify preview/backend isolation. -->
-    <meta name="ww-backend-origin" content="%VITE_SUPABASE_URL%" />
     <link rel="icon" href="/favicon.ico?v=5" sizes="any" />
     <link rel="icon" type="image/png" sizes="32x32" href="/favicon-32.png?v=5" />
     <link rel="icon" type="image/png" sizes="16x16" href="/favicon-16.png?v=5" />
@@ -18,7 +16,7 @@
     <!-- Google Search Console verification -->
     <meta name="google-site-verification" content="9evNI4cQSHnNdOBboRJxrHRgwRaAO4JCDFhm380Dd64" />
 
-    <!-- Block indexing on non-canonical hostnames (Netlify, Lovable previews) -->
+    <!-- Block indexing on non-canonical hostnames (non-production previews) -->
     <script>
       (function () {
         var h = window.location.hostname;
@@ -35,11 +33,17 @@
     <link rel="preconnect" href="https://fonts.googleapis.com">
     <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
     
+    <!-- Preload critical font for faster text rendering -->
+    <link rel="preload" as="font" href="https://fonts.gstatic.com/s/inter/v13/UcCO3FwrK3iLTeHuS_fvQtMwCp50KnMw2boKoduKmMEVuLyfAZ9hiA.woff2" type="font/woff2" crossorigin>
     
-    <!-- Keep the stationery font collection available without blocking first paint.
-         Interface text uses the locally bundled Manrope font. -->
-    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;500;600;700&family=Lato:wght@400;700&family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Pacifico&family=Allura&family=Alex+Brush&family=Tangerine:wght@400;700&family=Pinyon+Script&family=Satisfy&family=Parisienne&family=Marck+Script&family=Cookie&family=Sacramento&family=Kaushan+Script:wght@400;700&family=Courgette&family=Yellowtail&family=Amatic+SC:wght@400;700&family=Raleway:wght@400;500;600;700&family=Josefin+Sans:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=Outfit:wght@400;500;600;700&family=Cormorant:wght@400;500;600;700&family=Crimson+Text:wght@400;600;700&family=Lora:wght@400;500;600;700&family=Merriweather:wght@400;700&family=EB+Garamond:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&family=Vollkorn:wght@400;500;600;700&family=Cinzel:wght@400;500;600;700&family=Abril+Fatface&family=Bebas+Neue&family=Righteous&display=swap" rel="stylesheet" media="print" onload="this.media='all'">
-    <noscript><link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;500;600;700&family=Lato:wght@400;700&family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Pacifico&family=Allura&family=Alex+Brush&family=Tangerine:wght@400;700&family=Pinyon+Script&family=Satisfy&family=Parisienne&family=Marck+Script&family=Cookie&family=Sacramento&family=Kaushan+Script:wght@400;700&family=Courgette&family=Yellowtail&family=Amatic+SC:wght@400;700&family=Raleway:wght@400;500;600;700&family=Josefin+Sans:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=Outfit:wght@400;500;600;700&family=Cormorant:wght@400;500;600;700&family=Crimson+Text:wght@400;600;700&family=Lora:wght@400;500;600;700&family=Merriweather:wght@400;700&family=EB+Garamond:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&family=Vollkorn:wght@400;500;600;700&family=Cinzel:wght@400;500;600;700&family=Abril+Fatface&family=Bebas+Neue&family=Righteous&display=swap" rel="stylesheet"></noscript>
+    <!-- Preload hero image for instant display -->
+    <link rel="preload" as="image" href="/src/assets/hero-wedding.jpg" fetchpriority="high">
+
+    <!-- Preload brand logo (used in header, sidebar, footer across pages) -->
+    <link rel="preload" as="image" href="/wedding-waitress-logo-full.png" fetchpriority="high">
+    
+    <!-- Google Fonts - Comprehensive Wedding Place Card Font Collection -->
+    <link href="https://fonts.googleapis.com/css2?family=Inter:wght@400;500;600;700&family=Playfair+Display:wght@400;500;600;700&family=Roboto:wght@400;500;700&family=Open+Sans:wght@400;500;600;700&family=Lato:wght@400;700&family=Montserrat:wght@400;500;600;700&family=Poppins:wght@400;500;600;700&family=Dancing+Script:wght@400;500;600;700&family=Great+Vibes&family=Pacifico&family=Allura&family=Alex+Brush&family=Tangerine:wght@400;700&family=Pinyon+Script&family=Satisfy&family=Parisienne&family=Marck+Script&family=Cookie&family=Sacramento&family=Kaushan+Script:wght@400;700&family=Courgette&family=Yellowtail&family=Amatic+SC:wght@400;700&family=Raleway:wght@400;500;600;700&family=Josefin+Sans:wght@400;500;600;700&family=Quicksand:wght@400;500;600;700&family=Nunito:wght@400;500;600;700&family=Work+Sans:wght@400;500;600;700&family=DM+Sans:wght@400;500;700&family=Outfit:wght@400;500;600;700&family=Cormorant:wght@400;500;600;700&family=Crimson+Text:wght@400;600;700&family=Lora:wght@400;500;600;700&family=Merriweather:wght@400;700&family=EB+Garamond:wght@400;500;600;700&family=Libre+Baskerville:wght@400;700&family=Vollkorn:wght@400;500;600;700&family=Cinzel:wght@400;500;600;700&family=Abril+Fatface&family=Bebas+Neue&family=Righteous&display=swap" rel="stylesheet">
 
     <!-- Defensive: ensure any locally referenced @font-face uses swap to avoid FOIT -->
     <style>@font-face { font-display: swap; }</style>
@@ -75,28 +79,37 @@
       gtag('config', 'G-2EG6ZWCT0T', { send_page_view: false });
     </script>
     
-    <title>Wedding Seating Chart Australia | QR Code Seating Planner | Wedding Waitress</title>
-    <meta name="description" content="Create a wedding seating chart online with QR code access. Plan your wedding, manage guests, and organise seating easily across Australia." data-rh="true" />
+    <title>Wedding Waitress</title>
+    
+    
     <meta name="author" content="Wedding Waitress" />
     
     <link rel="manifest" href="/manifest.json" />
     
-    <link rel="canonical" href="https://weddingwaitress.com.au/" data-rh="true" />
+    
 
     <!-- Open Graph / Facebook -->
-    <meta property="og:title" content="Wedding Seating Chart Australia | QR Code Seating Planner | Wedding Waitress" data-rh="true" />
-    <meta property="og:description" content="Create a wedding seating chart online with QR code access. Plan your wedding, manage guests, and organise seating easily across Australia." data-rh="true" />
-    <meta property="og:type" content="website" data-rh="true" />
-    <meta property="og:image" content="https://weddingwaitress.com.au/wedding-waitress-share-logo.png" data-rh="true" />
-    <meta property="og:url" content="https://weddingwaitress.com.au/" data-rh="true" />
+    <meta property="og:image" content="https://weddingwaitress.com.au/wedding-waitress-link-preview-20261028.png" data-rh="true" />
+    <meta property="og:image:width" content="1200" data-rh="true" />
+    <meta property="og:image:height" content="630" data-rh="true" />
+    
+    
+    
+    
+    
+    
+    
 
     <!-- Twitter -->
     <meta name="twitter:card" content="summary_large_image" data-rh="true" />
-    <meta name="twitter:title" content="Wedding Seating Chart Australia | QR Code Seating Planner | Wedding Waitress" data-rh="true" />
-    <meta name="twitter:description" content="Create a wedding seating chart online with QR code access. Plan your wedding, manage guests, and organise seating easily across Australia." data-rh="true" />
-    <meta name="twitter:image" content="https://weddingwaitress.com.au/wedding-waitress-share-logo.png" data-rh="true" />
+    <meta name="twitter:image" content="https://weddingwaitress.com.au/wedding-waitress-link-preview-20261028.png" data-rh="true" />
+    
+    
+    
+    
     
     <!-- Structured Data for SEO -->
+    
     
     <!-- FAQ Schema is rendered only on /faq via SeoHead to avoid duplicate FAQPage structured data -->
   </head>

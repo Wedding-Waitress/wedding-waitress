@@ -35,7 +35,7 @@ describe('dietary chart settings persistence', () => {
 
   it('isolates reloads, navigation and queued writes by event and owner', () => {
     expect(source).toContain(".eq('event_id', eventId)");
-    expect(source).toContain(".eq('user_id', user.id)");
+    expect(source).not.toContain(".eq('user_id', user.id)");
     expect(source).toContain('eventId: jobEventId');
     expect(source).toContain('loadGeneration !== loadGenerationRef.current');
     expect(source).toContain("onConflict: 'event_id,user_id'");

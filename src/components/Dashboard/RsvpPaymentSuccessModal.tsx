@@ -1,3 +1,4 @@
+import { normalizePublicPlanName } from '@/lib/stripeExtensionPrices';
 import React from 'react';
 import {
   Dialog,
@@ -35,7 +36,7 @@ export const RsvpPaymentSuccessModal: React.FC<RsvpPaymentSuccessModalProps> = (
     ptype === 'rsvp_overage'
       ? `Additional RSVP Allowance${guestCount ? ` (${guestCount} guests)` : ''}`
       : tierLabel
-        ? `${tierLabel} RSVP Bundle`
+        ? `${normalizePublicPlanName(tierLabel)} RSVP Bundle`
         : 'RSVP Invite Bundle';
 
   return (

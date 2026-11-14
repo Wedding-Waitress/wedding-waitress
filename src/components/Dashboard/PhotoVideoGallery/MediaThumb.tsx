@@ -73,7 +73,7 @@ export const MediaThumb: React.FC<{
   );
 
   return (
-    <div ref={ref} className={`absolute inset-0 ${previewSurfaceClass}`} data-photo-fit={item.kind === 'photo' ? photoFit : undefined}>
+    <div ref={ref} role="button" tabIndex={0} aria-label={"Open upload from "+(item.uploader_name || 'Anonymous guest')} onKeyDown={event => { if (event.target === event.currentTarget && (event.key === 'Enter' || event.key === ' ')) { event.preventDefault(); onOpen(); } }} className={`absolute inset-0 ${previewSurfaceClass}`} data-photo-fit={item.kind === 'photo' ? photoFit : undefined}>
       {!item.signed_url ? (
         <Fallback label="Preview unavailable" warn />
       ) : item.kind === 'audio' ? (

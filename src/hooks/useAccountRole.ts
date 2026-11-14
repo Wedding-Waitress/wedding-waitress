@@ -4,9 +4,8 @@ import { supabase } from "@/integrations/supabase/client";
 export type AccountRole = "master" | "standard" | null;
 
 /**
- * Foundation hook for the Master / Standard account role architecture.
- * Invitation UI is not built yet — this hook is here so future flows
- * (and downstream `requireMaster` guards) can read role consistently.
+ * Reads accepted, active account roles. Backend membership and entitlement
+ * checks remain authoritative for every planning or owner-only request.
  */
 export const useAccountRole = () => {
   const [role, setRole] = useState<AccountRole>(null);

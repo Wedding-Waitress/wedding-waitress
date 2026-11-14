@@ -1,5 +1,7 @@
+import choiceStyles from '../EventSelectorReference.module.css';
 // Photo & Video Sharing dashboard page (parent module)
 import React from 'react';
+import { SeoHead } from '@/components/SEO/SeoHead';
 import { useNavigate } from 'react-router-dom';
 import { Card } from '@/components/ui/card';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
@@ -30,7 +32,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({
 }) => {
   const navigate = useNavigate();
   const {
-    meta, loading, error, refresh, setGuestbookEnabled, setPhotoBoothEnabled,
+    meta, loading, error, refresh, setPhotoBoothEnabled,
     setSlideshowEnabled, setGuestFeature,
   } = useEventMediaGallery(selectedEventId);
   const planningAccessEnded = error === PLANNING_ACCESS_ENDED_ERROR;
@@ -41,6 +43,7 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({
       className={`${managementStyles.photoVideoLandingContent} ${styles.page}`}
       style={{ fontFamily: MANROPE_FONT }}
     >
+      <SeoHead title="Photo & Video Sharing | Wedding Waitress" description="Manage your event photo and video sharing." noIndex />
       <Card className={styles.eventCard}>
       <div className={styles.pageHeading}>
         <Camera size={25} strokeWidth={1.8} className={styles.headingIcon} aria-hidden="true" />
@@ -49,13 +52,13 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({
           <p>Let guests upload photos and short videos via QR code.</p>
         </div>
       </div>
-        <div className={styles.eventSelectorRow}>
-        <label className={styles.eventLabel}>
+        <div className={`${styles.eventSelectorRow} ${choiceStyles.row}`}>
+        <label className={`${styles.eventLabel} ${choiceStyles.label}`}>
           <CalendarDays size={18} strokeWidth={1.8} aria-hidden="true" />
           Choose Event
         </label>
         <Select value={selectedEventId || 'no-event'} onValueChange={onEventSelect}>
-          <SelectTrigger className={styles.eventTrigger} aria-label="Choose Event">
+          <SelectTrigger className={`${styles.eventTrigger} ${choiceStyles.trigger}`} aria-label="Choose Event">
             <span className={styles.eventValue}>
               <CalendarDays size={17} strokeWidth={1.8} aria-hidden="true" />
               <SelectValue placeholder="Select an event…" />
@@ -121,7 +124,6 @@ export const PhotoVideoGalleryPage: React.FC<Props> = ({
               meta={meta}
               onToggleUpload={(value) => setGuestFeature('guest_upload_enabled', value)}
               onToggleGalleryView={(value) => setGuestFeature('gallery_view_enabled', value)}
-              onToggleGuestbook={setGuestbookEnabled}
               onTogglePhotoBooth={setPhotoBoothEnabled}
               onToggleSlideshow={setSlideshowEnabled}
             />

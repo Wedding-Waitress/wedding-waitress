@@ -28,8 +28,8 @@ export const formatLivePrice = (currency: CurrencyCode, amount: number): string 
     style: 'currency',
     currency,
     currencyDisplay: 'code',
-    minimumFractionDigits: 0,
-    maximumFractionDigits: 0,
+    minimumFractionDigits: Number.isInteger(amount) ? 0 : 2,
+    maximumFractionDigits: 2,
   }).format(amount).replace(currency, '').trim();
   return `${CURRENCY_PREFIX[currency]}${formatted}`;
 };

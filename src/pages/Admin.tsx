@@ -1,5 +1,5 @@
 import React, { useEffect, useMemo, useState } from 'react';
-import { ArrowLeft, CalendarDays, CreditCard, LayoutDashboard, LogOut, Menu, RotateCcw, ShieldCheck, Users, X, type LucideIcon } from 'lucide-react';
+import { ArrowLeft, CalendarDays, CreditCard, Tag, LayoutDashboard, LogOut, Menu, RotateCcw, ShieldCheck, Users, X, type LucideIcon } from 'lucide-react';
 import { Navigate, NavLink, useLocation, useNavigate, useParams, useSearchParams } from 'react-router-dom';
 import { useIsAdmin } from '@/hooks/useIsAdmin';
 import { useProfile } from '@/hooks/useProfile';
@@ -8,19 +8,20 @@ import { useDashboardSession } from '@/hooks/useDashboardSession';
 import { ProfileAvatar } from '@/components/Account/ProfileAvatar';
 import { SeoHead } from '@/components/SEO/SeoHead';
 import { clearAllCaches } from '@/lib/cacheRegistry';
-import { AdminOverviewPage, AdminCustomersPage, AdminSubscriptionsPaymentsPage, AdminAccountLifecyclePage } from '@/components/Admin/AdminCentrePages';
+import { AdminOverviewPage, AdminCustomersPage, AdminSubscriptionsPaymentsPage, AdminPromotionsPage, AdminAccountLifecyclePage } from '@/components/Admin/AdminCentrePages';
 import { AdminSupportPage, AdminMessagesCreditsPage, AdminSystemHealthPage, AdminActivityPage } from '@/components/Admin/AdminOperationsPages';
 import logoImage from '@/assets/wedding-waitress-full-logo.png';
 import styles from './Admin.module.css';
 import { AdminCustomerAccountPreview } from '@/components/Admin/AdminCustomerAccountPreview';
 
-export type AdminSection = 'overview' | 'customers' | 'subscriptions-payments' | 'account-lifecycle' | 'support' | 'messages-credits' | 'system-health' | 'admin-activity';
+export type AdminSection = 'overview' | 'customers' | 'subscriptions-payments' | 'promotions-codes' | 'account-lifecycle' | 'support' | 'messages-credits' | 'system-health' | 'admin-activity';
 type Item = { id: AdminSection; label: string; description: string; icon: LucideIcon };
 const groups: Array<{ label: string; items: Item[] }> = [
   { label: 'Management', items: [
     { id: 'overview', label: 'Overview', description: 'Operational health and recent activity', icon: LayoutDashboard },
     { id: 'customers', label: 'Customers', description: 'Customer records, access and activity', icon: Users },
     { id: 'subscriptions-payments', label: 'Subscriptions & Payments', description: 'Plans, purchases and payment status', icon: CreditCard },
+    { id: 'promotions-codes', label: 'Promotions & Codes', description: 'Create and manage promotional campaigns and discount codes', icon: Tag },
   ] },
   { label: 'Account Control', items: [
     { id: 'account-lifecycle', label: 'Account Lifecycle', description: 'Closures, recovery and permanent deletion', icon: RotateCcw },
@@ -43,6 +44,7 @@ const legacy: Record<string, AdminSection> = {
 const content: Record<AdminSection, React.ReactNode> = {
   overview: <AdminOverviewPage />, customers: <AdminCustomersPage />,
   'subscriptions-payments': <AdminSubscriptionsPaymentsPage />,
+  'promotions-codes': <AdminPromotionsPage />,
   'account-lifecycle': <AdminAccountLifecyclePage />,
   support: <AdminSupportPage />, 'messages-credits': <AdminMessagesCreditsPage />,
   'system-health': <AdminSystemHealthPage />, 'admin-activity': <AdminActivityPage />,
@@ -61,21 +63,41 @@ export const Admin: React.FC = () => {
   const [mobileOpen, setMobileOpen] = useState(false);
 
   useEffect(() => {
+    const expire = () => setGrantValid(false);
+    window.addEventListener('ww-admin-verification-expired', expire);
+    return () => window.removeEventListener('ww-admin-verification-expired', expire);
+  }, []);
+  useEffect(() => {
+    let cancelled = false;
+    let timer: number | undefined;
     setGrantChecked(false);
-    if (!session) { setGrantValid(false); setGrantChecked(true); return; }
-    const grant = sessionStorage.getItem('ww_admin_grant');
-    if (!grant) { setGrantValid(false); setGrantChecked(true); return; }
-    try {
-      const parsed = JSON.parse(atob(grant)) as { user_id?: string; exp?: number };
-      const expiresAt = Number(parsed.exp);
-      const validGrant = parsed.user_id === session.user.id && expiresAt > Date.now();
-      setGrantValid(validGrant);
-      setGrantChecked(true);
-      if (!validGrant) return;
-      const timer = window.setTimeout(() => setGrantValid(false), Math.max(0, expiresAt - Date.now()));
-      return () => window.clearTimeout(timer);
-    } catch { setGrantValid(false); setGrantChecked(true); }
-  }, [session]);
+    setGrantValid(false);
+    const check = async () => {
+      try {
+        const grant = sessionStorage.getItem('ww_admin_grant');
+        if (!session || !grant) return;
+        const parsed = JSON.parse(atob(grant)) as { user_id?: string; exp?: number };
+        const expiresAt = Number(parsed.exp);
+        if (parsed.user_id !== session.user.id || !Number.isFinite(expiresAt) || expiresAt <= Date.now()) return;
+        const { data, error } = await supabase.rpc('admin_require_verified_session' as never);
+        if (cancelled) return;
+        if (error || data !== true) {
+          sessionStorage.removeItem('ww_admin_grant');
+          sessionStorage.removeItem('ww_admin_grant_sig');
+          clearAllCaches();
+          return;
+        }
+        setGrantValid(true);
+        timer = window.setTimeout(() => { clearAllCaches(); setGrantValid(false); }, Math.max(0, expiresAt - Date.now()));
+      } catch {
+        if (!cancelled) clearAllCaches();
+      } finally {
+        if (!cancelled) setGrantChecked(true);
+      }
+    };
+    void check();
+    return () => { cancelled = true; if (timer) window.clearTimeout(timer); };
+  }, [session?.user.id, session?.access_token]);
   useEffect(() => {
     if (adminLoading || authLoading || !grantChecked) return;
     if (!isAdmin || !grantValid) { clearAllCaches(); navigate('/dashboard', { replace: true }); }
@@ -101,7 +123,7 @@ export const Admin: React.FC = () => {
   const sidebar = <div className={styles.sidebarInner}>
     <div className={styles.brand}><img src={logoImage} alt="Wedding Waitress" /><span>Admin Centre</span></div>
     <div className={styles.adminCard}><ProfileAvatar profile={profile} className={styles.avatar} /><div><strong>{name}</strong><span>{profile?.email || 'Authorised administrator'}</span><em><ShieldCheck />Owner Administrator · Verified</em></div></div>
-    <nav className={styles.navigation} aria-label="Admin Centre navigation">{groups.map((group) => <section key={group.label}><h2>{group.label}</h2>{group.items.map((item) => { const Icon = item.icon; return <NavLink key={item.id} to={`/admin/${item.id}`} onClick={() => setMobileOpen(false)} className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}><Icon /><span>{item.label}</span></NavLink>; })}</section>)}</nav>
+    <nav className={styles.navigation} aria-label="Admin Centre navigation">{groups.map((group) => <section key={group.label}>{group.items.map((item) => { const Icon = item.icon; return <NavLink key={item.id} to={`/admin/${item.id}`} onClick={() => setMobileOpen(false)} className={({ isActive }) => `${styles.navItem} ${isActive ? styles.active : ''}`}><Icon /><span>{item.label}</span></NavLink>; })}</section>)}</nav>
     <div className={styles.actions}><NavLink to="/dashboard" className={styles.back}><ArrowLeft />Back to Wedding Waitress</NavLink><button type="button" className={styles.logout} onClick={() => void signOut()}><LogOut />Log Out</button></div>
   </div>;
   return <div className={`${styles.adminCentre} ww-application-background`} data-admin-shell>
@@ -109,7 +131,7 @@ export const Admin: React.FC = () => {
     <aside className={`${styles.desktop} ww-sidebar-background`}>{sidebar}</aside>
     <button type="button" className={styles.mobileTrigger} onClick={() => setMobileOpen(true)} aria-expanded={mobileOpen} aria-controls="admin-mobile-nav"><Menu />Admin Centre</button>
     {mobileOpen && <div className={styles.mobileLayer}><button type="button" className={styles.backdrop} onClick={() => setMobileOpen(false)} aria-label="Close Admin Centre navigation" /><aside id="admin-mobile-nav" className={`${styles.drawer} ww-sidebar-background`} role="dialog" aria-modal="true" aria-label="Admin Centre navigation"><button type="button" className={styles.close} onClick={() => setMobileOpen(false)} aria-label="Close navigation"><X /></button>{sidebar}</aside></div>}
-    <main className={styles.main}><header className={styles.pageHeader}><span>Admin Centre</span><h1>{definition.label}</h1><p>{definition.description}</p></header><div className={styles.content}>{active==='customers'&&params.get('preview')?<AdminCustomerAccountPreview key={params.get('preview')} customerId={params.get('preview')!}/>:content[active]}</div></main>
+    <main className={styles.main}><header className={styles.pageHeader}><h1>{definition.label}</h1><p>{definition.description}</p></header><div className={styles.content}>{active==='customers'&&params.get('preview')?<AdminCustomerAccountPreview key={params.get('preview')} customerId={params.get('preview')!}/>:content[active]}</div></main>
   </div>;
 };
 export default Admin;

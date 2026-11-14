@@ -3,6 +3,7 @@ import {Table,TableHeader,TableHead,TableRow,TableCell,TableBody} from '@/compon
 import {Badge} from '@/components/ui/badge';
 import {getRsvpDisplayLabel,getRsvpBadgeVariant} from '@/lib/rsvp';
 import styles from '@/components/Dashboard/GuestListTable.module.css';
+import {getRelationDisplayText} from '@/lib/relationUtils';
 const fields=['first_name','last_name','mobile','email','notes','rsvp','dietary','relation_display','family_group','added_by_guest_id','rsvp_invite_status'];
 function validRows(value:unknown,ownerId:string,eventId:string):value is Record<string,any>[] {
  return Array.isArray(value)&&new Set(value.map(row=>row?.id)).size===value.length&&value.every(row=>row&&typeof row==='object'&&row.user_id===ownerId&&row.event_id===eventId&&typeof row.id==='string'
@@ -25,7 +26,7 @@ export function AdminReadOnlyGuestRecords({ownerId,eventId,guests}:{ownerId:stri
    <TableCell>{row.first_name}</TableCell><TableCell>{row.last_name}</TableCell><TableCell>{shown(row.mobile)}</TableCell><TableCell className="break-all">{shown(row.email)}</TableCell>
    <TableCell>{row.allow_plus_one===null?'Not recorded':row.allow_plus_one?'Yes':'No'}</TableCell><TableCell>{shown(row.rsvp_invite_status)}</TableCell>
    <TableCell>{row.rsvp===null?<span>Not recorded</span>:<Badge variant={getRsvpBadgeVariant(row.rsvp)}>{getRsvpDisplayLabel(row.rsvp)}</Badge>}</TableCell>
-   <TableCell>{shown(row.table_no)}</TableCell><TableCell>{shown(row.seat_no)}</TableCell><TableCell>{shown(row.relation_display)}</TableCell><TableCell>{shown(row.dietary)}</TableCell><TableCell>{shown(row.family_group)}</TableCell>
+   <TableCell>{shown(row.table_no)}</TableCell><TableCell>{shown(row.seat_no)}</TableCell><TableCell>{getRelationDisplayText(row.relation_display)||'No relation set'}</TableCell><TableCell>{shown(row.dietary)}</TableCell><TableCell>{shown(row.family_group)}</TableCell>
    <TableCell>{addedBy?`${addedBy.first_name} ${addedBy.last_name}`:'Not recorded in this event'}</TableCell><TableCell className="whitespace-pre-wrap break-words">{shown(row.notes)}</TableCell>
    {addresses&&<><TableCell>{row.address_received?'Yes':'No'}</TableCell>{['mailing_address','mailing_suburb','mailing_state','mailing_postcode'].map(key=><TableCell className="whitespace-pre-wrap break-words" key={key}>{shown(row[key])}</TableCell>)}</>}
   </TableRow>;})}</TableBody></Table></div>

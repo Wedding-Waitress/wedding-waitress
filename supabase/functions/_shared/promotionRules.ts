@@ -38,11 +38,11 @@ export function requireFirstPromotionPurchase(purpose: unknown, hasPreviousPurch
   if (purpose !== 'new_plan' || hasPreviousPurchase) throw new Error('Promo codes apply only to your first package purchase.');
 }
 
-export function promotionTermStart(completedAt: string, originalTrialEndsAt: string): string {
+export function promotionTermStart(completedAt: string, originalTrialEndsAt: string, activationPolicy: 'after_trial' | 'immediate' = 'after_trial'): string {
   const completed = Date.parse(completedAt);
   const trialEnd = Date.parse(originalTrialEndsAt);
   if (!Number.isFinite(completed) || !Number.isFinite(trialEnd)) throw new Error('Verified completion and original trial expiry are required.');
-  return new Date(Math.max(completed, trialEnd)).toISOString();
+  return new Date(activationPolicy === 'immediate' ? completed : Math.max(completed, trialEnd)).toISOString();
 }
 
 export function promotionTermEnd(startsAt: string): string {

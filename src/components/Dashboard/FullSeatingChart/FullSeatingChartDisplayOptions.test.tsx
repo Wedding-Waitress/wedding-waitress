@@ -48,24 +48,25 @@ describe('Full Seating Chart display controls', () => {
     rerender(<FullSeatingChartPreview event={event} guests={[guest] as any} settings={settings} />);
     expect(container.querySelector('[data-guest-name-text="true"]')).toHaveStyle({ color: '#C62828' });
     expect(container.querySelector('svg circle')).toHaveAttribute('stroke', '#000000');
-    expect(container.querySelector('img[alt="Wedding Waitress"]')).toHaveAttribute('src', '/wedding-waitress-logo-brown.png?v=2');
+    expect(container.querySelector('img[alt="Wedding Waitress"]')).toHaveAttribute('src', '/wedding-waitress-document-footer-dark-brown.png');
   });
 
-  it('renders five ordered rows with seven independent colour choices and toggles', () => {
+  it('renders four ordered rows with seven independent colour choices and toggles', () => {
     const onSettingsChange = vi.fn();
     render(<FullSeatingChartCustomizer settings={settings} onSettingsChange={onSettingsChange} />);
 
     const labels = [
-      'Show Guest Names', 'Show Seat Numbers', 'Show Guest List',
+      'Show Guest Names', 'Show Seat Numbers',
       'Show Dietary Requirements', 'Show Relationship',
     ];
+    expect(screen.queryByText('Show Guest List')).toBeNull();
     const positions = labels.map(label => document.body.textContent!.indexOf(label));
     expect(positions).toEqual([...positions].sort((a, b) => a - b));
-    expect(screen.getAllByRole('switch')).toHaveLength(5);
+    expect(screen.getAllByRole('switch')).toHaveLength(4);
 
     const groups = [
       ['guest names', 'guestNameColor'], ['seat numbers', 'seatNumberColor'],
-      ['guest list', 'guestListColor'], ['dietary requirements', 'dietaryColor'],
+      ['dietary requirements', 'dietaryColor'],
       ['relationships', 'relationshipColor'],
     ] as const;
     groups.forEach(([name, settingName]) => {
@@ -74,7 +75,7 @@ describe('Full Seating Chart display controls', () => {
       expect(onSettingsChange).toHaveBeenCalledWith({ [settingName]: '#E67E22' });
     });
 
-    const toggleSettings = ['showGuestNames', 'showSeatNumbers', 'showGuestList', 'showDietary', 'showRelation'];
+    const toggleSettings = ['showGuestNames', 'showSeatNumbers', 'showDietary', 'showRelation'];
     screen.getAllByRole('switch').forEach((toggle, index) => {
       fireEvent.click(toggle);
       expect(onSettingsChange).toHaveBeenCalledWith({ [toggleSettings[index]]: false });
@@ -99,7 +100,7 @@ describe('Full Seating Chart display controls', () => {
     expect(screen.getAllByText('Table').length).toBeGreaterThan(0);
 
     rerender(<FullSeatingChartPreview event={event} guests={[guest] as any} settings={{ ...settings, showGuestList: false }} />);
-    expect(container.querySelector('[data-guest-name-text="true"]')).toBeNull();
+    expect(container.querySelector('[data-guest-name-text="true"]')).toHaveTextContent('Alex Taylor');
     expect(screen.getAllByText('Alex & Sam').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Table').length).toBeGreaterThan(0);
     expect(screen.getAllByAltText('Wedding Waitress').length).toBeGreaterThan(0);

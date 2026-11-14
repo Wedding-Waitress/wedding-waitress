@@ -2,7 +2,7 @@
   color: #2b1711 !important;
   font-family: 'Manrope', ui-sans-serif, system-ui, sans-serif !important;
   font-size: 20px !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
   line-height: 1.25 !important;
   letter-spacing: -0.012em !important;
   -webkit-font-smoothing: auto;
@@ -23,7 +23,7 @@
   color: var(--table-text) !important;
   background: var(--table-panel) !important;
   font-size: 13px;
-  font-weight: 400;
+  font-weight: 600;
   line-height: 18px;
 }
 
@@ -35,7 +35,7 @@
 .drawer :is(input, textarea)::placeholder,
 .readOnlyField {
   font-size: 13px !important;
-  font-weight: 400 !important;
+  font-weight: 600 !important;
   line-height: 18px !important;
 }
 
@@ -48,7 +48,7 @@
 
 .drawer :is(button, [role="button"]) {
   font-size: 13px !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
 }
 
 .drawer label,
@@ -267,7 +267,7 @@
 
 .portalSurface {
   font-size: 13px;
-  font-weight: 400;
+  font-weight: 600;
   line-height: 18px;
 }
 
@@ -275,13 +275,13 @@
   overflow-wrap: anywhere;
   white-space: normal;
   font-size: 20px !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
 }
 
 .portalSurface :is(p, li, input, textarea),
 .portalSurface :is(input, textarea)::placeholder {
   font-size: 13px !important;
-  font-weight: 400 !important;
+  font-weight: 600 !important;
   line-height: 18px !important;
 }
 
@@ -292,7 +292,7 @@
 
 .portalSurface :is(button, [role="button"]) {
   font-size: 13px !important;
-  font-weight: 500 !important;
+  font-weight: 600 !important;
 }
 
 .portalSurface [class*="text-muted-foreground"],
@@ -362,7 +362,7 @@
 
 /* Table form footer: approved green Save and red Cancel. */
 .drawer button[class*="lv-premium-shade"][class*="rounded-full"]:is([class*="bg-green-500"],[class*="bg-red-500"]) {
-  min-height:40px !important; height:auto !important; padding:10px 16px !important;
+  min-height:30px !important; height:auto !important; padding:5px 12px !important;
   border:0 !important; border-radius:9999px !important;
   font-family:Manrope,ui-sans-serif,system-ui,sans-serif !important;
   font-size:14px !important; font-weight:600 !important;
@@ -381,3 +381,25 @@
   width:16px; height:16px; color:#2f1b14 !important; stroke:#2f1b14 !important;
   filter:none !important; text-shadow:none;
 }
+
+/* Tables-only header alignment and reviewed close target. */
+.drawer .header { min-height:44px; padding-top:0 !important; padding-right:56px !important; display:flex; justify-content:center; }
+.drawer.drawer > button:last-child {
+ top:24px !important; right:24px !important; margin:0 !important;
+ width:44px !important; height:44px !important; min-width:44px !important; min-height:44px !important;
+ padding:0 !important; display:flex; align-items:center; justify-content:center;
+ border-radius:9999px !important; opacity:1 !important;
+}
+.drawer.drawer > button:last-child svg { width:20px !important; height:20px !important; }
+.drawer.drawer > button:last-child:focus-visible { outline:2px solid #755332 !important; outline-offset:2px; }
+.drawer :is(button span,[role="combobox"] span),
+.portalSurface :is(span,[role="option"]),
+:global(body.ww-table-drawer-open) :global(.ww-table-limit-dialog) :is(p,span,button,input),
+:global(body.ww-table-drawer-open) [data-radix-popper-content-wrapper] [role="option"] { font-weight:600 !important; }
+.headTableChoice { min-height:30px; padding:5px 12px !important; }
+.portalSurface button { min-height:30px !important; height:auto !important; padding:5px 12px !important; border-radius:9999px !important; }
+@media (max-width:1023px), (pointer:coarse) {
+ .drawer button[class*="lv-premium-shade"], .portalSurface button { position:relative; }
+ .drawer button[class*="lv-premium-shade"]::after, .portalSurface button::after { content:''; position:absolute; inset:-7px 0; }
+}
+.drawer.drawer :is(p,li,input,textarea,select,option,button), .drawer.drawer :is(input,textarea)::placeholder { font-weight:600 !important; }
