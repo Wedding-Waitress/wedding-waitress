@@ -11,8 +11,8 @@ describe('active trial upgrade eligibility',()=>{
 });
 
 import {getWeddingPlanUpgrades,PLAN_REGISTRY} from './planRegistry';
-it('uses the configured 100, 200 and 400 guest plans and never offers a downgrade',()=>{
- expect(['essential','premium','unlimited'].map(key=>PLAN_REGISTRY[key as keyof typeof PLAN_REGISTRY].limits.guests)).toEqual([100,200,400]);
+it('uses the configured 150, 250 and 450 guest plans and never offers a downgrade',()=>{
+ expect(['essential','premium','unlimited'].map(key=>PLAN_REGISTRY[key as keyof typeof PLAN_REGISTRY].limits.guests)).toEqual([150,250,450]);
  expect(getWeddingPlanUpgrades('Starter').map(p=>p.key)).toEqual(['essential','premium','unlimited']);
  expect(getWeddingPlanUpgrades('Essential').map(p=>p.key)).toEqual(['premium','unlimited']);
  expect(getWeddingPlanUpgrades('Premium').map(p=>p.key)).toEqual(['unlimited']);

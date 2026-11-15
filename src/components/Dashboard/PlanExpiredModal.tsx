@@ -74,7 +74,7 @@ export const PlanExpiredModal: React.FC<PlanExpiredModalProps> = ({
           <div className="bg-muted/50 rounded-lg p-4 space-y-2">
             <p className="text-sm font-medium">With an upgraded plan you get:</p>
             <ul className="text-sm space-y-1 text-muted-foreground">
-              <li>• Up to 100, 300, or unlimited guests</li>
+              <li>• Up to 150, 250, or 450 guests</li>
               <li>• Unlimited tables & seating charts</li>
               <li>• QR code guest lookup</li>
               <li>• Place cards, dietary charts & more</li>

@@ -1,7 +1,7 @@
 import '@/styles/AccountPurchaseHelp.css';
 import React from 'react';
 export const PACKAGE_HELP_QUESTIONS = [
- ['How many events and guests are included?', 'Essential includes one event for up to 100 guests, Premium one event for up to 200, and Ultimate one event for up to 400. Each package provides 12 months of access.'],
+ ['How many events and guests are included?', 'Essential includes one event for up to 150 guests, Premium one event for up to 250, and Ultimate one event for up to 450. Each package provides 12 months of access.'],
  ['How do I purchase another event?', 'Use My Events and choose to add another event when your included slots are used. Additional event slots cost A$99 each including 10% GST and require a current paid Essential, Premium or Ultimate plan. The slot is added to your existing account and does not start a separate package term.'],
  ['Where can I use a promo code?', 'An eligible promo code applies only to your first package purchase. It does not discount renewals, upgrades, additional event slots or credit top-ups. Check the offer on the checkout confirmation screen before continuing.'],
  ['Which promotions include Email and SMS credits?', 'At discounts of 50% or less, Essential includes 150 shared credits in the first event, Premium 250 and Ultimate 450. At discounts of 51% to 100%, no new complimentary credits are included. Previously purchased credits remain intact. Additional events receive no new included credits. Sending-credit top-ups can be purchased for each event. Existing granted balances and purchased credits are retained.'],

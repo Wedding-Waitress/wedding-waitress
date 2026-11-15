@@ -205,15 +205,15 @@
     "approvalRequired": "承認が必要",
     "essential": {
       "name": "Essential",
-      "guests": "最大100名のゲスト · 12ヶ月アクセス"
+      "guests": "最大150名のゲスト · 12ヶ月アクセス"
     },
     "premium": {
       "name": "Premium",
-      "guests": "最大200名のゲスト · 12ヶ月アクセス"
+      "guests": "最大250名のゲスト · 12ヶ月アクセス"
     },
     "unlimited": {
       "name": "Unlimited",
-      "guests": "無制限のゲスト · 12ヶ月アクセス"
+      "guests": "ゲスト450名まで · 12か月間利用可能"
     },
     "vendorPro": {
       "name": "Vendor Pro",

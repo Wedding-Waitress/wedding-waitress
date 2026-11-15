@@ -205,15 +205,15 @@
     "approvalRequired": "Onay gereklidir",
     "essential": {
       "name": "Essential",
-      "guests": "100 konuğa kadar · 12 aylık erişim"
+      "guests": "150 konuğa kadar · 12 aylık erişim"
     },
     "premium": {
       "name": "Premium",
-      "guests": "200 konuğa kadar · 12 aylık erişim"
+      "guests": "250 konuğa kadar · 12 aylık erişim"
     },
     "unlimited": {
       "name": "Unlimited",
-      "guests": "Sınırsız konuk · 12 aylık erişim"
+      "guests": "450 misafire kadar · 12 aylık erişim"
     },
     "vendorPro": {
       "name": "Vendor Pro",

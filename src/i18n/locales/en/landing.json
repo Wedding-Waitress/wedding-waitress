@@ -232,15 +232,15 @@
     "perMonth": "/month",
     "essential": {
       "name": "Essential",
-      "guests": "Up to 100 guests · 12-month access"
+      "guests": "Up to 150 guests · 12-month access"
     },
     "premium": {
       "name": "Premium",
-      "guests": "Up to 200 guests · 12-month access"
+      "guests": "Up to 250 guests · 12-month access"
     },
     "unlimited": {
       "name": "Unlimited",
-      "guests": "Unlimited guests · 12-month access"
+      "guests": "Up to 450 guests · 12-month access"
     },
     "vendorPro": {
       "name": "Vendor Pro",

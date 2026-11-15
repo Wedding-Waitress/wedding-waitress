@@ -21,7 +21,7 @@ const faqItems: [string, string | readonly string[]][] = [
   ["Can I add more events to my account?","Yes. With a current Essential, Premium or Ultimate plan, you can purchase additional event slots in the same account for $99 per event. Each is a one time purchase and uses your existing package’s access period. However, you only get free allocated SMS & Email credits in your first event to send out your RSVP & Digital Invitations. Additional SMS & Email credits can be purchased."],
   ['Is the couple-plan price a subscription?', 'No. Essential, Premium and Ultimate are one-event plans with 12 months of access, not monthly couple subscriptions.'],
   ['Is GST added?', publicFaqReviewSources[0]],
-  ['How do the guest limits work?', 'Essential supports up to 100 guests, Premium up to 200 and Ultimate up to 400. The trial supports up to 20 guests.'],
+  ['How do the guest limits work?', 'Essential supports up to 150 guests, Premium up to 250 and Ultimate up to 450. The trial supports up to 20 guests.'],
   ['Can I upgrade?', 'Available upgrade options are shown through the account and checkout flow. If you are unsure which plan you need, contact Wedding Waitress before purchasing.'],
   ['Do guests need an app?', 'No. Guest-facing QR, gallery and lookup experiences open in a compatible web browser.'],
   ['How does QR seating work?', 'You create a unique event QR code. Guests scan it, search their name and view the table or seat information you have assigned and chosen to display.'],

@@ -205,15 +205,15 @@
     "approvalRequired": "Approbation requise",
     "essential": {
       "name": "Essential",
-      "guests": "Jusqu'à 100 invités · Accès 12 mois"
+      "guests": "Jusqu'à 150 invités · Accès 12 mois"
     },
     "premium": {
       "name": "Premium",
-      "guests": "Jusqu'à 200 invités · Accès 12 mois"
+      "guests": "Jusqu'à 250 invités · Accès 12 mois"
     },
     "unlimited": {
       "name": "Unlimited",
-      "guests": "Invités illimités · Accès 12 mois"
+      "guests": "Jusqu’à 450 invités · Accès pendant 12 mois"
     },
     "vendorPro": {
       "name": "Vendor Pro",

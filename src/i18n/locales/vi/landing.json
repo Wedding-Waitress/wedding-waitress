@@ -205,15 +205,15 @@
     "approvalRequired": "Cần phê duyệt",
     "essential": {
       "name": "Essential",
-      "guests": "Tối đa 100 khách · Truy cập 12 tháng"
+      "guests": "Tối đa 150 khách · Truy cập 12 tháng"
     },
     "premium": {
       "name": "Premium",
-      "guests": "Tối đa 200 khách · Truy cập 12 tháng"
+      "guests": "Tối đa 250 khách · Truy cập 12 tháng"
     },
     "unlimited": {
       "name": "Unlimited",
-      "guests": "Khách không giới hạn · Truy cập 12 tháng"
+      "guests": "Tối đa 450 khách · Quyền truy cập 12 tháng"
     },
     "vendorPro": {
       "name": "Vendor Pro",

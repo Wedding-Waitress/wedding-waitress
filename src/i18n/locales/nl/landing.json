@@ -205,15 +205,15 @@
     "approvalRequired": "Goedkeuring vereist",
     "essential": {
       "name": "Essential",
-      "guests": "Tot 100 gasten · 12 maanden toegang"
+      "guests": "Tot 150 gasten · 12 maanden toegang"
     },
     "premium": {
       "name": "Premium",
-      "guests": "Tot 200 gasten · 12 maanden toegang"
+      "guests": "Tot 250 gasten · 12 maanden toegang"
     },
     "unlimited": {
       "name": "Unlimited",
-      "guests": "Onbeperkt gasten · 12 maanden toegang"
+      "guests": "Tot 450 gasten · 12 maanden toegang"
     },
     "vendorPro": {
       "name": "Vendor Pro",

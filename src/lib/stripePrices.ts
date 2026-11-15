@@ -3,6 +3,7 @@
  * Single source of truth for all Stripe references.
  */
 import { PACKAGE_PRICES_AUD } from './packagePricing';
+import { PACKAGE_GUEST_LIMITS } from '../../supabase/functions/_shared/packageGuestLimits';
 
 // ── Wedding Plans (one-time payments) ──────────────────────────────
 export const PLAN_PRICES = {
@@ -12,7 +13,7 @@ export const PLAN_PRICES = {
     name: 'Essential Plan',
     price_aud: PACKAGE_PRICES_AUD.essential,
     original_price_aud: 199, // strikethrough marketing price
-    guest_limit: 100,
+    guest_limit: PACKAGE_GUEST_LIMITS.essential,
     plan_db_id: '78cdab0d-d81d-4757-b7cc-f210b8b30f47',
   },
   premium: {
@@ -21,7 +22,7 @@ export const PLAN_PRICES = {
     name: 'Premium Plan',
     price_aud: PACKAGE_PRICES_AUD.premium,
     original_price_aud: 299,
-    guest_limit: 200,
+    guest_limit: PACKAGE_GUEST_LIMITS.premium,
     plan_db_id: '1c2c595d-e01b-4bd7-ad8e-f9d6cda0b2c8',
   },
   unlimited: {
@@ -30,7 +31,7 @@ export const PLAN_PRICES = {
     name: 'Ultimate Plan',
     price_aud: PACKAGE_PRICES_AUD.unlimited,
     original_price_aud: 499,
-    guest_limit: 400,
+    guest_limit: PACKAGE_GUEST_LIMITS.unlimited,
     plan_db_id: 'cd10f207-2109-4546-a635-0baa68ba8213',
   },
 } as const;

@@ -205,15 +205,15 @@
     "approvalRequired": "يتطلب الموافقة",
     "essential": {
       "name": "Essential",
-      "guests": "حتى 100 ضيف · وصول 12 شهرًا"
+      "guests": "حتى 150 ضيف · وصول 12 شهرًا"
     },
     "premium": {
       "name": "Premium",
-      "guests": "حتى 200 ضيف · وصول 12 شهرًا"
+      "guests": "حتى 250 ضيف · وصول 12 شهرًا"
     },
     "unlimited": {
       "name": "Unlimited",
-      "guests": "ضيوف غير محدودين · وصول 12 شهرًا"
+      "guests": "حتى 450 ضيفًا · وصول لمدة 12 شهرًا"
     },
     "vendorPro": {
       "name": "Vendor Pro",

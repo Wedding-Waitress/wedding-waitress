@@ -205,15 +205,15 @@
     "approvalRequired": "अनुमोदन आवश्यक",
     "essential": {
       "name": "Essential",
-      "guests": "100 मेहमानों तक · 12 महीने की पहुंच"
+      "guests": "150 मेहमानों तक · 12 महीने की पहुंच"
     },
     "premium": {
       "name": "Premium",
-      "guests": "200 मेहमानों तक · 12 महीने की पहुंच"
+      "guests": "250 मेहमानों तक · 12 महीने की पहुंच"
     },
     "unlimited": {
       "name": "Unlimited",
-      "guests": "असीमित मेहमान · 12 महीने की पहुंच"
+      "guests": "450 मेहमानों तक · 12 महीने की सुविधा"
     },
     "vendorPro": {
       "name": "Vendor Pro",

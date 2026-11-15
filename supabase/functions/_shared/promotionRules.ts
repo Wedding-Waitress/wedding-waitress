@@ -1,8 +1,9 @@
 /** Pure rules shared by offer previews and the server. Never an authorization boundary. */
+import { PACKAGE_GUEST_LIMITS } from './packageGuestLimits.ts';
 export const PROMOTION_PLANS = {
-  essential: { amountCents: 19900, credits: 150, guests: 100 },
-  premium: { amountCents: 24900, credits: 250, guests: 200 },
-  unlimited: { amountCents: 29900, credits: 450, guests: 400 },
+  essential: { amountCents: 19900, credits: 150, guests: PACKAGE_GUEST_LIMITS.essential },
+  premium: { amountCents: 24900, credits: 250, guests: PACKAGE_GUEST_LIMITS.premium },
+  unlimited: { amountCents: 29900, credits: 450, guests: PACKAGE_GUEST_LIMITS.unlimited },
 } as const;
 export type PromotionPlan = keyof typeof PROMOTION_PLANS;
 

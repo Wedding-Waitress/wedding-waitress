@@ -6,7 +6,7 @@ const basePlanFaqSources = [
   'How long does a couple plan last?', 'Each couple plan covers one event and provides exactly 12 months of active planning access. You can extend for one month or any number of whole months at A$22 per month, paid upfront.',
   'Is the couple-plan price a subscription?', 'No. Essential, Premium and Ultimate are one-event plans with 12 months of access, not monthly couple subscriptions.',
   'Is GST added?', 'Prices are shown in Australian dollars and exclude GST. GST is calculated at checkout.',
-  'How do the guest limits work?', 'Essential supports up to 100 guests, Premium up to 200 and Ultimate up to 400. The trial supports up to 20 guests.',
+  'How do the guest limits work?', 'Essential supports up to 150 guests, Premium up to 250 and Ultimate up to 450. The trial supports up to 20 guests.',
   'What happens to access after 12 months?', 'Planning, data and download access ends when your paid period expires. Your saved account, including photos and videos, remains recoverable for six calendar months. A paid extension during that recovery period restores access from payment time. If you do not extend by the recovery deadline, the recoverable account and content are permanently removed from Wedding Waitress.',
 ] as const;
 const row = (text: string) => text.trim().split('\n');
@@ -23,7 +23,7 @@ No. Essential, Premium e Ultimate sono piani per un evento con 12 mesi di access
 Viene aggiunta la GST?
 I prezzi sono espressi in dollari australiani ed escludono la GST. La GST viene calcolata al checkout.
 Come funzionano i limiti degli ospiti?
-Essential supporta fino a 100 ospiti, Premium fino a 200 e Ultimate fino a 400. La prova supporta fino a 20 ospiti.
+Essential supporta fino a 150 ospiti, Premium fino a 250 e Ultimate fino a 450. La prova supporta fino a 20 ospiti.
 Che cosa succede all’accesso dopo 12 mesi?
 L’accesso alla pianificazione, ai dati e ai download termina alla scadenza del periodo pagato. L’account salvato, comprese foto e video, rimane recuperabile per sei mesi di calendario. Un’estensione pagata durante tale periodo ripristina l’accesso dal momento del pagamento. Senza estensione entro il termine di recupero, l’account e i contenuti recuperabili vengono rimossi definitivamente da Wedding Waitress.`),
   ar: row(`كيف تعمل التجربة المجانية لمدة سبعة أيام؟
@@ -37,7 +37,7 @@ L’accesso alla pianificazione, ai dati e ai download termina alla scadenza del
 هل تُضاف ضريبة GST؟
 تُعرض الأسعار بالدولار الأسترالي ولا تشمل ضريبة GST. تُحسب الضريبة عند إتمام الشراء.
 كيف تعمل حدود عدد الضيوف؟
-تدعم Essential ما يصل إلى 100 ضيف، وPremium حتى 200، وUltimate حتى 400. تدعم التجربة حتى 20 ضيفًا.
+تدعم Essential ما يصل إلى 150 ضيف، وPremium حتى 250، وUltimate حتى 450. تدعم التجربة حتى 20 ضيفًا.
 ماذا يحدث للوصول بعد 12 شهرًا؟
 ينتهي الوصول إلى التخطيط والبيانات والتنزيلات عند انتهاء الفترة المدفوعة. يبقى حسابك المحفوظ، بما فيه الصور والفيديو، قابلًا للاستعادة لمدة ستة أشهر تقويمية. يعيد التمديد المدفوع خلال فترة الاستعادة الوصول من وقت الدفع. إذا لم تمدّد قبل موعد انتهاء الاستعادة، يُحذف الحساب والمحتوى القابلان للاستعادة نهائيًا من Wedding Waitress.`),
   zh: row(`七天免费试用如何使用？
@@ -51,7 +51,7 @@ L’accesso alla pianificazione, ai dati e ai download termina alla scadenza del
 是否另加 GST？
 价格以澳大利亚元显示，不含 GST。GST 在结账时计算。
 宾客人数上限如何规定？
-Essential 最多支持 100 位宾客，Premium 为 200 位，Ultimate 为 400 位。试用最多支持 20 位宾客。
+Essential 最多支持 150 位宾客，Premium 为 250 位，Ultimate 为 450 位。试用最多支持 20 位宾客。
 12 个月后使用权限会怎样？
 付费期限结束时，筹划、数据和下载权限终止。保存的账户（包括照片和视频）仍可在六个自然月内恢复。在恢复期内付费延长，可从付款时间起恢复权限。如果未在恢复期限前延长，可恢复的账户和内容将从 Wedding Waitress 永久删除。`),
   vi: row(`Dùng thử miễn phí bảy ngày hoạt động như thế nào?
@@ -65,7 +65,7 @@ Không. Essential, Premium và Ultimate là gói cho một sự kiện với 12 
 Có cộng thêm GST không?
 Giá hiển thị bằng đô la Úc và chưa bao gồm GST. GST được tính khi thanh toán.
 Giới hạn khách mời hoạt động như thế nào?
-Essential hỗ trợ tối đa 100 khách, Premium tối đa 200 và Ultimate tối đa 400. Dùng thử hỗ trợ tối đa 20 khách.
+Essential hỗ trợ tối đa 150 khách, Premium tối đa 250 và Ultimate tối đa 450. Dùng thử hỗ trợ tối đa 20 khách.
 Quyền truy cập sẽ thế nào sau 12 tháng?
 Quyền lập kế hoạch, dữ liệu và tải xuống kết thúc khi thời hạn trả phí hết hạn. Tài khoản đã lưu, gồm ảnh và video, vẫn có thể khôi phục trong sáu tháng theo lịch. Gia hạn trả phí trong thời gian này khôi phục quyền truy cập từ lúc thanh toán. Nếu không gia hạn trước hạn khôi phục, tài khoản và nội dung có thể khôi phục sẽ bị xóa vĩnh viễn khỏi Wedding Waitress.`),
   hi: row(`सात दिन का मुफ़्त परीक्षण कैसे काम करता है?
@@ -79,7 +79,7 @@ Quyền lập kế hoạch, dữ liệu và tải xuống kết thúc khi thời
 क्या GST जोड़ा जाता है?
 कीमतें ऑस्ट्रेलियाई डॉलर में दिखाई जाती हैं और उनमें GST शामिल नहीं है। GST की गणना चेकआउट पर होती है।
 अतिथियों की सीमाएँ कैसे काम करती हैं?
-Essential में अधिकतम 100, Premium में 200 और Ultimate में 400 अतिथि हैं। परीक्षण में अधिकतम 20 अतिथि हैं।
+Essential में अधिकतम 150, Premium में 250 और Ultimate में 450 अतिथि हैं। परीक्षण में अधिकतम 20 अतिथि हैं।
 12 महीने बाद उपयोग का क्या होता है?
 भुगतान वाली अवधि खत्म होने पर योजना, डेटा और डाउनलोड का उपयोग समाप्त हो जाता है। फ़ोटो और वीडियो सहित आपका सहेजा गया खाता छह कैलेंडर महीनों तक बहाल किया जा सकता है। इस अवधि में भुगतान करके अवधि बढ़ाने पर उपयोग भुगतान के समय से बहाल होता है। बहाली की समय-सीमा तक अवधि नहीं बढ़ाने पर बहाल किए जा सकने वाले खाते और सामग्री को Wedding Waitress से स्थायी रूप से हटा दिया जाता है।`),
   tr: row(`Yedi günlük ücretsiz deneme nasıl çalışır?
@@ -93,7 +93,7 @@ Hayır. Essential, Premium ve Ultimate, 12 aylık erişim sunan tek etkinlik pla
 GST eklenir mi?
 Fiyatlar Avustralya doları cinsinden gösterilir ve GST hariçtir. GST ödeme sırasında hesaplanır.
 Misafir sınırları nasıl çalışır?
-Essential en fazla 100, Premium 200 ve Ultimate 400 misafiri destekler. Deneme en fazla 20 misafiri destekler.
+Essential en fazla 150, Premium 250 ve Ultimate 450 misafiri destekler. Deneme en fazla 20 misafiri destekler.
 12 aydan sonra erişime ne olur?
 Ücretli süreniz dolduğunda planlama, veri ve indirme erişimi biter. Fotoğraf ve videolar dahil kayıtlı hesabınız altı takvim ayı boyunca kurtarılabilir. Bu sürede ücretli uzatma, ödeme anından itibaren erişimi geri getirir. Kurtarma son tarihine kadar uzatmazsanız kurtarılabilir hesap ve içerikler Wedding Waitress’ten kalıcı olarak kaldırılır.`),
   de: row(`Wie funktioniert die siebentägige kostenlose Testphase?
@@ -107,7 +107,7 @@ Nein. Essential, Premium und Ultimate sind Pakete für eine Veranstaltung mit 12
 Wird GST hinzugefügt?
 Die Preise werden in australischen Dollar ohne GST angezeigt. GST wird beim Bezahlen berechnet.
 Wie funktionieren die Gästegrenzen?
-Essential unterstützt bis zu 100 Gäste, Premium bis zu 200 und Ultimate bis zu 400. Die Testphase unterstützt bis zu 20 Gäste.
+Essential unterstützt bis zu 150 Gäste, Premium bis zu 250 und Ultimate bis zu 450. Die Testphase unterstützt bis zu 20 Gäste.
 Was passiert mit dem Zugang nach 12 Monaten?
 Planungs-, Daten- und Downloadzugang enden mit Ablauf des bezahlten Zeitraums. Ihr gespeichertes Konto einschließlich Fotos und Videos bleibt sechs Kalendermonate wiederherstellbar. Eine bezahlte Verlängerung in dieser Zeit stellt den Zugang ab Zahlung wieder her. Ohne Verlängerung bis zur Wiederherstellungsfrist werden das wiederherstellbare Konto und seine Inhalte dauerhaft aus Wedding Waitress entfernt.`),
   es: row(`¿Cómo funciona la prueba gratuita de siete días?
@@ -121,7 +121,7 @@ No. Essential, Premium y Ultimate son planes para un evento con 12 meses de acce
 ¿Se añade GST?
 Los precios se muestran en dólares australianos y no incluyen GST. El GST se calcula al pagar.
 ¿Cómo funcionan los límites de invitados?
-Essential admite hasta 100 invitados, Premium hasta 200 y Ultimate hasta 400. La prueba admite hasta 20 invitados.
+Essential admite hasta 150 invitados, Premium hasta 250 y Ultimate hasta 450. La prueba admite hasta 20 invitados.
 ¿Qué ocurre con el acceso después de 12 meses?
 El acceso a planificación, datos y descargas termina cuando vence el período pagado. Tu cuenta guardada, con fotos y vídeos, puede recuperarse durante seis meses naturales. Una ampliación pagada en ese período restablece el acceso desde el momento del pago. Si no amplías antes del plazo de recuperación, la cuenta y el contenido recuperables se eliminan permanentemente de Wedding Waitress.`),
   fr: row(`Comment fonctionne l’essai gratuit de sept jours ?
@@ -135,7 +135,7 @@ Non. Essential, Premium et Ultimate sont des formules pour un événement avec 1
 La GST est-elle ajoutée ?
 Les prix sont affichés en dollars australiens hors GST. La GST est calculée au paiement.
 Comment fonctionnent les limites d’invités ?
-Essential accueille jusqu’à 100 invités, Premium jusqu’à 200 et Ultimate jusqu’à 400. L’essai accueille jusqu’à 20 invités.
+Essential accueille jusqu’à 150 invités, Premium jusqu’à 250 et Ultimate jusqu’à 450. L’essai accueille jusqu’à 20 invités.
 Que devient l’accès après 12 mois ?
 L’accès à la planification, aux données et aux téléchargements prend fin à l’expiration de la période payée. Votre compte enregistré, photos et vidéos comprises, reste récupérable pendant six mois calendaires. Une prolongation payée pendant cette période rétablit l’accès à partir du paiement. Sans prolongation avant la date limite de récupération, le compte et les contenus récupérables sont définitivement supprimés de Wedding Waitress.`),
   nl: row(`Hoe werkt de gratis proefperiode van zeven dagen?
@@ -149,7 +149,7 @@ Nee. Essential, Premium en Ultimate zijn pakketten voor één evenement met 12 m
 Wordt GST toegevoegd?
 Prijzen worden weergegeven in Australische dollars, exclusief GST. GST wordt bij het afrekenen berekend.
 Hoe werken de gastenlimieten?
-Essential ondersteunt maximaal 100 gasten, Premium 200 en Ultimate 400. De proefperiode ondersteunt maximaal 20 gasten.
+Essential ondersteunt maximaal 150 gasten, Premium 250 en Ultimate 450. De proefperiode ondersteunt maximaal 20 gasten.
 Wat gebeurt er met de toegang na 12 maanden?
 Toegang tot planning, gegevens en downloads eindigt wanneer je betaalde periode verloopt. Je opgeslagen account, inclusief foto’s en video’s, blijft zes kalendermaanden herstelbaar. Een betaalde verlenging tijdens deze periode herstelt toegang vanaf het betaalmoment. Als je niet verlengt vóór de hersteltermijn, worden het herstelbare account en de inhoud permanent uit Wedding Waitress verwijderd.`),
   ja: row(`七日間の無料トライアルはどのように利用できますか？
@@ -163,7 +163,7 @@ Toegang tot planning, gegevens en downloads eindigt wanneer je betaalde periode 
 GST は追加されますか？
 料金は豪ドルで表示され、GST は含まれません。GST は決済時に計算されます。
 ゲスト数の上限はどのように決まっていますか？
-Essential は最大 100 名、Premium は 200 名、Ultimate は 400 名に対応します。トライアルは最大 20 名です。
+Essential は最大 150 名、Premium は 250 名、Ultimate は 450 名に対応します。トライアルは最大 20 名です。
 12 か月後の利用権はどうなりますか？
 有料期間が終了すると、プランニング、データ、ダウンロードへのアクセスは終了します。写真や動画を含む保存済みアカウントは、六か月間の暦月で復元可能です。この復元期間中に有料延長すると、支払い時点からアクセスが復元されます。復元期限までに延長しない場合、復元可能なアカウントと内容は Wedding Waitress から完全に削除されます。`),
   el: row(`Πώς λειτουργεί η δωρεάν δοκιμή επτά ημερών;
@@ -177,7 +177,7 @@ Essential は最大 100 名、Premium は 200 名、Ultimate は 400 名に対�
 Προστίθεται GST;
 Οι τιμές εμφανίζονται σε αυστραλιανά δολάρια χωρίς GST. Η GST υπολογίζεται στο ταμείο.
 Πώς λειτουργούν τα όρια καλεσμένων;
-Το Essential υποστηρίζει έως 100 καλεσμένους, το Premium έως 200 και το Ultimate έως 400. Η δοκιμή υποστηρίζει έως 20.
+Το Essential υποστηρίζει έως 150 καλεσμένους, το Premium έως 250 και το Ultimate έως 450. Η δοκιμή υποστηρίζει έως 20.
 Τι συμβαίνει στην πρόσβαση μετά από 12 μήνες;
 Η πρόσβαση σε σχεδιασμό, δεδομένα και λήψεις λήγει όταν τελειώσει η πληρωμένη περίοδος. Ο αποθηκευμένος λογαριασμός, μαζί με φωτογραφίες και βίντεο, παραμένει ανακτήσιμος για έξι ημερολογιακούς μήνες. Μια πληρωμένη παράταση σε αυτό το διάστημα επαναφέρει την πρόσβαση από τη στιγμή της πληρωμής. Αν δεν παρατείνετε έως την προθεσμία ανάκτησης, ο ανακτήσιμος λογαριασμός και το περιεχόμενο αφαιρούνται οριστικά από το Wedding Waitress.`),
 };

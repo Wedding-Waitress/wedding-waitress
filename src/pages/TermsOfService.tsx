@@ -106,7 +106,7 @@ export const TermsOfService = () => {
                   <h4 className="font-bold text-foreground mb-2"><PublicCopy text={"2. Essential Plan"} /></h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground">
                     <li><PublicCopy text={"One-time payment"} /></li>
-                    <li><PublicCopy text={"Up to 100 guests"} /></li>
+                    <li><PublicCopy text={"Up to 150 guests"} /></li>
                     <li><PublicCopy text={"Access valid for 12 months"} /></li>
                     <li><PublicCopy text={"Includes full access to all wedding & event planning tools"} /></li>
                     <li><PublicCopy text={"Limited to 1 event"} /></li>
@@ -117,7 +117,7 @@ export const TermsOfService = () => {
                   <h4 className="font-bold text-foreground mb-2"><PublicCopy text={"3. Premium Plan"} /></h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground">
                     <li><PublicCopy text={"One-time payment"} /></li>
-                    <li><PublicCopy text={"Up to 200 guests"} /></li>
+                    <li><PublicCopy text={"Up to 250 guests"} /></li>
                     <li><PublicCopy text={"Access valid for 12 months"} /></li>
                     <li><PublicCopy text={"Includes full access to all wedding & event planning tools"} /></li>
                     <li><PublicCopy text={"Limited to 1 event"} /></li>
@@ -128,7 +128,7 @@ export const TermsOfService = () => {
                   <h4 className="font-bold text-foreground mb-2"><PublicCopy text={"4. Ultimate Plan"} /></h4>
                   <ul className="list-disc pl-6 space-y-1 text-sm text-muted-foreground">
                     <li><PublicCopy text={"One-time payment"} /></li>
-                    <li><PublicCopy text={"Up to 400 guests"} /></li>
+                    <li><PublicCopy text={"Up to 450 guests"} /></li>
                     <li><PublicCopy text={"Access valid for 12 months"} /></li>
                     <li><PublicCopy text={"Includes full access to all wedding & event planning tools"} /></li>
                     <li><PublicCopy text={"Limited to 1 event"} /></li>

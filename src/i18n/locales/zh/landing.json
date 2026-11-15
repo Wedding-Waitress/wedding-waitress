@@ -231,15 +231,15 @@
     "perMonth": "/月",
     "essential": {
       "name": "Essential",
-      "guests": "最多100位宾客 · 12个月访问"
+      "guests": "最多150位宾客 · 12个月访问"
     },
     "premium": {
       "name": "Premium",
-      "guests": "最多200位宾客 · 12个月访问"
+      "guests": "最多250位宾客 · 12个月访问"
     },
     "unlimited": {
       "name": "Unlimited",
-      "guests": "无限宾客 · 12个月访问"
+      "guests": "最多450位宾客 · 12个月使用权限"
     },
     "vendorPro": {
       "name": "Vendor Pro",
