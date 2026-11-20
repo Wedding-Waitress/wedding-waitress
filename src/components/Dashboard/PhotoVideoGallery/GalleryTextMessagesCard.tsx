@@ -10,8 +10,9 @@ import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@
 import { MessageSquareText, LoaderCircle, Search, CircleCheck, EyeOff, Download, RotateCcw, ChevronDown } from 'lucide-react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
+import { downloadGuestbookMessagePdf } from '@/lib/guestbookMessagePdf';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
-import { guestbookCsvFilename, guestbookMessageFilename, guestbookMessageTxt, guestbookSeqLabel } from '@/lib/guestbookFilename';
+import { guestbookCsvFilename, guestbookSeqLabel } from '@/lib/guestbookFilename';
 
 type Status = 'approved' | 'hidden';
 type Source = 'text' | 'recording';
@@ -31,6 +32,7 @@ interface Props {
   /** Existing gallery items — used only to surface written notes left with a recording. */
   items: GalleryItem[];
   eventName?: string | null;
+  eventDate?: string | null;
   /** Existing moderation handler for media items (recordings). */
   onSetItemModeration: (id: string, status: Status) => Promise<void>;
 }
@@ -45,7 +47,7 @@ function csvCell(v: string) {
   return `"${String(v ?? '').replace(/"/g, '""')}"`;
 }
 
-export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, eventName, onSetItemModeration }) => {
+export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, eventName, eventDate, onSetItemModeration }) => {
   const { toast } = useToast();
   const [textRows, setTextRows] = useState<Row[]>([]);
   const [loading, setLoading] = useState(false);
@@ -147,21 +149,18 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
     }
   };
 
-  const downloadTxt = (r: Row) => {
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const downloadPdf = async (r: Row) => {
+    if (pdfBusy) return;
+    setPdfBusy(true);
     try {
-      const body = guestbookMessageTxt(
-        { seq: r.seq, name: r.name, message: r.message, at: r.at, status: r.status, hasRecording: r.source === 'recording' },
-        eventName,
+      await downloadGuestbookMessagePdf(
+        { seq: r.seq, name: r.name, message: r.message, at: r.at, hasRecording: r.source === 'recording' },
+        { name: eventName, date: eventDate },
       );
-      const blob = new Blob(['\uFEFF' + body], { type: 'text/plain;charset=utf-8;' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = guestbookMessageFilename(r.seq, eventName);
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
     } catch (e: any) {
       toast({ title: 'Download failed', description: e?.message || 'Please try again.', variant: 'destructive' });
-    }
+    } finally { setPdfBusy(false); }
   };
 
   const exportCsv = () => {
@@ -335,7 +334,7 @@ export const GalleryTextMessagesCard: React.FC<Props> = ({ eventId, items, event
                           <p className="text-sm text-[#1D1D1F] whitespace-pre-wrap break-words">{r.message}</p>
                           <div className="flex flex-wrap items-center gap-2 mt-3">
                             {r.source === 'text' && (
-                              <Button size="sm" variant="outline" className="lv-premium-shade" title="Download message" aria-label="Download message" onClick={() => downloadTxt(r)}>
+                              <Button size="sm" variant="outline" className="lv-premium-shade" disabled={pdfBusy} title="Download message PDF" aria-label="Download message PDF" onClick={() => void downloadPdf(r)}>
                                 <Download className="h-4 w-4" strokeWidth={1.8} />
                               </Button>
                             )}

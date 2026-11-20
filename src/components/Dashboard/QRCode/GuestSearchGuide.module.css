@@ -1,0 +1,31 @@
+.panel { container-type: inline-size; }
+.layout { display: grid; gap: 22px; align-items: center; }
+.instructions { min-width: 0; }
+.instructions li { line-height: 1.65; }
+.previews { display: grid; grid-template-columns: repeat(2,minmax(0,1fr)); gap: 14px; width: 100%; max-width: 400px; justify-self: center; }
+.example { min-width: 0; margin: 0; }
+.phase { min-height: 30px; margin-bottom: 7px; color: #472c1d; font: 600 12px/16px Manrope,sans-serif; text-align: center; }
+.screen { padding: 7px; border: 1px solid #ab875b; border-radius: 12px; background: linear-gradient(155deg,#4a2b20,#24140f); box-shadow: 0 4px 10px #472c1d1a; }
+.tray { display: grid; grid-template-columns: repeat(4,minmax(0,1fr)); gap: 3px; margin-bottom: 7px; }
+.module { padding: 3px 1px; border: 1px solid #ad8c60; border-radius: 5px; background: linear-gradient(180deg,#f9ecd6,#e5cfaa); text-align: center; color: #21120b; font: 500 6.5px/9px Manrope,sans-serif; }
+.module svg { width: 10px; height: 10px; margin: 0 auto 2px; }
+.searchCard { min-height: 185px; padding: 9px 7px; color: #21120b; border: 1px solid #b89a70; border-radius: 9px; background: linear-gradient(180deg,#fff9f0,#f5eadb); }
+.heading { min-height: 49px; white-space: pre-line; text-align: center; font: 500 10px/14px Manrope,sans-serif; }
+.search { position: relative; display: flex; align-items: center; justify-content: center; min-height: 30px; padding: 5px 17px; border: 1px solid #b89a70; border-radius: 5px; color: #21120b; background: linear-gradient(180deg,#f6eddf,#ecddc7); font: 500 7.5px/12px Manrope,sans-serif; }
+.search svg { position: absolute; left: 5px; width: 9px; height: 9px; }
+.prompt { margin: 9px 0 7px; color: #594434; font: 400 10px/14px Manrope,sans-serif; text-align: center; }
+.choice { margin-top: 5px; padding: 5px 4px; border: 1px solid #ad8c60; border-radius: 5px; background: linear-gradient(180deg,#f9ecd6,#e5cfaa); box-shadow: inset 0 1px 0 #fff9ed; color: #21120b; font: 500 10px/14px Manrope,sans-serif; text-align: center; }
+.exampleNote { margin-top: 7px; color: #65503f; font: 500 10px/15px Manrope,sans-serif; text-align: center; }
+@container (min-width: 880px) { .layout { grid-template-columns: minmax(0,1fr) 400px; gap: 28px; } }
+@container (max-width: 365px) { .previews { grid-template-columns: minmax(0,220px); justify-content: center; } }
+
+.verification { margin-top: 8px; padding: 7px 5px; border: 1px solid #c6ad88; border-radius: 6px; background: #f1e5d3; color: #21120b; text-align: center; font: 400 8px/11px Manrope,sans-serif; }
+.verification > div + div { margin-top: 4px; }
+.verifyAction { padding: 5px 3px; border-radius: 20px; color: white; background: linear-gradient(180deg,#7bd880,#55a447); text-shadow: 0 1px 2px #0008; box-shadow: inset 0 1px 0 #ffffff80,0 2px 4px #426a2a30; font: 600 9px/12px Manrope,sans-serif; }
+
+.instructionPhase { margin-top: 13px; }
+.instructionPhase h5 { display: inline-block; max-width: 100%; margin: 0 0 8px; padding: 8px 12px; color: #2f1b14; border: 1px solid #2f1b14; border-radius: 0; background: transparent; font-size: 13px; font-weight: 600; line-height: 1.5; }
+.invitationNote { margin: 13px 0 0; color: #65503f; font-size: 12px; line-height: 1.5; }
+
+/* Match the approved QR Code Generator heading without changing that heading. */
+:global(#root#root) .instructions .title { margin: 0 0 12px; font-family: var(--ww-interface-font-family, Manrope, sans-serif) !important; font-size: 24px !important; font-weight: 600 !important; line-height: 31px !important; letter-spacing: normal !important; color: #2f1b14 !important; }

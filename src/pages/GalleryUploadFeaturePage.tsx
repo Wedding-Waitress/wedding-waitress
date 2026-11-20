@@ -77,7 +77,7 @@ export const GalleryUploadFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelec
             />
           </div>
 
-          <GalleryGuestbookMessagesCard streamlinedToolbar eventId={selectedEventId} items={items} eventName={selectedEvent?.name} loading={loading} error={error} onSetItemModeration={setModeration} onRefreshRecordings={refreshRecordings} appearance="espresso-glass" />
+          <GalleryGuestbookMessagesCard streamlinedToolbar eventId={selectedEventId} items={items} eventName={selectedEvent?.name} eventDate={selectedEvent?.date} loading={loading} error={error} onSetItemModeration={setModeration} onRefreshRecordings={refreshRecordings} appearance="espresso-glass" />
           <GalleryGrid
             items={publicItems}
             onDelete={deleteItem}

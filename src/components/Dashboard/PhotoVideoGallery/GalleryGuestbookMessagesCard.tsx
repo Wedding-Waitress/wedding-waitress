@@ -20,7 +20,8 @@ import { downloadSignedUrl, filenameFor } from './galleryFile';
 import { guestbookRecordings } from '@/lib/mediaPrivacy';
 import { GuestbookDownloadAllButton } from './GuestbookDownloadAllButton';
 
-import { guestbookCsvFilename, guestbookMessageFilename, guestbookMessageTxt, guestbookSeqLabel } from '@/lib/guestbookFilename';
+import { guestbookCsvFilename, guestbookSeqLabel } from '@/lib/guestbookFilename';
+import { downloadGuestbookMessagePdf } from '@/lib/guestbookMessagePdf';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 import { cn } from '@/lib/utils';
 import managementStyles from './photoVideoSharingManagement.module.css';
@@ -45,6 +46,7 @@ interface Props {
   /** All gallery items for the event (recordings are filtered internally). */
   items: GalleryItem[];
   eventName?: string | null;
+  eventDate?: string | null;
   loading?: boolean;
   error?: string | null;
   onSetItemModeration: (id: string, status: Status) => Promise<void>;
@@ -76,7 +78,7 @@ function csvCell(v: string) {
 const GRID = 'grid gap-3 grid-cols-1 min-[420px]:grid-cols-2 md:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8';
 
 export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
-  eventId, items, eventName, loading, error, onRefreshRecordings, appearance = 'default', streamlinedToolbar = false, readOnly = false, readOnlyTextRows, readOnlyRecordingPlayer,
+  eventId, items, eventName, eventDate, loading, error, onRefreshRecordings, appearance = 'default', streamlinedToolbar = false, readOnly = false, readOnlyTextRows, readOnlyRecordingPlayer,
 }) => {
   const isGlass = appearance === 'espresso-glass';
   const { toast } = useToast();
@@ -197,21 +199,18 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
     catch (e: any) { toast({ title: 'Download failed', description: e?.message || 'Please try again.', variant: 'destructive' }); }
   };
 
-  const downloadTxt = (r: TextRow) => {
+  const [pdfBusy, setPdfBusy] = useState(false);
+  const downloadPdf = async (r: TextRow) => {
+    if (pdfBusy) return;
+    setPdfBusy(true);
     try {
-      const body = guestbookMessageTxt(
-        { seq: r.seq, name: r.name, message: r.message, at: r.at, status: r.status, hasRecording: r.source === 'recording' },
-        eventName,
+      await downloadGuestbookMessagePdf(
+        { seq: r.seq, name: r.name, message: r.message, at: r.at, hasRecording: r.source === 'recording' },
+        { name: eventName, date: eventDate },
       );
-      const blob = new Blob(['\uFEFF' + body], { type: 'text/plain;charset=utf-8;' });
-      const a = document.createElement('a');
-      a.href = URL.createObjectURL(blob);
-      a.download = guestbookMessageFilename(r.seq, eventName);
-      a.click();
-      setTimeout(() => URL.revokeObjectURL(a.href), 2000);
     } catch (e: any) {
       toast({ title: 'Download failed', description: e?.message || 'Please try again.', variant: 'destructive' });
-    }
+    } finally { setPdfBusy(false); }
   };
 
   const exportCsv = () => {
@@ -456,7 +455,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
                   <div className="flex gap-1 pt-1 mt-auto">
 
                     {r.source === 'text' && (
-                      <Button size="sm" variant="outline" className={cn('lv-premium-shade h-8 px-2', isGlass && managementStyles.galleryControl)} title="Download message" aria-label="Download message" onClick={() => downloadTxt(r)}>
+                      <Button size="sm" variant="outline" className={cn('lv-premium-shade h-8 px-2', isGlass && managementStyles.galleryControl)} disabled={pdfBusy} title="Download message PDF" aria-label="Download message PDF" onClick={() => void downloadPdf(r)}>
                         <Download className="h-3.5 w-3.5" strokeWidth={1.8} />
                       </Button>
                     )}

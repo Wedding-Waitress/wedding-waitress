@@ -50,3 +50,11 @@ export function guestbookMessageTxt(
   ];
   return lines.join('\r\n');
 }
+
+/** PDF-only naming; keep CSV and legacy plain-text formats independent. */
+export function guestbookPdfFilename(seq: number | null | undefined, eventName: string | null | undefined, eventDate?: string | null): string {
+  const number = typeof seq === 'number' && Number.isFinite(seq) && seq > 0 ? String(Math.floor(seq)).padStart(2, '0') : null;
+  const date = eventDate?.match(/^(\d{4})-(\d{2})-(\d{2})(?:$|T)/);
+  const dateLabel = date ? `${date[3]}-${date[2]}-${date[1]}` : 'Date-not-set';
+  return `${number ? `${number}-` : ''}${safeEventName(eventName)}-${dateLabel}-Guestbook.pdf`;
+}

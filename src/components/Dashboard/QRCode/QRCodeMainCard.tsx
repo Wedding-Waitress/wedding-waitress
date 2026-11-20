@@ -43,6 +43,7 @@ import type { QRCodeSettings } from '@/hooks/useQRCodeSettings';
 import {qrPreviewSettings} from '@/lib/qrPreviewSettings';
 import {CUSTOMER_QR_PIXELS,downloadCustomerQrImage,createCustomerQrJPG,createCustomerQrSVG,createCustomerQrPDF,printCustomerQr} from '@/lib/qrCustomerExports';
 import styles from './QRCodeSeatingChart.module.css';
+import { GuestSearchGuide } from './GuestSearchGuide';
 interface QRCodeMainCardProps {
   eventId: string;
   event: Event;
@@ -823,15 +824,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           </div>
         </div>
 
-        <section aria-labelledby="qr-guest-guide-title" className="rounded-lg border border-border bg-muted/20 p-4 text-sm text-foreground">
-          <h4 id="qr-guest-guide-title" className="mb-2 font-semibold">Guest search &amp; seating</h4>
-          <ul className="list-disc space-y-1 pl-5 text-muted-foreground">
-            <li><strong>More than 7 days before your event date:</strong> Guests enter their full first and last name to update their details.</li>
-            <li><strong>7 days out from your event date:</strong> Guests only need to type the first 3 letters of their first name to see their name and other guest names matching those letters.</li>
-            <li>Tap <strong>Table</strong> to see assigned seats and tablemates.</li>
-            <li>Personal invitation links let guests update their own details.</li>
-          </ul>
-        </section>
+        <GuestSearchGuide />
 
         {/* Bottom Row: Guest Live View Configuration (Horizontal 2-column) */}
         <Card className={`${styles.configPanel} border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)] w-full`}>

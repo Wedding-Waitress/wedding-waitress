@@ -3,7 +3,7 @@ import { useEventMediaGallery } from '@/hooks/useEventMediaGallery';
 export type PhotoVideoWorkspaceStatus = 'loading' | 'empty' | 'selected';
 export type PhotoVideoWorkspaceSelection = {
   selectedEventId: string | null;
-  selectedEvent: { id: string; name?: string | null } | null;
+  selectedEvent: { id: string; name?: string | null; date?: string | null } | null;
   selectionStatus: PhotoVideoWorkspaceStatus;
 };
 
