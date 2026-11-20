@@ -1,0 +1,941 @@
+.page {
+  color: #2f1b14;
+  font-family: "Segoe UI", Arial, sans-serif;
+  font-size: 14px;
+  line-height: 1.55;
+  display: grid;
+  gap: 22px;
+  min-width: 0;
+}
+.page *,
+.dialog * {
+  box-sizing: border-box;
+}
+.page h1 {
+  font-size: 26px;
+  line-height: 1.25;
+  font-weight: 700;
+  margin: 0 0 5px;
+  color: #2f1b14;
+}
+.page h2 {
+  font-size: 22px;
+  line-height: 1.3;
+  font-weight: 700;
+  margin: 0 0 8px;
+  color: #2f1b14;
+}
+.page h3 {
+  font-size: 17px;
+  line-height: 1.35;
+  font-weight: 700;
+  margin: 0 0 9px;
+  color: #2f1b14;
+}
+.page p,
+.dialog p {
+  margin: 0 0 12px;
+  color: #6f5142;
+}
+.page small,
+.dialog small {
+  display: block;
+  color: #775e4f;
+  font-size: 12px;
+  line-height: 1.5;
+}
+.previewBanner {
+  display: flex;
+  align-items: flex-start;
+  gap: 10px;
+  padding: 12px 16px;
+  background: #f8efdc;
+  border: 1px solid #cbb18b;
+  color: #614831;
+  font-size: 12px;
+}
+.previewBanner svg {
+  flex-shrink: 0;
+  margin-top: 1px;
+}
+.header {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 24px;
+  background: #fffdf8;
+  border: 1px solid #cbb18b;
+  padding: 26px;
+  box-shadow: 0 9px 22px #5636220a;
+}
+.header p {
+  margin: 0;
+}
+.titleRow {
+  display: flex;
+  align-items: center;
+  gap: 14px;
+}
+.titleIcon {
+  display: grid;
+  place-items: center;
+  color: #947147;
+  border: 1px solid #d8c19d;
+  width: 48px;
+  height: 48px;
+  flex-shrink: 0;
+}
+.headerMeta {
+  display: grid;
+  gap: 7px;
+  font-size: 12px;
+  color: #76573f;
+}
+.headerMeta span {
+  display: flex;
+  align-items: center;
+  gap: 7px;
+}
+.tabs {
+  display: flex;
+  gap: 5px;
+  border-bottom: 1px solid #cbb18b;
+}
+.tabs button {
+  color: #775e4f;
+  padding: 12px 18px;
+  background: transparent;
+  border: 0;
+  border-bottom: 3px solid transparent;
+  font-weight: 600;
+  cursor: pointer;
+}
+.tabs [aria-current] {
+  border-bottom-color: #734c30;
+  color: #2f1b14;
+}
+.panel {
+  padding: 26px;
+  border: 1px solid #d2b891;
+  background: linear-gradient(140deg, #fffdf8, #fbf5ea);
+  box-shadow: 0 8px 22px #56362208;
+  min-width: 0;
+  scroll-margin-top: 18px;
+}
+.sectionHeading {
+  display: flex;
+  justify-content: space-between;
+  align-items: flex-start;
+  gap: 20px;
+  margin-bottom: 14px;
+}
+.sectionHeading p {
+  margin-bottom: 0;
+}
+.eyebrow {
+  display: block;
+  color: #947147;
+  text-transform: uppercase;
+  letter-spacing: 0.1em;
+  font-size: 10px;
+  font-weight: 700;
+  margin-bottom: 6px;
+}
+.quality {
+  border: 0;
+  padding: 0;
+  margin: 0;
+  flex-shrink: 0;
+}
+.quality legend {
+  font-size: 11px;
+  color: #775e4f;
+  margin-bottom: 6px;
+}
+.quality button {
+  background: #fffdf8;
+  border: 1px solid #cbb18b;
+  padding: 9px 12px;
+  cursor: pointer;
+  color: #604431;
+}
+.quality button + button {
+  border-left: 0;
+}
+.quality [aria-pressed="true"] {
+  background: #3c2419;
+  color: #fff7ea;
+}
+.packageGrid {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 14px;
+  margin-top: 24px;
+}
+.packageCard,
+.planningCard {
+  padding: 21px 17px;
+  border: 1px solid #d8c19d;
+  background: #fffdf8;
+  display: flex;
+  flex-direction: column;
+  min-width: 0;
+  position: relative;
+}
+.packageCard {
+  padding-top: 27px;
+}
+.packageCard p {
+  font-size: 12px;
+  min-height: 72px;
+}
+.packageCard h3 {
+  min-height: 46px;
+}
+.packageCard ul {
+  list-style: none;
+  margin: 12px 0 22px;
+  padding: 0;
+  font-size: 12px;
+  display: grid;
+  gap: 10px;
+  flex: 1;
+}
+.packageCard li {
+  display: flex;
+  align-items: flex-start;
+  gap: 7px;
+}
+.packageCard li svg {
+  flex-shrink: 0;
+  margin-top: 2px;
+  color: #6d8a53;
+}
+.featured {
+  border: 1px solid #957246;
+  background: linear-gradient(170deg, #fffdf8, #f2e5ce);
+  box-shadow: 0 5px 20px #62442212;
+}
+.cardLabel {
+  position: absolute;
+  top: -12px;
+  left: 10px;
+  right: 10px;
+  text-align: center;
+  background: #3c2419;
+  color: #fff4df;
+  font-size: 10px;
+  padding: 4px 6px;
+}
+.duration {
+  color: #947147;
+  font-size: 11px;
+  margin-bottom: 12px;
+}
+.price {
+  color: #382319;
+  font-size: 29px;
+  font-weight: 700;
+  margin: 5px 0 13px;
+}
+.price small {
+  display: inline;
+  font-size: 11px;
+  font-weight: 400;
+}
+.primary,
+.secondary {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 7px;
+  min-height: 40px;
+  padding: 10px 15px;
+  text-decoration: none;
+  cursor: pointer;
+  border: 1px solid transparent;
+  font:
+    600 12px/1.4 "Segoe UI",
+    Arial,
+    sans-serif;
+  text-align: center;
+  white-space: normal;
+  transition: filter 0.15s;
+}
+.primary {
+  color: #fff !important;
+  background: linear-gradient(180deg, #7bd880, #55a447);
+  box-shadow:
+    inset 0 1px 0 #ffffff80,
+    inset 0 -2px 0 #37652d66,
+    0 4px 10px #426a2a22;
+  text-shadow: 0 1px 2px #0007;
+}
+.primary svg {
+  color: #2f1b14;
+}
+.secondary {
+  color: #3c2419;
+  border-color: #bfa17a;
+  background: #fffaf1;
+  box-shadow: 0 2px 5px #5239250b;
+}
+.primary:hover,
+.secondary:hover {
+  filter: brightness(1.04);
+}
+.primary:disabled,
+.secondary:disabled {
+  opacity: 0.48;
+  cursor: not-allowed;
+  filter: grayscale(0.3);
+  box-shadow: none;
+}
+.page button:focus-visible,
+.page a:focus-visible,
+.dialog button:focus-visible {
+  outline: 2px solid #987040;
+  outline-offset: 3px;
+}
+.ruleStrip {
+  display: flex;
+  gap: 12px;
+  margin-top: 21px;
+  padding: 16px;
+  background: #f2e7d5;
+  font-size: 12px;
+}
+.ruleStrip svg {
+  flex-shrink: 0;
+  color: #987040;
+}
+.ruleStrip p {
+  margin: 0;
+}
+.page label,
+.dialog label {
+  display: grid;
+  gap: 6px;
+  font-size: 12px;
+  font-weight: 600;
+  color: #604431;
+}
+.page input,
+.page select,
+.dialog input {
+  width: 100%;
+  max-width: 100%;
+  min-width: 0;
+  padding: 10px 11px;
+  border: 1px solid #cbb18b;
+  border-radius: 0;
+  background: #fffaf2;
+  color: #3c2419;
+  font:
+    400 13px/1.45 "Segoe UI",
+    Arial,
+    sans-serif;
+}
+.page select {
+  max-width: 400px;
+}
+.page input:focus,
+.dialog input:focus {
+  outline: 2px solid #947147;
+  outline-offset: 1px;
+}
+.eventBar {
+  display: flex;
+  gap: 15px;
+  align-items: center;
+  justify-content: space-between;
+  padding: 16px 0;
+  border-bottom: 1px solid #dfccb0;
+}
+.eventBar p {
+  margin: 0;
+}
+.badge {
+  display: inline-flex;
+  padding: 6px 10px;
+  border: 1px solid #cbb18b;
+  background: #f6eddc;
+  font-size: 11px;
+  color: #725236;
+  text-align: center;
+}
+.stats {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 12px;
+  margin: 21px 0;
+}
+.stats > div {
+  display: flex;
+  flex-direction: column;
+  padding: 17px;
+  border: 1px solid #ddc7a7;
+  background: #fffaf1;
+  gap: 7px;
+  min-width: 0;
+}
+.stats svg {
+  width: 18px;
+  height: 18px;
+  color: #987040;
+}
+.stats span {
+  font-size: 11px;
+  color: #775e4f;
+}
+.stats strong {
+  font-size: 17px;
+  font-variant-numeric: tabular-nums;
+  overflow-wrap: anywhere;
+}
+.stats small {
+  font-size: 10px;
+}
+.progressLabel {
+  display: flex !important;
+  flex-wrap: wrap;
+  justify-content: space-between;
+}
+.progressLabel progress {
+  width: 100%;
+  height: 10px;
+  appearance: none;
+  accent-color: #74a85b;
+  border: 0;
+  background: #e8dac3;
+}
+.progressLabel progress::-webkit-progress-bar {
+  background: #e8dac3;
+}
+.progressLabel progress::-webkit-progress-value {
+  background: linear-gradient(90deg, #9bc67a, #619a4f);
+}
+.linkGrid {
+  display: grid;
+  grid-template-columns: 1fr 1fr;
+  gap: 18px;
+  margin-top: 26px;
+}
+.linkCard {
+  padding: 20px;
+  border: 1px solid #ddc7a7;
+  background: #fffcf6;
+  min-width: 0;
+}
+.linkCard p {
+  font-size: 12px;
+}
+.inlineHeading {
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  margin-bottom: 9px;
+}
+.inlineHeading svg {
+  color: #947147;
+}
+.inlineHeading h3 {
+  margin: 0;
+}
+.actions {
+  display: flex;
+  gap: 10px;
+  flex-wrap: wrap;
+  align-items: center;
+  margin: 15px 0;
+}
+.linkCard input {
+  font-size: 11px;
+}
+.linkCard small {
+  font-size: 10px;
+}
+.recording {
+  border: 1px solid #ddc7a7;
+  background: #f7eedf;
+  padding: 20px;
+  margin-top: 20px;
+}
+.recording > small {
+  margin-top: 12px;
+}
+.sessionList {
+  list-style: none;
+  margin: 15px 0;
+  padding: 0;
+}
+.sessionList li {
+  display: flex;
+  gap: 8px;
+  align-items: center;
+  padding: 9px 0;
+  border-bottom: 1px solid #e0cfb6;
+  font-size: 12px;
+}
+.sessionList strong {
+  margin-left: auto;
+}
+.steps {
+  display: grid;
+  grid-template-columns: repeat(3, minmax(0, 1fr));
+  gap: 25px;
+  margin-top: 20px;
+}
+.steps article > span {
+  width: 30px;
+  height: 30px;
+  display: grid;
+  place-items: center;
+  border: 1px solid #b8996e;
+  color: #88623e;
+  margin-bottom: 12px;
+}
+.steps p,
+.tips p {
+  font-size: 12px;
+}
+.tips {
+  display: grid;
+  grid-template-columns: repeat(4, minmax(0, 1fr));
+  gap: 23px;
+  margin: 23px 0 10px;
+}
+.tips svg {
+  color: #947147;
+  width: 25px;
+  margin-bottom: 11px;
+}
+.caption {
+  font-size: 11px !important;
+  line-height: 1.65;
+  color: #846954 !important;
+}
+.upgradePanel {
+  display: flex;
+  gap: 18px;
+  align-items: center;
+}
+.upgradePanel > svg {
+  flex-shrink: 0;
+  color: #947147;
+}
+.upgradePanel > div {
+  flex: 1;
+}
+.upgradePanel p {
+  margin: 0;
+}
+.upgradePanel h2 {
+  font-size: 19px;
+}
+.upgradePanel button {
+  flex-shrink: 0;
+}
+.notice {
+  display: flex;
+  gap: 10px;
+  padding: 12px 15px;
+  background: #eaf1df;
+  color: #476035;
+  border: 1px solid #becfa9;
+  font-size: 12px;
+}
+.notice button {
+  margin-left: auto;
+  border: 0;
+  background: none;
+  cursor: pointer;
+}
+.notice svg {
+  flex-shrink: 0;
+}
+.expiryNotice {
+  background: #fff0db;
+  border: 1px solid #d0a56c;
+  padding: 14px;
+  margin-top: 15px !important;
+}
+.empty,
+.unlock {
+  padding: 35px 20px;
+  text-align: center;
+  display: grid;
+  justify-items: center;
+  gap: 10px;
+}
+.empty > svg,
+.unlock > svg {
+  color: #947147;
+}
+.unlock label {
+  width: min(100%, 360px);
+  text-align: left;
+}
+.unlock button {
+  margin-top: 10px;
+}
+.videoPlaceholder {
+  min-height: 300px;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  padding: 30px;
+  text-align: center;
+  background: linear-gradient(145deg, #2f1b14, #150c08);
+  color: #dbc7a6;
+  margin: 20px 0;
+}
+.videoPlaceholder h3,
+.videoPlaceholder p {
+  color: #edddc4;
+}
+.videoPlaceholder svg {
+  margin-bottom: 18px;
+}
+.cameraBox {
+  position: relative;
+  background: #21140e;
+  aspect-ratio: 16/9;
+  max-height: 480px;
+  margin: 20px 0;
+  overflow: hidden;
+}
+.cameraBox video {
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+}
+.cameraBox > span {
+  position: absolute;
+  inset: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: center;
+  justify-content: center;
+  gap: 15px;
+  color: #dfcba9;
+}
+.backLink {
+  display: block;
+  margin-top: 24px;
+  color: #755035;
+}
+.previewTools {
+  margin-top: 20px;
+  border-top: 1px dashed #cbb18b;
+  padding-top: 15px;
+  font-size: 12px;
+}
+.previewTools summary {
+  cursor: pointer;
+  font-weight: 600;
+  color: #84623f;
+}
+.previewTools p {
+  margin: 12px 0;
+}
+.planningCard > strong {
+  font-size: 24px;
+  margin: 10px 0;
+}
+.planningCard p {
+  flex: 1;
+}
+.dialog {
+  max-width: 580px;
+  max-height: 90dvh;
+  overflow: auto;
+  color: #2f1b14;
+  background: #fffaf2;
+  border: 1px solid #cbb18b;
+  border-radius: 0;
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+.dialog form {
+  display: grid;
+  gap: 14px;
+}
+.dialog h2 {
+  font-size: 22px;
+}
+.orderSummary {
+  display: grid;
+  gap: 7px;
+  background: #f1e5d1;
+  padding: 16px;
+}
+.orderSummary > strong {
+  font-size: 23px;
+}
+.orderSummary > span {
+  font-size: 12px;
+}
+.orderSummary p {
+  font-size: 12px;
+  margin: 0;
+}
+.acknowledgement {
+  display: flex !important;
+  align-items: flex-start;
+  gap: 10px !important;
+}
+.acknowledgement input {
+  width: 17px;
+  height: 17px;
+  flex-shrink: 0;
+  margin-top: 3px;
+  accent-color: #6b944c;
+}
+.acknowledgement span {
+  font-size: 11px;
+  line-height: 1.65;
+}
+.upgradeRow {
+  display: flex;
+  justify-content: space-between;
+  align-items: center;
+  gap: 14px;
+  padding: 15px 0;
+  border-bottom: 1px solid #ddc7a7;
+  font-size: 13px;
+}
+.shell {
+  min-height: 100vh;
+  background: linear-gradient(150deg, #f5edde, #eadecb);
+  display: grid;
+  grid-template-columns: 254px minmax(0, 1fr);
+  font-family: "Segoe UI", Arial, sans-serif;
+}
+.sidebar {
+  background: linear-gradient(180deg, #180e09, #382116 55%, #130b07);
+  color: #eee1ce;
+  padding: 22px 8px;
+  display: flex;
+  flex-direction: column;
+  border-right: 1px solid #947147;
+}
+.sidebar > img {
+  width: 225px;
+  height: auto;
+  margin: 0 auto 45px;
+}
+.sidebar button {
+  border: 1px solid transparent;
+  background: transparent;
+  color: #eadbc7;
+  text-align: left;
+  display: flex;
+  gap: 9px;
+  align-items: center;
+  padding: 8px;
+  width: 100%;
+  font-size: 12px;
+  cursor: pointer;
+}
+.sidebar svg {
+  width: 17px;
+  height: 17px;
+  color: #c6a575;
+  flex-shrink: 0;
+}
+.sidebar button:disabled {
+  opacity: 0.38;
+  cursor: not-allowed;
+}
+.sidebar [aria-current="page"] {
+  border: 1px solid #bf9f76;
+  background: linear-gradient(180deg, #67432f, #332015);
+  color: #fff6e7;
+}
+.sidebar small {
+  margin: 25px 8px 12px;
+  color: #c7ac87;
+  font-size: 11px;
+}
+.sidebar label {
+  margin: 0 8px;
+  font-size: 11px;
+}
+.sidebar select {
+  width: 100%;
+  background: #342116;
+  color: #f6e7cc;
+  border: 1px solid #97754d;
+  padding: 8px;
+  margin-top: 7px;
+}
+.shellMain {
+  min-width: 0;
+  padding: 26px 30px;
+}
+.shellTop {
+  display: flex;
+  justify-content: space-between;
+  gap: 15px;
+  align-items: center;
+  margin-bottom: 20px;
+  font-size: 11px;
+  color: #886b50;
+}
+.shellTop a {
+  color: #755035;
+}
+.mobileNav {
+  display: none;
+}
+.shellFooter {
+  margin-top: auto;
+  padding: 25px 8px 4px;
+  color: #c7ac87;
+  font-size: 11px;
+}
+@media (min-width: 1800px) {
+  .shellMain {
+    padding: 35px 45px;
+  }
+  .page {
+    max-width: 1700px;
+    margin: auto;
+  }
+}
+@media (max-width: 1250px) {
+  .packageGrid,
+  .stats,
+  .tips {
+    grid-template-columns: repeat(2, minmax(0, 1fr));
+  }
+  .header {
+    align-items: flex-start;
+  }
+  .headerMeta {
+    display: none;
+  }
+  .sectionHeading {
+    flex-wrap: wrap;
+  }
+  .packageCard p,
+  .packageCard h3 {
+    min-height: 0;
+  }
+}
+@media (max-width: 850px) {
+  .shell {
+    grid-template-columns: 200px minmax(0, 1fr);
+  }
+  .sidebar > img {
+    width: 175px;
+  }
+  .shellMain {
+    padding: 20px 16px;
+  }
+  .linkGrid,
+  .steps {
+    grid-template-columns: 1fr;
+  }
+  .panel,
+  .header {
+    padding: 20px;
+  }
+  .upgradePanel {
+    flex-wrap: wrap;
+  }
+  .stats strong {
+    font-size: 15px;
+  }
+}
+@media (max-width: 600px) {
+  .shell {
+    display: block;
+  }
+  .sidebar {
+    display: none;
+  }
+  .mobileNav {
+    display: flex;
+  }
+  .shellMain {
+    padding: 14px 10px;
+  }
+  .page {
+    gap: 16px;
+  }
+  .page h1 {
+    font-size: 23px;
+  }
+  .page h2 {
+    font-size: 20px;
+  }
+  .header,
+  .panel {
+    padding: 17px 14px;
+  }
+  .titleIcon {
+    width: 36px;
+    height: 36px;
+  }
+  .titleRow {
+    gap: 10px;
+  }
+  .titleRow p {
+    font-size: 12px;
+  }
+  .packageGrid {
+    grid-template-columns: 1fr;
+    gap: 22px;
+  }
+  .stats {
+    gap: 8px;
+  }
+  .stats > div {
+    padding: 12px;
+  }
+  .stats strong {
+    font-size: 14px;
+  }
+  .stats small {
+    font-size: 10px;
+  }
+  .tips {
+    grid-template-columns: 1fr 1fr;
+    gap: 17px;
+  }
+  .eventBar {
+    flex-wrap: wrap;
+  }
+  .quality {
+    width: 100%;
+  }
+  .previewBanner {
+    padding: 10px;
+  }
+  .tabs button {
+    font-size: 12px;
+    padding: 10px;
+  }
+  .upgradePanel button {
+    width: 100%;
+  }
+  .dialog {
+    width: calc(100% - 24px);
+    padding: 20px;
+  }
+  .linkCard {
+    padding: 14px;
+  }
+  .actions > a,
+  .actions > button {
+    flex: 1;
+  }
+  .videoPlaceholder {
+    min-height: 220px;
+  }
+  .shellTop {
+    flex-wrap: wrap;
+  }
+}

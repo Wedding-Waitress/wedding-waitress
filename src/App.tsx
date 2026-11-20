@@ -23,6 +23,7 @@ import {
 const CeremonyFloorPlanShareView = lazy(() => import('./pages/CeremonyFloorPlanShareView'));
 const Landing = lazy(() => import("./pages/Landing").then(m => ({ default: m.Landing })));
 const NotFound = lazy(() => import("./pages/NotFound"));
+const LiveStreamingPreview = import.meta.env.DEV ? lazy(() => import('./pages/LiveStreamingPreview')) : null;
 const GuestMediaUpload = lazy(() => import("./pages/GuestMediaUpload").then(m => ({ default: m.GuestMediaUpload })));
 const GalleryLiveView = lazy(() => import("./pages/GalleryLiveView"));
 const GuestVideoWishes = lazy(loadVideoWishesRoute);
@@ -205,6 +206,7 @@ const App = () => {
           <GlobalPaymentOverlay />
           <Suspense fallback={<RouteFallback />}>
           <Routes>
+          {LiveStreamingPreview && <Route path="/dev/live-streaming" element={<LiveStreamingPreview />} />}
           <Route path="/gallery/:token" element={<GuestMediaUpload />} />
           <Route path="/gallery-live/:token" element={<GalleryLiveView />} />
           <Route path="/gallery/:token/slideshow" element={<GalleryLiveView />} />
