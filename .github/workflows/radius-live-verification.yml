@@ -15,6 +15,11 @@ jobs:
         with:
           persist-credentials: false
           fetch-depth: 10
+          filter: blob:none
+          sparse-checkout: |
+            /scripts/radius-live-verification/
+            /public/sitemap.xml
+          sparse-checkout-cone-mode: false
       - uses: actions/setup-node@v4
         with:
           node-version: '22'
@@ -28,34 +33,211 @@ jobs:
         uses: actions/download-artifact@v4
         with:
           name: radius-live-verification
-          run-id: 45266381510
+          run-id: 45269000134
           github-token: ${{ github.token }}
           path: ${{ runner.temp }}/radius-output
-      - name: Finish initial-load route snapshots
+      - name: Export production PDF - budget
+        if: ${{ !cancelled() }}
         env:
           WW_QA_ROOT: ${{ runner.temp }}/radius-output
           WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: budget
         shell: bash
         run: |
           set -euo pipefail
-          node scripts/radius-live-verification/routes-retry.mjs https://weddingwaitress.com.au live-retry 2>&1 | tee "$WW_QA_ROOT/routes-retry-final.log"
-      - name: Verify all original Signs pills and inline editors
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-budget-final.log"
+      - name: Export production PDF - qr
+        if: ${{ !cancelled() }}
         env:
           WW_QA_ROOT: ${{ runner.temp }}/radius-output
           WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: qr
         shell: bash
         run: |
           set -euo pipefail
-          node scripts/radius-live-verification/focused-states.mjs https://weddingwaitress.com.au live-retry 2>&1 | tee "$WW_QA_ROOT/focused-states-final.log"
-      - name: Download all twenty actual production PDFs
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-qr-final.log"
+      - name: Export production PDF - sign
+        if: ${{ !cancelled() }}
         env:
           WW_QA_ROOT: ${{ runner.temp }}/radius-output
           WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: sign
         shell: bash
         run: |
           set -euo pipefail
-          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/hosted-pdfs-final.log"
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-sign-final.log"
+      - name: Export production PDF - invitation
+        if: ${{ !cancelled() }}
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: invitation
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-invitation-final.log"
+      - name: Export production PDF - place-single
+        if: ${{ !cancelled() }}
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: place-single
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-place-single-final.log"
+      - name: Export production PDF - place-all
+        if: ${{ !cancelled() }}
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: place-all
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-place-all-final.log"
+      - name: Export production PDF - individual-single
+        if: ${{ !cancelled() }}
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: individual-single
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-individual-single-final.log"
+      - name: Export production PDF - individual-all
+        if: ${{ !cancelled() }}
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: individual-all
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-individual-all-final.log"
+      - name: Export production PDF - dietary-single
+        if: ${{ !cancelled() }}
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: dietary-single
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-dietary-single-final.log"
+      - name: Export production PDF - dietary-all
+        if: ${{ !cancelled() }}
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: dietary-all
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-dietary-all-final.log"
+      - name: Export production PDF - full-single
+        if: ${{ !cancelled() }}
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: full-single
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-full-single-final.log"
+      - name: Export production PDF - full-all
+        if: ${{ !cancelled() }}
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: full-all
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-full-all-final.log"
+      - name: Export production PDF - run-sheet
+        if: ${{ !cancelled() }}
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: run-sheet
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-run-sheet-final.log"
+      - name: Export production PDF - djmc
+        if: ${{ !cancelled() }}
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: djmc
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-djmc-final.log"
+      - name: Export production PDF - photo-group
+        if: ${{ !cancelled() }}
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: photo-group
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-photo-group-final.log"
+      - name: Export production PDF - guestbook
+        if: ${{ !cancelled() }}
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: guestbook
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-guestbook-final.log"
+      - name: Export production PDF - ceremony
+        if: ${{ !cancelled() }}
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: ceremony
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-ceremony-final.log"
+      - name: Export production PDF - reception
+        if: ${{ !cancelled() }}
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: reception
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-reception-final.log"
+      - name: Export production PDF - shared-run
+        if: ${{ !cancelled() }}
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: shared-run
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-shared-run-final.log"
+      - name: Export production PDF - shared-dj
+        if: ${{ !cancelled() }}
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+          WW_QA_EXPORT_CASE: shared-dj
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/pdf-shared-dj-final.log"
       - name: Verify both private organiser timing modes
+        if: ${{ !cancelled() }}
         env:
           WW_QA_ROOT: ${{ runner.temp }}/radius-output
           WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
@@ -64,6 +246,7 @@ jobs:
           set -euo pipefail
           node scripts/radius-live-verification/private.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/private-final.log"
       - name: Verify combined live results
+        if: ${{ !cancelled() }}
         env:
           WW_QA_ROOT: ${{ runner.temp }}/radius-output
           WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
