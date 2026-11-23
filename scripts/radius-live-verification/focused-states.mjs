@@ -1,3 +1,4 @@
+import {installStaticCache} from './staticCache.mjs';
 import {mkdirSync as prepareDirectory} from 'node:fs';prepareDirectory(process.env.WW_QA_ROOT+'/runtime/',{recursive:true});
 import assert from 'node:assert/strict';
 import fs from 'node:fs';import {createRequire} from 'node:module';const require=createRequire(import.meta.url);const {chromium}=require(process.env.WW_QA_PLAYWRIGHT_MODULE);
@@ -34,12 +35,12 @@ await context.route('**/rest/v1/rpc/**',async route=>{const name=new URL(route.r
 await context.route(/google-analytics|googletagmanager/,r=>r.abort());
 const rows=[];
 async function capture(label,width){const controls=await snapshot();rows.push({label,width,route:page.url(),controls,dialogs:await page.locator('[role="dialog"],[role="alertdialog"],[role="listbox"],[role="menu"]').count()});fs.writeFileSync(out+'/'+stage+'-focused-states.json',JSON.stringify({rows,errors},null,2));}
-const cases=[];
+await installStaticCache(context,page,'focused-retry');const cases=[];
 
 async function editorAndHistoryChecks(width){
  await page.goto(base+'/dashboard?tab=signage',{waitUntil:'domcontentloaded'});await page.getByRole('button',{name:'Undo',exact:true}).waitFor({timeout:20000});const undo=page.getByRole('button',{name:'Undo',exact:true});assert.equal(await undo.evaluate(n=>getComputedStyle(n).borderTopLeftRadius),'9999px');await capture('original Signs Undo pill including disabled',width);
  const text=page.getByRole('textbox',{name:'Seat text content',exact:true});await text.waitFor();if(await text.count()){await text.fill('YOUR SEAT TEST');await page.waitForFunction(()=>!document.querySelector('button[title="Undo last sign edit"]')?.disabled);if(await undo.isEnabled()){await undo.click();const redo=page.getByRole('button',{name:'Redo',exact:true});await redo.waitFor();assert.equal(await redo.evaluate(n=>getComputedStyle(n).borderTopLeftRadius),'9999px');await capture('original Signs Redo pill',width);}}
- for(const tab of ['running-sheet','dj-mc-questionnaire']){await page.goto(base+'/dashboard?tab='+tab,{waitUntil:'domcontentloaded'});await page.waitForTimeout(700);const field=tab==='running-sheet'?page.getByPlaceholder('Event',{exact:true}).first():page.locator('div.cursor-text').first();if(await field.count()){await field.click();await capture(tab+' inline editor',width);}const menu=page.getByRole('button',{name:'More actions',exact:true}).first();if(await menu.count()){await menu.click();await capture(tab+' row menu',width);}}
+ for(const tab of ['running-sheet','dj-mc-questionnaire']){await page.goto(base+'/dashboard?tab='+tab,{waitUntil:'domcontentloaded'});await page.waitForTimeout(2500);const field=tab==='running-sheet'?page.getByPlaceholder('Event',{exact:true}).first():page.locator('div.cursor-text').first();if(await field.count()){await field.click();await capture(tab+' inline editor',width);}const menu=page.getByRole('button',{name:'More actions',exact:true}).first();if(await menu.count()){await menu.click();await capture(tab+' row menu',width);}}
 }
 for(const width of [1440,768,390]){
  await page.setViewportSize({width,height:1000});

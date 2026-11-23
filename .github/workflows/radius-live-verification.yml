@@ -5,6 +5,7 @@ on:
   workflow_dispatch:
 permissions:
   contents: read
+  actions: read
 jobs:
   verify-live:
     runs-on: ubuntu-latest
@@ -23,18 +24,53 @@ jobs:
         run: |
           npm install --prefix "$RUNNER_TEMP/radius-playwright" --no-audit --no-fund playwright@1.62.1
           "$RUNNER_TEMP/radius-playwright/node_modules/.bin/playwright" install --with-deps chromium
-      - name: Verify real production domain with synthetic fixtures
+      - name: Retrieve completed responsive verification evidence
+        uses: actions/download-artifact@v4
+        with:
+          name: radius-live-verification
+          run-id: 45266381510
+          github-token: ${{ github.token }}
+          path: ${{ runner.temp }}/radius-output
+      - name: Finish initial-load route snapshots
         env:
           WW_QA_ROOT: ${{ runner.temp }}/radius-output
           WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
         shell: bash
         run: |
           set -euo pipefail
-          mkdir -p "$WW_QA_ROOT"
-          for check in routes eight-states focused-states hosted-pdfs private; do
-            node "scripts/radius-live-verification/$check.mjs" https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/$check.log"
-          done
-          node scripts/radius-live-verification/verify-results.mjs | tee "$WW_QA_ROOT/summary.log"
+          node scripts/radius-live-verification/routes-retry.mjs https://weddingwaitress.com.au live-retry 2>&1 | tee "$WW_QA_ROOT/routes-retry-final.log"
+      - name: Verify all original Signs pills and inline editors
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/focused-states.mjs https://weddingwaitress.com.au live-retry 2>&1 | tee "$WW_QA_ROOT/focused-states-final.log"
+      - name: Download all twenty actual production PDFs
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/hosted-pdfs.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/hosted-pdfs-final.log"
+      - name: Verify both private organiser timing modes
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/private.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/private-final.log"
+      - name: Verify combined live results
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+        shell: bash
+        run: |
+          set -euo pipefail
+          node scripts/radius-live-verification/verify-results.mjs https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/verify-results-final.log"
       - name: Preserve verification evidence
         if: always()
         uses: actions/upload-artifact@v4
