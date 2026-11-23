@@ -112,7 +112,7 @@ export const GuestProfileModal: React.FC<GuestProfileModalProps> = ({
 
   return (
     <Dialog open={isOpen} onOpenChange={onClose}>
-      <DialogContent className="ww-public-live-dialog sm:max-w-md max-lg:!fixed max-lg:!inset-0 max-lg:!h-[100dvh] max-lg:!max-h-[100dvh] max-lg:!w-full max-lg:!max-w-none max-lg:!translate-x-0 max-lg:!translate-y-0 max-lg:!transform-none max-lg:!rounded-none max-lg:!border-0 max-lg:!overflow-visible max-lg:flex max-lg:flex-col">
+      <DialogContent className="ww-public-live-dialog sm:max-w-md max-lg:!fixed max-lg:!inset-0 max-lg:!h-[100dvh] max-lg:!max-h-[100dvh] max-lg:!w-full max-lg:!max-w-none max-lg:!translate-x-0 max-lg:!translate-y-0 max-lg:!transform-none max-lg:!rounded-[8px] max-lg:!border-0 max-lg:!overflow-visible max-lg:flex max-lg:flex-col">
         <DialogHeader className="shrink-0">
           <DialogTitle className="flex items-center gap-2">
             <User className="w-5 h-5 text-primary" />

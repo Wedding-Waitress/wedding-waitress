@@ -72,7 +72,7 @@ const DialogContent = React.forwardRef<
         "max-md:fixed max-md:inset-0 max-md:top-0 max-md:left-0 max-md:right-0 max-md:bottom-0",
         "max-md:translate-x-0 max-md:translate-y-0",
         "max-md:w-full max-md:max-w-none max-md:h-[100dvh] max-md:max-h-[100dvh]",
-        "max-md:m-0 max-md:rounded-none max-md:border-0",
+        "max-md:m-0 max-md:rounded-[8px] max-md:border-0",
         "max-md:flex max-md:flex-col max-md:overflow-y-auto",
         "max-md:data-[state=open]:zoom-in-100 max-md:data-[state=closed]:zoom-out-100",
         "max-md:data-[state=open]:slide-in-from-bottom-2 max-md:data-[state=closed]:slide-out-to-bottom-2",

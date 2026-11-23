@@ -1614,7 +1614,7 @@
  .uploadManager {color:#000!important;-webkit-text-fill-color:currentColor!important;}
  .uploadManager > header h1 {color:#fff!important;-webkit-text-fill-color:#fff!important;}
  .uploadManager > header p {color:#fff!important;-webkit-text-fill-color:#fff!important;}
- .uploadManager :is(.glassCard,.galleryPanel,.videoWishesPanel) {background:#fbf8f1!important;border:1px solid #cdb99e!important;border-radius:0!important;color:#000!important;box-shadow:0 3px 12px #2f1b1412!important;}
+ .uploadManager :is(.glassCard,.galleryPanel,.videoWishesPanel) {background:#fbf8f1!important;border:1px solid #cdb99e!important;border-radius:8px!important;color:#000!important;box-shadow:0 3px 12px #2f1b1412!important;}
  .uploadManager :is(.glassCard,.galleryPanel,.videoWishesPanel) :is(h2,h3,h4),
  .uploadManager .galleryViewHeading {color:#2f1b14!important;-webkit-text-fill-color:#2f1b14!important;}
  .uploadManager .glassCard :is(p:not([class*="text-destructive"]),label),
@@ -1624,7 +1624,7 @@
  .uploadManager .glassCard :is(svg,svg *) {color:#806344!important;stroke:#806344!important;}
  .uploadManager .galleryWarmIcon {color:#806344!important;stroke:#806344!important;}
  .uploadManager :is(button.galleryControl,.upperGlassPill,header button) {
-  border:1px solid #806344!important;border-radius:0!important;
+  border:1px solid #806344!important;border-radius:8px!important;
   background:linear-gradient(180deg,#412419 0%,#2f1b14 48%,#23120d 100%)!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 -2px 0 rgba(0,0,0,.3)!important;
   color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px #0008;
@@ -1662,7 +1662,7 @@
  .uploadManager :global([data-booth-template-placeholder]):not(:has(img)) {
   background:linear-gradient(180deg,#412419 0%,#2f1b14 48%,#23120d 100%)!important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 -2px 0 rgba(0,0,0,.3)!important;
-  border-radius:0!important;color:#fff!important;-webkit-text-fill-color:#fff!important;
+  border-radius:8px!important;color:#fff!important;-webkit-text-fill-color:#fff!important;
  }
  .uploadManager .guestbookStepIcon :is(svg,svg *),
  .uploadManager :global([data-booth-template-placeholder]):not(:has(img)) :is(span,svg,svg *) {color:#fff!important;-webkit-text-fill-color:#fff!important;stroke:currentColor!important;}

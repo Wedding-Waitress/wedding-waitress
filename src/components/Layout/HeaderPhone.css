@@ -3,7 +3,7 @@
 .ww-public-phone-header button.ww-header-sign-in {
  display:inline-flex;align-items:center;justify-content:center;flex-shrink:0;
  min-height:44px;padding:7px 10px;border:1px solid var(--ww-espresso, #2b1711)!important;
- border-radius:0!important;background:transparent!important;background-image:none!important;
+ border-radius:8px!important;background:transparent!important;background-image:none!important;
  color:var(--ww-espresso, #2b1711)!important;-webkit-text-fill-color:currentColor;
  font:600 14px/1.2 var(--ww-interface-font-family, Manrope, sans-serif);
  text-decoration:none;white-space:nowrap;box-shadow:none!important;text-shadow:none!important;

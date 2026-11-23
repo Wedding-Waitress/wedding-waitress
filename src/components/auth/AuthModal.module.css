@@ -454,5 +454,5 @@
 }
 
 /* Account panels and rectangular form controls follow the approved square style. */
-.dialog, .input, .codeInput, .primaryButton { border-radius: 0 !important; }
+.dialog, .input, .codeInput, .primaryButton { border-radius: 8px !important; }
 

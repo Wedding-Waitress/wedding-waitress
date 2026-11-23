@@ -926,7 +926,7 @@
 /* Match the approved DJ/MC column header in owner and shared Run Sheets. */
 :global(#root#root) .page .columnHeader {
   border: 1px solid #d8bc91 !important;
-  border-radius: 0 !important;
+  border-radius: 8px !important;
   background: linear-gradient(180deg, #f1e1c9, #ead6b8) !important;
   box-shadow: none !important;
 }

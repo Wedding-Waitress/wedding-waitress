@@ -132,7 +132,7 @@
   font-weight: 700 !important;
 }
 :global(#root#root#root) .overview :is(.eventPanel,.eventField) {
-  border-radius: 0 !important;
+  border-radius: 8px !important;
 }
 :global(#root#root#root) .overview .pageHeader p {
   color: #000 !important;
@@ -144,6 +144,6 @@
 }
 .eventMenu.eventMenu,
 .eventMenu.eventMenu [role='option'] {
-  border-radius: 0 !important;
+  border-radius: 8px !important;
   font-family: 'Segoe UI', Arial, sans-serif !important;
 }

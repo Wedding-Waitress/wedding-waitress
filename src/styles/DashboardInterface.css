@@ -4,7 +4,7 @@
    Scope limits exclude artwork itself and its descendants. */
 @layer dashboard-interface {
   body[data-ww-dashboard-ui] [data-document-sharing] {
-    border-radius: 0 !important;
+    border-radius: 8px !important;
     font-family: 'Segoe UI', Arial, sans-serif !important;
     color: #000 !important;
     background: #fbf8f2 !important;
@@ -32,7 +32,7 @@
     }
 
     :is(div,section,article,header,fieldset,button,a,input,textarea,select,span,[role="dialog"],[role="alertdialog"],[role="combobox"],[role="menu"],[role="listbox"],[role="option"],[role="menuitem"]):not([role="switch"]):not([role="switch"] *):not([role="slider"]):not([role="slider"] *):not([role="progressbar"]):not([role="progressbar"] *):not([type="radio"]):not([type="checkbox"]):not([type="range"]):not([type="color"]):not([class*="avatar" i]):not([class*="avatar" i] *):not(span:has(> img)):not([class*="spinner" i]):not([class*="animate-spin"]):not([class*="loadingMark"]):not([data-radix-scroll-area-viewport]) {
-      border-radius: 0 !important;
+      border-radius: 8px !important;
     }
 
     :is(label,legend,th,[role="menuitem"],[role="option"]) {
@@ -167,8 +167,14 @@
     [class*="logout" i], [class*="logout" i] * { color: #f87171 !important; -webkit-text-fill-color: currentColor !important; }
     :is(button,a,[role="menuitem"],[data-sidebar="menu-badge"],span[class*="Badge"],span[class*="badge"]),
     :scope:where([data-dashboard-profile-menu]) {
-      border-radius: 0 !important;
+      border-radius: 8px !important;
     }
     :is(a,button,[role="menuitem"]) { font-weight: 600 !important; }
   }
+}
+
+/* Stacked alert/editor groups retain their flush shared edge. */
+@layer dashboard-interface {
+  body[data-ww-dashboard-ui] [class~="rounded-t-3xl"] { border-radius: 8px 8px 0 0 !important; }
+  body[data-ww-dashboard-ui] [class~="rounded-t-none"][class~="rounded-b-3xl"] { border-radius: 0 0 8px 8px !important; }
 }

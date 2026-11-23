@@ -100,7 +100,7 @@ export async function createGuestbookMessagePdf(message: GuestbookPdfMessage, ev
   for (let index = 0; index < pages.length; index++) {
     if (index) pdf.addPage();
     ctx.fillStyle = '#fcf9f3'; ctx.fillRect(0, 0, WIDTH, HEIGHT);
-    ctx.strokeStyle = '#967a59'; ctx.lineWidth = 0.8; ctx.strokeRect(38, 38, WIDTH - 76, HEIGHT - 76);
+    ctx.strokeStyle = '#967a59'; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.roundRect(38, 38, WIDTH - 76, HEIGHT - 76, 8); ctx.stroke();
     const rule = (at: number) => { ctx.beginPath(); ctx.moveTo(LEFT, at); ctx.lineTo(RIGHT, at); ctx.stroke(); };
     rule(80);
     ctx.fillStyle = '#000000'; ctx.textBaseline = 'top'; ctx.textAlign = 'center'; font(titleSize, 600);

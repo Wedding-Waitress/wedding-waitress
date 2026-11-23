@@ -1044,7 +1044,7 @@ body:has(.ww-pricing-page),
 }
 /* Square public content boxes and rectangular controls; retain circles and pills. */
 #root#root .ww-public :is(.ww-card, .ww-public-card, .ww-event-faq-panel, .ww-image-frame, .ww-media-card, .ww-home-experience-media, .ww-products-menu, .ww-events-menu, .ww-products-menu-cta),
-#root#root .ww-public [class*="rounded-"]:not([class*="rounded-full"]):not(.ww-icon-orb) { border-radius: 0 !important; }
+#root#root .ww-public [class*="rounded-"]:not([class*="rounded-full"]):not(.ww-icon-orb) { border-radius: 8px !important; }
 #root#root .ww-public :is(.ww-image-frame, .ww-media-card) img { border-radius: 0 !important; }
 /* Essential and Ultimate keep their current border widths. */
 #root#root .ww-public #pricing [data-public-pricing-card-grid] > article:not(.border-2),
@@ -1053,7 +1053,7 @@ body:has(.ww-pricing-page),
 .ww-public main:has(#event-products) .ww-section-espresso .ww-title { max-width: none; font-size: clamp(14px, 3.6vw, 48px); line-height: 1.2; }
 /* Public header dropdowns may render outside the page root. */
 body:has(.ww-public) :is(.ww-products-menu, .ww-events-menu, .ww-selector-menu, .ww-selector-item, .ww-products-menu-link),
-#root#root .ww-public .ww-event-faq-panel summary { border-radius: 0 !important; }
+#root#root .ww-public .ww-event-faq-panel summary { border-radius: 8px !important; }
 
 /* Public content boxes only: square, border-free surfaces with one soft shadow.
    Controls, links styled as buttons, inputs, icons and FAQ separators are excluded. */
@@ -1079,7 +1079,10 @@ body:has(.ww-public) :is(.ww-products-menu, .ww-events-menu, .ww-selector-menu, 
   main .not-prose.border
 ) {
   border-width: 0 !important;
-  border-radius: 0 !important;
+  border-radius: 8px !important;
   box-shadow: var(--ww-content-box-shadow) !important;
 }
 
+
+/* Media keeps the square geometry it had under the public interface rule. */
+#root#root .ww-public :is(img,video,canvas,svg,iframe)[class*="rounded-"]:not([class*="rounded-full"]):not(.ww-icon-orb) { border-radius: 0 !important; }

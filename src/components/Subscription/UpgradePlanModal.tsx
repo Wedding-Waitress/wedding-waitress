@@ -123,7 +123,7 @@ export const UpgradePlanModal: React.FC<Props> = ({ open, onOpenChange }) => {
     <>
       <Dialog open={open} onOpenChange={onOpenChange}>
         <DialogContent
-          className="sm:max-w-2xl max-h-[92vh] overflow-y-auto p-0 gap-0 max-lg:max-w-[100vw] max-lg:rounded-none"
+          className="sm:max-w-2xl max-h-[92vh] overflow-y-auto p-0 gap-0 max-lg:max-w-[100vw] max-lg:rounded-[8px]"
         >
           {/* Header — title centered (built-in DialogContent X handles close) */}
           <DialogHeader className="px-6 pt-12 pb-2 max-lg:px-4 max-lg:pt-12">

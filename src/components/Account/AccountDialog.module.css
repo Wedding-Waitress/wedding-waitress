@@ -41,7 +41,7 @@
 .primary:hover { filter:brightness(1.04); }
 .iconWrap { display: grid; width: 48px; height: 48px; place-items: center; margin-bottom: 12px; border: 1px solid #cdb99e; border-radius: 15px; color: #806344; background: #ede0d0; box-shadow: inset 0 1px rgba(255,255,255,.72); }
 .iconWrap svg { width: 23px; height: 23px; }
-@media (max-width: 767px) { .dialog { max-height: 100dvh; border-radius: 0 !important; padding: 24px 18px !important; } .actions { margin-top: auto; padding-top: 20px; } }
+@media (max-width: 767px) { .dialog { max-height: 100dvh; border-radius: 8px !important; padding: 24px 18px !important; } .actions { margin-top: auto; padding-top: 20px; } }
 @media (max-width: 479px) { .actions { flex-direction: column-reverse; } .actions button { width: 100%; } }
 @media (max-width: 479px) { .confirmActions { flex-direction: column; } }
 @media (prefers-reduced-motion: reduce) { .dialog, .dialog * { transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }

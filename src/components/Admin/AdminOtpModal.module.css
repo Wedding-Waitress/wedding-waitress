@@ -13,7 +13,7 @@
 .verify:hover:not(:disabled) { filter:brightness(1.04); }
 .resend:hover:not(:disabled),.return:hover { color:var(--dashboard-text); background:var(--dashboard-card-deep); }
 .verify:disabled,.resend:disabled,.code:disabled { opacity:.6; cursor:not-allowed; }
-@media(max-width:767px) { .dialog { max-width:none!important; border-radius:0!important; } }
+@media(max-width:767px) { .dialog { max-width:none!important; border-radius:8px!important; } }
 
 /* Keep the verification flow centred without changing its dimensions or close control. */
 .dialog .header { align-items:center; text-align:center; }

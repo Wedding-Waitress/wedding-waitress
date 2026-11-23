@@ -17,7 +17,7 @@
     flex:none;
     width:41px !important; min-width:41px !important; max-width:41px !important;
     height:36px !important; min-height:36px !important; max-height:36px !important;
-    margin:0 !important; padding:0 !important; border:0 !important; border-radius:0 !important;
+    margin:0 !important; padding:0 !important; border:0 !important; border-radius:8px !important;
     color:#fff !important; -webkit-text-fill-color:#fff !important;
   }
   .pair > button.edit {

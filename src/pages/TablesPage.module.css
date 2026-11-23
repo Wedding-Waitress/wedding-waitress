@@ -674,7 +674,7 @@
 .setupEventLabel svg { color:#806344; flex-shrink:0; }
 :global(#root#root#root) .mainSurface .page .setupEventSelector .eventField {
   width:clamp(16rem,24vw,24rem); max-width:100%; height:44px; padding:8px 12px;
-  border:1px solid #cdb99e !important; border-radius:0 !important;
+  border:1px solid #cdb99e !important; border-radius:8px !important;
   color:#000 !important; background:#f8f0e5 !important;
   font-family:'Segoe UI',Arial,sans-serif !important;
   font-size:13px !important; font-weight:600 !important;
@@ -699,6 +699,6 @@
 :global(#root#root#root) .mainSurface .page :global(button[data-table-head-arrange]) {
   background:linear-gradient(180deg,#412419 0%,#2f1b14 48%,#23120d 100%) !important;
   color:#fff !important; -webkit-text-fill-color:#fff !important;
-  border-radius:0 !important;
+  border-radius:8px !important;
   box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 -2px 0 rgba(0,0,0,.3),0 3px 8px rgba(35,18,13,.18) !important;
 }

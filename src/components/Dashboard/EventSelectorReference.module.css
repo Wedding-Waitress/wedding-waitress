@@ -11,7 +11,7 @@
   button.trigger {
     width:clamp(16rem,24vw,24rem) !important; max-width:100%; min-width:0;
     height:44px !important; min-height:44px !important; padding:8px 12px !important;
-    border:1px solid #cdb99e !important; border-radius:0 !important;
+    border:1px solid #cdb99e !important; border-radius:8px !important;
     color:#000 !important; -webkit-text-fill-color:#000 !important;
     background:#f8f0e5 !important;
     font-family:'Segoe UI',Arial,sans-serif !important; font-size:13px !important; font-weight:600 !important;

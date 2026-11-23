@@ -99,7 +99,7 @@
 @media (max-width: 88rem) { .budgetPanel { height: auto; grid-template-columns: minmax(0,1fr) auto; gap: .75rem; padding: calc(.8rem + 1px); }.summaryGrid { grid-column: 1/-1; grid-row: 2; min-height: 6.25rem; }.controls { grid-template-columns: repeat(2,minmax(0,1fr)); }.controls > .successButton { width: fit-content; } }
 @media (max-width: 70rem) { .budgetPanel { grid-template-columns: 1fr; }.summaryGrid { grid-column: 1; grid-row: auto; }.budgetEntry { justify-content: flex-start; flex-wrap: wrap; }.budgetFeedback { text-align: left; }.tableRegion { display: block; }.mobileExpenses { display: none; } }
 @media (max-width: 56rem) { .plannerHeading { align-items: flex-start; flex-direction: column; }.topActions { width: 100%; justify-content: flex-start; }.summaryGrid { grid-template-columns: repeat(2,minmax(0,1fr)); }.controls { grid-template-columns: 1fr; }.controls > .successButton { width: 100%; }.formGrid { grid-template-columns: 1fr; }.fullField { grid-column: auto; }.printDialogActions { position: static; justify-content: flex-start; } }
-@media (max-width: 44rem) { .planner { padding: .75rem; }.drawerForm { padding-inline: 1rem; }.drawerActions { margin-inline: -1rem; padding-inline: 1rem; }.drawerActions > button { width: 100%; }.topActions > button { flex: 1 1 auto; }.budgetEntry { display: grid; grid-template-columns: minmax(0,1fr); width: 100%; }.amountControl,.currencySelect,.budgetEntry .successButton { width: 100%; }.printDialog { width: 100vw !important; max-width: 100vw !important; height: 100dvh; border-radius: 0 !important; }.summaryCard strong { font-size: 15px; } }
+@media (max-width: 44rem) { .planner { padding: .75rem; }.drawerForm { padding-inline: 1rem; }.drawerActions { margin-inline: -1rem; padding-inline: 1rem; }.drawerActions > button { width: 100%; }.topActions > button { flex: 1 1 auto; }.budgetEntry { display: grid; grid-template-columns: minmax(0,1fr); width: 100%; }.amountControl,.currencySelect,.budgetEntry .successButton { width: 100%; }.printDialog { width: 100vw !important; max-width: 100vw !important; height: 100dvh; border-radius: 8px !important; }.summaryCard strong { font-size: 15px; } }
 @media (prefers-reduced-motion: reduce) { .planner * { scroll-behavior: auto !important; transition-duration: .01ms !important; animation-duration: .01ms !important; animation-iteration-count: 1 !important; } }
 
 .planner { padding-top:16px; }
@@ -218,7 +218,7 @@
 .summaryBudgetInput > input { width:100%; min-width:0; appearance:none; border:0; padding:0 0 1px .2rem; color:var(--dashboard-text); background:transparent; box-shadow:none; font-family:inherit; font-size:18px; font-weight:700; line-height:18px; outline:none; }
 :global(#root#root#root) .planner .summaryBudgetInput > input.borderlessBudgetInput {
  border:0 !important; border-width:0 !important; border-style:none !important; border-color:transparent !important;
- border-radius:0 !important; outline:none !important; box-shadow:none !important; appearance:none !important;
+ border-radius:8px !important; outline:none !important; box-shadow:none !important; appearance:none !important;
 }
 :global(#root#root#root) .planner .summaryBudgetInput > input.borderlessBudgetInput:focus,
 :global(#root#root#root) .planner .summaryBudgetInput > input.borderlessBudgetInput:focus-visible {
@@ -331,12 +331,12 @@ button.tableEditButton { font-size:14px !important; font-weight:600; }
 :global(#root#root#root) :is(.planner,.drawer,.confirmDialog) :is(button,input,select,textarea),
 :global(#root#root#root) :is(.successButton,.dangerButton,.secondaryButton,.editButton,.statusPill,.mobileExpenseCard,.formError),
 .mobileExpenseCard dl div {
-  border-radius: 0 !important;
+  border-radius: 8px !important;
 }
 /* Radix renders expense dialogs beside #root, so scope their controls directly. */
 .drawer.drawer,.confirmDialog.confirmDialog,
 :is(.drawer.drawer,.confirmDialog.confirmDialog) :is(button,input,select,textarea) {
-  border-radius: 0 !important;
+  border-radius: 8px !important;
 }
 :is(.drawer.drawer,.confirmDialog.confirmDialog) :is(h2,h3,p,label,button,input,select,textarea) {
   font-family: 'Segoe UI', Arial, sans-serif !important;
@@ -458,3 +458,9 @@ button.tableEditButton { font-size:14px !important; font-weight:600; }
 }
 .planner .budgetCopy:empty { display:none; }
 .planner .actionsColumn {width:6.5rem;}
+
+/* Joined currency prefix: only the field's exposed right corners are rounded. */
+@layer dashboard-interface {
+  .amountControl > span { border-radius: 8px 0 0 8px !important; }
+  .amountControl > input { border-radius: 0 8px 8px 0 !important; }
+}

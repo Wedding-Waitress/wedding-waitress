@@ -16,7 +16,7 @@
       font-family: 'Segoe UI', Arial, sans-serif !important;
     }
     :scope, :is(div,section,article,header,fieldset,button,input,textarea,select,a,span,[role="dialog"],[role="listbox"],[role="option"]) {
-      border-radius: 0 !important;
+      border-radius: 8px !important;
     }
     :is([role="switch"],[role="switch"] *,[role="slider"],[role="slider"] *,[type="radio"],[type="checkbox"],[class*="animate-spin"]) {
       border-radius: revert-layer !important;

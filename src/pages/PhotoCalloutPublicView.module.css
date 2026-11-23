@@ -1,6 +1,6 @@
 .header {gap:12px;}
 /* Square shared-page controls; the document uses its own authoritative CSS. */
-.header, .header button, .header [data-export-controls-panel] {border-radius:0!important;}
+.header, .header button, .header [data-export-controls-panel] {border-radius:8px!important;}
 .identity {min-width:0;}
 .title {display:flex;align-items:center;gap:8px;font-size:24px;line-height:32px;font-weight:600;color:#2f1b14;margin:0;}
 .eventName {font-size:18px;font-weight:600;line-height:26px;margin:4px 0 0;color:#2f1b14!important;}
