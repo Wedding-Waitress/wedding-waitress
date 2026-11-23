@@ -47,10 +47,12 @@ interface DragStateContextType {
   overTableId: string | null;
   isOverUnassigned: boolean;
   overGuestPosition: 'above' | 'below' | null;
+  preserveTableLayout: boolean;
 }
 
 const DragStateContext = createContext<DragStateContextType>({
   activeGuestId: null,
+  preserveTableLayout: false,
   overGuestId: null,
   overTableId: null,
   isOverUnassigned: false,
@@ -534,6 +536,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
   // Create drag state context value
   const dragStateValue: DragStateContextType = {
     activeGuestId: activeGuest?.id || null,
+    preserveTableLayout: !!activeGuest?.table_id && tables.some(table => table.id === activeGuest.table_id && table.table_purpose === 'head'),
     overGuestId,
     overTableId,
     isOverUnassigned,

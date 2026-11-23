@@ -7,7 +7,7 @@ import type { Event } from '@/hooks/useEvents';
 import { useInvitationCardSettings, CardType, QrConfig } from '@/hooks/useInvitationCardSettings';
 import { InvitationCardCustomizer, PRESET_ZONES, PRESET_Y_POSITIONS, PRESET_STYLES } from './InvitationCardCustomizer';
 import { InvitationCardPreview } from './InvitationCardPreview';
-import { Loader2, LoaderCircle, FileText, CalendarDays, Mail, MailOpen, CalendarHeart, HandHeart, BadgeCheck, Printer, Download, Plus, Copy, Trash2, Pencil } from 'lucide-react';
+import { Undo2, Redo2, Loader2, LoaderCircle, FileText, CalendarDays, Mail, MailOpen, CalendarHeart, HandHeart, BadgeCheck, Printer, Download, Plus, Copy, Trash2, Pencil } from 'lucide-react';
 import { Tabs, TabsList, TabsTrigger } from '@/components/ui/tabs';
 import { Button } from '@/components/ui/enhanced-button';
 import { generateInvitationQR } from '@/lib/invitationQR';
@@ -17,6 +17,7 @@ import { Input } from '@/components/ui/input';
 import { Label } from '@/components/ui/label';
 import { RadioGroup, RadioGroupItem } from '@/components/ui/radio-group';
 import styles from './InvitationsPage.module.css';
+import historyStyles from '../Signage/SignagePage.module.css';
 import { useSignageImageFit } from '../Signage/useSignageImageFit';
 import { INVITATION_CARD_SIZES, ALLOWED_INVITATION_SIZES, DEFAULT_INVITATION_SIZES, type InvitationCardSize } from '@/lib/invitationCardSizes';
 import {
@@ -67,7 +68,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
     duplicateArtwork,
     renameArtwork,
     loading: settingsLoading,
-    updateSettings,
+    updateSettings, canUndo, canRedo, undo, redo, breakHistoryGroup,
   } = useInvitationCardSettings(selectedEventId);
 
   const [activeCardType, setActiveCardType] = useState<CardType>('invitation');
@@ -273,7 +274,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
   }
 
   return (
-    <div {...(exporting ? { inert: "" } as any : {})} className={`${styles.page} space-y-6 ww-invitations-light`}>
+    <div onPointerDownCapture={breakHistoryGroup} onBlurCapture={breakHistoryGroup} {...(exporting ? { inert: "" } as any : {})} className={`${styles.page} space-y-6 ww-invitations-light`}>
       {imageFitDialog}
       {/* Combined Header Box */}
       <Card className={`${styles.headerPanel} border border-primary shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}>
@@ -567,6 +568,10 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
           <div className={`${styles.previewStage} ww-invitations-preview 2xl:col-span-3 w-full max-w-full mx-auto pb-6 max-sm:pb-2 max-sm:px-0 max-sm:overflow-x-auto max-sm:overflow-y-hidden md:max-2xl:overflow-hidden md:max-2xl:flex md:max-2xl:justify-center`}>
             <div className="w-full min-w-0">
             <div className="w-full min-w-0 mx-auto">
+            <div data-invitation-history-toolbar role="toolbar" aria-label="Card design history" className={historyStyles.historyToolbar}>
+              <button type="button" className={historyStyles.historyButton} disabled={!canUndo || exporting} onClick={() => { setSelectedZoneId(null); void undo(); }} title="Undo last card edit"><Undo2 size={17} strokeWidth={1.8} aria-hidden="true" /><span>Undo</span></button>
+              {canRedo && <button type="button" className={historyStyles.historyButton} disabled={exporting} onClick={() => { setSelectedZoneId(null); void redo(); }} title="Redo card edit"><Redo2 size={17} strokeWidth={1.8} aria-hidden="true" /><span>Redo</span></button>}
+            </div>
             <InvitationCardPreview
               documentRef={previewDocumentRef}
               documentId="invitation-card"
@@ -583,7 +588,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                 const newZones = (activeArtwork?.text_zones || []).map(z =>
                   z.id === zoneId ? { ...z, ...updates } : z
                 );
-                updateSettings({ text_zones: newZones });
+                updateSettings({ text_zones: newZones }, { historyGroup: false });
               }}
               onZoneDelete={(zoneId) => {
                 const newZones = (activeArtwork?.text_zones || []).filter(z => z.id !== zoneId);
@@ -633,7 +638,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
               qrDataUrl={qrDataUrl}
               onQrConfigUpdate={(updates) => {
                 const current = activeArtwork?.qr_config || { enabled: false, x_percent: 50, y_percent: 90, size_percent: 15, rotation: 0, event_id: null };
-                updateSettings({ qr_config: { ...current, ...updates } });
+                updateSettings({ qr_config: { ...current, ...updates } }, { historyGroup: false });
               }}
             />
             </div>

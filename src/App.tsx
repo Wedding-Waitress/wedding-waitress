@@ -1,3 +1,4 @@
+import { flags } from '@/lib/featureFlags';
 import { useEffect, lazy, Suspense } from "react";
 import { loadVideoWishesRoute } from '@/lib/guestRoutePreload';
 import "./App.css";
@@ -23,7 +24,7 @@ import {
 const CeremonyFloorPlanShareView = lazy(() => import('./pages/CeremonyFloorPlanShareView'));
 const Landing = lazy(() => import("./pages/Landing").then(m => ({ default: m.Landing })));
 const NotFound = lazy(() => import("./pages/NotFound"));
-const LiveStreamingPreview = import.meta.env.DEV ? lazy(() => import('./pages/LiveStreamingPreview')) : null;
+const LiveStreamingPreview = import.meta.env.DEV && flags.liveStreamingPreview ? lazy(() => import('./pages/LiveStreamingPreview')) : null;
 const GuestMediaUpload = lazy(() => import("./pages/GuestMediaUpload").then(m => ({ default: m.GuestMediaUpload })));
 const GalleryLiveView = lazy(() => import("./pages/GalleryLiveView"));
 const GuestVideoWishes = lazy(loadVideoWishesRoute);
@@ -35,6 +36,7 @@ const Account = lazy(() => loadAccountRoute().then(m => ({ default: m.Account })
 const AccountRecovery = lazy(() => import("./pages/AccountRecovery"));
 const AcceptTeamInvitation = lazy(() => import("./pages/AcceptTeamInvitation").then(m => ({ default: m.AcceptTeamInvitation })));
 const Admin = lazy(() => loadAdminRoute().then(m => ({ default: m.Admin })));
+const OrganiserGuestPreview = lazy(() => import('./pages/OrganiserGuestPreview'));
 const GuestLookup = lazy(() => import("./pages/GuestLookup").then(m => ({ default: m.GuestLookup })));
 const LiveSlideshowView = lazy(() => import("./pages/LiveSlideshowView").then(m => ({ default: m.LiveSlideshowView })));
 const ResetPassword = lazy(() => import("./pages/ResetPassword").then(m => ({ default: m.ResetPassword })));
@@ -171,6 +173,7 @@ const RouteTracker = () => {
   const location = useLocation();
   useEffect(() => {
     const w = window as Window & { gtag?: (...args: unknown[]) => void };
+    if (location.pathname.startsWith('/organiser-preview/')) return;
     if (typeof w.gtag === 'function') {
       w.gtag('event', 'page_view', {
         page_path: getAnalyticsPagePath(location.pathname, location.search),
@@ -206,7 +209,7 @@ const App = () => {
           <GlobalPaymentOverlay />
           <Suspense fallback={<RouteFallback />}>
           <Routes>
-          {LiveStreamingPreview && <Route path="/dev/live-streaming" element={<LiveStreamingPreview />} />}
+          {import.meta.env.DEV && <Route path="/dev/live-streaming" element={LiveStreamingPreview ? <LiveStreamingPreview /> : <Navigate to="/dashboard?tab=dashboard" replace />} />}
           <Route path="/gallery/:token" element={<GuestMediaUpload />} />
           <Route path="/gallery-live/:token" element={<GalleryLiveView />} />
           <Route path="/gallery/:token/slideshow" element={<GalleryLiveView />} />
@@ -219,6 +222,7 @@ const App = () => {
           <Route path="/" element={<Landing />} />
           <Route element={<AuthenticatedRouteScope />}>
             <Route path="/onboarding/event-setup" element={<GuidedEventSetup />} />
+            <Route path="/organiser-preview/:eventId/:previewMode" element={<OrganiserGuestPreview />} />
             <Route path="/dashboard/*" element={<Dashboard />} />
             <Route path="/account/:section?" element={<Account />} />
             <Route path="/admin/:section?" element={<Admin />} />

@@ -52,6 +52,7 @@ import { FullSeatingChartPreview, type FullSeatingChartPreviewHandle } from './F
 import { FullSeatingChartCustomizer } from './FullSeatingChartCustomizer';
 
 import styles from './FullSeatingChartPage.module.css';
+import { sortFullSeatingGuests } from '@/lib/fullSeatingChartSort';
 
 interface FullSeatingChartPageProps {
   selectedEventId: string | null;
@@ -191,58 +192,10 @@ export const FullSeatingChartPage: React.FC<FullSeatingChartPageProps> = ({
   };
 
   // Sort guests based on selected sort option from settings
-  const sortedGuests = React.useMemo(() => {
-    return [...resolvedGuests].sort((a, b) => {
-      if (settings.sortBy === 'firstName') {
-        const nameA = `${a.first_name} ${a.last_name || ''}`.trim();
-        const nameB = `${b.first_name} ${b.last_name || ''}`.trim();
-        return nameA.localeCompare(nameB);
-      } else if (settings.sortBy === 'lastName') {
-        const lastNameA = (a.last_name || '').trim();
-        const lastNameB = (b.last_name || '').trim();
-        const firstNameA = (a.first_name || '').trim();
-        const firstNameB = (b.first_name || '').trim();
-        // Guests without a last name go AFTER guests with a real last name
-        if (!lastNameA && lastNameB) return 1;
-        if (lastNameA && !lastNameB) return -1;
-        const cmp = lastNameA.localeCompare(lastNameB, undefined, { sensitivity: 'base', numeric: true });
-        if (cmp !== 0) return cmp;
-        return firstNameA.localeCompare(firstNameB, undefined, { sensitivity: 'base', numeric: true });
-      } else {
-        // sortBy === 'tableNo' — Named tables first (alphabetically), then numbered tables (numerically), then unassigned
-        const tableNameA = a.table_no != null ? tableNameMap[a.table_no] : (a.table_id ? tableIdNameMap[a.table_id] : null);
-        const tableNameB = b.table_no != null ? tableNameMap[b.table_no] : (b.table_id ? tableIdNameMap[b.table_id] : null);
-        const isNamedA = tableNameA ? !tableNameA.startsWith('Table ') : false;
-        const isNamedB = tableNameB ? !tableNameB.startsWith('Table ') : false;
-        const hasTableA = a.table_no != null || a.table_id != null;
-        const hasTableB = b.table_no != null || b.table_id != null;
-
-        // Unassigned goes last
-        if (!hasTableA && hasTableB) return 1;
-        if (hasTableA && !hasTableB) return -1;
-        if (!hasTableA && !hasTableB) return a.first_name.localeCompare(b.first_name);
-
-        // Named tables come before numbered tables
-        if (isNamedA && !isNamedB) return -1;
-        if (!isNamedA && isNamedB) return 1;
-
-        // Both named: alphabetical
-        if (isNamedA && isNamedB) {
-          const cmp = tableNameA!.localeCompare(tableNameB!);
-          if (cmp !== 0) return cmp;
-          return a.first_name.localeCompare(b.first_name);
-        }
-
-        // Both numbered: numeric
-        const tableA = a.table_no || 0;
-        const tableB = b.table_no || 0;
-        if (tableA === tableB) {
-          return a.first_name.localeCompare(b.first_name);
-        }
-        return tableA - tableB;
-      }
-    });
-  }, [resolvedGuests, settings.sortBy, tableNameMap, tableIdNameMap]);
+  const sortedGuests = React.useMemo(
+    () => sortFullSeatingGuests(resolvedGuests, tables, settings.sortBy, selectedEventId || undefined),
+    [resolvedGuests, tables, settings.sortBy, selectedEventId]
+  );
 
   const exportContextKey = JSON.stringify([selectedEvent, settings, sortedGuests, tableNameMap, tableIdNameMap]);
   const currentExportContext = useRef(exportContextKey);

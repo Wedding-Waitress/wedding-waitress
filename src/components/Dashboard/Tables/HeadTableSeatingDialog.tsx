@@ -5,7 +5,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
 import type { Guest } from '@/hooks/useGuests';
 import type { TableWithGuestCount } from '@/hooks/useTables';
-import { defaultHeadSeatingOrder, getHeadParticipantName, type HeadSeatEntry } from '@/lib/headTable';
+import { defaultHeadSeatingOrder, getHeadParticipantName, resolveHeadParticipantGuests, type HeadSeatEntry } from '@/lib/headTable';
 
 interface Props {
   open: boolean;
@@ -38,9 +38,18 @@ export const HeadTableSeatingDialog: React.FC<Props> = ({
   }, [open, table.head_seating_order]);
 
   const guestById = useMemo(() => new Map(guests.map((guest) => [guest.id, guest])), [guests]);
-  const usedGuestIds = new Set(order.flatMap((entry) => entry.kind === 'guest' ? [entry.guest_id] : []));
+  const participantGuests = resolveHeadParticipantGuests(table, guests, participant1, participant2);
+  const resolvedKey = (entry: HeadSeatEntry) => entry.kind === 'participant' && participantGuests[entry.participant]
+    ? 'guest:' + participantGuests[entry.participant]!.id : entryKey(entry);
+  const participantEntries = defaultHeadSeatingOrder(participant1, participant2).flatMap((entry): HeadSeatEntry[] => {
+    if (entry.kind !== 'participant') return [entry];
+    const guest = participantGuests[entry.participant];
+    if (guest?.table_id && guest.table_id !== table.id) return [];
+    return [guest ? { kind: 'guest', guest_id: guest.id } : entry];
+  });
+  const usedGuestIds = new Set(order.flatMap((entry) => entry.kind === 'guest' ? [entry.guest_id] : participantGuests[entry.participant] ? [participantGuests[entry.participant]!.id] : []));
   const availableGuests = guests.filter((guest) =>
-    !usedGuestIds.has(guest.id) && (guest.table_id === null || guest.table_id === table.id)
+    guest.event_id === table.event_id && (!table.user_id || guest.user_id === table.user_id) && !usedGuestIds.has(guest.id) && (guest.table_id === null || guest.table_id === table.id)
   );
 
   const labelFor = (entry: HeadSeatEntry) => entry.kind === 'participant'
@@ -55,8 +64,8 @@ export const HeadTableSeatingDialog: React.FC<Props> = ({
     setOrder(next);
   };
 
-  const missingParticipants = defaultHeadSeatingOrder(participant1, participant2).filter(entry =>
-    !order.some(existing => entryKey(existing) === entryKey(entry))
+  const missingParticipants = participantEntries.filter(entry =>
+    !order.some(existing => resolvedKey(existing) === resolvedKey(entry))
   );
   const addParticipant = (entry: HeadSeatEntry) => {
     setOrder(current => current.length >= table.limit_seats || current.some(existing => entryKey(existing) === entryKey(entry))
@@ -72,8 +81,8 @@ export const HeadTableSeatingDialog: React.FC<Props> = ({
   };
 
   const swapHosts = () => {
-    const first = order.findIndex((entry) => entry.kind === 'participant' && entry.participant === 'primary_1');
-    const second = order.findIndex((entry) => entry.kind === 'participant' && entry.participant === 'primary_2');
+    const first = order.findIndex((entry) => resolvedKey(entry) === resolvedKey({ kind: 'participant', participant: 'primary_1' }));
+    const second = order.findIndex((entry) => resolvedKey(entry) === resolvedKey({ kind: 'participant', participant: 'primary_2' }));
     if (first < 0 || second < 0) return;
     const next = [...order];
     [next[first], next[second]] = [next[second], next[first]];

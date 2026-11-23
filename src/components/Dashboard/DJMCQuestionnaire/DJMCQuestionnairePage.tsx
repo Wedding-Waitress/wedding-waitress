@@ -91,11 +91,12 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
     refreshShareTokens,
     calculateProgress,
     prepareUndo,
+    restoreLocalTextUndo,
     refetch,
   } = useDJMCQuestionnaire(selectedEventId);
 
   const undoHistory=useDJMCUndo({questionnaireId:questionnaire?.id,eventId:selectedEventId||undefined,
-    sections:questionnaire?.sections||[],beforeRestore:prepareUndo,refresh:refetch});
+    sections:questionnaire?.sections||[],beforeRestore:prepareUndo,refresh:refetch,restoreLocal:restoreLocalTextUndo});
   const selectedEvent = events.find(e => e.id === selectedEventId);
   const progress = calculateProgress();
 

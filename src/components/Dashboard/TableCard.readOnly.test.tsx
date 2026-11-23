@@ -25,8 +25,8 @@ describe('saved readonly table cards', () => {
     expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
   });
   it('preserves recorded head-table occupants while excluding the seating dialog', () => {
-    render(<TableCard readOnly table={{ ...table, table_purpose: 'head', head_seating_order: [{ kind: 'guest', guest_id: 'second' }] }} guests={guests} eventId="event" onEdit={vi.fn()} onDelete={vi.fn()} onSaveHeadSeating={vi.fn()} />);
-    expect(screen.getByText('Élodie O’Connor')).toBeInTheDocument();
+    render(<TableCard readOnly table={{ ...table, table_purpose: 'head', head_seating_order: [{ kind: 'guest', guest_id: 'second' }] }} guests={guests.filter(guest => guest.id === 'second')} eventId="event" onEdit={vi.fn()} onDelete={vi.fn()} onSaveHeadSeating={vi.fn()} />);
+    expect(screen.getByText('Élodie O’Connor (Seat 2)')).toBeInTheDocument();
     expect(screen.getByText('1 occupied · 3 available')).toBeInTheDocument();
     expect(screen.getByRole('button', { name: 'Arrange Head Table Seating' })).toBeDisabled();
   });

@@ -38,3 +38,31 @@ it('restores a deleted guest song request from the same top Undo control',async(
  await act(async()=>{await result.current.undo()});
  expect(mocks.requests).toHaveBeenCalledWith('event',requests);expect(result.current.canUndo).toBe(false);
 });
+
+it('undoes five typed characters one at a time while each restore is saved and refreshed',async()=>{
+ let sections=structuredClone(original);sections[0].items[0].value_text='';sections[0].items[0].pronunciation_audio_path=null;
+ saved=structuredClone(sections);
+ const beforeRestore=vi.fn().mockResolvedValue(undefined), refresh=vi.fn();
+ const h=renderHook(({rows})=>useDJMCUndo({questionnaireId:'q',eventId:'event',sections:rows,beforeRestore,refresh}),{initialProps:{rows:sections}});
+ mocks.save.mockImplementation(async(_id,rows)=>{saved=structuredClone(rows)});
+ for(const text of ['A','AB','ABC','ABCD','ABCDE']){
+  act(()=>h.result.current.record(()=>{sections=structuredClone(sections);sections[0].items[0].value_text=text;}));
+  h.rerender({rows:sections});
+ }
+ for(const text of ['ABCD','ABC','AB','A','']){
+  await act(async()=>{await h.result.current.undo()});
+  expect(saved[0].items[0].value_text).toBe(text);
+  sections=structuredClone(saved);h.rerender({rows:sections});
+ }
+ expect(beforeRestore).toHaveBeenCalledTimes(5);expect(refresh).toHaveBeenCalledTimes(5);expect(h.result.current.canUndo).toBe(false);
+});
+
+it('applies rapid text Undos immediately with no busy state, refetch or network restore',async()=>{
+ let sections=structuredClone(original);sections[0].items[0].value_text='';
+ const apply=vi.fn(()=>true),refresh=vi.fn(),beforeRestore=vi.fn();
+ const h=renderHook(({rows})=>useDJMCUndo({questionnaireId:'q',eventId:'event',sections:rows,beforeRestore,refresh,restoreLocal:apply}),{initialProps:{rows:sections}});
+ for(const text of ['A','AB','ABC','ABCD','ABCDE']){act(()=>h.result.current.record(()=>{}));sections=structuredClone(sections);sections[0].items[0].value_text=text;h.rerender({rows:sections});}
+ act(()=>{for(let n=0;n<5;n++)void h.result.current.undo()});
+ expect(apply.mock.calls.map(([rows]:any)=>rows[0].items[0].value_text)).toEqual(['ABCD','ABC','AB','A','']);
+ expect(h.result.current.busy).toBe(false);expect(h.result.current.canUndo).toBe(false);expect(h.result.current.revision).toBe(0);expect(beforeRestore).not.toHaveBeenCalled();expect(refresh).not.toHaveBeenCalled();expect(mocks.save).not.toHaveBeenCalled();
+});

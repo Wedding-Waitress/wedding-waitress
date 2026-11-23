@@ -299,3 +299,8 @@ it('retains the Welcome summary and uses the section header to reopen after Clos
  localStorage.setItem('ww-guest-verification:event',JSON.stringify({token:'a'.repeat(64),expiresAt:Date.now()+3600000}));mount();await search('Nader Elalfy');await screen.findByTestId('editor');expect(screen.getByText('Nader Elalfy')).toBeInTheDocument();expect(screen.queryByRole('button',{name:'Update My Details'})).not.toBeInTheDocument();
  fireEvent.click(screen.getByRole('button',{name:'Close Editor'}));expect(screen.queryByTestId('editor')).not.toBeInTheDocument();expect(screen.getByRole('textbox')).toHaveValue('Nader Elalfy');expect(screen.queryByRole('button',{name:'Update My Details'})).not.toBeInTheDocument();fireEvent.click(screen.getByRole('button',{name:'Update Your Information'}));expect(await screen.findByTestId('editor')).toBeInTheDocument();expect(screen.getByText('Nader Elalfy')).toBeInTheDocument();
 });
+
+it('ignores forged organiser/preview query flags on the public guest URL',async()=>{
+ mount('?preview=seating&organiser=true&mode=seating');await search('Nader Elalfy');
+ expect(await screen.findByRole('button',{name:'Text me a code'})).toBeVisible();expect(screen.queryByText(/Simulation only/)).toBeNull();expect(invoke).not.toHaveBeenCalled();
+});

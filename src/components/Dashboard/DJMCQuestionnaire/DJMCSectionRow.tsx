@@ -230,7 +230,7 @@ export function DJMCSectionRow({
               aria-label={item.row_label || "Song 1"}
               ref={labelInputRef}
               value={localLabel}
-              onChange={(e) => setLocalLabel(e.target.value)}
+              onChange={(e) => { setLocalLabel(e.target.value); onUpdate({ row_label: e.target.value }); }}
               onBlur={handleLabelBlur}
               onKeyDown={handleLabelKeyDown}
               placeholder="Song 1"
@@ -257,7 +257,7 @@ export function DJMCSectionRow({
               aria-label={(item.row_label || "Song 1") + " — Names / Info"}
               ref={valueInputRef}
               value={localValue}
-              onChange={(e) => setLocalValue(e.target.value)}
+              onChange={(e) => { setLocalValue(e.target.value); onUpdate({ value_text: e.target.value || null }); }}
               onBlur={handleValueBlur}
               onKeyDown={handleValueKeyDown}
               placeholder="Enter song name..."
@@ -395,7 +395,7 @@ export function DJMCSectionRow({
               aria-label={item.row_label || "Song 1"}
               ref={labelInputRef}
               value={localLabel}
-              onChange={(e) => setLocalLabel(e.target.value)}
+              onChange={(e) => { setLocalLabel(e.target.value); onUpdate({ row_label: e.target.value }); }}
               onBlur={handleLabelBlur}
               onKeyDown={handleLabelKeyDown}
               className="h-8 text-sm"
@@ -424,7 +424,7 @@ export function DJMCSectionRow({
               aria-label={item.row_label || "Song 1"}
               ref={labelInputRef}
               value={localLabel}
-              onChange={(e) => setLocalLabel(e.target.value)}
+              onChange={(e) => { setLocalLabel(e.target.value); onUpdate({ row_label: e.target.value }); }}
               onBlur={handleLabelBlur}
               onKeyDown={handleLabelKeyDown}
               className="h-8 text-sm"
@@ -452,7 +452,7 @@ export function DJMCSectionRow({
               aria-label={item.row_label || "Song 1"}
               ref={labelInputRef}
               value={localLabel}
-              onChange={(e) => setLocalLabel(e.target.value)}
+              onChange={(e) => { setLocalLabel(e.target.value); onUpdate({ row_label: e.target.value }); }}
               onBlur={handleLabelBlur}
               onKeyDown={handleLabelKeyDown}
               className="h-8 text-sm"
@@ -483,7 +483,7 @@ export function DJMCSectionRow({
               aria-label={(item.row_label || "Song 1") + " — Names / Info"}
               ref={valueInputRef}
               value={localValue}
-              onChange={(e) => setLocalValue(e.target.value)}
+              onChange={(e) => { setLocalValue(e.target.value); onUpdate({ value_text: e.target.value || null }); }}
               onBlur={handleValueBlur}
               onKeyDown={handleValueKeyDown}
               placeholder="Enter speaker's name..."
@@ -513,7 +513,7 @@ export function DJMCSectionRow({
               aria-label={(item.row_label || "Song 1") + " — Names / Info"}
                 ref={valueInputRef}
                 value={localValue}
-                onChange={(e) => setLocalValue(e.target.value)}
+                onChange={(e) => { setLocalValue(e.target.value); onUpdate({ value_text: e.target.value || null }); }}
                 onBlur={handleValueBlur}
                 onKeyDown={handleValueKeyDown}
                 placeholder="Enter names..."
@@ -555,7 +555,7 @@ export function DJMCSectionRow({
               aria-label={(item.row_label || "Song 1") + " — Song Title & Artist"}
               ref={songTitleArtistInputRef}
               value={localSongTitleArtist}
-              onChange={(e) => setLocalSongTitleArtist(e.target.value)}
+              onChange={(e) => { setLocalSongTitleArtist(e.target.value); onUpdate({ song_title_artist: e.target.value || null }); }}
               onBlur={() => {
                 setEditingSongTitleArtist(false);
                 if (localSongTitleArtist !== (item.song_title_artist || '')) {
@@ -602,7 +602,7 @@ export function DJMCSectionRow({
               aria-label={(item.row_label || "Song 1") + " — Names / Info"}
                 ref={valueInputRef}
                 value={localValue}
-                onChange={(e) => setLocalValue(e.target.value)}
+                onChange={(e) => { setLocalValue(e.target.value); onUpdate({ value_text: e.target.value || null }); }}
                 onBlur={handleValueBlur}
                 onKeyDown={handleValueKeyDown}
                 placeholder="Enter dedication or details..."
@@ -627,7 +627,7 @@ export function DJMCSectionRow({
               aria-label={(item.row_label || "Song 1") + " — Names / Info"}
                 ref={valueInputRef}
                 value={localValue}
-                onChange={(e) => setLocalValue(e.target.value)}
+                onChange={(e) => { setLocalValue(e.target.value); onUpdate({ value_text: e.target.value || null }); }}
                 onBlur={handleValueBlur}
                 onKeyDown={handleValueKeyDown}
                 placeholder="Enter names or details..."
@@ -674,7 +674,7 @@ export function DJMCSectionRow({
               aria-label={(item.row_label || "Song 1") + " — Names / Info"}
               ref={valueInputRef}
               value={localValue}
-              onChange={(e) => setLocalValue(e.target.value)}
+              onChange={(e) => { setLocalValue(e.target.value); onUpdate({ value_text: e.target.value || null }); }}
               onBlur={handleValueBlur}
               onKeyDown={handleValueKeyDown}
               placeholder="Enter dedication or details..."
@@ -704,7 +704,7 @@ export function DJMCSectionRow({
               aria-label={(item.row_label || "Song 1") + " — Song Title & Artist"}
                 ref={songTitleArtistInputRef}
                 value={localSongTitleArtist}
-                onChange={(e) => setLocalSongTitleArtist(e.target.value)}
+                onChange={(e) => { setLocalSongTitleArtist(e.target.value); onUpdate({ song_title_artist: e.target.value || null }); }}
                 onBlur={() => {
                   setEditingSongTitleArtist(false);
                   if (localSongTitleArtist !== (item.song_title_artist || '')) {

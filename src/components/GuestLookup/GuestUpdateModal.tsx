@@ -17,7 +17,7 @@ import { normalizeRsvp } from '@/lib/rsvp';
 import { GuestRelationField } from './GuestRelationField';
 import { GuestAdditionalFields, AdditionalGuestDraft } from './GuestAdditionalFields';
 import { GuestDietarySelect } from './GuestDietarySelect';
-import { supabase } from '@/integrations/supabase/client';
+import {useGuestExperienceClient,useGuestExperiencePreview} from '@/contexts/GuestExperiencePreviewContext';
 import { useToast } from '@/hooks/use-toast';
 import { Loader2 } from 'lucide-react';
 import { usePublicRsvpImmediateSaveCopy } from '@/i18n/usePublicRsvpImmediateSaveCopy';
@@ -106,6 +106,8 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   onDirtyChange,
   accessToken,
 }) => {
+  const preview=useGuestExperiencePreview();
+  const supabase=useGuestExperienceClient();
   const isMobile = useIsMobile();
   const immediateSaveCopy = usePublicRsvpImmediateSaveCopy();
   const familyCopy = usePublicFamilyDetailsCopy();
@@ -255,6 +257,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   };
 
   const handleRecipientRsvp = async (member: Guest, nextRsvp: 'Attending' | 'Not Attending') => {
+    if (preview) return;
     const previousRsvp = normalizeRsvp(partyRsvps[member.id] ?? member.rsvp);
 
     if (!immediateRsvp) {
@@ -295,6 +298,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
   };
 
   const handleSave = async (confirmed = false, switchTo?: string) => {
+    if (preview) return;
     if (!guest || !context?.can_edit) return;
     if ((!editOnUpdate || editorVisible) && context.allow_name_edit && (!formData.first_name.trim() || !formData.last_name.trim())) {
       toast({title:'First and last name are required',variant:'destructive'});return;
@@ -501,12 +505,12 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
                 </div>
                 <div className={styles.memberActionRow}>
 
-                  {allowRsvp && <><Button type="button" aria-pressed={status === 'Attending'} disabled={!context.can_rsvp || isSavingMember}
+                  {allowRsvp && <><Button type="button" aria-pressed={status === 'Attending'} disabled={!!preview || !context.can_rsvp || isSavingMember}
                     className={`w-full bg-green-500 text-white ${styles.actionButton} ${styles.saveButton}`}
                     onClick={() => handleRecipientRsvp(member, 'Attending')}>
                     <Smile aria-hidden="true" className="shrink-0 text-white" />Accept
                   </Button>
-                  <Button type="button" variant="destructive" aria-pressed={status === 'Not Attending'} disabled={!context.can_rsvp || isSavingMember}
+                  <Button type="button" variant="destructive" aria-pressed={status === 'Not Attending'} disabled={!!preview || !context.can_rsvp || isSavingMember}
                     className={`w-full bg-red-500 text-white ${styles.actionButton} ${styles.cancelButton}`}
                     onClick={() => handleRecipientRsvp(member, 'Not Attending')}>
                     <Frown aria-hidden="true" className="shrink-0 text-white" />Decline
@@ -556,7 +560,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
       <GuestRelationField context={context} value={relation} onChange={setRelation}/>
       <div className="space-y-2">
         <Label htmlFor="dietary">Dietary Requirements</Label>
-        <GuestDietarySelect id="dietary" value={formData.dietary} onChange={dietary=>setFormData({...formData,dietary})} disabled={!isEditable}/>
+        <GuestDietarySelect id="dietary" value={formData.dietary} onChange={dietary=>setFormData({...formData,dietary})} disabled={!!preview || !isEditable}/>
       </div>
 
           </div>
@@ -663,14 +667,14 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
             <Label htmlFor="first_name">First Name *</Label>
             <Input id="first_name" type="text" required maxLength={100} value={formData.first_name}
               onChange={(e) => setFormData({ ...formData, first_name: e.target.value })}
-              disabled={!isEditable}
+              disabled={!!preview || !isEditable}
               className="border-primary w-full" />
           </div>
           <div className="space-y-2">
             <Label htmlFor="last_name">Last Name *</Label>
             <Input id="last_name" type="text" required maxLength={100} value={formData.last_name}
               onChange={(e) => setFormData({ ...formData, last_name: e.target.value })}
-              disabled={!isEditable}
+              disabled={!!preview || !isEditable}
               className="border-primary w-full" />
           </div>
         </div>
@@ -680,14 +684,14 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
         <Label htmlFor="email">Email Address</Label>
         <Input id="email" type="email" value={formData.email}
           onChange={(e) => setFormData({ ...formData, email: e.target.value })}
-          placeholder="Enter your email address" disabled={!isEditable}
+          placeholder="Enter your email address" disabled={!!preview || !isEditable}
           className="border-primary w-full" />
       </div>
       <div className="space-y-2">
         <Label htmlFor="mobile">Mobile Number</Label>
         <Input id="mobile" type="tel" value={formData.mobile}
           onChange={(e) => setFormData({ ...formData, mobile: e.target.value })}
-          placeholder="0411569505" disabled={!isEditable}
+          placeholder="0411569505" disabled={!!preview || !isEditable}
           className="border-primary w-full" />
       </div>
       </div>
@@ -695,7 +699,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
       <GuestRelationField context={context} value={relation} onChange={setRelation}/>
       <div className="space-y-2">
         <Label htmlFor="dietary">Dietary Requirements</Label>
-        <GuestDietarySelect id="dietary" value={formData.dietary} onChange={dietary=>setFormData({...formData,dietary})} disabled={!isEditable}/>
+        <GuestDietarySelect id="dietary" value={formData.dietary} onChange={dietary=>setFormData({...formData,dietary})} disabled={!!preview || !isEditable}/>
       </div>
       </>}
       {event?.collect_guest_addresses && (
@@ -705,7 +709,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
               <Label htmlFor="mailing_address">Mailing Address</Label>
               <Input id="mailing_address" type="text" value={formData.mailing_address}
                 onChange={(e) => setFormData({ ...formData, mailing_address: e.target.value })}
-                placeholder="14 Somerville Road" disabled={!isEditable}
+                placeholder="14 Somerville Road" disabled={!!preview || !isEditable}
                 maxLength={200}
                 className="border-primary w-full" />
             </div>
@@ -713,7 +717,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
               <Label htmlFor="mailing_suburb">Suburb</Label>
               <Input id="mailing_suburb" type="text" value={formData.mailing_suburb}
                 onChange={(e) => setFormData({ ...formData, mailing_suburb: e.target.value })}
-                placeholder="Sunshine West" disabled={!isEditable}
+                placeholder="Sunshine West" disabled={!!preview || !isEditable}
                 maxLength={100}
                 className="border-primary w-full" />
             </div>
@@ -723,7 +727,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
               <Label htmlFor="mailing_state">State</Label>
               <Input id="mailing_state" type="text" value={formData.mailing_state}
                 onChange={(e) => setFormData({ ...formData, mailing_state: e.target.value })}
-                placeholder="VIC" disabled={!isEditable}
+                placeholder="VIC" disabled={!!preview || !isEditable}
                 maxLength={100}
                 className="border-primary w-full" />
             </div>
@@ -731,7 +735,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
               <Label htmlFor="mailing_postcode">Postcode</Label>
               <Input id="mailing_postcode" type="text" inputMode="numeric" value={formData.mailing_postcode}
                 onChange={(e) => setFormData({ ...formData, mailing_postcode: e.target.value })}
-                placeholder="3020" disabled={!isEditable}
+                placeholder="3020" disabled={!!preview || !isEditable}
                 maxLength={20}
                 className="border-primary w-full" />
             </div>
@@ -788,7 +792,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
           <Textarea id="notes" value={formData.notes}
             onChange={(e) => setFormData({ ...formData, notes: e.target.value })}
             placeholder="Any special requests, allergies, or additional information..."
-            rows={3} disabled={!isEditable} className="border-primary w-full" />
+            rows={3} disabled={!!preview || !isEditable} className="border-primary w-full" />
         </div>
       )}
       </>}
@@ -824,7 +828,7 @@ export const GuestUpdateModal: React.FC<GuestUpdateModalProps> = ({
       </AlertDialog>
 
       {isEditable && (
-        <Button onClick={()=>handleSave()} disabled={saving || !context?.can_edit || (!accessToken && !context?.is_manager && !hasInvitedParty && canChangeRsvp && currentRsvp !== 'Attending')}
+        <Button onClick={()=>handleSave()} disabled={!!preview || saving || !context?.can_edit || (!accessToken && !context?.is_manager && !hasInvitedParty && canChangeRsvp && currentRsvp !== 'Attending')}
           className={`flex-1 bg-green-500 text-white ${styles.actionButton} ${styles.saveButton} ${styles.footerButton}`}>
           {saving ? <Loader2 className="mr-2 animate-spin text-white" /> : <Smile aria-hidden="true" className="mr-2 shrink-0 text-white" />}
           {detailsCopy.save}

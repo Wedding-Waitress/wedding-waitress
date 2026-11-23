@@ -1,0 +1,13 @@
+# Couple guest and Head Table reconciliation
+
+Guided Setup previously created unassigned couple guests while reserving primary participant entries in the Head Table order. The existing seating RPC only assigns entries of kind guest, so occupancy included people without corresponding guest seating. Relationship Settings supplied the display names but did not link those two representations.
+
+The local fix resolves existing event/owner scoped guests by stable wedding or engagement setup origin, with a unique normalized full-name fallback for manually configured relationships. It replaces existing participant reservations with guest references through the existing transactional seating RPC. It creates no extra people and does not change table capacity. New Guided Setups reconcile before completion; the dashboard reconciles older events when Tables or Guest List loads. Relationship Settings updates are included through the selected event's current saved names.
+
+Automatic reconciliation refuses ambiguous identities, malformed orders, occupants omitted from the saved order, or any change that would renumber an existing seated person. It never moves a guest from another table or recreates deliberately removed participants. The seating dialog recognises linked guests as the hosts, so swap and add controls do not duplicate them. No schema or RLS changes are needed.
+
+Validation includes persistence through the seating RPC, concurrent duplicate requests, retries, no-op repeated runs, account and event isolation, same-name relatives, preserved occupied seats, couple-only and larger bridal-party tables, Guided Setup completion and dialog behavior. The reported event was repaired through its existing seating operation. The groom is in seat 1, bride in seat 2 and the existing child remains in seat 3. Transactional assertions verified every other guest's seating and all unrelated guest rows were unchanged, including a different guest with the same full name as the groom. A read-only aggregate found four events with the unlinked guided-reservation pattern before this targeted repair; no other event was modified.
+
+This is local source work; production frontend publication requires the owner's release approval. The existing Live Streaming archive remains disabled.
+
+A second screenshot case was initially inspected read-only. After the owner explicitly included it in the immediate repair, its two existing guided couple records were linked to their reserved centered positions (3 and 4) on the existing six-seat Head Table. Capacity remains six with two occupied and four available; Pending RSVP is preserved. Transactional assertions verified no other guest rows changed. Events with no semantic Head Table remain unchanged.

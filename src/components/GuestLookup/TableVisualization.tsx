@@ -2,7 +2,7 @@ import React, { useEffect, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Users, MapPin, Utensils } from 'lucide-react';
-import { supabase } from '@/integrations/supabase/client';
+import {useGuestExperienceClient,useGuestExperiencePreview} from '@/contexts/GuestExperiencePreviewContext';
 import { normalizeRsvp } from '@/lib/rsvp';
 import { getHeadParticipantName, parseHeadSeatingOrder, type HeadSeatEntry, type TablePurpose } from '@/lib/headTable';
 
@@ -45,6 +45,7 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
   onTableReady,
   eventId
 }) => {
+  const supabase=useGuestExperienceClient();
   const [tableData, setTableData] = useState<TableData | null>(null);
   const [loading, setLoading] = useState(true);
 

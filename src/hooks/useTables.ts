@@ -17,6 +17,8 @@ import {notifyTrialTableLimit}from'@/lib/trialUpgrade';
  */
 
 import { useState, useEffect } from 'react';
+import { headTableNameForEvent } from '@/lib/headTableNames';
+import { prepareHeadParticipantOrder } from '@/lib/prepareHeadParticipants';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
@@ -144,6 +146,7 @@ export const useTables = (eventId: string | null) => {
         .from('tables')
         .insert({
           ...tableData,
+          name: tableData.table_purpose === 'head' ? await headTableNameForEvent(eventId, tableData.name) : tableData.name,
           table_type: tableData.table_purpose === 'head' ? 'long' : tableData.table_type,
           event_id: eventId,
           user_id: (await supabase.auth.getUser()).data.user?.id
@@ -153,6 +156,13 @@ export const useTables = (eventId: string | null) => {
 
       if (error) throw error;
 
+      if (tableData.table_purpose === 'head' && tableData.head_seating_order?.length) {
+        const order = await prepareHeadParticipantOrder(eventId, data.id, tableData.head_seating_order);
+        const result = await (supabase.rpc as any)('save_head_table_seating', { p_table_id: data.id, p_order: order });
+        if (result.error) throw result.error;
+        const assigned = order.flatMap(entry => entry.kind === 'guest' ? [entry.guest_id] : []);
+        if (assigned.length) { const update = await supabase.from('guests').update({ assigned: true }).eq('event_id', eventId).eq('table_id', data.id).in('id', assigned); if (update.error) throw update.error; }
+      }
       await fetchTables();
       toast({
         title: "Success",
@@ -207,6 +217,10 @@ export const useTables = (eventId: string | null) => {
     try {
       let nextOrder = tableData.head_seating_order ?? [];
       const currentTable = tables.find((table) => table.id === tableId);
+      if (tableData.table_purpose === 'head' && nextOrder.some(entry => (entry.seat_no ?? 0) > tableData.limit_seats)) {
+        toast({ title: 'Existing seat exceeds the new capacity', description: 'Move guests into lower seat numbers before reducing the Head Table capacity.', variant: 'destructive' });
+        return false;
+      }
       if (tableData.table_purpose === 'head' && currentTable?.table_purpose !== 'head') {
         const { data: assignedGuests, error: guestError } = await supabase
           .from('guests')
@@ -226,6 +240,7 @@ export const useTables = (eventId: string | null) => {
         .from('tables')
         .update({
           ...tableData,
+          name: tableData.table_purpose === 'head' ? await headTableNameForEvent(eventId, tableData.name) : tableData.name,
           limit_seats: tableData.table_purpose === 'head'
             ? Math.max(tableData.limit_seats, nextOrder.length)
             : tableData.limit_seats,
@@ -236,10 +251,10 @@ export const useTables = (eventId: string | null) => {
 
       if (error) throw error;
 
-      if (tableData.table_purpose === 'head' && nextOrder.length > 0) {
+      if (tableData.table_purpose === 'head' && nextOrder.length > 0 && (currentTable?.table_purpose !== 'head' || JSON.stringify(nextOrder) !== JSON.stringify(currentTable.head_seating_order))) {
         const { error: seatingError } = await (supabase.rpc as any)('save_head_table_seating', {
           p_table_id: tableId,
-          p_order: nextOrder,
+          p_order: await prepareHeadParticipantOrder(eventId, tableId, nextOrder),
         });
         if (seatingError) throw seatingError;
       }
@@ -347,14 +362,20 @@ export const useTables = (eventId: string | null) => {
   };
 
   const saveHeadTableSeating = async (tableId: string, order: HeadSeatEntry[]) => {
+    if (!eventId) return false;
+    let prepared: HeadSeatEntry[];
+    try { prepared = await prepareHeadParticipantOrder(eventId, tableId, order); }
+    catch (error) { toast({ title: 'Unable to add participants', description: error instanceof Error ? error.message : 'Refresh and try again.', variant: 'destructive' }); return false; }
     const { error } = await (supabase.rpc as any)('save_head_table_seating', {
       p_table_id: tableId,
-      p_order: order,
+      p_order: prepared,
     });
     if (error) {
       toast({ title: 'Unable to save Head Table seating', description: error.message, variant: 'destructive' });
       return false;
     }
+    const ids = prepared.flatMap(entry => entry.kind === 'guest' ? [entry.guest_id] : []);
+    if (ids.length) { const updated = await supabase.from('guests').update({ assigned: true }).eq('event_id', eventId).eq('table_id', tableId).in('id', ids); if (updated.error) { toast({ title: 'Unable to finish seating save', description: updated.error.message, variant: 'destructive' }); return false; } }
     await fetchTables();
     return true;
   };

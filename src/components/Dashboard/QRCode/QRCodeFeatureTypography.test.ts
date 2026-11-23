@@ -30,11 +30,11 @@ describe('QR Code Seating Chart typography contract', () => {
     for (const label of ['Color', 'Shape & Form', 'Logo', 'RSVP Invite', 'Welcome Video', 'Ceremony Floor Plan', 'Reception Floor Plan', 'Menu', 'Add Your Photo or Logo', 'Guest Song Requests']) {
       expect(card).toContain(label);
     }
-    for (const label of ['RSVP Invite', 'Welcome Video', 'Ceremony Floor Plan', 'Reception Floor Plan', 'Menu', 'Update & Confirm Your Details']) {
+    for (const label of ['RSVP Invite', 'Welcome Video', 'Ceremony Floor Plan', 'Reception Floor Plan', 'Menu', 'GuestUpdateModal']) {
       expect(publicPage).toContain(label);
     }
     expect(publicCss).toContain('public Guest Live View');
-    expect(publicCss).toMatch(/\.page h1,[\s\S]*?font-size:\s*24px\s*!important;[\s\S]*?font-weight:\s*600\s*!important;/);
+    expect(publicCss).toMatch(/\.page h1[^\n]*,[\s\S]*?font-size:\s*24px\s*!important;[\s\S]*?font-weight:\s*600\s*!important;/);
     expect(publicCss).toMatch(/ww-public-live-dialog[^\n]*:is\(h1, h2, h3, h4\)[^{]*\{[\s\S]*?font-size:\s*20px\s*!important;[\s\S]*?font-weight:\s*500\s*!important;/);
   });
 

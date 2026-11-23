@@ -1,3 +1,8 @@
+import { flags } from '@/lib/featureFlags';
+import { getHeadParticipantReconciliationOrder, getHeadTableDisplayName, getEventCelebrationType, getPrimaryGuestIds } from '@/lib/headTable';
+import { changeHeadTableSeating, isHeadTableMoveActive } from '@/lib/headTableMovePersistence';
+import { normalizeEventHeadTableNames } from '@/lib/headTableNames';
+import { reconcileHeadTableParticipants } from '@/lib/headTableParticipants';
 import {notifyTrialTableLimit}from'@/lib/trialUpgrade';
 import {withTrialUpgradeChoice}from'@/components/Subscription/TrialUpgradeController';
 import React, { useState, useEffect, useMemo, useRef, useCallback, lazy, Suspense, useDeferredValue } from 'react';
@@ -64,7 +69,7 @@ const GalleryPhotoBoothFeaturePage = lazy(() => import('@/pages/GalleryPhotoBoot
 const GalleryTextGuestbookFeaturePage = lazy(() => import('@/pages/GalleryTextGuestbookFeaturePage').then(m => ({ default: m.GalleryTextGuestbookFeaturePage })));
 const UpgradePlanModal = lazy(() => import('@/components/Subscription/UpgradePlanModal').then(m => ({ default: m.UpgradePlanModal })));
 const GallerySlideshowFeaturePage = lazy(() => import('@/pages/GallerySlideshowFeaturePage').then(m => ({ default: m.GallerySlideshowFeaturePage })));
-const LiveStreamingPage = import.meta.env.DEV ? lazy(() => import('@/components/Dashboard/LiveStreaming/LiveStreamingPage').then(m => ({ default: m.LiveStreamingPage }))) : null;
+const LiveStreamingPage = import.meta.env.DEV && flags.liveStreamingPreview ? lazy(() => import('@/components/Dashboard/LiveStreaming/LiveStreamingPage').then(m => ({ default: m.LiveStreamingPage }))) : null;
 
 // Feature flags removed — Running Sheet always enabled
 import { supabase } from '@/integrations/supabase/client';
@@ -133,7 +138,8 @@ const DashboardContent = () => {
   const navigate = useNavigate();
   const isPhotoVideoWorkspace = location.pathname.startsWith('/dashboard/photo-video-gallery/');
   const requestedTab = isPhotoVideoWorkspace ? 'photo-video-gallery' : searchParams.get('tab') || 'my-events';
-  const urlTab = requestedTab === 'kiosk-live-view' ? 'live-slideshow' : requestedTab;
+  const archivedStreamingTab = requestedTab === 'live-streaming' && !flags.liveStreamingPreview;
+  const urlTab = archivedStreamingTab ? 'dashboard' : requestedTab === 'kiosk-live-view' ? 'live-slideshow' : requestedTab;
   // The URL is the single source of truth for navigation. Keeping a second tab
   // state caused a click to render new -> old -> new while the URL transition
   // caught up, producing the visible double jump.
@@ -151,11 +157,11 @@ const DashboardContent = () => {
 
   // Canonicalise saved dashboard links without dropping event or other safe query parameters.
   useEffect(() => {
-    if (isPhotoVideoWorkspace || requestedTab !== 'kiosk-live-view') return;
+    if (isPhotoVideoWorkspace || (requestedTab !== 'kiosk-live-view' && !archivedStreamingTab)) return;
     const nextParams = new URLSearchParams(searchParams);
-    nextParams.set('tab', 'live-slideshow');
+    nextParams.set('tab', archivedStreamingTab ? 'dashboard' : 'live-slideshow');
     navigate({ pathname: location.pathname, search: nextParams.toString(), hash: location.hash }, { replace: true });
-  }, [isPhotoVideoWorkspace, location.hash, location.pathname, navigate, requestedTab, searchParams]);
+  }, [archivedStreamingTab, isPhotoVideoWorkspace, location.hash, location.pathname, navigate, requestedTab, searchParams]);
 
 
   
@@ -230,6 +236,23 @@ const DashboardContent = () => {
     reorderGuestsWithSeats,
   } = useRealtimeGuests(seatingWorkspaceEventId);
 
+  // Link legacy participant reservations once both event-scoped collections have loaded.
+  const headParticipantRepair = useMemo(() => selectedEvent && rawTables.some(table =>
+    table.event_id === selectedEvent.id && getHeadParticipantReconciliationOrder({ ...table, primary_guest_ids: getPrimaryGuestIds(selectedEvent) }, guests, selectedEvent.partner1_name, selectedEvent.partner2_name)
+  ), [rawTables, guests, selectedEvent]);
+  const headRepairCallbacks = useRef({ fetchTables, refetchGuests });
+  headRepairCallbacks.current = { fetchTables, refetchGuests };
+  useEffect(() => {
+    if (!seatingWorkspaceEventId || !headParticipantRepair || isHeadTableMoveActive(seatingWorkspaceEventId)) return;
+    let active = true;
+    void reconcileHeadTableParticipants(seatingWorkspaceEventId).then(async changed => {
+      if (changed && active) await Promise.all([headRepairCallbacks.current.fetchTables(), headRepairCallbacks.current.refetchGuests()]);
+    }).catch(error => {
+      console.error('Unable to reconcile Head Table participants:', error);
+    });
+    return () => { active = false; };
+  }, [seatingWorkspaceEventId, headParticipantRepair]);
+
   // Undo stack for guest moves
   const { pushAction, undo, canUndo, lastAction } = useUndoStack();
   const { toast } = useToast();
@@ -244,12 +267,24 @@ const DashboardContent = () => {
   const [selectedGuestIds, setSelectedGuestIds] = useState<Set<string>>(new Set());
   const [isBulkMoving, setIsBulkMoving] = useState(false);
 
+  const namedTables = useMemo(() => rawTables.map(table => ({ ...table, primary_guest_ids: getPrimaryGuestIds(selectedEvent),
+    name: table.event_id === selectedEvent?.id ? getHeadTableDisplayName(table, getEventCelebrationType(selectedEvent)) : table.name,
+  })), [rawTables, selectedEvent]);
+  const defaultNameNeedsSave = rawTables.some(table => table.event_id === selectedEvent?.id && table.name !== getHeadTableDisplayName(table, getEventCelebrationType(selectedEvent)));
+  useEffect(() => {
+    if (!seatingWorkspaceEventId || !defaultNameNeedsSave) return;
+    let active = true;
+    void normalizeEventHeadTableNames(seatingWorkspaceEventId).then(changed => { if (changed && active) return headRepairCallbacks.current.fetchTables(); })
+      .catch(error => console.error('Unable to normalize the default Head Table name:', error));
+    return () => { active = false; };
+  }, [seatingWorkspaceEventId, defaultNameNeedsSave]);
+
   // Real-time tables with live guest counts
   const {
     tables,
     getGuestsForTable: getRealtimeGuestsForTable
   } = useRealtimeTables({
-    tables: rawTables,
+    tables: namedTables,
     guests,
     onRefreshTables: fetchTables
   });
@@ -385,12 +420,17 @@ const DashboardContent = () => {
     const sourceTable = sourceTableId ? tables.find(t => t.id === sourceTableId) : null;
 
     if (destTable?.table_purpose === 'head' || sourceTable?.table_purpose === 'head') {
-      toast({
-        title: 'Use Arrange Head Table Seating',
-        description: 'Head Table assignments and left-to-right order are managed together from the Head Table card.',
-        className: 'ww-tables-toast',
-      });
-      return false;
+      try {
+        if (!selectedEventId) return false;
+        const changed = await changeHeadTableSeating(selectedEventId, { guestId, sourceTableId, destTableId, insertAtIndex });
+        await Promise.all([fetchTables(), refetchGuests()]);
+        if (changed) toast({ title: 'Guest moved successfully', description: 'Table and seat assignments saved.', className: 'ww-tables-toast' });
+        return changed;
+      } catch (error) {
+        await Promise.all([fetchTables(), refetchGuests()]);
+        toast({ title: 'Unable to move guest', description: error instanceof Error ? error.message : 'Refresh and try again.', variant: 'destructive' });
+        return false;
+      }
     }
     
     // Save to undo stack before moving
@@ -455,24 +495,14 @@ const DashboardContent = () => {
     setIsBulkMoving(true);
     
     const destTable = destTableId ? tables.find(t => t.id === destTableId) : null;
-    if (destTable?.table_purpose === 'head') {
-      setIsBulkMoving(false);
-      toast({ title: 'Use Arrange Head Table Seating', description: 'Add Head Table guests from its seating arranger.', className: 'ww-tables-toast' });
-      return;
-    }
+
     let successCount = 0;
     
     for (const guestId of selectedGuestIds) {
       const guest = guests.find(g => g.id === guestId);
       if (!guest) continue;
       
-      const success = await moveGuest({
-        guestId,
-        sourceTableId: guest.table_id,
-        destTableId,
-        destTableNo: destTable?.table_no ?? null,
-        guestName: `${guest.first_name} ${guest.last_name || ''}`.trim(),
-      });
+      const success = await handleGuestMove(guestId, guest.table_id, destTableId, [guest.first_name, guest.last_name].filter(Boolean).join(' '));
       if (success) successCount++;
     }
     
@@ -501,7 +531,18 @@ const DashboardContent = () => {
 
   // Handle reordering guests within a table
   const handleReorderGuests = async (tableId: string, orderedGuestIds: string[]): Promise<boolean> => {
-    if (tables.find((table) => table.id === tableId)?.table_purpose === 'head') return false;
+    if (tables.find((table) => table.id === tableId)?.table_purpose === 'head') {
+      try {
+        if (!selectedEventId) return false;
+        const changed = await changeHeadTableSeating(selectedEventId, { tableId, orderedGuestIds });
+        await Promise.all([fetchTables(), refetchGuests()]);
+        return changed;
+      } catch (error) {
+        await Promise.all([fetchTables(), refetchGuests()]);
+        toast({ title: 'Unable to rearrange guests', description: error instanceof Error ? error.message : 'Refresh and try again.', variant: 'destructive' });
+        return false;
+      }
+    }
     return await reorderGuestsWithSeats(tableId, orderedGuestIds);
   };
   const handleCloseModal = () => {
@@ -723,7 +764,7 @@ const DashboardContent = () => {
                         onReorderGuests={handleReorderGuests}
                       >
                           <div className="grid grid-cols-1 items-start sm:grid-cols-2 md:grid-cols-2 lg:grid-cols-4 xl:grid-cols-5 gap-4">
-                            {tables.map(table => <TableCard key={table.id} table={table} onEdit={handleEditTable} onDelete={deleteTable} guests={guests} eventId={selectedEventId} participant1={selectedEvent?.partner1_name} participant2={selectedEvent?.partner2_name} onSaveHeadSeating={saveHeadTableSeating} />)}
+                            {tables.map(table => <TableCard key={table.id} table={table} onEdit={handleEditTable} onDelete={deleteTable} guests={guests} eventId={selectedEventId} participant1={selectedEvent?.partner1_name} participant2={selectedEvent?.partner2_name} onSaveHeadSeating={async (tableId, order) => { const saved = await saveHeadTableSeating(tableId, order); if (saved) await refetchGuests(); return saved; }} />)}
                           </div>
                       </SortableTablesGrid>
                     ) : <div className={tablesPageStyles.emptyState}>
@@ -922,6 +963,7 @@ const DashboardContent = () => {
             existingTables={tables}
             eventGuestLimit={tableGuestLimit ?? undefined}
             currentEventName={events.find(e => e.id === selectedEventId)?.name}
+            celebrationType={getEventCelebrationType(selectedEvent)}
             primaryParticipant1={selectedEvent?.partner1_name}
             primaryParticipant2={selectedEvent?.partner2_name}
             planName={plan?.plan_name}

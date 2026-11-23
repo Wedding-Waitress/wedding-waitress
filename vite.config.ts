@@ -10,7 +10,7 @@ export default defineConfig(({ mode }) => ({
     strictPort: true,
     // Generated QA artifacts include browser profiles with OS-locked files.
     // Watching those files can crash the dev server during a browser session.
-    watch: { ignored: ['**/artifacts/**'] },
+    watch: { ignored: ['**/artifacts/**'], awaitWriteFinish: { stabilityThreshold: 200, pollInterval: 50 } },
   },
   // Scan only the app entry; generated review HTML under work/ is not application input.
   optimizeDeps: { entries: ['index.html'] },

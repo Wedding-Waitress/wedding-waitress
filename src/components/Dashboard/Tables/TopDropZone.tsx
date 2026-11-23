@@ -18,9 +18,10 @@ import { useDragState } from './SortableTablesGrid';
 
 interface TopDropZoneProps {
   tableId: string;
+  compact?: boolean;
 }
 
-export const TopDropZone: React.FC<TopDropZoneProps> = ({ tableId }) => {
+export const TopDropZone: React.FC<TopDropZoneProps> = ({ tableId, compact = false }) => {
   const { activeGuestId } = useDragState();
   const id = `top-drop-${tableId}`;
 
@@ -38,8 +39,8 @@ export const TopDropZone: React.FC<TopDropZoneProps> = ({ tableId }) => {
   });
 
   const style = {
-    transform: CSS.Transform.toString(transform),
-    transition,
+    transform: compact ? undefined : CSS.Transform.toString(transform),
+    transition: compact ? undefined : transition,
   };
 
   // Only show when a drag is active
@@ -49,13 +50,14 @@ export const TopDropZone: React.FC<TopDropZoneProps> = ({ tableId }) => {
     <div
       ref={setNodeRef}
       style={style}
-      className={`h-7 rounded-md border-2 border-dashed transition-all duration-150 flex items-center justify-center text-xs ${
+      aria-label="Insert before the first guest"
+      className={`${compact ? 'absolute -top-2 inset-x-0 h-2 z-10' : 'h-7'} rounded-md border-2 border-dashed transition-all duration-150 flex items-center justify-center text-xs ${
         isOver
           ? 'border-[#967A59] bg-[#967A59]/15 text-[#967A59] shadow-[0_0_8px_rgba(124,58,237,0.4)] font-medium'
           : 'border-muted-foreground/30 text-muted-foreground/50'
       }`}
     >
-      {isOver ? '→ Seat 1' : 'Drop here for Seat 1'}
+      {!compact && (isOver ? '→ Seat 1' : 'Drop here for Seat 1')}
     </div>
   );
 };

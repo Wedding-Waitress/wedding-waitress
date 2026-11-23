@@ -1,0 +1,17 @@
+import React from 'react';
+import {render,screen,act,waitFor,cleanup} from '@testing-library/react';
+import {MemoryRouter,Route,Routes} from 'react-router-dom';
+import {beforeEach,afterEach,it,expect,vi} from 'vitest';
+const state=vi.hoisted(()=>({load:vi.fn(),auth:null as any,unsubscribe:vi.fn()}));
+vi.mock('@/lib/organiserGuestPreview',()=>({loadOrganiserGuestPreview:state.load,createGuestPreviewClient:()=>({})}));
+vi.mock('@/integrations/supabase/client',()=>({supabase:{auth:{onAuthStateChange:(callback:any)=>{state.auth=callback;return{data:{subscription:{unsubscribe:state.unsubscribe}}}}}}}));
+vi.mock('./GuestLookup',()=>({GuestLookup:()=> <div data-testid="guest-ui">Private guest UI</div>}));
+vi.mock('@/components/SEO/SeoHead',()=>({SeoHead:()=>null}));
+import OrganiserGuestPreview from './OrganiserGuestPreview';
+const mount=(mode='seating')=>render(<MemoryRouter initialEntries={['/organiser-preview/event/'+mode]}><Routes><Route path="/organiser-preview/:eventId/:previewMode" element={<OrganiserGuestPreview/>}/></Routes></MemoryRouter>);
+beforeEach(()=>{vi.clearAllMocks();state.load.mockResolvedValue({actorId:'owner',event:{id:'event'}})});afterEach(cleanup);
+it('never renders guest data until authorised loading succeeds',async()=>{let resolve!:any;state.load.mockReturnValue(new Promise(r=>resolve=r));mount();expect(screen.queryByTestId('guest-ui')).toBeNull();await act(async()=>resolve({actorId:'owner',event:{id:'event'}}));expect(screen.getByTestId('guest-ui')).toBeVisible();});
+it.each(['SIGNED_OUT','USER_UPDATED','OTHER_ACCOUNT'])('discards private customer data on %s',async event=>{mount();await screen.findByTestId('guest-ui');act(()=>state.auth(event==='OTHER_ACCOUNT'?'SIGNED_IN':event,event==='OTHER_ACCOUNT'?{user:{id:'other'}}:null));expect(screen.queryByTestId('guest-ui')).toBeNull();expect(screen.getByRole('alert')).toHaveTextContent('session changed');});
+it('keeps the same authorised session across token refreshes',async()=>{mount();await screen.findByTestId('guest-ui');act(()=>state.auth('TOKEN_REFRESHED',{user:{id:'owner'}}));expect(screen.getByTestId('guest-ui')).toBeVisible();});
+it('rejects invalid timing URLs instead of using a public bypass flag',()=>{mount('admin=true');expect(state.load).not.toHaveBeenCalled();expect(screen.queryByTestId('guest-ui')).toBeNull();expect(screen.getByRole('alert')).toHaveTextContent('valid private preview');});
+it('does not render a snapshot for the wrong event',async()=>{state.load.mockResolvedValue({actorId:'owner',event:{id:'other'}});mount();await waitFor(()=>expect(state.load).toHaveBeenCalled());expect(screen.queryByTestId('guest-ui')).toBeNull();});

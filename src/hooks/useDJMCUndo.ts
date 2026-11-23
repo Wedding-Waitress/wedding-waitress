@@ -5,11 +5,12 @@ import {createDJMCPronunciationSignedUrl,deleteDJMCPronunciation,uploadDJMCPronu
 import {useToast} from '@/hooks/use-toast';
 
 type Snapshot = {sections:DJMCSection[];requests?:import('@/hooks/useGuestSongRequests').GuestSongRequestRow[]};
-export function useDJMCUndo({questionnaireId,eventId,sections,shareToken,canEdit=true,beforeRestore,refresh}: {
+export function useDJMCUndo({questionnaireId,eventId,sections,shareToken,canEdit=true,beforeRestore,refresh,restoreLocal}: {
  questionnaireId?:string;eventId?:string;sections:DJMCSection[];shareToken?:string;canEdit?:boolean;
- beforeRestore:()=>Promise<void>;refresh:()=>Promise<unknown>;
+ beforeRestore:()=>Promise<void>;refresh:()=>Promise<unknown>;restoreLocal?:(sections:DJMCSection[])=>boolean;
 }) {
  const [history,setHistory]=useState<Snapshot[]>([]);
+ const historyRef=useRef(history);historyRef.current=history;
  const [busy,setBusy]=useState<false | "saving" | "restoring">(false);
  const [revision,setRevision]=useState(0);
  const recordings=useRef(new Map<string,Blob>());
@@ -20,7 +21,7 @@ export function useDJMCUndo({questionnaireId,eventId,sections,shareToken,canEdit
  const working=useRef(false);
  const nested=useRef(false);
  const {toast}=useToast();
- useEffect(()=>{setHistory([]);recordings.current.clear();restoredPaths.current.clear();},[scope]);
+ useEffect(()=>{setHistory([]);historyRef.current=[];recordings.current.clear();restoredPaths.current.clear();},[scope]);
  const backup = async (snapshot:DJMCSection[]) => {
   for(const item of snapshot.flatMap(s=>s.items)) {
    const path=item.pronunciation_audio_path||item.pronunciation_audio_url;
@@ -44,7 +45,7 @@ export function useDJMCUndo({questionnaireId,eventId,sections,shareToken,canEdit
   try {
    if(includeRecordings)await backup(snapshot.sections);
    if(active.current!==scope)return;
-   setHistory(prev=>[...prev.slice(-19),snapshot]);
+   historyRef.current=[...historyRef.current.slice(-19),snapshot];setHistory(historyRef.current);
    nested.current=true;
    await action();
   }catch(error){toast({title:'Change could not be completed',description:'Your recovery copy could not be prepared or saved. Please try again.',variant:'destructive'});}
@@ -54,12 +55,15 @@ export function useDJMCUndo({questionnaireId,eventId,sections,shareToken,canEdit
   if(!canEdit||!questionnaireId)return;
   if(nested.current)return action();
   if(working.current)return;
-  setHistory(prev=>[...prev.slice(-19),{sections:structuredClone(latest.current)}]);
+  historyRef.current=[...historyRef.current.slice(-19),{sections:structuredClone(latest.current)}];setHistory(historyRef.current);
   return action();
  };
  const undo = async () => {
-  if(!canEdit||!questionnaireId||!eventId||working.current||!history.length)return;
-  const entry=history[history.length-1];
+  if(!canEdit||!questionnaireId||!eventId||working.current||!historyRef.current.length)return;
+  const entry=historyRef.current[historyRef.current.length-1];
+  if(!entry.requests&&restoreLocal?.(entry.sections)){
+   latest.current=structuredClone(entry.sections);historyRef.current=historyRef.current.slice(0,-1);setHistory(historyRef.current);return;
+  }
   working.current=true;setBusy("restoring");
   try {
    await beforeRestore();

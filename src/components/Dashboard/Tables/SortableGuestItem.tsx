@@ -17,6 +17,7 @@ import { CSS } from '@dnd-kit/utilities';
 import { Badge } from "@/components/ui/badge";
 import { GripVertical, Check } from "lucide-react";
 import { Guest } from '@/hooks/useGuests';
+import { useDragState } from './SortableTablesGrid';
 
 interface SortableGuestItemProps {
   guest: Guest;
@@ -37,6 +38,7 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
   onSelect,
   showCheckbox = false
 }) => {
+  const { preserveTableLayout } = useDragState();
   const {
     attributes,
     listeners,
@@ -57,7 +59,7 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
     transform: CSS.Transform.toString(transform),
     transition: isDragging ? transition : undefined,
     ...(isDragging
-      ? { opacity: 0, height: 0, overflow: 'hidden' as const, padding: 0, margin: 0, border: 'none' }
+      ? preserveTableLayout ? { opacity: 0 } : { opacity: 0, height: 0, overflow: 'hidden' as const, padding: 0, margin: 0, border: 'none' }
       : { opacity: 1, zIndex: 'auto' as const }),
   };
 

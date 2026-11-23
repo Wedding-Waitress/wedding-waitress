@@ -782,3 +782,6 @@
  :global(#root#root) .configPanel button.compactAssetAction { position:relative; }
  :global(#root#root) .configPanel button.compactAssetAction::after { content:''; position:absolute; inset:-7px 0; }
 }
+
+/* Private timing actions retain the live button background; their icons follow the requested white label treatment. */
+:global(#root#root#root) .privatePreviewButton svg, :global(#root#root#root) .privatePreviewButton svg * { color:#fff!important; stroke:#fff!important; }

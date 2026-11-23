@@ -7,7 +7,8 @@ import {
   getEventAllowanceSnapshot,
   getEventCreationBlockMessage,
 } from '@/lib/eventAllowance';
-import { defaultHeadSeatingOrder } from '@/lib/headTable';
+import { defaultHeadSeatingOrder, getDefaultHeadTableName } from '@/lib/headTable';
+import { reconcileHeadTableParticipants } from '@/lib/headTableParticipants';
 import { setSelectedEventId } from '@/hooks/useSelectedEvent';
 import type { Json } from '@/integrations/supabase/types';
 import type { EventImageFit, EventImageValue } from '@/lib/eventImage';
@@ -559,7 +560,7 @@ export const completeGuidedSetup = async (draft: GuidedSetupDraft, guestEntryLim
     if (existingError) throwCreationFailure('tables-read', existingError);
     const inserts: Array<Record<string, unknown>> = [];
     if (answers.headTable === 'yes' && !existingTables?.some((table) => table.table_purpose === 'head')) inserts.push({
-      event_id: eventId, user_id: auth.user.id, name: 'Head Table', table_no: null, table_type: 'long', table_purpose: 'head',
+      event_id: eventId, user_id: auth.user.id, name: getDefaultHeadTableName(answers.celebrationType), table_no: null, table_type: 'long', table_purpose: 'head',
       limit_seats: Number(answers.headTableCount), head_seating_order: defaultHeadSeatingOrder(answers.customerFirstName, answers.partnerFirstName),
     });
     const defaultShape = answers.tableStyle === 'mixed' ? 'round' : answers.tableStyle;
@@ -577,6 +578,7 @@ export const completeGuidedSetup = async (draft: GuidedSetupDraft, guestEntryLim
 
   try {
     await reconcileGuidedSetupGuests(eventId, auth.user.id, answers);
+    await reconcileHeadTableParticipants(eventId);
   } catch (error) {
     throwCreationFailure(error instanceof GuidedSetupGuestError ? error.stage : 'guests-insert', error);
   }

@@ -330,15 +330,7 @@ export const TableCard: React.FC<TableCardProps> = ({
               <Users size={15} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
               Guests:
             </div>
-            {isHeadTable ? (
-              <div className="flex flex-wrap gap-2">
-                {table.head_seating_order.flatMap((entry) => {
-                  if (entry.kind !== 'guest') return [];
-                  const guest = allGuests.find((candidate) => candidate.id === entry.guest_id);
-                  return guest ? [<span key={guest.id} className="rounded-full border border-[#C4A882] px-3 py-1 text-xs">{guest.first_name} {guest.last_name}</span>] : [];
-                })}
-              </div>
-            ) : readOnly ? (
+            {readOnly ? (
               <div className="flex flex-col gap-1.5">
                 {sortedGuests.map((guest) => (
                   <Badge key={guest.id} variant="secondary" className="ww-table-guest-chip min-w-0 justify-start text-xs max-lg:py-0.5 lg:py-1 leading-tight px-2">

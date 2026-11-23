@@ -21,6 +21,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { Guest } from '@/hooks/useGuests';
 import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
+import { isHeadTableMoveActive } from '@/lib/headTableMovePersistence';
 
 interface RealtimeGuestUpdate {
   guestId: string;
@@ -592,7 +593,7 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
   // Handle realtime updates - stable callback with no changing deps
   const handleRealtimeUpdate = useCallback((payload: any) => {
     // Skip realtime updates during active operations to prevent conflicts
-    if (isOperationInProgress.current) {
+    if (isOperationInProgress.current || (eventId && isHeadTableMoveActive(eventId))) {
       console.log('Skipping realtime update - operation in progress');
       return;
     }
@@ -633,7 +634,7 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
 
     // Safety-net: schedule a debounced full refetch to catch any missed updates
     debouncedRefetch();
-  }, [debouncedRefetch]);
+  }, [debouncedRefetch, eventId]);
 
   // Set up Supabase Realtime subscription - stable, only re-runs on eventId change
   useEffect(() => {

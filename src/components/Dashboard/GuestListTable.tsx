@@ -775,10 +775,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     try {
       // Update event partner names — the DB trigger automatically rebuilds
       // relation_display for all guests in this event
-      await updateEvent(selectedEventId, { 
-        partner1_name: resolvedPartner1,
-        partner2_name: resolvedPartner2,
-      });
+      if(selectedEvent?.partner1_name!==resolvedPartner1 || selectedEvent?.partner2_name!==resolvedPartner2){
+        await updateEvent(selectedEventId, {partner1_name:resolvedPartner1,partner2_name:resolvedPartner2});
+      }
 
       setShowRelationSaved(true);
       setTimeout(() => setShowRelationSaved(false), 2000);
@@ -799,13 +798,17 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
         setHasUnsavedChanges(false);
       }
 
-      // Refetch guests to pick up the trigger-updated relation_display values
-      await refetchGuests();
+      // Saving and refreshing are distinct operations; report their actual outcomes.
+      try { await refetchGuests(); } catch {
+        toast({title:'Names saved',description:'The guest list could not refresh. Reload the page to view the saved names.',variant:'destructive'});
+      }
     } catch (error) {
       console.error('Error saving partner names:', error);
       toast({
         title: "Error",
-        description: "Failed to save partner names",
+        description: (error as any)?.code === '42501'
+          ? 'These names could not be changed from this account. Open the event in its organiser account to update them.'
+          : error instanceof Error ? error.message : (error as any)?.message || 'Failed to save partner names',
         variant: "destructive"
       });
     } finally {
@@ -2074,7 +2077,9 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                                 ? "border-green-500 bg-green-50 text-green-600 shadow-sm"
                                 : "border-border bg-background text-foreground hover:bg-muted/50"
                             )}
-                            onClick={() => {
+                            onClick={(click) => {
+                              click.preventDefault();
+                              if(isSaving)return;
                               setUseDefaultNames(true);
                               void handleSavePartnerNames('Bride', 'Groom');
                             }}

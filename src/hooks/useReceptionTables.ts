@@ -49,7 +49,7 @@ export function receptionTablesFromRecords(tableRows:ReceptionTableSource[],gues
         head_seating_order: headOrder,
         guest_count: Math.min(table.limit_seats, tablePurpose === 'head' ? headOrder.length : occupied.count),
         occupied_seat_numbers: (tablePurpose === 'head'
-          ? headOrder.map((_, index) => Math.floor((table.limit_seats - headOrder.length) / 2) + index + 1)
+          ? headOrder.map((entry, index) => entry.seat_no ?? Math.floor((table.limit_seats - headOrder.length) / 2) + index + 1)
           : [...new Set(occupied.seats)])
           .filter((seat) => seat <= table.limit_seats)
           .sort((a, b) => a - b),

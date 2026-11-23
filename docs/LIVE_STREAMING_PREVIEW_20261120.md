@@ -1,5 +1,11 @@
 # Live Streaming: local design preview
 
+## Archived on 23 November 2026
+
+The owner paused this feature to focus on existing Wedding Waitress tools. The preview is archived in place, not deleted. Its components, styles, tests, model, specification, pricing layout and browser localStorage key remain intact. No data is cleared and no backend resources are changed.
+
+The existing feature-flag module now keeps liveStreamingPreview false. This hides the dashboard entry and disables both preview entry points; saved streaming links return to the dashboard. To resume after owner instruction, set that flag to true in src/lib/featureFlags.ts. The original development-only boundary still applies. This archive does not authorize further development or publication.
+
 ## Release boundary
 
 Owner authorised an interface/workflow preview only on 20 November 2026. Do not publish, deploy, activate AWS resources, take payments or modify production entitlements. AWS account creation and Stripe catalogue/checkout wiring are deferred. This work is guarded by `import.meta.env.DEV`; the private review route is `/dev/live-streaming`. The existing dashboard gets a development-only Live Streaming entry after Photo & Video Sharing.

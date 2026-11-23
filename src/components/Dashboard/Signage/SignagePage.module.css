@@ -1466,3 +1466,14 @@
 #root [data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular],#root [data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular] svg{color:#fff!important;stroke:currentColor!important;opacity:1!important;-webkit-text-fill-color:#fff!important}#root [data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular][data-signage-popular]{border:1px solid #fff!important;background:#55a447!important}
 
 }
+
+/* Editing controls live outside the captured sign document. */
+.historyToolbar { display:flex; justify-content:center; align-items:center; flex-wrap:wrap; gap:8px; margin-bottom:12px; min-height:40px; }
+:global(#root#root) .historyButton {
+ display:inline-flex; align-items:center; gap:6px; min-height:40px; padding:10px 16px; border:0!important; border-radius:9999px;
+ background:linear-gradient(180deg,#7bd880,#55a447)!important; box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #37652d66,0 4px 10px #426a2a30;
+ font:600 14px Manrope,sans-serif!important; color:#fff!important; -webkit-text-fill-color:#fff!important; text-shadow:0 1px 2px rgba(0,0,0,.55);
+}
+:global(#root#root) .historyButton:disabled { opacity:.45; cursor:default; }
+:global(#root#root) .historyButton:not(:disabled):hover { filter:brightness(1.04); }
+:global(#root#root#root) .historyButton svg,:global(#root#root#root) .historyButton svg * { color:#2f1b14!important; stroke:#2f1b14!important; filter:none!important; text-shadow:none; }

@@ -75,3 +75,10 @@ it('includes first-name matches even if the surname is blank during the open win
  expect(matchesGuestSearch({first_name:'Andrew',last_name:''},'And',true)).toBe(true);
  expect(matchesGuestSearch({first_name:'Andrew',last_name:''},'Andrew',false)).toBe(false);
 });
+
+it.each([null,undefined,''])('tolerates a missing surname (%s) without weakening full-name verification',last_name=>{
+ expect(matchesGuestSearch({first_name:'Reema',last_name},'',false)).toBe(false);
+ expect(matchesGuestSearch({first_name:'Reema',last_name},'Reema',false)).toBe(false);
+ expect(matchesGuestSearch({first_name:'Reema',last_name},'Ree',true)).toBe(true);
+ expect(matchesGuestSearch({first_name:null,last_name},'Ree',true)).toBe(false);
+});

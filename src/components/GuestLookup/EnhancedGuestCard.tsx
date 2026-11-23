@@ -16,7 +16,7 @@ import {
   Mail
 } from 'lucide-react';
 
-import { supabase } from '@/integrations/supabase/client';
+import {useGuestExperienceClient,useGuestExperiencePreview} from '@/contexts/GuestExperiencePreviewContext';
 import { normalizeRsvp, getRsvpDisplayLabel, type RsvpStatus } from '@/lib/rsvp';
 import { useToast } from '@/hooks/use-toast';
 import { formatDisplayDate } from '@/lib/utils';
@@ -74,6 +74,7 @@ export const EnhancedGuestCard: React.FC<EnhancedGuestCardProps> = ({
   showRsvpButtons = true,
   showAddPlusOne = true,
 }) => {
+  const supabase=useGuestExperienceClient();
   const relationship = getRelationDisplayText(guest.relation_display);
   const [updatingRsvp, setUpdatingRsvp] = useState(false);
   const { toast } = useToast();

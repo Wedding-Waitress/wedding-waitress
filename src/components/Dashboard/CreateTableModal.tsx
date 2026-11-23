@@ -47,7 +47,7 @@ import { Input } from "@/components/ui/input";
 import { Textarea } from "@/components/ui/textarea";
 import { Label } from "@/components/ui/label";
 import { TableWithGuestCount } from '@/hooks/useTables';
-import { defaultHeadSeatingOrder, type HeadSeatEntry, type TablePurpose } from '@/lib/headTable';
+import { defaultHeadSeatingOrder, getDefaultHeadTableName, type HeadSeatEntry, type TablePurpose } from '@/lib/headTable';
 import { useToast } from '@/hooks/use-toast';
 import { Circle, Square, Save, X, Table2, Users, TableProperties, Pencil, AlertTriangle, Check, Crown } from 'lucide-react';
 import eventDrawerStyles from './EventCreateModal.module.css';
@@ -63,6 +63,7 @@ interface CreateTableModalProps {
   existingTables?: TableWithGuestCount[];
   eventGuestLimit?: number;
   currentEventName?: string;
+  celebrationType?: string;
   primaryParticipant1?: string | null;
   primaryParticipant2?: string | null;
   planName?: string | null;
@@ -80,6 +81,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
   existingTables = [],
   eventGuestLimit,
   currentEventName,
+  celebrationType,
   primaryParticipant1,
   primaryParticipant2,
   planName,
@@ -144,7 +146,7 @@ export const CreateTableModal: React.FC<CreateTableModalProps> = ({
     const participantOrder = defaultHeadSeatingOrder(primaryParticipant1, primaryParticipant2);
     setTablePurpose('head');
     setTableType('long');
-    setName(editingTable?.name || 'Head Table');
+    setName(editingTable?.name || getDefaultHeadTableName(celebrationType));
     setLimitSeats(editingTable
       ? Math.max(editingTable.limit_seats, editingTable.guest_count + participantOrder.length)
       : Math.max(2, participantOrder.length));

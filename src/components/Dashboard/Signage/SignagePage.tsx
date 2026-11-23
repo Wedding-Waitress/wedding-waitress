@@ -13,7 +13,7 @@ import { InvitationCardPreview } from '../Invitations/InvitationCardPreview';
 import { SignageGalleryModal } from './SignageGalleryModal';
 import { checkPrintFit } from '@/lib/imagePipeline';
 import type { LucideIcon } from 'lucide-react';
-import { Loader2, LoaderCircle, FileText, CalendarDays, Printer, LayoutTemplate, BadgeCheck, CircleCheck, Star, Download, Contact, PanelsTopLeft, Mail } from 'lucide-react';
+import { Undo2, Redo2, Loader2, LoaderCircle, FileText, CalendarDays, Printer, LayoutTemplate, BadgeCheck, CircleCheck, Star, Download, Contact, PanelsTopLeft, Mail } from 'lucide-react';
 import { PinchZoomContainer } from '@/components/ui/PinchZoomContainer';
 import { generateInvitationQR } from '@/lib/invitationQR';
 import { toast } from '@/hooks/use-toast';
@@ -86,6 +86,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
     asInvitationSettings,
     loading: settingsLoading,
     updateSettings,
+    canUndo, canRedo, undo, redo, breakHistoryGroup,
   } = useSignageSettings(selectedEventId);
 
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
@@ -117,6 +118,9 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
   // when the user switches to a non-gallery source (Choose File / Remove) and drop
   // the now-stale master print URL.
   const lastGalleryPreviewRef = useRef<string | null>(null);
+  useEffect(() => {
+    lastGalleryPreviewRef.current = settings?.background_image_print_url ? settings.background_image_url || null : null;
+  }, [settings?.background_image_url, settings?.background_image_print_url]);
   const galleryEventScope = useRef({ id: selectedEventId, version: 0 });
   if (galleryEventScope.current.id !== selectedEventId) {
     galleryEventScope.current = { id: selectedEventId, version: galleryEventScope.current.version + 1 };
@@ -229,14 +233,14 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
     if (typeof next.size_percent === 'number' && next.size_percent < minSize) {
       next.size_percent = minSize;
     }
-    updateSettings({ qr_config: next });
+    updateSettings({ qr_config: next }, { historyGroup: false });
   }, [settings, orientation, updateSettings]);
 
   const handleZoneUpdate = useCallback((zoneId: string, updates: Partial<TextZone>) => {
     const newZones = (settings?.text_zones || []).map(z =>
       z.id === zoneId ? { ...z, ...updates } : z
     );
-    updateSettings({ text_zones: newZones });
+    updateSettings({ text_zones: newZones }, { historyGroup: false });
   }, [settings, updateSettings]);
 
   const handleZoneDelete = useCallback((zoneId: string) => {
@@ -660,7 +664,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
       {/* Editor + Preview — sibling clone of InvitationsPage */}
       {selectedEventId && settings && !settingsLoading && editorSettings && (
-        <div {...(exporting ? { inert: '' } : {})} aria-busy={!!exporting} className={`${styles.editorLayout} grid grid-cols-1 2xl:grid-cols-5 gap-6 items-start 2xl:items-stretch`}>
+        <div {...(exporting ? { inert: '' } : {})} aria-busy={!!exporting} onPointerDownCapture={breakHistoryGroup} onBlurCapture={breakHistoryGroup} className={`${styles.editorLayout} grid grid-cols-1 2xl:grid-cols-5 gap-6 items-start 2xl:items-stretch`}>
           <div className={`${styles.designerShell} ww-signage-brown 2xl:col-span-2 h-full`}>
             <InvitationCardCustomizer
               settings={editorSettings}
@@ -694,6 +698,14 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
           <div className={`${styles.previewStage} 2xl:col-span-3 w-full min-w-0 max-w-full mx-auto ${
             orientation === 'landscape' ? 'px-4 2xl:px-8' : ''
           }`}>
+            <div data-signage-history-toolbar role="toolbar" aria-label="Sign design history" className={styles.historyToolbar}>
+              <button type="button" className={styles.historyButton} disabled={!canUndo || !!exporting} onClick={() => { setSelectedZoneId(null); void undo?.(); }} title="Undo last sign edit">
+                <Undo2 size={17} strokeWidth={1.8} aria-hidden="true" /><span>Undo</span>
+              </button>
+              {canRedo && <button type="button" className={styles.historyButton} disabled={!!exporting} onClick={() => { setSelectedZoneId(null); void redo?.(); }} title="Redo sign edit">
+                <Redo2 size={17} strokeWidth={1.8} aria-hidden="true" /><span>Redo</span>
+              </button>}
+            </div>
             <div className="w-full min-w-0">
               <div className="w-full min-w-0 mx-auto">
                 <PinchZoomContainer className="h-full" minScale={1} maxScale={1} initialScale={1} showHint={false}>

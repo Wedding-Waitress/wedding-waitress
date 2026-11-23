@@ -58,3 +58,31 @@ it('finishes an earlier write before sending the next one', async () => {
   await act(async () => { release({ error: null }); await Promise.resolve(); });
   expect(m.save).toHaveBeenLastCalledWith({ notes: 'second' }, 'row-one', 'one');
 });
+
+it('restores deletion with exact text-zone styling and persists undo and redo as normal sign saves', async () => {
+ const zone={id:'seat',type:'custom',label:'Seat',text:'YOUR SEAT',font_family:'Lora',font_size:46,font_color:'#26354a',font_weight:'bold',x_percent:42,y_percent:38,width_percent:76,rotation:12};
+ m.read.mockImplementation(async event=>({data:{...row(event),text_zones:[zone]},error:null}));
+ const {result}=await loaded();expect(result.current.canUndo).toBe(false);
+ act(()=>{void result.current.updateSettings({text_zones:[]});});expect(result.current.canUndo).toBe(true);
+ act(()=>{void result.current.undo();});expect(result.current.settings?.text_zones).toEqual([zone]);expect(result.current.asInvitationSettings?.text_zones).toEqual([zone]);expect(result.current.canRedo).toBe(true);
+ await act(async()=>{await vi.advanceTimersByTimeAsync(300);});expect(m.save).toHaveBeenLastCalledWith(expect.objectContaining({text_zones:[zone]}),'row-one','one');
+ act(()=>{void result.current.redo();});expect(result.current.settings?.text_zones).toEqual([]);
+ await act(async()=>{await vi.advanceTimersByTimeAsync(300);});expect(m.save).toHaveBeenLastCalledWith(expect.objectContaining({text_zones:[]}),'row-one','one');
+});
+it('isolates history by event/design and does not record initialization or carry a design across events', async()=>{
+ const rows=new Map<string,any>();m.read.mockImplementation(async event=>({data:rows.get(event)||row(event),error:null}));m.save.mockImplementation(async(updates,id,event)=>{rows.set(event,{...(rows.get(event)||row(event)),...updates});return{data:{id},error:null};});
+ const {result,rerender}=await loaded();act(()=>{void result.current.updateSettings({notes:'Event one edit'});});
+ await act(async()=>{await vi.advanceTimersByTimeAsync(300);});vi.useRealTimers();
+ rerender({event:'two'});await waitFor(()=>expect(result.current.settings?.event_id).toBe('two'));expect(result.current.canUndo).toBe(false);expect(result.current.settings?.notes).toBe('');
+ await act(async()=>{await result.current.undo();});expect(result.current.settings?.event_id).toBe('two');
+ rerender({event:'one'});await waitFor(()=>expect(result.current.settings?.event_id).toBe('one'));expect(result.current.settings?.notes).toBe('Event one edit');expect(result.current.canUndo).toBe(true);
+ act(()=>{void result.current.undo();});expect(result.current.settings?.notes).toBe('');expect(result.current.settings?.event_id).toBe('one');
+});
+it('groups successive typing, keeps separate preview gestures, and clears redo after a new edit', async()=>{
+ const zone={id:'seat',type:'custom',text:'Original',x_percent:50,y_percent:50};m.read.mockImplementation(async event=>({data:{...row(event),text_zones:[zone]},error:null}));const {result}=await loaded();
+ act(()=>{void result.current.updateSettings({text_zones:[{...zone,text:'O'}]});void result.current.updateSettings({text_zones:[{...zone,text:'On'}]});void result.current.updateSettings({text_zones:[{...zone,text:'One'}]});});
+ act(()=>{void result.current.undo();});expect(result.current.settings?.text_zones[0].text).toBe('Original');
+ act(()=>{void result.current.updateSettings({text_zones:[{...zone,x_percent:60}]},{historyGroup:false});void result.current.updateSettings({text_zones:[{...zone,x_percent:70}]},{historyGroup:false});});expect(result.current.canRedo).toBe(false);
+ act(()=>{void result.current.undo();});expect(result.current.settings?.text_zones[0].x_percent).toBe(60);
+ act(()=>{void result.current.undo();});expect(result.current.settings?.text_zones[0].x_percent).toBe(50);
+});

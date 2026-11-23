@@ -1,9 +1,14 @@
 import {useCallback,useEffect,useRef,useState} from 'react';
 import {supabase} from '@/integrations/supabase/client';
+import {useGuestExperiencePreview} from '@/contexts/GuestExperiencePreviewContext';
 type Session={token:string;expiresAt:number};
 type Clock={phase:'invitation'|'seating';serverNow:number;observedAt:number;cutoff:number;eventTimezone:string};
 const key=(eventId:string)=>'ww-guest-verification:'+eventId;
 export function useGuestVerification(eventId:string|undefined){
+ const preview=useGuestExperiencePreview();
+ const [previewGuestId,setPreviewGuestId]=useState<string|null>(null);
+ useEffect(()=>setPreviewGuestId(null),[preview?.snapshot.event.id,preview?.mode]);
+ eventId=preview?undefined:eventId;
  const [clock,setClock]=useState<Clock|null>(null);
  const [session,setSession]=useState<Session|null>(null);
  const [party,setParty]=useState<any[]>([]);
@@ -54,5 +59,10 @@ export function useGuestVerification(eventId:string|undefined){
   sessionRef.current=next;setSession(next);try{localStorage.setItem(key(eventId!),JSON.stringify(next));}catch{}
   return true;
  },[eventId,refresh]);
+ if(preview){
+  const selected=preview.snapshot.guests.find(g=>g.id===previewGuestId);
+  const party=selected?preview.snapshot.guests.filter(g=>g.id===selected.id||(selected.family_group&&g.family_group===selected.family_group)||g.added_by_guest_id===selected.id):[];
+  return{phase:preview.mode,eventTimezone:preview.snapshot.event.event_timezone,token:selected?'organiser-preview':undefined,party,verifiedFor:(id:string)=>party.some(g=>g.id===id),refresh:async()=>true,accept:async(data:any)=>{if(!preview.snapshot.guests.some(g=>g.id===data?.previewGuestId))return false;setPreviewGuestId(data.previewGuestId);return true;},clear:()=>setPreviewGuestId(null)};
+ }
  return{phase,eventTimezone:clock?.eventTimezone,token:active?session!.token:undefined,party:active?party:[],verifiedFor:(id:string)=>!!active&&party.some(g=>g.id===id),refresh,accept,clear};
 }

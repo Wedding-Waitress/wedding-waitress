@@ -127,7 +127,7 @@ export const FullSeatingChartCustomizer: React.FC<FullSeatingChartCustomizerProp
               <SelectContent className={`${styles.portalSurface} bg-popover border-border z-50`}>
                 <SelectItem className={styles.portalItem} value="firstName">First Name</SelectItem>
                 <SelectItem className={styles.portalItem} value="lastName">Last Name</SelectItem>
-                <SelectItem className={styles.portalItem} value="tableNo">Table Number - Names</SelectItem>
+                <SelectItem className={styles.portalItem} value="tableNo">Table Number \ Names</SelectItem>
               </SelectContent>
             </Select>
           </div>

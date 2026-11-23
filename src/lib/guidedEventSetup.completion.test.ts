@@ -39,6 +39,7 @@ class Query {
   upsert(payload: Row) { this.operation = 'upsert'; this.payload = payload; return this; }
   eq(field: string, value: unknown) { this.filters.set(field, value); return this; }
   is() { return this; }
+  in(field: string, values: unknown[]) { this.filters.set(field, values); return this; }
   order() { return this; }
   limit() { return this; }
   single() { return Promise.resolve(this.execute(true)); }
@@ -61,7 +62,7 @@ class Query {
         state.events.push(event);
         return { data: event, error: null };
       }
-      const event = state.events.find((row) => [...this.filters].every(([key, value]) => row[key] === value)) || null;
+      const event = state.events.find((row) => [...this.filters].every(([key, value]) => Array.isArray(value) ? value.includes(row[key]) : row[key] === value)) || null;
       return { data: single ? event : event ? [event] : [], error: null };
     }
     if (this.table === 'onboarding_drafts' && this.operation === 'update') {
@@ -73,13 +74,13 @@ class Query {
       return { data: payload, error: null };
     }
     if (this.table === 'tables') {
-      if (this.operation === 'insert') state.tables.push(...(this.payload as Row[]));
-      const rows = state.tables.filter((row) => [...this.filters].every(([key, value]) => row[key] === value));
+      if (this.operation === 'insert') state.tables.push(...(this.payload as Row[]).map((row, index) => ({ ...row, id: 'table-' + (state.tables.length + index + 1) })));
+      const rows = state.tables.filter((row) => [...this.filters].every(([key, value]) => Array.isArray(value) ? value.includes(row[key]) : row[key] === value));
       return { data: rows, error: null };
     }
     if (this.table === 'guests') {
       if (this.operation === 'update') {
-        const rows = state.guests.filter((row) => [...this.filters].every(([key, value]) => row[key] === value));
+        const rows = state.guests.filter((row) => [...this.filters].every(([key, value]) => Array.isArray(value) ? value.includes(row[key]) : row[key] === value));
         rows.forEach((row) => Object.assign(row, payload));
         return { data: single ? rows[0] || null : rows, error: null };
       }
@@ -90,12 +91,12 @@ class Query {
         state.guests.push(guest);
         return { data: guest, error: null };
       }
-      const rows = state.guests.filter((row) => [...this.filters].every(([key, value]) => row[key] === value));
+      const rows = state.guests.filter((row) => [...this.filters].every(([key, value]) => Array.isArray(value) ? value.includes(row[key]) : row[key] === value));
       return { data: single ? rows[0] || null : rows, error: null };
     }
     if (this.table === 'dynamic_qr_codes') {
       if (this.operation === 'insert') state.qrs.push(payload || {});
-      const rows = state.qrs.filter((row) => [...this.filters].every(([key, value]) => row[key] === value));
+      const rows = state.qrs.filter((row) => [...this.filters].every(([key, value]) => Array.isArray(value) ? value.includes(row[key]) : row[key] === value));
       return { data: single ? rows[0] || null : rows, error: null };
     }
     return { data: single ? null : [], error: null };
@@ -106,7 +107,19 @@ vi.mock('@/integrations/supabase/client', () => ({
   supabase: {
     auth: { getUser: vi.fn(async () => ({ data: { user: { id: 'owner-1' } } })) },
     from: (table: string) => new Query(table),
-    rpc: vi.fn(async () => ({ data: 'qr-code-1', error: null })),
+    rpc: vi.fn(async (name, args) => {
+      if (name === 'can_access_event') return {data: args._user_id === 'owner-1' && state.events.some(event => event.id === args._event_id), error:null};
+      if (name === 'save_head_table_seating') {
+        const table = state.tables.find(row => row.id === args.p_table_id)!;
+        table.head_seating_order = args.p_order;
+        const offset = Math.floor((Number(table.limit_seats) - args.p_order.length) / 2);
+        args.p_order.forEach((entry: Row, index: number) => {
+          if (entry.kind !== 'guest') return;
+          Object.assign(state.guests.find(row => row.id === entry.guest_id)!, { table_id: table.id, table_no: null, seat_no: offset + index + 1 });
+        });
+      }
+      return { data: 'qr-code-1', error: null };
+    }),
   },
 }));
 
@@ -173,8 +186,8 @@ describe('Guided Setup completion recovery', () => {
     expect(state.tables.filter((table) => table.table_purpose === 'head')).toEqual([expect.objectContaining({ table_type: 'long', limit_seats: 4 })]);
     expect(state.qrs).toHaveLength(1);
     expect(state.guests).toEqual([
-      expect.objectContaining({ first_name: 'Nader', last_name: null, guided_setup_origin: 'wedding_couple_1', family_group: 'Nader & Nahla Couple', assigned: false, table_id: null, table_no: null, seat_no: null, email: null, mobile: null, rsvp: null, dietary: null }),
-      expect.objectContaining({ first_name: 'Nahla', last_name: null, guided_setup_origin: 'wedding_couple_2', family_group: 'Nader & Nahla Couple', assigned: false, table_id: null, table_no: null, seat_no: null, email: null, mobile: null, rsvp: null, dietary: null }),
+      expect.objectContaining({ first_name: 'Nader', last_name: null, guided_setup_origin: 'wedding_couple_1', family_group: 'Nader & Nahla Couple', assigned: true, table_id: 'table-1', table_no: null, seat_no: expect.any(Number), email: null, mobile: null, rsvp: null, dietary: null }),
+      expect.objectContaining({ first_name: 'Nahla', last_name: null, guided_setup_origin: 'wedding_couple_2', family_group: 'Nader & Nahla Couple', assigned: true, table_id: 'table-1', table_no: null, seat_no: expect.any(Number), email: null, mobile: null, rsvp: null, dietary: null }),
     ]);
     expect(state.draft).toMatchObject({ created_event_id: 'event-1', current_step: 10 });
   });

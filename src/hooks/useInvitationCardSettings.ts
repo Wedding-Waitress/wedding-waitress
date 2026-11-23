@@ -3,6 +3,7 @@ import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
 import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
 import { resolveWeddingFontZones } from '@/lib/localWeddingFonts';
+import { SignageDesignHistory, sameDesign, signageHistoryGroup, type SignageDesign } from '@/lib/signageDesignHistory';
 import { resolveInvitationCardSize } from '@/lib/invitationCardSizes';
 
 export interface TextZone {
@@ -76,6 +77,12 @@ export const invitationCardSettingsFromRow = (d: any): InvitationCardSettings =>
   qr_config: (d.qr_config || { ...DEFAULT_QR_CONFIG }) as QrConfig,
 });
 
+// Only document state enters history; identity, timestamps and artwork names stay attached to their records.
+type CardDesign = Omit<InvitationCardSettings, 'id'|'event_id'|'user_id'|'created_at'|'updated_at'|'name'|'card_type'>;
+const cardDesign = (settings: InvitationCardSettings): CardDesign => {
+  const { id, event_id, user_id, created_at, updated_at, name, card_type, ...design } = settings;
+  return JSON.parse(JSON.stringify(design));
+};
 // Module-level cache for instant loading on tab switches
 const invitationCache = new Map<string, { artworks: InvitationCardSettings[]; activeId: string | null }>();
 registerCache(() => { invitationCache.clear(); });
@@ -87,6 +94,24 @@ export const useInvitationCardSettings = (eventId: string | null) => {
   const [activeArtworkId, setActiveArtworkId] = useState<string | null>(cached?.activeId ?? null);
   const [loading, setLoading] = useState(false);
   const { toast } = useToast();
+  const artworksRef = useRef(artworks);
+  artworksRef.current = artworks;
+  const selectedIdRef = useRef(activeArtworkId);
+  selectedIdRef.current = activeArtworkId;
+  const loadVersion = useRef(0);
+  const histories = useRef(new Map<string, SignageDesignHistory<CardDesign>>());
+  const [, redrawHistory] = useState(0);
+  const historyKey = (a: InvitationCardSettings) => [a.user_id, a.event_id, a.id].join(':');
+  const historyFor = (a: InvitationCardSettings) => {
+    const key = historyKey(a), current = cardDesign(a);
+    let history = histories.current.get(key);
+    if (!history || !sameDesign(history.present, current)) {
+      history = new SignageDesignHistory(current);
+      histories.current.set(key, history);
+    }
+    return history;
+  };
+  const currentArtwork = () => artworksRef.current.find(a => a.id === selectedIdRef.current && a.event_id === eventId);
   const saveTimerRef = useRef<ReturnType<typeof setTimeout>>();
 
   const pendingRef = useRef(new Map<string, { event: string; updates: Partial<InvitationCardSettings>; resolve: Array<(saved: boolean) => void> }>());
@@ -116,35 +141,43 @@ export const useInvitationCardSettings = (eventId: string | null) => {
 
   // Keep cache in sync
   useEffect(() => {
-    if (eventId) invitationCache.set(eventId, { artworks, activeId: activeArtworkId });
+    if (eventId && artworks.every(a => a.event_id === eventId)) invitationCache.set(eventId, { artworks, activeId: activeArtworkId });
   }, [eventId, artworks, activeArtworkId]);
 
   const activeArtwork = useMemo(
-    () => artworks.find(a => a.id === activeArtworkId) || null,
-    [artworks, activeArtworkId]
+    () => artworks.find(a => a.id === activeArtworkId && a.event_id === eventId) || null,
+    [artworks, activeArtworkId, eventId]
   );
 
   const fetchSettings = useCallback(async () => {
+    const version = ++loadVersion.current;
     if (!eventId) {
       setArtworks([]);
       setActiveArtworkId(null);
       return;
     }
 
-    if (!invitationCache.has(eventId)) setLoading(true);
+    const cached = invitationCache.get(eventId);
+    setArtworks(cached?.artworks || []);
+    setActiveArtworkId(cached?.activeId || null);
+    if (!cached) setLoading(true);
     try {
+      await flushPending();
+      if (version !== loadVersion.current) return;
       const { data, error } = await supabase
         .from('invitation_card_settings' as any)
         .select('*')
         .eq('event_id', eventId)
         .order('created_at', { ascending: true });
 
+      if (version !== loadVersion.current) return;
       if (error) {
         console.error('Error fetching invitation card settings:', error);
         return;
       }
 
       const parsed = (data || []).map((d: any) => invitationCardSettingsFromRow(d));
+      parsed.forEach(historyFor);
       setArtworks(parsed);
 
       // Keep active if still valid, otherwise select first
@@ -157,15 +190,17 @@ export const useInvitationCardSettings = (eventId: string | null) => {
     } catch (error) {
       console.error('Error fetching invitation card settings:', error);
     } finally {
-      setLoading(false);
+      if (version === loadVersion.current) setLoading(false);
     }
   }, [eventId]);
 
-  const updateSettings = async (newSettings: Partial<InvitationCardSettings>) => {
-    if (!eventId || !activeArtworkId) return false;
+  const applySettings = (current: InvitationCardSettings, newSettings: Partial<InvitationCardSettings>) => {
+    const activeArtworkId = current.id!;
 
     // Optimistic: update local state immediately so canvas reflects changes instantly
-    setArtworks(prev => prev.map(a => a.id === activeArtworkId ? { ...a, ...newSettings } : a));
+    const next = artworksRef.current.map(a => a.id === activeArtworkId ? { ...a, ...newSettings } : a);
+    artworksRef.current = next;
+    setArtworks(next);
 
     const pending = pendingRef.current.get(activeArtworkId) || { event: eventId, updates: {}, resolve: [] as Array<(saved: boolean) => void> };
     pending.updates = { ...pending.updates, ...newSettings };
@@ -174,6 +209,26 @@ export const useInvitationCardSettings = (eventId: string | null) => {
     saveTimerRef.current = setTimeout(flushPending, 300);
     return new Promise<boolean>(resolve => pending.resolve.push(resolve));
   };
+
+  const updateSettings = async (newSettings: Partial<InvitationCardSettings>, options?: { historyGroup?: false }) => {
+    const current = currentArtwork();
+    if (!current?.id) return false;
+    const history = historyFor(current), before = cardDesign(current), after = cardDesign({ ...current, ...newSettings });
+    const group = options?.historyGroup === false ? null : signageHistoryGroup(before as SignageDesign, after as SignageDesign);
+    if (!history.record(after, group)) return true;
+    redrawHistory(value => value + 1);
+    return applySettings(current, newSettings);
+  };
+  const restoreHistory = async (direction: 'undo'|'redo') => {
+    const current = currentArtwork();
+    if (!current?.id) return false;
+    const history = historyFor(current), restored = direction === 'undo' ? history.undo() : history.redo();
+    if (!restored) return false;
+    redrawHistory(value => value + 1);
+    return applySettings(current, restored);
+  };
+  const breakHistoryGroup = () => { const current = currentArtwork(); if(current) histories.current.get(historyKey(current))?.breakGroup(); };
+  const activeHistory = activeArtwork ? histories.current.get(historyKey(activeArtwork)) : undefined;
 
   const createArtwork = async (cardType: CardType, name: string, cardSize?: string) => {
     if (!eventId) return null;
@@ -315,6 +370,11 @@ export const useInvitationCardSettings = (eventId: string | null) => {
     renameArtwork,
     loading,
     updateSettings,
+    canUndo: activeHistory?.canUndo ?? false,
+    canRedo: activeHistory?.canRedo ?? false,
+    undo: () => restoreHistory('undo'),
+    redo: () => restoreHistory('redo'),
+    breakHistoryGroup,
     refetchSettings: fetchSettings,
   };
 };

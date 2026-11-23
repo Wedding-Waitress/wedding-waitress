@@ -14,7 +14,7 @@ import { useUserPlan } from '@/hooks/useUserPlan';
 import { AdminOtpModal } from '@/components/Admin/AdminOtpModal';
 import { useNavigate } from 'react-router-dom';
 import { useProfile } from '@/hooks/useProfile';
-// Feature flags removed
+import { flags } from '@/lib/featureFlags';
 import {
   Sidebar,
   SidebarContent,
@@ -55,7 +55,7 @@ interface AppSidebarProps {
     ...productNavigationItems
       .filter(({ sidebarId }) => !PLANNING_WORKFLOW_IDS.has(sidebarId))
       .map(({ sidebarId: id, sidebarLabel: label, icon }) => ({ id, label, icon })),
-    ...(import.meta.env.DEV ? [{ id: 'live-streaming', label: 'Live Streaming', icon: Radio }] : []),
+    ...(import.meta.env.DEV && flags.liveStreamingPreview ? [{ id: 'live-streaming', label: 'Live Streaming', icon: Radio }] : []),
   ];
   
   const menuItems = allMenuItems;

@@ -1,4 +1,6 @@
 import { useCallback, useRef } from 'react';
+import {useGuestExperiencePreview} from '@/contexts/GuestExperiencePreviewContext';
+import {receptionFloorPlanFromRow} from '@/hooks/useReceptionFloorPlan';
 import { Loader2, MapPin } from 'lucide-react';
 
 import { ReceptionFloorPlanCanvas } from '@/components/Dashboard/FloorPlan/ReceptionFloorPlan/ReceptionFloorPlanCanvas';
@@ -10,7 +12,11 @@ interface ReadOnlyReceptionFloorPlanProps {
 }
 
 export const ReadOnlyReceptionFloorPlan = ({ token }: ReadOnlyReceptionFloorPlanProps) => {
-  const { data, backgroundUrl, loading, error } = useReceptionFloorPlanShare(token || undefined);
+  const preview=useGuestExperiencePreview();
+  const actual=useReceptionFloorPlanShare(preview?undefined:token || undefined);
+  const snapshot=preview?.snapshot;
+  const data=snapshot?.reception?{plan:receptionFloorPlanFromRow(snapshot.reception),event:snapshot.event,tables:snapshot.tables.map(table=>({...table,guest_count:snapshot.guests.filter(g=>g.table_id===table.id).length,occupied_seat_numbers:snapshot.guests.filter(g=>g.table_id===table.id).map(g=>g.seat_no).filter(Boolean)})),attendingCount:snapshot.guests.filter(g=>g.rsvp==='Attending').length}:preview?null:actual.data;
+  const backgroundUrl=preview?snapshot?.receptionBackground:actual.backgroundUrl,loading=preview?false:actual.loading,error=preview?null:actual.error;
   const a4Ref = useRef<HTMLDivElement>(null);
   const generatedAt = useRef(new Date());
   const preserveReadOnlyPlan = useCallback(

@@ -9,6 +9,7 @@
  *
  * Last locked: 2026-02-19
  */
+import {textUndoUpdates} from '@/lib/djmcTextUndo';
 import { useState, useEffect, useCallback, useRef } from 'react';
 import { supabase } from '@/integrations/supabase/client';
 import { useToast } from '@/hooks/use-toast';
@@ -42,10 +43,16 @@ export function useDJMCQuestionnaire(eventId: string | null) {
   const lastSaveRef = useRef<number>(0);
   const read = useRef(createCoalescedRead<void>());
   const currentEvent = useRef(eventId); currentEvent.current = eventId;
+  const questionnaireRef=useRef(questionnaire);questionnaireRef.current=questionnaire;
+  const writeQueue=useRef<Promise<unknown>>(Promise.resolve());
   const undoWrites = useRef(new Set<Promise<unknown>>());
   const trackUndoWrite = async <T,>(request: PromiseLike<T>): Promise<T> => {
     const promise=Promise.resolve(request);undoWrites.current.add(promise);
     try{return await promise;}finally{undoWrites.current.delete(promise);}
+  };
+  const queueWrite = <T,>(request:()=>PromiseLike<T>) => {
+    const next=writeQueue.current.then(request);writeQueue.current=next.catch(()=>undefined);
+    return trackUndoWrite(next);
   };
   const prepareUndo = async () => {
     itemSaveTimers.current.forEach(clearTimeout);sectionSaveTimers.current.forEach(clearTimeout);
@@ -250,7 +257,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
       lastSaveRef.current = Date.now();
       setSaving(true);
       try {
-        const { error } = await trackUndoWrite(supabase
+        const { error } = await queueWrite(()=>supabase
           .from('dj_mc_sections')
           .update(combinedUpdates)
           .eq('id', sectionId));
@@ -258,6 +265,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
       } catch (error) {
         console.error('Error saving section:', error);
       } finally {
+        lastSaveRef.current=Date.now();
         setSaving(false);
       }
     }, 300);
@@ -294,7 +302,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
       lastSaveRef.current = Date.now();
       setSaving(true);
       try {
-        const { error } = await trackUndoWrite(supabase
+        const { error } = await queueWrite(()=>supabase
           .from('dj_mc_items')
           .update(combinedUpdates)
           .eq('id', itemId));
@@ -307,6 +315,7 @@ export function useDJMCQuestionnaire(eventId: string | null) {
           variant: 'destructive',
         });
       } finally {
+        lastSaveRef.current=Date.now();
         setSaving(false);
       }
     }, 300);
@@ -333,6 +342,17 @@ export function useDJMCQuestionnaire(eventId: string | null) {
     saveItemToDb(itemId, updates);
   }, [saveItemToDb]);
 
+  // Text-only Undo is synchronous on screen and uses the same debounced, serialised autosave.
+  const restoreLocalTextUndo = (sections:DJMCSection[]) => {
+    const current=questionnaireRef.current;
+    if(!current||current.event_id!==eventId)return false;
+    const updates=textUndoUpdates(current.sections,sections);if(!updates)return false;
+    const next={...current,sections:structuredClone(sections)};questionnaireRef.current=next;
+    lastSaveRef.current=Date.now();setCachedQuestionnaire(next);
+    updates.items.forEach(({id,changes})=>saveItemToDb(id,changes));
+    updates.sections.forEach(({id,changes})=>saveSectionToDb(id,changes));
+    return true;
+  };
   // Add new item to section
   const addItem = useCallback(async (sectionId: string, rowLabel: string = 'New Item') => {
     if (!questionnaire) return;
@@ -807,7 +827,7 @@ const deleteSection = useCallback(async (sectionId: string) => {
         table: 'dj_mc_items',
       }, (payload) => {
         // Ignore realtime events caused by our own recent saves
-        if (Date.now() - lastSaveRef.current < SELF_SAVE_COOLDOWN_MS) {
+        if (undoWrites.current.size || pendingItems.current.size || pendingSections.current.size || Date.now() - lastSaveRef.current < SELF_SAVE_COOLDOWN_MS) {
           return;
         }
         const changedSectionId = (payload.new as any)?.section_id || (payload.old as any)?.section_id;
@@ -828,6 +848,7 @@ const deleteSection = useCallback(async (sectionId: string) => {
   return {
     questionnaire,
     prepareUndo,
+    restoreLocalTextUndo,
     loading,
     saving,
     shareTokens,

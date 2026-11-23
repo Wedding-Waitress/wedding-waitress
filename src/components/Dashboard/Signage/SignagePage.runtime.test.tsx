@@ -8,6 +8,7 @@ import { exportSignagePDF } from '@/lib/signagePdfExporter';
 const testState = vi.hoisted(() => ({
   galleryLoading: true,
   isAdmin: true,
+  canUndo: false, canRedo: false, undo: vi.fn(), redo: vi.fn(),
   signageSettings: {
     id: 'settings-1',
     event_id: 'event-1',
@@ -54,6 +55,7 @@ vi.mock('@/hooks/useSignageSettings', () => ({
     asInvitationSettings: testState.signageSettings,
     loading: false,
     updateSettings: vi.fn(),
+    canUndo: testState.canUndo, canRedo: testState.canRedo, undo: testState.undo, redo: testState.redo, breakHistoryGroup: vi.fn(),
   }),
 }));
 
@@ -143,7 +145,7 @@ describe('Seating Chart Signs route runtime', () => {
     render(<MemoryRouter><SignagePage selectedEventId="event-1" onEventSelect={vi.fn()} events={[{ id: 'event-1', name: 'Test Wedding' } as any]} eventsLoading={false} /></MemoryRouter>);
     const cards = screen.getAllByRole('button').filter(button => /^\s*A[0-3]/.test(button.textContent || ''));
     expect(cards.map(card => card.textContent?.trim().match(/^A[0-3]/)?.[0])).toEqual(['A3', 'A2', 'A1', 'A0']);
-    expect(cards[2]).toHaveAttribute('aria-pressed', 'true');
+    expect(cards[1]).toHaveAttribute('aria-pressed', 'true');
     const sizes = [[297, 420], [420, 594], [594, 841], [841, 1189]];
     for (let index = 0; index < cards.length; index++) {
       fireEvent.click(cards[index]);
@@ -196,4 +198,15 @@ describe('Seating Chart Signs route runtime', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Close' }));
     expect(screen.queryByRole('dialog')).not.toBeInTheDocument();
   });
+});
+
+it('places green Undo and conditional Redo above the preview and outside the exported document',()=>{
+ const props={selectedEventId:'event-1',onEventSelect:vi.fn(),events:[{id:'event-1',name:'Test Wedding'} as any],eventsLoading:false};
+ testState.canUndo=false;testState.canRedo=false;testState.undo.mockClear();testState.redo.mockClear();
+ const {rerender}=render(<MemoryRouter><SignagePage {...props}/></MemoryRouter>);
+ expect(screen.getByRole('button',{name:'Undo'})).toBeDisabled();expect(screen.queryByRole('button',{name:'Redo'})).toBeNull();
+ testState.canUndo=true;rerender(<MemoryRouter><SignagePage {...props}/></MemoryRouter>);fireEvent.click(screen.getByRole('button',{name:'Undo'}));expect(testState.undo).toHaveBeenCalledTimes(1);
+ testState.canRedo=true;rerender(<MemoryRouter><SignagePage {...props}/></MemoryRouter>);fireEvent.click(screen.getByRole('button',{name:'Redo'}));expect(testState.redo).toHaveBeenCalledTimes(1);
+ const toolbar=screen.getByRole('toolbar',{name:'Sign design history'}),preview=screen.getByText('Seating sign preview');expect(toolbar.contains(preview)).toBe(false);expect(toolbar.compareDocumentPosition(preview)&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+ testState.canUndo=false;testState.canRedo=false;
 });

@@ -144,7 +144,7 @@ export const useReceptionFloorPlanShare = (token: string | undefined): State => 
           table_purpose: tablePurpose,
           head_seating_order: headOrder,
           guest_count: tablePurpose === 'head' ? headOrder.length : Number(t.guest_count ?? snapshot?.occupied_count ?? 0),
-          occupied_seat_numbers: tablePurpose === 'head' ? headOrder.map((_, index) => Math.floor((Number(t.limit_seats ?? snapshot?.capacity ?? 0) - headOrder.length) / 2) + index + 1) : Array.isArray(t.occupied_seat_numbers)
+          occupied_seat_numbers: tablePurpose === 'head' ? headOrder.map((entry, index) => entry.seat_no ?? Math.floor((Number(t.limit_seats ?? snapshot?.capacity ?? 0) - headOrder.length) / 2) + index + 1) : Array.isArray(t.occupied_seat_numbers)
             ? (t.occupied_seat_numbers as number[])
             : snapshot?.occupied_seat_numbers ?? [],
         };

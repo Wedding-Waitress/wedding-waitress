@@ -65,6 +65,7 @@ export interface Event {
   relation_allow_single_partner: boolean | null;
   relation_mode?: 'two' | 'single' | 'off' | null;
   event_type?: 'seated' | 'cocktail';
+  setup_details?: import('@/integrations/supabase/types').Json;
   event_image_path?: string | null;
   event_image_fit?: 'cover' | 'contain';
   event_image_position_x?: number;
@@ -171,7 +172,7 @@ export const useEvents = () => {
       
       // Fetch events with guest count AND additional fields in parallel
       const additionalFields = `
-        id, user_id, relation_mode,
+        id, user_id, setup_details, relation_mode,
         ceremony_enabled, ceremony_name, ceremony_date, ceremony_venue,
         ceremony_venue_address, ceremony_venue_phone, ceremony_venue_contact, ceremony_venue_contact_email,
         ceremony_guest_limit, ceremony_start_time,
@@ -180,7 +181,7 @@ export const useEvents = () => {
         collect_guest_addresses
       `;
       const eventImageFieldsWithoutZoom = `
-        id, user_id, relation_mode, event_image_path, event_image_fit, event_image_position_x, event_image_position_y,
+        id, user_id, setup_details, relation_mode, event_image_path, event_image_fit, event_image_position_x, event_image_position_y,
         ceremony_enabled, ceremony_name, ceremony_date, ceremony_venue,
         ceremony_venue_address, ceremony_venue_phone, ceremony_venue_contact, ceremony_venue_contact_email,
         ceremony_guest_limit, ceremony_start_time,
@@ -191,7 +192,7 @@ export const useEvents = () => {
       const [{ data, error }, imageFieldsResult] = await Promise.all([
         supabase.rpc('get_events_with_guest_count'),
         supabase.from('events').select(`
-          id, user_id, relation_mode, event_image_path, event_image_fit, event_image_position_x, event_image_position_y, event_image_zoom,
+          id, user_id, setup_details, relation_mode, event_image_path, event_image_fit, event_image_position_x, event_image_position_y, event_image_zoom,
           ceremony_enabled, ceremony_name, ceremony_date, ceremony_venue, 
           ceremony_venue_address, ceremony_venue_phone, ceremony_venue_contact, ceremony_venue_contact_email,
           ceremony_guest_limit, ceremony_start_time, 
@@ -233,6 +234,7 @@ export const useEvents = () => {
           partner1_name: event.partner1_name || null,
           partner2_name: event.partner2_name || null,
           rsvp_deadline: event.rsvp_deadline || null,
+          setup_details: extraData.setup_details ?? null,
           relation_mode: extraData.relation_mode ?? event.relation_mode ?? null,
           user_id: extraData.user_id ?? event.user_id,
           event_image_path: extraData.event_image_path ?? null,

@@ -1,13 +1,15 @@
 import React,{useEffect,useState} from 'react';
-import {supabase} from '@/integrations/supabase/client';
+import {useGuestExperienceClient,useGuestExperiencePreview} from '@/contexts/GuestExperiencePreviewContext';
 import {Button} from '@/components/ui/button';
 import {Input} from '@/components/ui/input';
 import {Label} from '@/components/ui/label';
 export function GuestVerificationGate({eventId,guestId,fullName,copy,onVerified}:{eventId:string;guestId:string;fullName:string;copy:string[];onVerified:(data:any)=>Promise<boolean>}){
+ const preview=useGuestExperiencePreview();const supabase=useGuestExperienceClient();
  const [challenge,setChallenge]=useState<string|null>(null),[code,setCode]=useState(''),[busy,setBusy]=useState(false),[message,setMessage]=useState(''),[resendAt,setResendAt]=useState(0),[now,setNow]=useState(Date.now());
  useEffect(()=>{setChallenge(null);setCode('');setMessage('');setResendAt(0);},[eventId,guestId]);
  useEffect(()=>{const timer=window.setInterval(()=>setNow(Date.now()),1000);return()=>window.clearInterval(timer);},[]);
  const request=async()=>{
+  if(preview){setChallenge('simulation');setMessage('Simulation only. Enter 000000. No SMS has been sent.');return;}
   if(busy||Date.now()<resendAt)return;setBusy(true);setMessage('');
   try{
    const {data,error}=await supabase.functions.invoke('guest-verification',{body:{action:'request',event_id:eventId,guest_id:guestId,full_name:fullName,request_id:crypto.randomUUID()}});
@@ -17,7 +19,7 @@ export function GuestVerificationGate({eventId,guestId,fullName,copy,onVerified}
   }catch{setMessage(copy[7]);}finally{setBusy(false);}
  };
  const verify=async(e:React.FormEvent)=>{
-  e.preventDefault();if(busy||!challenge||!/^\d{6}$/.test(code))return;setBusy(true);setMessage('');
+  e.preventDefault();if(preview){if(code==='000000')await onVerified({previewGuestId:guestId});else setMessage('For this private simulation enter 000000.');return;}if(busy||!challenge||!/^\d{6}$/.test(code))return;setBusy(true);setMessage('');
   try{
    const {data,error}=await supabase.functions.invoke('guest-verification',{body:{action:'check',challenge_id:challenge,code}});
    if(error||data?.status!=='verified'||!await onVerified(data))setMessage(copy[8]);

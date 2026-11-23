@@ -5,6 +5,7 @@ import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
 import { resolveWeddingFontZones } from '@/lib/localWeddingFonts';
 import type { TextZone, QrConfig, InvitationCardSettings } from '@/hooks/useInvitationCardSettings';
 import { previewUrlFor } from '@/lib/imagePipeline';
+import { SignageDesignHistory, signageDesign, signageHistoryGroup, sameDesign } from '@/lib/signageDesignHistory';
 
 export interface SignageSettings {
   id?: string;
@@ -72,6 +73,19 @@ export const useSignageSettings = (eventId: string | null) => {
   const saveQueueRef = useRef<Promise<void>>(Promise.resolve());
   const failedChangesRef = useRef(new Map<string, Partial<SignageSettings>>());
   const loadVersionRef = useRef(0);
+  const historiesRef = useRef(new Map<string, SignageDesignHistory>());
+  const [, redrawHistory] = useState(0);
+  const historyKey = (current: SignageSettings) => [current.user_id, current.event_id, current.id].join(':');
+  const historyFor = (current: SignageSettings) => {
+    const key = historyKey(current), design = signageDesign(current);
+    let history = historiesRef.current.get(key);
+    if (!history || !sameDesign(history.present, design)) {
+      history = new SignageDesignHistory(design);
+      historiesRef.current.set(key, history);
+    }
+    return history;
+  };
+  const syncLoadedHistory = (current: SignageSettings) => { historyFor(current); };
 
   const flushPending = useCallback(() => {
     clearTimeout(saveTimerRef.current);
@@ -112,6 +126,9 @@ export const useSignageSettings = (eventId: string | null) => {
       const { data: { user } } = await supabase.auth.getUser();
       if (version !== loadVersionRef.current) return;
       if (!user) { setLoading(false); return; }
+      // Finish queued saves before loading a design again after an event switch.
+      await saveQueueRef.current;
+      if (version !== loadVersionRef.current) return;
 
       const { data, error } = await (supabase as any)
         .from('signage_settings')
@@ -136,6 +153,7 @@ export const useSignageSettings = (eventId: string | null) => {
           parsed.background_image_print_url = parsed.background_image_url;
           parsed.background_image_url = previewUrlFor(parsed.background_image_url) ?? parsed.background_image_url;
         }
+        syncLoadedHistory(parsed);
         setSettings(parsed);
         settingsRef.current = parsed;
         cache.set(eventId, parsed);
@@ -156,6 +174,7 @@ export const useSignageSettings = (eventId: string | null) => {
           throw insErr;
         } else if (inserted) {
           const parsed = { ...def, id: inserted.id } as SignageSettings;
+          syncLoadedHistory(parsed);
           setSettings(parsed);
           settingsRef.current = parsed;
           cache.set(eventId, parsed);
@@ -176,9 +195,7 @@ export const useSignageSettings = (eventId: string | null) => {
     return () => { loadVersionRef.current++; flushPending(); };
   }, [fetchSettings, flushPending]);
 
-  const updateSettings = useCallback(async (updates: Partial<SignageSettings>) => {
-    const current = settingsRef.current;
-    if (!eventId || !current?.id || current.event_id !== eventId) return false;
+  const applyUpdates = useCallback((current: SignageSettings, updates: Partial<SignageSettings>) => {
     const next = { ...current, ...updates };
     settingsRef.current = next;
     setSettings(next);
@@ -189,6 +206,33 @@ export const useSignageSettings = (eventId: string | null) => {
     saveTimerRef.current = setTimeout(flushPending, 300);
     return new Promise<boolean>(resolve => { waitersRef.current.push(resolve); });
   }, [eventId, flushPending]);
+
+  const updateSettings = useCallback(async (updates: Partial<SignageSettings>, options?: { historyGroup?: string | false }) => {
+    const current = settingsRef.current;
+    if (!eventId || !current?.id || current.event_id !== eventId) return false;
+    const next = { ...current, ...updates }, history = historyFor(current);
+    const group = options?.historyGroup === false ? null : options?.historyGroup ?? signageHistoryGroup(signageDesign(current), signageDesign(next));
+    if (!history.record(signageDesign(next), group)) return true;
+    redrawHistory(value => value + 1);
+    return applyUpdates(current, updates);
+  }, [eventId, applyUpdates]);
+
+  const restoreHistory = useCallback(async (direction: 'undo' | 'redo') => {
+    const current = settingsRef.current;
+    if (!eventId || !current?.id || current.event_id !== eventId) return false;
+    const history = historyFor(current);
+    const restored = direction === 'undo' ? history.undo() : history.redo();
+    if (!restored) return false;
+    redrawHistory(value => value + 1);
+    return applyUpdates(current, restored);
+  }, [eventId, applyUpdates]);
+  const undo = useCallback(() => restoreHistory('undo'), [restoreHistory]);
+  const redo = useCallback(() => restoreHistory('redo'), [restoreHistory]);
+  const breakHistoryGroup = useCallback(() => {
+    const current = settingsRef.current;
+    if (current?.id && current.event_id === eventId) historiesRef.current.get(historyKey(current))?.breakGroup();
+  }, [eventId]);
+  const activeHistory = settings?.id && settings.event_id === eventId ? historiesRef.current.get(historyKey(settings)) : undefined;
 
   // Adapter so we can feed the shared InvitationCardCustomizer + Preview as-is.
   const asInvitationSettings: InvitationCardSettings | null = useMemo(() => {
@@ -214,10 +258,15 @@ export const useSignageSettings = (eventId: string | null) => {
   }, [settings]);
 
   return {
-    settings,
-    asInvitationSettings,
+    settings: settings?.event_id === eventId ? settings : null,
+    asInvitationSettings: settings?.event_id === eventId ? asInvitationSettings : null,
     loading,
     updateSettings,
+    canUndo: activeHistory?.canUndo ?? false,
+    canRedo: activeHistory?.canRedo ?? false,
+    undo,
+    redo,
+    breakHistoryGroup,
     refetch: fetchSettings,
   };
 };

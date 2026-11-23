@@ -45,7 +45,7 @@ import {
 } from 'lucide-react';
 import weddingWaitressFooterLogo from '@/assets/wedding-waitress-brown-logo.png';
 import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
-import { supabase } from '@/integrations/supabase/client';
+import {useGuestExperienceClient,useGuestExperiencePreview} from '@/contexts/GuestExperiencePreviewContext';
 import { useToast } from '@/hooks/use-toast';
 import { EnhancedGuestCard } from '@/components/GuestLookup/EnhancedGuestCard';
 import { normalizeRsvp } from '@/lib/rsvp';
@@ -106,6 +106,7 @@ const ExistingFloorPlanView: React.FC<{
   fetched: boolean;
   setFetched: (v: boolean) => void;
 }> = ({ eventSlug, ceremonyFloorPlan, setCeremonyFloorPlan, loading, setLoading, fetched, setFetched }) => {
+  const supabase=useGuestExperienceClient();
   React.useEffect(() => {
     if (fetched || !eventSlug) return;
     setLoading(true);
@@ -140,14 +141,17 @@ const ExistingFloorPlanView: React.FC<{
 };
 
 export const GuestLookup: React.FC = () => {
+  const preview=useGuestExperiencePreview();
+  const supabase=useGuestExperienceClient();
   useQrGuestTheme();
   useMobileGuestSearchViewport();
-  const { eventSlug } = useParams<{ eventSlug: string }>();
+  const { eventSlug: publicEventSlug } = useParams<{ eventSlug: string }>();
+  const eventSlug = preview?.snapshot.event.slug || publicEventSlug;
   const [searchParams] = useSearchParams();
   const navigateWishes=useNavigate();
   const {copy:wishesCopy}=useVideoWishesCopy();
   const [wishesEnabled,setWishesEnabled]=useState(false);
-  const inviteToken = searchParams.get('invite')?.trim() || null;
+  const inviteToken = preview ? null : searchParams.get('invite')?.trim() || null;
   const isRecipientInvitation = Boolean(inviteToken);
   const [recipientGuestId, setRecipientGuestId] = useState<string | null>(null);
 
@@ -250,11 +254,12 @@ export const GuestLookup: React.FC = () => {
   // 7-day auto-protection window: true when event.date is today or within the next 7 calendar days
   // (timezone-aware via the event's configured timezone). Past events do not trigger this.
   const isWithin7DayAutoProtection = useMemo(() => {
+    if (preview) return preview.mode === 'seating';
     if (!event?.date) return false;
     const tz = verification.eventTimezone || 'Australia/Sydney';
     const distance = eventCalendarDayDistance(event.date, tz, new Date(searchClock));
     return distance !== null && distance >= 0 && distance <= 7;
-  }, [event?.date, event?.event_timezone, searchClock]);
+  }, [event?.date, event?.event_timezone, searchClock, preview]);
 
   // Per-action overrides stored inside rsvp_invite_config JSON (no DB schema change).
   // Default OFF — when in 7-day window, actions are hidden unless organiser flips ON.
@@ -651,12 +656,13 @@ export const GuestLookup: React.FC = () => {
   useEffect(() => {
     if (!verification.token || isOpenSearchMode) { setIsUpdateModalOpen(false); setSelectedGuest(null); setInlineDirty(false); consumedInlineQuery.current = ''; }
   }, [verification.token, isOpenSearchMode]);
-  const navigateToVideoWishes = () => navigateWishes('/s/'+encodeURIComponent(eventSlug||'')+'/video-wishes',{state:{videoWishesInvite:inviteToken}});
+  const navigateToVideoWishes = () => !preview && navigateWishes('/s/'+encodeURIComponent(eventSlug||'')+'/video-wishes',{state:{videoWishesInvite:inviteToken}});
   const closeInlineEditor = (next: boolean) => {
     setIsUpdateModalOpen(next);
     if (!next) { setInlineDirty(false); if (videoNavigationPending) { setVideoNavigationPending(false); navigateToVideoWishes(); } }
   };
   const openVideoWishes = () => {
+    if(preview){toast({title:'Organiser preview',description:'Recording and guest submissions are unavailable in this read-only preview.'});return;}
     if (isUpdateModalOpen && inlineDirty) { setVideoNavigationPending(true); setDismissRequest(value=>value+1); return; }
     navigateToVideoWishes();
   };
@@ -668,6 +674,7 @@ export const GuestLookup: React.FC = () => {
   };
 
   const openSongRequests = () => {
+    if(preview){toast({title:'Organiser preview',description:'Guest song submissions are unavailable in this read-only preview.'});return;}
     if (!songRequestSettings?.enabled || songRequestSettings.max_requests_per_guest < 1) return;
     const recipient = recipientGuestId ? guests.find(guest => guest.id === recipientGuestId) : null;
     const searchedGuest = !searching && filteredGuests.length === 1 ? filteredGuests[0] : null;
@@ -1174,7 +1181,7 @@ export const GuestLookup: React.FC = () => {
       </div>
 
       {/* Guest Profile Modal */}
-      <GuestProfileModal
+      {!preview && <GuestProfileModal
         guest={selectedGuest}
         isOpen={showProfileModal}
         onClose={() => {
@@ -1182,21 +1189,21 @@ export const GuestLookup: React.FC = () => {
           setSelectedGuest(null);
         }}
         onUpdate={refreshGuestData}
-      />
+      />}
 
 
 
-      <GuestSongRequestsModal
+      {!preview && <GuestSongRequestsModal
         open={isSongRequestsModalOpen}
         onOpenChange={setIsSongRequestsModalOpen}
         accessToken={inviteToken || undefined}
         guestId={songRequestGuestId || undefined}
         eventId={event?.id}
         maxRequests={songRequestSettings?.enabled ? songRequestSettings.max_requests_per_guest : 0}
-      />
+      />}
 
       {/* Public Add Guest Modal */}
-      {event?.id && (
+      {!preview && event?.id && (
       <PublicAddGuestModal
           open={showAddGuestModal}
           onOpenChange={(open) => { setShowAddGuestModal(open); if (!open) setAddGuestForId(null); }}

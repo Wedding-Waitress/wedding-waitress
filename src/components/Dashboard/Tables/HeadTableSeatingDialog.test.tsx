@@ -27,3 +27,21 @@ describe('Head Table participant recovery',()=>{
   expect(close).toHaveBeenCalledWith(false);expect(save).not.toHaveBeenCalled();
  });
 });
+
+it('keeps linked couple records as the hosts, prevents duplicate add buttons, and swaps their existing guest seats', async () => {
+ const save=vi.fn().mockResolvedValue(true);
+ const people=[{id:'one',event_id:'event',user_id:'owner',first_name:'Alex',last_name:'Smith',guided_setup_origin:'wedding_couple_1',table_id:'head',seat_no:1},{id:'two',event_id:'event',user_id:'owner',first_name:'Casey',last_name:'Jones',guided_setup_origin:'wedding_couple_2',table_id:'head',seat_no:2}];
+ const linked={...table,id:'head',event_id:'event',user_id:'owner',limit_seats:8,head_seating_order:[{kind:'guest',guest_id:'one'},{kind:'guest',guest_id:'two'}]} as TableWithGuestCount;
+ render(<HeadTableSeatingDialog open onOpenChange={vi.fn()} table={linked} guests={people as any} participant1="Alex Smith" participant2="Casey Jones" onSave={save}/>);
+ expect(screen.queryByRole('button',{name:'Add Alex Smith'})).toBeNull();
+ expect(screen.queryByRole('button',{name:'Add Casey Jones'})).toBeNull();
+ fireEvent.click(screen.getByRole('button',{name:/Swap/}));
+ fireEvent.click(screen.getByRole('button',{name:'Save seating order'}));
+ await waitFor(()=>expect(save).toHaveBeenCalledWith('head',[{kind:'guest',guest_id:'two'},{kind:'guest',guest_id:'one'}]));
+});
+
+it('does not recreate a participant reservation for a partner intentionally seated elsewhere',()=>{
+ const save=vi.fn();const people=[{id:'one',event_id:'event',user_id:'owner',first_name:'Alex',last_name:'Smith',guided_setup_origin:'wedding_couple_1',table_id:'head',seat_no:3},{id:'two',event_id:'event',user_id:'owner',first_name:'Casey',last_name:'Jones',guided_setup_origin:'wedding_couple_2',table_id:'regular',seat_no:1}];
+ render(<HeadTableSeatingDialog open onOpenChange={vi.fn()} table={{...table,id:'head',event_id:'event',user_id:'owner',limit_seats:6,head_seating_order:[{kind:'guest',guest_id:'one',seat_no:3}]} as TableWithGuestCount} guests={people as any} participant1="Alex Smith" participant2="Casey Jones" onSave={save}/>);
+ expect(screen.queryByRole('button',{name:'Add Casey Jones'})).toBeNull();expect(save).not.toHaveBeenCalled();
+});

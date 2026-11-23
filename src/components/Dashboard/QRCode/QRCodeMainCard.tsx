@@ -783,15 +783,20 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
           {/* Col 3: Action Buttons */}
           <div className={`${styles.actionsPanel} flex flex-col gap-3 justify-start bg-muted/20 rounded-lg border border-primary p-4 min-h-[320px] shadow-[0_4px_20px_-4px_rgba(0,0,0,0.15)]`}>
             {/* Open Live View - Full Width */}
-            <Button variant="default" size="default" onClick={handleLiveView} disabled={!eventUrl} className={`${styles.liveViewButton} ww-emboss-green ww-emboss-green-soft w-full bg-green-500 text-white hover:text-white !border-0`}>
-              <ExternalLink strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />
-              Open Live View App
+            <Button variant="default" size="default" onClick={handleLiveView} disabled={!eventUrl} className={`${styles.liveViewButton} ww-emboss-green ww-emboss-green-soft w-full bg-green-500 text-white hover:text-white !border-0 whitespace-normal h-auto min-h-10`}>
+              <ExternalLink strokeWidth={1.8} className="h-4 w-4 mr-1.5 shrink-0" aria-hidden="true" />
+              Open Live View App - What your guests see today
             </Button>
 
-            {/* Copy Link - Full Width */}
-            <Button variant="outline" size="default" onClick={handleCopyLink} disabled={!eventUrl} className="lv-premium-shade border-[#C4A882] w-full">
-              {copiedLink ? <Check strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" /> : <Copy strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />}
-              Copy Link
+            <div className="space-y-2" aria-label="Private organiser preview">
+              <p className="text-sm font-semibold text-center">Preview Guest Experience · Private <span className="font-normal">(only you can see this)</span></p>
+              {([['invitation','More than 7 days before'],['seating','Within 7 days / event day']] as const).map(([mode,label])=><Button key={mode} variant="default" className={`${styles.liveViewButton} ${styles.privatePreviewButton} ww-emboss-green ww-emboss-green-soft w-full bg-green-500 text-white hover:text-white !border-0 whitespace-normal h-auto min-h-10`} onClick={()=>window.open('/organiser-preview/'+encodeURIComponent(eventId)+'/'+mode,'_blank','noopener,noreferrer')}><Eye className="h-4 w-4 mr-1.5 shrink-0" aria-hidden="true"/>{label}</Button>)}
+            </div>
+            <div className="grid grid-cols-2 gap-3" data-qr-export-actions>
+            {/* JPG - Full Width */}
+            <Button variant="outline" size="default" onClick={handleDownloadJPG} disabled={!qrDataUrl || downloading !== null} className="lv-premium-shade border-[#C4A882] w-full">
+              {downloading === 'jpg' ? <LoaderCircle strokeWidth={1.8} className="h-4 w-4 mr-1.5 animate-spin" aria-hidden="true" /> : <ImageDown strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />}
+              JPEG
             </Button>
 
             {/* PNG - Full Width */}
@@ -800,10 +805,10 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               PNG
             </Button>
 
-            {/* JPG - Full Width */}
-            <Button variant="outline" size="default" onClick={handleDownloadJPG} disabled={!qrDataUrl || downloading !== null} className="lv-premium-shade border-[#C4A882] w-full">
-              {downloading === 'jpg' ? <LoaderCircle strokeWidth={1.8} className="h-4 w-4 mr-1.5 animate-spin" aria-hidden="true" /> : <ImageDown strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />}
-              JPG
+            {/* Copy Link */}
+            <Button variant="outline" size="default" onClick={handleCopyLink} disabled={!eventUrl} className="lv-premium-shade border-[#C4A882] w-full">
+              {copiedLink ? <Check strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" /> : <Copy strokeWidth={1.8} className="h-4 w-4 mr-1.5" aria-hidden="true" />}
+              Copy Link
             </Button>
 
             <Button variant="outline" size="default" onClick={handleDownloadPDF} disabled={!qrDataUrl || downloading !== null} className="lv-premium-shade border-[#C4A882] w-full">
@@ -811,6 +816,7 @@ export const QRCodeMainCard: React.FC<QRCodeMainCardProps> = ({
               Download PDF
             </Button>
 
+            </div>
             {/* Spacer to push Reset to bottom */}
             <div className="flex-grow" />
 

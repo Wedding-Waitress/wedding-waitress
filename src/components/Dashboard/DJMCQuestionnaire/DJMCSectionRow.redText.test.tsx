@@ -63,3 +63,14 @@ it('opens the row label using the keyboard and gives its editor a name',()=>{
  fireEvent.keyDown(screen.getByRole('button',{name:'Existing row'}),{key:'Enter'});
  expect(screen.getByRole('textbox',{name:'Existing row'})).toBeVisible();
 });
+
+it('records every character immediately without adding a duplicate blur edit',()=>{
+ const changes:any[]=[];
+ function Editor(){const [item,setItem]=React.useState<any>({id:'typing',row_label:'Names',value_text:'',song_title_artist:''});return <DJMCSectionRow item={item} eventId="event" sectionType="ceremony" onUpdate={next=>{changes.push(next);setItem((old:any)=>({...old,...next}));}} onDelete={()=>{}} onDuplicate={()=>{}}/>;}
+ render(<Editor/>);
+ fireEvent.click(screen.getByText('Click to add names...'));
+ const input=screen.getByRole('textbox',{name:'Names — Names / Info'});
+ for(const text of ['A','AB','ABC','ABCD','ABCDE'])fireEvent.change(input,{target:{value:text}});
+ expect(changes).toEqual(['A','AB','ABC','ABCD','ABCDE'].map(value_text=>({value_text})));
+ fireEvent.blur(input);expect(changes).toHaveLength(5);
+});

@@ -45,7 +45,7 @@ export const TableGuestList: React.FC<TableGuestListProps> = ({
   });
 
   // Get drag state from context
-  const { activeGuestId, overGuestId, overGuestPosition } = useDragState();
+  const { activeGuestId, overGuestId, overGuestPosition, preserveTableLayout } = useDragState();
 
   const showDropIndicator = isOver || isDroppableOver;
   const topDropId = `top-drop-${tableId}`;
@@ -56,7 +56,7 @@ export const TableGuestList: React.FC<TableGuestListProps> = ({
   return (
     <div 
       ref={setNodeRef} 
-      className="min-h-[40px]"
+      className="relative min-h-[40px]"
       role="list"
       aria-label={`Guests at this table`}
     >
@@ -64,7 +64,7 @@ export const TableGuestList: React.FC<TableGuestListProps> = ({
         <div className="space-y-1">
           {/* Top drop zone - only rendered when guests exist and drag is active */}
           {guests.length > 0 && activeGuestId && (
-            <TopDropZone tableId={tableId} />
+            <TopDropZone tableId={tableId} compact={preserveTableLayout} />
           )}
           {guests.length > 0 ? (
             guests.map((guest) => (
@@ -94,7 +94,7 @@ export const TableGuestList: React.FC<TableGuestListProps> = ({
       
       {/* Drop indicator at the bottom when guests exist and hovering over table (not a specific guest) - solid dark purple with glow */}
       {guests.length > 0 && showDropIndicator && !overGuestId && (
-        <div className="h-2.5 bg-[#967A59] rounded-full mt-2 shadow-[0_0_10px_rgba(124,58,237,0.7)] border-2 border-[#7A6347]" />
+        <div className={`h-2.5 bg-[#967A59] rounded-full shadow-[0_0_10px_rgba(124,58,237,0.7)] border-2 border-[#7A6347] ${preserveTableLayout ? 'absolute -bottom-1 inset-x-0' : 'mt-2'}`} />
       )}
     </div>
   );
