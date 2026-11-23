@@ -1,0 +1,48 @@
+name: Wedding Waitress live radius verification
+on:
+  push:
+    branches: [codex/radius-live-verification-20261124]
+  workflow_dispatch:
+permissions:
+  contents: read
+jobs:
+  verify-live:
+    runs-on: ubuntu-latest
+    timeout-minutes: 30
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          persist-credentials: false
+      - uses: actions/setup-node@v4
+        with:
+          node-version: '22'
+      - name: Preserve published application source
+        run: git diff --exit-code 33ec399845c312b5689811e68a20542806e12479 HEAD -- src public
+      - name: Install isolated browser verification runtime
+        run: |
+          npm install --prefix "$RUNNER_TEMP/radius-playwright" --no-audit --no-fund playwright@1.62.1
+          "$RUNNER_TEMP/radius-playwright/node_modules/.bin/playwright" install --with-deps chromium
+      - name: Verify real production domain with synthetic fixtures
+        env:
+          WW_QA_ROOT: ${{ runner.temp }}/radius-output
+          WW_QA_PLAYWRIGHT_MODULE: ${{ runner.temp }}/radius-playwright/node_modules/playwright
+        shell: bash
+        run: |
+          set -euo pipefail
+          mkdir -p "$WW_QA_ROOT"
+          for check in routes eight-states focused-states hosted-pdfs private; do
+            node "scripts/radius-live-verification/$check.mjs" https://weddingwaitress.com.au live-ci 2>&1 | tee "$WW_QA_ROOT/$check.log"
+          done
+          node scripts/radius-live-verification/verify-results.mjs | tee "$WW_QA_ROOT/summary.log"
+      - name: Preserve verification evidence
+        if: always()
+        uses: actions/upload-artifact@v4
+        with:
+          name: radius-live-verification
+          retention-days: 14
+          compression-level: 9
+          path: |
+            ${{ runner.temp }}/radius-output/*.json
+            ${{ runner.temp }}/radius-output/*.log
+            ${{ runner.temp }}/radius-output/*.png
+            ${{ runner.temp }}/radius-output/hosted-pdfs/*.pdf
