@@ -195,7 +195,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
 
         <DJMCRowTextSize value={rowTextSize} onChange={setRowTextSize} disabled={rowTextSizeLoading}/>
         <Button variant="ghost" className="gap-1.5 print:hidden" disabled={!undoHistory.canUndo||undoHistory.busy}
-          onClick={undoHistory.undo} title="Restore the previous questionnaire while this page is open">
+          onMouseDown={event => event.preventDefault()} onClick={undoHistory.undo} title="Restore the previous questionnaire while this page is open">
           {undoHistory.operation === 'restoring' ? <LoaderCircle size={18} className="animate-spin" aria-hidden="true"/> : <Undo2 size={18} strokeWidth={1.8} aria-hidden="true"/>}
           {undoHistory.operation === 'restoring' ? 'Restoring…' : 'Undo'}
         </Button>
