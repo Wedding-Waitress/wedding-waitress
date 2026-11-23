@@ -1,4 +1,4 @@
-export const normalizeGuestName = (value: string) => value.trim().toLocaleLowerCase().replace(/\s+/g, ' ');
+export const normalizeGuestName = (value: string | null | undefined) => (value ?? '').trim().toLocaleLowerCase().replace(/\s+/g, ' ');
 
 /** Calendar arithmetic avoids daylight-saving days of 23 or 25 hours. */
 export function eventCalendarDayDistance(eventDate: string | null | undefined, timeZone: string, now = new Date()): number | null {
@@ -18,7 +18,7 @@ export function isInitialSearchAvailable(eventDate: string | null | undefined, t
   return distance !== null && distance <= 7;
 }
 
-export function matchesGuestSearch(guest: { first_name: string; last_name: string }, query: string, allowInitial: boolean): boolean {
+export function matchesGuestSearch(guest: { first_name: string | null | undefined; last_name: string | null | undefined }, query: string, allowInitial: boolean): boolean {
   const input = normalizeGuestName(query);
   const first = normalizeGuestName(guest.first_name);
   const last = normalizeGuestName(guest.last_name);
