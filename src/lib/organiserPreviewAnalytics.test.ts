@@ -1,0 +1,5 @@
+import fs from 'node:fs';import {it,expect,vi} from 'vitest';
+const html=fs.readFileSync('index.html','utf8');
+const guard=html.match(/<script data-organiser-analytics-guard>([\s\S]*?)<\/script>/)?.[1];
+it.each(['/organiser-preview/event/invitation','/organiser-preview/event/seating'])('does not load analytics for private timing route %s',pathname=>{expect(guard).toBeTruthy();const appendChild=vi.fn(),window:any={location:{pathname}},document={createElement:()=>({}),head:{appendChild}};new Function('window','document',guard!)(window,document);expect(appendChild).not.toHaveBeenCalled();expect(window['ga-disable-G-2EG6ZWCT0T']).toBe(true);});
+it.each(['/s/saved-event','/dashboard','/'])('preserves the normal analytics bootstrap for %s',pathname=>{const appendChild=vi.fn(),window:any={location:{pathname}},document={createElement:()=>({}),head:{appendChild}};new Function('window','document',guard!)(window,document);expect(appendChild).toHaveBeenCalledWith({async:true,src:'https://www.googletagmanager.com/gtag/js?id=G-2EG6ZWCT0T'});expect(window['ga-disable-G-2EG6ZWCT0T']).toBeUndefined();});
