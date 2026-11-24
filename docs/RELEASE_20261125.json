@@ -1,0 +1,58 @@
+{
+  "release": "Approved dashboard, seating, document and gallery fixes",
+  "date": "2026-11-25",
+  "sourceCommit": "632c9f425eb3df4d3a14da1472835ac47990f9e9",
+  "branch": "codex/approved-release-20261124",
+  "site": "https://weddingwaitress.com.au",
+  "netlifyDeploy": "6b05f2f7d5bcf15023eae892",
+  "productionLockRestored": true,
+  "databaseMigrations": [
+    "20261124114858_retire_event_gallery_passwords",
+    "20261124202317_event_host_relations_and_attendance"
+  ],
+  "verification": {
+    "broaderSuite": "Initial run: 5046 passed, 68 failed. Baseline comparison found 62 existing failures; release-specific old expectations and font test setup were corrected and rerun. Full-suite baseline failures remain outside this release.",
+    "allTableAndSeatAssignmentsPreserved": true,
+    "typecheck": "passed",
+    "liveOverflows": 0,
+    "liveResponsiveChecks": 45,
+    "guestCount": 143,
+    "productionBuild": "passed",
+    "livePageErrors": 0,
+    "liveAssetSha256Matches": 7,
+    "focusedSelectorAndProtectedChartTestsPassed": 60,
+    "publicPages": 45,
+    "hostAttendance": "all confirmed hosts attending",
+    "updatedReleaseRegressionTestsPassed": 74,
+    "budgetDirectPrint": "passed without visible preview modal",
+    "securityAdvisorCountsUnchanged": true,
+    "liveSelectorPages": 15
+  },
+  "deferred": [
+    "Automatic media retention and deletion were not deployed or activated.",
+    "Existing baseline test failures are retained for separate review."
+  ],
+  "cleanup": {
+    "reclaimedBytes": 5848334386.0,
+    "sourceDependenciesAndRecoveryPreserved": true,
+    "removed": [
+      {
+        "bytes": 1996393728.0,
+        "path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\release-baseline-20261124"
+      },
+      {
+        "bytes": 1968600446,
+        "path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\release-baseline-20261124.zip"
+      },
+      {
+        "bytes": 1883335365.0,
+        "path": "E:\\Codex\\approved-release-20261124\\dist"
+      },
+      {
+        "bytes": 4847,
+        "path": "E:/Codex/approved-release-20261124/deno.lock"
+      }
+    ]
+  },
+  "backup": "Remote SHA-256 verified with zero pending checkpoints before cleanup; final status checked after receipt."
+}
