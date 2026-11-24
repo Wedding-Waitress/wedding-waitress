@@ -87,7 +87,7 @@ describe('Reception Floor Plan glossy theme scope', () => {
     expect(page).not.toContain('last_saved_at');
     expect(page).toContain('headerStyles.exportControls');
     expect(page).toContain('headerStyles.exportButton');
-    expect(shell).toContain('xl:grid-cols-[minmax(0,1.45fr)_minmax(260px,0.72fr)_auto_auto]');
+    expect(shell).toContain('flex min-w-0 flex-wrap items-start gap-4');
     expect(shell).toContain('xl:contents');
     expect(canvas).toContain('variant="destructive"');
     expect(theme).toContain('border: 1px solid rgba(248, 113, 113, 0.62) !important');

@@ -1,4 +1,5 @@
 import React from 'react';
+vi.mock('@/lib/photoCalloutPrint',()=>({printPhotoCalloutDocument:vi.fn()}));
 import {render,screen,fireEvent,waitFor} from '@testing-library/react';
 import {describe,it,expect,vi,beforeEach} from 'vitest';
 const control=vi.hoisted(()=>({fail:false,save:vi.fn(),initial:{event_id:'event',revision:3,cards:[{id:'one',title:'Family',people:[],minutes:3,completed:true},{id:'two',title:'Friends',people:[],minutes:3,completed:false}],private_notes:{one:'Private note'}}}));

@@ -90,7 +90,7 @@ describe('Photo & Video Gallery View premium appearance', () => {
     expect(screen.getByRole('button', { name: 'Preview as Guest' })).toHaveClass(managementStyles.glassAction);
     expect(screen.queryByRole('switch', { name: 'Photo & Video Gallery View enabled' })).not.toBeInTheDocument();
 
-    const cardHeadings = ['Branding & Theme', 'Guest Gallery Access', 'Password Protection'];
+    const cardHeadings = ['Branding & Theme', 'Guest Gallery Access'];
     for (const name of cardHeadings) {
       const card = screen.getByRole('heading', { name }).closest('[data-appearance="espresso-glass"]');
       expect(card).toHaveClass(managementStyles.glassCard);
@@ -108,9 +108,8 @@ describe('Photo & Video Gallery View premium appearance', () => {
       expect(screen.getByRole('button', { name })).toHaveClass(managementStyles.galleryControl);
     }
 
-    fireEvent.click(screen.getByRole('switch', { name: 'Password is off' }));
-    expect(await screen.findByLabelText('Set a password')).toHaveClass(managementStyles.galleryControl);
-    expect(screen.getByRole('button', { name: 'Save' })).toHaveClass(managementStyles.galleryViewPrimaryAction);
+    expect(screen.queryByRole('switch', { name: 'Password is off' })).not.toBeInTheDocument();
+    expect(screen.queryByLabelText('Set a password')).not.toBeInTheDocument();
   });
 
   it('keeps the QR encoder and image pure black-and-white and preserves its actions', async () => {
