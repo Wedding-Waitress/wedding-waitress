@@ -22,6 +22,7 @@ import { useToast } from '@/hooks/use-toast';
 import { Guest } from '@/hooks/useGuests';
 import { registerCache, registerEventCache } from '@/lib/cacheRegistry';
 import { isHeadTableMoveActive } from '@/lib/headTableMovePersistence';
+import { isTableSeatingBusy, saveTableSeating } from '@/lib/tableSeatingPersistence';
 
 interface RealtimeGuestUpdate {
   guestId: string;
@@ -59,6 +60,8 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
   const isOperationInProgress = useRef(false);
   // Stable ref for fetch function to avoid subscription churn
   const fetchGuestsRef = useRef<() => Promise<void>>(async () => {});
+  const currentEventRef = useRef(eventId); currentEventRef.current = eventId;
+  const fetchVersionRef = useRef(0);
 
   // Keep cache in sync
   useEffect(() => {
@@ -67,6 +70,7 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
 
   // Fetch guests from database
   const fetchGuests = useCallback(async () => {
+    const version=++fetchVersionRef.current;
     if (!eventId) {
       setGuests([]);
       return;
@@ -90,6 +94,8 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
         return;
       }
 
+      if(currentEventRef.current!==eventId||version!==fetchVersionRef.current)return;
+      guestsCache.set(eventId,data||[]);
       setGuests(data || []);
     } catch (error) {
       console.error('Error fetching guests:', error);
@@ -99,7 +105,7 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
         variant: "destructive",
       });
     } finally {
-      setLoading(false);
+      if(currentEventRef.current===eventId&&version===fetchVersionRef.current)setLoading(false);
     }
   }, [eventId, toast]);
 
@@ -118,316 +124,35 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
     }, 1000);
   }, []);
 
-  // Reorder guests within a table and recalculate seat numbers
-  const reorderGuestsWithSeats = useCallback(async (
-    tableId: string,
-    orderedGuestIds: string[]
-  ): Promise<boolean> => {
-    if (!tableId || orderedGuestIds.length === 0) return false;
-
-    // Store original guests for potential revert
-    const originalGuests = [...guests];
-
-    // Optimistic update - reorder locally and assign new seat numbers
-    setGuests(currentGuests => {
-      return currentGuests.map(g => {
-        if (g.table_id !== tableId) return g;
-        const newIndex = orderedGuestIds.indexOf(g.id);
-        if (newIndex === -1) return g;
-        return { ...g, seat_no: newIndex + 1 };
-      });
-    });
-
-    // Set operation flag to prevent realtime conflicts
-    isOperationInProgress.current = true;
-
-    try {
-      // Phase 1: Clear all seat numbers for these guests to avoid unique constraint conflicts
-      const { error: clearError } = await supabase
-        .from('guests')
-        .update({ seat_no: null })
-        .in('id', orderedGuestIds);
-
-      if (clearError) {
-        console.error('Error clearing seat numbers:', clearError);
-        setGuests(originalGuests);
-        toast({
-          title: "Error",
-          description: "Failed to reorder guests",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      // Phase 2: Assign new seat numbers in order (no conflicts since all seats are cleared)
-      for (let i = 0; i < orderedGuestIds.length; i++) {
-        const { error } = await supabase
-          .from('guests')
-          .update({ seat_no: i + 1 })
-          .eq('id', orderedGuestIds[i]);
-
-        if (error) {
-          console.error('Error updating guest seat:', error);
-          setGuests(originalGuests);
-          toast({
-            title: "Error",
-            description: "Failed to reorder guests",
-            variant: "destructive",
-          });
-          return false;
-        }
-      }
-
-      toast({
-        title: "Guests reordered",
-        description: "Seat numbers updated successfully",
-      });
-
-      return true;
-    } catch (error) {
-      console.error('Error reordering guests:', error);
-      // Revert optimistic update
-      setGuests(originalGuests);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
-      });
+  // Save against fresh event data. The shared queue and checked recovery keep
+  // rapid drags, reorders and missing-seat repairs from overlapping writes.
+  const reorderGuestsWithSeats = useCallback(async (tableId:string,orderedGuestIds:string[]):Promise<boolean> => {
+    if(!eventId||!tableId||!orderedGuestIds.length)return false;
+    const isCurrent=()=>currentEventRef.current===eventId;
+    isOperationInProgress.current=true;
+    try{
+      const changed=await saveTableSeating(eventId,{tableId,orderedGuestIds},isCurrent);
+      if(changed&&isCurrent())toast({title:'Guests reordered',description:'Seat numbers updated successfully'});
+      return changed;
+    }catch(error){
+      if(isCurrent())toast({title:'Unable to rearrange guests',description:error instanceof Error?error.message:(error as any)?.message||'The seating could not be saved. Refresh and try again.',variant:'destructive'});
       return false;
-    } finally {
-      // Always release the operation lock
-      isOperationInProgress.current = false;
-    }
-  }, [guests, toast]);
+    }finally{isOperationInProgress.current=false;if(isCurrent())await fetchGuests();}
+  },[eventId,fetchGuests,toast]);
 
-  // Move guest with optimistic update and capacity validation
-  const moveGuest = useCallback(async (update: RealtimeGuestUpdate): Promise<boolean> => {
-    const { guestId, sourceTableId, destTableId, destTableNo, guestName, insertAtIndex } = update;
-    
-    // Find the guest to move
-    const guestToMove = guests.find(g => g.id === guestId);
-    if (!guestToMove) {
-      toast({
-        title: "Error",
-        description: "Guest not found",
-        variant: "destructive",
-      });
+  const moveGuest = useCallback(async (update:RealtimeGuestUpdate):Promise<boolean> => {
+    if(!eventId)return false;
+    const isCurrent=()=>currentEventRef.current===eventId;
+    isOperationInProgress.current=true;
+    try{
+      const changed=await saveTableSeating(eventId,{guestId:update.guestId,sourceTableId:update.sourceTableId,destTableId:update.destTableId,insertAtIndex:update.insertAtIndex},isCurrent);
+      if(changed&&isCurrent())toast({title:'Guest moved successfully',description:update.destTableId?'Table and seat assignments saved.':update.guestName+' is now unassigned.'});
+      return changed;
+    }catch(error){
+      if(isCurrent())toast({title:'Unable to move guest',description:error instanceof Error?error.message:(error as any)?.message||'The move could not be saved. Refresh and try again.',variant:'destructive'});
       return false;
-    }
-
-    // Handle intra-table moves (reordering within same table) - now handled by reorderGuestsWithSeats
-    if (sourceTableId === destTableId && sourceTableId !== null) {
-      // This case is now handled by reorderGuestsWithSeats function
-      // But keep a fallback for simple reordering if needed
-      const tableGuests = guests.filter(g => 
-        g.table_id === sourceTableId && g.id !== guestId
-      );
-      
-      const newDisplayOrder = tableGuests.length * 10 + 10;
-      
-      try {
-        const { error } = await supabase
-          .from('guests')
-          .update({ display_order: newDisplayOrder })
-          .eq('id', guestId);
-
-        if (error) {
-          console.error('Error reordering guest:', error);
-          toast({
-            title: "Error",
-            description: "Failed to reorder guest",
-            variant: "destructive",
-          });
-          return false;
-        }
-
-        toast({
-          title: "Guest reordered",
-          description: `${guestName} position updated`,
-        });
-        
-        return true;
-      } catch (error) {
-        console.error('Error reordering guest:', error);
-        toast({
-          title: "Error",
-          description: "An unexpected error occurred",
-          variant: "destructive",
-        });
-        return false;
-      }
-    }
-
-    // Handle inter-table moves (moving between different tables)
-    if (sourceTableId === destTableId && sourceTableId === null) {
-      // Both are null (unassigned), don't allow this move
-      return false;
-    }
-
-    // Check if destination table exists and get capacity
-    if (destTableId) {
-      const { data: tableData, error: tableError } = await supabase
-        .from('tables')
-        .select('limit_seats, name')
-        .eq('id', destTableId)
-        .single();
-
-      if (tableError) {
-        console.error('Error checking table capacity:', tableError);
-        toast({
-          title: "Error",
-          description: "Failed to validate table capacity",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      // Count current guests in destination table (excluding the one being moved)
-      const currentGuestsInDest = guests.filter(g => 
-        g.table_id === destTableId && g.id !== guestId
-      ).length;
-
-      if (currentGuestsInDest >= tableData.limit_seats) {
-        toast({
-          title: "Table is full",
-          description: `${tableData.name} has reached its capacity of ${tableData.limit_seats} guests.`,
-          variant: "destructive",
-        });
-        return false;
-      }
-    }
-
-    // Handle seat number assignment for destination table
-    let newSeatNo: number | null = null;
-    let guestsToShift: Guest[] = [];
-    
-    if (destTableId) {
-      // Get guests in destination table sorted by seat number
-      const destTableGuests = guests
-        .filter(g => g.table_id === destTableId && g.id !== guestId)
-        .sort((a, b) => (a.seat_no || 0) - (b.seat_no || 0));
-      
-      if (destTableGuests.length === 0) {
-        // Empty table - seat 1
-        newSeatNo = 1;
-        guestsToShift = [];
-      } else if (insertAtIndex !== undefined && insertAtIndex < destTableGuests.length) {
-        // Insert at specific position - get the seat number of the guest we're inserting BEFORE
-        const guestAtPosition = destTableGuests[insertAtIndex];
-        newSeatNo = guestAtPosition.seat_no || insertAtIndex + 1;
-        
-        // Shift ALL guests whose seat_no >= newSeatNo (not just array slice)
-        guestsToShift = destTableGuests.filter(g => 
-          g.seat_no !== null && g.seat_no >= newSeatNo!
-        );
-      } else {
-        // Insert at end - next seat number after the last guest
-        const lastGuest = destTableGuests[destTableGuests.length - 1];
-        newSeatNo = (lastGuest?.seat_no || destTableGuests.length) + 1;
-        guestsToShift = [];
-      }
-    } else {
-      // If moving to unassigned, clear seat number
-      newSeatNo = null;
-    }
-
-    // Build optimistic state update - shift each guest's seat by +1
-    let optimisticGuests = guests.map(g => {
-      if (g.id === guestId) {
-        return { ...g, table_id: destTableId, table_no: destTableNo, seat_no: newSeatNo };
-      }
-      // Shift seat numbers: each shifted guest gets their original seat + 1
-      if (guestsToShift.some(sg => sg.id === g.id)) {
-        return { ...g, seat_no: (g.seat_no || 0) + 1 };
-      }
-      return g;
-    });
-    setGuests(optimisticGuests);
-
-    // Set operation flag to prevent realtime conflicts
-    isOperationInProgress.current = true;
-
-    try {
-      // Phase 0: Clear the moving guest's seat number first (safety for same-table edge cases)
-      if (guestToMove.seat_no !== null) {
-        await supabase
-          .from('guests')
-          .update({ seat_no: null })
-          .eq('id', guestId);
-      }
-
-      // Phase 1: Clear seat numbers for guests that need to shift (avoids unique constraint violations)
-      if (guestsToShift.length > 0) {
-        const { error: clearError } = await supabase
-          .from('guests')
-          .update({ seat_no: null })
-          .in('id', guestsToShift.map(g => g.id));
-        
-        if (clearError) {
-          console.error('Error clearing seat numbers:', clearError);
-          throw clearError;
-        }
-      }
-
-      // Phase 2: Insert the moved guest with correct seat number
-      const { error } = await supabase
-        .from('guests')
-        .update({
-          table_id: destTableId,
-          table_no: destTableNo,
-          seat_no: newSeatNo,
-          assigned: !!destTableId,
-          display_order: null
-        })
-        .eq('id', guestId);
-
-      if (error) {
-        console.error('Error moving guest:', error);
-        setGuests(guests);
-        toast({
-          title: "Error",
-          description: "Failed to move guest",
-          variant: "destructive",
-        });
-        return false;
-      }
-
-      // Phase 3: Re-assign shifted guests - each gets their original seat_no + 1
-      if (guestsToShift.length > 0) {
-        for (const shiftGuest of guestsToShift) {
-          const newShiftedSeat = (shiftGuest.seat_no || 0) + 1;
-          await supabase
-            .from('guests')
-            .update({ seat_no: newShiftedSeat })
-            .eq('id', shiftGuest.id);
-        }
-      }
-
-      // Success toast
-      const tableName = destTableId 
-        ? await supabase.from('tables').select('name').eq('id', destTableId).single().then(r => r.data?.name || 'Unknown Table')
-        : 'Unassigned';
-        
-      toast({
-        title: "Guest moved successfully",
-        description: `Moved ${guestName} to ${tableName}`,
-      });
-
-      return true;
-    } catch (error) {
-      console.error('Error moving guest:', error);
-      setGuests(guests);
-      toast({
-        title: "Error",
-        description: "An unexpected error occurred",
-        variant: "destructive",
-      });
-      return false;
-    } finally {
-      // Always release the operation lock
-      isOperationInProgress.current = false;
-    }
-  }, [guests, toast]);
+    }finally{isOperationInProgress.current=false;if(isCurrent())await fetchGuests();}
+  },[eventId,fetchGuests,toast]);
 
   // Add guest with optimistic update
   const addGuest = useCallback(async (guestData: Omit<Guest, 'id' | 'created_at'>): Promise<boolean> => {
@@ -593,7 +318,7 @@ export const useRealtimeGuests = (eventId: string | null): UseRealtimeGuestsRetu
   // Handle realtime updates - stable callback with no changing deps
   const handleRealtimeUpdate = useCallback((payload: any) => {
     // Skip realtime updates during active operations to prevent conflicts
-    if (isOperationInProgress.current || (eventId && isHeadTableMoveActive(eventId))) {
+    if (isOperationInProgress.current || (eventId && (isHeadTableMoveActive(eventId)||isTableSeatingBusy(eventId)))) {
       console.log('Skipping realtime update - operation in progress');
       return;
     }

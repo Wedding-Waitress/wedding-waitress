@@ -1,9 +1,12 @@
 // Utility functions for relationship tracking
 
 export type RelationPartner = 'partner_one' | 'partner_two' | '';
-export type RelationRole = 'bridal_party' | 'father' | 'mother' | 'brother' | 'sister' | 'cousin' | 'uncle' | 'aunty' | 'guest' | 'vendor' | '';
+export type RelationRole = 'organizer' | 'bride' | 'groom' | 'bridal_party' | 'father' | 'mother' | 'brother' | 'sister' | 'cousin' | 'uncle' | 'aunty' | 'guest' | 'vendor' | '';
 
 export const RELATION_ROLE_LABELS: Record<string, string> = {
+  organizer: 'Organizer',
+  bride: 'Bride',
+  groom: 'Groom',
   bridal_party: 'Bridal Party',
   father: 'Father',
   mother: 'Mother',
@@ -23,6 +26,9 @@ export interface RoleOption {
 }
 
 export const RELATION_ROLE_OPTIONS: RoleOption[] = [
+  { value: 'organizer', label: 'Organizer' },
+  { value: 'bride', label: 'Bride' },
+  { value: 'groom', label: 'Groom' },
   { value: 'bridal_party', label: 'Bridal Party' },
   { value: 'father', label: 'Father' },
   { value: 'mother', label: 'Mother' },
@@ -34,6 +40,12 @@ export const RELATION_ROLE_OPTIONS: RoleOption[] = [
   { value: 'guest', label: 'Guest' },
   { value: 'vendor', label: 'Vendor' },
 ];
+
+/** Self roles stay above the relationship list in every shared picker. */
+export const getPartnerRoleOptions = (options: RoleOption[], partner: RelationPartner): RoleOption[] =>
+  options.filter(role => role.value !== (partner === 'partner_one' ? 'groom' : 'bride'));
+export const isHostRelation = (role?: string | null): boolean =>
+  role === 'organizer' || role === 'bride' || role === 'groom';
 
 export const isLegacyGuestRelation = (role?: string | null, display?: string | null): boolean => {
   if (role?.trim().toLowerCase() === 'guest') return true;
@@ -66,6 +78,7 @@ export const computeRelationDisplay = (
   customRoles: string[] = []
 ): string => {
   if (!partner || !role) return '';
+  if (isHostRelation(role)) return RELATION_ROLE_LABELS[role];
   
   // Use fallback names if partner names are empty
   const effectivePartner1Name = partner1Name?.trim() || 'Partner 1';

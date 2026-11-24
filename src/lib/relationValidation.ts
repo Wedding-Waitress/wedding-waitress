@@ -2,12 +2,17 @@
 
 export const VALID_PARTNERS = ['partner_one', 'partner_two'] as const;
 export const VALID_ROLES = [
+  'organizer', 'bride', 'groom',
   'bridal_party', 'father', 'mother', 'brother', 'sister', 
   'cousin', 'uncle', 'aunty', 'vendor'
 ] as const;
 
 // Human-friendly mappings for common entries
 export const ROLE_MAPPINGS: Record<string, string> = {
+  'organizer': 'organizer',
+  'organiser': 'organizer',
+  'bride': 'bride',
+  'groom': 'groom',
   // Father variants
   'father': 'father',
   'dad': 'father',

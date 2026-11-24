@@ -1,0 +1,59 @@
+/* Declare before legacy important layers so the heading opt-in wins without
+   altering any body, button, colour, artwork or document typography. */
+@layer ww-large-headings;
+
+@font-face {
+  font-family: 'Wedding Waitress Playfair';
+  src: url('/fonts/playfair-display/playfair-display-semibold.ttf') format('truetype');
+  font-style: normal;
+  font-weight: 600;
+  font-display: swap;
+}
+
+@layer ww-large-headings {
+  @media screen {
+    [data-ww-large-heading],
+    [data-ww-large-heading] :is(span,strong,em):not(button *):not(a *):not([role="button"] *) {
+      font-family: 'Wedding Waitress Playfair', 'Playfair Display', Georgia, serif !important;
+      font-weight: 600 !important;
+    }
+    [data-ww-large-heading="hero"] {
+      font-size: clamp(2.45rem, 5vw, 3.75rem) !important;
+      line-height: 1.1 !important;
+      letter-spacing: -.025em !important;
+    }
+    [data-ww-large-heading="section"] {
+      font-size: clamp(2rem, 4.5vw, 3.375rem) !important;
+      line-height: 1.055555556 !important;
+      letter-spacing: -.025em !important;
+    }
+    [data-ww-large-heading="main"] {
+      font-size: 24px !important;
+      line-height: 30px !important;
+    }
+    [data-ww-large-heading="workspace"] {
+      font-size: 26px !important;
+      line-height: 32px !important;
+    }
+    [data-ww-large-heading="compact"] {
+      font-size: 20px !important;
+      line-height: 26px !important;
+    }
+    [data-ww-large-heading] :is(span,strong,em):not(button *):not(a *):not([role="button"] *) {
+      font-size: inherit !important;
+      line-height: inherit !important;
+      letter-spacing: inherit !important;
+    }
+    /* Photo heroes reserve a narrow text area beside people on phones. */
+    @media (min-width: 1024px) {
+      [data-ww-large-heading="hero"] { font-size: 60px !important; }
+      [data-ww-large-heading="section"] { font-size: 54px !important; }
+    }
+    @media (max-width: 1023px) {
+      .ww-public-photo-hero [data-ww-large-heading="hero"] {
+        font-size: clamp(18px, 4vw, 28px) !important;
+        line-height: 1.18 !important;
+      }
+    }
+  }
+}

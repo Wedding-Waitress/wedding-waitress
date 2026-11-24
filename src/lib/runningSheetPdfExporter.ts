@@ -1,4 +1,5 @@
 import { fitDocumentFooterLogo } from '@/lib/documentFooterLogo';
+import { DOCUMENT_EVENT_TITLE_STYLE } from './documentEventTitle';
 import { paginateRunSheet } from './runningSheetPagination';
 /**
  * PRODUCTION-READY -- LOCKED FOR PRODUCTION
@@ -171,7 +172,7 @@ const generateRunningSheetHTML = (
     <div style="width:794px;background:#fff;color:#000;font-family:Arial,Helvetica,sans-serif;padding:40px 40px 0 40px;box-sizing:border-box;">
       <!-- Header -->
       <div style="text-align:center;margin-bottom:4px;">
-        <div style="font-size:22px;font-weight:bold;color:#2f1b14;">${escapeHtml(event.name)}</div>
+        <div data-document-event-title style="font-family:${escapeHtml(DOCUMENT_EVENT_TITLE_STYLE.fontFamily)};font-size:22px;font-weight:${DOCUMENT_EVENT_TITLE_STYLE.fontWeight};color:#2f1b14;">${escapeHtml(event.name)}</div>
         <div style="font-size:16px;color:#000;margin-top:4px;">${escapeHtml(sectionLabel || 'Run Sheet')}</div>
       </div>
       <!-- Event details -->
@@ -266,7 +267,8 @@ export const exportRunningSheetPDF = async (
   sectionLabel: string = 'Run Sheet',
   sectionNotes: string | null = null,
   rowTextSize: "standard" | "larger" = "standard",
-  isCurrent: () => boolean = () => true
+  isCurrent: () => boolean = () => true,
+  onReady?: (pdf: jsPDF) => Promise<void>
 ): Promise<void> => {
   const logoDataUrl = await loadLogoAsDataUrl();
   const htmlContent = generateRunningSheetHTML(items, event, sectionNotes, sectionLabel, rowTextSize);
@@ -284,7 +286,7 @@ export const exportRunningSheetPDF = async (
   document.body.appendChild(container);
 
   try {
-    await new Promise(resolve => setTimeout(resolve, 500));
+    await document.fonts?.load('600 22px "Wedding Waitress Playfair"');
     if (document.fonts && document.fonts.ready) {
       await document.fonts.ready;
     }
@@ -301,6 +303,9 @@ export const exportRunningSheetPDF = async (
       foreignObjectRendering: false,
       allowTaint: false,
       logging: false,
+      // Export only the dedicated Run Sheet renderer. Cloning the surrounding
+      // dashboard also makes html2canvas wait for unrelated images/resources.
+      ignoreElements: element => element.parentElement === document.body && element !== container,
       onclone: (clonedDoc) => {
         const style = clonedDoc.createElement('style');
         style.textContent = `
@@ -399,7 +404,8 @@ export const exportRunningSheetPDF = async (
     }
 
     if (!isCurrent()) throw new Error("Run Sheet changed during export. Please try again.");
-    await savePdfAsync(pdf, getRunningSheetPdfFileName(event));
+    if (onReady) await onReady(pdf);
+    else await savePdfAsync(pdf, getRunningSheetPdfFileName(event));
   } finally {
     document.body.removeChild(container);
   }

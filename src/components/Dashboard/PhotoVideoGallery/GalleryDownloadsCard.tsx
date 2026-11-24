@@ -222,9 +222,10 @@ export const GalleryDownloadsCard: React.FC<{
   };
 
   const scopes: ZipScope[] = scopesProp ?? ['all', 'approved', 'photos', 'videos'];
+  const bottomAligned = isGlass && layout === 'vertical';
 
   return (
-    <Card className={cn('p-4 space-y-4 overflow-hidden h-full flex flex-col', isGlass && managementStyles.glassCard, className)} data-appearance={isGlass ? appearance : undefined}>
+    <Card className={cn('p-4 gap-4 overflow-hidden h-full flex flex-col', isGlass && managementStyles.glassCard, className)} data-appearance={isGlass ? appearance : undefined}>
       <div className="flex items-start gap-2">
         <FolderDown className="h-5 w-5 text-[#967A59] shrink-0 mt-1" />
         <div className="min-w-0">
@@ -233,7 +234,8 @@ export const GalleryDownloadsCard: React.FC<{
         </div>
       </div>
 
-      <div className={`gap-2 ${layout === 'vertical' ? 'flex flex-col' : 'grid grid-cols-1 sm:grid-cols-2'}`}>
+      <div className={cn('flex flex-col gap-4', bottomAligned && 'mt-auto pt-4')}>
+      <div className={cn(`gap-2 ${layout === 'vertical' ? 'flex flex-col' : 'grid grid-cols-1 sm:grid-cols-2'}`, bottomAligned && 'order-2')}>
         {scopes.map(scope => {
           const isBusy = busy === scope;
           const count = counts[scope];
@@ -260,7 +262,7 @@ export const GalleryDownloadsCard: React.FC<{
 
 
       {busy && (
-        <div className={cn('space-y-2 rounded-md border border-border bg-muted/30 p-3', isGlass && managementStyles.galleryViewInsetPanel)}>
+        <div className={cn('space-y-2 rounded-md border border-border bg-muted/30 p-3', bottomAligned && 'order-1 min-h-[66px]', isGlass && managementStyles.galleryViewInsetPanel)}>
           <div className={cn('flex items-center justify-between text-xs text-muted-foreground', isGlass && '!text-[#e8ddd2]')}>
             <span>
               Preparing {labelFor(busy).replace('Download ', '').toLowerCase()} ZIP…
@@ -269,6 +271,7 @@ export const GalleryDownloadsCard: React.FC<{
             <span>{zipPct > 0 ? `${zipPct}%` : ''}</span>
           </div>
           <Progress
+            className="[&>div]:bg-green-500"
             value={
               progress.total > 0 && progress.done < progress.total
                 ? Math.round((progress.done / progress.total) * 100)
@@ -277,6 +280,7 @@ export const GalleryDownloadsCard: React.FC<{
           />
         </div>
       )}
+      {!busy && bottomAligned && <div className="order-1 min-h-[66px]" aria-hidden="true" />}
 
       {!busy && counts.all === 0 && (
         <div className={cn('flex items-center gap-2 text-xs text-muted-foreground', isGlass && managementStyles.zipEmptyMessage)}>
@@ -284,6 +288,7 @@ export const GalleryDownloadsCard: React.FC<{
           {emptyText || 'No uploaded media yet — ZIP downloads will activate once guests upload.'}
         </div>
       )}
+      </div>
     </Card>
   );
 };

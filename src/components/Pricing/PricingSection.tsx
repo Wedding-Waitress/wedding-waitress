@@ -24,7 +24,7 @@ interface Props {
 const mediaAllowanceFeatures = [
   'Up to 5,000 images, including photo booth images',
   'Up to 100 videos; each ordinary video up to 5 minutes and 600 MB',
-  '10 GB shared media storage per event; storage may fill before these counts',
+  '200 GB shared media storage per event; storage may fill before these counts',
 ] as const;
 
 export const PricingSection: React.FC<Props> = ({ onPlanSelect }) => {

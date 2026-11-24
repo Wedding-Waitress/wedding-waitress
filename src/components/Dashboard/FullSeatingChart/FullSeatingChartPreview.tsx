@@ -408,7 +408,7 @@ export const FullSeatingChartPreview = forwardRef<FullSeatingChartPreviewHandle,
               overflow: 'hidden',
             }}>
               <div className="text-center">
-                <h1 className="font-bold" style={{ color: '#2f1b14', fontSize: '16pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>
+                <h1 data-document-event-title className="font-bold" style={{ color: '#2f1b14', fontSize: '16pt', marginBottom: '0.5mm', lineHeight: '1.1', fontFamily: '"Wedding Waitress Playfair", "Playfair Display", Georgia, serif', fontWeight:600 }}>
                   {event.name}
                 </h1>
                 <p style={{ fontSize: '11pt', marginBottom: '0.5mm', lineHeight: '1.1' }}>

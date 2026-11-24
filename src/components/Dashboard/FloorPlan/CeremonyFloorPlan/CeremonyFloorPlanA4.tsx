@@ -1,5 +1,6 @@
 import { floorPlanPreviewWidthScale } from '../../../../lib/floorPlanPreviewScale';
 import React from 'react';
+import {DOCUMENT_EVENT_TITLE_STYLE} from '@/lib/documentEventTitle';
 import type { Event } from '@/hooks/useEvents';
 import { type CeremonyFloorPlan, getDefaultBridalRole } from '@/hooks/useCeremonyFloorPlan';
 import { CEREMONY_A4, getCeremonyA4Layout } from '@/lib/ceremonyFloorPlanA4';
@@ -215,7 +216,7 @@ export const CeremonyFloorPlanA4 = React.forwardRef<HTMLDivElement, CeremonyFloo
     data-page-size="A4 landscape"
   >
     <header className={styles.header} data-ceremony-a4-header="true">
-      <h1 className={styles.eventName}>{event.name}</h1>
+      <h1 data-document-event-title style={DOCUMENT_EVENT_TITLE_STYLE} className={styles.eventName}>{event.name}</h1>
       <h2 className={styles.title}>Ceremony Floor Plan</h2>
       <div className={styles.details}>Ceremony: {formatDate(ceremonyDate)} | {ceremonyVenue} | {ceremonyTimes}</div>
       <div className={styles.total}>Total Attending Ceremony: <strong>{totalAttending}</strong> · Family &amp; guest chairs: <strong data-ceremony-chair-total="true">{familySeats * 2}</strong> ({familySeats} per side) · Couple: 2 · Celebrant: 1 · Bridal party: {leftCount + rightCount}</div>

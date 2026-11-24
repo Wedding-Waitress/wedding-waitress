@@ -674,7 +674,7 @@
   filter: brightness(1.04);
 }
 
-/* Event-row actions retain their semantic green/red with white shadowed icons. */
+/* Event-row actions match the Tables reference. */
 :global(#root#root) .mainSurface .page :global(.ww-events-table-panel) button:global(.ww-emboss-green) {
   border: 0 !important;
   background: linear-gradient(180deg, #7bd880, #55a447) !important;
@@ -686,9 +686,11 @@
   box-shadow: inset 0 1px 0 #ffffff80, inset 0 -2px 0 #78191966, 0 4px 10px #b91c1c30 !important;
 }
 :global(#root#root) .mainSurface .page :global(.ww-events-table-panel) button:is(:global(.ww-emboss-green), :global(.ww-emboss-red)) svg {
-  color: #fff !important;
-  stroke: #fff !important;
-  filter: drop-shadow(0 1px 2px rgba(0,0,0,.55)) !important;
+  color: #2f1b14 !important;
+  stroke: #2f1b14 !important;
+  width:16px;
+  height:16px;
+  filter: none !important;
 }
 
 /* Owner-approved event-card actions: white labels, brown icons, existing green fill. */
@@ -810,8 +812,8 @@
 
 /* Match the Actions label to the actual two-button group instead of a per-header offset. */
 .page :global(.ww-events-action-group), .page :global(.ww-events-actions-heading) {
-  --event-row-action-width: 41px;
-  width: calc(2 * var(--event-row-action-width) + 4px);
+  --event-row-action-width: auto;
+  width: max-content;
   margin-inline: auto;
 }
 .page :global(.ww-events-actions-heading) { display: block; text-align: left; }
@@ -819,7 +821,8 @@
 .page :global(.ww-events-action-group) > button {
   width: var(--event-row-action-width);
   min-width: var(--event-row-action-width);
-  padding-inline: 0;
+  padding-inline: 8px;
+  gap: 6px;
   margin-left: 0;
   flex: none;
 }
@@ -918,5 +921,22 @@
 @layer dashboard-interface {
   :global(#root#root#root) :global([data-dashboard-content]).mainSurface .page :global(.ww-events-table-panel) thead th {
     background: transparent !important;
+  }
+}
+@layer dashboard-interface {
+  :global(#root#root#root) .page :global(.ww-events-action-group) > button,
+  :global(#root#root#root) .page :global(.ww-events-mobile-card .ww-events-button) {
+    height:auto !important; min-height:30px !important; max-height:none !important;
+    padding:5px 12px !important; border-radius:9999px !important;
+    font:600 14px/20px Manrope,sans-serif !important; gap:5px !important;
+    text-shadow:0 1px 2px rgba(0,0,0,.55);
+  }
+  :global(#root#root#root) .page :global(.ww-events-action-group) > button span {
+    color:#fff !important; -webkit-text-fill-color:#fff !important; font-weight:600 !important;
+    text-shadow:0 1px 2px rgba(0,0,0,.55) !important;
+  }
+  :global(#root#root#root) .page :global(.ww-events-action-group) > button svg {
+    width:16px !important; height:16px !important; color:#2f1b14 !important; stroke:#2f1b14 !important;
+    filter:none !important; text-shadow:none !important;
   }
 }

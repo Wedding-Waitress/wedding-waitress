@@ -4,10 +4,11 @@ import type { EventBudgetExpense } from '@/lib/eventBudget';
 import { EventBudgetPlanner } from './EventBudgetPlanner';
 import { exportEventBudgetPdf } from '@/lib/eventBudgetPdfExporter';
 
-const mocks = vi.hoisted(() => ({ useEventBudget: vi.fn(), toast: vi.fn(), saveBudget: vi.fn(), saveExpense: vi.fn(), deleteExpense: vi.fn(), convertCurrency: vi.fn() }));
+const mocks = vi.hoisted(() => ({ useEventBudget: vi.fn(), toast: vi.fn(), saveBudget: vi.fn(), saveExpense: vi.fn(), deleteExpense: vi.fn(), convertCurrency: vi.fn(), createPdf:vi.fn(), frame:vi.fn(), print:vi.fn() }));
 vi.mock('@/hooks/useEventBudget', () => ({ useEventBudget: mocks.useEventBudget }));
 vi.mock('@/hooks/use-toast', () => ({ useToast: () => ({ toast: mocks.toast }) }));
-vi.mock('@/lib/eventBudgetPdfExporter', () => ({ exportEventBudgetPdf: vi.fn() }));
+vi.mock('@/lib/eventBudgetPdfExporter', () => ({ exportEventBudgetPdf: vi.fn(),createEventBudgetPdf:mocks.createPdf }));
+vi.mock('@/lib/pdfPrint',()=>({openPdfPrintFrame:mocks.frame}));
 
 const expense = (overrides: Partial<EventBudgetExpense> = {}): EventBudgetExpense => ({
   id: 'expense-1', event_id: 'event-a', user_id: 'user-1', category: 'Catering', custom_category: null,
@@ -26,7 +27,9 @@ const hookValue = (expenses: EventBudgetExpense[] = [expense()]) => ({
 describe('EventBudgetPlanner interface', () => {
   beforeEach(() => { vi.clearAllMocks(); localStorage.clear(); mocks.saveBudget.mockResolvedValue({}); mocks.saveExpense.mockResolvedValue({}); mocks.deleteExpense.mockResolvedValue({}); mocks.useEventBudget.mockReturnValue(hookValue()); });
 
-  it('downloads the displayed document and marks that same document only while browser printing', async () => {
+  it('downloads and prints the same authoritative landscape document through an isolated print frame', async () => {
+    const blob=new Blob(['budget']);
+    mocks.createPdf.mockResolvedValue({output:()=>blob});mocks.frame.mockReturnValue({print:mocks.print,close:vi.fn()});mocks.print.mockResolvedValue(undefined);
     render(<EventBudgetPlanner event={{ id: 'event-a', name: 'Community Gala' }} />);
     fireEvent.click(screen.getByRole('button', { name: 'Download PDF' }));
     await waitFor(() => expect(exportEventBudgetPdf).toHaveBeenCalled());
@@ -35,12 +38,12 @@ describe('EventBudgetPlanner interface', () => {
     expect(exportEventBudgetPdf).toHaveBeenCalledWith(root, 'Community Gala');
     expect(preview).toHaveAttribute('data-budget-print-preview');
     expect(root.parentElement).toHaveAttribute('data-budget-print-viewport');
-    const print = vi.spyOn(window, 'print').mockImplementation(() => {
-      expect(root).toHaveAttribute('data-budget-print-source', 'true');
-    });
+    const print = vi.spyOn(window, 'print');
     try {
       fireEvent.click(within(preview).getByRole('button', { name: 'Print Budget' }));
-      await waitFor(() => expect(print).toHaveBeenCalledOnce());
+      await waitFor(() => expect(mocks.print).toHaveBeenCalledWith(blob,expect.any(Function)));
+      expect(mocks.createPdf).toHaveBeenCalledWith(root);
+      expect(print).not.toHaveBeenCalled();
       expect(root).not.toHaveAttribute('data-budget-print-source');
     } finally {
       print.mockRestore();

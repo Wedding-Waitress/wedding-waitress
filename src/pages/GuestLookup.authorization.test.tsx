@@ -140,7 +140,8 @@ describe('three-letter search during the seven-day window', () => {
       const selected = await screen.findByRole('button', { name: 'Nader Elalfy' });
       expect(screen.queryByRole('button', { name: 'Nadia Smith' })).not.toBeInTheDocument();
       fireEvent.click(selected);
-      expect(screen.getByText('Nader Elalfy')).toBeInTheDocument();
+      expect(screen.getByRole('textbox')).toHaveValue('Nader Elalfy');
+      expect(document.querySelector('[data-guest-seating-result]')).toBeInTheDocument();
       expect(screen.queryByRole('button', { name: 'Update My Details' })).not.toBeInTheDocument();
       expect(screen.queryByTestId('editor')).not.toBeInTheDocument();
     } finally {
@@ -289,6 +290,21 @@ describe('approved seven-day seating-first layout',()=>{
   if(name==='get_public_table_semantics')return Promise.resolve({data:{table_purpose:'standard'},error:null});
   return fallback(name,args);
  });};
+ it('shows the selected full name in search and removes the duplicate name above the assignment',async()=>{
+  vi.useFakeTimers({toFake:['Date']});vi.setSystemTime(new Date('2030-03-13T12:00:00Z'));
+  try {
+   configure();mount();await screen.findByText('Find your seat');
+   const input=screen.getByRole('textbox');fireEvent.change(input,{target:{value:'Nad'}});
+   fireEvent.click(await screen.findByRole('button',{name:'Nader Elalfy'}));
+   expect(input).toHaveValue('Nader Elalfy');await screen.findByText('Seated Guests');
+   expect(document.querySelector('[data-seating-guest-name]')).toBeNull();
+   expect(document.querySelector('[data-seating-assignment]')).toBeInTheDocument();
+   fireEvent.change(input,{target:{value:'Other'}});
+   expect(document.querySelector('[data-guest-seating-result]')).toBeNull();
+   fireEvent.click(await screen.findByRole('button',{name:'Other Guest'}));
+   expect(input).toHaveValue('Other Guest');
+  } finally {vi.useRealTimers();}
+ });
  it('preserves recipient editing eight days before the event',async()=>{vi.useFakeTimers({toFake:['Date']});vi.setSystemTime(new Date('2030-03-11T23:59:59Z'));try{localStorage.setItem('ww-guest-verification:event',JSON.stringify({token:'a'.repeat(64),expiresAt:Date.now()+3600000}));configure();mount('?invite=personal-token');await screen.findByTestId('editor');expect(screen.queryByText('Find your seat')).not.toBeInTheDocument();expect(document.querySelector('[data-guest-seating-result]')).toBeNull();}finally{vi.useRealTimers();}});
  it('automatically shows the table and seat at the seven-day boundary and blocks direct edit links',async()=>{vi.useFakeTimers({toFake:['Date']});vi.setSystemTime(new Date('2030-03-12T00:00:00Z'));try{configure();mount('?invite=personal-token&edit=recipient');await screen.findByText('Find your seat');await waitFor(()=>expect(document.querySelector('[data-guest-seat]')).toHaveTextContent('Seat 7'));expect(document.querySelector('[data-guest-table]')).toHaveTextContent('Table 1 – Brides Family');expect(screen.getByText('Seated Guests')).toBeInTheDocument();expect(screen.getByText('Need changes?')).toBeInTheDocument();expect(screen.getByText('Please contact the wedding or event organizer directly.')).toBeInTheDocument();expect(screen.queryByRole('button',{name:'Update My Details'})).not.toBeInTheDocument();expect(screen.queryByTestId('editor')).not.toBeInTheDocument();expect(document.querySelector('[data-seating-assignment]')!.compareDocumentPosition(screen.getByText('Seated Guests'))&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();}finally{vi.useRealTimers();}});
  it('also hides live-view editing for an authenticated organizer during the window',async()=>{vi.useFakeTimers({toFake:['Date']});vi.setSystemTime(new Date('2030-03-13T12:00:00Z'));try{state.manager=true;configure();mount();await screen.findByText('Test Wedding');fireEvent.change(screen.getByRole('textbox'),{target:{value:'Nad'}});fireEvent.click(await screen.findByRole('button',{name:'Nader Elalfy'}));await screen.findByText('Seated Guests');expect(screen.queryByRole('button',{name:'Update My Details'})).not.toBeInTheDocument();}finally{vi.useRealTimers();}});

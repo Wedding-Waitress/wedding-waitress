@@ -58,7 +58,7 @@ describe('current public copy catalogues', () => {
     expect(publicMediaGuideRows[language]).toHaveLength(publicMediaGuideSources.length);
     expect(publicMediaGuideRows[language][3].match(/\d+/g)).toEqual(publicMediaGuideSources[3].match(/\d+/g));
     expect(publicMediaGuideRows[language][3]).toContain('600 MB');
-    expect(publicMediaGuideRows[language][3]).toContain('10 GB');
+    expect(publicMediaGuideRows[language][3]).toContain('200 GB');
   });
   it.each(languages)('renders table guide and FAQ metadata in %s', async language => {
     const instance = createInstance();

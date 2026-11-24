@@ -193,7 +193,7 @@ export const PublicPricingSection: React.FC = () => {
                   <p className="text-sm text-[#6f625b]"><PublicCopy text={"One event for 12 months"} /></p>
                   <p className="text-sm text-[#6f625b]"><PublicCopy text={"Additional events available to purchase"} /></p>
                   <p className="text-sm text-[#6f625b]"><PublicCopy text={"Account recovery: 6 months free after expiry."} /></p>
-                  <p className="text-sm text-[#6f625b]"><PublicCopy text={"Up to 5,000 images and 100 videos per event. Videos up to 5 minutes and 600 MB each. Includes 10 GB shared media storage inside the Wedding Waitress platform, not externally."} /></p>
+                  <p className="text-sm text-[#6f625b]"><PublicCopy text={"Up to 5,000 images and 100 videos per event. Videos up to 5 minutes and 600 MB each. Includes 200 GB shared media storage inside the Wedding Waitress platform, not externally."} /></p>
                 </div>
                 <PlanFeatureList communicationCredits={details.communicationCredits} />
                 <div className="mt-auto pt-7">
@@ -215,6 +215,5 @@ export const PublicPricingSection: React.FC = () => {
     </section>
   );
 };
-
 
 

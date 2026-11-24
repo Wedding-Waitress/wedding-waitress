@@ -188,7 +188,7 @@ export async function reconcileGuidedSetupGuests(
       email: null,
       mobile: null,
       notes: null,
-      rsvp: null,
+      rsvp: seed.origin === 'wedding_couple_1' || seed.origin === 'wedding_couple_2' ? 'Attending' : null,
       rsvp_date: null,
       dietary: null,
     });

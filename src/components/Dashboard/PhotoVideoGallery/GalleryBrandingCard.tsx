@@ -152,7 +152,7 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave, ap
         : { backgroundColor: BG_OPTIONS.find(o => o.value === bg)?.sample || '#F8F5F0' };
 
   return (
-    <Card className={cn('h-full p-4 sm:p-6 space-y-6 overflow-hidden', isGlass && managementStyles.glassCard)} data-appearance={isGlass ? appearance : undefined}>
+    <Card className={cn('h-full p-4 sm:p-6 space-y-6 overflow-hidden', managementStyles.galleryViewCompactCard, isGlass && managementStyles.glassCard)} data-appearance={isGlass ? appearance : undefined}>
       <div className="min-w-0">
         <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
           <Palette className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} strokeWidth={1.8} /> Branding &amp; Theme
@@ -163,7 +163,8 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave, ap
         </p>
       </div>
 
-      <div className="grid grid-cols-1 gap-6 items-start">
+      <div className={managementStyles.galleryBrandingCompactLayout}>
+      <div className="grid grid-cols-1 gap-6 items-start min-w-0">
         {/* LEFT — Event Branding */}
         <section className="space-y-5 min-w-0">
           <h3 className={cn('text-sm font-bold uppercase tracking-wide text-[#967A59]', isGlass && [managementStyles.galleryViewSectionLabel, managementStyles.eventBrandingBorder])}>Event Branding</h3>
@@ -343,7 +344,7 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave, ap
         </section>
       </div>
 
-      <div className="flex flex-wrap justify-between gap-2 pt-1">
+      <div className={managementStyles.galleryBrandingCompactActions}>
         <Button
           className={cn('lv-premium-shade h-11 bg-green-600 hover:bg-green-700 text-white', isGlass && [managementStyles.galleryViewPrimaryAction, managementStyles.gallerySaveAction, managementStyles.saveBrandingContentShadow])}
           variant="default"
@@ -356,6 +357,7 @@ export const GalleryBrandingCard: React.FC<Props> = ({ eventId, meta, onSave, ap
         <Button variant="outline" className={cn('lv-premium-shade h-11', isGlass && managementStyles.approvedResetAction)} onClick={handleReset} disabled={saving}>
           <RotateCcw size={16} strokeWidth={1.8} className="mr-2" aria-hidden="true" />Reset to default
         </Button>
+      </div>
       </div>
 
       <GalleryBackgroundGalleryModal

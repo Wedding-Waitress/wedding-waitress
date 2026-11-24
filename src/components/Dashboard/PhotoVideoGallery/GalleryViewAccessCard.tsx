@@ -44,7 +44,7 @@ export const GalleryViewAccessCard: React.FC<Props> = ({ meta, guestUrl, appeara
   };
 
   return (
-    <Card className={cn('h-full p-5 sm:p-6 space-y-5 overflow-hidden', isGlass && managementStyles.glassCard)} data-appearance={isGlass ? appearance : undefined}>
+    <Card className={cn('h-full p-5 sm:p-6 space-y-5 overflow-hidden', managementStyles.galleryViewCompactCard, isGlass && managementStyles.glassCard)} data-appearance={isGlass ? appearance : undefined}>
       <div className="min-w-0">
         <h2 className={cn('text-xl font-bold flex items-center gap-2', isGlass && managementStyles.galleryViewHeading)} style={isGlass ? undefined : { color: '#000000' }}>
           <Images className={cn('h-5 w-5 text-[#967A59] shrink-0', isGlass && managementStyles.galleryWarmIcon)} strokeWidth={1.8} /> Guest Gallery Access
@@ -60,7 +60,7 @@ export const GalleryViewAccessCard: React.FC<Props> = ({ meta, guestUrl, appeara
           <p className="text-sm text-destructive">Gallery link not ready — please retry.</p>
         </div>
       ) : (
-        <div className="space-y-3">
+        <div className={managementStyles.galleryAccessCompactLayout}>
           <div className="flex justify-center">
             <div className={cn(isGlass && managementStyles.galleryViewQrFrame)}>
               {qrDataUrl ? (
@@ -71,7 +71,8 @@ export const GalleryViewAccessCard: React.FC<Props> = ({ meta, guestUrl, appeara
             </div>
           </div>
 
-          <Label className={cn('text-sm block w-full text-center', isGlass && managementStyles.galleryViewHeading)}>Public gallery link</Label>
+          <div className="space-y-3 min-w-0">
+          <Label className={cn('text-sm block w-full', isGlass && managementStyles.galleryViewHeading)}>Public gallery link</Label>
           <Input value={guestUrl} readOnly className={cn('h-11 text-sm w-full', isGlass && managementStyles.galleryControl, isGlass && managementStyles.upperGlassField)} />
           <Button variant="outline" className={cn('lv-premium-shade h-11 w-full', isGlass && managementStyles.galleryControl)} onClick={copy}>
             <Copy className="h-4 w-4 mr-1" strokeWidth={1.8} /> Copy Gallery Link
@@ -87,12 +88,10 @@ export const GalleryViewAccessCard: React.FC<Props> = ({ meta, guestUrl, appeara
           <Button variant="outline" className={cn('lv-premium-shade h-11 w-full', isGlass && managementStyles.galleryControl)} onClick={downloadQr} disabled={!qrDataUrl}>
             <Download className="h-4 w-4 mr-1" /> Download QR code
           </Button>
+          </div>
         </div>
       )}
 
-      <p className={cn('text-xs text-muted-foreground break-words', isGlass && managementStyles.gallerySecondaryText)}>
-        Only approved media appears in the guest gallery. Anything you hide in your media library stays private.
-      </p>
     </Card>
   );
 };

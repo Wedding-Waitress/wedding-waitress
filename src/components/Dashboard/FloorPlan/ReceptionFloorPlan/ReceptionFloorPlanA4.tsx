@@ -1,6 +1,7 @@
 import { floorPlanPreviewWidthScale } from '../../../../lib/floorPlanPreviewScale';
 import {receptionHeaderStats} from '@/lib/receptionHeaderStats';
 import React from 'react';
+import {DOCUMENT_EVENT_TITLE_STYLE} from '@/lib/documentEventTitle';
 
 import type { ReceptionFloorPlan } from '@/hooks/useReceptionFloorPlan';
 import { A4_MM, A4_PX } from '@/lib/a4';
@@ -125,7 +126,7 @@ export const ReceptionFloorPlanA4 = ({
       data-page-size="A4 landscape"
     >
       <header className={styles.header} data-reception-a4-header="true">
-        <h1>{event.name}</h1>
+        <h1 data-document-event-title style={DOCUMENT_EVENT_TITLE_STYLE}>{event.name}</h1>
         <h2>Reception Floor Plan</h2>
         <p>{details}</p>
         <p>

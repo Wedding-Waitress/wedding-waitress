@@ -1,4 +1,5 @@
 import { A4_MM, CSS_DPI, MM_PER_INCH } from './a4';
+import {embedDocumentEventTitleFont} from './documentEventTitle';
 
 export const CEREMONY_EXPORT_DPI = 300;
 
@@ -52,6 +53,7 @@ export async function captureCeremonyDocument(element: HTMLElement): Promise<HTM
   content.setAttribute('height', '100%');
   content.appendChild(clone);
   svg.appendChild(content);
+  await embedDocumentEventTitleFont(svg);
   const image = new Image();
   image.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(svg));
   await image.decode();

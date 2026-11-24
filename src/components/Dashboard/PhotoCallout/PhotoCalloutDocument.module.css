@@ -30,30 +30,37 @@
 .details {margin-top:auto;padding-top:2mm;font:400 10px/14px Arial!important;color:#6c5040!important;white-space:pre-wrap;}
 .details p {margin:0 0 1mm!important;font:inherit!important;color:inherit!important;}
 .priority {background:linear-gradient(180deg,#7bd880,#55a447);color:white!important;font:700 10px/14px Arial!important;text-align:center;border-radius:0 0 2.1mm 2.1mm;padding:1mm 3mm;margin:1mm -3mm -1.5mm;}
-:global(#root#root#root) .sheet .meta svg text,:global(#root#root#root) .sheet .badge svg text,:global(#root#root#root) .sheet .priority svg text {stroke:none!important;}
-:global(#root#root#root) .sheet .badge svg rect {stroke:#fff!important;}
+:global(:is(#root#root#root, [data-photo-print-preview])) .sheet .meta svg text,:global(:is(#root#root#root, [data-photo-print-preview])) .sheet .badge svg text,:global(:is(#root#root#root, [data-photo-print-preview])) .sheet .priority svg text {stroke:none!important;}
+:global(:is(#root#root#root, [data-photo-print-preview])) .sheet .badge svg rect {stroke:#fff!important;}
 .footer {position:absolute;bottom:5mm;left:12mm;right:12mm;display:flex;justify-content:space-between;align-items:flex-end;color:#000;font:400 7pt Arial!important;}
 .footer img {position:absolute;width:42mm;height:12mm;object-fit:contain;left:50%;bottom:2mm;transform:translateX(-50%);}
 .footer span {font:400 7pt Arial!important;color:#000!important;}
 .selected {outline:none;}
-:global(#root#root#root) .sheet .heading h2 {font:700 24px/30px Manrope,sans-serif!important;color:#2f1b14!important;}
-:global(#root#root#root) .sheet .heading h3 {font:700 18px/24px Manrope,sans-serif!important;color:#2f1b14!important;}
-:global(#root#root#root) .sheet .title {font:700 18px/24px Manrope,sans-serif!important;color:#2f1b14!important;}
-:global(#root#root#root) .sheet .names {font:400 13px/18px Arial,sans-serif!important;color:#000!important;}
-:global(#root#root#root) .sheet .details,:global(#root#root#root) .sheet .details p {color:#000!important;}
-:global(#root#root#root) .sheet .heading p {color:#2f1b14!important;}
-:global(#root#root#root) .sheet .footer span {color:#000!important;}
+:global(:is(#root#root#root, [data-photo-print-preview])) .sheet .heading h2 {font:600 24px/30px 'Wedding Waitress Playfair','Playfair Display',Georgia,serif!important;color:#000!important;}
+:global(:is(#root#root#root, [data-photo-print-preview])) .sheet .heading h3 {font:700 18px/24px Manrope,sans-serif!important;color:#2f1b14!important;}
+:global(:is(#root#root#root, [data-photo-print-preview])) .sheet .title {font:700 18px/24px Manrope,sans-serif!important;color:#2f1b14!important;}
+:global(:is(#root#root#root, [data-photo-print-preview])) .sheet .names {font:400 13px/18px Arial,sans-serif!important;color:#000!important;}
+:global(:is(#root#root#root, [data-photo-print-preview])) .sheet .details,:global(:is(#root#root#root, [data-photo-print-preview])) .sheet .details p {color:#000!important;}
+:global(:is(#root#root#root, [data-photo-print-preview])) .sheet .heading p {color:#2f1b14!important;}
+:global(:is(#root#root#root, [data-photo-print-preview])) .sheet .footer span {color:#000!important;}
 .pageGap {margin-top:24px;}
 .scaleShell {position:relative;margin:0 auto;}
 .scale {position:absolute;top:0;left:0;transform-origin:top left;}
+:global([data-photo-print-preview]) {position:fixed;left:-10000px;top:0;width:794px;pointer-events:none;}
 @media print {
+ :global(body:has([data-photo-print-preview]) > :not([data-photo-print-preview])) {display:none!important;}
+ :global(html:has([data-photo-print-preview])), :global(body:has([data-photo-print-preview])), :global([data-photo-print-preview]) {position:static!important;transform:none!important;width:auto!important;height:auto!important;min-height:0!important;max-height:none!important;overflow:visible!important;margin:0!important;padding:0!important;border:0!important;background:#fff!important;}
+ :global([data-photo-print-source]) {display:block!important;position:static!important;margin:0!important;padding:0!important;}
+ :global([data-photo-print-source]), :global([data-photo-print-source] *) {visibility:visible!important;print-color-adjust:exact;-webkit-print-color-adjust:exact;}
+ :global([data-photo-print-source] header) {display:block!important;}
+ @page {size:A4 portrait;margin:0;}
  .sheet {box-shadow:none;break-after:page;margin:0!important;}
  .pageGap {margin:0!important;}
  .viewport,.scaleShell {width:auto!important;height:auto!important;overflow:visible!important;padding:0!important;}
  .scale {position:static!important;transform:none!important;}
  .selected {outline:none;}
 }
-:global(#root#root#root) .sheet .meta .tick {border:0.35mm solid #fff!important;background:#fff!important;}
+:global(:is(#root#root#root, [data-photo-print-preview])) .sheet .meta .tick {border:0.35mm solid #fff!important;background:#fff!important;}
 
 .card[data-everyone=true]:not([data-priority=true]) {border-color:#0000ff;}
 .card[data-everyone=true]:not([data-priority=true]) .meta {background:#0000ff;}
@@ -65,15 +72,15 @@
 .timing {font:400 10px/14px Arial,sans-serif!important;color:#000!important;margin:0 0 2mm!important;white-space:pre-wrap;}
 
 .pager {display:flex;align-items:center;justify-content:center;gap:16px;flex-wrap:wrap;margin:8px 0;color:#2f1b14;font:400 14px/20px Manrope,sans-serif;}.pager button {display:inline-flex;align-items:center;gap:8px;min-height:36px;padding:7px 12px;border:1px solid #967a59;border-radius:10px;background:#fffdf8;color:#2f1b14;font:400 14px/20px Manrope,sans-serif;box-shadow:0 2px 6px #2f1b1414;}.pager button:disabled {opacity:.45;cursor:default;}.pager button:focus-visible {outline:2px solid #806344;outline-offset:2px;}@media print {.pager {display:none!important;}}
-:global(#root#root#root) .sheet .card[data-wide=true] .guestGrid {line-height:17px!important;}
+:global(:is(#root#root#root, [data-photo-print-preview])) .sheet .card[data-wide=true] .guestGrid {line-height:17px!important;}
 
-:global(#root#root#root) .sheet .timing {color:#000!important;}
+:global(:is(#root#root#root, [data-photo-print-preview])) .sheet .timing {color:#000!important;}
 
 /* Shared screen/PDF bands: colour identity and all card geometry are retained. */
 .sheet .card .meta {background:linear-gradient(180deg,#412419 0%,#2f1b14 48%,#23120d 100%);box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 -2px 0 rgba(0,0,0,.3);}
 .sheet .card[data-everyone=true]:not([data-priority=true]) .meta {background:linear-gradient(180deg,#4545ff 0%,#0000ff 48%,#0000b8 100%);}
 .sheet .card[data-priority=true] .meta {background:linear-gradient(180deg,#7bd880 0%,#55a447 48%,#397b30 100%);}
-:global(#root#root#root) .sheet .title {color:#000!important;}
+:global(:is(#root#root#root, [data-photo-print-preview])) .sheet .title {color:#000!important;}
 
 .sheet[data-photo-output=print] .card .meta {background:#2f1b14!important;box-shadow:none!important;}
 .sheet[data-photo-output=print] .card[data-everyone=true]:not([data-priority=true]) .meta {background:#0000ff!important;}

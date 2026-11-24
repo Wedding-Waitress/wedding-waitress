@@ -57,7 +57,7 @@ import { normalizeGuestPhone, guestPhoneHint } from '@/lib/guestPhone';
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
 import { useTables } from "@/hooks/useTables";
-import { computeRelationDisplay, RelationPartner, RelationRole } from "@/lib/relationUtils";
+import { computeRelationDisplay, isHostRelation, RelationPartner, RelationRole } from "@/lib/relationUtils";
 import { cn } from "@/lib/utils";
 import { normalizeRsvp } from "@/lib/rsvp";
 import { useEvents } from "@/hooks/useEvents";
@@ -511,6 +511,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   const handleRelationChange = (partner: RelationPartner, role: RelationRole) => {
     form.setValue('relation_partner', partner);
     form.setValue('relation_role', role);
+    if (isHostRelation(role)) form.setValue('rsvp', 'Attending');
     form.clearErrors(['relation_partner', 'relation_role']);
   };
 
@@ -1955,6 +1956,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
           if (mainAssignment) {
             form.setValue('relation_partner', mainAssignment.partner);
             form.setValue('relation_role', mainAssignment.role);
+            if (isHostRelation(mainAssignment.role)) form.setValue('rsvp', 'Attending');
           }
           
           // For edit mode, just update form values — don't re-submit

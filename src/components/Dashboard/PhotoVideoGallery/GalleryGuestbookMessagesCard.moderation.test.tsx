@@ -39,7 +39,11 @@ it('places the remaining actions after sorting and cannot retain a historical gu
  expect(screen.queryByRole('combobox',{name:'Filter messages by status'})).toBeNull();
  const actions=screen.getByRole('button',{name:'Refresh'}).closest('[data-guestbook-toolbar="actions"]')!;
  expect(actions.parentElement).toHaveAttribute('data-guestbook-toolbar','filters');
- expect(within(actions as HTMLElement).getAllByRole('button').map(b=>b.textContent?.trim())).toEqual(['Refresh','Export CSV']);
+ expect(within(actions as HTMLElement).getAllByRole('button')[0]).toHaveTextContent('Refresh');
+ const download=screen.getByRole('button',{name:'Download All Guestbook Messages'});
+ expect(download).toBeEnabled();
+ expect(download.compareDocumentPosition(screen.getByRole('combobox',{name:'Sort messages'}))&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
+ for(const label of ['Written Messages (3)','Audio Messages (2)','Video Messages (2)'])expect(screen.getByRole('button',{name:label}).querySelector('svg')).not.toBeNull();
  expect(screen.getByRole('combobox',{name:'Sort messages'}).compareDocumentPosition(actions)&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
  expect(state.moderate).not.toHaveBeenCalled();
 });it('shows complete short and long written text without square previews, while preserving recording previews',async()=>{

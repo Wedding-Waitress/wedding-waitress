@@ -7,6 +7,8 @@ import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 import { guestbookRecordingFilename } from '@/lib/audioGuestbookFilename';
 import { cn } from '@/lib/utils';
 import managementStyles from './photoVideoSharingManagement.module.css';
+import type { GuestbookPdfMessage } from '@/lib/guestbookMessagePdf';
+import { guestbookPdfFilename } from '@/lib/guestbookFilename';
 
 function slugify(s: string | null | undefined, fallback = 'guestbook'): string {
   const v = (s || '').toLowerCase().trim().replace(/[^a-z0-9]+/g, '-').replace(/^-+|-+$/g, '');
@@ -22,25 +24,29 @@ function extOf(item: GalleryItem): string {
 export const GuestbookDownloadAllButton: React.FC<{
   items: GalleryItem[];
   eventName?: string | null;
+  eventDate?: string | null;
+  writtenMessages?: GuestbookPdfMessage[];
+  disabled?: boolean;
+  stacked?: boolean;
   className?: string;
   label?: string;
   appearance?: 'default' | 'espresso-glass';
-}> = ({ items, eventName, className, label = 'Download All', appearance = 'default' }) => {
+}> = ({ items, eventName, eventDate, writtenMessages = [], disabled = false, stacked = false, className, label = 'Download All Guestbook Messages', appearance = 'default' }) => {
   const isGlass = appearance === 'espresso-glass';
   const { toast } = useToast();
   const flight = useRef(false);
   const mounted = useRef(true);
   useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
-  const source = JSON.stringify([eventName, items.map(i => [i.id, i.signed_url])]);
+  const source = JSON.stringify([eventName, eventDate, writtenMessages, items.map(i => [i.id, i.signed_url])]);
   const sourceRef = useRef(source); sourceRef.current = source;
   const [busy, setBusy] = useState(false);
 
   const list = useMemo(() => items.filter(i => !!i.signed_url), [items]);
 
   const run = async () => {
-    if (flight.current) return;
-    if (list.length === 0) {
-      toast({ title: 'Nothing to download', description: 'No recordings available yet.', variant: 'destructive' });
+    if (flight.current || disabled) return;
+    if (list.length + writtenMessages.length === 0) {
+      toast({ title: 'Nothing to download', description: 'No guestbook messages available yet.', variant: 'destructive' });
       return;
     }
     const current = () => mounted.current && sourceRef.current === source;
@@ -52,6 +58,25 @@ export const GuestbookDownloadAllButton: React.FC<{
       const zip = new JSZip();
       const used = new Set<string>();
       let failures = 0;
+      const uniqueName = (folder: string, base: string) => {
+        let name = `${folder}/${base}`;
+        let suffix = 2;
+        while (used.has(name)) name = `${folder}/${base.replace(/(\.[^.]+)$/, `-${suffix++}$1`)}`;
+        used.add(name);
+        return name;
+      };
+
+      if (writtenMessages.length) {
+        const { createGuestbookMessagePdf } = await import('@/lib/guestbookMessagePdf');
+        for (const message of writtenMessages) {
+          if (!current()) return;
+          try {
+            const pdf = await createGuestbookMessagePdf(message, { name: eventName, date: eventDate });
+            if (!current()) return;
+            zip.file(uniqueName('guestbook-written', guestbookPdfFilename(message.seq, eventName, eventDate)), pdf.output('arraybuffer'));
+          } catch { failures++; }
+        }
+      }
 
       for (const item of list) {
         if (!current()) return;
@@ -74,7 +99,7 @@ export const GuestbookDownloadAllButton: React.FC<{
           failures++;
         }
       }
-      if (Object.keys(zip.files).length === 0) throw new Error('All files failed to download.');
+      if (![...used].some(name => !!zip.files[name])) throw new Error('All messages failed to download.');
       const blob = await zip.generateAsync({ type: 'blob', compression: 'STORE' });
       if (!current()) return;
       const filename = `${slugify(eventName, 'wedding')}-guestbook-messages.zip`;
@@ -107,12 +132,13 @@ export const GuestbookDownloadAllButton: React.FC<{
       variant="outline"
       className={cn('lv-premium-shade h-11 gap-2 border border-[#472c1d]', className, isGlass && managementStyles.galleryControl, isGlass && managementStyles.upperGlassControl)}
       onClick={run}
-      disabled={busy || list.length === 0}
+      disabled={disabled || busy || list.length + writtenMessages.length === 0}
       aria-label={label === 'Download All' ? 'Download all guestbook messages' : label}
+      data-guestbook-download={stacked ? 'stacked' : undefined}
     >
       {busy ? <LoaderCircle className="h-4 w-4 animate-spin" strokeWidth={1.8} /> : <Download className="h-4 w-4" strokeWidth={1.8} />}
-      <span>{label}</span>
-      <span className={cn('text-xs text-muted-foreground', appearance === 'espresso-glass' && managementStyles.gallerySecondaryText)}>{list.length}</span>
+      <span>{label}{stacked && <>{' '}<span className="block">({list.length + writtenMessages.length})</span></>}</span>
+      {!stacked && <span className={cn('text-xs text-muted-foreground', appearance === 'espresso-glass' && managementStyles.gallerySecondaryText)}>{list.length + writtenMessages.length}</span>}
     </Button>
   );
 };

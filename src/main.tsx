@@ -1,3 +1,5 @@
+import './styles/softInterfaceBorders.css';
+import './styles/largeHeadingTypography.css';
 import { createRoot } from "react-dom/client";
 import { HelmetProvider } from "react-helmet-async";
 import "@fontsource/manrope/latin.css";

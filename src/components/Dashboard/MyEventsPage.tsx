@@ -232,14 +232,14 @@ export const MyEventsPage: React.FC<MyEventsPageProps> = ({
     return <div className={`transition-opacity duration-300 ease-in-out ${styles.countdownTimer}`}>
         {/* Event state message */}
         <div className={styles.countdownIntro}>
-          <p className={`text-muted-foreground text-lg ${styles.countdownMessage}`}>
+          <p data-ww-heading={localEventState === 'finished' ? undefined : ''} className={`text-muted-foreground text-lg ${styles.countdownMessage}`}>
             <span className="inline-flex items-center justify-center gap-2">
               <Timer size={20} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
               {localEventState === 'in_progress' ? "Your event is in progress" : localEventState === 'finished' ? <span className="text-sm text-muted-foreground">Event finished</span> : "Your event details & countdown timer"}
             </span>
           </p>
           {selectedEvent && (
-            <p className={`text-xl sm:text-2xl font-semibold tracking-[-0.012em] leading-tight ${styles.eventTitle}`}>
+            <p data-ww-heading className={`text-xl sm:text-2xl font-semibold tracking-[-0.012em] leading-tight ${styles.eventTitle}`}>
               {selectedEvent.name}
             </p>
           )}

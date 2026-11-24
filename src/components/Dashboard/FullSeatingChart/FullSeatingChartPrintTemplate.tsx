@@ -101,7 +101,8 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
       <div style={{ textAlign: 'center', marginBottom: '4mm' }}>
         <h1 style={{ 
           fontSize: '18pt', 
-          fontWeight: 'bold', 
+          fontFamily: '"Wedding Waitress Playfair", "Playfair Display", Georgia, serif',
+          fontWeight: 600,
           color: '#2f1b14',
           margin: '0 0 4pt 0'
         }}>

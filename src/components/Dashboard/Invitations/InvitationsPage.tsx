@@ -338,7 +338,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
           {selectedEvent && (
             <div className={`${styles.guidelinesRow} flex flex-wrap items-start justify-between gap-4`}>
               <div className={`${styles.guidelinesPanel} flex-1 border border-primary rounded-xl p-4 text-sm grid md:grid-cols-2 gap-4`}><div>
-                <p className={`${styles.manageHeading} flex items-center gap-2 font-medium text-green-600`}>
+                <p data-ww-heading="main" className={`${styles.manageHeading} flex items-center gap-2 font-medium text-green-600`}>
                   <BadgeCheck className="h-[18px] w-[18px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                   Manage your invitations and cards
                 </p>
@@ -354,7 +354,7 @@ export const InvitationsPage: React.FC<InvitationsPageProps> = ({
                   {ALLOWED_SIZES[activeCardType].map(size => (
                     <button key={size} type="button" aria-pressed={selectedSize === size}
                       className={styles.sizeOption} onClick={() => chooseSize(size)} disabled={exporting}>
-                      <strong>{size}</strong>
+                      <strong data-ww-paper-size={size === 'A4' || size === 'A5' ? '' : undefined}>{size}</strong>
                       <span>{INVITATION_CARD_SIZES[size].w} × {INVITATION_CARD_SIZES[size].h} mm</span>
                       <span>{size === 'A6' ? 'Thank You · fits a C6 envelope' : size === 'A5' ? 'Compact invitation or save the date' : 'Larger invitation or save the date'}</span>
                     </button>

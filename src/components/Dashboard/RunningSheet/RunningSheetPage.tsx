@@ -1,4 +1,5 @@
 import { Printer as ExportControlsPrinter } from 'lucide-react';
+import { openPdfPrintFrame, type PdfPrintJob } from '@/lib/pdfPrint';
 /**
  * PRODUCTION-READY -- LOCKED FOR PRODUCTION
  *
@@ -69,7 +70,8 @@ export function RunningSheetPage({ selectedEventId, onEventSelect, events }: Run
   const { toast } = useToast();
   const [rowTextSize, setRowTextSize] = useState<"standard" | "larger">("standard");
   const [showShareModal, setShowShareModal] = useState(false);
-  const [downloadingPDF, setDownloadingPDF] = useState(false);
+  const [exportAction, setExportAction] = useState<'print' | 'download' | null>(null);
+  const downloadingPDF = exportAction !== null;
 
   const {
     sheet,
@@ -132,18 +134,22 @@ export function RunningSheetPage({ selectedEventId, onEventSelect, events }: Run
   const mounted = React.useRef(true);
   React.useEffect(() => {mounted.current=true;return()=>{mounted.current=false;};}, []);
   const exportBlocked = loading || saving || downloadingPDF || sheet?.event_id !== selectedEventId;
-  const handleDownloadEntirePDF = async () => {
+  const handleDownloadEntirePDF = async (print = false) => {
     if (!sheet || !selectedEvent || exportBlocked || exportLock.current) return;
-    exportLock.current=true;setDownloadingPDF(true);
+    exportLock.current=true;setExportAction(print ? 'print' : 'download');
     const snapshot=exportContextRef.current;
     const isCurrent=()=>mounted.current && exportContextRef.current===snapshot;
+    let printJob: PdfPrintJob | undefined;
     try {
+      if (print) printJob=openPdfPrintFrame();
       const {exportRunningSheetPDF}=await import('@/lib/runningSheetPdfExporter');
-      await exportRunningSheetPDF(sheet.items,selectedEvent,sectionLabel,sectionNotes,rowTextSize,isCurrent);
-      if(isCurrent())toast({title:'PDF Downloaded',description:'Your Run Sheet has been downloaded.'});
+      await exportRunningSheetPDF(sheet.items,selectedEvent,sectionLabel,sectionNotes,rowTextSize,isCurrent,
+        printJob ? pdf=>printJob!.print(pdf.output('blob'),isCurrent) : undefined);
+      if(isCurrent())toast({title:print?'Print Preview Ready':'PDF Downloaded',description:print?'Your Run Sheet is ready to print.':'Your Run Sheet has been downloaded.'});
     } catch(error) {
-      if(isCurrent()){console.error('Failed to download PDF:',error);toast({title:'Download Failed',description:'There was an error generating the PDF.',variant:'destructive'});}
-    } finally {exportLock.current=false;if(mounted.current)setDownloadingPDF(false);}
+      printJob?.close();
+      if(isCurrent()){console.error('Failed to prepare document:',error);toast({title:print?'Print Failed':'Download Failed',description:error instanceof Error?error.message:'There was an error generating the PDF.',variant:'destructive'});}
+    } finally {exportLock.current=false;if(mounted.current)setExportAction(null);}
   };
 
   return (
@@ -197,12 +203,22 @@ export function RunningSheetPage({ selectedEventId, onEventSelect, events }: Run
                     Share
                   </button>
                   <button
-                    onClick={handleDownloadEntirePDF}
+                    onClick={() => void handleDownloadEntirePDF(true)}
+                    disabled={exportBlocked}
+                    aria-label="Print run sheet"
+                    className={`inline-flex items-center justify-center gap-1.5 h-10 px-4 text-sm font-semibold rounded-full disabled:opacity-50 max-sm:w-full ${styles.greenAction}`}
+                  >
+                    {exportAction === 'print'
+                      ? <LoaderCircle size={16} strokeWidth={1.8} className="animate-spin" aria-hidden="true" />
+                      : <Printer size={16} strokeWidth={1.8} aria-hidden="true" />}Print
+                  </button>
+                  <button
+                    onClick={() => void handleDownloadEntirePDF()}
                     disabled={exportBlocked}
                     aria-label="Download run sheet PDF"
                     className={`inline-flex items-center justify-center gap-1.5 h-10 px-4 text-sm font-semibold rounded-full transition-all disabled:opacity-50 max-sm:w-full ${styles.greenAction}`}
                   >
-                    {downloadingPDF
+                    {exportAction === 'download'
                       ? <LoaderCircle size={16} strokeWidth={1.8} className="animate-spin" aria-hidden="true" />
                       : <FileDown size={16} strokeWidth={1.8} aria-hidden="true" />}
                     Download PDF
@@ -303,7 +319,7 @@ export function RunningSheetPage({ selectedEventId, onEventSelect, events }: Run
             onDuplicateItem={duplicateItem}
             onReorderItems={reorderItems}
             onResetToDefault={resetToDefault}
-            onDownloadSectionPDF={handleDownloadEntirePDF}
+            onDownloadSectionPDF={() => void handleDownloadEntirePDF()}
             onInsertFromDJMC={handleInsertFromDJMC}
             hasDJMCData={hasDJMCData}
           />

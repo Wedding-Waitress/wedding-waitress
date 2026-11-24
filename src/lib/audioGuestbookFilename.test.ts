@@ -16,7 +16,7 @@ describe('audio guestbook filenames', () => {
 
   it('uses the same sequence for video recordings', () => {
     expect(guestbookRecordingFilename(rec({ kind: 'video', storage_path: 'e/g/v.mp4', guestbook_recording_seq: 2 }), 'My Event'))
-      .toBe('00002-My-Event-Audio.mp4');
+      .toBe('00002-My-Event-Video.mp4');
   });
 
   it('preserves original extension', () => {

@@ -48,11 +48,13 @@ interface DragStateContextType {
   isOverUnassigned: boolean;
   overGuestPosition: 'above' | 'below' | null;
   preserveTableLayout: boolean;
+  isSaving: boolean;
 }
 
 const DragStateContext = createContext<DragStateContextType>({
   activeGuestId: null,
   preserveTableLayout: false,
+  isSaving: false,
   overGuestId: null,
   overTableId: null,
   isOverUnassigned: false,
@@ -224,10 +226,11 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     }
 
     // Fallback
-    return rectIntersection(args);
+    return args.pointerCoordinates ? [] : rectIntersection(args);
   }, []);
 
   const handleDragStart = useCallback((event: DragStartEvent) => {
+    if(processingRef.current)return;
     const { active } = event;
     const guestData = active.data.current;
     
@@ -365,7 +368,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
     const overData = over.data.current;
 
     // Early validation - don't lock processing for invalid drags
-    if (!activeData || activeData.type !== 'guest') return;
+    if (!activeData || activeData.type !== 'guest'||!['table','guest','unassigned','top-drop-zone'].includes(overData?.type)) return;
 
     processingRef.current = true;
     setIsProcessing(true);
@@ -535,6 +538,7 @@ export const SortableTablesGrid: React.FC<SortableTablesGridProps> = ({
 
   // Create drag state context value
   const dragStateValue: DragStateContextType = {
+    isSaving: isProcessing,
     activeGuestId: activeGuest?.id || null,
     preserveTableLayout: !!activeGuest?.table_id && tables.some(table => table.id === activeGuest.table_id && table.table_purpose === 'head'),
     overGuestId,

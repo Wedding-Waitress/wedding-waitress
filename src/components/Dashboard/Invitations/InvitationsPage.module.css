@@ -943,7 +943,7 @@
 
 :global(#root#root) .headerPanel .guidelinesPanel .manageHeading { font-family:var(--ww-interface-font-family) !important; font-size:13px !important; font-weight:600 !important; line-height:20px !important; color:#2b1711 !important; }
 
-:global(#root#root) .headerPanel .guidelinesPanel .manageHeading { width:fit-content; max-width:100%; border:1px solid #2b1711; border-radius:8px; padding:3px 10px; }
+:global(#root#root) .headerPanel .guidelinesPanel .manageHeading { max-width:100%; border:0; border-radius:0; padding:0; }
 
 /* Remove duplicate outer top padding; each heading retains its 16px inset. */
 :global(#root#root) .headerPanel,

@@ -20,7 +20,6 @@ import { downloadSignedUrl, filenameFor } from './galleryFile';
 import { guestbookRecordings } from '@/lib/mediaPrivacy';
 import { GuestbookDownloadAllButton } from './GuestbookDownloadAllButton';
 
-import { guestbookCsvFilename, guestbookSeqLabel } from '@/lib/guestbookFilename';
 import { downloadGuestbookMessagePdf } from '@/lib/guestbookMessagePdf';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 import { cn } from '@/lib/utils';
@@ -29,6 +28,15 @@ import managementStyles from './photoVideoSharingManagement.module.css';
 type Status = 'approved' | 'hidden';
 type TabKey = 'written' | 'audio' | 'video';
 type Source = 'text' | 'recording';
+
+// Open wedding guestbook with a heart and signing pen, matching the guest-facing artwork.
+const WeddingGuestbookIcon: React.FC<React.SVGProps<SVGSVGElement>> = (props) => (
+  <svg xmlns="http://www.w3.org/2000/svg" viewBox="0 0 32 32" fill="none" stroke="currentColor" strokeWidth={1.8} strokeLinecap="round" strokeLinejoin="round" {...props}>
+    <path d="M16 10C12 7 7 6 3 8v18c5-2 9-1 13 2 4-3 8-4 13-2V16M16 10v18M18 9l4-1" />
+    <path d="M10 13c-3-3-6 1 0 5 6-4 3-8 0-5ZM7 21l5 1M19 24l6-1" />
+    <path d="m19 21 1-5L27 5a1.7 1.7 0 0 1 3 2l-7 11-4 3ZM20 16l3 2M26 7l3 2" />
+  </svg>
+);
 
 export interface GuestbookTextPreviewRow {
   id: string;
@@ -71,9 +79,6 @@ function fmtDuration(sec: number | null) {
   return `${Math.floor(s / 60)}:${String(s % 60).padStart(2, '0')}`;
 }
 
-function csvCell(v: string) {
-  return `"${String(v ?? '').replace(/"/g, '""')}"`;
-}
 
 const GRID = 'grid gap-3 grid-cols-1 min-[420px]:grid-cols-2 md:grid-cols-4 xl:grid-cols-6 2xl:grid-cols-8';
 
@@ -213,25 +218,6 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
     } finally { setPdfBusy(false); }
   };
 
-  const exportCsv = () => {
-    if (writtenRows.length === 0) return;
-    const header = ['Message Number', 'Guest name', 'Message', 'Submitted', 'Status'];
-    const body = writtenRows.map(r => [
-      csvCell(guestbookSeqLabel(r.seq)),
-      csvCell(r.name || 'Anonymous guest'),
-      csvCell(r.message),
-      csvCell(r.at ? new Date(r.at).toLocaleString() : ''),
-      csvCell(r.status === 'hidden' ? 'Hidden' : 'Approved'),
-    ].join(','));
-    const csv = [header.map(csvCell).join(','), ...body].join('\r\n');
-    const blob = new Blob(['\uFEFF' + csv], { type: 'text/csv;charset=utf-8;' });
-    const a = document.createElement('a');
-    a.href = URL.createObjectURL(blob);
-    a.download = guestbookCsvFilename(eventName);
-    a.click();
-    setTimeout(() => URL.revokeObjectURL(a.href), 2000);
-    toast({ title: 'Export started', description: `${writtenRows.length} message${writtenRows.length === 1 ? '' : 's'} exported.` });
-  };
 
   const TABS: { key: TabKey; label: string; count: number }[] = [
     { key: 'written', label: 'Written Messages', count: allWritten.length },
@@ -245,6 +231,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
         <button
           type="button"
           onClick={() => setPreview(item)}
+          data-guestbook-audio-preview={item.kind !== 'video' ? '' : undefined}
           className={cn('relative block w-full aspect-square bg-[#EFE7DA] group', isGlass && managementStyles.guestbookMessagePreview)}
           aria-label={`Play recording from ${item.uploader_name || 'Anonymous guest'}`}
         >
@@ -255,7 +242,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
               <Mic2 className="h-8 w-8 text-[#967A59]" strokeWidth={1.8} />
             </span>
           )}
-          <span className="absolute inset-0 flex items-center justify-center bg-black/20 group-hover:bg-black/35 transition-colors">
+          <span className={cn('absolute inset-0 flex items-center justify-center transition-colors', item.kind === 'video' ? 'bg-black/20 group-hover:bg-black/35' : 'group-hover:bg-black/10')}>
             <span className="h-9 w-9 rounded-full bg-white/90 flex items-center justify-center shadow">
               <Play className="h-4 w-4 text-[#1D1D1F] ml-0.5" />
             </span>
@@ -317,16 +304,20 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
             {selectMode ? 'Cancel' : 'Select'}
           </Button>)
   );
+  const downloadAllButton = <GuestbookDownloadAllButton stacked={streamlinedToolbar} className={cn('!h-auto min-h-10 min-w-0 whitespace-normal', streamlinedToolbar ? managementStyles.guestbookFeatureButton : 'text-left')} disabled={textLoading || !!textError || loading} items={recordings} writtenMessages={allWritten.map(row => ({...row, hasRecording: row.source === 'recording'}))} eventName={eventName} eventDate={eventDate} appearance={appearance} />;
+  const searchField = (
+    <div className="relative col-span-2 min-w-0 xl:col-span-1" data-guestbook-search>
+      <Search className={cn('absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground', isGlass && managementStyles.galleryWarmIcon)} />
+      <Input value={search} onChange={(e) => setSearch(e.target.value)} aria-label="Search by guest name or message" placeholder="Search by guest name or message…" className={cn('h-11 pl-9 text-base', isGlass && managementStyles.galleryControl)} />
+    </div>
+  );
   const toolbarActions = (
         <div className={cn("grid w-full grid-cols-2 gap-2 sm:flex sm:flex-wrap sm:items-center sm:justify-end lg:w-auto lg:shrink-0", streamlinedToolbar && managementStyles.guestbookToolbarActions)} data-guestbook-toolbar="actions">
           <Button variant="outline" size="sm" className={cn('lv-premium-shade h-10', isGlass && managementStyles.galleryControl)} onClick={() => void refreshMessages()} disabled={textLoading || refreshing}>
             {textLoading || refreshing ? <LoaderCircle className="h-4 w-4 mr-1 animate-spin" strokeWidth={1.8} /> : <RotateCcw className="h-4 w-4 mr-1" strokeWidth={1.8} />} Refresh
           </Button>
           {!streamlinedToolbar && selectionButton}
-          {!streamlinedToolbar && <GuestbookDownloadAllButton className="!h-10 min-w-0" items={recordings} eventName={eventName} appearance={appearance} />}
-          <Button className={cn('ww-emboss-green ww-emboss-green-soft h-10 min-w-0 text-white border-0', isGlass && [managementStyles.galleryViewPrimaryAction, managementStyles.guestbookCsvAction])} onClick={exportCsv} disabled={writtenRows.length === 0}>
-            <Download className="h-4 w-4 mr-1 text-white" strokeWidth={1.8} /> Export CSV
-          </Button>
+          {!streamlinedToolbar && downloadAllButton}
         </div>
   );
 
@@ -344,17 +335,8 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
         className={cn("grid grid-cols-2 items-center gap-3 xl:grid-cols-[minmax(220px,1fr)_repeat(3,max-content)_140px_140px]", streamlinedToolbar && managementStyles.guestbookToolbar)}
         data-guestbook-toolbar="filters"
       >
-        <div className="relative col-span-2 min-w-0 xl:col-span-1">
-          <Search className={cn('absolute left-3 top-1/2 -translate-y-1/2 h-4 w-4 text-muted-foreground', isGlass && managementStyles.galleryWarmIcon)} />
-          <Input
-            value={search}
-            onChange={(e) => setSearch(e.target.value)}
-            aria-label="Search by guest name or message"
-            placeholder="Search by guest name or message…"
-            className={cn('h-11 pl-9 text-base', isGlass && managementStyles.galleryControl)}
-          />
-        </div>
-        <div className="col-span-2 grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-3 xl:contents">
+        {!streamlinedToolbar && searchField}
+        <div className="col-span-2 grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-3 xl:contents" data-guestbook-tabs>
           {TABS.map(t => (
             <button
               key={t.key}
@@ -367,13 +349,17 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
                   ? 'shadow-[inset_0_2px_5px_rgba(0,0,0,0.28)]'
                   : 'shadow-[inset_0_1px_0_rgba(255,255,255,0.28)]',
                 isGlass && managementStyles.galleryControl,
+                streamlinedToolbar && managementStyles.guestbookFeatureButton,
                 isGlass && tab === t.key && managementStyles.galleryControlActive,
               )}
             >
-              {t.label} ({t.count})
+              {streamlinedToolbar && React.createElement(t.key === 'written' ? WeddingGuestbookIcon : t.key === 'audio' ? Mic2 : Video, { 'aria-hidden': true, strokeWidth: 1.8 })}
+              <span>{t.label}{' '}<span className={streamlinedToolbar ? 'block' : undefined}>({t.count})</span></span>
             </button>
           ))}
         </div>
+        {streamlinedToolbar && downloadAllButton}
+        {streamlinedToolbar && searchField}
         <Select value={sort} onValueChange={(v) => setSort(v as 'newest' | 'oldest')}>
           <SelectTrigger aria-label="Sort messages" className={cn('h-11 w-full min-w-0', isGlass && managementStyles.galleryControl)}><SelectValue /></SelectTrigger>
           <SelectContent className={cn(isGlass && managementStyles.gallerySelectContent)}>
@@ -466,7 +452,7 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
           })}
         </ul>
       ) : (
-        <ul className={GRID}>
+        <ul className={streamlinedToolbar ? managementStyles.guestbookWrittenGrid : GRID} data-guestbook-recording-grid={streamlinedToolbar ? "compact" : undefined}>
           {list.map(renderRecordingCard)}
         </ul>
       )}

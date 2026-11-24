@@ -1,6 +1,7 @@
 import { Printer as ExportControlsPrinter } from 'lucide-react';
 import {ReceptionDraftReview} from '../ReceptionDraftReview';
 import {FloorPlanShareModal} from '../FloorPlanShareModal';
+import {openPdfPrintFrame,type PdfPrintJob} from '@/lib/pdfPrint';
 import { useEffect, useRef, useState } from 'react';
 import { createPortal } from 'react-dom';
 import { Card, CardContent } from '@/components/ui/card';
@@ -16,6 +17,7 @@ import { ReceptionFloorPlanCanvas } from './ReceptionFloorPlanCanvas';
 import {useReceptionLayoutHistory,resetReceptionLayout} from '@/hooks/useReceptionLayoutHistory';
 import {
   exportReceptionPreviewToPdf,
+  createReceptionPreviewPdf,
   type ReceptionPdfPageSize,
 } from '@/lib/receptionFloorPlanPdfExporter';
 import { BackgroundCalibrationOverlay } from './BackgroundCalibrationOverlay';
@@ -61,12 +63,15 @@ export const ReceptionFloorPlanPage = ({
   const { toast } = useToast();
   const {update,undo,canUndo} = useReceptionLayoutHistory(selectedEventId,commit,tables);
   const [exporting, setExporting] = useState<ReceptionPdfPageSize | null>(null);
+  const [printing, setPrinting] = useState(false);
   const [calibrating, setCalibrating] = useState(false);
   const [shareOpen,setShareOpen]=useState(false);
   const [chooseVenueOpen, setChooseVenueOpen] = useState(false);
   const [submitTemplateOpen, setSubmitTemplateOpen] = useState(false);
   const [selectedTableId, setSelectedTableId] = useState<string | null>(null);
   const receptionA4Ref = useRef<HTMLDivElement>(null);
+  const printSelection = useRef(selectedEventId);
+  printSelection.current = selectedEventId;
   const [generatedAt] = useState(() => new Date());
 
   const loading = tablesLoading || !tablesReady || planLoading || !plan;
@@ -93,7 +98,7 @@ export const ReceptionFloorPlanPage = ({
   };
 
   const handleExport = async (size: ReceptionPdfPageSize) => {
-    if (!plan || !receptionA4Ref.current) return;
+    if (!plan || !receptionA4Ref.current || exporting || printing) return;
     setExporting(size);
     try {
       toast({ title: 'Generating PDF', description: 'Preparing your reception floor plan...' });
@@ -118,6 +123,22 @@ export const ReceptionFloorPlanPage = ({
     }
   };
 
+  const handlePrint = async () => {
+    if (!plan || !receptionA4Ref.current || exporting || printing || loading) return;
+    const id = selectedEventId;
+    const isCurrent = () => printSelection.current === id && receptionA4Ref.current !== null;
+    let job: PdfPrintJob | undefined;
+    setPrinting(true);
+    try {
+      job = openPdfPrintFrame();
+      const pdf = await createReceptionPreviewPdf({pageElement:receptionA4Ref.current,eventName:selectedEvent.name,eventDate:selectedEvent.date});
+      await job.print(pdf.output('blob'),isCurrent);
+    } catch(error) {
+      job?.close();
+      toast({title:'Print Failed',description:error instanceof Error?error.message:'Could not prepare your floor plan.',variant:'destructive'});
+    } finally {setPrinting(false);}
+  };
+
   const headerControls = plan ? (
     <div data-export-controls-panel
         className={`${headerStyles.exportControls} flex min-w-0 flex-col gap-2 sm:flex-row sm:items-center sm:justify-end`}
@@ -131,12 +152,13 @@ export const ReceptionFloorPlanPage = ({
         <span id="reception-floor-plan-export-description" className="sr-only">
           Download your reception floor plan PDF.
         </span>
-        <div className="flex w-full items-center justify-center gap-2 sm:w-auto">
+        <div className="flex w-full flex-wrap items-center justify-center gap-2 sm:w-auto">
           <button type="button" className={headerStyles.exportButton+" inline-flex items-center gap-1.5 rounded-full px-3 h-7 text-xs"} onClick={()=>setShareOpen(true)}><Share2 className="w-4 h-4"/>Share</button>
+          <button type="button" className={headerStyles.exportButton+" inline-flex items-center justify-center gap-1.5 rounded-full px-3 h-7 text-xs disabled:opacity-50"} disabled={!!exporting || printing || loading} onClick={handlePrint} aria-label="Print reception floor plan">{printing ? <Loader2 className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true"/> : <Printer className="w-4 h-4" strokeWidth={1.8} aria-hidden="true"/>}Print</button>
           <button
             type="button"
             onClick={() => handleExport('a4')}
-            disabled={!!exporting}
+            disabled={!!exporting || printing}
             aria-label="Download reception floor plan PDF"
             aria-describedby="reception-floor-plan-export-description"
             className={`${headerStyles.exportButton} inline-flex h-7 flex-1 shrink-0 items-center justify-center gap-1.5 rounded-full border-2 border-green-500 bg-background px-2.5 text-xs font-medium text-green-600 transition-colors hover:bg-green-50 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2 disabled:pointer-events-none disabled:opacity-50 sm:flex-none`}

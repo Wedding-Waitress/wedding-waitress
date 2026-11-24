@@ -83,18 +83,18 @@ export const FeatureWorkspaceLayout: React.FC<FeatureWorkspaceLayoutProps> = ({
       <header className={cn('w-full', isPhotoVideoSharing && managementStyles.manropeTypography)}>
         <div className="mx-auto w-full max-w-[1400px] px-4 sm:px-6 lg:px-8 pt-4 sm:pt-5 pb-6">
           {/* Level 1 — Logo */}
-          <div className="flex justify-center lg:justify-start">
+          {!usesPhotoVideoSharingBackground && <div className="flex justify-center lg:justify-start">
             <img
-              src={logoImage}
+              src={usesPhotoVideoSharingBackground ? '/wedding-waitress-document-footer-dark-brown.png' : logoImage}
               alt="Wedding Waitress"
               className="h-12 md:h-14 w-auto object-contain shrink-0"
-              style={{ filter: 'brightness(0) invert(1)' }}
+              style={usesPhotoVideoSharingBackground ? undefined : { filter: 'brightness(0) invert(1)' }}
             />
-          </div>
+          </div>}
 
           {/* Level 2 — Centred page identity */}
-          <div className="mt-6 sm:mt-8 text-center">
-            <h1 className={cn(
+          <div className={cn('text-center', !usesPhotoVideoSharingBackground && 'mt-6 sm:mt-8')}>
+            <h1 data-ww-heading={usesPhotoVideoSharingBackground ? 'workspace' : undefined} className={cn(
               'text-xl sm:text-2xl text-white break-words',
               isPhotoVideoSharing
                 ? 'font-semibold tracking-[-0.012em] leading-tight'

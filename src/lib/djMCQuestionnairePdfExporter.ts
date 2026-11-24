@@ -1,4 +1,5 @@
 import { fitDocumentFooterLogo } from '@/lib/documentFooterLogo';
+import { registerDocumentEventTitleFont, PDF_EVENT_TITLE_FONT } from './documentEventTitle';
 import { cellValue } from '@/lib/djmcCustomColumns';
 /**
  * PRODUCTION-READY -- LOCKED FOR PRODUCTION
@@ -374,8 +375,8 @@ const drawSectionTable = (
 const drawHeader = (pdf: jsPDF, event: Event): number => {
   let yPos = MARGIN;
 
-  // Event name - large purple
-  pdf.setFont('helvetica', 'bold');
+  // Event name uses the approved document heading font.
+  pdf.setFont(PDF_EVENT_TITLE_FONT, 'normal');
   pdf.setFontSize(16);
   pdf.setTextColor(ESPRESSO.r, ESPRESSO.g, ESPRESSO.b);
   const titleLines = pdf.splitTextToSize(event.name, CONTENT_WIDTH);
@@ -435,6 +436,7 @@ export const exportSectionPDF = async (
   });
 
   const logoDataUrl = await loadLogoAsDataUrl();
+  await registerDocumentEventTitleFont(pdf);
   const timestamp = formatGeneratedTimestamp();
 
   let currentPage = 1;
@@ -475,7 +477,8 @@ export const exportEntireQuestionnairePDF = async (
   questionnaire: DJMCQuestionnaire,
   event: Event,
   rowTextSize: "standard" | "larger" = "standard",
-  isCurrent: () => boolean = () => true
+  isCurrent: () => boolean = () => true,
+  onReady?: (pdf: jsPDF) => Promise<void>
 ): Promise<void> => {
   const pdf = new jsPDF({
     orientation: 'portrait',
@@ -485,6 +488,7 @@ export const exportEntireQuestionnairePDF = async (
   });
 
   const logoDataUrl = await loadLogoAsDataUrl();
+  await registerDocumentEventTitleFont(pdf);
   const timestamp = formatGeneratedTimestamp();
 
   let currentPage = 1;
@@ -527,5 +531,6 @@ export const exportEntireQuestionnairePDF = async (
   const formattedDate = `${String(dateObj.getDate()).padStart(2, '0')}-${String(dateObj.getMonth() + 1).padStart(2, '0')}-${dateObj.getFullYear()}`;
   const fileName = `${safeEventName}-DJ-MC Questionnaire-${formattedDate}.pdf`;
   if (!isCurrent()) throw new Error("Questionnaire changed during export. Please try again.");
-  await savePdfAsync(pdf, fileName);
+  if (onReady) await onReady(pdf);
+  else await savePdfAsync(pdf, fileName);
 };

@@ -1,4 +1,4 @@
-import React, { useEffect, useState } from 'react';
+import React, { useEffect, useRef, useState } from 'react';
 import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
 import { Users, MapPin, Utensils } from 'lucide-react';
@@ -48,6 +48,22 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
   const supabase=useGuestExperienceClient();
   const [tableData, setTableData] = useState<TableData | null>(null);
   const [loading, setLoading] = useState(true);
+  const headViewport = useRef<HTMLDivElement>(null);
+  const headDiagram = useRef<HTMLDivElement>(null);
+  const [headFit, setHeadFit] = useState({ width: 560, height: 200 });
+  useEffect(() => {
+    const viewport = headViewport.current, diagram = headDiagram.current;
+    if (!viewport || !diagram) return;
+    const measure = () => setHeadFit(previous => {
+      const width = viewport.clientWidth || 560, height = diagram.offsetHeight || 200;
+      return previous.width === width && previous.height === height ? previous : { width, height };
+    });
+    measure();
+    const observer = typeof ResizeObserver === 'undefined' ? undefined : new ResizeObserver(measure);
+    observer?.observe(viewport);observer?.observe(diagram);
+    window.addEventListener('resize', measure);
+    return () => { observer?.disconnect();window.removeEventListener('resize', measure); };
+  }, [tableData]);
 
   useEffect(() => {
     let cancelled = false;
@@ -172,9 +188,11 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
       
       <CardContent className={tableData?.table_purpose === 'head' || !tableData ? 'p-6' : 'p-0 md:p-6'}>
         {tableData.table_purpose === 'head' ? (
-          <div data-head-table-order="left-to-right-as-viewed-by-guests" className="mx-auto mt-4 w-full max-w-3xl overflow-x-auto pb-2">
+          <div data-head-table-order="left-to-right-as-viewed-by-guests" className="mx-auto mt-4 w-full max-w-3xl pb-2">
             <p className="mb-3 text-center text-xs text-muted-foreground">Left to right, as viewed by the guests.</p>
-            <div className="grid min-w-[560px] items-end gap-2" style={{ gridTemplateColumns: `repeat(${Math.max(1, tableData.limit_seats)}, minmax(0, 1fr))` }}>
+            <div ref={headViewport} data-head-table-viewport className="relative w-full overflow-hidden" style={{ height: headFit.height * Math.min(1, headFit.width / 560) }}>
+            <div ref={headDiagram} data-head-table-diagram style={{ width: Math.max(560, headFit.width), transform: `scale(${Math.min(1, headFit.width / 560)})`, transformOrigin: 'top left' }}>
+            <div className="grid items-end gap-2" style={{ gridTemplateColumns: `repeat(${Math.max(1, tableData.limit_seats)}, minmax(0, 1fr))` }}>
               {Array.from({ length: tableData.limit_seats }, (_, index) => (
                 <div key={index} className="text-center">
                   <div data-live-body className="mb-2 min-h-9 break-words text-xs font-semibold">{headOccupants[index - headOccupantOffset] ?? ''}</div>
@@ -182,7 +200,9 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
                 </div>
               ))}
             </div>
-            <div data-live-section-heading className="mt-2 flex h-24 min-w-[560px] items-center justify-center rounded-xl border-2 border-primary/30 bg-gradient-card text-xl font-bold text-white">{tableData.name}</div>
+            <div data-live-section-heading className="mt-2 flex h-24 items-center justify-center rounded-xl border-2 border-primary/30 bg-gradient-card text-xl font-bold text-white">{tableData.name}</div>
+            </div>
+            </div>
           </div>
         ) : <div data-round-guest-table className="relative mx-auto mt-4">
           {/* Table Surface */}
@@ -266,7 +286,7 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
                       normalizeRsvp(guest.rsvp) === 'Not Attending' ? 'bg-red-500' : 'bg-warning'
                     }`} />
                     <div>
-                      <div data-live-body className="text-sm font-medium">
+                      <div data-live-body data-qr-seated-guest-name className="text-sm font-medium">
                         {guest.first_name} {guest.last_name}
                       </div>
                       {guest.dietary && guest.dietary !== 'NA' && (
@@ -279,11 +299,11 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
                   </div>
                   <div className="text-right">
                     {guest.seat_no && (
-                      <Badge variant="outline" className="text-xs">
+                      <Badge data-qr-seated-guest-seat variant="outline" className="text-xs">
                         Seat {guest.seat_no}
                       </Badge>
                     )}
-                    <div className={`text-xs mt-1 ${
+                    <div data-qr-seated-guest-status className={`text-xs mt-1 ${
                       normalizeRsvp(guest.rsvp) === 'Attending' ? 'text-green-500' :
                       normalizeRsvp(guest.rsvp) === 'Not Attending' ? 'text-red-500' : 'text-warning'
                     }`}>

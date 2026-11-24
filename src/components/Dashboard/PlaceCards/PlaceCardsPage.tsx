@@ -1,6 +1,5 @@
 import choiceStyles from '../EventSelectorReference.module.css';
 import { Printer as ExportControlsPrinter } from 'lucide-react';
-import { PlaceCardScopedFitSync } from './PlaceCardScopedFitSync';
 /**
  * ⚠️ PRODUCTION-READY - DO NOT MODIFY WITHOUT APPROVAL ⚠️
  *
@@ -303,8 +302,6 @@ export const PlaceCardsPage: React.FC<PlaceCardsPageProps> = ({
   return (
     <div className={`${styles.page} space-y-6 place-cards-page`} {...(isExporting ? { inert: '' } : {})}>
       {imageFit.dialog}
-      {selectedEvent && <PlaceCardScopedFitSync key={`${selectedEvent.user_id}:${selectedEvent.id}`} ownerId={selectedEvent.user_id} eventId={selectedEvent.id}
-        settings={settings} visibleFit={imageFit.backgroundFit} onUseSavedFit={imageFit.applyRecordedFit}/>}
       {/* Combined Header Box */}
       <Card className={`${styles.mainStudio} ${styles.headerPanel}`}>
         <CardContent className="space-y-4 pt-6">

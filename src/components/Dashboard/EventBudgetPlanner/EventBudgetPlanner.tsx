@@ -5,7 +5,7 @@ import React from 'react';
 import { createPortal } from 'react-dom';
 import {
   AlertCircle, CheckCircle2, Clock3, Download, Plus, Printer, Trash2,
-  Search, WalletCards,
+  Search, WalletCards, LoaderCircle,
 } from 'lucide-react';
 import { Dialog, DialogContent, DialogDescription, DialogHeader, DialogTitle } from '@/components/ui/dialog';
 import { useToast } from '@/hooks/use-toast';
@@ -18,7 +18,8 @@ import {
 } from '@/lib/eventBudget';
 import type { CurrencyCode } from '@/lib/currencyPricing';
 import { CURRENCY_PREFIX } from '@/lib/liveCurrencyPricing';
-import { exportEventBudgetPdf } from '@/lib/eventBudgetPdfExporter';
+import { createEventBudgetPdf, exportEventBudgetPdf } from '@/lib/eventBudgetPdfExporter';
+import { openPdfPrintFrame, type PdfPrintJob } from '@/lib/pdfPrint';
 import { ExpenseDrawer } from './ExpenseDrawer';
 import { EventBudgetPrintDocument } from './EventBudgetPrintDocument';
 import styles from './EventBudgetPlanner.module.css';
@@ -170,31 +171,34 @@ export const EventBudgetPlannerView: React.FC<{event:BudgetPlannerEvent;exportTa
     finally { rowDeleteLock.current = false; setRowDeleting(false); }
   };
 
-  const requestPrintAction = (action: 'print' | 'download') => { setGeneratedAt(new Date()); setPendingPrintAction(action); setPrintOpen(true); };
+  const printEvent = React.useRef(event.id); printEvent.current = event.id;
+  const requestPrintAction = (action: 'print' | 'download') => { if(exporting)return; setGeneratedAt(new Date()); setPendingPrintAction(action); setPrintOpen(true); };
   React.useEffect(() => {
     if (!printOpen || !pendingPrintAction || !printRoot) return;
     const timer = window.setTimeout(async () => {
-      if (pendingPrintAction === 'print') {
-        printRoot.dataset.budgetPrintSource = 'true';
-        try { window.print(); } finally { delete printRoot.dataset.budgetPrintSource; }
-      } else {
-        setExporting(true);
-        try { await exportEventBudgetPdf(printRoot, event.name); }
-        catch (error) { toast({ title: 'PDF export failed', description: error instanceof Error ? error.message : 'Please try again.', variant: 'destructive' }); }
-        finally { setExporting(false); }
-      }
-      setPendingPrintAction(null);
+      const id=event.id,isCurrent=()=>printEvent.current===id&&printRoot.isConnected;
+      let job:PdfPrintJob|undefined;
+      setExporting(true);
+      try {
+        if(pendingPrintAction==='print'){
+          const pdf=await createEventBudgetPdf(printRoot);
+          if(!isCurrent())throw Error('The selected event changed. Please print again.');
+          job=openPdfPrintFrame();
+          await job.print(pdf.output('blob'),isCurrent);
+        } else await exportEventBudgetPdf(printRoot,event.name);
+      } catch(error){job?.close();toast({title:pendingPrintAction==='print'?'Print Failed':'PDF export failed',description:error instanceof Error?error.message:'Please try again.',variant:'destructive'});}
+      finally{setExporting(false);if(pendingPrintAction==='print')setPrintOpen(false);setPendingPrintAction(null);}
     }, 80);
     return () => window.clearTimeout(timer);
-  }, [event.name, pendingPrintAction, printOpen, printRoot, toast]);
+  }, [event.id, event.name, pendingPrintAction, printOpen, printRoot, toast]);
 
   const statusIcon = (value: BudgetPaymentStatus) => value === 'Paid' ? <CheckCircle2 size={14} /> : value === 'Overdue' ? <AlertCircle size={14} /> : <Clock3 size={14} />;
 
   const exportControls = <section data-export-controls-panel className={styles.exportPanel} aria-label="Export Controls">
     <span data-export-controls-heading><ExportControlsPrinter size={16} strokeWidth={2} aria-hidden="true" />Export Controls</span>
       <div className={styles.topActions}>
-        <button type="button" className={`${styles.successButton} ${styles.exportAction}`} onClick={() => requestPrintAction('print')} disabled={query.isLoading}><Printer size={16} aria-hidden="true" />Print Budget</button>
-        <button type="button" className={`${styles.successButton} ${styles.exportAction}`} onClick={() => requestPrintAction('download')} disabled={query.isLoading || exporting}><Download size={16} aria-hidden="true" />{exporting ? 'Preparing PDF…' : 'Download PDF'}</button>
+        <button type="button" className={`${styles.successButton} ${styles.exportAction}`} onClick={() => requestPrintAction('print')} disabled={query.isLoading || exporting}>{exporting && pendingPrintAction==='print'?<LoaderCircle size={16} className="animate-spin" aria-hidden="true"/>:<Printer size={16} aria-hidden="true" />}Print Budget</button>
+        <button type="button" className={`${styles.successButton} ${styles.exportAction}`} onClick={() => requestPrintAction('download')} disabled={query.isLoading || exporting}><Download size={16} aria-hidden="true" />{exporting && pendingPrintAction==='download' ? 'Preparing PDF…' : 'Download PDF'}</button>
       </div>
   </section>;
 
@@ -253,14 +257,14 @@ export const EventBudgetPlannerView: React.FC<{event:BudgetPlannerEvent;exportTa
               <td className={`${styles.money} ${styles.centeredColumn}`}>{formatBudgetDisplay(currency, expense.amount_paid)}</td><td className={`${styles.money} ${styles.centeredColumn}`}>{formatBudgetDisplay(currency, expenseOutstanding(expense))}</td>
               <td className={styles.centeredColumn}>{formatAustralianDate(expense.payment_date)}</td><td className={styles.centeredColumn}>{formatAustralianDate(expense.balance_due_date)}</td><td className={styles.centeredColumn}>{expense.notes?.trim() ? 'Yes' : 'No'}</td>
               <td className={styles.centeredColumn}><span className={styles.statusPill} data-status={paymentStatus}>{statusIcon(paymentStatus)}{paymentStatus}</span></td>
-              <td className={styles.centeredColumn}><RecordActionPair editLabel={`Edit ${expenseTitle(expense)}`} deleteLabel={`Delete ${expenseTitle(expense)}`} disabled={readOnly || hasLegacyCurrency || deleteExpense.isPending || rowDeleting} onEdit={event => openEdit(expense, event.currentTarget)} onDelete={event => openDelete(expense, event.currentTarget)} /></td>
+              <td className={styles.centeredColumn}><RecordActionPair showLabels editLabel={`Edit ${expenseTitle(expense)}`} deleteLabel={`Delete ${expenseTitle(expense)}`} disabled={readOnly || hasLegacyCurrency || deleteExpense.isPending || rowDeleting} onEdit={event => openEdit(expense, event.currentTarget)} onDelete={event => openDelete(expense, event.currentTarget)} /></td>
             </tr>; })}</tbody><tfoot aria-hidden="true" className={styles.expenseFooter}><tr><td colSpan={12} /></tr></tfoot></table>
         </div>
         <div className={styles.mobileExpenses}>{visibleExpenses.map(expense => { const paymentStatus = getBudgetPaymentStatus(expense); return <article key={expense.id} className={styles.mobileExpenseCard}>
           <div className={styles.mobileCardHeading}><div><span>{expenseCategory(expense)}</span><h3>{expenseTitle(expense)}</h3>{expense.vendor_name && expense.vendor_name !== expenseTitle(expense) && <p>{expense.vendor_name}</p>}</div><span className={styles.statusPill} data-status={paymentStatus}>{statusIcon(paymentStatus)}{paymentStatus}</span></div>
           <dl><div><dt>Budgeted Cost</dt><dd>{formatBudgetDisplay(currency, expense.estimated_cost ?? 0)}</dd></div><div><dt>Paid</dt><dd>{formatBudgetDisplay(currency, expense.amount_paid)}</dd></div><div><dt>Outstanding</dt><dd>{formatBudgetDisplay(currency, expenseOutstanding(expense))}</dd></div><div><dt>Balance Due</dt><dd>{formatAustralianDate(expense.balance_due_date)}</dd></div></dl>
           <details><summary>View Details</summary><p>{[expense.contact_person, expense.phone, expense.email, expense.address, expense.notes].filter(Boolean).join(' · ') || 'No additional details.'}</p></details>
-          <RecordActionPair editLabel={`Edit ${expenseTitle(expense)}`} deleteLabel={`Delete ${expenseTitle(expense)}`} disabled={readOnly || hasLegacyCurrency || deleteExpense.isPending || rowDeleting} onEdit={event => openEdit(expense, event.currentTarget)} onDelete={event => openDelete(expense, event.currentTarget)} />
+          <RecordActionPair showLabels editLabel={`Edit ${expenseTitle(expense)}`} deleteLabel={`Delete ${expenseTitle(expense)}`} disabled={readOnly || hasLegacyCurrency || deleteExpense.isPending || rowDeleting} onEdit={event => openEdit(expense, event.currentTarget)} onDelete={event => openDelete(expense, event.currentTarget)} />
         </article>; })}</div>
       </>}
     </div>
@@ -279,9 +283,12 @@ export const EventBudgetPlannerView: React.FC<{event:BudgetPlannerEvent;exportTa
 
 
 
-    <Dialog open={printOpen} onOpenChange={setPrintOpen}><DialogContent className={styles.printDialog} data-budget-print-preview>
+    {printOpen && pendingPrintAction==='print' && createPortal(<div aria-hidden="true" style={{position:'fixed',left:-100000,top:0,width:1123,pointerEvents:'none'}}>
+      <EventBudgetPrintDocument ref={setPrintRoot} eventName={event.name} eventDate={event.date} currency={currency} expenses={data.expenses} summary={summary} generatedAt={generatedAt} />
+    </div>,document.body)}
+    <Dialog open={printOpen && pendingPrintAction!=='print'} onOpenChange={setPrintOpen}><DialogContent className={styles.printDialog} data-budget-print-preview>
       <DialogHeader><DialogTitle>Event Budget Planner Preview</DialogTitle><DialogDescription>This authoritative A4 landscape preview is used for both browser print and PDF.</DialogDescription></DialogHeader>
-      <div className={styles.printDialogActions}><button className={styles.secondaryButton} onClick={() => requestPrintAction('print')}><Printer size={16} />Print Budget</button><button className={styles.successButton} onClick={() => requestPrintAction('download')} disabled={exporting}><Download size={16} />{exporting ? 'Preparing PDF…' : 'Download PDF'}</button></div>
+      <div className={styles.printDialogActions}><button className={styles.secondaryButton} onClick={() => requestPrintAction('print')} disabled={exporting}>{exporting && pendingPrintAction==='print'?<LoaderCircle size={16} className="animate-spin"/>:<Printer size={16}/>}Print Budget</button><button className={styles.successButton} onClick={() => requestPrintAction('download')} disabled={exporting}><Download size={16} />{exporting && pendingPrintAction==='download' ? 'Preparing PDF…' : 'Download PDF'}</button></div>
       <div className={styles.printViewport} data-budget-print-viewport><EventBudgetPrintDocument ref={setPrintRoot} eventName={event.name} eventDate={event.date} currency={currency} expenses={data.expenses} summary={summary} generatedAt={generatedAt} /></div>
     </DialogContent></Dialog>
   </section>;

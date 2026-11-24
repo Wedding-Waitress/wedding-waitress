@@ -349,6 +349,10 @@
     font-family:'Segoe UI',Arial,sans-serif !important;font-size:13px !important;font-weight:600 !important;
   }
   :is(:global(button#floor-plan-event),:global(button#floor-plan-type)):hover {background:#f3e7d8 !important;}
+  :global(button#floor-plan-type),:global(button#floor-plan-type):hover {
+    background:linear-gradient(180deg,#fff276,#ffe329) !important;
+    box-shadow:inset 0 1px 0 #fffbc7,inset 0 -2px 0 #b69b2399,0 4px 10px #8c742333 !important;
+  }
   :is(:global(button#floor-plan-event),:global(button#floor-plan-type)):focus-visible {outline:2px solid #755332 !important;outline-offset:2px;}
 }
 @media screen and (min-width:1280px) {

@@ -38,7 +38,7 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
   onSelect,
   showCheckbox = false
 }) => {
-  const { preserveTableLayout } = useDragState();
+  const { preserveTableLayout, isSaving } = useDragState();
   const {
     attributes,
     listeners,
@@ -48,6 +48,7 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
     isDragging,
   } = useSortable({ 
     id: guest.id,
+    disabled: isSaving || isOverlay,
     data: {
       type: 'guest',
       guest,
@@ -123,6 +124,7 @@ export const SortableGuestItem: React.FC<SortableGuestItemProps> = ({
           {...attributes}
           {...listeners}
           aria-grabbed={isDragging}
+          aria-disabled={isSaving}
           aria-label="Drag guest to another seat or table"
           title="Drag guest to another seat or table"
           tabIndex={0}

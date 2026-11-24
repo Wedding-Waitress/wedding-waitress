@@ -1,6 +1,6 @@
-// Customer-friendly download naming for AUDIO GUESTBOOK RECORDINGS (private).
+// Customer-friendly download naming for private guestbook recordings.
 //
-// Format: 00001-Event-Name-Audio.extension  (e.g. 00001-Jason-and-Lindas-Wedding-Audio.webm)
+// Format: 00001-Event-Name-Audio.extension or 00001-Event-Name-Video.extension.
 //
 // One combined per-event sequence covers BOTH private audio and private video
 // Guestbook recordings (source_category = 'guestbook_recording'), ordered by
@@ -58,5 +58,6 @@ export function guestbookRecordingFilename(
   if (typeof seq !== 'number' || !Number.isFinite(seq) || seq < 1) return null;
   const safe = safeEventName(eventName);
   if (!safe) return null;
-  return `${String(Math.floor(seq)).padStart(5, '0')}-${safe}-Audio.${recordingExtension(item)}`;
+  const mediaLabel = item.kind === 'video' ? 'Video' : 'Audio';
+  return `${String(Math.floor(seq)).padStart(5, '0')}-${safe}-${mediaLabel}.${recordingExtension(item)}`;
 }

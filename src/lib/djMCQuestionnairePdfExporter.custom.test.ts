@@ -1,9 +1,11 @@
 import {it,expect,vi} from 'vitest';
+import {readFileSync} from 'node:fs';
+const mockAssets=()=>vi.fn(async(url:unknown)=>String(url).endsWith('.ttf')?{ok:true,blob:async()=>new Blob([new Uint8Array(readFileSync('public/fonts/playfair-display/playfair-display-semibold.ttf'))])}:{ok:false});
 const saved=vi.hoisted(()=>vi.fn());
 vi.mock('@/lib/pdfExportUtils',()=>({PDF_DEFAULT_OPTIONS:{},savePdfAsync:saved,yieldToBrowser:async()=>{}}));
 import {exportSectionPDF,exportEntireQuestionnairePDF} from './djMCQuestionnairePdfExporter';
 it('exports custom headings and cell content in section and entire PDFs',async()=>{
- vi.stubGlobal('fetch',vi.fn().mockResolvedValue({ok:false}));
+ vi.stubGlobal('fetch',mockAssets());
  const section:any={section_type:'cocktail',section_label:'Custom Section',custom_columns:[{id:'row_label',source:'row_label',label:'Person'},{id:'extra',label:'Instructions'}],items:[{row_label:'Alice',custom_values:{extra:'Bring flowers'}}]};
  const event:any={name:'Test Wedding',date:'2027-09-05'};
  await exportSectionPDF(section,event,'larger');
@@ -13,7 +15,7 @@ it('exports custom headings and cell content in section and entire PDFs',async()
 });
 
 it('does not save either PDF when the event or questionnaire changed during rendering',async()=>{
- saved.mockClear();vi.stubGlobal('fetch',vi.fn().mockResolvedValue({ok:false}));
+ saved.mockClear();vi.stubGlobal('fetch',mockAssets());
  const section:any={section_type:'cocktail',section_label:'Section',items:[]},event:any={name:'Fixture',date:'2027-03-19'};
  await expect(exportSectionPDF(section,event,'standard',()=>false)).rejects.toThrow('changed during export');
  await expect(exportEntireQuestionnairePDF({sections:[section]} as any,event,'standard',()=>false)).rejects.toThrow('changed during export');

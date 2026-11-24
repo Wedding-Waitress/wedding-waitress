@@ -932,6 +932,13 @@
 }
 
 /* Approved dashboard heading reference; shared schedule uses the same heading. */
+@layer ww-large-headings {
+ :global(#root#root) :is(.page,.publicPage) .scheduleCard .sectionHeading,
+ :global(#root#root) :is(.page,.publicPage) .scheduleCard .sectionHeading > button {
+  font-family:'Wedding Waitress Playfair','Playfair Display',Georgia,serif!important;
+  font-size:24px!important;font-weight:600!important;line-height:31px!important;
+ }
+}
 :global(#root#root) .page .pageHeader h1,
 :global(#root#root) :is(.page, .publicPage) .scheduleCard .sectionHeading {
  font-family:var(--ww-interface-font-family) !important; font-size:24px !important;

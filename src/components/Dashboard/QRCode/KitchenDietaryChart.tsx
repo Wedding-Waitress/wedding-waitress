@@ -763,7 +763,7 @@ export const KitchenDietaryChartView: React.FC<KitchenDietaryChartViewProps> = (
                       {/* Header - matching Full Seating Chart style */}
                       <header ref={reportHeaderRef} className="text-center" style={{ color: DIETARY_REPORT_TEXT_COLOR }}>
                         {/* Line 1: Event Name */}
-                        <h1 style={{ color: '#2f1b14', fontSize: `${DIETARY_A4_LAYOUT.eventNameFontPt}pt`, fontWeight: 700, lineHeight: DIETARY_A4_LAYOUT.eventNameLineHeight, overflowWrap: 'anywhere', margin: 0 }}>
+                        <h1 data-document-event-title style={{ color: '#2f1b14', fontSize: `${DIETARY_A4_LAYOUT.eventNameFontPt}pt`, fontFamily:'"Wedding Waitress Playfair", "Playfair Display", Georgia, serif', fontWeight: 600, lineHeight: DIETARY_A4_LAYOUT.eventNameLineHeight, overflowWrap: 'anywhere', margin: 0 }}>
                           {currentEvent.name}
                         </h1>
                         
@@ -970,7 +970,7 @@ export const KitchenDietaryChartView: React.FC<KitchenDietaryChartViewProps> = (
                   {/* Event Name */}
                   {currentEvent && (
                     <>
-                      <h1 style={{ color: '#2f1b14' }}>
+                      <h1 data-document-event-title style={{ color: '#2f1b14',fontFamily:'"Wedding Waitress Playfair", "Playfair Display", Georgia, serif',fontWeight:600 }}>
                         {currentEvent.name}
                       </h1>
 

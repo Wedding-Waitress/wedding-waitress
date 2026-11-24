@@ -1,5 +1,5 @@
 import React from 'react';
-import { act, cleanup, render, screen } from '@testing-library/react';
+import { act, cleanup, render, screen, waitFor } from '@testing-library/react';
 import { afterEach, beforeEach, expect, it, vi } from 'vitest';
 import { TableVisualization } from './TableVisualization';
 
@@ -34,6 +34,23 @@ it('does not render a table when the public lookup returns no permitted data', a
   render(<TableVisualization tableId="table-2" tableNumber={2} eventId="event-1" />);
   expect(await screen.findByText('Table information not available')).toBeInTheDocument();
   expect(screen.queryByText('Seated Guests')).not.toBeInTheDocument();
+});
+
+it('fits the entire bridal table to a narrow viewport and restores full size on desktop',async()=>{
+ let width=280;
+ const measuredWidth=vi.spyOn(HTMLElement.prototype,'clientWidth','get').mockImplementation(function(this:HTMLElement){return this.hasAttribute('data-head-table-viewport')?width:560;});
+ const measuredHeight=vi.spyOn(HTMLElement.prototype,'offsetHeight','get').mockReturnValue(188);
+ rpc.mockImplementation(async(name:string)=>({error:null,data:name==='get_public_table_semantics'
+  ?{table_purpose:'head',head_seating_order:[{kind:'guest',guest_id:'one'},{kind:'guest',guest_id:'two'}]}
+  :[{table_id:'head',table_no:1,table_name:'Bridal Table',limit_seats:2,guest_id:'one',guest_first_name:'Alex',guest_last_name:'Smith',guest_seat_no:1},{table_id:'head',table_no:1,table_name:'Bridal Table',limit_seats:2,guest_id:'two',guest_first_name:'Casey',guest_last_name:'Jones',guest_seat_no:2}]}));
+ try {
+  const view=render(<TableVisualization tableId="head" tableNumber={1} eventId="event"/>);await screen.findByText('Bridal Table');
+  const diagram=view.container.querySelector<HTMLElement>('[data-head-table-diagram]')!,viewport=view.container.querySelector<HTMLElement>('[data-head-table-viewport]')!;
+  await waitFor(()=>expect(diagram.style.transform).toBe('scale(0.5)'));expect(viewport.style.height).toBe('94px');
+  expect(diagram).toHaveTextContent('Alex Smith');expect(diagram).toHaveTextContent('Casey Jones');
+  width=720;act(()=>window.dispatchEvent(new Event('resize')));
+  await waitFor(()=>expect(diagram.style.transform).toBe('scale(1)'));expect(diagram.style.width).toBe('720px');
+ } finally {measuredWidth.mockRestore();measuredHeight.mockRestore();}
 });
 
 it('clears previous seating while switching tables and ignores late responses', async () => {

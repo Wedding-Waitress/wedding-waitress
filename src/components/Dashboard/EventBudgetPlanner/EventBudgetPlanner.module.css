@@ -457,7 +457,8 @@ button.tableEditButton { font-size:14px !important; font-weight:600; }
   min-height:4.1rem;
 }
 .planner .budgetCopy:empty { display:none; }
-.planner .actionsColumn {width:6.5rem;}
+.planner .actionsColumn {width:11rem;}
+.planner .tableRegion { padding-inline:8px; box-sizing:border-box; }
 
 /* Joined currency prefix: only the field's exposed right corners are rounded. */
 @layer dashboard-interface {

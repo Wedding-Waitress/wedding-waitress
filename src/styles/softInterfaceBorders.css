@@ -1,0 +1,12 @@
+/* First important layer: apply only to existing dark border sides identified
+   from author CSS. No border-style declarations, borderless surfaces stay so.
+   Run Sheet's approved light field outline is the dashboard reference. */
+@layer ww-soft-interface-borders;
+@layer ww-soft-interface-borders {
+ @media screen {
+  [data-ww-soft-border-top] { border-top-color: #cdb99e !important; border-top-width: 1px !important; }
+  [data-ww-soft-border-right] { border-right-color: #cdb99e !important; border-right-width: 1px !important; }
+  [data-ww-soft-border-bottom] { border-bottom-color: #cdb99e !important; border-bottom-width: 1px !important; }
+  [data-ww-soft-border-left] { border-left-color: #cdb99e !important; border-left-width: 1px !important; }
+ }
+}

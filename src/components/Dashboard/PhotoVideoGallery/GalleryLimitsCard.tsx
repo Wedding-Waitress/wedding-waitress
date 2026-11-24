@@ -12,7 +12,7 @@ import type { GalleryMeta } from '@/hooks/useEventMediaGallery';
 const BOUNDS = {
   photos:   { min: 1,   max: 5000 },
   videos:   { min: 0,   max: 100  },
-  totalGb:  { min: 1,   max: 10   },
+  totalGb:  { min: 1,   max: 200  },
   photoMb:  { min: 1,   max: 100    },
   videoMb:  { min: 1,   max: 600    },
   videoSec: { min: 5,   max: 300    },
@@ -141,7 +141,7 @@ export const GalleryLimitsCard: React.FC<{
             <FieldNum label="Max video duration (s, ≤300)" value={form.videoSec} onChange={set('videoSec')} bounds={BOUNDS.videoSec} error={errors.videoSec} />
           </div>
           <p className="text-xs text-muted-foreground mt-3">
-            Videos MP4/MOV up to 600&nbsp;MB and 300&nbsp;s (5 minutes). All plans allow up to 5,000 images (including photo booth images) and 100 videos within 10 GB shared media storage per event. Storage may fill before these counts are reached. Changes apply to new uploads immediately.
+            Videos MP4/MOV up to 600&nbsp;MB and 300&nbsp;s (5 minutes). All plans allow up to 5,000 images (including photo booth images) and 100 videos within 200 GB shared media storage per event. Storage may fill before these counts are reached. Changes apply to new uploads immediately.
           </p>
         </>
       ) : (

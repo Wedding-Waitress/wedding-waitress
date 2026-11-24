@@ -1,5 +1,7 @@
 import { Printer as ExportControlsPrinter } from 'lucide-react';
+import choiceStyles from '../EventSelectorReference.module.css';
 import {FloorPlanShareModal} from './FloorPlanShareModal';
+import {openPdfPrintFrame,type PdfPrintJob} from '@/lib/pdfPrint';
 /**
  * ⚠️ WARNING: PRODUCTION LOCKED - DO NOT MODIFY ⚠️
  *
@@ -42,9 +44,12 @@ export const FloorPlanPage = ({
   const [shareOpen,setShareOpen]=useState(false);
   const [floorPlanType, setFloorPlanType] = useState<FloorPlanType>('ceremony');
   const [receptionEventId, setReceptionEventId] = useState<string | null>(null);
-  const [isExporting, setIsExporting] = useState(false);
+  const [exportAction, setExportAction] = useState<'print' | 'download' | null>(null);
+  const isExporting = exportAction !== null;
   const [receptionHeaderControlsContainer, setReceptionHeaderControlsContainer] = useState<HTMLDivElement | null>(null);
   const ceremonyA4Ref = useRef<HTMLDivElement>(null);
+  const printSelection = useRef(selectedEventId);
+  printSelection.current = selectedEventId;
   const [generatedAt] = useState(() => new Date());
 
 
@@ -96,9 +101,9 @@ export const FloorPlanPage = ({
 
   // Desktop (≥1024px) remains pixel-identical (no transforms).
   const handleDownloadPdf = async () => {
-    if (!selectedEvent || !floorPlan || !ceremonyA4Ref.current) return;
+    if (!selectedEvent || !floorPlan || !ceremonyA4Ref.current || isExporting) return;
 
-    setIsExporting(true);
+    setExportAction('download');
     try {
       toast({ title: 'Generating PDF', description: 'Preparing your ceremony floor plan...' });
       const { exportCeremonyPreviewToPdf } = await import('@/lib/ceremonyFloorPlanPdfExporter');
@@ -112,8 +117,25 @@ export const FloorPlanPage = ({
       console.error('PDF export error:', error);
       toast({ title: 'Export Failed', description: error instanceof Error ? error.message : 'Failed to generate PDF. Please try again.', variant: 'destructive' });
     } finally {
-      setIsExporting(false);
+      setExportAction(null);
     }
+  };
+
+  const handlePrint = async () => {
+    if (!selectedEvent || !floorPlan || !ceremonyA4Ref.current || isExporting) return;
+    const id = selectedEventId;
+    const isCurrent = () => printSelection.current === id && ceremonyA4Ref.current !== null;
+    let job: PdfPrintJob | undefined;
+    setExportAction('print');
+    try {
+      job = openPdfPrintFrame();
+      const {createCeremonyPreviewPdf} = await import('@/lib/ceremonyFloorPlanPdfExporter');
+      const pdf = await createCeremonyPreviewPdf({pageElement:ceremonyA4Ref.current,eventName:selectedEvent.name,eventDate:selectedEvent.ceremony_date||selectedEvent.date});
+      await job.print(pdf.output('blob'),isCurrent);
+    } catch(error) {
+      job?.close();
+      toast({title:'Print Failed',description:error instanceof Error?error.message:'Could not prepare your floor plan.',variant:'destructive'});
+    } finally {setExportAction(null);}
   };
 
   const isDataReady = selectedEvent && floorPlan && !floorPlanLoading;
@@ -143,16 +165,12 @@ export const FloorPlanPage = ({
 
           {/* Event, type, and export controls */}
           <div
-            className={`grid min-w-0 grid-cols-1 gap-3 sm:grid-cols-2 sm:gap-4 xl:items-center xl:gap-5 ${
-              floorPlanType === 'ceremony'
-                ? 'xl:grid-cols-[minmax(0,1.45fr)_minmax(0,1fr)_auto]'
-                : 'xl:mx-auto xl:max-w-[1500px] xl:grid-cols-[minmax(0,1.45fr)_minmax(260px,0.72fr)_auto_auto] xl:gap-6'
-            }`}
+            className="flex min-w-0 flex-wrap items-start gap-4 xl:items-center xl:gap-5"
             data-floor-plan-controls-row="true"
           >
             {/* Choose Event Section */}
-            <div className="flex min-w-0 flex-col gap-2 xl:flex-row xl:items-center xl:gap-3">
-              <label htmlFor="floor-plan-event" className={`${styles.interfaceLabel} text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]`}>
+            <div className="flex min-w-0 max-sm:w-full flex-col gap-2 xl:flex-row xl:items-center xl:gap-3">
+              <label htmlFor="floor-plan-event" className={`${choiceStyles.label} ${styles.interfaceLabel} text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]`}>
                 <CalendarDays className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Choose Event:
               </label>
@@ -164,7 +182,7 @@ export const FloorPlanPage = ({
                 }}
                 disabled={eventsLoading || isExporting}
               >
-                <SelectTrigger id="floor-plan-event" className={`${styles.interfaceControl} ${floorPlanType === 'ceremony' ? styles.control : receptionStyles.control} w-full min-w-0 border-primary focus:ring-primary font-bold text-[#967A59] xl:flex-1`}>
+                <SelectTrigger id="floor-plan-event" className={`${choiceStyles.width} ${styles.interfaceControl} ${floorPlanType === 'ceremony' ? styles.control : receptionStyles.control} w-full min-w-0 border-primary focus:ring-primary font-bold text-[#967A59] xl:flex-1`}>
                   <SelectValue placeholder="Choose Event" />
                 </SelectTrigger>
                 <SelectContent className={floorPlanType === 'ceremony' ? styles.portalSurface : receptionStyles.portalSurface}>
@@ -187,8 +205,8 @@ export const FloorPlanPage = ({
             </div>
 
             {/* Floor Plan Type Section */}
-            <div className="flex min-w-0 flex-col gap-2 xl:flex-row xl:items-center xl:gap-3">
-              <label htmlFor="floor-plan-type" className={`${styles.interfaceLabel} text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]`}>
+            <div className="flex min-w-0 max-sm:w-full flex-col gap-2 xl:flex-row xl:items-center xl:gap-3">
+              <label htmlFor="floor-plan-type" className={`${choiceStyles.label} ${styles.interfaceLabel} text-sm font-medium text-foreground whitespace-nowrap inline-flex items-center gap-[7px]`}>
                 <LayoutTemplate className="w-[17px] h-[17px] shrink-0" strokeWidth={1.8} aria-hidden="true" />
                 Floor Plan Type:
               </label>
@@ -196,7 +214,7 @@ export const FloorPlanPage = ({
                 value={floorPlanType}
                 onValueChange={(value) => { if(value === 'reception') setReceptionEventId(selectedEventId); setFloorPlanType(value as FloorPlanType); }}
               >
-                <SelectTrigger id="floor-plan-type" className={`${styles.interfaceControl} ${floorPlanType === 'ceremony' ? styles.control : receptionStyles.control} w-full min-w-0 border-primary focus:ring-primary xl:w-[180px]`}>
+                <SelectTrigger id="floor-plan-type" className={`${choiceStyles.width} ${styles.interfaceControl} ${floorPlanType === 'ceremony' ? styles.control : receptionStyles.control} w-full min-w-0 border-primary focus:ring-primary xl:w-[180px]`}>
                   <SelectValue placeholder="Select type" />
                 </SelectTrigger>
                 <SelectContent className={floorPlanType === 'ceremony' ? styles.portalSurface : receptionStyles.portalSurface}>
@@ -234,8 +252,9 @@ export const FloorPlanPage = ({
 
                   <span data-export-controls-heading><ExportControlsPrinter size={16} strokeWidth={2} aria-hidden="true" />Export Controls</span>
                 </div>
-                <div className="flex items-center justify-center gap-2">
+                <div className="flex flex-wrap items-center justify-center gap-2">
                 <button type="button" className={styles.exportButton+" inline-flex items-center gap-1.5 rounded-full px-3 h-7 text-xs"} onClick={()=>setShareOpen(true)}><Share2 className="w-4 h-4"/>Share</button>
+                <button type="button" className={styles.exportButton+" inline-flex items-center justify-center gap-1.5 rounded-full px-3 h-7 text-xs disabled:opacity-50"} disabled={isExporting} onClick={handlePrint} aria-label="Print ceremony floor plan">{exportAction === 'print' ? <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true"/> : <Printer className="w-4 h-4" strokeWidth={1.8} aria-hidden="true"/>}Print</button>
                 <span id="floor-plan-export-description" className="sr-only">Download your floor plan for venue staff.</span>
                 <button
                   onClick={handleDownloadPdf}
@@ -244,12 +263,12 @@ export const FloorPlanPage = ({
                   aria-describedby="floor-plan-export-description"
                   className={`${styles.exportButton} inline-flex w-full sm:w-auto items-center justify-center gap-1.5 h-7 px-2.5 text-xs font-medium border-2 border-green-500 rounded-full text-green-600 bg-background hover:bg-green-50 transition-colors disabled:opacity-50 disabled:pointer-events-none shrink-0 focus-visible:outline-none focus-visible:ring-2 focus-visible:ring-green-500 focus-visible:ring-offset-2`}
                 >
-                  {isExporting ? (
+                  {exportAction === 'download' ? (
                     <LoaderCircle className="w-4 h-4 animate-spin" strokeWidth={1.8} aria-hidden="true" />
                   ) : (
                     <Download className="w-4 h-4" strokeWidth={1.8} aria-hidden="true" />
                   )}
-                  {isExporting ? 'Exporting...' : 'Download PDF'}
+                  {exportAction === 'download' ? 'Exporting...' : 'Download PDF'}
                 </button>
                 </div>
               </div>

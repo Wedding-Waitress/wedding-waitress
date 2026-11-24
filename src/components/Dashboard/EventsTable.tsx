@@ -526,6 +526,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                                   className="ww-emboss-green ww-emboss-green-soft !border-0 text-white hover:text-white"
                                 >
                                   <Pencil size={17} strokeWidth={1.8} className="text-white" aria-hidden="true" />
+                                  <span>Edit</span>
                                 </Button>
                               </TooltipTrigger>
                               <TooltipContent className="text-[13px] font-normal leading-[18px]">
@@ -544,6 +545,7 @@ export const EventsTable: React.FC<EventsTableProps> = ({
                                   className="ww-emboss-red !border-0 text-white hover:text-white"
                                 >
                                   <Trash2 size={17} strokeWidth={1.8} className="text-white" aria-hidden="true" />
+                                  <span>Delete</span>
                                 </Button>
 
                               </TooltipTrigger>

@@ -186,8 +186,8 @@ describe('Guided Setup completion recovery', () => {
     expect(state.tables.filter((table) => table.table_purpose === 'head')).toEqual([expect.objectContaining({ table_type: 'long', limit_seats: 4 })]);
     expect(state.qrs).toHaveLength(1);
     expect(state.guests).toEqual([
-      expect.objectContaining({ first_name: 'Nader', last_name: null, guided_setup_origin: 'wedding_couple_1', family_group: 'Nader & Nahla Couple', assigned: true, table_id: 'table-1', table_no: null, seat_no: expect.any(Number), email: null, mobile: null, rsvp: null, dietary: null }),
-      expect.objectContaining({ first_name: 'Nahla', last_name: null, guided_setup_origin: 'wedding_couple_2', family_group: 'Nader & Nahla Couple', assigned: true, table_id: 'table-1', table_no: null, seat_no: expect.any(Number), email: null, mobile: null, rsvp: null, dietary: null }),
+      expect.objectContaining({ first_name: 'Nader', last_name: null, guided_setup_origin: 'wedding_couple_1', family_group: 'Nader & Nahla Couple', assigned: true, table_id: 'table-1', table_no: null, seat_no: expect.any(Number), email: null, mobile: null, rsvp: 'Attending', dietary: null }),
+      expect.objectContaining({ first_name: 'Nahla', last_name: null, guided_setup_origin: 'wedding_couple_2', family_group: 'Nader & Nahla Couple', assigned: true, table_id: 'table-1', table_no: null, seat_no: expect.any(Number), email: null, mobile: null, rsvp: 'Attending', dietary: null }),
     ]);
     expect(state.draft).toMatchObject({ created_event_id: 'event-1', current_step: 10 });
   });

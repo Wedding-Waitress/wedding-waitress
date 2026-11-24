@@ -1,8 +1,9 @@
 import { flags } from '@/lib/featureFlags';
 import { getHeadParticipantReconciliationOrder, getHeadTableDisplayName, getEventCelebrationType, getPrimaryGuestIds } from '@/lib/headTable';
-import { changeHeadTableSeating, isHeadTableMoveActive } from '@/lib/headTableMovePersistence';
+import { isHeadTableMoveActive } from '@/lib/headTableMovePersistence';
 import { normalizeEventHeadTableNames } from '@/lib/headTableNames';
 import { reconcileHeadTableParticipants } from '@/lib/headTableParticipants';
+import {isTableSeatingBusy,repairMissingTableSeats} from '@/lib/tableSeatingPersistence';
 import {notifyTrialTableLimit}from'@/lib/trialUpgrade';
 import {withTrialUpgradeChoice}from'@/components/Subscription/TrialUpgradeController';
 import React, { useState, useEffect, useMemo, useRef, useCallback, lazy, Suspense, useDeferredValue } from 'react';
@@ -13,6 +14,7 @@ import { SidebarProvider, SidebarTrigger } from "@/components/ui/sidebar";
 import myEventsStyles from "@/components/Dashboard/MyEventsPage.module.css";
 import { DashboardOverview } from "@/components/Dashboard/DashboardOverview";
 import dashboardOverviewStyles from "@/components/Dashboard/DashboardOverview.module.css";
+import { TablesExportControls } from '@/components/Dashboard/Tables/TablesExportControls';
 import { TableCard } from "@/components/Dashboard/TableCard";
 import { SortableTablesGrid } from "@/components/Dashboard/Tables/SortableTablesGrid";
 import { UnassignedGuestsPanel } from "@/components/Dashboard/Tables/UnassignedGuestsPanel";
@@ -243,7 +245,7 @@ const DashboardContent = () => {
   const headRepairCallbacks = useRef({ fetchTables, refetchGuests });
   headRepairCallbacks.current = { fetchTables, refetchGuests };
   useEffect(() => {
-    if (!seatingWorkspaceEventId || !headParticipantRepair || isHeadTableMoveActive(seatingWorkspaceEventId)) return;
+    if (!seatingWorkspaceEventId || !headParticipantRepair || isHeadTableMoveActive(seatingWorkspaceEventId)||isTableSeatingBusy(seatingWorkspaceEventId)) return;
     let active = true;
     void reconcileHeadTableParticipants(seatingWorkspaceEventId).then(async changed => {
       if (changed && active) await Promise.all([headRepairCallbacks.current.fetchTables(), headRepairCallbacks.current.refetchGuests()]);
@@ -291,6 +293,15 @@ const DashboardContent = () => {
 
   // Get selected event type (selectedEvent now comes from useSelectedEvent above)
   const selectedEventType = selectedEvent?.event_type || 'seated';
+  const missingTableSeats=guests.some(guest=>guest.seat_no==null&&tables.some(table=>table.id===guest.table_id&&table.table_purpose!=='head'));
+  useEffect(()=>{
+    if(renderedTab!=='table-list'||!selectedEventId||tablesLoading||guestsLoading||!missingTableSeats)return;
+    let active=true;
+    void repairMissingTableSeats(selectedEventId,()=>active,guests.map(guest=>guest.id)).then(async changed=>{
+      if(changed&&active)await Promise.all([headRepairCallbacks.current.fetchTables(),headRepairCallbacks.current.refetchGuests()]);
+    }).catch(error=>{if(active)console.error('Unable to restore missing table seat numbers:',error);});
+    return()=>{active=false;};
+  },[renderedTab,selectedEventId,tablesLoading,guestsLoading,missingTableSeats]);
 
   // Get selected event for My Events countdown (use events active event)
   const selectedCountdownEvent = eventsActiveEventId ? events.find(e => e.id === eventsActiveEventId) : null;
@@ -417,42 +428,10 @@ const DashboardContent = () => {
   ): Promise<boolean> => {
     const guest = guests.find(g => g.id === guestId);
     const destTable = destTableId ? tables.find(t => t.id === destTableId) : null;
-    const sourceTable = sourceTableId ? tables.find(t => t.id === sourceTableId) : null;
 
-    if (destTable?.table_purpose === 'head' || sourceTable?.table_purpose === 'head') {
-      try {
-        if (!selectedEventId) return false;
-        const changed = await changeHeadTableSeating(selectedEventId, { guestId, sourceTableId, destTableId, insertAtIndex });
-        await Promise.all([fetchTables(), refetchGuests()]);
-        if (changed) toast({ title: 'Guest moved successfully', description: 'Table and seat assignments saved.', className: 'ww-tables-toast' });
-        return changed;
-      } catch (error) {
-        await Promise.all([fetchTables(), refetchGuests()]);
-        toast({ title: 'Unable to move guest', description: error instanceof Error ? error.message : 'Refresh and try again.', variant: 'destructive' });
-        return false;
-      }
-    }
-    
-    // Save to undo stack before moving
-    if (guest) {
-      pushAction({
-        guestId,
-        guestName,
-        previousTableId: sourceTableId,
-        previousTableNo: guest.table_no,
-        previousSeatNo: guest.seat_no,
-        newTableId: destTableId,
-      });
-    }
-    
-    return await moveGuest({
-      guestId,
-      sourceTableId,
-      destTableId,
-      destTableNo: destTable?.table_no ?? null,
-      guestName,
-      insertAtIndex
-    });
+    const success=await moveGuest({guestId,sourceTableId,destTableId,destTableNo:destTable?.table_no??null,guestName,insertAtIndex});
+    if(success&&guest){pushAction({guestId,guestName,previousTableId:sourceTableId,previousTableNo:guest.table_no,previousSeatNo:guest.seat_no,newTableId:destTableId});}
+    return success;
   };
 
   // Handle undo
@@ -462,7 +441,7 @@ const DashboardContent = () => {
     
     const prevTable = action.previousTableId ? tables.find(t => t.id === action.previousTableId) : null;
     
-    await moveGuest({
+    const success = await moveGuest({
       guestId: action.guestId,
       sourceTableId: action.newTableId,
       destTableId: action.previousTableId,
@@ -470,6 +449,7 @@ const DashboardContent = () => {
       guestName: action.guestName,
     });
     
+    if(!success)return;
     toast({
       title: "Undo successful",
       description: `Moved ${action.guestName} back`,
@@ -530,21 +510,7 @@ const DashboardContent = () => {
   };
 
   // Handle reordering guests within a table
-  const handleReorderGuests = async (tableId: string, orderedGuestIds: string[]): Promise<boolean> => {
-    if (tables.find((table) => table.id === tableId)?.table_purpose === 'head') {
-      try {
-        if (!selectedEventId) return false;
-        const changed = await changeHeadTableSeating(selectedEventId, { tableId, orderedGuestIds });
-        await Promise.all([fetchTables(), refetchGuests()]);
-        return changed;
-      } catch (error) {
-        await Promise.all([fetchTables(), refetchGuests()]);
-        toast({ title: 'Unable to rearrange guests', description: error instanceof Error ? error.message : 'Refresh and try again.', variant: 'destructive' });
-        return false;
-      }
-    }
-    return await reorderGuestsWithSeats(tableId, orderedGuestIds);
-  };
+  const handleReorderGuests = async (tableId:string,orderedGuestIds:string[]):Promise<boolean> => reorderGuestsWithSeats(tableId,orderedGuestIds);
   const handleCloseModal = () => {
     setShowCreateTableModal(false);
     setEditingTable(null);
@@ -686,14 +652,15 @@ const DashboardContent = () => {
                     <TableProperties size={34} strokeWidth={1.8} className={`text-primary flex-shrink-0 ${tablesPageStyles.setupIcon}`} aria-hidden="true" />
                     <CardTitle className={`mb-2 text-left text-2xl font-bold text-foreground ${tablesPageStyles.sectionHeading}`}>Table Setup</CardTitle>
                   </div>
-                  <div className={tablesPageStyles.setupActions}>
+                </div>
+                <div className={tablesPageStyles.setupMainRow}>
                   <div className={tablesPageStyles.setupEventSelector}>
                     <label id="tables-setup-event-label" className={tablesPageStyles.setupEventLabel}>
                       <CalendarDays size={18} strokeWidth={1.8} aria-hidden="true" />Choose Event:
                     </label>
                     <Select value={globalSelectedEventId || "no-event"} onValueChange={handleGlobalEventSelect}>
                       <SelectTrigger aria-labelledby="tables-setup-event-label" className={`h-11 ${tablesPageStyles.eventField}`}>
-                        <span className="!flex flex-1 min-w-0 items-center gap-2 overflow-hidden text-left [&>span]:truncate"><CalendarDays size={17} strokeWidth={1.8} className="shrink-0" aria-hidden="true" /><SelectValue placeholder="Choose Event" /></span>
+                        <span className="!flex flex-1 min-w-0 items-center gap-2 text-left"><CalendarDays size={17} strokeWidth={1.8} className="shrink-0" aria-hidden="true" /><SelectValue placeholder="Choose Event" /></span>
                       </SelectTrigger>
                       <SelectContent className={`bg-popover border-border z-50 ${tablesPageStyles.eventMenu}`}>
                         {events.length > 0 ? events.map(event => <SelectItem key={event.id} value={event.id}>
@@ -706,7 +673,20 @@ const DashboardContent = () => {
                       </SelectContent>
                     </Select>
                   </div>
-                  
+                <div className={`text-left text-sm text-muted-foreground ${tablesPageStyles.setupCopy}`}>
+                        <ul className="list-disc pl-5 space-y-1 max-lg:pl-4">
+                          <li className="font-bold"><span data-export-controls-heading className={tablesPageStyles.importantHeading}><CircleAlert size={17} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Important – Please Read:</span></li>
+                          <li>Design your perfect seating arrangements by adding the number of tables you want to host your guests.</li>
+                          <li>Create the <strong>Head Table</strong> first, then create the remaining guest tables.</li>
+                          <li>Use sequential table numbers such as <strong>"1, 2, 3, 4, 5"</strong>.</li>
+                          <li>Alternatively, have some fun by creating table names like <strong>"Paris, New York, Rome, or Cairo"</strong>.</li>
+                          <li>When complete, continue to <strong>Guest List</strong> to add and manage guests and allocate them to tables.</li>
+                          <li>You can return here at any time to drag, drop and reallocate guests between tables.</li>
+                        </ul>
+                      </div>
+                  <TablesExportControls event={selectedEvent} tables={tables} guests={guests} loading={tablesLoading || guestsLoading}/>
+                </div>
+                <div className={tablesPageStyles.setupBottomRow}>
                   {/* Create Tables Button */}
                   <TooltipProvider>
                     <Tooltip>
@@ -732,18 +712,6 @@ const DashboardContent = () => {
                     </Tooltip>
                   </TooltipProvider>
                 </div>
-                </div>
-                <div className={`text-left text-sm text-muted-foreground ${tablesPageStyles.setupCopy}`}>
-                        <ul className="list-disc pl-5 space-y-1 max-lg:pl-4">
-                          <li className="text-red-600 font-bold"><span className="inline-flex items-center gap-1.5"><CircleAlert size={17} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />Important – Please Read:</span></li>
-                          <li>Design your perfect seating arrangements by adding the number of tables you want to host your guests.</li>
-                          <li>Create the <strong>Head Table</strong> first, then create the remaining guest tables.</li>
-                          <li>Use sequential table numbers such as <strong>"1, 2, 3, 4, 5"</strong>.</li>
-                          <li>Alternatively, have some fun by creating table names like <strong>"Paris, New York, Rome, or Cairo"</strong>.</li>
-                          <li>When complete, continue to <strong>Guest List</strong> to add and manage guests and allocate them to tables.</li>
-                          <li>You can return here at any time to drag, drop and reallocate guests between tables.</li>
-                        </ul>
-                      </div>
               </CardHeader>
             </Card>
 

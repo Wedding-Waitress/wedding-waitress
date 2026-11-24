@@ -553,6 +553,9 @@
 :global(#root#root) .settingsPanel h3.sectionHeading + p { margin:0 0 24px calc(25px + .55rem) !important; }
 :global(#root#root) .settingsPanel > div:first-child { padding-top:16px !important; padding-bottom:24px !important; }
 .headerSelectors { display:flex; flex-direction:column; gap:16px; }
+@media(min-width:768px) and (max-width:1599px) {
+ .headerSelectors > div {flex-direction:column !important;align-items:flex-start !important;}
+}
 @media (min-width:1280px) {
  .headerSelectors { display:grid; grid-template-columns:minmax(0,1fr) minmax(0,1fr); gap:16px; }
  .headerSelectors > div { min-width:0; width:100%; gap:8px; }

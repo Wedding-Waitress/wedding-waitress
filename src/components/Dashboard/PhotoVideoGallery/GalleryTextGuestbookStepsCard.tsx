@@ -1,7 +1,7 @@
 // How the unified Digital Guestbook works — 4 simple visual steps.
 import React from 'react';
 import { Card } from '@/components/ui/card';
-import { QrCode, ListChecks, PenLine, Lock, HelpCircle } from 'lucide-react';
+import { QrCode, ListChecks, PenLine, Images, HelpCircle } from 'lucide-react';
 import { cn } from '@/lib/utils';
 import managementStyles from './photoVideoSharingManagement.module.css';
 
@@ -9,7 +9,7 @@ const STEPS = [
   { icon: QrCode, title: 'Open the Digital Guestbook', text: 'Guests open it using the event link or QR code.' },
   { icon: ListChecks, title: 'Choose any message types', text: 'Written, audio and video options are always available. Guests can choose any combination.' },
   { icon: PenLine, title: 'Create and submit', text: 'Guests save each message separately and can write or record another without losing other drafts.' },
-  { icon: Lock, title: 'Shared memories', text: 'Written, audio and video messages join your event gallery and live slideshow. Organisers can manage them in Photo & Video Sharing.' },
+  { icon: Images, title: 'Shared memories', text: 'Guests can leave written, audio and video messages, share photos and videos, and use the Digital Photo Booth. Organisers manage these memories in Photo & Video Sharing for the event gallery and live slideshow.' },
 ];
 
 export const GalleryTextGuestbookStepsCard: React.FC<{ appearance?: 'default' | 'espresso-glass' }> = ({ appearance = 'default' }) => {

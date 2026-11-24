@@ -1,4 +1,5 @@
 import React, { useMemo } from 'react';
+import {DOCUMENT_EVENT_TITLE_STYLE} from '@/lib/documentEventTitle';
 import { Guest } from '@/hooks/useGuests';
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { A4_PAGE_STYLE } from '@/lib/a4';
@@ -328,7 +329,7 @@ export const IndividualTableChartPrintPage: React.FC<IndividualTableChartPrintPa
     <div data-individual-table-chart-page="true" data-page-size="A4" style={{ ...A4_PAGE_STYLE, boxSizing: 'border-box', overflow: 'hidden', background: '#fff', color: '#000', fontFamily: 'Arial, Helvetica, sans-serif' }}>
       <div style={{ height: '100%', padding: '8mm 12.7mm 10mm', boxSizing: 'border-box', display: 'grid', gridTemplateRows: 'auto minmax(0, 1fr) auto', gap: '8px' }}>
         <header style={{ textAlign: 'center', color: '#000' }}>
-          <div style={{ fontSize: '16pt', fontWeight: 700, color: '#2f1b14', lineHeight: 1.25, overflowWrap: 'anywhere' }}>{event?.name || 'Event'}</div>
+          <div data-document-event-title style={{ fontSize: '16pt', color: '#2f1b14', lineHeight: 1.25, overflowWrap: 'anywhere', ...DOCUMENT_EVENT_TITLE_STYLE }}>{event?.name || 'Event'}</div>
           <div style={{ fontSize: '11pt', marginTop: '3px' }}>Individual Table Charts – {sortedGuests.length} {sortedGuests.length === 1 ? 'Guest' : 'Guests'}</div>
           <div style={{ fontSize: '8pt', lineHeight: 1.35, marginTop: '5px', overflowWrap: 'anywhere' }}>{ceremonyLine && <div>{ceremonyLine}</div>}<div>{receptionLine}</div></div>
           <div data-header-separator="true" style={{ borderTop: '1px solid #000', marginTop: '7px' }} />

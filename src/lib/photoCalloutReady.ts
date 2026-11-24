@@ -1,6 +1,6 @@
 // Wait for the shared title images and their wrapping to settle before measuring or exporting.
 export async function waitForPhotoCardLayout(root:HTMLElement){
- await document.fonts.load('700 18px Manrope');await document.fonts.ready;
+ await Promise.all([document.fonts.load('700 18px Manrope'),document.fonts.load('600 24px "Wedding Waitress Playfair"')]);await document.fonts.ready;
  let previous='';let stable=0;
  for(let attempt=0;attempt<120;attempt++){
  await new Promise<void>(resolve=>requestAnimationFrame(()=>resolve()));

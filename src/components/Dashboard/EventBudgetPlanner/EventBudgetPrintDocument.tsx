@@ -5,6 +5,7 @@ import {
 } from '@/lib/eventBudget';
 import type { CurrencyCode } from '@/lib/currencyPricing';
 import styles from './EventBudgetPrintDocument.module.css';
+import { DOCUMENT_EVENT_TITLE_STYLE } from '@/lib/documentEventTitle';
 
 export const EVENT_BUDGET_ROWS_PER_PAGE = 6;
 
@@ -87,7 +88,7 @@ export const EventBudgetPrintDocument = React.forwardRef<HTMLDivElement, EventBu
         data-print-mirror-height-mm="210"
       >
         <header className={styles.header}>
-          <div><h1>{eventName}</h1><h2>Event Budget Planner</h2>{eventDate && <p>{formatAustralianDate(eventDate)}</p>}</div>
+          <div><h1 data-document-event-title style={DOCUMENT_EVENT_TITLE_STYLE}>{eventName}</h1><h2>Event Budget Planner</h2>{eventDate && <p>{formatAustralianDate(eventDate)}</p>}</div>
           <div className={styles.headerBudget}><span>Total Anticipated Budget</span><strong>{formatBudgetCurrency(currency, summary.totalBudget)}</strong></div>
         </header>
 
@@ -114,7 +115,7 @@ export const EventBudgetPrintDocument = React.forwardRef<HTMLDivElement, EventBu
           </tr>)}</tbody>
         </table>
 
-        <footer className={styles.footer}><span>Generated {generated}</span><img src="/wedding-waitress-logo-brown.png" alt="Wedding Waitress" /><span>Page {pageIndex + 1} of {pages.length}</span></footer>
+        <footer className={styles.footer}><span>Generated {generated}</span><img src="/wedding-waitress-document-footer-dark-brown.png" alt="Wedding Waitress" /><span>Page {pageIndex + 1} of {pages.length}</span></footer>
       </article>
     </div>)}
   </div>;

@@ -4,6 +4,9 @@ import { afterEach, describe, expect, it, vi } from 'vitest';
 
 const mocks = vi.hoisted(() => ({
   exportCeremonyPreviewToPdf: vi.fn().mockResolvedValue(undefined),
+  createCeremonyPreviewPdf: vi.fn(),
+  print: vi.fn(),
+  openPdfPrintFrame: vi.fn(),
 }));
 
 vi.mock('@/hooks/useEvents', () => ({
@@ -48,13 +51,33 @@ vi.mock('./CeremonyFloorPlan/CeremonyFloorPlanSettings', () => ({
 vi.mock('./ReceptionFloorPlan/ReceptionFloorPlanPage', () => ({ ReceptionFloorPlanPage: () => null }));
 vi.mock('@/lib/ceremonyFloorPlanPdfExporter', () => ({
   exportCeremonyPreviewToPdf: mocks.exportCeremonyPreviewToPdf,
+  createCeremonyPreviewPdf: mocks.createCeremonyPreviewPdf,
 }));
+vi.mock('@/lib/pdfPrint', () => ({ openPdfPrintFrame: mocks.openPdfPrintFrame }));
 vi.mock('sonner', () => ({ toast: { info: vi.fn(), success: vi.fn(), error: vi.fn() } }));
 
 import { FloorPlanPage } from './FloorPlanPage';
 
 describe('Ceremony A4 live export connection', () => {
   afterEach(() => vi.clearAllMocks());
+
+  it('prints the authoritative PDF in an isolated frame with only the Print spinner active', async () => {
+    let finish!: () => void;
+    mocks.print.mockImplementation(() => new Promise<void>(resolve => { finish = resolve; }));
+    mocks.openPdfPrintFrame.mockReturnValue({ print: mocks.print, close: vi.fn() });
+    const blob = new Blob(['pdf']);
+    mocks.createCeremonyPreviewPdf.mockResolvedValue({ output: () => blob });
+    render(<FloorPlanPage selectedEventId="event-1" onEventSelect={vi.fn()} events={[{id:'event-1',name:'Wedding'} as any]} eventsLoading={false}/>);
+    const button = screen.getByRole('button', { name: 'Print ceremony floor plan' });
+    fireEvent.click(button);
+    await waitFor(() => expect(mocks.print).toHaveBeenCalledWith(blob, expect.any(Function)));
+    expect(mocks.createCeremonyPreviewPdf).toHaveBeenCalledWith(expect.objectContaining({pageElement:screen.getByTestId('authoritative-ceremony-a4')}));
+    expect(button.querySelector('.animate-spin')).not.toBeNull();
+    expect(screen.getByRole('button',{name:'Download floor plan PDF'}).querySelector('.animate-spin')).toBeNull();
+    expect(button).toBeDisabled();
+    await act(async () => finish());
+    expect(button).not.toBeDisabled();
+  });
 
   it('passes the one visible authoritative A4 node from the green button directly to PDF export', async () => {
     render(<FloorPlanPage selectedEventId="event-1" onEventSelect={vi.fn()} events={[{ id: 'event-1', name: "Jason & Linda's Wedding", date: '2026-12-20', ceremony_date: '2026-12-20', venue: 'Sheldon Receptions' } as any]} eventsLoading={false} />);

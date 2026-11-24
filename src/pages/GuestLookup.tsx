@@ -991,7 +991,10 @@ export const GuestLookup: React.FC = () => {
                             <div className="space-y-3 text-center">
                               <p>{isOpenSearchMode ? seatingCopy[9] : verificationCopy[9]}</p>
                               {searchCandidates.map(guest => (
-                                <Button key={guest.id} className="lv-premium-btn w-full whitespace-normal h-auto min-h-10" onClick={() => setSelectedSearchGuestId(guest.id)}>
+                                <Button key={guest.id} className="lv-premium-btn w-full whitespace-normal h-auto min-h-10" onClick={() => {
+                                  if (isOpenSearchMode) setSearchTerm(`${guest.first_name} ${guest.last_name}`.trim());
+                                  setSelectedSearchGuestId(guest.id);
+                                }}>
                                   {guest.first_name} {guest.last_name}
                                 </Button>
                               ))}

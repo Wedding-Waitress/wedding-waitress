@@ -1013,3 +1013,28 @@
 
 
 @media (max-width:767px) { .page input[data-guest-name-search]:not(:where([data-qr-rsvp-inline],[data-qr-rsvp-inline] *)) { scroll-margin-top:24px; } }
+
+/* Owner-requested readability for the shared seating app, all event records. */
+:global(#root#root#root) .page input[data-guest-name-search] {
+  font-size:24px!important;line-height:32px!important;min-height:52px;
+}
+:global(#root#root#root) .page [data-seating-assignment] dt {
+  color:#000!important;-webkit-text-fill-color:#000!important;
+}
+:global(#root#root#root) .page [data-qr-seated-guest-name] {
+  font-size:26px!important;line-height:36px!important;overflow-wrap:anywhere;
+}
+:global(#root#root#root) .page :is([data-qr-seated-guest-seat],[data-qr-seated-guest-status]) {
+  font-size:24px!important;line-height:32px!important;white-space:normal;
+}
+:global(#root#root#root) .page [data-qr-seated-guest-row] > :first-child {flex:1;min-width:0;}
+:global(#root#root#root) .page [data-qr-seated-guest-row] > :last-child {flex-shrink:0;max-width:44%;}
+:global(#root#root#root) .page [data-qr-seated-guest-row] {display:flex!important;gap:12px;}
+:global(#root#root#root) .page [data-qr-seated-guest-row] > :first-child > :first-child {flex-shrink:0;}
+@media(max-width:639px) {
+ :global(#root#root#root) .page [data-qr-seated-guest-row] {flex-direction:column;align-items:stretch!important;}
+ :global(#root#root#root) .page [data-qr-seated-guest-row] > :last-child {
+  display:flex;align-items:center;justify-content:space-between;gap:12px;max-width:none;text-align:left;
+ }
+ :global(#root#root#root) .page [data-qr-seated-guest-seat] {white-space:nowrap;}
+}

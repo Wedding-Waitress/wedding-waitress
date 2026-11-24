@@ -32,6 +32,13 @@ export const GalleryUsageCard: React.FC<Props> = ({ meta, items, appearance = 'd
   const videoPct = meta.max_videos > 0 ? Math.min(100, (usage.videos / meta.max_videos) * 100) : 0;
   const storagePct = meta.max_total_bytes > 0 ? Math.min(100, (usage.bytes / meta.max_total_bytes) * 100) : 0;
   const remainingBytes = Math.max(0, meta.max_total_bytes - usage.bytes);
+  const remainingStoragePct = meta.max_total_bytes > 0
+    ? Math.max(0, Math.min(100, (remainingBytes / meta.max_total_bytes) * 100))
+    : 0;
+  const videoSeconds = meta.max_video_duration_sec;
+  const videoDuration = videoSeconds % 60 === 0
+    ? `${videoSeconds / 60} minute${videoSeconds === 60 ? '' : 's'}`
+    : `${videoSeconds} seconds`;
 
   const storageFull = usage.bytes >= meta.max_total_bytes;
   const photosFull = usage.photos >= meta.max_photos;
@@ -40,7 +47,7 @@ export const GalleryUsageCard: React.FC<Props> = ({ meta, items, appearance = 'd
   const storageWarn = !storageFull && storagePct >= 80;
 
   return (
-    <Card className={cn('h-full p-4 sm:p-5 overflow-hidden', isGlass && managementStyles.glassCard)} data-appearance={isGlass ? appearance : undefined}>
+    <Card className={cn('h-full p-4 sm:p-5 overflow-hidden', isGlass && ['flex flex-col', managementStyles.glassCard])} data-appearance={isGlass ? appearance : undefined}>
       <div className="flex items-start justify-between gap-3 mb-4">
         <div className="min-w-0">
           <h2 className={cn('text-xl flex items-center gap-2', isGlass ? 'font-semibold tracking-[-0.012em] leading-tight text-white' : 'font-bold text-black')} style={isGlass ? undefined : { color: '#000000' }}><BarChart3 className="h-5 w-5 text-[#967A59] shrink-0" /> Gallery Usage</h2>
@@ -75,7 +82,7 @@ export const GalleryUsageCard: React.FC<Props> = ({ meta, items, appearance = 'd
         </div>
       )}
 
-      <div className="space-y-5">
+      <div className={cn(isGlass ? 'space-y-4 mt-auto' : 'space-y-5')}>
         <Bar
           icon={<ImageIcon className="h-4 w-4 text-[#967A59]" />}
           label="Photos"
@@ -88,6 +95,7 @@ export const GalleryUsageCard: React.FC<Props> = ({ meta, items, appearance = 'd
           label="Videos"
           value={`${usage.videos} / ${meta.max_videos}`}
           pct={videoPct}
+          sub={`Up to ${videoDuration} · ${formatBytes(meta.max_video_bytes).replace('.0 MB', ' MB')} per video`}
           glass={isGlass}
         />
         <Bar
@@ -95,7 +103,7 @@ export const GalleryUsageCard: React.FC<Props> = ({ meta, items, appearance = 'd
           label="Storage"
           value={`${formatBytes(usage.bytes)} / ${formatBytes(meta.max_total_bytes)}`}
           pct={storagePct}
-          sub={`${formatBytes(remainingBytes)} remaining`}
+          sub={`${Number(remainingStoragePct.toFixed(1))}% remaining`}
           glass={isGlass}
         />
         <div className="flex justify-center pt-1">
@@ -124,7 +132,7 @@ const Bar: React.FC<{
         <span className={cn('flex items-center gap-2 font-medium min-w-0', glass ? 'text-white' : 'text-foreground')}><span className="shrink-0">{icon}</span><span className="truncate">{label}</span></span>
         <span className={cn('font-medium tabular-nums shrink-0 text-right', glass ? 'text-white' : 'text-foreground')}>{value}</span>
       </div>
-      <Progress value={pct} className="h-2 bg-[#E8E1D6]/50 [&>div]:bg-green-500" />
+      <Progress value={pct} className={cn(glass ? 'h-4' : 'h-2', 'bg-[#E8E1D6]/50 [&>div]:bg-green-500')} />
 
       {sub && <div className={cn('mt-1 text-xs text-muted-foreground', glass && managementStyles.gallerySecondaryText)}>{sub}</div>}
     </div>

@@ -39,7 +39,7 @@ export async function persistHeadMovePlan(plan:HeadMovePlan,client:any=supabase)
   throw error;
  }
 }
-async function readSnapshot(eventId:string):Promise<SeatingSnapshot>{
+export async function readSnapshot(eventId:string):Promise<SeatingSnapshot>{
  const {data:auth,error:authError}=await supabase.auth.getUser();if(authError)throw authError;if(!auth.user)throw new Error('Please sign in again.');
  const {data:event,error:eventError}=await supabase.from('events').select('id,user_id,partner1_name,partner2_name,setup_details').eq('id',eventId).single();if(eventError||!event)throw eventError||new Error('Event not found.');
  const [tables,guests]=await Promise.all([supabase.from('tables').select('*').eq('event_id',eventId).eq('user_id',event.user_id),supabase.from('guests').select('*').eq('event_id',eventId).eq('user_id',event.user_id)]);

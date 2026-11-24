@@ -1,5 +1,5 @@
 import React from 'react';
-import { cleanup, render, screen } from '@testing-library/react';
+import { cleanup, fireEvent, render, screen } from '@testing-library/react';
 import { afterEach, describe, expect, it, vi } from 'vitest';
 import { RelationSelector } from './RelationSelector';
 
@@ -30,6 +30,20 @@ describe('RelationSelector approved relationship choices', () => {
       expect(screen.getAllByText(label)).toHaveLength(2);
     }
     expect(screen.getAllByText('Guest')).toHaveLength(2);
+    expect(screen.getAllByText('Organizer')).toHaveLength(2);
+    expect(screen.getAllByText('Bride')).toHaveLength(1);
+    expect(screen.getAllByText('Groom')).toHaveLength(1);
+  });
+
+  it('saves the manually selected Bride and supports Organizer for a single-person event',()=>{
+    const onChange=vi.fn();
+    const {rerender}=render(<RelationSelector value={{partner:'',role:''}} onChange={onChange} isOpen onToggle={vi.fn()} eventId="event"/>);
+    fireEvent.click(screen.getByText('Bride'));fireEvent.click(screen.getByRole('button',{name:'Select',exact:true}));
+    expect(onChange).toHaveBeenCalledWith('partner_one','bride');
+    rerender(<RelationSelector value={{partner:'',role:''}} onChange={onChange} isOpen onToggle={vi.fn()} eventId="event" isSinglePerson/>);
+    expect(screen.getAllByText('Organizer')).toHaveLength(1);
+    fireEvent.click(screen.getByText('Organizer'));fireEvent.click(screen.getByRole('button',{name:'Select',exact:true}));
+    expect(onChange).toHaveBeenLastCalledWith('partner_one','organizer');
   });
 
   it('retains a saved Guest relationship without mutating it', () => {

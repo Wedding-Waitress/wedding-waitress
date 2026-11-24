@@ -1,4 +1,5 @@
 import { RecordActionHeading, RecordActionPair } from './RecordActionPair';
+import choiceStyles from './EventSelectorReference.module.css';
 import { normalizePublicPlanName } from '@/lib/stripeExtensionPrices';
 /**
  * ⚠️ PRODUCTION-READY — LOCKED FOR PRODUCTION ⚠️
@@ -1960,11 +1961,11 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
 
                   {/* Choose Event */}
                   <div className="mb-4">
-                    <Label htmlFor="event-select" className="text-sm font-medium text-foreground mb-1.5 block">
+                    <Label htmlFor="event-select" className={`text-sm font-medium text-foreground mb-1.5 block ${choiceStyles.label}`}>
                       Choose Event
                     </Label>
                     <Select value={selectedEventId || "no-event"} onValueChange={handleEventSelect}>
-                      <SelectTrigger className="w-full border border-primary [&>span]:font-bold [&>span]:text-primary h-11 sm:h-10">
+                      <SelectTrigger id="event-select" className={`w-full border border-primary [&>span]:font-bold [&>span]:text-primary h-11 sm:h-10 ${choiceStyles.trigger}`}>
                         <SelectValue placeholder="Select an event..." />
                       </SelectTrigger>
                       <SelectContent className="ww-guest-list-menu">
@@ -2313,7 +2314,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                       <BellRing size={22} strokeWidth={1.7} />
                     </span>
                     <span>
-                      <h3 id="guest-addition-panel-title" className={styles.guestAdditionTitle}>New guests added by invited guests</h3>
+                      <h3 id="guest-addition-panel-title" data-ww-heading="main" className={styles.guestAdditionTitle}>New guests added by invited guests</h3>
                       <p className={styles.guestAdditionSubtitle}>Choose how Wedding Waitress lets you know when an invited guest adds a +1.</p>
                     </span>
                   </header>

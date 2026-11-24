@@ -1,4 +1,3 @@
-import {GuestbookDownloadAllButton} from '@/components/Dashboard/PhotoVideoGallery/GuestbookDownloadAllButton';
 // Feature workspace: Photo & Video Sharing (stage 1 — layout foundation).
 import React, { useMemo, useState } from 'react';
 import { useNavigate } from 'react-router-dom';
@@ -8,7 +7,7 @@ import { SeoHead } from '@/components/SEO/SeoHead';
 import { FeatureWorkspaceLayout } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceLayout';
 import { FeatureWorkspaceStatePanel } from '@/components/Dashboard/PhotoVideoGallery/FeatureWorkspace/FeatureWorkspaceStatePanel';
 import { GalleryUploadAccessCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryUploadAccessCard';
-import { categoryOf, publicGalleryItems, guestbookRecordings } from '@/lib/mediaPrivacy';
+import { categoryOf, publicGalleryItems } from '@/lib/mediaPrivacy';
 import { GalleryGuestbookMessagesCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryGuestbookMessagesCard';
 import { GalleryUsageCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryUsageCard';
 import { GalleryGrid } from '@/components/Dashboard/PhotoVideoGallery/GalleryGrid';
@@ -55,7 +54,7 @@ export const GalleryUploadFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelec
         guestPreviewToken={meta?.primary_token ?? null}
       >
         {selectionStatus !== 'selected' || !meta ? (
-          <FeatureWorkspaceStatePanel
+        <FeatureWorkspaceStatePanel
             state={selectionStatus === 'loading' ? 'loading' : selectionStatus === 'empty' ? 'empty' : 'error'}
             loadingLabel="Loading gallery…"
             emptyLabel="Select an event on the Photo & Video Sharing page to manage photo & video sharing."
@@ -63,7 +62,7 @@ export const GalleryUploadFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelec
           />
         ) : (
           <div className="space-y-6 sm:space-y-8">
-          <div className={`grid grid-cols-1 md:grid-cols-2 2xl:grid-cols-[2fr_1fr_1fr] gap-6 items-stretch ${managementStyles.sharingUpperGrid}`}>
+          <div className={`grid grid-cols-1 lg:grid-cols-3 gap-6 items-stretch ${managementStyles.sharingUpperGrid}`}>
             <GalleryUploadAccessCard meta={meta} onToggleOpen={setOpen} appearance="espresso-glass" />
             <GalleryUsageCard meta={meta} items={publicItems} appearance="espresso-glass" />
             <GalleryDownloadsCard
@@ -72,7 +71,6 @@ export const GalleryUploadFeaturePage: React.FC<Partial<PhotoVideoWorkspaceSelec
               galleryTitle={meta.gallery_title}
               layout="vertical"
               scopes={['all', 'photos', 'videos']}
-              additionalDownloadAction={<GuestbookDownloadAllButton items={guestbookRecordings(items)} eventName={selectedEvent?.name} appearance="espresso-glass" label="Download Guestbook Recordings" className={managementStyles.guestbookGroupedDownload} />}
               appearance="espresso-glass"
             />
           </div>

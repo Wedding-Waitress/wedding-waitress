@@ -9,6 +9,9 @@ const modalSource = readFileSync('src/components/Dashboard/AddGuestModal.tsx', '
 const modalStyles = readFileSync('src/components/Dashboard/AddGuestModal.module.css', 'utf8');
 
 describe('guest relationship persistence', () => {
+  it.each(['organizer','bride','groom'])('saves %s with actual Attending RSVP and no seating changes',role=>{
+    expect(buildPrimaryGuestRelationshipFields('partner_one',role,role)).toEqual({relation_partner:'partner_one',relation_role:role,relation_display:role,rsvp:'Attending'});
+  });
   it('retains the relationship selected for the primary guest', () => {
     expect(buildPrimaryGuestRelationshipFields('partner_two', 'father', 'Reema / Father')).toEqual({
       relation_partner: 'partner_two',

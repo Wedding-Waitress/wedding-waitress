@@ -1,4 +1,5 @@
 import { useDJMCRowTextSize } from '@/hooks/useDJMCRowTextSize';
+import { openPdfPrintFrame, type PdfPrintJob } from '@/lib/pdfPrint';
 import { Printer as ExportControlsPrinter } from 'lucide-react';
 import { DJMCRowTextSize } from './DJMCRowTextSize';
 /**
@@ -71,6 +72,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
   const { rowTextSize, setRowTextSize, loading: rowTextSizeLoading } = useDJMCRowTextSize(selectedEventId);
   const [showShareModal, setShowShareModal] = useState(false);
   const [downloadingPDF, setDownloadingPDF] = useState(false);
+  const [printing, setPrinting] = useState(false);
 
   const {
     questionnaire,
@@ -105,35 +107,41 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
   const exportContextRef = React.useRef(exportContext);
   exportContextRef.current = exportContext;
   React.useEffect(() => () => { exportContextRef.current = ''; }, []);
-  const exportBlocked = loading || saving || rowTextSizeLoading || undoHistory.busy || downloadingPDF || questionnaire?.event_id !== selectedEventId;
-  const handleDownloadEntirePDF = async () => {
+  const exportBlocked = loading || saving || rowTextSizeLoading || undoHistory.busy || downloadingPDF || printing || questionnaire?.event_id !== selectedEventId;
+  const handleDownloadEntirePDF = async (print = false) => {
     if (!questionnaire || !selectedEvent || exportBlocked || exportLock.current) return;
     exportLock.current = true;
     const snapshot = exportContextRef.current;
     const isCurrent = () => exportContextRef.current === snapshot;
 
-    setDownloadingPDF(true);
+    setDownloadingPDF(!print);
+    setPrinting(print);
+    let printJob: PdfPrintJob | undefined;
     try {
+      if (print) printJob = openPdfPrintFrame();
       const { exportEntireQuestionnairePDF } = await import('@/lib/djMCQuestionnairePdfExporter');
-      await exportEntireQuestionnairePDF(questionnaire, selectedEvent, rowTextSize, isCurrent);
+      await exportEntireQuestionnairePDF(questionnaire, selectedEvent, rowTextSize, isCurrent,
+        printJob ? pdf => printJob!.print(pdf.output('blob'), isCurrent) : undefined);
       if (!isCurrent()) return;
       toast({
         className: 'ww-djmc-toast',
-        title: "PDF Downloaded",
-        description: "Your DJ & MC Questionnaire has been downloaded.",
+        title: print ? 'Print Preview Ready' : "PDF Downloaded",
+        description: print ? 'Your questionnaire is ready to print.' : "Your DJ & MC Questionnaire has been downloaded.",
       });
     } catch (error) {
+      printJob?.close();
       if (!isCurrent()) return;
       console.error('Failed to download PDF:', error);
       toast({
         className: 'ww-djmc-toast',
-        title: "Download Failed",
-        description: "There was an error generating the PDF.",
+        title: print ? 'Print Failed' : "Download Failed",
+        description: error instanceof Error ? error.message : "There was an error generating the PDF.",
         variant: "destructive",
       });
     } finally {
       exportLock.current = false;
       setDownloadingPDF(false);
+      setPrinting(false);
     }
   };
 
@@ -233,7 +241,14 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
                     Share with DJ/MC
                   </button>
                   <button
-                    onClick={handleDownloadEntirePDF}
+                    onClick={() => void handleDownloadEntirePDF(true)}
+                    disabled={exportBlocked}
+                    className={`${theme.primaryAction} ${theme.exportButton} inline-flex items-center justify-center gap-1.5 h-10 px-4 text-sm font-semibold rounded-full max-sm:w-full disabled:opacity-50`}
+                  >
+                    {printing ? <LoaderCircle size={16} strokeWidth={1.8} className="animate-spin" aria-hidden="true" /> : <Printer size={16} strokeWidth={1.8} aria-hidden="true" />}Print
+                  </button>
+                  <button
+                    onClick={() => void handleDownloadEntirePDF()}
                     disabled={exportBlocked}
                     aria-busy={downloadingPDF}
                     className={`${theme.primaryAction} ${theme.exportButton} inline-flex items-center gap-1.5 h-10 px-4 text-sm font-semibold rounded-full transition-colors disabled:opacity-50 disabled:pointer-events-none max-sm:h-10 max-sm:w-full max-sm:justify-center max-sm:text-sm`}
@@ -243,7 +258,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
                     ) : (
                       <FileDown size={16} strokeWidth={1.8} aria-hidden="true" />
                     )}
-                    Download entire questionnaire PDF
+                    Download questionnaire PDF
                   </button>
                 </div>
               </div>
@@ -334,7 +349,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
             <DJMCQuestionnaireSection
               key={section.id}
               section={section}
-              disabled={undoHistory.busy || downloadingPDF || questionnaire?.event_id !== selectedEventId}
+              disabled={undoHistory.busy || downloadingPDF || printing || questionnaire?.event_id !== selectedEventId}
               onRunUndoable={undoHistory.run}
               eventId={questionnaire.event_id}
               onUpdateSection={(updates) => undoHistory.record(() => updateSection(section.id, updates))}
@@ -353,7 +368,7 @@ export function DJMCQuestionnairePage({ selectedEventId, onEventSelect, events }
           {/* Guest Song Requests (synthetic appended section) */}
           <GuestSongRequestsSection
             key={`${selectedEventId}:${undoHistory.revision}`}
-            disabled={undoHistory.busy || downloadingPDF}
+            disabled={undoHistory.busy || downloadingPDF || printing}
             onRunUndoable={(action,rows)=>undoHistory.run(action,false,rows)}
             eventId={selectedEvent?.id ?? null}
             eventName={selectedEvent?.name ?? null}

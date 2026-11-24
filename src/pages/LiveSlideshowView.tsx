@@ -282,7 +282,7 @@ export const LiveSlideshowView: React.FC = () => {
       <div className="bg-white/10 backdrop-blur-sm border-b border-white/20">
         <div className="w-full px-4 sm:px-8 py-6">
           <div className="text-center flex flex-col items-center gap-2">
-            <h1 className="text-2xl sm:text-3xl font-bold">{event.name}</h1>
+            <h1 data-ww-heading="main" style={{fontFamily:'"Wedding Waitress Playfair", "Playfair Display", Georgia, serif',fontWeight:600}} className="text-2xl sm:text-3xl font-bold">{event.name}</h1>
             {event.date && (
               <div data-live-slideshow-body className="flex items-center justify-center text-white/90 text-base sm:text-lg">
                 <Calendar className="w-5 h-5 mr-2 shrink-0" />

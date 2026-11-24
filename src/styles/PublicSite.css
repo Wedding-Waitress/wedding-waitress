@@ -1085,4 +1085,10 @@ body:has(.ww-public) :is(.ww-products-menu, .ww-events-menu, .ww-selector-menu, 
 
 
 /* Media keeps the square geometry it had under the public interface rule. */
+/* Owner-approved pricing outlines match the existing light-gold divider. */
+#root#root .ww-public #pricing [data-public-pricing-card-grid] > article[aria-labelledby],
+#root#root .ww-public #pricing [data-public-pricing-card-grid] > article h4[data-pricing-metallic-heading] {
+  border: 1px solid rgb(215 185 133 / 45%) !important;
+}
+
 #root#root .ww-public :is(img,video,canvas,svg,iframe)[class*="rounded-"]:not([class*="rounded-full"]):not(.ww-icon-orb) { border-radius: 0 !important; }

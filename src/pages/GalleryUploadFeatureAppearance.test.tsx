@@ -10,6 +10,7 @@ import { GalleryDownloadsCard } from '@/components/Dashboard/PhotoVideoGallery/G
 import { GalleryUsageCard } from '@/components/Dashboard/PhotoVideoGallery/GalleryUsageCard';
 import managementStyles from '@/components/Dashboard/PhotoVideoGallery/photoVideoSharingManagement.module.css';
 import { GalleryUploadFeaturePage } from './GalleryUploadFeaturePage';
+vi.mock('@/hooks/usePaidAccessState',()=>({usePaidAccessState:()=>({state:null,loading:false})}));
 
 const mocks = vi.hoisted(() => ({
   events: vi.fn(),
@@ -144,13 +145,13 @@ describe('Photo & Video Sharing management appearance', () => {
     upperCards.forEach(card => expect(card).toHaveClass(managementStyles.glassCard));
 
     const upperGrid = upperCards[0]?.parentElement;
-    expect(upperGrid?.className).toContain('2xl:grid-cols-[2fr_1fr_1fr]');
+    expect(upperGrid?.className).toContain('lg:grid-cols-3');
 
     const usageCard = upperCards[1] as HTMLElement;
     const usageBars = within(usageCard).getAllByRole('progressbar');
     expect(usageBars).toHaveLength(3);
     usageBars.forEach(bar => {
-      expect(bar).toHaveClass('h-2', 'bg-[#E8E1D6]/50', '[&>div]:bg-green-500');
+      expect(bar).toHaveClass('h-4', 'bg-[#E8E1D6]/50', '[&>div]:bg-green-500');
     });
 
     const sharedHeading = screen.getByRole('heading', { name: 'Shared Photos & Videos (1)', level: 2 });
@@ -239,19 +240,18 @@ describe('Photo & Video Sharing management appearance', () => {
       screen.getByRole('button', { name: 'Download QR code' }),
     ];
     const zipButtons = [
-      screen.getByRole('button', { name: /Download All/ }),
+      screen.getByRole('button', { name: /^Download All\d/ }),
             screen.getByRole('button', { name: /Download Photos Only/ }),
       screen.getByRole('button', { name: /Download Videos Only/ }),
-      screen.getByRole('button', { name: 'Download Guestbook Recordings' }),
     ];
 
     [...accessButtons, ...zipButtons].forEach(button => {
       expect(button).toHaveClass(managementStyles.galleryControl, managementStyles.upperGlassControl);
       expect(button.querySelector('svg')).toBeInTheDocument();
     });
-    expect(accessButtons[0]).toHaveClass('h-11');
+    expect(accessButtons[0]).toHaveClass('min-h-11', 'w-full');
     zipButtons.forEach(button => expect(button).toHaveClass('h-11'));
-    expect(zipButtons[3]).toBeDisabled();
+    expect(screen.queryByRole('button', { name: 'Download Guestbook Recordings' })).toBeNull();
 
     const guestsPill = screen.getByLabelText('1 guests uploaded');
     expect(guestsPill.tagName).toBe('DIV');
@@ -345,7 +345,7 @@ describe('Photo & Video Sharing QR protection', () => {
     expect(qr).toHaveClass('w-40', 'h-40', 'sm:w-44', 'sm:h-44', 'rounded-lg', 'border', 'border-border');
     expect(qr).not.toHaveAttribute('style');
     expect(qr.className).not.toMatch(/opacity|gradient|blur|shadow|animate|filter|mix-blend/);
-    expect(qr.parentElement).toHaveClass('flex', 'justify-center');
+    expect(qr.parentElement).toHaveClass(managementStyles.sharingAccessQr);
     expect(qr.parentElement?.children).toHaveLength(1);
 
     const publicLink = screen.getByDisplayValue(/weddingwaitress\.com\.au\/gallery\//) as HTMLInputElement;
@@ -366,10 +366,10 @@ describe('Photo & Video Sharing QR protection', () => {
     mocks.gallery.mockReturnValue({...mocks.gallery(),items:[item,{...item,id:'library-video',kind:'video'},{...item,id:'booth-strip',source_category:'photo_booth',is_photo_booth:true,is_photo_booth_strip:true},...recordings]});
     renderPage();await screen.findByRole('heading',{name:'Download as ZIP'});
     const panel=screen.getByRole('heading',{name:'Download as ZIP'}).closest('[data-appearance="espresso-glass"]') as HTMLElement;
-    expect(within(panel).getAllByRole('button').map(b=>b.textContent?.replace(/\s+/g,' ').trim())).toEqual(['Download All3','Download Photos Only2','Download Videos Only1','Download Guestbook Recordings2']);
+    expect(within(panel).getAllByRole('button').map(b=>b.textContent?.replace(/\s+/g,' ').trim())).toEqual(['Download All3','Download Photos Only2','Download Videos Only1']);
     const messages=screen.getByRole('heading',{name:/Guestbook Messages/}).closest('[data-appearance="espresso-glass"]') as HTMLElement;
-    expect(within(messages).queryByRole('button',{name:'Download all guestbook messages'})).toBeNull();
-    expect(within(messages).getByRole('button',{name:'Export CSV'})).toBeInTheDocument();
+    expect(within(messages).getByRole('button',{name:'Download All Guestbook Messages'})).toBeInTheDocument();
+    expect(within(messages).queryByRole('button',{name:'Export CSV'})).toBeNull();
   });
 });
 

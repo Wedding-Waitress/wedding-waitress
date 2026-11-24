@@ -5,6 +5,7 @@
  */
 import { PDF_DEFAULT_OPTIONS, savePdfAsync, yieldToBrowser } from './pdfExportUtils';
 import { guestbookPdfFilename } from './guestbookFilename';
+import { fitDocumentFooterLogo } from './documentFooterLogo';
 
 export interface GuestbookPdfMessage {
   seq?: number | null;
@@ -18,8 +19,9 @@ const WIDTH = 794;
 const HEIGHT = 1123;
 const LEFT = 91;
 const RIGHT = WIDTH - LEFT;
-const BOTTOM = 1004;
+const BOTTOM = 980;
 const FONT = 'Manrope, "Segoe UI", "Segoe UI Emoji", sans-serif';
+const TITLE_FONT = '"Wedding Waitress Playfair", "Playfair Display", Georgia, serif';
 
 /** Wrap whole words, falling back to grapheme boundaries for long unbroken text. */
 export function wrapGuestbookText(text: string, width: number, measure: (s: string) => number): string[] {
@@ -50,9 +52,12 @@ export function guestbookEventDate(value?: string | null): string {
 }
 
 export async function createGuestbookMessagePdf(message: GuestbookPdfMessage, event: GuestbookPdfEvent) {
-  // Request fonts only when an export is initiated, matching the dashboard's Manrope.
-  await Promise.all([document.fonts.load('400 17px Manrope'), document.fonts.load('600 28px Manrope')]);
+  // Match the agreed heading font; keep message text in the existing Manrope.
+  await Promise.all([document.fonts.load('400 17px Manrope'), document.fonts.load('600 28px "Wedding Waitress Playfair"')]);
   await document.fonts.ready;
+  const logo = new Image();
+  logo.src = '/wedding-waitress-document-footer-dark-brown.png';
+  await logo.decode();
   const { default: jsPDF } = await import('jspdf');
   const pdf = new jsPDF({ ...PDF_DEFAULT_OPTIONS, unit: 'mm', format: 'a4' });
   pdf.setProperties({ title: `${event.name || 'Event'} Guestbook`, subject: 'Messages from your guests', creator: 'Wedding Waitress' });
@@ -62,13 +67,13 @@ export async function createGuestbookMessagePdf(message: GuestbookPdfMessage, ev
   const ctx = canvas.getContext('2d');
   if (!ctx) throw new Error('PDF drawing is unavailable. Please try another browser.');
   ctx.scale(2, 2);
-  const font = (size: number, weight = 400) => { ctx.font = `${weight} ${size}px ${FONT}`; };
+  const font = (size: number, weight = 400, family = FONT) => { ctx.font = `${weight} ${size}px ${family}`; };
   const wrap = (text: string) => wrapGuestbookText(text, RIGHT - LEFT, s => ctx.measureText(s).width);
   const title = event.name?.trim() || 'Event';
   let titleSize = 28;
-  font(titleSize, 600);
+  font(titleSize, 600, TITLE_FONT);
   let titleLines = wrap(title);
-  while (titleLines.length > 4 && titleSize > 12) { font(--titleSize, 600); titleLines = wrap(title); }
+  while (titleLines.length > 4 && titleSize > 12) { font(--titleSize, 600, TITLE_FONT); titleLines = wrap(title); }
   const eventDate = guestbookEventDate(event.date);
   const submitted = message.at ? new Date(message.at) : null;
   const validDate = submitted && !Number.isNaN(submitted.getTime()) ? submitted : null;
@@ -76,17 +81,16 @@ export async function createGuestbookMessagePdf(message: GuestbookPdfMessage, ev
     `Guest: ${message.name?.trim() || 'Anonymous guest'}`,
     `Date: ${validDate ? validDate.toLocaleDateString('en-AU', { day: '2-digit', month: 'long', year: 'numeric' }) : 'Not recorded'}`,
     `Time: ${validDate ? validDate.toLocaleTimeString('en-AU', { hour: '2-digit', minute: '2-digit', second: '2-digit' }) : 'Not recorded'}`,
-    `Attached recording: ${message.hasRecording ? 'Yes' : 'No'}`,
   ];
-  font(15);
+  font(16);
   const detailLines = details.flatMap(wrap);
-  font(17);
+  font(16);
   const messageLines = wrap(message.message);
   // Metadata flows with the message, so even an unusually long guest name is preserved.
   const content = [
-    ...detailLines.map(text => ({ text, size: 15, height: 25 })),
-    { text: '', size: 17, height: 28 },
-    ...messageLines.map(text => ({ text, size: 17, height: 29 })),
+    ...detailLines.map(text => ({ text, size: 16, height: 25 })),
+    { text: '', size: 16, height: 28 },
+    ...messageLines.map(text => ({ text, size: 16, height: 29 })),
   ];
   const contentTop = 96 + titleLines.length * (titleSize + 9) + 90 + (eventDate ? 29 : 0);
   const pages: typeof content[] = [];
@@ -103,17 +107,19 @@ export async function createGuestbookMessagePdf(message: GuestbookPdfMessage, ev
     ctx.strokeStyle = '#967a59'; ctx.lineWidth = 0.8; ctx.beginPath(); ctx.roundRect(38, 38, WIDTH - 76, HEIGHT - 76, 8); ctx.stroke();
     const rule = (at: number) => { ctx.beginPath(); ctx.moveTo(LEFT, at); ctx.lineTo(RIGHT, at); ctx.stroke(); };
     rule(80);
-    ctx.fillStyle = '#000000'; ctx.textBaseline = 'top'; ctx.textAlign = 'center'; font(titleSize, 600);
+    ctx.fillStyle = '#000000'; ctx.textBaseline = 'top'; ctx.textAlign = 'center'; font(titleSize, 600, TITLE_FONT);
     let titleY = 96;
     for (const text of titleLines) { ctx.fillText(text, WIDTH / 2, titleY); titleY += titleSize + 9; }
     rule(titleY + 5);
     font(16); ctx.fillText('Messages from your guests', WIDTH / 2, titleY + 29);
-    if (eventDate) { font(13); ctx.fillText(eventDate, WIDTH / 2, titleY + 59); }
+    if (eventDate) { font(16); ctx.fillText(eventDate, WIDTH / 2, titleY + 59); }
     ctx.textAlign = 'left'; y = contentTop;
     for (const line of pages[index]) { font(line.size); ctx.fillText(line.text, LEFT, y); y += line.height; }
     ctx.textAlign = 'center'; font(12);
     const seq = message.seq && message.seq > 0 ? `Message ${String(Math.floor(message.seq)).padStart(2, '0')}  ·  ` : '';
-    ctx.fillText(`${seq}Page ${index + 1} of ${pages.length}`, WIDTH / 2, HEIGHT - 76);
+    ctx.fillText(`${seq}Page ${index + 1} of ${pages.length}`, WIDTH / 2, HEIGHT - 112);
+    const logoSize = fitDocumentFooterLogo(174, 42);
+    ctx.drawImage(logo, (WIDTH - logoSize.width) / 2, HEIGHT - 90, logoSize.width, logoSize.height);
     pdf.addImage(canvas.toDataURL('image/png'), 'PNG', 0, 0, 210, 297);
     await yieldToBrowser();
   }

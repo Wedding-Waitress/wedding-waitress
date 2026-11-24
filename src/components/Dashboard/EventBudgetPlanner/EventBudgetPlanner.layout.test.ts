@@ -101,7 +101,7 @@ describe('Event Budget Planner layout contract', () => {
   });
 
   it('uses the approved green treatment for Edit without changing the drawer action treatments', () => {
-    expect(component).toContain('<RecordActionPair editLabel={`Edit ${expenseTitle(expense)}`} deleteLabel={`Delete ${expenseTitle(expense)}`}');
+    expect(component).toContain('<RecordActionPair showLabels editLabel={`Edit ${expenseTitle(expense)}`} deleteLabel={`Delete ${expenseTitle(expense)}`}');
     expect(css).toMatch(/\.tableEditButton \{[^}]*min-height: 30px;[^}]*white-space: nowrap/);
     expect(drawer).toContain('className={styles.dangerButton} onClick={requestClose}');
     expect(drawer).toContain('<X size={16} aria-hidden="true" />Cancel');

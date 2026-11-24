@@ -12,7 +12,7 @@ describe('authenticated package media allowances', () => {
     render(<PricingSection onPlanSelect={vi.fn()} />);
     expect(screen.getAllByText('Up to 5,000 images, including photo booth images')).toHaveLength(3);
     expect(screen.getAllByText('Up to 100 videos; each ordinary video up to 5 minutes and 600 MB')).toHaveLength(3);
-    expect(screen.getAllByText('10 GB shared media storage per event; storage may fill before these counts')).toHaveLength(3);
+    expect(screen.getAllByText('200 GB shared media storage per event; storage may fill before these counts')).toHaveLength(3);
     expect(screen.getByText('150 Email & SMS credits included')).toBeInTheDocument();
     expect(screen.getByText('250 Email & SMS credits included')).toBeInTheDocument();
     expect(screen.getByText('450 Email & SMS credits included')).toBeInTheDocument();

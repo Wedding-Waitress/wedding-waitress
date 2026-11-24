@@ -6,7 +6,7 @@ import { GalleryLimitsCard } from '@/components/Dashboard/PhotoVideoGallery/Gall
 import { validateFile } from './mediaValidation';
 
 vi.mock('@/hooks/use-toast', () => ({ useToast: () => ({ toast: vi.fn() }) }));
-const meta = { max_photos: 5000, max_videos: 100, max_total_bytes: 10 * 1024 ** 3,
+const meta = { max_photos: 5000, max_videos: 100, max_total_bytes: 200 * 1024 ** 3,
   max_photo_bytes: 25 * 1024 ** 2, max_video_bytes: 600 * 1024 ** 2,
   max_video_duration_sec: 300, allowed_photo_mimes: ['image/jpeg'], allowed_video_mimes: ['video/mp4'] };
 afterEach(() => vi.restoreAllMocks());
@@ -18,9 +18,9 @@ describe('approved event media allowances', () => {
     fireEvent.click(screen.getByRole('button', { name: 'Edit' }));
     expect(screen.getByText(/Storage may fill before these counts/)).toBeInTheDocument();
     fireEvent.click(screen.getByRole('button', { name: 'Save' }));
-    expect(save).toHaveBeenCalledWith(expect.objectContaining({ max_photos: 5000, max_videos: 100, max_video_duration_sec: 300, max_total_bytes: 10 * 1024 ** 3 }));
+    expect(save).toHaveBeenCalledWith(expect.objectContaining({ max_photos: 5000, max_videos: 100, max_video_duration_sec: 300, max_total_bytes: 200 * 1024 ** 3 }));
   });
-  it.each([['photos', 5001], ['videos', 101], ['totalGb', 11], ['videoSec', 301]])('rejects raising %s above its approved maximum', (field, value) => {
+  it.each([['photos', 5001], ['videos', 101], ['totalGb', 201], ['videoSec', 301]])('rejects raising %s above its approved maximum', (field, value) => {
     const save = vi.fn();
     render(<GalleryLimitsCard meta={meta as any} onUpdate={save} />);
     fireEvent.click(screen.getByRole('button', { name: 'Edit' }));

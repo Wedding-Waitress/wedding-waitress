@@ -16,7 +16,7 @@ import { Check, X } from 'lucide-react';
 import { Button } from "@/components/ui/enhanced-button";
 import { Card } from "@/components/ui/card";
 import { Input } from "@/components/ui/input";
-import { RelationPartner, RelationRole, getAllRoleOptions, computeRelationDisplay } from "@/lib/relationUtils";
+import { RelationPartner, RelationRole, getAllRoleOptions, getPartnerRoleOptions, computeRelationDisplay } from "@/lib/relationUtils";
 import { cn } from "@/lib/utils";
 import { supabase } from "@/integrations/supabase/client";
 import { useToast } from "@/hooks/use-toast";
@@ -268,7 +268,7 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
               )}>
                 {/* Partner 1 Column */}
                 <div className={!isSinglePerson ? "border-r" : ""}>
-                  {roleOptions.map((role) => (
+                  {getPartnerRoleOptions(roleOptions, 'partner_one').map((role) => (
                     <div
                       key={`partner_one_${role.value}`}
                       onClick={() => handleRoleSelect('partner_one', role.value as RelationRole)}
@@ -306,7 +306,7 @@ export const RelationSelector: React.FC<RelationSelectorProps> = ({
                 {/* Partner 2 Column - Only show if NOT single person */}
                 {!isSinglePerson && (
                   <div>
-                  {roleOptions.map((role) => (
+                  {getPartnerRoleOptions(roleOptions, 'partner_two').map((role) => (
                     <div
                       key={`partner_two_${role.value}`}
                       onClick={() => handleRoleSelect('partner_two', role.value as RelationRole)}

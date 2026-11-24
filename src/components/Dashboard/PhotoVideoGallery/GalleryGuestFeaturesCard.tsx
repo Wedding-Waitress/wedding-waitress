@@ -95,7 +95,7 @@ export const GalleryGuestFeaturesCard: React.FC<Props> = ({
                 onPointerEnter={() => preloadWorkspace(feature.key)}
                 onPointerDown={() => preloadWorkspace(feature.key)}
                 onFocus={() => preloadWorkspace(feature.key)}
-                className={styles.manageButton}
+                className={`${styles.manageButton} bg-primary text-primary-foreground btn-embossed lv-premium-shade`}
               >
                 <span className={styles.manageIcon} aria-hidden="true"><Settings2 size={13} strokeWidth={1.8} /></span>
                 <span>Manage</span>

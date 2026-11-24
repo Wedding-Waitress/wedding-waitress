@@ -13,6 +13,8 @@ import { PublicMotion } from "@/components/Layout/PublicMotion";
 import { ThemeProvider } from "next-themes";
 import { AppErrorBoundary } from "@/components/core/AppErrorBoundary";
 import { startAppOwnedTypographyNormalization } from "@/lib/appOwnedTypography";
+import { startLargeHeadingTypography } from '@/lib/largeHeadingTypography';
+import {startSoftInterfaceBorders} from '@/lib/softInterfaceBorders';
 import {
   loadAccountRoute,
   loadAdminRoute,
@@ -186,6 +188,8 @@ const RouteTracker = () => {
 
 const App = () => {
   useEffect(() => startAppOwnedTypographyNormalization(), []);
+  useEffect(() => startLargeHeadingTypography(), []);
+  useEffect(() => startSoftInterfaceBorders(), []);
 
   return (
     <QueryClientProvider client={queryClient}>

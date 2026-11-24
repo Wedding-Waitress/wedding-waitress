@@ -14,10 +14,10 @@ const mount=(readOnly=false)=>render(<EventBudgetPlannerView event={{id:'fixture
 const open=async()=>{fireEvent.click(within(screen.getByRole('table')).getByRole('button',{name:'Delete Fixture Caterer'}));return screen.findByRole('alertdialog');};
 beforeEach(()=>{remove.mockReset().mockResolvedValue(item.id);});
 describe('expense action pair',()=>{
- it('uses accessible icon-only edit/delete on table and mobile cards; cancellation never deletes',async()=>{
+ it('uses visible accessible edit/delete on table and mobile cards; cancellation never deletes',async()=>{
   mount();expect(screen.getAllByRole('button',{name:'Delete Fixture Caterer'})).toHaveLength(2);
   const pair=within(screen.getByRole('table')).getByRole('button',{name:'Edit Fixture Caterer'}).closest('[data-record-action-pair]')!;
-  expect(pair.textContent).toBe('');
+  expect(pair.textContent).toBe('EditDelete');
   const dialog=await open();expect(dialog).toHaveTextContent('Fixture Caterer will be permanently removed');
   fireEvent.click(within(dialog).getByRole('button',{name:'Cancel'}));expect(remove).not.toHaveBeenCalled();expect(screen.queryByRole('alertdialog')).not.toBeInTheDocument();
  });

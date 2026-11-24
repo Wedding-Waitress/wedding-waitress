@@ -20,7 +20,7 @@ describe('Guest drag cancellation',()=>{
   expect(screen.getByText('Drop here for Seat 1')).toBeTruthy();
   fireEvent.keyDown(document,{key:'Escape',code:'Escape'});
   await waitFor(()=>expect(screen.queryByText('Drop here for Seat 1')).toBeNull());
-  expect(JSON.parse(screen.getByTestId('drag-state').textContent!)).toEqual({activeGuestId:null,overGuestId:null,overTableId:null,isOverUnassigned:false,overGuestPosition:null});
+  expect(JSON.parse(screen.getByTestId('drag-state').textContent!)).toEqual({activeGuestId:null,overGuestId:null,overTableId:null,isOverUnassigned:false,overGuestPosition:null,preserveTableLayout:false,isSaving:false});
   expect(move).not.toHaveBeenCalled();expect(reorder).not.toHaveBeenCalled();
  });
 });

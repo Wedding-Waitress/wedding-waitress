@@ -64,7 +64,7 @@
  .page .headerEvent {background:transparent!important;border:0!important;box-shadow:none!important;margin:0!important;padding:0!important;min-width:0;}
  .page .headerEvent > h2 {color:#2f1b14!important;-webkit-text-fill-color:#2f1b14!important;}
  .page .headerEvent > div > div {min-width:0;max-width:100%;}
- .page .stat {background:linear-gradient(180deg,#412419 0%,#2f1b14 48%,#23120d 100%)!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 -2px 0 rgba(0,0,0,.3)!important;color:#fff!important;-webkit-text-fill-color:#fff!important;}
+ .page .stat {background:#967a59!important;box-shadow:inset 0 1px 0 rgba(255,255,255,.18),inset 0 -2px 0 rgba(0,0,0,.3)!important;color:#fff!important;-webkit-text-fill-color:#fff!important;}
 }
 @media(max-width:1499px){.headerLayout {grid-template-columns:minmax(0,1fr) auto;}.headerEvent {grid-column:1 / -1;grid-row:2;}.headerExport {grid-column:2;grid-row:1;}}
 @media(max-width:767px){.headerLayout {grid-template-columns:minmax(0,1fr);}.headerIdentity {grid-column:1;grid-row:1;}.headerEvent {grid-column:1;grid-row:2;}.headerExport {grid-column:1;grid-row:3;}}

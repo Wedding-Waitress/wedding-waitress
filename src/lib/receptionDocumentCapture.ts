@@ -53,6 +53,7 @@ export async function captureReceptionDocument(element: HTMLElement): Promise<HT
   content.setAttribute('height', '100%');
   content.appendChild(clone);
   svg.appendChild(content);
+  await embedDocumentEventTitleFont(svg);
   const image = new Image();
   image.src = 'data:image/svg+xml;charset=utf-8,' + encodeURIComponent(new XMLSerializer().serializeToString(svg));
   await image.decode();
@@ -66,3 +67,4 @@ export async function captureReceptionDocument(element: HTMLElement): Promise<HT
   context.drawImage(image, 0, 0, canvas.width, canvas.height);
   return canvas;
 }
+import {embedDocumentEventTitleFont} from './documentEventTitle';
