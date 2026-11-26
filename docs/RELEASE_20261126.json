@@ -76,7 +76,15 @@
     "publicPages": 45,
     "typecheck": "passed",
     "productionBuild": "passed",
-    "focusedTestsPassed": 210
+    "focusedTestsPassed": 210,
+    "liveResponsiveChecks": 45,
+    "livePageErrors": 0,
+    "liveAssetSha256Matches": 19,
+    "liveHealthyRoutes": 47,
+    "liveExports": "Synthetic isolated account: budget download then print; individual single/all PDF; all sign preview widths equal. Customer records untouched."
   },
-  "publication": "Pending production upload and live verification"
+  "publication": "Published and live verified; backup and cleanup pending",
+  "sourceCommit": "6bfd14b9c",
+  "netlifyDeploy": "6b082d6ae95929ff5da6d617",
+  "productionLockRestored": true
 }
