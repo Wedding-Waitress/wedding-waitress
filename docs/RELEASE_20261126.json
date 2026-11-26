@@ -83,8 +83,94 @@
     "liveHealthyRoutes": 47,
     "liveExports": "Synthetic isolated account: budget download then print; individual single/all PDF; all sign preview widths equal. Customer records untouched."
   },
-  "publication": "Published and live verified; backup and cleanup pending",
+  "publication": "Published and live verified",
   "sourceCommit": "6bfd14b9c",
   "netlifyDeploy": "6b082d6ae95929ff5da6d617",
-  "productionLockRestored": true
+  "productionLockRestored": true,
+  "cleanup": {
+    "backupBeforeCleanup": "20261126T130405598Z-de73937c",
+    "remoteSha256Verified": true,
+    "pendingBeforeCleanup": 0,
+    "removed": [
+      {
+        "path": "E:\\Codex\\approved-release-20261126\\dist",
+        "bytes": 1883815180
+      },
+      {
+        "path": "E:\\Codex\\approved-release-20261126\\deno.lock",
+        "bytes": 4847
+      },
+      {
+        "path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\guestbook-keepsake-20261126",
+        "bytes": 2765777
+      },
+      {
+        "path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\guest-gallery-20261126",
+        "bytes": 2472990
+      },
+      {
+        "path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\guestbook-tiles-20261126",
+        "bytes": 2034057
+      },
+      {
+        "path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\photo-callout-black-20261126",
+        "bytes": 6037753
+      },
+      {
+        "path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\document-logo-20261126",
+        "bytes": 2297378
+      },
+      {
+        "path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\individual-export-speed-20261126",
+        "bytes": 15506719
+      },
+      {
+        "path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\signage-preview-size-20261126",
+        "bytes": 2022799
+      },
+      {
+        "path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\budget-print-20261126",
+        "bytes": 2280668
+      },
+      {
+        "path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\dietary-card-size-20261126",
+        "bytes": 3769316
+      },
+      {
+        "path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\release-20261126\\browser-downloads",
+        "bytes": 0
+      },
+      {
+        "path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\release-20261126\\budget-export-20261124",
+        "bytes": 0
+      },
+      {
+        "path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\release-20261126\\draft-responsive",
+        "bytes": 9520480
+      },
+      {
+        "path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\release-20261126\\live-responsive",
+        "bytes": 9466497
+      },
+      {
+        "path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\release-20261126\\reception-print-cache",
+        "bytes": 12442309
+      },
+      {
+        "path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\release-20261126\\reception-print-profile",
+        "bytes": 10799671
+      }
+    ],
+    "reclaimedBytes": 1965236441.0,
+    "completed": true,
+    "preserved": [
+      "canonical source",
+      "release source and Git history",
+      "dependencies",
+      "active development and backup runtimes",
+      "approved reference artwork",
+      "compact release and QA evidence",
+      "all original Downloads"
+    ]
+  }
 }
