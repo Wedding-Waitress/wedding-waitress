@@ -6,7 +6,7 @@ import { type CeremonyFloorPlan, getDefaultBridalRole } from '@/hooks/useCeremon
 import { CEREMONY_A4, getCeremonyA4Layout } from '@/lib/ceremonyFloorPlanA4';
 import styles from './CeremonyFloorPlanA4.module.css';
 
-const logo = '/wedding-waitress-document-footer-dark-brown.png';
+const logo = '/wedding-waitress-document-footer-print.png';
 
 type Side = 'left' | 'right';
 

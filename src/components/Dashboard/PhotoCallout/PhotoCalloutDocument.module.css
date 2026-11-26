@@ -90,3 +90,6 @@
  .sheet .card[data-everyone=true]:not([data-priority=true]) .meta {background:#0000ff!important;}
  .sheet .card[data-priority=true] .meta {background:#55a447!important;}
 }
+
+/* Printed document copy is solid black; coloured bands and the logo retain their artwork. */
+:global(:is(#root#root#root, [data-photo-print-preview])) .sheet :is(.heading,.heading h2,.heading h3,.heading p,.title,.names,.guestName,.timing,.details,.details p,.footer span) {color:#000!important;-webkit-text-fill-color:#000!important;}

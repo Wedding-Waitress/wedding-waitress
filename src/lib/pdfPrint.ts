@@ -17,16 +17,18 @@ export function openPdfPrintWindow(): PdfPrintJob {
 
 /** Keep PDF preparation in the active application and print only its prepared
  * pages. No blank popup, focus handoff, dashboard CSS, or remote resources. */
-export function openPdfPrintFrame(): PdfPrintJob {
+export interface PdfPrintFrameOptions { paper?: 'a4-portrait' }
+
+export function openPdfPrintFrame(options: PdfPrintFrameOptions = {}): PdfPrintJob {
   const frame = document.createElement('iframe');
   frame.title = 'Wedding Waitress print document';
   frame.dataset.pdfPrintFrame = '';
   frame.style.cssText = 'position:fixed;left:-10000px;top:0;width:794px;height:1123px;border:0;pointer-events:none';
   document.body.append(frame);
-  return createPdfPrintJob(frame.contentWindow!, () => frame.remove(), () => !frame.isConnected, true);
+  return createPdfPrintJob(frame.contentWindow!, () => frame.remove(), () => !frame.isConnected, true, options);
 }
 
-function createPdfPrintJob(preview: Window, close: () => void, isClosed: () => boolean, waitForDialog = false): PdfPrintJob {
+function createPdfPrintJob(preview: Window, close: () => void, isClosed: () => boolean, waitForDialog = false, options: PdfPrintFrameOptions = {}): PdfPrintJob {
   return {
     close,
     async print(blob, isCurrent = () => true) {
@@ -57,18 +59,31 @@ function createPdfPrintJob(preview: Window, close: () => void, isClosed: () => b
           // Chrome throttles when a popup has focus. Print rendering does not.
           await page.render({ canvas, canvasContext: context, viewport, intent: 'print' }).promise;
           check();
-          const width = size.width * 25.4 / 72;
-          const height = size.height * 25.4 / 72;
+          const pdfWidth = size.width * 25.4 / 72;
+          const pdfHeight = size.height * 25.4 / 72;
+          const standardA4 = options.paper === 'a4-portrait';
+          if (standardA4 && (Math.abs(pdfWidth - 210) > .5 || Math.abs(pdfHeight - 297) > .5)) {
+            throw new Error('Dietary cards require A4 portrait paper.');
+          }
+          // Avoid fractional PDF point conversions becoming a custom printer
+          // paper size. The card job uses standard A4 and an explicit centre.
+          const width = standardA4 ? 210 : pdfWidth;
+          const height = standardA4 ? 297 : pdfHeight;
           const paper = doc.createElement('section');
           paper.style.width = `${width}mm`;
           paper.style.height = `${height}mm`;
+          if (standardA4) { paper.style.margin = '0 auto'; paper.style.position = 'relative'; }
           const image = doc.createElement('img');
           image.alt = `Page ${index} of ${pdf.numPages}`;
           image.src = canvas.toDataURL('image/png');
           paper.append(image);
           doc.body.append(paper);
           await image.decode();
-          if (index === 1) style.textContent += `@page{size:${width}mm ${height}mm;margin:0}`;
+          if (index === 1) {
+            style.textContent += standardA4
+              ? '@page{size:A4 portrait;margin:0}@media print{html,body{width:210mm;margin:0 auto!important;padding:0!important}section{margin:0 auto!important;box-sizing:border-box}}'
+              : `@page{size:${width}mm ${height}mm;margin:0}`;
+          }
           page.cleanup();
           canvas.width = canvas.height = 0;
         }

@@ -1,3 +1,4 @@
+import {SIGNAGE_PREVIEW_WIDTH_MM,signagePreviewWidthMm} from '@/lib/signagePreviewSize';
 import choiceStyles from '../EventSelectorReference.module.css';
 import { Printer as ExportControlsPrinter } from 'lucide-react';
 import React, { useState, useMemo, useEffect, useCallback, useRef } from 'react';
@@ -91,6 +92,13 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
 
   const [selectedZoneId, setSelectedZoneId] = useState<string | null>(null);
   const signDocumentRef = useRef<HTMLDivElement | null>(null);
+  const previewStageRef=useRef<HTMLDivElement | null>(null);
+  const [previewWidthMm,setPreviewWidthMm]=useState(SIGNAGE_PREVIEW_WIDTH_MM);
+  useEffect(()=>{
+    const stage=previewStageRef.current;if(!stage)return;
+    const resize=()=>{const style=getComputedStyle(stage);const available=stage.clientWidth-parseFloat(style.paddingLeft||'0')-parseFloat(style.paddingRight||'0');setPreviewWidthMm(signagePreviewWidthMm(available));};
+    resize();if(typeof ResizeObserver==='undefined'){window.addEventListener('resize',resize);return()=>window.removeEventListener('resize',resize);}const observer=new ResizeObserver(resize);observer.observe(stage);return()=>observer.disconnect();
+  },[settingsLoading,selectedEventId]);
   const [generatedQr, setGeneratedQr] = useState<{identity: string; url: string} | null>(null);
   const qrIdentity = settings?.qr_config?.enabled ? `${settings.qr_config.event_id}:${events.find(event => event.id === settings.qr_config.event_id)?.slug || ''}` : null;
   const qrDataUrl = qrIdentity && generatedQr?.identity === qrIdentity ? generatedQr.url : null;
@@ -695,7 +703,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
             />
           </div>
           {/* Preview area: extra padding for landscape breathing room */}
-          <div className={`${styles.previewStage} 2xl:col-span-3 w-full min-w-0 max-w-full mx-auto ${
+          <div ref={previewStageRef} className={`${styles.previewStage} 2xl:col-span-3 w-full min-w-0 max-w-full mx-auto ${
             orientation === 'landscape' ? 'px-4 2xl:px-8' : ''
           }`}>
             <div data-signage-history-toolbar role="toolbar" aria-label="Sign design history" className={styles.historyToolbar}>
@@ -711,7 +719,7 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
                 <PinchZoomContainer className="h-full" minScale={1} maxScale={1} initialScale={1} showHint={false}>
                   <InvitationCardPreview
                     fitToContainer
-                    fixedZoomPercent={36}
+                    fixedPreviewWidthMm={previewWidthMm}
                     backgroundFit="cover"
                     paperSize={PRINT_DIMENSIONS[printSize]}
                     documentRef={signDocumentRef}
@@ -738,3 +746,4 @@ export const SignagePage: React.FC<SignagePageProps> = ({ selectedEventId, onEve
     </div>
   );
 };
+

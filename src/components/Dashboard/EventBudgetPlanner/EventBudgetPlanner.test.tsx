@@ -42,7 +42,7 @@ describe('EventBudgetPlanner interface', () => {
     try {
       fireEvent.click(within(preview).getByRole('button', { name: 'Print Budget' }));
       await waitFor(() => expect(mocks.print).toHaveBeenCalledWith(blob,expect.any(Function)));
-      expect(mocks.createPdf).toHaveBeenCalledWith(root);
+      expect(mocks.createPdf).toHaveBeenCalledWith(expect.any(HTMLDivElement));expect(mocks.createPdf.mock.calls[0][0]).not.toBe(root);expect(mocks.print.mock.calls[0][1]).toEqual(expect.any(Function));
       expect(print).not.toHaveBeenCalled();
       expect(root).not.toHaveAttribute('data-budget-print-source');
     } finally {
@@ -227,4 +227,26 @@ describe('EventBudgetPlanner interface', () => {
     expect(screen.getAllByText('Legacy room hire').length).toBeGreaterThan(0);
     expect(screen.getAllByText('Flowers').length).toBeGreaterThan(0);
   });
+});
+
+describe('Budget print lifecycle',()=>{
+ beforeEach(()=>{vi.clearAllMocks();localStorage.clear();mocks.useEventBudget.mockReturnValue(hookValue());mocks.frame.mockReturnValue({print:mocks.print,close:vi.fn()});});
+ it('keeps the active print document connected after the download preview closes and starts only one print job',async()=>{
+  const blob=new Blob(['budget']);mocks.createPdf.mockResolvedValue({output:()=>blob});
+  mocks.print.mockImplementation(async(_blob,isCurrent)=>{expect(isCurrent()).toBe(true);await new Promise(resolve=>setTimeout(resolve,240));expect(isCurrent()).toBe(true)});
+  render(<EventBudgetPlanner event={{id:'event-a',name:'Community Gala'}}/>);
+  fireEvent.click(screen.getByRole('button',{name:'Download PDF',exact:true}));await waitFor(()=>expect(exportEventBudgetPdf).toHaveBeenCalled());
+  const preview=screen.getByRole('dialog');const oldRoot=preview.querySelector('[data-budget-print-document-root]');
+  fireEvent.click(within(preview).getByRole('button',{name:'Print Budget',exact:true}));
+  await waitFor(()=>expect(mocks.print).toHaveBeenCalledTimes(1));
+  expect(mocks.createPdf).toHaveBeenCalledTimes(1);expect(mocks.createPdf.mock.calls[0][0]).not.toBe(oldRoot);
+  await waitFor(()=>expect(screen.getByRole('button',{name:'Print Budget',exact:true})).toBeEnabled());
+  expect(mocks.toast).not.toHaveBeenCalledWith(expect.objectContaining({title:'Print Failed'}));
+ });
+ it('still rejects printing if the user really changes the selected event during PDF generation',async()=>{
+  let finish!:(value:any)=>void;mocks.createPdf.mockImplementation(()=>new Promise(resolve=>{finish=resolve}));mocks.print.mockResolvedValue(undefined);
+  const view=render(<EventBudgetPlanner event={{id:'event-a',name:'First Event'}}/>);fireEvent.click(screen.getByRole('button',{name:'Print Budget',exact:true}));
+  await waitFor(()=>expect(mocks.createPdf).toHaveBeenCalled());view.rerender(<EventBudgetPlanner event={{id:'event-b',name:'Second Event'}}/>);finish({output:()=>new Blob(['budget'])});
+  await waitFor(()=>expect(mocks.toast).toHaveBeenCalledWith(expect.objectContaining({title:'Print Failed'})));expect(mocks.print).not.toHaveBeenCalled();
+ });
 });

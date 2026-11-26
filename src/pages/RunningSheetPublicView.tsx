@@ -696,7 +696,7 @@ export function RunningSheetPublicView() {
         <div className="w-full max-w-[96%] mx-auto px-4 2xl:max-w-[1800px] py-6 text-center">
           <a href="https://www.weddingwaitress.com.au" target="_blank" rel="noopener noreferrer" className="inline-flex flex-col items-center gap-2 hover:opacity-80 transition-opacity">
             <img
-              src="/wedding-waitress-document-footer-dark-brown.png"
+              src="/wedding-waitress-document-footer-print.png"
               alt="Wedding Waitress"
               width={160}
               height={40}

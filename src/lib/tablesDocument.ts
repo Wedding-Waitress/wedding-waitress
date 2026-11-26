@@ -42,7 +42,7 @@ const timeLabel = (value?: string | null) => {
 export async function createTablesDocument({event,tables,guests,generatedAt=new Date()}: TablesDocumentInput, isCurrent=()=>true) {
   await Promise.all([document.fonts.load('400 13px Manrope'),document.fonts.load('600 18px Manrope'),document.fonts.load('600 26px "Wedding Waitress Playfair"')]);
   await document.fonts.ready;
-  const logo = new Image(); logo.src = '/wedding-waitress-document-footer-dark-brown.png'; await logo.decode();
+  const logo = new Image(); logo.src = '/wedding-waitress-document-footer-print.png'; await logo.decode();
   const canvas = document.createElement('canvas'); canvas.width=WIDTH*2; canvas.height=HEIGHT*2;
   const ctx = canvas.getContext('2d'); if(!ctx) throw Error('Unable to prepare the Tables document.');
   const font = (size:number,weight=400,family=FONT) => {ctx.font=`${weight} ${size}px ${family}`;};

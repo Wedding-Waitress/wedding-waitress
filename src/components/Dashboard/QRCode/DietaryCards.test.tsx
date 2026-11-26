@@ -33,7 +33,7 @@ describe('dietary cards', () => {
   it('opens the preview, paginates, and follows realtime guest changes', () => {
     const guests = Array.from({ length: 7 }, (_, i) => guest(i));
     const { rerender } = render(<DietaryCards guests={guests} eventId="event" eventName="Wedding"/>);
-    fireEvent.click(screen.getByRole('button', { name: 'Dietary Cards' }));
+    fireEvent.click(screen.getByRole('button', { name: 'Download Dietary Cards' }));
     expect(screen.getByRole('dialog', { name: 'Dietary Cards' })).toBeTruthy();
     expect(document.querySelectorAll('.ww-dietary-card')).toHaveLength(6);
     fireEvent.click(screen.getByRole('button', { name: 'Next' }));
@@ -47,8 +47,8 @@ describe('dietary cards', () => {
   });
   it('blocks opening for a read-only/disabled context and an empty list', () => {
     const { rerender } = render(<DietaryCards guests={[guest(1)]} eventId="event" eventName="Wedding" disabled/>);
-    expect((screen.getByRole('button', { name: 'Dietary Cards' }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole('button', { name: 'Download Dietary Cards' }) as HTMLButtonElement).disabled).toBe(true);
     rerender(<DietaryCards guests={[]} eventId="event" eventName="Wedding"/>);
-    expect((screen.getByRole('button', { name: 'Dietary Cards' }) as HTMLButtonElement).disabled).toBe(true);
+    expect((screen.getByRole('button', { name: 'Download Dietary Cards' }) as HTMLButtonElement).disabled).toBe(true);
   });
 });

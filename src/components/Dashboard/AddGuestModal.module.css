@@ -163,3 +163,7 @@
  .actionFooter.actionFooter button { position:relative; }
  .actionFooter.actionFooter button::after { content:''; position:absolute; inset:-7px 0; }
 }
+
+:global(body) :global(.ww-edit-guest-panel.ww-guest-list-drawer) input.customDietaryInput::placeholder {
+  color:#8b8074 !important; -webkit-text-fill-color:#8b8074 !important; opacity:.7 !important; font-weight:400 !important;
+}

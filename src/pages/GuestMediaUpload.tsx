@@ -695,7 +695,7 @@ export const GuestMediaUpload: React.FC = () => {
 
 
         {current === 'gallery' && token && (
-          <GuestBrowseGallery token={token} theme={lowerTheme} accent={accent} refreshKey={galleryRefresh} eventName={gallery.event_name} />
+          <GuestBrowseGallery token={token} theme={lowerTheme} accent={accent} refreshKey={galleryRefresh} eventName={gallery.event_name} eventDate={gallery.event_date} />
         )}
 
         {current === 'booth' && token && (

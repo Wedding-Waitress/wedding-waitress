@@ -8,7 +8,7 @@ import { A4_MM, A4_PX } from '@/lib/a4';
 
 import styles from './ReceptionFloorPlanA4.module.css';
 
-const logo = '/wedding-waitress-document-footer-dark-brown.png';
+const logo = '/wedding-waitress-document-footer-print.png';
 
 export const RECEPTION_A4 = {
   widthMm: A4_MM.height,

@@ -346,7 +346,7 @@ export const IndividualTableChartPrintPage: React.FC<IndividualTableChartPrintPa
         <footer data-footer-layout="three-column" data-footer-alignment="single-line-centred" style={{ display: 'grid', gridTemplateColumns: '1fr auto 1fr', alignItems: 'center', minHeight: '12mm', color: '#000', fontSize: '8pt', lineHeight: 1 }}>
           <div data-footer-generated="true" style={{ justifySelf: 'start', alignSelf: 'center', whiteSpace: 'nowrap', fontSize: '8pt' }}>Generated: {getFooterTimestamp()}</div>
           {settings.showLogo
-            ? <img src="/wedding-waitress-document-footer-dark-brown.png" alt="Wedding Waitress" style={{ width: '36mm', height: '10mm', alignSelf: 'center', objectFit: 'contain' }} />
+            ? <img src="/wedding-waitress-document-footer-print.png" alt="Wedding Waitress" style={{ width: '36mm', height: '10mm', alignSelf: 'center', objectFit: 'contain' }} />
             : <div style={{ width: '36mm', height: '10mm' }} />}
           <div data-footer-page-number="true" style={{ justifySelf: 'end', alignSelf: 'center', whiteSpace: 'nowrap', fontSize: '8pt' }}>Page {currentTableIndex} of {totalTables}</div>
         </footer>

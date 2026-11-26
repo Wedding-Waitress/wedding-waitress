@@ -495,7 +495,7 @@ export const FullSeatingChartPreview = forwardRef<FullSeatingChartPreviewHandle,
             }}>
               <div data-footer-generated="true" style={{ justifySelf: 'start', whiteSpace: 'nowrap' }}>Generated: {formatGeneratedTimestamp()}</div>
               {settings.showLogo
-                ? <img src="/wedding-waitress-document-footer-dark-brown.png" alt="Wedding Waitress" style={{ width: '36mm', height: '10mm', objectFit: 'contain' }} />
+                ? <img src="/wedding-waitress-document-footer-print.png" alt="Wedding Waitress" style={{ width: '36mm', height: '10mm', objectFit: 'contain' }} />
                 : <div style={{ width: '36mm', height: '10mm' }} />}
               <div data-footer-page-number="true" style={{ justifySelf: 'end', whiteSpace: 'nowrap' }}>Page {currentPage} of {totalPages}</div>
             </div>

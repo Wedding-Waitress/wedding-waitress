@@ -92,7 +92,10 @@ export const EventBudgetPlannerView: React.FC<{event:BudgetPlannerEvent;exportTa
   const [generatedAt, setGeneratedAt] = React.useState(() => new Date());
   const addButtonRef = React.useRef<HTMLButtonElement>(null);
   const drawerReturnRef = React.useRef<HTMLButtonElement>(null);
-  const [printRoot, setPrintRoot] = React.useState<HTMLDivElement | null>(null);
+  const [previewRoot, setPreviewRoot] = React.useState<HTMLDivElement | null>(null);
+  const [directPrintRoot, setDirectPrintRoot] = React.useState<HTMLDivElement | null>(null);
+  const printRoot = pendingPrintAction === 'print' ? directPrintRoot : previewRoot;
+  const printJobLock = React.useRef(false);
 
   React.useEffect(() => {
     const resolvedCurrency = resolveEventBudgetCurrency(data.settings?.currency);
@@ -172,10 +175,11 @@ export const EventBudgetPlannerView: React.FC<{event:BudgetPlannerEvent;exportTa
   };
 
   const printEvent = React.useRef(event.id); printEvent.current = event.id;
-  const requestPrintAction = (action: 'print' | 'download') => { if(exporting)return; setGeneratedAt(new Date()); setPendingPrintAction(action); setPrintOpen(true); };
+  const requestPrintAction = (action: 'print' | 'download') => { if(exporting||printJobLock.current)return; setGeneratedAt(new Date()); setPendingPrintAction(action); setPrintOpen(true); };
   React.useEffect(() => {
-    if (!printOpen || !pendingPrintAction || !printRoot) return;
+    if (!printOpen || !pendingPrintAction || !printRoot?.isConnected) return;
     const timer = window.setTimeout(async () => {
+      if(printJobLock.current)return;printJobLock.current=true;
       const id=event.id,isCurrent=()=>printEvent.current===id&&printRoot.isConnected;
       let job:PdfPrintJob|undefined;
       setExporting(true);
@@ -187,7 +191,7 @@ export const EventBudgetPlannerView: React.FC<{event:BudgetPlannerEvent;exportTa
           await job.print(pdf.output('blob'),isCurrent);
         } else await exportEventBudgetPdf(printRoot,event.name);
       } catch(error){job?.close();toast({title:pendingPrintAction==='print'?'Print Failed':'PDF export failed',description:error instanceof Error?error.message:'Please try again.',variant:'destructive'});}
-      finally{setExporting(false);if(pendingPrintAction==='print')setPrintOpen(false);setPendingPrintAction(null);}
+      finally{printJobLock.current=false;setExporting(false);if(pendingPrintAction==='print')setPrintOpen(false);setPendingPrintAction(null);}
     }, 80);
     return () => window.clearTimeout(timer);
   }, [event.id, event.name, pendingPrintAction, printOpen, printRoot, toast]);
@@ -284,12 +288,12 @@ export const EventBudgetPlannerView: React.FC<{event:BudgetPlannerEvent;exportTa
 
 
     {printOpen && pendingPrintAction==='print' && createPortal(<div aria-hidden="true" style={{position:'fixed',left:-100000,top:0,width:1123,pointerEvents:'none'}}>
-      <EventBudgetPrintDocument ref={setPrintRoot} eventName={event.name} eventDate={event.date} currency={currency} expenses={data.expenses} summary={summary} generatedAt={generatedAt} />
+      <EventBudgetPrintDocument ref={setDirectPrintRoot} eventName={event.name} eventDate={event.date} currency={currency} expenses={data.expenses} summary={summary} generatedAt={generatedAt} />
     </div>,document.body)}
     <Dialog open={printOpen && pendingPrintAction!=='print'} onOpenChange={setPrintOpen}><DialogContent className={styles.printDialog} data-budget-print-preview>
       <DialogHeader><DialogTitle>Event Budget Planner Preview</DialogTitle><DialogDescription>This authoritative A4 landscape preview is used for both browser print and PDF.</DialogDescription></DialogHeader>
       <div className={styles.printDialogActions}><button className={styles.secondaryButton} onClick={() => requestPrintAction('print')} disabled={exporting}>{exporting && pendingPrintAction==='print'?<LoaderCircle size={16} className="animate-spin"/>:<Printer size={16}/>}Print Budget</button><button className={styles.successButton} onClick={() => requestPrintAction('download')} disabled={exporting}><Download size={16} />{exporting && pendingPrintAction==='download' ? 'Preparing PDF…' : 'Download PDF'}</button></div>
-      <div className={styles.printViewport} data-budget-print-viewport><EventBudgetPrintDocument ref={setPrintRoot} eventName={event.name} eventDate={event.date} currency={currency} expenses={data.expenses} summary={summary} generatedAt={generatedAt} /></div>
+      <div className={styles.printViewport} data-budget-print-viewport><EventBudgetPrintDocument ref={setPreviewRoot} eventName={event.name} eventDate={event.date} currency={currency} expenses={data.expenses} summary={summary} generatedAt={generatedAt} /></div>
     </DialogContent></Dialog>
   </section>;
 };

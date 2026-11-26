@@ -437,25 +437,33 @@ export function useEventMediaGallery(eventId: string | null, options: { loadItem
 
 
 
-  const setSlideshowEnabled = useCallback(async (enabled: boolean) => {
-    if (!eventId) return;
-    setMeta(m => m ? { ...m, slideshow_enabled: enabled } : m);
-    const { error: err } = await (supabase as any).rpc('set_event_media_slideshow', { _event_id: eventId, _enabled: enabled });
-    if (err) {
-      setMeta(m => m ? { ...m, slideshow_enabled: !enabled } : m);
-      throw new Error(err.message || 'Failed to update Live Slideshow');
+  // Table policies check event access and account status, including authorised admins.
+  // Legacy switch RPCs incorrectly restrict saves to the actor's account owner.
+  const saveGuestSwitch = useCallback(async (
+    feature: 'photo_booth_enabled' | 'slideshow_enabled' | 'guest_upload_enabled' | 'gallery_view_enabled' | 'guestbook_text_enabled',
+    enabled: boolean,
+  ) => {
+    if (!eventId) throw new Error('Choose an event before updating its guest features.');
+    const { data, error: err } = await supabase.from('event_media_galleries')
+      .update({ [feature]: enabled, updated_at: new Date().toISOString() })
+      .eq('event_id', eventId)
+      .select(feature)
+      .maybeSingle();
+    if (err) throw new Error(err.message || 'Failed to update guest feature');
+    if (!data) throw new Error('This gallery is unavailable or your account cannot edit this event. Refresh and check your event access.');
+    if ((data as unknown as Record<string, boolean>)[feature] !== enabled) {
+      throw new Error('The guest feature could not be saved. Please refresh and try again.');
     }
+    setMeta(m => m ? { ...m, [feature]: enabled } : m);
   }, [eventId, setMeta]);
 
+  const setSlideshowEnabled = useCallback(async (enabled: boolean) => {
+    await saveGuestSwitch('slideshow_enabled', enabled);
+  }, [saveGuestSwitch]);
+
   const setPhotoBoothEnabled = useCallback(async (enabled: boolean) => {
-    if (!eventId) return;
-    setMeta(m => m ? { ...m, photo_booth_enabled: enabled } : m);
-    const { error: err } = await (supabase as any).rpc('set_event_media_photo_booth', { _event_id: eventId, _enabled: enabled });
-    if (err) {
-      setMeta(m => m ? { ...m, photo_booth_enabled: !enabled } : m);
-      throw new Error(err.message || 'Failed to update Photo Booth');
-    }
-  }, [eventId, setMeta]);
+    await saveGuestSwitch('photo_booth_enabled', enabled);
+  }, [saveGuestSwitch]);
 
   const setPhotoBoothMode = useCallback(async (mode: 'single' | 'strip') => {
     if (!eventId) return;
@@ -509,16 +517,8 @@ export function useEventMediaGallery(eventId: string | null, options: { loadItem
     feature: 'guest_upload_enabled' | 'gallery_view_enabled' | 'guestbook_text_enabled',
     enabled: boolean,
   ) => {
-    if (!eventId) return;
-    setMeta(m => m ? { ...m, [feature]: enabled } : m);
-    const { error: err } = await (supabase as any).rpc('set_event_media_guest_feature', {
-      _event_id: eventId, _feature: feature, _enabled: enabled,
-    });
-    if (err) {
-      setMeta(m => m ? { ...m, [feature]: !enabled } : m);
-      throw new Error(err.message || 'Failed to update feature');
-    }
-  }, [eventId, setMeta]);
+    await saveGuestSwitch(feature, enabled);
+  }, [saveGuestSwitch]);
 
   const updateSlideshowSettings = useCallback(async (s: SlideshowSettings) => {
     if (!eventId) return;

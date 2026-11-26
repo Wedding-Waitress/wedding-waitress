@@ -9,7 +9,7 @@ import { Button } from '@/components/ui/enhanced-button';
 import { Input } from '@/components/ui/input';
 import { Checkbox } from '@/components/ui/checkbox';
 import { Select, SelectContent, SelectItem, SelectTrigger, SelectValue } from '@/components/ui/select';
-import { Dialog, DialogContent, DialogHeader, DialogTitle } from '@/components/ui/dialog';
+import { Dialog, DialogContent, DialogHeader, DialogTitle, DialogDescription } from '@/components/ui/dialog';
 import {
   MessageSquareText, Mic2, Video, Play, Search, Download, RotateCcw,
   LoaderCircle, TriangleAlert,
@@ -20,6 +20,7 @@ import { downloadSignedUrl, filenameFor } from './galleryFile';
 import { guestbookRecordings } from '@/lib/mediaPrivacy';
 import { GuestbookDownloadAllButton } from './GuestbookDownloadAllButton';
 
+import { GuestbookMessageCardPreview } from './GuestbookMessageCardPreview';
 import { downloadGuestbookMessagePdf } from '@/lib/guestbookMessagePdf';
 import type { GalleryItem } from '@/hooks/useEventMediaGallery';
 import { cn } from '@/lib/utils';
@@ -457,18 +458,11 @@ export const GalleryGuestbookMessagesCard: React.FC<Props> = ({
         </ul>
       )}
 
-      {/* Written message dialog */}
+      {/* The readable keepsake preview uses the same renderer as the download. */}
       <Dialog open={!!openText} onOpenChange={(o) => !o && setOpenText(null)}>
-        <DialogContent className={cn('max-w-lg', isGlass && managementStyles.guestbookDialog)}>
-          <DialogHeader>
-            <DialogTitle className={cn('break-words text-left', isGlass && managementStyles.galleryViewHeading)}>{openText?.name || 'Anonymous guest'}</DialogTitle>
-          </DialogHeader>
-          {openText && (
-            <div className="space-y-3">
-              <p className={cn('text-xs text-[#6E6E73]', isGlass && managementStyles.gallerySecondaryText)}>{fmtDate(openText.at)}</p>
-              <p className={cn('text-sm text-[#1D1D1F] whitespace-pre-wrap break-words', isGlass && managementStyles.galleryViewHeading)}>{openText.message}</p>
-            </div>
-          )}
+        <DialogContent className={managementStyles.guestbookKeepsakeDialog}>
+          <DialogHeader className="sr-only"><DialogTitle>{openText?.name || 'Anonymous guest'}</DialogTitle><DialogDescription>Guestbook message card preview</DialogDescription></DialogHeader>
+          {openText && <GuestbookMessageCardPreview message={{name:openText.name,message:openText.message,seq:openText.seq,at:openText.at}} event={{name:eventName,date:eventDate}}/>}
         </DialogContent>
       </Dialog>
 

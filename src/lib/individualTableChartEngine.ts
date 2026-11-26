@@ -16,6 +16,7 @@ import { individualChartCapacityError } from './individualTableChartValidation';
 import { createRoot } from 'react-dom/client';
 import jsPDF from 'jspdf';
 import { captureIndividualTableChart } from './individualTableChartCapture';
+import { addIndividualChartPageImage } from './individualChartPng';
 import { Guest } from '@/hooks/useGuests';
 import { TableWithGuestCount } from '@/hooks/useTables';
 import { IndividualChartSettings } from '@/components/Dashboard/IndividualTableChart/IndividualTableSeatingChartPage';
@@ -24,7 +25,7 @@ import { A4_MM, A4_PAGE_STYLE, A4_PX } from './a4';
 import { format } from 'date-fns';
 import { escapeHtml } from './security/escapeHtml';
 import { getRelationDisplayText } from './relationUtils';
-const weddingWaitressLogoFull = '/wedding-waitress-document-footer-dark-brown.png';
+const weddingWaitressLogoFull = '/wedding-waitress-document-footer-print.png';
 
 const createPrintPageContainer = (): HTMLDivElement => {
   const container = document.createElement('div');
@@ -92,7 +93,7 @@ const renderPrintPageToCanvas = async (
     }
 
     await waitForImagesToLoad(container);
-    await new Promise((resolve) => setTimeout(resolve, 200));
+    // Fonts and images are ready; do not add an arbitrary delay for every table.
 
     const page = container.querySelector<HTMLElement>('[data-individual-table-chart-page]');
     if (!page) throw new Error('The table chart is not ready');
@@ -127,8 +128,8 @@ export const generateIndividualTableChartPDF = async (
     format: [A4_MM.width, A4_MM.height],
   });
 
-  const imgData = canvas.toDataURL('image/png');
-  pdf.addImage(imgData, 'PNG', 0, 0, A4_MM.width, A4_MM.height);
+  try { await addIndividualChartPageImage(pdf, canvas, A4_MM.width, A4_MM.height); }
+  finally { canvas.width = 0; canvas.height = 0; }
 
   return pdf.output('blob');
 };
@@ -192,8 +193,8 @@ export const generateAllTablesChartPDF = async (
       pdf.addPage();
     }
 
-    const imgData = canvas.toDataURL('image/png');
-    pdf.addImage(imgData, 'PNG', 0, 0, A4_MM.width, A4_MM.height);
+    try { await addIndividualChartPageImage(pdf, canvas, A4_MM.width, A4_MM.height); }
+    finally { canvas.width = 0; canvas.height = 0; }
   }
 
   return pdf.output('blob');

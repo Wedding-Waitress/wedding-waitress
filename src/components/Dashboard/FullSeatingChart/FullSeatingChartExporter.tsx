@@ -342,7 +342,7 @@ export const FullSeatingChartExporter: React.FC<FullSeatingChartExporterProps> =
         for (let pageNum = 1; pageNum <= totalPagesCount; pageNum++) {
           pdf.setPage(pageNum);
           try {
-            const logoUrl = '/wedding-waitress-document-footer-dark-brown.png';
+            const logoUrl = '/wedding-waitress-document-footer-print.png';
             const logoH = 10.5;
             const logoW = 35;
             const footerY = pageHeight - margin - logoH; // 10mm from bottom

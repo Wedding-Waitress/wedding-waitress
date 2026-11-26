@@ -1,6 +1,7 @@
 import React, { useLayoutEffect, useMemo, useRef, useState } from 'react';
 import { createPortal, flushSync } from 'react-dom';
-import { FileDown, Files } from 'lucide-react';
+import { FileDown, Files, Printer } from 'lucide-react';
+import { openPdfPrintFrame, type PdfPrintJob } from '@/lib/pdfPrint';
 import { savePdfAsync } from '@/lib/pdfExportUtils';
 import { createDietaryCardsPdf } from '@/lib/dietaryCardsPdfExporter';
 import css from './DietaryCards.css?inline';
@@ -39,12 +40,12 @@ export function DietaryCardsSheet({ guests, eventName, pageIndex, totalPages, sh
         const dietary = face.querySelector<HTMLElement>('.ww-dietary-card-dietary')!;
         const name = face.querySelector<HTMLElement>('.ww-dietary-card-name')!;
         let size = 19;
-        dietary.style.fontSize = `${size}pt`; name.style.fontSize = '13pt';
+        dietary.style.fontSize = `${size}pt`; name.style.fontSize = '14pt';
         // Reserve room for the heading's one-line upward offset on both faces.
         const available = () => face.clientHeight - 6 * 96 / 25.4 - 2 * parseFloat(getComputedStyle(dietary).fontSize) * 1.12;
         while (content.offsetHeight > available() + 1 && size > 9) {
           size -= .5; dietary.style.fontSize = `${size}pt`;
-          name.style.fontSize = `${Math.max(8, 13 - (19 - size) / 3)}pt`;
+          name.style.fontSize = `${Math.max(8, 14 - (19 - size) / 3)}pt`;
         }
         overflow ||= content.offsetHeight > available() + 1;
       });
@@ -74,6 +75,7 @@ export function DietaryCards({ guests, eventId, eventName, disabled = false }: {
 }) {
   const [open, setOpen] = useState(false), [pageIndex, setPageIndex] = useState(0);
   const [exporting, setExporting] = useState(false), [overflow, setOverflow] = useState(false);
+  const [outputAction, setOutputAction] = useState<'download' | 'print' | null>(null);
   const [error, setError] = useState(''), [scale, setScale] = useState(.75);
   const dialogRef = useRef<HTMLDialogElement>(null), sheetRef = useRef<HTMLDivElement>(null), stageRef = useRef<HTMLDivElement>(null);
   const busyRef = useRef(false), triggerRef = useRef<HTMLButtonElement>(null);
@@ -97,24 +99,27 @@ export function DietaryCards({ guests, eventId, eventName, disabled = false }: {
     flushSync(() => setPageIndex(index));
     await new Promise<void>(resolve => requestAnimationFrame(() => requestAnimationFrame(() => resolve())));
   };
-  const download = async () => {
+  const outputCards = async (action: 'download' | 'print') => {
     if (busyRef.current || disabled || !pages.length || overflow) return;
-    busyRef.current = true; setExporting(true); setError('');
+    busyRef.current = true; setExporting(true); setOutputAction(action); setError('');
     const snapshot = currentContext.current, originalPage = currentPage;
-    const assertContext = () => { if (snapshot !== currentContext.current) throw new Error('The guest list changed while preparing the cards. Please download them again.'); };
+    const assertContext = () => { if (snapshot !== currentContext.current) throw new Error('The guest list changed while preparing the cards. Please prepare them again.'); };
+    let printJob: PdfPrintJob | undefined;
     try {
+      if (action === 'print') printJob = openPdfPrintFrame({ paper: 'a4-portrait' });
       const pdf = await createDietaryCardsPdf({ getSheet: () => sheetRef.current, showPage, currentPage: originalPage, totalPages: pages.length, assertContext });
       assertContext();
       const safeName = eventName.replace(/[/:*?"<>|\\]/g, '').trim() || 'Wedding';
-      await savePdfAsync(pdf, `${safeName}-Dietary Cards-A4.pdf`);
-    } catch (reason) { setError(reason instanceof Error ? reason.message : 'The cards could not be downloaded. Please try again.'); }
-    finally { busyRef.current = false; setExporting(false); }
+      if (printJob) await printJob.print(pdf.output('blob'), () => snapshot === currentContext.current);
+      else await savePdfAsync(pdf, `${safeName}-Dietary Cards-A4.pdf`);
+    } catch (reason) { setError(reason instanceof Error ? reason.message : 'The cards could not be prepared. Please try again.'); }
+    finally { printJob?.close(); busyRef.current = false; setExporting(false); setOutputAction(null); }
   };
   const close = () => { if (!busyRef.current) setOpen(false); };
   return <>
     <style>{css}</style>
-    <button ref={triggerRef} type="button" className="ww-dietary-cards-action" disabled={disabled || !pages.length} onClick={() => { setPageIndex(0); setError(''); setOpen(true); }}>
-      <Files strokeWidth={1.8} aria-hidden="true"/><span>Dietary Cards</span>
+    <button ref={triggerRef} type="button" className="ww-dietary-cards-action ww-dietary-cards-download-trigger" disabled={disabled || !pages.length} onClick={() => { setPageIndex(0); setError(''); setOpen(true); }}>
+      <Files strokeWidth={1.8} aria-hidden="true"/><span>Download Dietary Cards</span>
     </button>
     {open && createPortal(<dialog ref={dialogRef} className="ww-dietary-cards-dialog" aria-labelledby="ww-dietary-cards-title" aria-describedby="ww-dietary-cards-description" onCancel={event => { event.preventDefault(); close(); }} onClick={event => { if (event.target === event.currentTarget) { const r = event.currentTarget.getBoundingClientRect(); if (event.clientX < r.left || event.clientX > r.right || event.clientY < r.top || event.clientY > r.bottom) close(); } }}>
       <div className="ww-dietary-cards-heading"><div><h2 id="ww-dietary-cards-title">Dietary Cards</h2><p>{eventName} · {guests.length} guest{guests.length !== 1 ? 's' : ''}</p></div><button autoFocus type="button" className="ww-dietary-cards-close" disabled={exporting} onClick={close}>Close</button></div>
@@ -122,7 +127,7 @@ export function DietaryCards({ guests, eventId, eventName, disabled = false }: {
         <button type="button" disabled={exporting || currentPage === 0} onClick={() => setPageIndex(currentPage - 1)}>Previous</button>
         <span aria-live="polite">Sheet {pages.length ? currentPage + 1 : 0} of {pages.length}</span>
         <button type="button" disabled={exporting || currentPage + 1 >= pages.length} onClick={() => setPageIndex(currentPage + 1)}>Next</button>
-      </div><button type="button" className="ww-dietary-cards-action" disabled={disabled || exporting || overflow || !pages.length} onClick={() => void download()}><FileDown strokeWidth={1.8} aria-hidden="true"/><span>{exporting ? 'Preparing cards…' : 'Download Cards PDF'}</span></button></div>
+      </div><div className="ww-dietary-cards-output-actions"><button type="button" className="ww-dietary-cards-action" disabled={disabled || exporting || overflow || !pages.length} onClick={() => void outputCards('print')}><Printer strokeWidth={1.8} aria-hidden="true"/><span>{outputAction === 'print' ? 'Preparing print…' : 'Print Cards'}</span></button><button type="button" className="ww-dietary-cards-action" disabled={disabled || exporting || overflow || !pages.length} onClick={() => void outputCards('download')}><FileDown strokeWidth={1.8} aria-hidden="true"/><span>{outputAction === 'download' ? 'Preparing cards…' : 'Download Cards PDF'}</span></button></div></div>
       <p id="ww-dietary-cards-description" className="ww-dietary-cards-help">A4 portrait (210 × 297 mm) · Six cards per sheet · Full card 105 × 99 mm · Folded size 105 × 49.5 mm, matching Name Place Cards.<br/>Cut along the solid lines between cards. Fold each card along its dashed centre. Print at 100% / Actual size. Guest details update automatically from your Guest List.</p>
       {(error || overflow) && <p role="alert" className="ww-dietary-cards-error">{error || 'A highlighted card has more text than will fit. Review its guest details in the Guest List before downloading; dietary information is never cut off.'}</p>}
       <div ref={stageRef} className="ww-dietary-cards-stage" aria-busy={exporting}>

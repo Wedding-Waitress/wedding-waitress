@@ -125,7 +125,7 @@ const hexToRgb = (hex: FullSeatingChartColor) => ({
 // Load logo image as base64
 const loadLogoAsBase64 = async (): Promise<string | null> => {
   try {
-    const response = await fetch('/wedding-waitress-document-footer-dark-brown.png');
+    const response = await fetch('/wedding-waitress-document-footer-print.png');
     const blob = await response.blob();
     return new Promise((resolve, reject) => {
       const reader = new FileReader();

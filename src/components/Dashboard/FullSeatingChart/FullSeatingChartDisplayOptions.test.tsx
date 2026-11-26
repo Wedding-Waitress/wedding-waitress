@@ -48,7 +48,7 @@ describe('Full Seating Chart display controls', () => {
     rerender(<FullSeatingChartPreview event={event} guests={[guest] as any} settings={settings} />);
     expect(container.querySelector('[data-guest-name-text="true"]')).toHaveStyle({ color: '#C62828' });
     expect(container.querySelector('svg circle')).toHaveAttribute('stroke', '#000000');
-    expect(container.querySelector('img[alt="Wedding Waitress"]')).toHaveAttribute('src', '/wedding-waitress-document-footer-dark-brown.png');
+    expect(container.querySelector('img[alt="Wedding Waitress"]')).toHaveAttribute('src', '/wedding-waitress-document-footer-print.png');
   });
 
   it('renders four ordered rows with seven independent colour choices and toggles', () => {

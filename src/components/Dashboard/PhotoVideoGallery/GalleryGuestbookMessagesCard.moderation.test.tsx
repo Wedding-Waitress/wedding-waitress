@@ -46,14 +46,14 @@ it('places the remaining actions after sorting and cannot retain a historical gu
  for(const label of ['Written Messages (3)','Audio Messages (2)','Video Messages (2)'])expect(screen.getByRole('button',{name:label}).querySelector('svg')).not.toBeNull();
  expect(screen.getByRole('combobox',{name:'Sort messages'}).compareDocumentPosition(actions)&Node.DOCUMENT_POSITION_FOLLOWING).toBeTruthy();
  expect(state.moderate).not.toHaveBeenCalled();
-});it('shows complete short and long written text without square previews, while preserving recording previews',async()=>{
+});it('keeps short and long written previews compact and opens the complete message, while preserving recording previews',async()=>{
  const long='A long guest message with several happy memories, thoughtful wishes, and stories from the day. '.repeat(18)+'Final words remain visible.';
  state.rows.push({id:'long-note',uploader_name:'Long Note',message:long,moderation_status:'approved',created_at:'2026-11-14T10:00:00Z',guestbook_seq:3});
  try {
   const view=page();const short=await screen.findByRole('button',{name:'Read message from Written Approved'});
   const lengthy=screen.getByRole('button',{name:'Read message from Long Note'});
   expect(short).not.toHaveClass('aspect-square');expect(lengthy).toHaveTextContent(long);
-  expect(lengthy.querySelector('span')).not.toHaveClass('line-clamp-6');
+  expect(lengthy.querySelector('span')?.className).toContain('guestbookWrittenText'); fireEvent.click(lengthy); await waitFor(()=>expect(within(screen.getByRole('dialog')).getAllByText(long).length).toBeGreaterThan(0)); fireEvent.click(within(screen.getByRole('dialog')).getByRole('button',{name:'Exit'}));
   expect(view.container.querySelector('[data-guestbook-written-grid="compact"]')).not.toBeNull();
   fireEvent.click(screen.getByRole('button',{name:'Audio Messages (2)'}));
   expect(screen.getByRole('button',{name:'Play recording from Audio Approved'})).toHaveClass('aspect-square');
@@ -61,4 +61,6 @@ it('places the remaining actions after sorting and cannot retain a historical gu
   expect(screen.getByRole('button',{name:'Play recording from Video Approved'})).toHaveClass('aspect-square');
  } finally {state.rows.pop();}
 });
+
+
 

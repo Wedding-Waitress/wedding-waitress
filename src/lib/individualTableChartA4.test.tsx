@@ -177,7 +177,7 @@ describe('individual table chart A4 architecture', () => {
     expect(markup).toContain('font-weight:700');
     expect(markup).toContain('font-style:italic');
     expect(markup).toContain('text-decoration:underline');
-    expect(markup).toContain('src="/wedding-waitress-document-footer-dark-brown.png"');
+    expect(markup).toContain('src="/wedding-waitress-document-footer-print.png"');
     expect(markup).not.toContain('filter:grayscale');
     expect(markup).toContain('data-footer-layout="three-column"');
     expect(markup).toContain('data-footer-alignment="single-line-centred"');

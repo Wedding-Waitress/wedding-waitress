@@ -12,6 +12,7 @@ import { galleryPasswordKey } from '@/components/Dashboard/PhotoVideoGallery/Gal
 import type { GalleryTheme } from '@/lib/galleryTheme';
 import { categoryOf, isPublicGalleryMedia } from '@/lib/mediaPrivacy';
 import { orderPhotoBoothItems } from '@/lib/photoBoothSessions';
+import { GuestbookMessageCardPreview } from './GuestbookMessageCardPreview';
 
 export interface BrowseItem {
   id: string;
@@ -57,9 +58,10 @@ interface Props {
   refreshKey?: number;
   /** Event name used for customer-friendly shared-photo download filenames. */
   eventName?: string | null;
+  eventDate?: string | null;
 }
 
-export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refreshKey = 0, eventName }) => {
+export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refreshKey = 0, eventName, eventDate }) => {
   const [items, setItems] = useState<BrowseItem[]>([]);
   const [loading, setLoading] = useState(true);
   const [error, setError] = useState<string | null>(null);
@@ -72,7 +74,7 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
   const mounted = useRef(true);
   const lightboxRef = useRef<HTMLDivElement | null>(null);
 
-  useEffect(() => () => { mounted.current = false; }, []);
+  useEffect(() => { mounted.current = true; return () => { mounted.current = false; }; }, []);
 
   // Only an authenticated organiser sees the delete control (the RPC also enforces ownership).
   useEffect(() => {
@@ -179,6 +181,11 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
     if (!current) return;
     const url = current.signed_url;
     try {
+      if (current.source_category === 'guestbook_text') {
+        if (navigator.share) await navigator.share({ title: eventName || 'Shared memory', text: current.caption || undefined });
+        else await navigator.clipboard.writeText(current.caption || '');
+        return;
+      }
       if (navigator.share) {
         await navigator.share({ title: 'Shared memory', text: current.caption || undefined, url });
       } else {
@@ -187,8 +194,13 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
     } catch { /* cancelled */ }
   };
 
-  const downloadCurrent = () => {
+  const downloadCurrent = async () => {
     if (!current) return;
+    if (current.source_category === 'guestbook_text') {
+      const { downloadGuestbookMessagePdf } = await import('@/lib/guestbookMessagePdf');
+      await downloadGuestbookMessagePdf({ name: current.uploader_name, message: current.caption || '', at: current.uploaded_at }, { name: eventName, date: eventDate });
+      return;
+    }
     const shared = sharedMediaFilename(current as any, eventName);
     if (shared) {
       downloadSignedUrl(current.signed_url, shared);
@@ -267,7 +279,9 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
                 onKeyDown={(e) => { if (e.key === 'Enter' || e.key === ' ') { e.preventDefault(); openAt(i); } }}
                 className={`relative aspect-square w-full overflow-hidden rounded-xl border cursor-pointer group ${theme.isDark ? 'border-white/10 bg-white/5' : 'border-[#E8E1D6] bg-[#F6F1E9]'}`}
               >
-                {it.kind === 'audio' ? <span className="flex h-full items-center justify-center text-white">▶ Audio message</span> : it.kind === 'video' ? (
+                {it.source_category === 'guestbook_text' ? (
+                  <GuestbookMessageCardPreview message={{name:it.uploader_name,message:it.caption || ''}} event={{name:eventName,date:eventDate}} firstPageOnly className="h-full items-center justify-center bg-[#faf6ef]" imageClassName="block w-full h-full min-h-0 object-contain"/>
+                ) : it.kind === 'audio' ? <span className="flex h-full items-center justify-center text-white">▶ Audio message</span> : it.kind === 'video' ? (
                   <>
                     <video
                       src={`${it.signed_url}#t=0.1`}
@@ -298,7 +312,11 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
       {current && createPortal(
         <div ref={lightboxRef} className="fixed inset-0 z-[100] bg-black" role="dialog" aria-modal="true">
           {/* Full-bleed media */}
-          {current.kind === 'audio' ? <audio src={current.signed_url} controls autoPlay onEnded={() => { if(slideshow) step(1); }} className="absolute top-1/2 left-[10%] w-[80%]" /> : current.kind === 'video' ? (
+          {current.source_category === 'guestbook_text' ? (
+            <div className="absolute inset-x-0 top-16 bottom-20 overflow-y-auto flex justify-center">
+              <GuestbookMessageCardPreview message={{name:current.uploader_name,message:current.caption || ''}} event={{name:eventName,date:eventDate}} className="my-auto flex-shrink-0 w-[min(100%,calc(66.6667dvh_-_96px))]" imageClassName="block w-full h-auto" />
+            </div>
+          ) : current.kind === 'audio' ? <audio src={current.signed_url} controls autoPlay onEnded={() => { if(slideshow) step(1); }} className="absolute top-1/2 left-[10%] w-[80%]" /> : current.kind === 'video' ? (
             <video
               key={current.id}
               src={current.signed_url}
@@ -383,12 +401,12 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
 
 
           {items.length > 1 && (
-            <>
+            <div className="absolute inset-x-0 bottom-6 z-20 flex justify-center gap-5">
               <button
                 type="button"
                 aria-label="Previous"
                 onClick={() => step(-1)}
-                className="absolute left-1/2 bottom-6 -translate-x-[calc(50%+34px)] z-20 h-12 w-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
+                className="h-12 w-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
               >
                 <ChevronLeft className="h-6 w-6" />
               </button>
@@ -396,18 +414,18 @@ export const GuestBrowseGallery: React.FC<Props> = ({ token, theme, accent, refr
                 type="button"
                 aria-label="Next"
                 onClick={() => step(1)}
-                className="absolute left-1/2 bottom-6 translate-x-[calc(-50%+34px)] z-20 h-12 w-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
+                className="h-12 w-12 flex items-center justify-center rounded-full bg-black/40 hover:bg-black/60 text-white"
               >
                 <ChevronRight className="h-6 w-6" />
               </button>
-            </>
+            </div>
           )}
 
           {/* Caption overlay */}
-          <div className="absolute bottom-0 inset-x-0 z-10 px-5 pb-20 sm:pb-24 pt-10 text-center text-white bg-gradient-to-t from-black/70 to-transparent pointer-events-none">
+          {current.source_category !== 'guestbook_text' && <div className="absolute bottom-0 inset-x-0 z-10 px-5 pb-20 sm:pb-24 pt-10 text-center text-white bg-gradient-to-t from-black/70 to-transparent pointer-events-none">
             {current.caption && <p className="text-sm mb-1.5 text-white/90">{current.caption}</p>}
             <p className="text-sm">Shared by {fullNameOf(current.uploader_name)}</p>
-          </div>
+          </div>}
 
           {confirmDelete && (
             <div className="absolute inset-0 z-30 bg-black/80 flex items-center justify-center p-5">

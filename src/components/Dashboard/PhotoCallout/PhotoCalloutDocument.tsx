@@ -29,7 +29,7 @@ export function PhotoCalloutDocument({cards:inputCards,event,generatedAt,onSelec
    <PhotoCardTitle title={card.title}/><p className={s.timing} data-photo-timing>{photoCardTimingLine(card)}</p>{card.everyone?<p className={s.names}>All guests</p>:<div className={`${s.names} ${s.guestGrid}`} role="list" aria-label="Guests in this photo">{card.people.length?card.people.map(person=><div key={person.id} role="listitem" className={s.guestName}>{person.name}</div>):<div>Add guest names</div>}</div>}
    <div className={s.details}>{card.notes&&<p>{card.notes}</p>}{card.pronunciation&&<p>Pronunciation: {card.pronunciation}</p>}</div>{card.mustHave&&<div className={s.priority}><PhotoPriorityLabel/></div>}
   </article>)}</div>
-  <footer className={s.footer}><span>Page {index+1} of {pages.length}</span><img src="/wedding-waitress-document-footer-dark-brown.png" alt="Wedding Waitress"/><span>Generated: {timestamp}</span></footer></section>
+  <footer className={s.footer}><span>Page {index+1} of {pages.length}</span><img src="/wedding-waitress-photo-callout-footer.png" alt="Wedding Waitress"/><span>Generated: {timestamp}</span></footer></section>
  </div></div>:null)}
  </div></div>{pages.length>0&&pager('Bottom')}</>;
 }

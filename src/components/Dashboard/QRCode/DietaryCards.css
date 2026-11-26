@@ -12,7 +12,7 @@
 #root#root#root .ww-dietary-cards-action{border:0!important}
 #root#root#root .ww-dietary-cards-action > span{color:#fff!important;-webkit-text-fill-color:#fff!important;text-shadow:0 1px 2px #0009}
 #root#root#root .ww-dietary-cards-action svg,#root#root#root .ww-dietary-cards-action svg *{color:#2f1b14!important;stroke:#2f1b14!important;filter:none!important;text-shadow:none}
-@media(min-width:1024px){#root .ww-dietary-export-actions{flex-wrap:nowrap!important}#root .ww-dietary-export-actions>button{flex-shrink:0;white-space:nowrap}}
+@media(min-width:1024px){#root .ww-dietary-export-actions{flex-wrap:wrap!important}#root .ww-dietary-export-actions>button{flex-shrink:0;white-space:nowrap}}
 @media(min-width:1024px) and (max-width:1439px){#root .ww-dietary-header-grid{grid-template-columns:minmax(0,1fr)!important}}
 @media(min-width:1440px){#root .ww-dietary-header-grid{grid-template-columns:minmax(0,1fr) 680px!important}}
 .ww-dietary-cards-dialog {
@@ -49,8 +49,8 @@
 .ww-dietary-card-face:first-child{transform:rotate(180deg)}
 .ww-dietary-card-content{width:100%;flex-shrink:0;color:#fff!important}
 .ww-dietary-card-dietary{position:relative;top:-1.12em;color:#fff!important;font-size:19pt;font-weight:700!important;line-height:1.12!important;text-transform:uppercase;overflow-wrap:anywhere;white-space:pre-line;margin:0 0 2mm!important}
-.ww-dietary-card-name{color:#fff!important;font-size:13pt;font-weight:700!important;line-height:1.15!important;overflow-wrap:anywhere;margin:0 0 1.5mm!important}
-.ww-dietary-card-seat{color:#fff!important;font-size:11pt;font-weight:700!important;line-height:1.15!important;overflow-wrap:anywhere;margin:0!important}
+.ww-dietary-card-name{color:#fff!important;font-size:14pt;font-weight:700!important;line-height:1.15!important;overflow-wrap:anywhere;margin:0 0 1.5mm!important}
+.ww-dietary-card-seat{color:#fff!important;font-size:12pt;font-weight:700!important;line-height:1.15!important;overflow-wrap:anywhere;margin:0!important}
 .ww-dietary-card-fold{position:absolute;top:49.5mm;left:0;right:0;border-top:.2mm dashed #ffffffb3;pointer-events:none}
 .ww-dietary-cards-cut-guide{position:absolute;z-index:2;pointer-events:none}
 .ww-dietary-cards-cut-guide-vertical{left:105mm;top:0;bottom:0;border-left:.2mm solid #d3d3d3}
@@ -59,3 +59,12 @@
 @media print{.ww-dietary-cards-sheet{box-shadow:none!important}}
 
 
+
+/* Only the dashboard entry button uses the distinct red action treatment. */
+#root#root#root .ww-dietary-cards-action.ww-dietary-cards-download-trigger {
+  background:linear-gradient(180deg,#f85b53,#d9342c)!important;
+  box-shadow:inset 0 1px 0 #ffffff80,inset 0 -2px 0 #86251f66,0 4px 10px #9b302b30;
+}
+
+.ww-dietary-cards-output-actions{display:flex;align-items:center;gap:8px;flex-wrap:wrap}
+@media(max-width:600px){.ww-dietary-cards-output-actions{width:100%}.ww-dietary-cards-output-actions>button{width:100%}}

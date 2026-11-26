@@ -287,7 +287,7 @@ export const FullSeatingChartPrintTemplate: React.FC<FullSeatingChartPrintTempla
         
         {/* Wedding Waitress Logo */}
         <img 
-          src="/wedding-waitress-document-footer-dark-brown.png"
+          src="/wedding-waitress-document-footer-print.png"
           alt="Wedding Waitress"
           style={{
             width: '60mm',

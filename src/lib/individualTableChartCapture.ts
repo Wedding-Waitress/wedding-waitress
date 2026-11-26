@@ -50,7 +50,8 @@ export async function captureIndividualTableChart(element: HTMLElement): Promise
   const canvas = document.createElement('canvas');
   canvas.width = Math.round(A4_MM.width / MM_PER_INCH * INDIVIDUAL_CHART_EXPORT_DPI);
   canvas.height = Math.round(A4_MM.height / MM_PER_INCH * INDIVIDUAL_CHART_EXPORT_DPI);
-  const context = canvas.getContext('2d');
+  // The paper is white and opaque. Avoid a redundant full-page alpha mask in every PDF image.
+  const context = canvas.getContext('2d', { alpha: false });
   if (!context) throw new Error('Unable to create the chart image');
   context.fillStyle = '#fff';
   context.fillRect(0, 0, canvas.width, canvas.height);

@@ -59,3 +59,9 @@ describe('Signage paper preview zoom', () => {
     expect(parseFloat(documentRef.current!.parentElement!.style.width)).toBeCloseTo(594*96/25.4*.4,5);
   });
 });
+
+// Dashboard sign size must not grow with print paper size.
+it.each([[297,420],[420,594],[594,841],[841,1189]])('keeps %s × %s mm signs at the same A1 reference display width', (widthMm,heightMm)=>{
+ const documentRef=React.createRef<HTMLDivElement>();const view=render(<InvitationCardPreview settings={null} eventData={{}} paperSize={{widthMm,heightMm}} documentRef={documentRef} fixedPreviewWidthMm={213.84}/>);
+ expect(documentRef.current?.style.width).toBe(widthMm+'mm');expect(documentRef.current?.style.height).toBe(heightMm+'mm');expect(parseFloat(documentRef.current!.parentElement!.style.width)).toBeCloseTo(213.84*96/25.4,5);view.unmount();
+});

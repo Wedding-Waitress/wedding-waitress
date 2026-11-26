@@ -32,6 +32,10 @@ export const EventBudgetPrintDocument = React.forwardRef<HTMLDivElement, EventBu
   eventName, eventDate, currency, expenses, summary, generatedAt,
 }, ref) => {
   const documentRef = React.useRef<HTMLDivElement | null>(null);
+  const setDocumentRef = React.useCallback((node: HTMLDivElement | null) => {
+    documentRef.current = node;
+    if (typeof ref === 'function') ref(node); else if (ref) ref.current = node;
+  }, [ref]);
   const [pageSizes, setPageSizes] = React.useState<number[] | null>(null);
   let start = 0;
   const pages = pageSizes && pageSizes.reduce((sum, size) => sum + size, 0) === expenses.length
@@ -77,7 +81,7 @@ export const EventBudgetPrintDocument = React.forwardRef<HTMLDivElement, EventBu
   const remainingValue = Math.abs(summary.budgetRemaining);
   const generated = new Intl.DateTimeFormat('en-AU', { dateStyle: 'medium', timeStyle: 'short' }).format(generatedAt);
 
-  return <div ref={node => { documentRef.current = node; if (typeof ref === 'function') ref(node); else if (ref) ref.current = node; }} className={styles.document} data-budget-print-document-root="true">
+  return <div ref={setDocumentRef} className={styles.document} data-budget-print-document-root="true">
     {pages.map((pageExpenses, pageIndex) => <div key={pageIndex} className={styles.presentation} data-print-mirror-presentation="true">
       <article
         className={styles.page}
@@ -115,7 +119,7 @@ export const EventBudgetPrintDocument = React.forwardRef<HTMLDivElement, EventBu
           </tr>)}</tbody>
         </table>
 
-        <footer className={styles.footer}><span>Generated {generated}</span><img src="/wedding-waitress-document-footer-dark-brown.png" alt="Wedding Waitress" /><span>Page {pageIndex + 1} of {pages.length}</span></footer>
+        <footer className={styles.footer}><span>Generated {generated}</span><img src="/wedding-waitress-document-footer-print.png" alt="Wedding Waitress" /><span>Page {pageIndex + 1} of {pages.length}</span></footer>
       </article>
     </div>)}
   </div>;

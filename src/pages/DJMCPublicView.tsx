@@ -758,7 +758,7 @@ export function DJMCPublicView() {
         <div className="w-full mx-auto px-4 py-6 text-center">
           <a href="https://www.weddingwaitress.com.au" target="_blank" rel="noopener noreferrer" className="inline-block mb-2">
             <img 
-              src="/wedding-waitress-document-footer-dark-brown.png" 
+              src="/wedding-waitress-document-footer-print.png" 
               alt="Wedding Waitress" 
               className="h-10 mx-auto"
             />

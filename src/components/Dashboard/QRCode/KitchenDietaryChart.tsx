@@ -35,7 +35,7 @@ import { DietaryCards } from './DietaryCards';
 import { useToast } from '@/hooks/use-toast';
 import { exportDietaryPreviewToPdf } from '@/lib/dietaryChartPdfExporter';
 import { format } from 'date-fns';
-const dietaryLogo = '/wedding-waitress-document-footer-dark-brown.png';
+const dietaryLogo = '/wedding-waitress-document-footer-print.png';
 import { computeRelationDisplay } from '@/lib/relationUtils';
 import type { RelationPartner, RelationRole } from '@/lib/relationUtils';
 import { Event } from '@/hooks/useEvents';
@@ -619,7 +619,7 @@ export const KitchenDietaryChartView: React.FC<KitchenDietaryChartViewProps> = (
               {currentEvent && dietaryGuests.length > 0 && (
                 <div className={`${styles.exportPanel} rounded-xl p-3 sm:p-4 flex flex-col justify-between gap-3 min-w-0`}>
                   <div className="text-sm space-y-1">
-                    <span className={`${styles.headerLabel} font-bold text-sm inline-flex items-center gap-1.5`}>
+                    <span data-ww-large-heading className={`${styles.headerLabel} font-bold text-sm inline-flex items-center gap-1.5`}>
                       <Printer className="w-4 h-4 shrink-0" strokeWidth={1.8} aria-hidden="true" />
                       Export Controls
                     </span>

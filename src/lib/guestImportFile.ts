@@ -8,5 +8,6 @@ export async function readGuestImportFile(data: ArrayBuffer, filename: string): 
   if (!sheet) return [];
   return XLSX.utils.sheet_to_json<string[]>(sheet, {
     header: 1, raw: false, defval: '', blankrows: false,
-  }).map(row => row.map(value => String(value ?? '').trim()));
+  }).map(row => row.map(value => String(value ?? '').trim()))
+    .filter(row => row.some(value => value !== ''));
 }

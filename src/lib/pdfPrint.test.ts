@@ -59,4 +59,18 @@ describe('PDF print delivery', () => {
     expect(frame.isConnected).toBe(false);
     expect(pdf.destroy).toHaveBeenCalledOnce();
   });
+  it('uses centred standard A4 pages for dietary cards without fractional custom paper sizes', async () => {
+    const job = openPdfPrintFrame({paper:'a4-portrait'});
+    const frame=document.querySelector<HTMLIFrameElement>('[data-pdf-print-frame]')!;
+    const child=frame.contentWindow!;
+    Object.defineProperty((child as unknown as {HTMLImageElement:typeof HTMLImageElement}).HTMLImageElement.prototype,'decode',{configurable:true,value:vi.fn(async()=>{})});
+    const print=vi.spyOn(child,'print').mockImplementation(()=>{});
+    const pending=job.print(blob);await vi.waitFor(()=>expect(print).toHaveBeenCalledOnce());
+    for(const sheet of frame.contentDocument!.querySelectorAll('section')) {
+      expect(sheet.style.width).toBe('210mm');expect(sheet.style.height).toBe('297mm');expect(sheet.style.margin).toBe('0px auto');
+    }
+    expect(frame.contentDocument!.head.textContent).toContain('@page{size:A4 portrait;margin:0}');
+    child.dispatchEvent(new Event('afterprint'));await pending;
+  });
+
 });

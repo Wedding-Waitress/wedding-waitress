@@ -28,6 +28,9 @@ export interface DietaryCardsPdfOptions {
 export async function createDietaryCardsPdf(options: DietaryCardsPdfOptions): Promise<jsPDF> {
   if (options.totalPages < 1) throw new Error('There are no dietary cards to print.');
   const pdf = new jsPDF({ orientation: 'portrait', unit: 'mm', format: 'a4', ...PDF_DEFAULT_OPTIONS });
+  // Ask supporting PDF viewers to preserve physical card dimensions rather
+  // than fit the A4 artwork into the printer's smaller printable area.
+  pdf.viewerPreferences({ PrintScaling: 'None', PickTrayByPDFSize: true });
   try {
     for (let index = 0; index < options.totalPages; index++) {
       options.assertContext();

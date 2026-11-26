@@ -79,6 +79,7 @@ import { GroupTypeDialog } from "./GroupTypeDialog";
 import { RelationAssignmentDialog, PersonToAssign } from "./RelationAssignmentDialog";
 
 type AddGuestFormData = SecureGuestData;
+const PRESET_DIETARY_REQUIREMENTS = ['NA', 'None', 'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Seafood Free', 'Gluten Free', 'Dairy Free', 'Nut Free', 'Halal', 'Kosha', 'Vendor'];
 
 interface AddGuestModalProps {
   isOpen: boolean;
@@ -136,6 +137,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   
   const [relationSelectorOpen, setRelationSelectorOpen] = useState(false);
   const [loading, setLoading] = useState(false);
+  const [customDietary, setCustomDietary] = useState(false);
   const [pendingFamilyMembers, setPendingFamilyMembers] = useState<string[]>([]);
   const [takenSeats, setTakenSeats] = useState<{[key: string]: {seatNo: number, guestName: string, guestId: string}[]}>({});
   const [relationSettings, setRelationSettings] = useState({
@@ -244,6 +246,7 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   // Reset form when modal opens/closes or edit guest changes
   useEffect(() => {
     if (isOpen) {
+      setCustomDietary(Boolean(isEdit && editGuest?.dietary?.trim() && !PRESET_DIETARY_REQUIREMENTS.includes(editGuest.dietary)));
       setPartyMembers([]);
       setShowAddMemberForm(false);
       setEditingMemberIndex(null);
@@ -652,6 +655,10 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
   const onInvalid = () => {requestAnimationFrame(()=>{const firstInvalid=document.querySelector<HTMLElement>('.ww-edit-guest-panel [aria-invalid="true"]');firstInvalid?.scrollIntoView({behavior:'smooth',block:'center'});firstInvalid?.focus();});};
 
   const onSubmit = async (data: AddGuestFormData) => {
+    if (customDietary && !data.dietary?.trim()) {
+      form.setError('dietary', { type: 'manual', message: 'Enter the dietary requirement or allergy, or select an existing option.' });
+      return;
+    }
     const guestsBeingAdded = (isEdit ? 0 : 1) + partyMembers.length;
     if (allowedGuestLimit != null && currentGuestCount + guestsBeingAdded > allowedGuestLimit) {
       onGuestLimitReached?.();
@@ -1638,7 +1645,11 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                       <Utensils size={18} strokeWidth={1.8} className="shrink-0" aria-hidden="true" />
                       Dietary Requirements
                     </FormLabel>
-                    <Select onValueChange={field.onChange} value={field.value}>
+                    <Select onValueChange={value => {
+                      setCustomDietary(value === '__custom_dietary__');
+                      field.onChange(value === '__custom_dietary__' ? '' : value);
+                      form.clearErrors('dietary');
+                    }} value={customDietary ? '__custom_dietary__' : field.value === 'None' ? 'NA' : field.value}>
                       <FormControl>
                         <SelectTrigger className="w-full border-2 border-primary hover:border-primary focus:border-primary focus:border-[3px] focus:ring-0 focus:outline-none rounded-full h-9">
                           <SelectValue placeholder="Select dietary requirements" />
@@ -1646,7 +1657,6 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                       </FormControl>
                       <SelectContent className="ww-guest-list-menu">
                         <SelectItem value="NA">Not Applicable</SelectItem>
-                        <SelectItem value="None">None</SelectItem>
                         <SelectItem value="Kids Meal">Kids Meal</SelectItem>
                         <SelectItem value="Pescatarian">Pescatarian</SelectItem>
                         <SelectItem value="Vegetarian">Vegetarian</SelectItem>
@@ -1658,8 +1668,28 @@ export const AddGuestModal: React.FC<AddGuestModalProps> = ({
                         <SelectItem value="Halal">Halal</SelectItem>
                         <SelectItem value="Kosha">Kosha</SelectItem>
                         <SelectItem value="Vendor">Vendor</SelectItem>
+                        <SelectItem value="__custom_dietary__">Other — please specify</SelectItem>
                       </SelectContent>
                     </Select>
+                    {customDietary && (
+                      <div className="space-y-1.5">
+                        <Label htmlFor="custom-dietary-requirement">Dietary requirement or allergy</Label>
+                        <Input
+                          id="custom-dietary-requirement"
+                          ref={field.ref}
+                          value={field.value || ''}
+                          onChange={event => { field.onChange(event.target.value); form.clearErrors('dietary'); }}
+                          onBlur={field.onBlur}
+                          placeholder="Example: Mushroom allergy — no mushrooms"
+                          maxLength={200}
+                          aria-required="true"
+                          aria-invalid={!!form.formState.errors.dietary}
+                          aria-describedby="custom-dietary-help"
+                          className={categoryStyles.customDietaryInput}
+                        />
+                        <p id="custom-dietary-help" className="text-xs text-muted-foreground">Enter any dietary requirement or allergy not listed above.</p>
+                      </div>
+                    )}
                     <FormMessage />
                   </FormItem>
                 )}

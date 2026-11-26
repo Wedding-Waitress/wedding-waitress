@@ -13,7 +13,8 @@ export async function createPhotoCalloutPDF(root:HTMLElement,isCurrent=()=>true)
  for(let i=0;i<pages.length;i++){
   if(!isCurrent())throw new Error('The selected event or cards changed. Please export again.');
   if(Array.from(pages[i].querySelectorAll<HTMLElement>('[data-photo-card]')).some(card=>card.scrollHeight>card.clientHeight+2))throw new Error('A photo group is too long to fit. Please split it into two cards.');
-  const canvas=await html2canvas(pages[i],{scale:2,useCORS:true,backgroundColor:'#fff',onclone:doc=>{
+  // Capture at 384 dpi so PDF text stays clear on high-density screens and when zoomed.
+  const canvas=await html2canvas(pages[i],{scale:4,useCORS:true,backgroundColor:'#fff',onclone:doc=>{
    doc.querySelectorAll<HTMLElement>('[data-photo-scale]').forEach(node=>{node.style.transform='none';});
    doc.querySelectorAll<HTMLElement>('[data-photo-sheet]').forEach(node=>{node.style.boxShadow='none';node.dataset.photoOutput='print';});
   }});
@@ -24,3 +25,4 @@ export async function createPhotoCalloutPDF(root:HTMLElement,isCurrent=()=>true)
  }finally{root.dispatchEvent(new Event('photo-export-end'));}
 }
 export async function downloadPhotoCalloutPDF(root:HTMLElement,name:string,isCurrent=()=>true){const pdf=await createPhotoCalloutPDF(root,isCurrent);await savePdfAsync(pdf,`Wedding Waitress - ${name.replace(/[^a-z0-9 -]/gi,'').trim()||'Wedding'} - Photo Call Out Cards.pdf`);}
+

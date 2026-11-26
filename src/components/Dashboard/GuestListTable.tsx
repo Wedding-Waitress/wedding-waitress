@@ -22,7 +22,8 @@ import { normalizePublicPlanName } from '@/lib/stripeExtensionPrices';
 import React, { lazy, Suspense, useState, useEffect, useMemo, useCallback, useRef } from 'react';
 import { matchesGuestListSearch } from '@/lib/guestListSearch';
 import { readGuestImportFile } from '@/lib/guestImportFile';
-import { normalizeGuestPhone } from '@/lib/guestPhone';
+import { GUEST_FILE_COLUMNS, prepareGuestImport } from '@/lib/guestImportSchema';
+import { createGuestImportWorkbook } from '@/lib/guestImportWorkbook';
 import { Card } from "@/components/ui/card";
 import { Button } from "@/components/ui/enhanced-button";
 
@@ -119,12 +120,7 @@ import { Dialog, DialogContent, DialogDescription, DialogFooter, DialogHeader, D
 import styles from './GuestListTable.module.css';
 import { AlertTriangle } from 'lucide-react';
 import { Checkbox } from '@/components/ui/checkbox';
-import { 
-  validateRelationFields, 
-  normalizePartner, 
-  normalizeRole, 
-  ImportError 
-} from '@/lib/relationValidation';
+import type { ImportError } from '@/lib/relationValidation';
 import { getGuestCreationPrerequisite } from '@/lib/guestListPrerequisites';
 import { getGuestEventOwnerId } from '@/lib/guestEventOwner';
 import {
@@ -177,34 +173,6 @@ const SORT_OPTIONS = [
   { value: 'families_first', label: 'Family', icon: Users },
   { value: 'default', label: 'Default', icon: ListOrdered },
 ] as const;
-
-// Template headers (no who_is_display as it's computed)
-const IMPORT_TEMPLATE_HEADERS = [
-  'first_name', 'last_name', 'table_name', 'seat_no',
-  'rsvp', 'dietary', 'mobile', 'email', 'notes', 
-  'relation_partner', 'relation_role'
-];
-
-// Export headers (internal keys)
-const EXPORT_HEADERS = [
-  'first_name', 'last_name', 'table_name', 'seat_no',
-  'rsvp', 'dietary', 'mobile', 'email', 'notes', 
-  'relation_partner', 'relation_role', 'relation_display'
-];
-
-// Display export headers (Title Case for XLSX output)
-const DISPLAY_EXPORT_HEADERS = [
-  'First Name', 'Last Name', 'Table Name', 'Seat No',
-  'RSVP', 'Dietary', 'Mobile', 'Email', 'Notes',
-  'Relation Partner', 'Relation Role', 'Relation Display'
-];
-
-const DIETARY_OPTIONS = [
-  'None', 'Kids Meal', 'Pescatarian', 'Vegetarian', 'Vegan', 'Seafood Free', 'Gluten Free', 
-  'Dairy Free', 'Nut Free', 'Halal', 'Kosha', 'Vendor'
-];
-
-const RSVP_OPTIONS = ['Pending', 'Attending', 'Not Attending'];
 
 const getOrdinalSuffix = (day: number): string => {
   if (day >= 11 && day <= 13) return 'th';
@@ -1256,20 +1224,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
   // CSV Functions
   const downloadTemplate = async () => {
     const XLSX = await import('xlsx-js-style');
-    const TEMPLATE_HEADERS = ['First Name', 'Last Name', 'Table Name', 'Seat No', 'RSVP', 'Dietary', 'Mobile', 'Email', 'Notes', 'Relation Partner', 'Relation Role'];
-    const sampleData = [
-      ['John', 'Doe', 'Table 1', 1, 'Attending', 'NA', '1234567890', 'john@example.com', 'Sample note', 'partner_one', 'father'],
-      ['Jane', 'Smith', 'Table 2', 3, 'Pending', 'Vegan', '', 'jane@example.com', '', 'partner_two', 'bridal_party']
-    ];
-    const ws = XLSX.utils.aoa_to_sheet([TEMPLATE_HEADERS, ...sampleData]);
-    // Bold header row
-    TEMPLATE_HEADERS.forEach((_, i) => {
-      const cellRef = XLSX.utils.encode_cell({ r: 0, c: i });
-      if (!ws[cellRef]) ws[cellRef] = { v: TEMPLATE_HEADERS[i], t: 's' };
-      ws[cellRef].s = { font: { bold: true } };
-    });
-    const wb = XLSX.utils.book_new();
-    XLSX.utils.book_append_sheet(wb, ws, 'Template');
+    const wb = await createGuestImportWorkbook(tables);
     XLSX.writeFile(wb, 'Guest-List-Import-Template.xlsx');
   };
 
@@ -1279,28 +1234,20 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
     
     const rows = sortedGuests.map(guest => {
       const hasLegacyGuestRelation = isLegacyGuestRelation(guest.relation_role, guest.relation_display);
-      return [
-        guest.first_name || '',
-        guest.last_name || '',
-        getTableName(guest) || '',
-        guest.seat_no || '',
-        guest.rsvp || 'Pending',
-        guest.dietary || 'NA',
-        guest.mobile || '',
-        guest.email || '',
-        (guest.notes || '').replace(/^\[NEW\+\]/, ''),
-        hasLegacyGuestRelation ? '' : guest.relation_partner || '',
-        hasLegacyGuestRelation ? '' : guest.relation_role || '',
-        hasLegacyGuestRelation ? '' : guest.relation_display || '',
-      ];
+      const values: Record<string, unknown> = {
+        ...guest,
+        table_name: getTableName(guest) || '',
+        allow_plus_one: guest.allow_plus_one === false ? 'No' : 'Yes',
+        notes: (guest.notes || '').replace(/^\[NEW\+\]/, ''),
+        relation_partner: hasLegacyGuestRelation ? '' : guest.relation_partner || '',
+        relation_role: hasLegacyGuestRelation ? '' : guest.relation_role || '',
+      };
+      return GUEST_FILE_COLUMNS.map(([, field]) => values[field] ?? '');
     });
-    
-    const ws = XLSX.utils.aoa_to_sheet([DISPLAY_EXPORT_HEADERS, ...rows]);
-    // Bold header row
-    DISPLAY_EXPORT_HEADERS.forEach((_, i) => {
-      const cellRef = XLSX.utils.encode_cell({ r: 0, c: i });
-      if (!ws[cellRef]) ws[cellRef] = { v: DISPLAY_EXPORT_HEADERS[i], t: 's' };
-      ws[cellRef].s = { font: { bold: true } };
+    const ws = XLSX.utils.aoa_to_sheet([GUEST_FILE_COLUMNS.map(([label]) => label), ...rows]);
+    ws['!cols'] = GUEST_FILE_COLUMNS.map(([label]) => ({ wch: Math.max(18, label.length + 3) }));
+    GUEST_FILE_COLUMNS.forEach((_, i) => {
+      ws[XLSX.utils.encode_cell({ r: 0, c: i })].s = { font: { bold: true } };
     });
     const wb = XLSX.utils.book_new();
     XLSX.utils.book_append_sheet(wb, ws, 'Guest List');
@@ -1359,27 +1306,6 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             return;
           }
           
-          const rawHeaders = lines[0];
-          const headerNormMap: Record<string, string> = {
-            'First Name': 'first_name', 'Last Name': 'last_name', 'Table Name': 'table_name',
-            'Seat No': 'seat_no', 'RSVP': 'rsvp', 'Dietary': 'dietary', 'Mobile': 'mobile',
-            'Email': 'email', 'Notes': 'notes', 'Relation Partner': 'relation_partner', 'Relation Role': 'relation_role',
-          };
-          const headers = rawHeaders.map(h => headerNormMap[h] || h);
-          const expectedHeaders = IMPORT_TEMPLATE_HEADERS;
-          
-          // Check if headers match (flexible - not all columns required)
-          const requiredHeaders = ['first_name', 'last_name', 'table_name'];
-          const missingHeaders = requiredHeaders.filter(h => !headers.includes(h));
-          if (missingHeaders.length > 0) {
-            toast({ 
-              title: "Import failed", 
-              description: `Missing required headers: ${missingHeaders.join(', ')}`,
-              variant: "destructive"
-            });
-            return;
-          }
-          
           const dataRows = lines.slice(1);
           const currentGuestCount = guests.length;
           const guestLimit = allowedGuestLimit;
@@ -1393,183 +1319,18 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
             return;
           }
           
-          // Enhanced validation and processing
-          const validRows: any[] = [];
-          const allErrors: ImportError[] = [];
-          
-          // Get existing guests for duplicate checking
-          const { data: existingGuests } = await supabase
-            .from('guests')
-            .select('first_name, last_name')
-            .eq('event_id', selectedEventId);
-          
-          const existingNames = new Set(
-            (existingGuests || []).map(g => 
-              `${g.first_name.toLowerCase().trim()}_${g.last_name.toLowerCase().trim()}`
-            )
-          );
-          
-          const csvNames = new Set<string>();
-          
-          dataRows.forEach((row, index) => {
-            const values = row;
-            const rowIndex = index + 2; // +2 because we skip header and arrays are 0-indexed
-            
-            const rowData: any = {};
-            headers.forEach((header, i) => {
-              if (IMPORT_TEMPLATE_HEADERS.includes(header)) rowData[header] = values[i] || '';
-            });
-            
-            // Validate required fields
-            try {
-              rowData.mobile = normalizeGuestPhone(rowData.mobile);
-            } catch (error) {
-              allErrors.push({ rowIndex, field: 'mobile', value: rowData.mobile || '', reason: (error as Error).message });
-              return;
-            }
-
-            if (!rowData.first_name?.trim()) {
-              allErrors.push({
-                rowIndex,
-                field: 'first_name',
-                value: rowData.first_name || '',
-                reason: 'First name is required'
-              });
-              return;
-            }
-            
-            if (!rowData.last_name?.trim()) {
-              allErrors.push({
-                rowIndex,
-                field: 'last_name',
-                value: rowData.last_name || '',
-                reason: 'Last name is required'
-              });
-              return;
-            }
-            
-            if (!rowData.table_name?.trim()) {
-              allErrors.push({
-                rowIndex,
-                field: 'table_name',
-                value: rowData.table_name || '',
-                reason: 'Table name is required'
-              });
-              return;
-            }
-            
-            // Check for duplicates
-            const nameKey = `${rowData.first_name.toLowerCase().trim()}_${rowData.last_name.toLowerCase().trim()}`;
-            if (existingNames.has(nameKey)) {
-              allErrors.push({
-                rowIndex,
-                field: 'first_name',
-                value: `${rowData.first_name} ${rowData.last_name}`,
-                reason: 'Guest already exists in the event'
-              });
-              return;
-            }
-            
-            if (csvNames.has(nameKey)) {
-              allErrors.push({
-                rowIndex,
-                field: 'first_name',
-                value: `${rowData.first_name} ${rowData.last_name}`,
-                reason: 'Duplicate guest in CSV file'
-              });
-              return;
-            }
-            csvNames.add(nameKey);
-            
-            // Validate RSVP
-            if (rowData.rsvp && !RSVP_OPTIONS.includes(rowData.rsvp)) {
-              allErrors.push({
-                rowIndex,
-                field: 'rsvp',
-                value: rowData.rsvp,
-                reason: `Invalid RSVP status. Must be one of: ${RSVP_OPTIONS.join(', ')}`
-              });
-              return;
-            }
-            
-            // Validate dietary
-            if (rowData.dietary && rowData.dietary !== 'NA' && !DIETARY_OPTIONS.includes(rowData.dietary)) {
-              allErrors.push({
-                rowIndex,
-                field: 'dietary',
-                value: rowData.dietary,
-                reason: `Invalid dietary restriction. Must be one of: ${DIETARY_OPTIONS.join(', ')}`
-              });
-              return;
-            }
-            
-            // Enhanced Relation validation
-            const relationErrors = validateRelationFields(
-              rowData.relation_partner || '',
-              rowData.relation_role || '',
-              rowIndex
-            );
-            allErrors.push(...relationErrors);
-            
-            if (relationErrors.length > 0) {
-              return; // Skip this row due to Relation errors
-            }
-            
-            // Normalize Relation fields
-            if (rowData.relation_partner) {
-              const normalizedPartner = normalizePartner(rowData.relation_partner);
-              const normalizedRole = normalizeRole(rowData.relation_role);
-              
-              if (!normalizedPartner || !normalizedRole) {
-                // Should have been caught by validation above, but just in case
-                return;
-              }
-              
-              rowData.relation_partner = normalizedPartner;
-              rowData.relation_role = normalizedRole;
-            }
-            
-            // Find table
-            const tableName = rowData.table_name.toLowerCase();
-            const foundTable = tables.find(t => t.name.toLowerCase() === tableName)
-              ?? tables.find(t => `table ${t.name}`.toLowerCase() === tableName);
-            if (!foundTable) {
-              allErrors.push({
-                rowIndex,
-                field: 'table_name',
-                value: rowData.table_name,
-                reason: `Table "${rowData.table_name}" not found`
-              });
-              return;
-            }
-            
-            // Validate seat number if provided
-            if (rowData.seat_no) {
-              const seatNum = Number(rowData.seat_no);
-              if (!Number.isInteger(seatNum) || seatNum < 1 || seatNum > foundTable.limit_seats) {
-                allErrors.push({
-                  rowIndex,
-                  field: 'seat_no',
-                  value: rowData.seat_no,
-                  reason: `Seat number must be a whole number between 1 and ${foundTable.limit_seats}`
-                });
-                return;
-              }
-              rowData.seat_no = seatNum;
-            } else {
-              rowData.seat_no = null;
-            }
-            
-            // Transform data
-            rowData.table_id = foundTable.id;
-            rowData.event_id = selectedEventId;
-            rowData.rsvp = rowData.rsvp || 'Pending';
-            rowData.dietary = rowData.dietary || 'NA';
-            delete rowData.table_name; // Remove table_name as we're using table_id
-            
-            validRows.push(rowData);
+          const { data: existingGuests, error: existingError } = await supabase
+            .from('guests').select('first_name,last_name,table_id,seat_no').eq('event_id', selectedEvent.id);
+          if (existingError) throw new Error('Could not check existing guests. Please retry before importing.');
+          const prepared = prepareGuestImport(lines, {
+            eventId: selectedEvent.id, tables, existing: existingGuests || [],
+            partner1Name: selectedEvent.partner1_name, partner2Name: selectedEvent.partner2_name,
+            customRoles: relationSettings.custom_roles,
           });
-          
+          const validRows = prepared.rows;
+          const allErrors = prepared.errors;
+          const invalidRowCount = new Set(allErrors.map(error => error.rowIndex)).size;
+
           // If there are errors, show error modal
           if (allErrors.length > 0) {
             setImportErrors(allErrors);
@@ -1586,7 +1347,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           const preview = validRows.slice(0, 5);
           let confirmMsg = `Import ${validRows.length} guests?`;
           if (allErrors.length > 0) {
-            confirmMsg += `\n\n${allErrors.length} rows will be skipped due to errors.`;
+            confirmMsg += `\n\n${invalidRowCount} rows will be skipped due to errors.`;
           }
           confirmMsg += `\n\nPreview:\n${preview.map(r => `${r.first_name} ${r.last_name}`).join('\n')}`;
           
@@ -1602,7 +1363,8 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   row.relation_partner || '',
                   row.relation_role || '',
                   selectedEvent?.partner1_name,
-                  selectedEvent?.partner2_name
+                  selectedEvent?.partner2_name,
+                  relationSettings.custom_roles
                 );
                 
                 return {
@@ -1636,7 +1398,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
               
               let successMsg = `Imported ${validRows.length} guests successfully`;
               if (allErrors.length > 0) {
-                successMsg += `. Skipped ${allErrors.length} rows with errors`;
+                successMsg += `. Skipped ${invalidRowCount} rows with errors`;
               }
               toast({ title: successMsg });
               refetchGuests();
@@ -1653,7 +1415,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
           console.error('CSV parsing error:', error);
           toast({ 
             title: "Import failed", 
-            description: "Error reading import file",
+            description: error instanceof Error ? error.message : "Error reading import file",
             variant: "destructive"
           });
         }
@@ -2479,7 +2241,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                   disabled={!selectedEventId}
                 >
                   <FileUp size={16} strokeWidth={1.8} aria-hidden="true" className="text-white" />
-                  Import / Export CSV
+                  Import / Export Excel / CSV
                   <ChevronDown className="text-white w-3 h-3" />
                 </button>
               </DropdownMenuTrigger>
@@ -2490,7 +2252,7 @@ export const GuestListTable: React.FC<GuestListTableProps> = ({
                 </DropdownMenuItem>
                 <DropdownMenuItem onClick={handleImportCSV}>
                   <FileUp size={16} strokeWidth={1.8} className="mr-2" aria-hidden="true" />
-                  Import CSV
+                  Import Excel / CSV
                 </DropdownMenuItem>
                 <DropdownMenuItem
                   onClick={exportGuestList}
