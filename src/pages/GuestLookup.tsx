@@ -3,6 +3,7 @@ import { preloadVideoWishesRoute } from '@/lib/guestRoutePreload';
 import { GuestVerificationGate } from '@/components/GuestLookup/GuestVerificationGate';
 import { publicGuestVerificationRows } from '@/i18n/publicGuestVerificationCopy';
 import { useMobileGuestSearchViewport } from '@/hooks/useMobileGuestSearchViewport';
+import { useGuestSearchResultReveal } from '@/hooks/useGuestSearchResultReveal';
 import { useQrGuestTheme } from '@/hooks/useQrGuestTheme';
 import { shareGuestLookup } from '@/lib/guestLookupShare';
 import {useVideoWishesCopy} from '@/i18n/useVideoWishesCopy';
@@ -191,6 +192,7 @@ export const GuestLookup: React.FC = () => {
   const tableTabRef = useRef<HTMLDivElement>(null);
   const searchResultsRef = useRef<HTMLDivElement>(null);
   const searchInputRef = useRef<HTMLInputElement>(null);
+  const searchInstructionId = React.useId();
   const setActiveTab = useCallback((tab: string) => {
     setActiveTabState(tab);
     if (tab === 'visualization') {
@@ -491,6 +493,9 @@ export const GuestLookup: React.FC = () => {
   const filteredGuests = useMemo(() => isOpenSearchMode
     ? searchCandidates.filter(guest => guest.id === selectedSearchGuestId)
     : selectedSearchGuestId ? searchCandidates.filter(guest => guest.id === selectedSearchGuestId) : searchCandidates, [searchCandidates, selectedSearchGuestId, isOpenSearchMode]);
+  const searchInstruction = isOpenSearchMode ? searchCopy[1] : (!moduleSettings?.update_details_config?.search_placeholder || /^Type your full first and last name(?:\.{3}|…)?$/i.test(moduleSettings.update_details_config.search_placeholder.trim())) ? searchCopy[0] : moduleSettings.update_details_config.search_placeholder;
+  useGuestSearchResultReveal(searchInputRef, searchResultsRef, searchTerm, searchCandidates[0]?.id,
+    activeTab === 'search' && !selectedSearchGuestId && (isOpenSearchMode || searchCandidates.length > 1));
   // Dedicated fetch for Guest Song Request settings, keyed on event.id so the
   // public Live View always loads it reliably (decoupled from the main event RPC).
   useEffect(() => {
@@ -952,17 +957,18 @@ export const GuestLookup: React.FC = () => {
                   <div className={styles.searchArea}>
                     <p data-live-section-heading data-guest-details-heading data-qr-invitation-heading={isOpenSearchMode ? undefined : true} className={`${styles.sectionHeading} text-center text-base md:text-lg font-semibold text-foreground mb-[17px]`}>{isOpenSearchMode ? seatingCopy[0] : verificationCopy[0].split('\n').map((line,index) => <span key={index}>{line}</span>)}</p>
                     {/* Search Input */}
+                    <p id={searchInstructionId} data-guest-search-instruction className={styles.searchInstruction}>{searchInstruction}</p>
                     <div className="relative">
                       <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
                       <Input
                         ref={searchInputRef} data-guest-name-search disabled={isUpdateModalOpen}
                         type="text"
                         aria-label={searchCopy[2]}
-                        placeholder={isOpenSearchMode ? searchCopy[1] : (!moduleSettings?.update_details_config?.search_placeholder || /^Type your full first and last name(?:\.{3}|…)?$/i.test(moduleSettings.update_details_config.search_placeholder.trim())) ? searchCopy[0] : moduleSettings.update_details_config.search_placeholder}
+                        aria-describedby={searchInstructionId}
+                        placeholder={searchCopy[2]}
                         value={searchTerm}
                         onChange={(e) => handleSearchChange(e.target.value)}
                         className="px-10 text-center text-base md:text-lg h-11 md:h-12 border-primary border-2 focus-visible:ring-primary"
-                        autoFocus={!window.matchMedia('(max-width: 767px)').matches}
                       />
                     </div>
 
@@ -991,7 +997,7 @@ export const GuestLookup: React.FC = () => {
                             <div className="space-y-3 text-center">
                               <p>{isOpenSearchMode ? seatingCopy[9] : verificationCopy[9]}</p>
                               {searchCandidates.map(guest => (
-                                <Button key={guest.id} className="lv-premium-btn w-full whitespace-normal h-auto min-h-10" onClick={() => {
+                                <Button key={guest.id} data-guest-search-result className="lv-premium-btn w-full whitespace-normal h-auto min-h-10" onClick={() => {
                                   if (isOpenSearchMode) setSearchTerm(`${guest.first_name} ${guest.last_name}`.trim());
                                   setSelectedSearchGuestId(guest.id);
                                 }}>

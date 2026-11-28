@@ -17,7 +17,7 @@ interface TableGuest {
 
 interface TableData {
   id: string;
-  table_no: number;
+  table_no: number | null;
   name: string;
   limit_seats: number;
   notes: string | null;
@@ -28,7 +28,7 @@ interface TableData {
   participant2_name: string | null;
 }
 
-export interface TableAssignmentSummary { tableNumber: number; tableName: string; seats: Record<string, number | null> }
+export interface TableAssignmentSummary { tableNumber: number | null; tableName: string; seats: Record<string, number | null> }
 
 interface TableVisualizationProps {
   onTableReady?: (summary: TableAssignmentSummary | null) => void;

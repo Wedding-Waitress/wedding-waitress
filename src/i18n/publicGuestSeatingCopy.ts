@@ -7,7 +7,7 @@ export const publicGuestSeatingSources = [
   "Not assigned yet",
   "Your table assignment is not available yet.",
   "Need changes?",
-  "Please contact the wedding or event organizer directly.",
+  "Please contact the wedding or event organiser directly.",
   "Choose your name to see your table and seat."
 ] as const;
 export const publicGuestSeatingRows: Record<string, readonly string[]> = {
@@ -20,7 +20,7 @@ export const publicGuestSeatingRows: Record<string, readonly string[]> = {
     "Not assigned yet",
     "Your table assignment is not available yet.",
     "Need changes?",
-    "Please contact the wedding or event organizer directly.",
+    "Please contact the wedding or event organiser directly.",
     "Choose your name to see your table and seat."
   ],
   "it": [

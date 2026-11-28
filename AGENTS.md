@@ -1,5 +1,10 @@
 # Protected feature baselines
 
+## Shared product changes cover existing and future accounts
+
+- Implement shared product fixes and styling updates for all existing accounts and newly created accounts by default, unless the owner explicitly limits the scope. Use shared components and styles rather than wedding-specific overrides.
+- This default concerns product behavior and presentation. Private wedding-data edits remain limited to the event and records the owner authorizes; it does not authorize changing other customers' saved data or publishing without release approval.
+
 ## Public multilingual content contract
 
 - Every future public frontend copy addition or change must include reviewed translations for every language offered by the shared header dropdown. This includes headings, paragraphs, navigation, buttons, form validation, placeholders, captions, meaningful image alt text and accessible labels. Keep the source and translations synchronized in the same change; missing translations are unfinished work, not an acceptable silent English fallback.
