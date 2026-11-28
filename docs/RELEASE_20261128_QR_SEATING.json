@@ -1,0 +1,126 @@
+{
+  "date": "2026-11-28",
+  "status": "Published, live verified, remotely backed up and cleaned",
+  "scope": "Shared QR seating assignment labels, cream cards, typography, Australian spelling, readable localized search instructions, gentle result reveal and event details sizing",
+  "sourceCommit": "5d90417f2944d0c55bffaafd89c64fa599479e6b",
+  "branch": "codex/approved-qr-seating-20261128",
+  "baseCommit": "f9d4fd41fe50f7fed657747c2e39e1e81acfde5e",
+  "site": "https://weddingwaitress.com.au",
+  "netlifyDeploy": "6b0a4b778f47f9d678380db6",
+  "productionLockRestored": true,
+  "databaseChanges": false,
+  "checkedWeddingAssignmentsUnchanged": true,
+  "validation": {
+    "focusedTestsPassed": 217,
+    "applicationTypecheck": "passed",
+    "broaderTestTypecheck": "50 existing errors outside the approved files; zero errors in approved files",
+    "productionBuild": "passed with existing CSS-minifier and chunk-size warnings",
+    "publicSeoPages": 45,
+    "liveHealthyPublicRoutes": 45,
+    "liveAssetSha256Matches": 4,
+    "browserWidths": [
+      1440,
+      390,
+      320
+    ],
+    "publicLanguages": 13,
+    "assignedNamedAndNumberedTables": "passed",
+    "unassignedAndLegacyRepresentations": "passed in regression tests",
+    "initialHeroPosition": "preserved",
+    "typedNameAndSearchResultSize": "24px",
+    "searchInstructionAndSummarySize": "20px",
+    "eventDetailsSize": "16px, previously 14px",
+    "longNameWrapping": "passed with synthetic DOM-only name",
+    "keyboardViewport": "reduced viewport simulation; focus and caret preserved",
+    "reducedMotionAndManualScrollCancellation": "passed in focused tests",
+    "invitationVerificationAndDashboardAuthentication": "preserved; no codes requested or submitted",
+    "pageErrors": 0,
+    "liveNamedHeadTable": "passed"
+  },
+  "sourceFiles": [
+    "AGENTS.md",
+    "src/components/GuestLookup/GuestSeatingResult.tsx",
+    "src/components/GuestLookup/GuestSeatingResult.test.tsx",
+    "src/components/GuestLookup/TableVisualization.tsx",
+    "src/hooks/useGuestSearchResultReveal.ts",
+    "src/hooks/useGuestSearchResultReveal.test.tsx",
+    "src/i18n/publicGuestSeatingCopy.ts",
+    "src/pages/GuestLookup.tsx",
+    "src/pages/GuestLookup.module.css",
+    "src/pages/GuestLookup.authorization.test.tsx"
+  ],
+  "backup": {
+    "remoteSha256Verified": true,
+    "pendingBeforeCleanup": 0,
+    "beforeCleanupCheckpoint": "20261128T033715216Z-bb8255f6",
+    "afterCleanupCheckpoint": "20261128T034850295Z-3e7a6a06",
+    "pendingAfterCleanup": 0,
+    "captureOrUploadErrors": null
+  },
+  "cleanup": {
+    "completed": true,
+    "reclaimedBytes": 3987276990,
+    "removed": [
+      {
+        "Path": "E:\\Codex\\approved-qr-seating-20261128\\dist",
+        "Bytes": 1883818371
+      },
+      {
+        "Path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\seating-production-build",
+        "Bytes": 1898027702
+      },
+      {
+        "Path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\seating-display-review-profile",
+        "Bytes": 11785249
+      },
+      {
+        "Path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\seating-display-browser-cache",
+        "Bytes": 36865309
+      },
+      {
+        "Path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\event-strip-review-profile",
+        "Bytes": 4092101
+      },
+      {
+        "Path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\event-strip-browser-cache",
+        "Bytes": 33253934
+      },
+      {
+        "Path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\search-interaction-profile",
+        "Bytes": 12339457
+      },
+      {
+        "Path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\search-interaction-browser-cache",
+        "Bytes": 35885170
+      },
+      {
+        "Path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\release-check-profile",
+        "Bytes": 10575438
+      },
+      {
+        "Path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\release-check-browser-cache",
+        "Bytes": 39300467
+      },
+      {
+        "Path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\search-language-profile",
+        "Bytes": 9077949
+      },
+      {
+        "Path": "E:\\ChatGPT\\wedding-waitress\\backup-review-20261111\\runtime-cache\\search-language-browser-cache",
+        "Bytes": 12255843
+      }
+    ],
+    "preserved": [
+      "Canonical and release source",
+      "Git history and dependencies",
+      "Automatic backup and recovery artifacts",
+      "Active signed-in dashboard profile",
+      "Shared caches and compact verification evidence",
+      "Downloads and unrelated user files"
+    ]
+  },
+  "configuration": "No .env copy. Only browser-public settings passed to build process memory.",
+  "screenshots": [
+    "E:/ChatGPT/wedding-waitress/backup-review-20261111/runtime-cache/seating-summary-320.png E:/ChatGPT/wedding-waitress/backup-review-20261111/runtime-cache/search-instruction-320.png E:/ChatGPT/wedding-waitress/backup-review-20261111/runtime-cache/event-strip-16-320.png E:/ChatGPT/wedding-waitress/backup-review-20261111/runtime-cache/seating-footer-390.png"
+  ]
+}
