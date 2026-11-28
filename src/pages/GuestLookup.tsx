@@ -955,21 +955,21 @@ export const GuestLookup: React.FC = () => {
               <Card data-search-empty={!searchTerm.trim()} className={`${styles.searchCard} ww-box card-elevated pt-2 md:pt-2`}>
                 <CardContent className={`${styles.searchCardContent} pt-2`}>
                   <div className={styles.searchArea}>
-                    <p data-live-section-heading data-guest-details-heading data-qr-invitation-heading={isOpenSearchMode ? undefined : true} className={`${styles.sectionHeading} text-center text-base md:text-lg font-semibold text-foreground mb-[17px]`}>{isOpenSearchMode ? seatingCopy[0] : verificationCopy[0].split('\n').map((line,index) => <span key={index}>{line}</span>)}</p>
                     {/* Search Input */}
-                    <p id={searchInstructionId} data-guest-search-instruction className={styles.searchInstruction}>{searchInstruction}</p>
-                    <div className="relative">
-                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4" />
+                    <p id={searchInstructionId} data-guest-search-instruction className="sr-only">{searchInstruction}</p>
+                    <div className={styles.searchField}>
+                      <Search className="absolute left-3 top-1/2 transform -translate-y-1/2 text-muted-foreground w-4 h-4 z-[2] pointer-events-none" />
                       <Input
                         ref={searchInputRef} data-guest-name-search disabled={isUpdateModalOpen}
                         type="text"
                         aria-label={searchCopy[2]}
                         aria-describedby={searchInstructionId}
-                        placeholder={searchCopy[2]}
+                        placeholder={searchCopy[10]}
                         value={searchTerm}
                         onChange={(e) => handleSearchChange(e.target.value)}
-                        className="px-10 text-center text-base md:text-lg h-11 md:h-12 border-primary border-2 focus-visible:ring-primary"
+                        className="px-10 text-center text-base md:text-lg border-primary border-2 focus-visible:ring-primary"
                       />
+                      <span aria-hidden="true" data-guest-search-prompt data-search-prompt-hidden={searchTerm.length > 0} className={`${styles.sectionHeading} ${styles.searchPrompt}`}>{searchCopy[10]}</span>
                     </div>
 
                     {/* Loading State */}
@@ -1131,6 +1131,7 @@ export const GuestLookup: React.FC = () => {
                               tableId={tableId!}
                               tableNumber={tableGuest.table_no || 0}
                               eventId={event.id}
+                              selectedGuestId={selectedSearchGuestId ?? (filteredGuests.length === 1 ? filteredGuests[0].id : undefined)}
                             />
                           ) : null;
                         })}

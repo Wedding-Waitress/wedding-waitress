@@ -1,4 +1,4 @@
-export const publicGuestSearchSources = ["Type your first & last name","Type at least 3 letters of your first name…","Guest name","Find your name first","Enter your name and choose your guest record before requesting songs.","Link copied","Could not share link","Unable to load song requests","Close this window and try again.","Loading song requests…"];
+export const publicGuestSearchSources = ["Type your first & last name","Type at least 3 letters of your first name…","Guest name","Find your name first","Enter your name and choose your guest record before requesting songs.","Link copied","Could not share link","Unable to load song requests","Close this window and try again.","Loading song requests…","Type your name to find your seat"];
 export const publicGuestSearchRows: Record<string, string[]> = {
   "en": [
     "Type your first & last name",
@@ -10,7 +10,8 @@ export const publicGuestSearchRows: Record<string, string[]> = {
     "Could not share link",
     "Unable to load song requests",
     "Close this window and try again.",
-    "Loading song requests…"
+    "Loading song requests…",
+    "Type your name to find your seat"
   ],
   "ar": [
     "اكتب اسمك الأول واسم العائلة",
@@ -22,7 +23,8 @@ export const publicGuestSearchRows: Record<string, string[]> = {
     "تعذّرت مشاركة الرابط",
     "تعذّر تحميل طلبات الأغاني",
     "أغلق هذه النافذة وحاول مرة أخرى.",
-    "جارٍ تحميل طلبات الأغاني…"
+    "جارٍ تحميل طلبات الأغاني…",
+    "اكتب اسمك للعثور على مقعدك"
   ],
   "de": [
     "Geben Sie Ihren Vor- und Nachnamen ein",
@@ -34,7 +36,8 @@ export const publicGuestSearchRows: Record<string, string[]> = {
     "Link konnte nicht geteilt werden",
     "Liederwünsche konnten nicht geladen werden",
     "Schließen Sie dieses Fenster und versuchen Sie es erneut.",
-    "Liederwünsche werden geladen…"
+    "Liederwünsche werden geladen…",
+    "Geben Sie Ihren Namen ein, um Ihren Sitzplatz zu finden"
   ],
   "es": [
     "Escribe tu nombre y apellidos",
@@ -46,7 +49,8 @@ export const publicGuestSearchRows: Record<string, string[]> = {
     "No se pudo compartir el enlace",
     "No se pudieron cargar las solicitudes de canciones",
     "Cierra esta ventana e inténtalo de nuevo.",
-    "Cargando solicitudes de canciones…"
+    "Cargando solicitudes de canciones…",
+    "Escribe tu nombre para encontrar tu asiento"
   ],
   "fr": [
     "Saisissez votre prénom et votre nom",
@@ -58,7 +62,8 @@ export const publicGuestSearchRows: Record<string, string[]> = {
     "Impossible de partager le lien",
     "Impossible de charger les demandes de chansons",
     "Fermez cette fenêtre et réessayez.",
-    "Chargement des demandes de chansons…"
+    "Chargement des demandes de chansons…",
+    "Saisissez votre nom pour trouver votre place"
   ],
   "it": [
     "Inserisci nome e cognome",
@@ -70,7 +75,8 @@ export const publicGuestSearchRows: Record<string, string[]> = {
     "Impossibile condividere il link",
     "Impossibile caricare le richieste musicali",
     "Chiudi questa finestra e riprova.",
-    "Caricamento delle richieste musicali…"
+    "Caricamento delle richieste musicali…",
+    "Inserisci il tuo nome per trovare il tuo posto"
   ],
   "nl": [
     "Typ uw voor- en achternaam",
@@ -82,7 +88,8 @@ export const publicGuestSearchRows: Record<string, string[]> = {
     "Link delen is niet gelukt",
     "Nummerverzoeken konden niet worden geladen",
     "Sluit dit venster en probeer het opnieuw.",
-    "Nummerverzoeken worden geladen…"
+    "Nummerverzoeken worden geladen…",
+    "Typ uw naam om uw zitplaats te vinden"
   ],
   "ja": [
     "姓と名を入力してください",
@@ -94,7 +101,8 @@ export const publicGuestSearchRows: Record<string, string[]> = {
     "リンクを共有できませんでした",
     "曲のリクエストを読み込めませんでした",
     "このウィンドウを閉じて、もう一度お試しください。",
-    "曲のリクエストを読み込み中…"
+    "曲のリクエストを読み込み中…",
+    "名前を入力して席を見つけてください"
   ],
   "vi": [
     "Nhập tên và họ của bạn",
@@ -106,7 +114,8 @@ export const publicGuestSearchRows: Record<string, string[]> = {
     "Không thể chia sẻ liên kết",
     "Không thể tải yêu cầu bài hát",
     "Đóng cửa sổ này và thử lại.",
-    "Đang tải yêu cầu bài hát…"
+    "Đang tải yêu cầu bài hát…",
+    "Nhập tên để tìm chỗ ngồi của bạn"
   ],
   "zh": [
     "请输入名字和姓氏",
@@ -118,7 +127,8 @@ export const publicGuestSearchRows: Record<string, string[]> = {
     "无法分享链接",
     "无法加载点歌请求",
     "请关闭此窗口后重试。",
-    "正在加载点歌请求…"
+    "正在加载点歌请求…",
+    "输入您的姓名以查找座位"
   ],
   "tr": [
     "Adınızı ve soyadınızı yazın",
@@ -130,7 +140,8 @@ export const publicGuestSearchRows: Record<string, string[]> = {
     "Bağlantı paylaşılamadı",
     "Şarkı istekleri yüklenemedi",
     "Bu pencereyi kapatıp tekrar deneyin.",
-    "Şarkı istekleri yükleniyor…"
+    "Şarkı istekleri yükleniyor…",
+    "Yerinizi bulmak için adınızı yazın"
   ],
   "el": [
     "Πληκτρολογήστε το όνομα και το επώνυμό σας",
@@ -142,7 +153,8 @@ export const publicGuestSearchRows: Record<string, string[]> = {
     "Δεν ήταν δυνατή η κοινοποίηση του συνδέσμου",
     "Δεν ήταν δυνατή η φόρτωση των αιτημάτων τραγουδιών",
     "Κλείστε αυτό το παράθυρο και δοκιμάστε ξανά.",
-    "Φόρτωση αιτημάτων τραγουδιών…"
+    "Φόρτωση αιτημάτων τραγουδιών…",
+    "Πληκτρολογήστε το όνομά σας για να βρείτε τη θέση σας"
   ],
   "hi": [
     "अपना पहला नाम और उपनाम लिखें",
@@ -154,6 +166,7 @@ export const publicGuestSearchRows: Record<string, string[]> = {
     "लिंक साझा नहीं किया जा सका",
     "गीत अनुरोध लोड नहीं हो सके",
     "इस विंडो को बंद करके फिर से कोशिश करें।",
-    "गीत अनुरोध लोड हो रहे हैं…"
+    "गीत अनुरोध लोड हो रहे हैं…",
+    "अपनी सीट ढूँढने के लिए अपना नाम लिखें"
   ]
 };

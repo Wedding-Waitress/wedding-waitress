@@ -30,7 +30,7 @@ export const GuestSeatingResult: React.FC<GuestSeatingResultProps> = ({ guest, e
       <div className="ww-box card-elevated" style={assignmentBox}><dt style={{ color: '#000', fontSize: 20, marginBottom: 8 }}>{copy[1]}</dt><dd data-guest-table style={{ margin: 0, fontSize: 20, fontWeight: 600, overflowWrap: 'anywhere' }}>{tableLabel}</dd></div>
       <div className="ww-box card-elevated" style={assignmentBox}><dt style={{ color: '#000', fontSize: 20, marginBottom: 8 }}>{copy[2]}</dt><dd data-guest-seat style={{ margin: 0, fontSize: 20, fontWeight: 600 }}>{seat != null ? <>{copy[4]} {seat}</> : copy[5]}</dd></div>
     </dl>
-    {guest.table_id ? <TableVisualization tableId={guest.table_id} tableNumber={tableNumber ?? 0} eventId={eventId} onTableReady={receiveTable} /> : <p role="status" className="text-center py-6">{copy[6]}</p>}
+    {guest.table_id ? <TableVisualization tableId={guest.table_id} tableNumber={tableNumber ?? 0} eventId={eventId} selectedGuestId={guest.id} onTableReady={receiveTable} /> : <p role="status" className="text-center py-6">{copy[6]}</p>}
     <div data-guest-organizer-contact role="note" className="ww-box card-elevated" style={{ ...assignmentBox, marginTop: 18, padding: 18, lineHeight: 1.55 }}><div style={{ fontWeight: 600 }}>{copy[7]}</div><div>{copy[8]}</div></div>
   </section>;
 };

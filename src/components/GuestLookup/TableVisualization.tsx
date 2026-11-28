@@ -1,8 +1,8 @@
 import React, { useEffect, useRef, useState } from 'react';
-import { Card, CardContent, CardHeader, CardTitle } from '@/components/ui/card';
+import { Card, CardContent } from '@/components/ui/card';
 import { Badge } from '@/components/ui/badge';
-import { Users, MapPin, Utensils } from 'lucide-react';
-import {useGuestExperienceClient,useGuestExperiencePreview} from '@/contexts/GuestExperiencePreviewContext';
+import { MapPin, Utensils } from 'lucide-react';
+import {useGuestExperienceClient} from '@/contexts/GuestExperiencePreviewContext';
 import { normalizeRsvp } from '@/lib/rsvp';
 import { getHeadParticipantName, parseHeadSeatingOrder, type HeadSeatEntry, type TablePurpose } from '@/lib/headTable';
 
@@ -31,6 +31,7 @@ interface TableData {
 export interface TableAssignmentSummary { tableNumber: number | null; tableName: string; seats: Record<string, number | null> }
 
 interface TableVisualizationProps {
+  selectedGuestId?: string | null;
   onTableReady?: (summary: TableAssignmentSummary | null) => void;
   navigation?: React.ReactNode;
   tableId: string;
@@ -39,6 +40,7 @@ interface TableVisualizationProps {
 }
 
 export const TableVisualization: React.FC<TableVisualizationProps> = ({
+  selectedGuestId,
   tableId,
   tableNumber,
   navigation,
@@ -176,16 +178,6 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
   return (
     <Card className="w-full card-elevated">
       {navigation}
-      <CardHeader className="text-center">
-        {tableData.notes && (
-          <div className="flex items-center justify-center mt-1">
-            <Badge variant="outline" className="text-xs">
-              {tableData.notes}
-            </Badge>
-          </div>
-        )}
-      </CardHeader>
-      
       <CardContent className={tableData?.table_purpose === 'head' || !tableData ? 'p-6' : 'p-0 md:p-6'}>
         {tableData.table_purpose === 'head' ? (
           <div data-head-table-order="left-to-right-as-viewed-by-guests" className="mx-auto mt-4 w-full max-w-3xl pb-2">
@@ -287,7 +279,9 @@ export const TableVisualization: React.FC<TableVisualizationProps> = ({
                     }`} />
                     <div>
                       <div data-live-body data-qr-seated-guest-name className="text-sm font-medium">
-                        {guest.first_name} {guest.last_name}
+                        {guest.id === selectedGuestId ? (
+                          <mark data-qr-selected-guest-name={guest.id}>{guest.first_name} {guest.last_name}</mark>
+                        ) : <>{guest.first_name} {guest.last_name}</>}
                       </div>
                       {guest.dietary && guest.dietary !== 'NA' && (
                         <div data-live-body className="flex items-center gap-1 text-xs text-muted-foreground">

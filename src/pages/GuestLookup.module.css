@@ -1019,14 +1019,25 @@
 :global(#root#root#root) .page :is(input[data-guest-name-search],[data-guest-search-result]) {
   font-size:24px!important;line-height:32px!important;
 }
-:global(#root#root#root) .page input[data-guest-name-search] { min-height:52px; }
+:global(#root#root#root) .page input[data-guest-name-search] {
+  min-height:52px;height:100%!important;grid-area:1 / 1;
+}
 :global(#root#root#root) .page input[data-guest-name-search]::placeholder {
-  font-size:20px!important;
+  color:transparent!important;-webkit-text-fill-color:transparent!important;
 }
-:global(#root#root#root) .page .searchInstruction {
-  font-size:20px!important;line-height:28px!important;
-  margin:0 0 12px;text-align:center;overflow-wrap:anywhere;
+.searchField {
+  position:relative;display:grid;grid-template-columns:minmax(0,1fr);min-width:0;
 }
+/* A wrapping placeholder layer keeps the full translated prompt inside the
+   input at narrow widths. Its hidden state retains height while typing. */
+:global(#root#root#root) .page .searchPrompt {
+  grid-area:1 / 1;align-self:center;z-index:1;pointer-events:none;
+  padding:12px 40px;margin:0;min-width:0;max-width:100%;
+  font-size:20px!important;font-weight:500!important;line-height:26px!important;
+  color:#21120b!important;-webkit-text-fill-color:currentColor!important;
+  text-align:center;white-space:normal;overflow-wrap:anywhere;
+}
+.searchPrompt[data-search-prompt-hidden="true"] { visibility:hidden; }
 :global(#root#root#root) .page [data-guest-search-result] {
   overflow-wrap:anywhere;white-space:normal;min-width:0;
 }
@@ -1040,7 +1051,13 @@
   font-size:20px!important;line-height:28px!important;white-space:normal;
 }
 :global(#root#root#root) .page [data-qr-seated-guest-status] {
-  font-size:24px!important;line-height:32px!important;white-space:normal;
+  font-size:20px!important;line-height:28px!important;white-space:normal;
+}
+:global(#root#root#root) .page [data-qr-selected-guest-name] {
+  color:var(--qr-guest-ink,#21120b)!important;-webkit-text-fill-color:currentColor!important;
+  background:#f7dca1;border:1px solid #b28b4b;border-radius:4px!important;
+  padding:0 4px;font-size:inherit;font-weight:inherit;line-height:inherit;
+  box-decoration-break:clone;-webkit-box-decoration-break:clone;
 }
 :global(#root#root#root) .page [data-qr-seated-guest-row] > :first-child {flex:1;min-width:0;}
 :global(#root#root#root) .page [data-qr-seated-guest-row] > :last-child {flex-shrink:0;max-width:44%;}

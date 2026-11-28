@@ -38,6 +38,7 @@ it.each([
   await waitFor(() => expect(tableText(container)).toBe(label));
   expect(seatText(container)).toBe('Seat 4');
   expect(container.querySelector('[data-qr-seated-guest-seat]')).toHaveTextContent('Seat 4');
+  expect(container.querySelector('[data-qr-selected-guest-name]')).toHaveTextContent('Test Guest');
 });
 
 it('uses the canonical table and seat instead of stale guest numeric fields', async () => {
